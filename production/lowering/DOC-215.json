@@ -1,0 +1,533 @@
+{
+ "id": "DOC-215",
+ "shortName": "Signature Reminder",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "mandatory touch exempt from caps",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.requires",
+   "event": "document_requires_signature",
+   "meaning": "an issued or prepared document version requiring signature by identified parties",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a document version requires signature, with required signers, their signing authority and any signing order defined",
+    "a signature validity window is either defined by the request's own terms or explicitly recorded as not set",
+    "no signature process is already open for this version"
+   ],
+   "instanceKey": [
+    "document_version_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.define",
+   "does": "Define the required signers, the signing authority each of them needs, the signing order where one applies, the scope of what is being signed, and the validity window where one is defined",
+   "writes": [
+    {
+     "field": "signature_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.define",
+   "key": "document_version_id + definition"
+  },
+  {
+   "type": "condition",
+   "node": "c.window",
+   "asks": "Is a signature validity window defined?",
+   "branches": [
+    {
+     "label": "Defined",
+     "observes": null,
+     "test": "the process or the document states how long the request stands",
+     "to": "a.bounded"
+    },
+    {
+     "label": "Not defined",
+     "observes": null,
+     "test": "nothing states an expiry for the request",
+     "to": "a.unbounded"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.bounded",
+   "does": "Record the window as defined, so the request's own terms decide when it lapses",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.unbounded",
+   "does": "Record that no expiry was set rather than assigning one. An invented signature deadline voids a request nobody withdrew, and the signer discovers it at the moment their signature is refused",
+   "writes": [
+    {
+     "field": "signature_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.request",
+   "touch": "t-request",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "signature.reminders",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.version",
+    "s.outstanding-only",
+    "s.one-reminder",
+    "s.no-invented-deadline",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.request",
+   "touch": "t-request",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the request is bound to a document version and must be kept; the signing destination is reached from it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.request",
+   "touch": "t-request",
+   "stage": "signature-request",
+   "purpose": "Issue the request to each required signer, bound to the exact document version, naming the authority they sign under and the validity boundary where one is defined.",
+   "brief": "Record AWAITING_SIGNATURE and issue the request to each required signer, bound to the exact document version. A signature request that does not name a version collects marks against nothing anybody can identify afterwards",
+   "destination": {
+    "target": "signing-page-for-version",
+    "boundTo": "document_version_id",
+    "mustNotClaim": [
+     "a deadline the request's terms do not set"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.window"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.request",
+   "key": "document_version_id + signer_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.signatures",
+   "timing": {
+    "key": "signature.reminder_point",
+    "class": "reminder-before-attribute",
+    "default": {
+     "min": "3 days",
+     "max": "5 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "validity_ends_at",
+   "onTimeout": "c.reminder-useful"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.signatures",
+   "cancelOn": [
+    {
+     "event": "signer_signed",
+     "meaning": "a required signer signs"
+    },
+    {
+     "event": "signer_declined",
+     "meaning": "a signer declines"
+    },
+    {
+     "event": "document_version_superseded",
+     "meaning": "the document version is superseded"
+    }
+   ],
+   "onEvent": "c.event"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.signatures",
+   "reads": "the version and each signer re-read: who has signed the correct version, who declined, whether the version still stands",
+   "before": "c.reminder-useful"
+  },
+  {
+   "type": "condition",
+   "node": "c.reminder-useful",
+   "asks": "Would a reminder still change anything?",
+   "branches": [
+    {
+     "label": "It would",
+     "observes": null,
+     "test": "signatures are still outstanding, the exact version is still current, the request is still valid, and no reminder has been sent on it yet",
+     "to": "a.remind"
+    },
+    {
+     "label": "It would not",
+     "observes": null,
+     "test": "a reminder has already been sent, or the version or request no longer stands",
+     "to": "w.expiry"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t-remind",
+   "mandatory": false,
+   "pressureClass": "none",
+   "localCap": {
+    "value": {
+     "key": "signature.reminders",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.version",
+    "s.outstanding-only",
+    "s.one-reminder",
+    "s.no-invented-deadline",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t-remind",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the request is bound to a document version and must be kept; the signing destination is reached from it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t-remind",
+   "stage": "reminder",
+   "purpose": "Remind only the signers still outstanding, once, naming the action left and the real validity boundary.",
+   "brief": "Remind only the signers still outstanding, naming the action left and the real validity boundary. One reminder, and any signature, decline or supersession cancels it immediately - a second chase turns a request into pressure",
+   "destination": {
+    "target": "signing-page-for-version",
+    "boundTo": "document_version_id",
+    "mustNotClaim": [
+     "a deadline the request's terms do not set"
+    ]
+   },
+   "label": "RECOMMENDED_DEFAULT",
+   "prerequisites": [
+    "c.reminder-useful"
+   ],
+   "after": "t-request"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "document_version_id + signer_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.expiry",
+   "timing": {
+    "key": "signature.validity_window",
+    "class": "attribute-bound",
+    "default": "validity_ends_at where defined, otherwise the process's recorded review point",
+    "basis": "attribute-bound",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "validity_ends_at",
+   "onTimeout": "a.expired"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.expiry",
+   "cancelOn": [
+    {
+     "event": "signer_signed",
+     "meaning": "a required signer signs"
+    },
+    {
+     "event": "signer_declined",
+     "meaning": "a signer declines"
+    },
+    {
+     "event": "document_version_superseded",
+     "meaning": "the document version is superseded"
+    }
+   ],
+   "onEvent": "c.event"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.expiry",
+   "reads": "the version and each signer re-read at the boundary",
+   "before": "a.expired"
+  },
+  {
+   "type": "condition",
+   "node": "c.event",
+   "asks": "What happened?",
+   "branches": [
+    {
+     "label": "A required signer signed the correct version",
+     "observes": null,
+     "test": "the signature is against the version this process governs, by a signer with the required authority",
+     "to": "a.record-sig"
+    },
+    {
+     "label": "A signer declined",
+     "observes": null,
+     "test": "a required signer refused",
+     "to": "a.declined"
+    },
+    {
+     "label": "The version was superseded",
+     "observes": null,
+     "test": "the document this process is bound to is no longer the current one",
+     "to": "a.superseded"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.record-sig",
+   "does": "Record the signature evidence - who signed, when, which version, and under what authority. The version is part of the evidence rather than context around it",
+   "writes": [
+    {
+     "field": "signature_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": {
+    "key": "signature.required_signers",
+    "default": null,
+    "basis": null,
+    "required": true
+   }
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.record-sig",
+   "key": "document_version_id + signer_id + signature"
+  },
+  {
+   "type": "condition",
+   "node": "c.complete",
+   "asks": "Are all required signatures now complete?",
+   "branches": [
+    {
+     "label": "All complete",
+     "observes": null,
+     "test": "every required signer has signed the governed version",
+     "to": "a.fully-signed"
+    },
+    {
+     "label": "Some remain",
+     "observes": null,
+     "test": "at least one required signature is outstanding",
+     "to": "w.signatures"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.fully-signed",
+   "does": "Record FULLY_SIGNED against this version. One signature is not a signed document when several are required, and a process that proceeds on the first one proceeds on an agreement that does not exist yet",
+   "writes": [
+    {
+     "field": "signature_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.fully-signed",
+   "key": "document_version_id + fully signed"
+  },
+  {
+   "type": "handoff",
+   "node": "h.effective",
+   "to": "DOC-216",
+   "on": "a document with all required signatures complete",
+   "carries": [
+    "every signature, with its signer, authority, time and the version it binds to",
+    "the explicit fact that signed is not effective - what makes it take effect is a separate question with its own conditions"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.declined",
+   "does": "Record DECLINED with the signer and the reason where one was given. A decline is a business outcome rather than a failure, and the process that required the document decides what follows from it",
+   "writes": [
+    {
+     "field": "signature_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.declined",
+   "key": "document_version_id + signer_id + decline"
+  },
+  {
+   "type": "handoff",
+   "node": "h.declined",
+   "to": "external:operational-resolution",
+   "on": "a required signer declining",
+   "carries": [
+    "who declined, when and on what grounds where stated",
+    "the explicit fact that the document remains validly issued - what is absent is agreement rather than the artifact"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "document_version_id",
+     "signer_id",
+     "declined_at",
+     "reason_if_given",
+     "signatures_collected"
+    ]
+   }
+  },
+  {
+   "type": "state-update",
+   "node": "a.superseded",
+   "does": "End the signature process because the version it was against no longer stands, and suppress the outstanding requests. Signatures already collected are not carried to the successor - the successor is a different document, and signing it is a new request",
+   "writes": [
+    {
+     "field": "signature_log",
+     "mode": "append"
+    },
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.superseded",
+   "key": "document_version_id + superseded"
+  },
+  {
+   "type": "exit",
+   "node": "x.superseded",
+   "class": "invalid-state",
+   "state": "signature process ended; its version was superseded before completion",
+   "reEntry": "the successor version raises its own signature process. The signatures collected here remain evidence about the version they were made against"
+  },
+  {
+   "type": "state-update",
+   "node": "a.expired",
+   "does": "Record SIGNATURE_EXPIRED. The request lapsed - nobody declined and nothing was decided, and reporting it as a refusal misstates what the signer did",
+   "writes": [
+    {
+     "field": "signature_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.expired",
+   "key": "document_version_id + expired"
+  },
+  {
+   "type": "exit",
+   "node": "x.expired",
+   "class": "timeout",
+   "state": "SIGNATURE_EXPIRED; signatures collected so far remain evidence, the set is incomplete",
+   "reEntry": "a fresh request against the same version is a new process. Whether the partial signatures still count is governed by the document's own rules rather than assumed"
+  }
+ ]
+}

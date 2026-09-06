@@ -35,11 +35,11 @@ export const copy = {
         rest: [
           {
             title: "Lifecycle and CRM programs",
-            body: "Onboarding, activation, renewal and winback journeys built from the events a product already emits, not from a template.",
+            body: "Customer journeys open on their practitioner view; the other three surfaces open on the graph. Every surface searches and filters by category and goal.",
           },
           {
             title: "Paid acquisition",
-            body: "Google, Meta and app-install channels, run against post-install behaviour rather than install counts.",
+            body: "Müşteri journey'leri uygulayıcı görünümüyle, diğer üç yüzey grafla açılır. Her yüzey kategori ve hedefe göre arar ve filtreler.",
           },
           {
             title: "Experimentation and CRO",
@@ -83,10 +83,19 @@ export const copy = {
       // reshape doesn't touch either of those.
       intro: "Open-source tools and experiments built around problems I kept running into. Mostly growth, lifecycle and analytics. Occasionally something else.",
       viewAll: "Explore the archive",
+      // `short` is the project's compact name - the hero's tab rail, the
+      // header dropdown and the section eyebrows all use it, because the
+      // full names run to five words and a tab cannot. `tagline` is the
+      // one-line claim under the name in the dropdown and the hero rail;
+      // every number in one traces to the same `proof` already here, and
+      // the {count}/{categories} tokens are filled by withJourneyCount at
+      // render exactly like `desc`.
       projects: [
         {
           name: "Lifecycle Marketing Journey Builder",
           slug: "claude-lifecycle",
+          short: "Journey Builder",
+          tagline: "Signals in, lifecycle journeys out",
           desc: "Turns the customer signals you already track into lifecycle journeys you can actually trigger, measure and improve.",
           tags: ["Lifecycle", "CRM", "Claude Code"],
           proof: "26 journey patterns",
@@ -99,6 +108,8 @@ export const copy = {
         {
           name: "Canonical Journey Library",
           slug: "lifecycle-card-archive",
+          short: "Journey Library",
+          tagline: "{count} reusable lifecycle journeys, {categories} categories",
           desc: "A library of {count} reusable lifecycle journeys - from activation and retention to risk, consent, incidents and subscriptions.",
           tags: ["Lifecycle", "Orchestration"],
           proof: "{count} journeys · {categories} categories",
@@ -107,6 +118,8 @@ export const copy = {
         {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
+          short: "A/B Test Playbook",
+          tagline: "211 real test scenarios, set up properly",
           desc: "211 real-world A/B test scenarios with the hypothesis, primary metric, guardrails and statistical checks needed to run them properly.",
           tags: ["Experimentation", "CRO", "Claude Code"],
           proof: "211 scenarios",
@@ -118,6 +131,8 @@ export const copy = {
         {
           name: "Marketing Dashboard Builder",
           slug: "dashboard-builder",
+          short: "Dashboard Builder",
+          tagline: "Messy exports in, comparable metrics out",
           desc: "Turns messy marketing exports into validated, comparable metrics and decision-ready dashboards.",
           tags: ["Analytics", "Data Quality", "Claude Code"],
           proof: "11 dashboard templates",
@@ -129,7 +144,9 @@ export const copy = {
         {
           name: "Google Ads Change History Explorer",
           slug: "google-ads-change-history-dashboard",
-          desc: "Turns Google Ads change history into a searchable dashboard - showing what changed, who changed it, when it happened and how significant it was.",
+          short: "Change History Explorer",
+          tagline: "Every Google Ads change, searchable",
+          desc: "Turns Google Ads change history into a searchable dashboard - the exact campaign, category, old value, new value and timestamp behind every change.",
           tags: ["Google Ads", "Analytics", "Python"],
           proof: "Zero dependencies · 57 self-tests",
           links: [
@@ -140,6 +157,8 @@ export const copy = {
         {
           name: "Numerspace",
           slug: "numerspace",
+          short: "Numerspace",
+          tagline: "97 free calculators, no paywall",
           desc: "Free calculators for marketing, finance, health, career and everyday decisions - fast answers, no account or paywall.",
           tags: ["Web App", "Calculators"],
           // Was "75+ tools" - stale. numerspace.com's own sitemap lists 97
@@ -162,12 +181,70 @@ export const copy = {
           "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Search, or filter by goal - each entry is a graph, not a sequence.",
         searchPlaceholder: "Search journeys...",
         goalLabel: "Goal",
-        allGoals: "All Goals",
+        allGoals: "All goals",
         removeFilterLabel: "Remove {label} filter",
         clearAll: "Clear all",
         results: "journeys",
         empty: "Nothing matches those filters.",
         nodesLabel: "nodes",
+        /* vNext practitioner view labels - the section names of the touch
+           plan a migrated Customer Journey renders above its graph. */
+        practitioner: {
+          trigger: "Trigger",
+          notEnough: "Not enough on its own",
+          entity: "Entity",
+          instanceKey: "instance",
+          whoEnters: "Who enters",
+          suppressedWhen: "Suppressed when",
+          orchestration: "Recommended orchestration",
+          onClassification: "sent on classification - no wait before it",
+          cancelOn: "cancelled by",
+          recheck: "re-read before sending",
+          checks: "checks",
+          mandatory: "mandatory",
+          priority: "priority",
+          priorityReason: "why this priority",
+          destination: "destination",
+          boundTo: "bound to",
+          mustNotClaim: "must not claim",
+          after: "after",
+          channelRoles: "Channel roles",
+          fallback: "delivery fallback",
+          stopsWhen: "Stops when",
+          handoff: "handoff",
+          configure: "Configure",
+          requiredData: "Required data",
+          events: "Semantic events to map",
+          attributes: "Attributes",
+          optional: "optional",
+          collision: "Collision & priority",
+          pressureClass: "pressure class",
+          localCap: "local cap",
+          cooldown: "cooldown",
+          competition: "competition",
+          mandatoryTouches: "mandatory touches",
+          noAction: "No action when",
+          noActionNote: "the suppressions above are recorded outcomes, never a fallback to another channel",
+          measurement: "Measurement",
+          journeyOutcome: "journey outcome",
+          businessOutcome: "business outcome",
+          scope: "observed",
+          self: "in this journey",
+          through: "through",
+          until: "until",
+          attribution: "attribution",
+          holdout: "holdout",
+          guardrails: "guardrails",
+          presets: "Presets",
+          technical: "Technical logic",
+          preset: "Preset",
+          presetOf: "preset of",
+          presetOverrides: "sets",
+          presetNoOverrides: "keeps every default of its parent; only the destination and the vocabulary differ",
+          relative: { trigger: "after the trigger", "previous-touch": "after the previous touch", attribute: "relative to" },
+          roles: { "in-session": "in-session", "low-friction": "low-friction", persistent: "persistent", urgent: "urgent", human: "human" },
+          labels: { CANONICAL_RULE: "canonical rule", RECOMMENDED_DEFAULT: "recommended default", CONFIG_REQUIRED: "config required", OPTIONAL_STRATEGY: "optional strategy" },
+        },
         /* The canvas caption's own count words. Singular/plural pairs rather
            than one invariant form, because a journey really can carry exactly
            one handoff or one exit - `nodesLabel` above gets away with a single
@@ -193,6 +270,137 @@ export const copy = {
           zoomOut: "Zoom out",
           fitToView: "Fit to view",
           reset: "Reset zoom",
+        },
+      },
+      /* Two dedicated child list pages under /lab/journeys, splitting the
+         same JOURNEY_ROWS by whether a journey's own work ever reaches a
+         person (canonical-view.ts's COMMUNICATION_JOURNEY_ROWS /
+         INTERNAL_JOURNEY_ROWS) - added alongside the full unified list
+         above, not replacing it. All other list microcopy (search
+         placeholder, goal filter, empty state, card labels) is shared from
+         `page` above; only title/intro/crumb differ per split. */
+      /* The /lab/journeys HUB, rebuilt (2026-09) in the shape of the
+         /lab/claude-lifecycle product page: a claim, one real artifact as
+         its witness, the two halves, three schema stories, the library
+         spread, one dark plate. Every {count}/{categories}/{rules} is
+         filled by withCanonicalCount from the live library - nothing here
+         is a typed number. */
+      journeysHub: {
+        eyebrow: "Lab / Canonical Journey Library",
+        title: "{count} lifecycle state machines. Every one a graph you can read.",
+        sub: "Domain-neutral journeys across {categories} categories, held together by {rules} orchestration rules. Each one names what starts it, where it forks, how long it waits and which lifecycle owns the person next - and none of them carries message copy.",
+        ctaCommunication: "Customer journeys",
+        ctaInternal: "Operations",
+        proof: ["Domain-neutral", "Graphs, not sequences", "No message copy"],
+        split: {
+          eyebrow: "Two ways in",
+          title: "Split by whether the work reaches a customer.",
+          body: "Customer journeys reach a person - a touch plan, channel roles, a contact model. Operations is the internal work that resolves a promise once it's made - approvals, access, incidents, payments, deployments. Every journey also reads two supporting surfaces, the silent lifecycle states and the runtime mechanisms underneath - open from the journey itself, or browse them on their own below.",
+        },
+        stories: {
+          eyebrow: "What the schema enforces",
+          title: "Three things every journey has to say.",
+        },
+        final: {
+          eyebrow: "Start reading",
+          title: "Pick a surface and open a journey.",
+          body: "Customer journeys open on their practitioner view; the other three surfaces open on the graph. Every surface searches and filters by category and goal.",
+        },
+      },
+      journeysSplit: {
+        /* The four product surfaces. Labels are the practitioner's words;
+           the classification itself is read from each journey by
+           src/canonical/surface.ts, never kept here. */
+        surfaceLabels: {
+          "customer-journeys": "Customer journeys",
+          "lifecycle-states": "Lifecycle states",
+          "runtime-mechanisms": "Runtime mechanisms",
+          "operational-workflows": "Operations",
+        },
+        surfaceBlurbs: {
+          "customer-journeys": "Journeys whose own actions reach a customer - each with a touch plan, channel roles, a contact model and a measurement decision a practitioner can implement without inventing the cadence.",
+          "lifecycle-states": "Silent customer lifecycle states: the state models the communicating journeys depend on. Nothing here sends anything; these are dependencies, not campaigns.",
+          "runtime-mechanisms": "The machinery every journey runs on - send eligibility, contactability, delivery recovery, retry, cooldown. Contracts, not customer journeys.",
+          "operational-workflows": "The internal work that resolves a promise once it's made: approvals and ownership, account and access changes, incident response, payment and document resolution, deployments. Not customer-facing - your operations team's own surface.",
+        },
+        surfaces: {
+          "customer-journeys": {
+            title: "Customer journeys",
+            intro: "{count} customer journeys and {presets} practitioner presets - each one reaches a customer, by message or by routing the work to a person. Every journey opens on its practitioner view - trigger, who enters, the touch plan with its timing and channel roles, what stops it, what to configure, what to measure - with the graph underneath as the technical logic. Search by the names you already use.",
+          },
+          "lifecycle-states": {
+            title: "Lifecycle states",
+            intro: "{count} silent customer lifecycle states. They send nothing: they hold the state a communicating journey reads, re-reads and hands to. Browse them as dependencies and linked supporting logic, not as campaigns to launch.",
+          },
+          "runtime-mechanisms": {
+            title: "Runtime mechanisms",
+            intro: "{count} runtime mechanisms - the contracts customer journeys rely on for send eligibility, contactability, delivery failure, retry and cooldown. Listed as supporting architecture, not as journeys.",
+          },
+          "operational-workflows": {
+            title: "Operations",
+            intro: "{count} operational workflows - the internal work a business does to keep its promises: reviews and decisions, account and access changes, service and fulfillment, systems and reliability. Filter by type to browse by what kind of work it is.",
+          },
+        },
+        presetsTitle: "Presets",
+        presetsIntro: "Named specialisations of a canonical journey: the same graph, the same touches and exits, with config values, a destination and vocabulary set for a recognisable use case. A preset opens its parent with those values applied.",
+        presetBadge: "Preset",
+        presetOf: "preset of",
+        /* The hub's Split() section - heading over the two secondary
+           surfaces, presented smaller than Customer Journeys/Operations
+           because neither is a thing a practitioner browses to on its own
+           (see journeysSplit.surfaceBlurbs). Both stay fully live, linked
+           and searchable at their existing routes. */
+        referenceStrip: "Also part of the library - opened from a journey, not usually browsed on their own",
+        silentBadge: "Silent state",
+        mechanismBadge: "Mechanism",
+        communicationLabel: "Communication journeys",
+        internalLabel: "Internal journeys",
+        hubIntro: "{count} domain-neutral lifecycle state machines across {categories} categories, held together by {rules} orchestration rules. Split by whether a journey's own work ever reaches a person - each half is searchable and filterable on its own page, and each entry is a graph, not a sequence.",
+        browseAll: "Browse all {count} journeys",
+        communicationBlurb: "Journeys that reach a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task).",
+        internalBlurb: "Journeys that resolve entirely inside the system. No message, no human route - state machines with no communication of their own.",
+        showMore: "Show more ({count})",
+        showLess: "Show less",
+        /* Singular/plural pair, same convention (and same reason) as
+           `page.decisionsLabel` above: grouping by Goal produces real
+           groups of exactly one - 5 of the 22 communication groups - and
+           "1 journeys" is wrong where "281 journeys" never was. */
+        journeysLabel: ["journey", "journeys"],
+        /* Gallery controls. `internalBadge` is the card marker for a journey
+           with no channels - it has to read as a statement ("this one
+           reaches nobody"), not as a missing value. */
+        internalBadge: "Internal",
+        /* Customer Journeys only - the 3 journeys that reach a customer by
+           routing the work to a person (sales, task) rather than by
+           message. Prepended to the card's own Sales/Task channel badge,
+           not a replacement for it - see isHumanRoutingRow in
+           canonical-view.ts. */
+        humanRoutingBadge: "Human routing",
+        categoryFilterLabel: "Category",
+        allCategories: "All categories",
+        channelFilterLabel: "Channel",
+        allChannels: "All channels",
+        /* Operations surface only (see lib/operational-work-type.ts) - a
+           coarser, practitioner-facing grouping of the same 18 categories
+           that surface carries, replacing Goal there (23 near-flat values,
+           tuned for customer journeys, not internal work). */
+        workTypeFilterLabel: "Type",
+        allWorkTypes: "All types",
+        workTypeLabels: {
+          "reviews-decisions": "Reviews & decisions",
+          "account-access": "Account & access",
+          "service-fulfillment": "Service & fulfillment",
+          "systems-reliability": "Systems & reliability",
+        },
+        communication: {
+          title: "Communication journeys",
+          intro:
+            "{count} of the library's journeys carry at least one action that reaches a person - by message (email, SMS, push, in-app, WhatsApp) or by routing the work to someone (sales, task). Grouped by category - search, or filter by category, channel or goal.",
+        },
+        internal: {
+          title: "Internal journeys",
+          intro:
+            "{count} of the library's journeys resolve entirely inside the system - no message, no human route, nothing that reaches a person. State machines with no communication of their own, grouped by category - search, or filter by category or goal.",
         },
       },
     },
@@ -296,8 +504,8 @@ export const copy = {
       metaTitle: "Contact - Ali Demirbaş",
       metaDesc: "Reach Ali Demirbaş by email or connect on LinkedIn.",
       eyebrow: "Contact",
-      title: "Let's collaborate on something great.",
-      sub: "I'm always looking to collaborate on interesting projects with great people. Need a supportive hand? I have two!",
+      title: "Let's get in touch.",
+      sub: "Always happy to meet interesting people, exchange ideas, and have a good conversation about growth, products, or the work shared here.",
       linkedinLabel: "Connect on LinkedIn",
       linkedinGo: "View profile",
       emailLabel: "Send an email",
@@ -305,9 +513,9 @@ export const copy = {
       emailPill: "E-Mail",
       reasonsTitle: "What brings you here",
       reasons: [
-        { title: "A role or opportunity", desc: "Open to growth/CRM leadership roles - full-time or fractional." },
-        { title: "A project or collaboration", desc: "Lifecycle marketing, measurement setup, or one of the open-source Lab tools." },
-        { title: "A question", desc: "About a calculator, a journey pattern, or anything else on this site." },
+        { title: "Just saying hello", desc: "Want to connect, introduce yourself, or simply say hi." },
+        { title: "An idea or conversation", desc: "Growth, lifecycle, experimentation, measurement - or something worth discussing." },
+        { title: "A question", desc: "About a calculator, journey pattern, open-source project, or anything else on this site." },
       ],
       scheduleTitle: "Schedule a call",
       scheduleSub: "Book a 30 minute intro call.",
@@ -318,7 +526,7 @@ export const copy = {
       formSubject: "Subject",
       formMessage: "Your message",
       formSubmit: "Open in email",
-      formNote: "Opens a pre-filled draft in your email app - this site has no backend to send it for you.",
+      formNote: "Opens a pre-filled draft in your email app - this site doesn't send your message directly.",
     },
     /* Journey Builder PRODUCT PAGE (/lab/claude-lifecycle). New page this
        round - the project previously existed only as a Lab index card
@@ -333,7 +541,6 @@ export const copy = {
       eyebrow: "Lab / Journey Builder",
       title: "Lifecycle journeys as state machines, not campaign templates.",
       sub: "Every journey here is a graph: what starts it and what deliberately doesn't, where it forks and what each arm means, how long it waits and what happens when that runs out, and which lifecycle owns the person next.",
-      ctaLibrary: "Explore the library",
       ctaJourney: "Open this journey",
       proof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
       canvas: {
@@ -411,6 +618,72 @@ export const copy = {
         abTest: "A/B Test Playbook",
         abTestDesc: "The experimentation side of the same practice.",
       },
+      whyDifferent: {
+        eyebrow: "Why claude-lifecycle",
+        title: "Why claude-lifecycle is different",
+        feature1: {
+          title: "Data quality is scored, not assumed",
+          body: "A 0-100 Data Quality Score decides journey depth before a single journey is written: under 40 buys simple 3-5 step flows, 40-69 standard 4-7 step flows with one branch, 70+ unlocks branched 7-12 step behavioral journeys. The same portfolio never ships to a three-event startup and a mature e-commerce store.",
+        },
+        feature2: {
+          title: "A portfolio, not a listicle",
+          body: "Eligibility is computed per pattern from required-event signatures across the engine's documented pattern library - abandoned cart, trial conversion, winback and more - each scaling its own depth and channels to what your data actually supports. What your data can't support yet becomes a tracking plan naming exactly which event unlocks it, not a locked feature.",
+        },
+        feature3: {
+          title: "Copy is an engineered artifact",
+          body: "Every channel carries hard limits, not house style guesses: email subject 20-50 characters, SMS 160 GSM-7 characters, push title 40 / body 120. A reviewer agent checks each message against its channel's rules before you see it.",
+        },
+      },
+      carousel: {
+        eyebrow: "The pattern engine",
+        title: "One engine, a different portfolio for every business",
+        body: "26 documented blueprints are the knowledge base, not a fixed catalog - each one scales its own depth (3 to 12 steps), branches and channels to what your data actually supports, so no two businesses get the same output. Three are worked out below exactly as the engine's own knowledge base defines them.",
+      },
+      faq: {
+        eyebrow: "FAQ",
+        title: "Questions? Answers.",
+        items: [
+          {
+            q: "What is claude-lifecycle?",
+            a: "claude-lifecycle is an open-source lifecycle architecture library for structuring customer journeys as explicit states, branches, waits, handoffs and exits. It is designed to provide a stronger starting point for lifecycle planning instead of beginning every automation from a blank canvas.",
+          },
+          {
+            q: "Is claude-lifecycle a journey builder or a journey library?",
+            a: "It is primarily a structured journey library and architecture system. The journeys define lifecycle logic and reusable patterns that can then be adapted to the tools, channels and data model used by a specific product or business.",
+          },
+          {
+            q: "What does a journey contain?",
+            a: "A journey can contain triggers, conditions, actions, waits, handoffs and exits. These states make entry logic, branching behavior, timing, transitions and terminal outcomes explicit rather than leaving important lifecycle behavior undefined.",
+          },
+          {
+            q: "How many journeys are included?",
+            a: "The current library contains {count} lifecycle journeys organized across {categories} categories.",
+          },
+          {
+            q: "Can I adapt the journeys to my own product?",
+            a: "Yes. The journeys are intended as reusable starting points rather than rigid implementations. Teams can adapt triggers, conditions, timing and downstream actions while preserving the underlying lifecycle logic.",
+          },
+          {
+            q: "What is a handoff?",
+            a: "A handoff explicitly transfers lifecycle state from one journey to another. Instead of treating workflows as isolated automations, handoffs make the relationship between journeys and the state being carried forward visible.",
+          },
+          {
+            q: "How does validation work?",
+            a: "Validation checks whether important structural rules are complete, including entry states, condition branches, bounded waits, handoffs and explicit exits. The goal is to identify incomplete lifecycle logic before implementation.",
+          },
+          {
+            q: "How do I use claude-lifecycle?",
+            a: "Open the GitHub repository, review the available journeys and use the project structure with Claude Code to explore, adapt and implement lifecycle patterns for your own product.",
+          },
+        ],
+      },
+      pageCta: {
+        eyebrow: "OPEN SOURCE · GITHUB",
+        title: "Build lifecycle logic from a stronger starting point.",
+        primary: "View on GitHub",
+        secondary: "Open the live demo",
+      },
+      watchDemo: "Watch demo",
     },
     abTesting: {
       metaTitle: "A/B Test Playbook - Ali Demirbaş",
@@ -688,6 +961,8 @@ export const copy = {
         {
           name: "Lifecycle Pazarlama Journey Üretici",
           slug: "claude-lifecycle",
+          short: "Journey Üretici",
+          tagline: "Sinyaller girer, lifecycle journey'ler çıkar",
           desc: "Zaten takip ettiğin müşteri sinyallerini, tetikleyebileceğin, ölçebileceğin ve geliştirebileceğin lifecycle journey'lere dönüştürür.",
           tags: ["Lifecycle", "CRM", "Claude Code"],
           proof: "26 journey deseni",
@@ -700,6 +975,8 @@ export const copy = {
         {
           name: "Canonical Journey Kütüphanesi",
           slug: "lifecycle-card-archive",
+          short: "Journey Kütüphanesi",
+          tagline: "{count} yeniden kullanılabilir lifecycle journey, {categories} kategori",
           desc: "Aktivasyon ve elde tutmadan risk, onay, olay ve aboneliğe kadar {count} yeniden kullanılabilir lifecycle journey'den oluşan bir kütüphane.",
           tags: ["Lifecycle", "Orkestrasyon"],
           proof: "{count} journey · {categories} kategori",
@@ -708,6 +985,8 @@ export const copy = {
         {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
+          short: "A/B Test Playbook",
+          tagline: "Doğru kurulmuş 211 gerçek test senaryosu",
           desc: "Gerçek dünyadan 211 A/B test senaryosu - doğru çalıştırmak için gereken hipotez, birincil metrik, guardrail'ler ve istatistiksel kontrollerle birlikte.",
           tags: ["Deneysel Test", "CRO", "Claude Code"],
           proof: "211 senaryo",
@@ -719,6 +998,8 @@ export const copy = {
         {
           name: "Pazarlama Dashboard Üretici",
           slug: "dashboard-builder",
+          short: "Dashboard Üretici",
+          tagline: "Dağınık exportlar girer, karşılaştırılabilir metrikler çıkar",
           desc: "Dağınık pazarlama exportlarını doğrulanmış, karşılaştırılabilir metriklere ve karar-hazır dashboard'lara çevirir.",
           tags: ["Analitik", "Veri Kalitesi", "Claude Code"],
           proof: "11 dashboard şablonu",
@@ -730,7 +1011,9 @@ export const copy = {
         {
           name: "Google Ads Değişiklik Geçmişi Gezgini",
           slug: "google-ads-change-history-dashboard",
-          desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir - ne değişti, kim değiştirdi, ne zaman oldu ve ne kadar önemliydi.",
+          short: "Değişiklik Geçmişi Gezgini",
+          tagline: "Her Google Ads değişikliği, aranabilir",
+          desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir - her değişikliğin arkasındaki tam kampanya, kategori, eski değer, yeni değer ve zaman damgası.",
           tags: ["Google Ads", "Analitik", "Python"],
           proof: "Sıfır bağımlılık · 57 self-test",
           links: [
@@ -741,6 +1024,8 @@ export const copy = {
         {
           name: "Numerspace",
           slug: "numerspace",
+          short: "Numerspace",
+          tagline: "97 ücretsiz hesaplayıcı, ücret duvarı yok",
           desc: "Pazarlama, finans, sağlık, kariyer ve günlük kararlar için ücretsiz hesaplayıcılar - hesap ya da ücret duvarı olmadan hızlı cevaplar.",
           tags: ["Web Uygulaması", "Hesaplayıcılar"],
           proof: "97 hesaplayıcı · 13 kategori",
@@ -756,15 +1041,71 @@ export const copy = {
       page: {
         title: "Canonical Journey Kütüphanesi",
         intro:
-          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Ara, ya da goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı; her kayıt bir dizi değil, bir graf.",
+          "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
         searchPlaceholder: "Journey ara...",
         goalLabel: "Goal",
-        allGoals: "Tüm Goal'ler",
+        allGoals: "Tüm hedefler",
         removeFilterLabel: "{label} filtresini kaldır",
         clearAll: "Temizle",
         results: "journey",
         empty: "Bu filtrelerle eşleşen kayıt yok.",
         nodesLabel: "düğüm",
+        practitioner: {
+          trigger: "Tetikleyici",
+          notEnough: "Tek başına yeterli değil",
+          entity: "Varlık",
+          instanceKey: "örnek anahtarı",
+          whoEnters: "Kim girer",
+          suppressedWhen: "Ne zaman bastırılır",
+          orchestration: "Önerilen orkestrasyon",
+          onClassification: "sınıflandırma anında gönderilir - öncesinde bekleme yok",
+          cancelOn: "iptal eden olaylar",
+          recheck: "göndermeden önce yeniden okunur",
+          checks: "kontroller",
+          mandatory: "zorunlu",
+          priority: "öncelik",
+          priorityReason: "bu önceliğin nedeni",
+          destination: "hedef",
+          boundTo: "bağlı olduğu",
+          mustNotClaim: "iddia edemez",
+          after: "sonrası",
+          channelRoles: "Kanal rolleri",
+          fallback: "teslimat yedeği",
+          stopsWhen: "Ne zaman durur",
+          handoff: "devir",
+          configure: "Yapılandır",
+          requiredData: "Gerekli veri",
+          events: "Eşlenecek semantik olaylar",
+          attributes: "Öznitelikler",
+          optional: "opsiyonel",
+          collision: "Çakışma & öncelik",
+          pressureClass: "baskı sınıfı",
+          localCap: "yerel sınır",
+          cooldown: "soğuma",
+          competition: "rekabet",
+          mandatoryTouches: "zorunlu temaslar",
+          noAction: "Eylemsizlik durumları",
+          noActionNote: "yukarıdaki bastırmalar kayıtlı sonuçlardır, asla başka bir kanala yedekleme değildir",
+          measurement: "Ölçüm",
+          journeyOutcome: "journey sonucu",
+          businessOutcome: "iş sonucu",
+          scope: "gözlem",
+          self: "bu journey içinde",
+          through: "şu zincir üzerinden",
+          until: "şuna kadar",
+          attribution: "atıf",
+          holdout: "holdout",
+          guardrails: "korkuluklar",
+          presets: "Ön ayarlar",
+          technical: "Teknik mantık",
+          preset: "Ön ayar",
+          presetOf: "ön ayarı:",
+          presetOverrides: "ayarlar",
+          presetNoOverrides: "ebeveyninin her varsayılanını korur; yalnızca hedef ve sözcük dağarcığı farklıdır",
+          relative: { trigger: "tetikleyiciden sonra", "previous-touch": "önceki temastan sonra", attribute: "şuna göre" },
+          roles: { "in-session": "oturum içi", "low-friction": "düşük sürtünme", persistent: "kalıcı", urgent: "acil", human: "insan" },
+          labels: { CANONICAL_RULE: "kanonik kural", RECOMMENDED_DEFAULT: "önerilen varsayılan", CONFIG_REQUIRED: "yapılandırma gerekli", OPTIONAL_STRATEGY: "opsiyonel strateji" },
+        },
         decisionsLabel: ["koşul", "koşul"],
         exitsLabel: ["çıkış", "çıkış"],
         handoffsLabel: ["devir", "devir"],
@@ -785,6 +1126,102 @@ export const copy = {
           zoomOut: "Uzaklaştır",
           fitToView: "Sığdır",
           reset: "Yakınlaştırmayı sıfırla",
+        },
+      },
+      journeysHub: {
+        eyebrow: "Lab / Canonical Journey Kütüphanesi",
+        title: "{count} lifecycle state machine. Her biri okunabilir bir graf.",
+        sub: "{categories} kategoriye yayılmış, sektörden bağımsız journey'ler ve bunları bir arada tutan {rules} orkestrasyon kuralı. Her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini ve kişinin sonra hangi lifecycle'a geçtiğini söylüyor - hiçbirinde mesaj metni yok. Kütüphane içeriği İngilizce yazıldı.",
+        ctaCommunication: "Müşteri journey'leri",
+        ctaInternal: "Operasyon",
+        proof: ["Sektörden bağımsız", "Dizi değil, graf", "Mesaj metni yok"],
+        split: {
+          eyebrow: "İki giriş yolu",
+          title: "İşin bir müşteriye ulaşıp ulaşmadığına göre ayrılır.",
+          body: "Müşteri journey'leri bir kişiye ulaşır - temas planı, kanal rolleri, temas modeli. Operasyon, bir söz verildikten sonra onu yerine getiren iç iştir - onaylar, erişim, olaylar, ödemeler, dağıtımlar. Her journey ayrıca iki destekleyici yüzeyi okur - dayandığı sessiz yaşam döngüsü durumları ve üzerinde çalıştığı çalışma zamanı mekanizmaları - journey'nin kendisinden açılır, ya da aşağıda kendi başlarına gezilebilir.",
+        },
+        stories: {
+          eyebrow: "Şemanın zorunlu kıldığı",
+          title: "Her journey'in söylemek zorunda olduğu üç şey.",
+        },
+        final: {
+          eyebrow: "Okumaya başla",
+          title: "Bir yüzey seç, bir journey aç.",
+          body: "Müşteri journey'leri uygulayıcı görünümüyle, diğer üç yüzey grafla açılır. Her yüzey kategori ve hedefe göre arar ve filtreler.",
+        },
+      },
+      journeysSplit: {
+        surfaceLabels: {
+          "customer-journeys": "Müşteri journey'leri",
+          "lifecycle-states": "Yaşam döngüsü durumları",
+          "runtime-mechanisms": "Çalışma zamanı mekanizmaları",
+          "operational-workflows": "Operasyon",
+        },
+        surfaceBlurbs: {
+          "customer-journeys": "Kendi eylemleri müşteriye ulaşan journey'ler - her biri bir temas planı, kanal rolleri, temas modeli ve ölçüm kararıyla; uygulayıcı kadansı uydurmadan hayata geçirebilir.",
+          "lifecycle-states": "Sessiz müşteri yaşam döngüsü durumları: iletişim kuran journey'lerin dayandığı durum modelleri. Burada hiçbir şey gönderilmez; bunlar kampanya değil bağımlılıktır.",
+          "runtime-mechanisms": "Her journey'nin üzerinde çalıştığı makine - gönderim uygunluğu, ulaşılabilirlik, teslimat kurtarma, yeniden deneme, soğuma. Müşteri journey'si değil, sözleşme.",
+          "operational-workflows": "Bir söz verildikten sonra onu yerine getiren iç iş: onaylar ve sahiplik, hesap ve erişim değişiklikleri, olay müdahalesi, ödeme ve belge çözümü, dağıtımlar. Müşteriye dönük değil - operasyon ekibinizin kendi yüzeyi.",
+        },
+        surfaces: {
+          "customer-journeys": {
+            title: "Müşteri journey'leri",
+            intro: "{count} müşteri journey'si ve {presets} uygulayıcı ön ayarı - her biri bir müşteriye ulaşır, mesajla ya da işi bir kişiye yönlendirerek. Her journey uygulayıcı görünümüyle açılır - tetikleyici, kim girer, zamanlaması ve kanal rolleriyle temas planı, neyin durdurduğu, neyin yapılandırılacağı, neyin ölçüleceği - altta teknik mantık olarak graf. Zaten kullandığınız adlarla arayın.",
+          },
+          "lifecycle-states": {
+            title: "Yaşam döngüsü durumları",
+            intro: "{count} sessiz müşteri yaşam döngüsü durumu. Hiçbir şey göndermezler: iletişim kuran bir journey'nin okuduğu, yeniden okuduğu ve devrettiği durumu tutarlar. Başlatılacak kampanyalar olarak değil, bağımlılıklar ve bağlı destek mantığı olarak gezin.",
+          },
+          "runtime-mechanisms": {
+            title: "Çalışma zamanı mekanizmaları",
+            intro: "{count} çalışma zamanı mekanizması - müşteri journey'lerinin gönderim uygunluğu, ulaşılabilirlik, teslimat hatası, yeniden deneme ve soğuma için dayandığı sözleşmeler. Journey olarak değil, destekleyici mimari olarak listelenir.",
+          },
+          "operational-workflows": {
+            title: "Operasyon",
+            intro: "{count} operasyonel iş akışı - bir işletmenin sözünü tutmak için yaptığı iç iş: inceleme ve kararlar, hesap ve erişim değişiklikleri, hizmet ve tamamlama, sistemler ve güvenilirlik. Ne tür bir iş olduğuna göre filtrelemek için türe bakın.",
+          },
+        },
+        presetsTitle: "Ön ayarlar",
+        presetsIntro: "Kanonik bir journey'nin adlandırılmış özelleşmeleri: aynı graf, aynı temaslar ve çıkışlar; yapılandırma değerleri, hedef ve sözcük dağarcığı tanınabilir bir kullanım durumu için ayarlanmış. Bir ön ayar, ebeveynini bu değerler uygulanmış olarak açar.",
+        presetBadge: "Ön ayar",
+        presetOf: "ön ayarı:",
+        referenceStrip: "Kütüphanenin bir parçası - bir journey'den açılır, genelde kendi başına gezilmez",
+        silentBadge: "Sessiz durum",
+        mechanismBadge: "Mekanizma",
+        communicationLabel: "İletişim journey'leri",
+        internalLabel: "Internal journey'ler",
+        hubIntro: "{categories} kategoriye yayılmış, sektörden bağımsız {count} lifecycle state machine ve bunları bir arada tutan {rules} orkestrasyon kuralı. Journey'in kendi işi bir kişiye ulaşıp ulaşmadığına göre ikiye ayrıldı - her iki taraf da kendi sayfasında aranabilir ve filtrelenebilir, ve her kayıt bir dizi değil bir graf.",
+        browseAll: "{count} journey'in tamamına bak",
+        communicationBlurb: "Bir kişiye ulaşan journey'ler - mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task).",
+        internalBlurb: "Tamamen sistemin içinde çözülen journey'ler. Mesaj yok, insana yönlendirme yok - kendi başına iletişimi olmayan state machine'ler.",
+        showMore: "Daha fazla göster ({count})",
+        showLess: "Daha az göster",
+        // Turkish takes no plural after a numeral, so both entries are
+        // deliberately identical - same as page.decisionsLabel above.
+        journeysLabel: ["journey", "journey"],
+        internalBadge: "Internal",
+        humanRoutingBadge: "İnsana yönlendirme",
+        categoryFilterLabel: "Kategori",
+        allCategories: "Tüm kategoriler",
+        channelFilterLabel: "Kanal",
+        allChannels: "Tüm kanallar",
+        workTypeFilterLabel: "Tür",
+        allWorkTypes: "Tüm türler",
+        workTypeLabels: {
+          "reviews-decisions": "İnceleme ve kararlar",
+          "account-access": "Hesap ve erişim",
+          "service-fulfillment": "Hizmet ve tamamlama",
+          "systems-reliability": "Sistemler ve güvenilirlik",
+        },
+        communication: {
+          title: "İletişim journey'leri",
+          intro:
+            "Kütüphanedeki {count} journey, en az bir action'ıyla bir kişiye ulaşıyor - mesajla (email, SMS, push, in-app, WhatsApp) ya da işi birine yönlendirerek (sales, task). Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
+        },
+        internal: {
+          title: "Internal journey'ler",
+          intro:
+            "Kütüphanedeki {count} journey tamamen sistemin içinde çözülüyor - mesaj yok, insana yönlendirme yok, kimseye ulaşan bir şey yok. Kendi başına iletişimi olmayan state machine'ler. Kategoriye göre gruplandı - ara, ya da kategori, kanal veya goal'e göre filtrele. Kütüphane içeriği İngilizce yazıldı.",
         },
       },
     },
@@ -883,29 +1320,29 @@ export const copy = {
       metaTitle: "İletişim - Ali Demirbaş",
       metaDesc: "Ali Demirbaş'a e-posta ile veya LinkedIn üzerinden ulaşın.",
       eyebrow: "İletişim",
-      title: "Hadi güzel bir şey için iş birliği yapalım.",
-      sub: "İlginç projelerde harika insanlarla iş birliği yapmaya her zaman açığım. Destek eli mi lazım? İki tane var bende!",
+      title: "Tanışalım.",
+      sub: "Yeni insanlarla tanışmayı, fikir alışverişinde bulunmayı ve büyüme, ürünler ya da burada paylaştığım çalışmalar üzerine sohbet etmeyi her zaman seviyorum.",
       linkedinLabel: "LinkedIn'de bağlantı kur",
       linkedinGo: "Profili görüntüle",
       emailLabel: "E-posta gönder",
       emailGo: "Bana e-posta at",
       emailPill: "E-posta",
-      reasonsTitle: "Ne için yazıyor olabilirsin",
+      reasonsTitle: "Buraya gelme sebebin",
       reasons: [
-        { title: "Bir rol veya fırsat", desc: "Growth/CRM liderliği rollerine açığım - tam zamanlı veya fraksiyonel." },
-        { title: "Bir proje veya iş birliği", desc: "Lifecycle pazarlama, ölçümleme kurulumu veya açık kaynak Lab araçlarından biri." },
-        { title: "Bir soru", desc: "Bir hesaplayıcı, bir journey deseni veya bu sitedeki başka bir şey hakkında." },
+        { title: "Tanışmak için", desc: "Bağlantı kurmak, kendini tanıtmak ya da sadece merhaba demek için." },
+        { title: "Bir fikir veya sohbet", desc: "Growth, lifecycle, deneyler, ölçümleme ya da konuşmaya değer başka bir konu." },
+        { title: "Bir soru", desc: "Bir hesaplama aracı, journey, açık kaynak proje veya bu sitedeki herhangi bir şey hakkında." },
       ],
       scheduleTitle: "Görüşme planla",
       scheduleSub: "30 dakikalık bir tanışma görüşmesi ayarlayın.",
       formTitle: "Mesaj gönder",
-      formName: "İsim",
+      formName: "Ad Soyad",
       formEmail: "E-posta",
       formCompany: "Şirket web sitesi (opsiyonel)",
       formSubject: "Konu",
-      formMessage: "Mesajınız",
+      formMessage: "Mesajın",
       formSubmit: "E-postada aç",
-      formNote: "E-posta uygulamanızda hazır doldurulmuş bir taslak açar - bu sitede bunu sizin yerinize gönderecek bir sunucu yok.",
+      formNote: "Mesajını e-posta uygulamanda hazır bir taslak olarak açar; bu site üzerinden doğrudan gönderim yapılmaz.",
     },
     /* Bkz. EN tarafındaki not. */
     journeyBuilder: {
@@ -914,7 +1351,6 @@ export const copy = {
       eyebrow: "Lab / Journey Builder",
       title: "Kampanya şablonu değil, durum makinesi olarak lifecycle journey'ler.",
       sub: "Buradaki her journey bir graf: onu ne başlatır ve bilinçli olarak ne başlatmaz, nerede çatallanır ve her kolun anlamı nedir, ne kadar bekler ve o süre dolduğunda ne olur, kişinin sahipliği sonra hangi lifecycle'a geçer.",
-      ctaLibrary: "Kütüphaneyi keşfet",
       ctaJourney: "Bu journey'i aç",
       proof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
       canvas: {
@@ -992,6 +1428,72 @@ export const copy = {
         abTest: "A/B Test Playbook",
         abTestDesc: "Aynı pratiğin deney tarafı.",
       },
+      whyDifferent: {
+        eyebrow: "Neden claude-lifecycle",
+        title: "claude-lifecycle neden farklı",
+        feature1: {
+          title: "Veri kalitesi ölçülür, varsayılmaz",
+          body: "0-100 arası bir Data Quality Score, tek bir journey yazılmadan önce derinliği belirler: 40'ın altı basit 3-5 adımlık akış, 40-69 arası tek dallanmalı standart 4-7 adım, 70 ve üzeri davranışsal dallanmalı 7-12 adımlık journey'lerin kapısını açar. Aynı portföy üç event'i olan bir startup'a da olgun bir e-ticaret sitesine de gitmez.",
+        },
+        feature2: {
+          title: "Liste değil, portföy",
+          body: "Uygunluk, motorun dokümante edilmiş pattern kütüphanesindeki (terk edilmiş sepet, deneme dönüşümü, winback ve daha fazlası) her pattern için gerekli event imzasından hesaplanır - her biri kendi derinliğini ve kanallarını verinizin gerçekten desteklediği şeye göre ölçekler. Verinizin henüz desteklemediği şey kilitli bir özellik değil, hangi event'in onu açacağını söyleyen bir tracking plan olur.",
+        },
+        feature3: {
+          title: "Copy, mühendislik ürünüdür",
+          body: "Her kanalın kendi kesin kuralı vardır, tahmine dayalı üslup değil: e-posta konu başlığı 20-50 karakter, SMS 160 GSM-7 karakter, push başlık 40 / gövde 120 karakter. Bir reviewer agent, her mesajı sen görmeden önce kendi kanalının kurallarına göre denetler.",
+        },
+      },
+      carousel: {
+        eyebrow: "Pattern motoru",
+        title: "Tek motor, her işletme için farklı bir portföy",
+        body: "26 dokümante edilmiş blueprint, sabit bir katalog değil, bilgi tabanıdır - her biri kendi derinliğini (3 ila 12 adım), dallanmasını ve kanallarını verinizin gerçekten desteklediği şeye göre ölçekler; bu yüzden hiçbir iki işletme aynı çıktıyı almaz. Aşağıda üçü, motorun kendi bilgi tabanında tanımlandığı haliyle açılıyor.",
+      },
+      faq: {
+        eyebrow: "SSS",
+        title: "Sorular? Cevaplar.",
+        items: [
+          {
+            q: "claude-lifecycle nedir?",
+            a: "claude-lifecycle, müşteri journey'lerini açık durumlar, dallar, beklemeler, devirler ve çıkışlar olarak yapılandırmak için açık kaynaklı bir lifecycle mimarisi kütüphanesidir. Her otomasyona boş bir sayfadan başlamak yerine, lifecycle planlaması için daha güçlü bir başlangıç noktası sağlamak üzere tasarlanmıştır.",
+          },
+          {
+            q: "claude-lifecycle bir journey builder mı, yoksa bir journey kütüphanesi mi?",
+            a: "Öncelikle yapılandırılmış bir journey kütüphanesi ve mimari sistemidir. Journey'ler, belirli bir ürün ya da işin kullandığı araçlara, kanallara ve veri modeline uyarlanabilecek lifecycle mantığını ve yeniden kullanılabilir kalıpları tanımlar.",
+          },
+          {
+            q: "Bir journey neler içerir?",
+            a: "Bir journey; tetikleyiciler, koşullar, aksiyonlar, beklemeler, devirler ve çıkışlar içerebilir. Bu durumlar; giriş mantığını, dallanma davranışını, zamanlamayı, geçişleri ve nihai sonuçları belirsiz bırakmak yerine açıkça tanımlar.",
+          },
+          {
+            q: "Kaç journey dahil?",
+            a: "Kütüphane şu anda {categories} kategoriye yayılmış {count} lifecycle journey içeriyor.",
+          },
+          {
+            q: "Journey'leri kendi ürünüme uyarlayabilir miyim?",
+            a: "Evet. Journey'ler katı uygulamalar değil, yeniden kullanılabilir başlangıç noktaları olarak tasarlanmıştır. Ekipler, altta yatan lifecycle mantığını korurken tetikleyicileri, koşulları, zamanlamayı ve sonraki aksiyonları uyarlayabilir.",
+          },
+          {
+            q: "Devir (handoff) nedir?",
+            a: "Bir devir, lifecycle durumunu bir journey'den diğerine açıkça aktarır. Workflow'ları izole otomasyonlar gibi ele almak yerine, devirler journey'ler arasındaki ilişkiyi ve taşınan durumu görünür kılar.",
+          },
+          {
+            q: "Doğrulama (validation) nasıl çalışır?",
+            a: "Doğrulama; giriş durumları, koşul dalları, sınırlı beklemeler, devirler ve açık çıkışlar dahil olmak üzere önemli yapısal kuralların tamamlanıp tamamlanmadığını kontrol eder. Amaç, uygulamadan önce eksik lifecycle mantığını tespit etmektir.",
+          },
+          {
+            q: "claude-lifecycle'ı nasıl kullanırım?",
+            a: "GitHub deposunu aç, mevcut journey'leri incele ve kendi ürünün için lifecycle kalıplarını keşfetmek, uyarlamak ve uygulamak üzere Claude Code ile proje yapısını kullan.",
+          },
+        ],
+      },
+      pageCta: {
+        eyebrow: "AÇIK KAYNAK · GITHUB",
+        title: "Lifecycle mantığını daha güçlü bir başlangıç noktasından kur.",
+        primary: "GitHub'da görüntüle",
+        secondary: "Canlı demoyu aç",
+      },
+      watchDemo: "Demoyu izle",
     },
     abTesting: {
       metaTitle: "A/B Test Playbook - Ali Demirbaş",

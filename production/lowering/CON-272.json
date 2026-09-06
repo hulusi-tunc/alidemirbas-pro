@@ -1,0 +1,380 @@
+{
+ "id": "CON-272",
+ "shortName": "Contact Recovery",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "exit",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.dead",
+   "event": "contact_point_recorded_undeliverable",
+   "meaning": "a permanent delivery failure or invalid-destination result recorded against one specific contact point; a failure class that marks the destination unusable rather than temporarily unavailable",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a permanent delivery failure or invalid-destination result recorded against one specific contact point",
+    "a failure class that marks the destination unusable rather than temporarily unavailable",
+    "no instance of this journey is already open for the the person plus the one contact point that failed",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "contact_point_id",
+    "person_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.route",
+   "asks": "What can carry the repair request without using the broken destination?",
+   "branches": [
+    {
+     "label": "Reachable in product",
+     "observes": null,
+     "test": "the person signs in, so the request can wait on the surface they already use",
+     "to": "a.prompt-in-app"
+    },
+    {
+     "label": "Reachable off product",
+     "observes": null,
+     "test": "no session is expected soon, and a separate destination is both deliverable and permitted for a service notice of this kind",
+     "to": "a.prompt-alt"
+    },
+    {
+     "label": "Nothing left",
+     "observes": null,
+     "test": "no other destination is both working and permitted",
+     "to": "x.dark"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.prompt-in-app",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "contactability_repair.discretionary_touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.prompt-in-app",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.prompt-in-app",
+   "touch": "t1",
+   "stage": "prompt-in-app",
+   "purpose": "Ask for a corrected destination where the person already is, naming which one stopped working and what is being held because of it.",
+   "brief": "Ask for a corrected destination where the person already is, naming which one stopped working and what is being held because of it. Seeing the request somewhere other than the failed route is what makes it credible rather than suspicious",
+   "destination": {
+    "target": "contact-point-update",
+    "boundTo": "contact_point_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.prompt-in-app",
+   "key": "contact_point_id + person_id + a.prompt-in-app"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.prompt-alt",
+   "touch": "t2",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "contactability_repair.discretionary_touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.prompt-alt",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.prompt-alt",
+   "touch": "t2",
+   "stage": "prompt-alt",
+   "purpose": "Ask for a corrected destination on the surviving permitted route, naming the one that failed.",
+   "brief": "Ask for a corrected destination on the surviving permitted route, naming the one that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
+   "destination": {
+    "target": "contact-point-update",
+    "boundTo": "contact_point_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.prompt-alt",
+   "key": "contact_point_id + person_id + a.prompt-alt"
+  },
+  {
+   "type": "exit",
+   "node": "x.dark",
+   "class": "suppression",
+   "state": "no working permitted route; the destination stays suppressed",
+   "reEntry": "if any route becomes deliverable and permitted, the repair request runs from there"
+  },
+  {
+   "type": "wait",
+   "node": "w.corrected",
+   "timing": {
+    "key": "contactability_repair.corrected",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.suppressed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.corrected",
+   "cancelOn": [
+    {
+     "event": "replacement_destination_verified",
+     "meaning": "a replacement destination is supplied and verified"
+    },
+    {
+     "event": "destination_deliverable_again",
+     "meaning": "the original destination is deliverable again"
+    },
+    {
+     "event": "destination_removed",
+     "meaning": "the person removes the destination"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.corrected",
+   "reads": "the the person plus the one contact point that failed re-read from the system of record before acting on the timeout",
+   "before": "x.suppressed"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What ended the wait?",
+   "branches": [
+    {
+     "label": "Replaced",
+     "observes": null,
+     "test": "a new destination was supplied and has verified as reachable",
+     "to": "a.confirm"
+    },
+    {
+     "label": "Recovered",
+     "observes": null,
+     "test": "the original destination is deliverable again on its own evidence",
+     "to": "x.recovered"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm",
+   "touch": "t3",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "contactability_repair.discretionary_touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm",
+   "touch": "t3",
+   "stage": "confirm",
+   "purpose": "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent.",
+   "brief": "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm",
+   "key": "contact_point_id + person_id + a.confirm"
+  },
+  {
+   "type": "exit",
+   "node": "x.repaired",
+   "class": "success",
+   "state": "destination replaced and in use; permission unchanged",
+   "reEntry": "a later failure on any destination is its own instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.recovered",
+   "class": "success",
+   "state": "original destination reachable again; nothing replayed",
+   "reEntry": "a further failure on the same destination re-enters here with a new repair cycle"
+  },
+  {
+   "type": "exit",
+   "node": "x.suppressed",
+   "class": "suppression",
+   "state": "destination stays suppressed after one repair cycle",
+   "reEntry": "a corrected destination supplied later re-enters at confirmation, once it has verified"
+  }
+ ]
+}

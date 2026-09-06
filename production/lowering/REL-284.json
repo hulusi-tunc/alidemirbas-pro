@@ -1,0 +1,506 @@
+{
+ "id": "REL-284",
+ "shortName": "Invitation Reminder",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.invited",
+   "event": "relationship_invitation_issued",
+   "meaning": "an invitation recorded by a party holding the authority to extend it; a named counterparty, the scope of the proposed link and its direction; an expiry on the invitation",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an invitation recorded by a party holding the authority to extend it",
+    "a named counterparty, the scope of the proposed link and its direction",
+    "an expiry on the invitation",
+    "no instance of this journey is already open for the the invitation",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "invitation_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.known",
+   "asks": "Does the counterparty already exist here in their own right?",
+   "branches": [
+    {
+     "label": "Existing holder",
+     "observes": null,
+     "test": "the counterparty already holds a record and a session of their own, and the invitation would attach to it",
+     "to": "a.invite-known"
+    },
+    {
+     "label": "New to us",
+     "observes": null,
+     "test": "the counterparty has no record here and knows the inviting party but not us",
+     "to": "a.invite-new"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.invite-known",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "relationship_invitation.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.invite-known",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.invite-known",
+   "touch": "t1",
+   "stage": "invite-known",
+   "purpose": "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record.",
+   "brief": "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record. An existing holder's first question is what accepting costs them, not what it gives the inviter",
+   "destination": {
+    "target": "invitation-acceptance",
+    "boundTo": "invitation_id",
+    "mustNotClaim": [
+     "that accepting transfers anything they hold"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.known"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.invite-known",
+   "key": "issue_id + a.invite-known"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.invite-new",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "relationship_invitation.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.invite-new",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.invite-new",
+   "touch": "t2",
+   "stage": "invite-new",
+   "purpose": "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold.",
+   "brief": "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold. Somebody with no prior relationship reads an unexplained invitation as a claim already made on them",
+   "destination": {
+    "target": "invitation-acceptance",
+    "boundTo": "invitation_id",
+    "mustNotClaim": [
+     "that accepting transfers anything they hold"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.known"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.invite-new",
+   "key": "issue_id + a.invite-new"
+  },
+  {
+   "type": "wait",
+   "node": "w.response",
+   "timing": {
+    "key": "relationship_invitation.response",
+    "class": "reminder-before-attribute",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "expires_at",
+   "onTimeout": "c.remind"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.response",
+   "cancelOn": [
+    {
+     "event": "invitation_accepted",
+     "meaning": "the counterparty accepts the invitation"
+    },
+    {
+     "event": "invitation_declined",
+     "meaning": "the counterparty declines the invitation"
+    },
+    {
+     "event": "invitation_withdrawn",
+     "meaning": "the inviting party withdraws the invitation"
+    }
+   ],
+   "onEvent": "c.response"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.response",
+   "reads": "the the invitation re-read from the system of record before acting on the timeout",
+   "before": "c.remind"
+  },
+  {
+   "type": "condition",
+   "node": "c.response",
+   "asks": "How was the invitation answered?",
+   "branches": [
+    {
+     "label": "Accepted",
+     "observes": null,
+     "test": "the counterparty's acceptance is authoritatively recorded and the link is created",
+     "to": "a.confirm"
+    },
+    {
+     "label": "Declined or withdrawn",
+     "observes": null,
+     "test": "the counterparty declined, or the inviting party withdrew the invitation before it was answered",
+     "to": "x.closed"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "relationship_invitation.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm",
+   "touch": "t3",
+   "stage": "confirm",
+   "purpose": "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do.",
+   "brief": "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do. An unstated scope is assumed to be total by whoever has less to gain from it",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.response"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm",
+   "key": "issue_id + a.confirm"
+  },
+  {
+   "type": "exit",
+   "node": "x.active",
+   "class": "success",
+   "state": "link active, both identities intact",
+   "reEntry": "a further invitation between the same parties, for a different scope, is a new instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.closed",
+   "class": "failure",
+   "state": "invitation declined or withdrawn",
+   "reEntry": "the inviting party may issue a fresh invitation, which is a new instance; a declined one is never revived"
+  },
+  {
+   "type": "condition",
+   "node": "c.remind",
+   "asks": "Is a reminder still worth sending?",
+   "branches": [
+    {
+     "label": "Time remains",
+     "observes": null,
+     "test": "the invitation has a meaningful period left and no reminder has been sent for it",
+     "to": "a.remind"
+    },
+    {
+     "label": "Window closed",
+     "observes": null,
+     "test": "the invitation has reached or passed its expiry unanswered",
+     "to": "x.expired"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "relationship_invitation.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t4",
+   "stage": "remind",
+   "purpose": "Send one reminder naming who is waiting and the date the invitation expires.",
+   "brief": "Send one reminder naming who is waiting and the date the invitation expires. There is no second one - a counterparty who has not answered twice has answered",
+   "destination": {
+    "target": "invitation-acceptance",
+    "boundTo": "invitation_id",
+    "mustNotClaim": [
+     "a moved expiry"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.remind"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "issue_id + a.remind"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "relationship_invitation.final",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "expires_at",
+   "onTimeout": "x.expired"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "invitation_accepted",
+     "meaning": "the counterparty accepts the invitation"
+    },
+    {
+     "event": "invitation_declined",
+     "meaning": "the counterparty declines the invitation"
+    },
+    {
+     "event": "invitation_withdrawn",
+     "meaning": "the inviting party withdraws the invitation"
+    }
+   ],
+   "onEvent": "c.response"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "the the invitation re-read from the system of record before acting on the timeout",
+   "before": "x.expired"
+  },
+  {
+   "type": "exit",
+   "node": "x.expired",
+   "class": "timeout",
+   "state": "expired unanswered",
+   "reEntry": "a fresh invitation from the same party starts a new window"
+  }
+ ]
+}

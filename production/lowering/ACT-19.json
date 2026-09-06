@@ -1,0 +1,265 @@
+{
+ "id": "ACT-19",
+ "shortName": "Onboarding Personalization",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "state-update",
+  "idempotency-key",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.needed",
+   "event": "onboarding_needs_named_role_or_use_case",
+   "meaning": "an onboarding decision that depends on a named role or use-case, with no reliable value available for it",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an onboarding decision that depends on a named role or use-case, with no reliable value available for it",
+    "no instance of this journey is already open for the person or account plus the onboarding context being decided",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "account_id",
+    "person_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.declared",
+   "asks": "Does a reliable declared value already exist?",
+   "branches": [
+    {
+     "label": "Already declared",
+     "observes": null,
+     "test": "the person has stated it before and the answer is still current",
+     "to": "a.reuse"
+    },
+    {
+     "label": "Not declared",
+     "observes": null,
+     "test": "nothing declared exists - only behaviour, which is not the same thing and is not stored as if it were",
+     "to": "c.material"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.reuse",
+   "does": "Use the existing declared value and record that it was reused rather than re-asked - asking again for something already given is its own small failure",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.reuse",
+   "key": "account_id + person_id + a.reuse"
+  },
+  {
+   "type": "condition",
+   "node": "c.material",
+   "asks": "Would the answer materially change the path to value?",
+   "branches": [
+    {
+     "label": "Yes",
+     "observes": null,
+     "test": "different answers lead to genuinely different setup, examples or first actions",
+     "to": "a.ask"
+    },
+    {
+     "label": "No",
+     "observes": null,
+     "test": "the path is the same whatever they answer - the question would be collected and never used",
+     "to": "x.dont-ask"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.dont-ask",
+   "class": "no-action",
+   "state": "not asked; onboarding proceeds unchanged",
+   "reEntry": "if a later decision genuinely turns on the answer, it is asked then - each question earns its place at the moment it is needed"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.ask",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "role_use.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.ask",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.ask",
+   "touch": "t1",
+   "stage": "ask",
+   "purpose": "Ask one lightweight question covering only what the implementation will actually consume.",
+   "brief": "Ask one lightweight question covering only what the implementation will actually consume. Onboarding does not become a questionnaire on the way to the thing the person came for",
+   "destination": {
+    "target": "one-question-form",
+    "boundTo": "onboarding_instance_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.declared",
+    "c.material"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.ask",
+   "key": "account_id + person_id + a.ask"
+  },
+  {
+   "type": "wait",
+   "node": "w.answer",
+   "timing": {
+    "key": "role_use.answer",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.default"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.answer",
+   "cancelOn": [
+    {
+     "event": "question_answered",
+     "meaning": "the person answers the question that was put to them"
+    }
+   ],
+   "onEvent": "a.persist"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.answer",
+   "reads": "the person or account plus the onboarding context being decided re-read from the system of record before acting on the timeout",
+   "before": "a.default"
+  },
+  {
+   "type": "state-update",
+   "node": "a.persist",
+   "does": "Persist the declared value with its source and the time it was given, in a field that only ever holds declared answers. Behavioural inference lives in its own field and is never written here - once the two are mixed, nothing downstream can tell what the person actually said",
+   "writes": [
+    {
+     "field": "declared_context",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.persist",
+   "key": "account_id + person_id + a.persist"
+  },
+  {
+   "type": "state-update",
+   "node": "a.default",
+   "does": "Continue on a documented default path and record that no declared value exists. The default is not written into the declared field as though someone had chosen it",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.default",
+   "key": "account_id + person_id + a.default"
+  },
+  {
+   "type": "state-update",
+   "node": "a.adapt",
+   "does": "Adapt the recommended setup, the examples, the next action and the education to the declared context - which is the only reason the question was worth asking",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.progress",
+   "to": "ACT-12",
+   "on": "the onboarding path resolved, adapted or defaulted",
+   "carries": [
+    "the declared value with its source, or the explicit fact that there is none",
+    "which adaptations were applied, so they are not applied twice"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

@@ -1,0 +1,372 @@
+{
+ "id": "ACQ-13",
+ "shortName": "Unresolved Interest Recovery",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "holdout",
+  "condition",
+  "state-update",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "persistent holdout"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.interest",
+   "event": "interest_signal_recorded",
+   "meaning": "attributed attention to an item, category or search that meets the company's qualification rule for interest - repeated, recent, and not followed by a selection or a process",
+   "evidenceSource": "behavioral",
+   "entryFilters": [
+    "the attention is attributed to a person we may contact - not a bot, not an unattributed session",
+    "the attention meets the company's qualification rule (interest.qualification_rule): repeated, recent, and on something the person could act on",
+    "no selection, order or process exists for the item or category since the attention",
+    "the item or category is currently available as the platform asserts it",
+    "no interest instance is already open for this person and interest key",
+    "purpose-level permission for commercial recovery communication is recorded, and hard gates (GLB-31) allow it"
+   ],
+   "instanceKey": [
+    "person_id",
+    "interest_key"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "holdout",
+   "node": "t.interest",
+   "unit": "instance",
+   "share": {
+    "key": "interest.holdout_share",
+    "default": 10,
+    "basis": "example-only",
+    "required": false
+   },
+   "persistent": true
+  },
+  {
+   "type": "condition",
+   "node": "c.qualify",
+   "asks": "Does this attention qualify as interest, and is it still unresolved?",
+   "branches": [
+    {
+     "label": "Qualified and unresolved",
+     "observes": "interest signal, selection and process records, availability, permission record",
+     "test": "the qualification rule is met, no selection, order or process followed, the subject is available, permission is recorded and no instance is open",
+     "to": "a.open"
+    },
+    {
+     "label": "Already resolved",
+     "observes": "selection and process records",
+     "test": "a selection, order or process for the subject exists since the attention",
+     "to": "x.resolved"
+    },
+    {
+     "label": "Does not qualify",
+     "observes": "qualification rule, availability, permission record",
+     "test": "the rule is not met, the subject is unavailable or already held, or permission is absent - the reason is recorded",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.open",
+   "does": "Open the interest instance against the person and interest key and start the clock from the last attention. Further attention before the touch moves the clock; nothing after it extends any window",
+   "writes": [
+    {
+     "field": "recovery_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.open",
+   "key": "person_id + interest_key"
+  },
+  {
+   "type": "wait",
+   "node": "w.settle",
+   "timing": {
+    "key": "interest.settle_window",
+    "class": "recovery-window",
+    "default": {
+     "min": "12 hours",
+     "max": "48 hours"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "last_interest_at",
+   "onTimeout": "c.state"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.settle",
+   "cancelOn": [
+    {
+     "event": "selection_recorded",
+     "meaning": "a selection is recorded against the person in the system of record without a process being started"
+    },
+    {
+     "event": "process_started",
+     "meaning": "an authoritative record that a resumable process (checkout, application, quote, registration) opened for a person with at least one item and a resumable state"
+    },
+    {
+     "event": "purchase_completed",
+     "meaning": "an authoritative purchase for the person, on any subject"
+    }
+   ],
+   "onEvent": "x.resolved"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.settle",
+   "reads": "the interest re-read: still no selection, order or process for the subject; the subject still available; the person still contactable",
+   "before": "c.state"
+  },
+  {
+   "type": "condition",
+   "node": "c.state",
+   "asks": "Is the interest still unresolved, and is its subject still there?",
+   "branches": [
+    {
+     "label": "Unresolved, subject available",
+     "observes": "selection and process records, availability",
+     "test": "no selection, order or process followed and the platform asserts the subject as available",
+     "to": "c.sendable"
+    },
+    {
+     "label": "Resolved meanwhile",
+     "observes": "selection_recorded, process_started, purchase_completed",
+     "test": "a selection, order or process for the subject was recorded",
+     "to": "x.resolved"
+    },
+    {
+     "label": "Subject gone",
+     "observes": "availability",
+     "test": "the platform now asserts the subject as unavailable",
+     "to": "x.unavailable"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.sendable",
+   "asks": "May the touch go out?",
+   "branches": [
+    {
+     "label": "Sendable",
+     "observes": "send path stages 1-8",
+     "test": "the send path passes: permission for commercial recovery, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
+     "to": "a.touch1"
+    },
+    {
+     "label": "Suppressed",
+     "observes": "send path stages 1-8",
+     "test": "a gate stops it; the gate is recorded as the reason",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.record-no-action",
+   "does": "Record why nothing was sent - not qualified, unavailable, already held, no permission, or a gate on the send path - so that no-action, the common outcome here, is a measured one",
+   "writes": [
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch1",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "interest.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "lowest in the group - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.not-qualified",
+    "s.resolved",
+    "s.already-held",
+    "s.permission",
+    "s.contest",
+    "s.cooldown"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch1",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "low-friction",
+     "channels": [
+      "push",
+      "in-app"
+     ],
+     "eligibleWhen": "an app session or a valid push token exists for this person - the attention is recent and a route back beats content"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no low-friction route exists, or the touch has to carry the thing looked at and survive until the person can act"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch1",
+   "touch": "t1",
+   "stage": "recovery",
+   "purpose": "The thing they looked at, as it stands now, and a route back to it. Nothing about stock, price or intent that the system does not assert.",
+   "brief": "Show the thing they looked at as it stands now and give a route back to it. Claim nothing the system does not assert: no reserved stock, no held price, no discount, and no assumption about what they meant",
+   "destination": {
+    "target": "interest-subject",
+    "boundTo": "interest_key",
+    "mustNotClaim": [
+     "stock is reserved",
+     "the price is held",
+     "a discount applies",
+     "that they meant to buy it"
+    ]
+   },
+   "label": "RECOMMENDED_DEFAULT",
+   "prerequisites": [
+    "c.state",
+    "c.sendable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch1",
+   "key": "person_id + interest_key + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.after",
+   "timing": {
+    "key": "interest.lifetime",
+    "class": "observation-window",
+    "default": {
+     "min": "3 days",
+     "max": "7 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.after",
+   "cancelOn": [
+    {
+     "event": "selection_recorded",
+     "meaning": "a selection is recorded against the person in the system of record without a process being started"
+    },
+    {
+     "event": "process_started",
+     "meaning": "an authoritative record that a resumable process (checkout, application, quote, registration) opened for a person with at least one item and a resumable state"
+    },
+    {
+     "event": "purchase_completed",
+     "meaning": "an authoritative purchase for the person, on any subject"
+    }
+   ],
+   "onEvent": "x.resolved"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.after",
+   "reads": "selection, order and process records re-read for the subject",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "exit",
+   "node": "x.resolved",
+   "class": "success",
+   "state": "resolved; a selection, process or purchase for the subject is recorded and its own journey owns it",
+   "reEntry": "a new interest key is a new interest"
+  },
+  {
+   "type": "exit",
+   "node": "x.unavailable",
+   "class": "invalid-state",
+   "state": "the subject became unavailable; nothing is sent about something the person cannot act on",
+   "reEntry": "a new interest key is a new interest"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-action",
+   "class": "no-action",
+   "state": "no touch sent; the reason is recorded - the common outcome of this journey",
+   "reEntry": "the same interest key re-qualifying inside the cooldown is the same interest; a new key is a new interest"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "touched once, not resolved; nothing further is sent",
+   "reEntry": "a new interest key is a new interest, and enters silently while the cooldown runs"
+  }
+ ]
+}

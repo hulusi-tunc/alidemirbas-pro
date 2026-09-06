@@ -1,0 +1,215 @@
+{
+ "id": "RET-24",
+ "shortName": "Churn Risk Escalation",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "handoff",
+  "state-update",
+  "idempotency-key",
+  "human-task",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.threshold",
+   "event": "churn_risk_threshold_crossed",
+   "meaning": "several independent churn-relevant signals crossing a defined threshold together: sustained meaningful usage decline, a failed renewal or payment, a negative support experience, repeated unresolved blockers, explicit dissatisfaction, exploration of cancellation, a key stakeholder leaving, falling account-wide adoption",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "several independent churn-relevant signals crossing a defined threshold together: sustained meaningful usage decline, a failed renewal or payment, a negative support experience, repeated unresolved blockers, explicit dissatisfaction, exploration of cancellation, a key stakeholder leaving, falling account-wide adoption",
+    "no instance of this journey is already open for the customer",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "account_id",
+    "risk_episode_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.intent",
+   "asks": "Has explicit cancellation intent already been expressed?",
+   "branches": [
+    {
+     "label": "Already cancelling",
+     "observes": null,
+     "test": "a cancellation has been requested or a cancel flow entered",
+     "to": "h.cancellation"
+    },
+    {
+     "label": "No stated intent",
+     "observes": null,
+     "test": "the risk is inferred from behaviour and events, and nobody has said anything",
+     "to": "a.evidence"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.cancellation",
+   "to": "RET-28",
+   "on": "cancellation intent already on record when risk escalates",
+   "carries": [
+    "the risk evidence, which is context for the conversation rather than a second conversation"
+   ],
+   "suppresses": [
+    "any separate retention track for this relationship while the cancellation decision is live"
+   ],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.evidence",
+   "does": "Assemble the signals with their sources and strengths. What matters is whether they corroborate each other, not how many there are - three readings of the same underlying event are one piece of evidence",
+   "writes": [
+    {
+     "field": "risk_evidence",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.evidence",
+   "key": "subscription_id + account_id + a.evidence"
+  },
+  {
+   "type": "condition",
+   "node": "c.operational",
+   "asks": "Is the risk driven by a known operational problem?",
+   "branches": [
+    {
+     "label": "Known problem",
+     "observes": null,
+     "test": "the evidence points at something specific that is broken or unresolved",
+     "to": "h.resolve-first"
+    },
+    {
+     "label": "No known problem",
+     "observes": null,
+     "test": "the relationship is deteriorating and nothing identifiable is causing it",
+     "to": "c.human"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.resolve-first",
+   "to": "RET-23",
+   "on": "risk with an identifiable operational cause",
+   "carries": [
+    "the risk evidence and which part of it names the problem",
+    "the fact that this is already at risk level, so the cause-specific recovery knows what is at stake"
+   ],
+   "suppresses": [
+    "promotional retention offers on this relationship until the problem is resolved"
+   ],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.human",
+   "asks": "Does the evidence justify a person?",
+   "branches": [
+    {
+     "label": "Justified",
+     "observes": null,
+     "test": "the evidence is strong and corroborated, and the relationship warrants the cost of someone's attention",
+     "to": "a.owner-task"
+    },
+    {
+     "label": "Not justified",
+     "observes": null,
+     "test": "the evidence is real but thin, and putting a person on it would be a larger intervention than the signal supports",
+     "to": "c.automated"
+    }
+   ]
+  },
+  {
+   "type": "human-task",
+   "node": "a.owner-task",
+   "does": "Raise a task for the account owner or customer success, carrying the evidence rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
+   "touch": "t1"
+  },
+  {
+   "type": "handoff",
+   "node": "h.human",
+   "to": "external:human-in-the-loop-lifecycle",
+   "on": "risk strong enough to justify a person",
+   "carries": [
+    "the assembled evidence, so the first conversation is informed",
+    "what has already been sent, so it is not repeated in person"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "subscription_id",
+     "account_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  },
+  {
+   "type": "condition",
+   "node": "c.automated",
+   "asks": "Is a proportionate automated recovery available?",
+   "branches": [
+    {
+     "label": "Available",
+     "observes": null,
+     "test": "something exists that matches the evidence at this strength",
+     "to": "h.intervention"
+    },
+    {
+     "label": "Nothing proportionate",
+     "observes": null,
+     "test": "the only available responses are larger than the evidence justifies",
+     "to": "x.monitor"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.intervention",
+   "to": "RET-30",
+   "on": "a proportionate automated retention intervention being delivered",
+   "carries": [
+    "the evidence it was chosen against",
+    "the risk state at the time it was sent"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.monitor",
+   "class": "no-action",
+   "state": "risk recorded, nothing proportionate to do",
+   "reEntry": "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence, and doing something disproportionate is not"
+  }
+ ]
+}

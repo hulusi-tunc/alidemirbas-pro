@@ -178,6 +178,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Change candidate → eligibility → ready or blocked",
+    shortName: "Change Eligibility",
     purpose:
       "Decide which targets a change may reach at all, before anyone starts preparing any of them.",
     entity: {
@@ -305,6 +306,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "readiness-revalidation",
     channels: [],
     name: "Change preparation → resolve dependencies → ready or hold",
+    shortName: "Change Readiness",
     purpose:
       "Get an eligible target into a state where the change can actually be applied to it.",
     entity: {
@@ -452,6 +454,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Change scheduled → wait → revalidate → execute or cancel",
+    shortName: "Scheduled Change Revalidation",
     purpose:
       "Check, at the moment of execution, that the change scheduled earlier is still the right one for this target.",
     entity: {
@@ -616,6 +619,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Change execution → apply → verify, fail or unknown",
+    shortName: "Change Execution Verification",
     purpose:
       "Establish that the target actually ended up in the state the change intended, rather than that a command was accepted.",
     entity: {
@@ -810,6 +814,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Staged rollout → pilot cohort → health gate → expand or hold",
+    shortName: "Staged Rollout Expansion",
     purpose:
       "Widen a change only when the targets that already took it show it is safe to widen.",
     entity: {
@@ -1003,6 +1008,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Rollout pause → freeze expansion → diagnose → resume, roll back or end",
+    shortName: "Rollout Pause Resolution",
     purpose:
       "Stop the change spreading while the question of what to do about it is still open.",
     entity: {
@@ -1138,13 +1144,16 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "rollback-decision",
     category: "rollout",
     goal: "recovery-retry",
-    channels: [],
+    channels: ["task"],
     name: "Change failure threshold → rollback decision → execute or forward recover",
+    shortName: "Rollback Decision",
     purpose:
       "Decide whether going back is actually safer than going on, before anyone starts going back.",
     entity: {
       scope: "the failing rollout or change and the targets it affects",
-      note: "Rollback is one strategy among several. Whether it is available at all depends on what the change has already made irreversible.",
+      note: "Rollback is one strategy among several. Whether it is available at all depends on what the change has already made irreversible. Choosing wrong here is irreversible in the direction that matters most, so a.determine's own determination - the input every downstream branch commits to - is made under an authorized recovery-decision role, never inferred silently from the technical facts alone.",
+      instanceKey: ["change_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1178,9 +1187,11 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.determine",
         kind: "action",
-        does: "Determine the known-good prior state, the rollback capability, the irreversible side effects, the data and schema compatibility, the forward-recovery option and the affected scope",
+        does: "Determine, under an authorized recovery-decision role, the known-good prior state, the rollback capability, the irreversible side effects, the data and schema compatibility, the forward-recovery option and the affected scope - recording who made this determination, since every branch that follows commits to it and the wrong branch here cannot be undone by choosing differently later",
         writes: [{ field: "rollout_log", mode: "append" }],
         next: "c.irreversible",
+        execution: "human",
+        idempotencyKey: "change_id + a.determine",
       },
       {
         id: "c.irreversible",
@@ -1260,6 +1271,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
       "Failure does not automatically imply rollback.",
       "A rollback is never taken across an irreversible boundary blindly.",
       "Rollback policy accounts for changed data, schema and state.",
+      "The rollback-versus-forward-recovery determination is made under a named, authorized recovery-decision role - never inferred silently, given that choosing wrong here is irreversible.",
     ],
     reusableRule:
       "Rollback is one recovery strategy and should be chosen only when returning to the previous state is safer and technically valid.",
@@ -1273,6 +1285,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Rollback execution → restore → verify stability",
+    shortName: "Rollback Verification",
     purpose:
       "Return the affected targets to a known-good state and prove that they actually work there.",
     entity: {
@@ -1455,6 +1468,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Individual target change failure → retry, isolate or remediate",
+    shortName: "Target Change Recovery",
     purpose:
       "Recover one target that could not take the change, and notice when it stops being one target.",
     entity: {
@@ -1638,6 +1652,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Change completed → observe → close, reopen or deprecate previous version",
+    shortName: "Change Stability Review",
     purpose:
       "Wait long enough to know the change held, and keep what a recovery would need until it clearly does not.",
     entity: {
@@ -1791,11 +1806,17 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "readiness-revalidation",
     channels: ["in-app", "email"],
     name: "Upgrade blocked by a resolvable prerequisite → prompt → ready or expired",
+    shortName: "Upgrade Blocker Reminder",
     purpose:
       "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
     entity: {
       scope: "the target, the change waiting on it, and the named prerequisite that is blocking it",
       note: "One target, one blocker, one change. A second blocker on the same target is named in the same prompt or not at all - two prompts about one target read as two problems.",
+      instanceKey: [
+        "target_id",
+        "change_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1809,6 +1830,218 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
           "RLT-241 decides whether the target is in scope for the change at all. Here scope is already settled and the only open question is a prerequisite.",
       },
     ],
+    objective: "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
+    eligibility: [
+      "a target authoritatively held for a planned change",
+      "the specific prerequisite that is blocking it, named rather than described",
+      "a preparation window with time still in it",
+      "no instance of this journey is already open for the the target",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "The prompt names the specific blocker. A notice that an update is available, sent to somebody who cannot take it, is the failure this journey exists to stop."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is asked of a holder who cannot clear the prerequisite."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Two prompts at most, and both name the same blocker and the same date."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Not ready is not failed. A target that was never touched is recorded as unprepared, not as a failed change."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "upgrade_blocker.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the corpus rule: two prompts at most, both naming the same blocker"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "upgrade_blocker.cooldown",
+        "rule": "This journey is per the target; a later instance concerns a different the target and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "inform-hold",
+          "action": "a.inform-hold",
+          "prerequisites": [
+            "c.resolvable"
+          ],
+          "purpose": "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "name-blocker",
+          "action": "a.name-blocker",
+          "prerequisites": [
+            "c.resolvable"
+          ],
+          "purpose": "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "clear-the-prerequisite",
+            "boundTo": "target_id",
+            "mustNotClaim": [
+              "a moved window"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "last-call",
+          "action": "a.last-call",
+          "after": "t2",
+          "gatedBy": "w.clear",
+          "prerequisites": [
+            "c.last-call"
+          ],
+          "purpose": "Send one further prompt naming the same prerequisite and the date it stops mattering.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "clear-the-prerequisite",
+            "boundTo": "target_id",
+            "mustNotClaim": [
+              "a moved window"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "target_id",
+          "change_id",
+          "holder_id",
+          "blocking_prerequisite",
+          "preparation_window_ends_at"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.held",
+          "x.moot",
+          "x.unprepared",
+          "h.resume"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ],
+      "businessOutcome": {
+        "event": "named_requirement_satisfied",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "pre-post"
+      }
+    },
+    discovery: {
+      "aliases": [
+        "upgrade blocker reminder",
+        "update blocked by prerequisite",
+        "prepare for the upgrade",
+        "migration prerequisite reminder",
+        "rollout readiness prompt"
+      ],
+      "useCases": [
+        "the one prerequisite standing between a target and a planned change, named while there is time",
+        "a hold the holder cannot clear, stated with nothing asked"
+      ]
+    },
     entry: "t.blocked",
     nodes: [
       {
@@ -1852,6 +2085,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do. A prompt to act where acting is impossible reads as blame and produces a support contact instead of a cleared blocker",
         next: "x.held",
         execution: "communication",
+        idempotencyKey: "target_id + change_id + a.inform-hold",
       },
       {
         id: "x.held",
@@ -1859,6 +2093,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "held on a blocker the holder cannot clear",
         terminal: false,
         reEntry: "if the blocker later becomes theirs to clear, the target qualifies again on the resolvable path",
+        class: "success",
       },
       {
         id: "a.name-blocker",
@@ -1866,21 +2101,30 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window. A generic notice that something is available leaves the holder to discover the blocker themselves, which is the whole reason the target is stuck",
         next: "w.clear",
         execution: "communication",
+        idempotencyKey: "target_id + change_id + a.name-blocker",
       },
       {
         id: "w.clear",
         kind: "wait",
         until: [
-          "the named prerequisite clears on the target",
-          "the change is superseded or withdrawn",
+          "named_requirement_satisfied",
+          "change_withdrawn"
         ],
         onEvent: "c.cleared",
         timeout: {
-          after: "the point in the preparation window past which a target still blocked cannot be made ready in time",
-          reason: "a prompt that arrives with no time left to act on it is worse than no prompt - it names a deadline that has already gone",
+          "after": {
+            "key": "upgrade_blocker.clear",
+            "rule": "The point in the preparation window past which a target still blocked cannot be made ready in time.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a prompt that arrives with no time left to act on it is worse than no prompt - it names a deadline that has already gone",
+          "relativeTo": "attribute",
+          "attribute": "preparation_window_ends_at"
         },
         onTimeout: "c.last-call",
         windowExtendsOnEngagement: false,
+        recheck: "the the target re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.cleared",
@@ -1915,6 +2159,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "change withdrawn before the blocker was cleared",
         terminal: false,
         reEntry: "the next change with the same prerequisite scopes this target again",
+        class: "invalid-state",
       },
       {
         id: "c.last-call",
@@ -1939,20 +2184,29 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Send one further prompt naming the same prerequisite and the date it stops mattering. There is no third - a blocker nobody has cleared twice is a decision, not an oversight",
         next: "w.final",
         execution: "communication",
+        idempotencyKey: "target_id + change_id + a.last-call",
       },
       {
         id: "w.final",
         kind: "wait",
         until: [
-          "the named prerequisite clears on the target",
+          "named_requirement_satisfied"
         ],
         onEvent: "h.resume",
         timeout: {
-          after: "the remainder of the preparation window",
-          reason: "the window is what separates a target that is not ready from one that has failed, and the two must not be recorded together",
+          "after": {
+            "key": "upgrade_blocker.final",
+            "rule": "After the last call the instance waits until the preparation window itself closes; there is no third prompt.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the window is what separates a target that is not ready from one that has failed, and the two must not be recorded together",
+          "relativeTo": "attribute",
+          "attribute": "preparation_window_ends_at"
         },
         onTimeout: "x.unprepared",
         windowExtendsOnEngagement: false,
+        recheck: "the the target re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.unprepared",
@@ -1960,6 +2214,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "preparation window closed with the blocker outstanding",
         terminal: false,
         reEntry: "the target stays an unprepared member of the population and is prompted again by the next change that needs the same prerequisite",
+        class: "timeout",
       },
     ],
     guardrails: [

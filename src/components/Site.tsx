@@ -10,12 +10,10 @@ import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { StackShowcase } from "@/components/ui/StackShowcase";
+import { EntryCard } from "@/components/ui/CalculatorLibrary";
 import { withJourneyCount } from "@/lib/archive";
 import {
-  getAllLiveSpecs,
-  GROUP_LABEL,
-  LIBRARY_GROUP,
-  LIBRARY_GROUP_ORDER,
+  getFeaturedCalcEntries,
   LIVE_CALCULATOR_SLUGS,
 } from "@/lib/calc-catalog";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
@@ -26,6 +24,28 @@ const HEADER_T = {
 } as const;
 
 const GITHUB = "https://github.com/ali-demirbas";
+
+/* THE SHELL'S TWO TEXT STYLES, shared by SiteHeader and SiteFooter so the
+   wordmark and a link cannot drift between the top and the bottom of a
+   page. Both are read straight off the design system: the wordmark is
+   `text-base` (the 16px step the ramp leaves at the framework's value) in
+   Semibold; a link is `text-label`, the ramp's UI-label tier (14 / 20,
+   Medium, -0.01em - the same cut as the Button's own `sm` label, see
+   globals.css § The UI label tier). Colours are the semantic text pair -
+   `ink` (stone-800, primary text) and `ink-muted` (secondary text and
+   resting labels) - never raw ramp steps picked by eye. Hover is a colour
+   change, so it runs on `--duration-fast`, the token the duration block
+   reserves for exactly that.
+
+   Until 2026-09-06 the wordmark was `text-[15px]` and the links `text-sm`
+   Regular on `ink-600` / `ink-950`: a size the ramp does not have, a weight
+   no other small control in the system uses, and two steps the semantic
+   layer does not name. The Medium weight and the alias' current value were
+   chosen from a rendered five-way comparison after the owner's "text looks
+   thin" - the reasoning sits with the tokens, in globals.css. */
+const WORDMARK = "text-base font-semibold tracking-tight text-ink";
+const NAV_LINK =
+  "text-label text-ink-muted transition-colors duration-[var(--duration-fast)] hover:text-ink";
 
 /* Corporate one-pager for Ali Demirbaş in the Altor design language:
    white-first editorial, Altor Blue, dark hero. */
@@ -55,10 +75,13 @@ export function SiteHeader({
   // Real Lab projects (same data LabIndexPage/SiteFooter already use),
   // resolved server-side - `withJourneyCount` is server-only, so the
   // Canonical Journey Library's real {count} token is already filled in
-  // before this reaches the client-only LabNavDropdown below.
+  // before this reaches the client-only LabNavDropdown below. The slug is
+  // what the dropdown and the phone menu look the project's glyph up by
+  // (LabProjectIdentity.tsx); the tagline replaces the two-line desc.
   const labProjects = t.lab.projects.map((p) => ({
+    slug: p.slug,
     name: p.name,
-    desc: withJourneyCount(p.desc),
+    tagline: withJourneyCount(p.tagline),
     href: p.links[0].href,
   }));
 
@@ -77,33 +100,58 @@ export function SiteHeader({
     // manually offset its first section under it.
     <header className="sticky top-0 z-40 border-b border-line-soft bg-paper/95 backdrop-blur-sm">
       <div className="altor-container flex h-16 items-center justify-between">
-        <a href={anchorBase || "#top"} className="text-[15px] font-semibold tracking-tight text-ink-950">
+        <a href={anchorBase || "#top"} className={WORDMARK}>
           Ali Demirbaş
         </a>
-        <nav className="hidden items-center gap-8 text-sm text-ink-600 md:flex">
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.aboutHref}>{t.nav.about}</Link>
-          <LabNavDropdown label={t.nav.lab} href={t.nav.labHref} viewAllLabel={ht.viewAllLab} projects={labProjects} />
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.calculatorsHref}>{t.nav.calculators}</Link>
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.blogHref}>{t.nav.blog}</Link>
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.stackHref}>{t.nav.stack}</Link>
-          <Link className="transition-colors hover:text-ink-950" href={t.nav.contactHref}>{t.nav.contact}</Link>
+        {/* One list drives both the desktop bar and MobileNav below, so the
+            two cannot disagree on what the site's navigation is. Lab is the
+            one item with real sub-content and takes the dropdown; the
+            dropdown's trigger inherits NAV_LINK's colour from the <nav>. */}
+        <nav className={`hidden items-center gap-8 md:flex ${NAV_LINK}`}>
+          {navItems.map((item) =>
+            item.href === t.nav.labHref ? (
+              <LabNavDropdown
+                key={item.href}
+                label={item.label}
+                href={item.href}
+                viewAllLabel={ht.viewAllLab}
+                projects={labProjects}
+              />
+            ) : (
+              <Link key={item.href} className={NAV_LINK} href={item.href}>
+                {item.label}
+              </Link>
+            ),
+          )}
         </nav>
         <div className="flex items-center gap-6">
-          <Link href={langHref ?? t.nav.langHref} className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+          <Link href={langHref ?? t.nav.langHref} className={NAV_LINK}>
             {t.nav.lang}
           </Link>
-          <a
-            href={`mailto:${EMAIL}`}
-            className="hidden h-10 items-center rounded-full bg-ink-950 px-4 text-sm font-medium text-white transition-colors hover:bg-primary-600 sm:inline-flex"
-          >
+          {/* THE SYSTEM'S BUTTON, not a hand-rolled one. Until 2026-09-06 this
+              was a bare <a> carrying its own pill (`rounded-full bg-ink-950
+              hover:bg-primary-600`) - written before Button.tsx existed and
+              never migrated, so it silently missed the 2026-09-04 squared
+              corner, the pixel-fill hover and the `--duration-*` timing every
+              other CTA on the site got. `ink` is the variant the component
+              documents for "a second solid CTA" beside a page's own primary
+              one - which is exactly what a header CTA is on every page whose
+              hero already carries a `primary` button. `sm` is the 40px tier
+              that fits a 64px bar; `max-sm:hidden` yields to MobileNav's
+              own copy of the same control below the `sm` breakpoint. */}
+          <ButtonLink href={`mailto:${EMAIL}`} variant="ink" size="sm" className="max-sm:hidden">
             {t.nav.cta}
-          </a>
+          </ButtonLink>
           <MobileNav
             items={navItems}
             langHref={langHref ?? t.nav.langHref}
             langLabel={t.nav.lang}
             ctaHref={`mailto:${EMAIL}`}
             ctaLabel={t.nav.cta}
+            // Same Lab projects the desktop dropdown lists, so the phone
+            // menu is not a shorter version of the site's navigation.
+            labHref={t.nav.labHref}
+            labProjects={labProjects}
           />
         </div>
       </div>
@@ -121,7 +169,12 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
       // the only thing still asking the reader to cross a tone boundary at
       // the top of the site. Ink on paper, hairline rules, and the portrait
       // plate left as the one place colour does any work.
-      className="relative isolate flex flex-col overflow-hidden border-b border-line bg-paper pt-16 pb-16 lg:pt-20 lg:pb-20"
+      // Tinted stage, no rule under it. The hero and the Work band below
+      // were both white, so a hairline was doing all the seam work; one
+      // step of ground does it without a stroke, and matches the stage on
+      // every calculator page. Deleting the line without the tint would
+      // leave a padding-only seam - this project's own known defect.
+      className="relative isolate flex flex-col overflow-hidden bg-paper-soft pt-16 pb-16 lg:pt-20 lg:pb-20"
     >
 
       <div className="relative flex flex-1 flex-col justify-center">
@@ -181,8 +234,10 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
             {/* portrait plate: the photograph on a blue field, framed by rules */}
             <Reveal delay={120} className="hidden lg:block">
               <div className="relative mx-auto w-full max-w-sm">
-                <div aria-hidden className="absolute -inset-3 border border-line" />
-                <div className="relative aspect-4/5 overflow-hidden bg-blue-600">
+                {/* The square double-frame this plate used to carry came off
+                    with the hard-technical direction: one soft rounded plate,
+                    no drawn frame around it. */}
+                <div className="relative aspect-4/5 overflow-hidden rounded-3xl bg-blue-600">
                   <Image
                     src="/portrait.jpg"
                     alt="Ali Demirbaş"
@@ -246,7 +301,9 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
 
         <Reveal delay={90}>
           <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-[9rem_minmax(0,1fr)] md:gap-8">
-            <p className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase">
+            {/* Plain case, like every other label since the mono rail was
+                retired. */}
+            <p className="text-[13px] font-medium text-ink-400">
               {t.home.work.primaryLabel}
             </p>
             <div>
@@ -257,11 +314,14 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
         </Reveal>
 
         <Reveal delay={140}>
-          <ul className="mt-12 md:ml-[11rem]">
+          {/* Soft filled rows rather than a ruled table: three hairlines
+              stacked under three lines of prose was the stroke-heavy habit
+              the site has left, and the rows read as a list either way. */}
+          <ul className="mt-12 flex list-none flex-col gap-2.5 p-0 md:ml-[11rem]">
             {t.home.work.rest.map((item, i) => (
               <li
                 key={item.title}
-                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 border-t border-line py-4"
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 rounded-xl bg-paper-soft px-5 py-4"
               >
                 <span className="tnum pt-0.5 font-mono text-xs text-ink-400">
                   {String(i + 2).padStart(2, "0")}
@@ -293,6 +353,20 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
 
     One column, full-width cards on narrow viewports; two columns side by
     side from `md` up. */
+// One distinct panel color per Lab project, keyed by slug so it stays
+// stable regardless of array order. Deliberately outside the site's
+// established token palette (site-owner direction, not a taste pick) -
+// each a deep, muted, editorial-dark hue so the set reads as one family
+// despite the range of hues.
+const LAB_PANEL_COLOR: Record<string, string> = {
+  "claude-lifecycle": "#152049", // navy
+  "lifecycle-card-archive": "#1c3829", // dark green
+  "ab-test-playbook": "#3a1930", // wine
+  "dashboard-builder": "#0f3336", // deep teal
+  "google-ads-change-history-dashboard": "#2a1f42", // plum
+  numerspace: "#3a2412", // rust brown
+};
+
 function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   return (
     <section id="lab" className="bg-paper-soft py-24 md:py-28">
@@ -310,21 +384,26 @@ function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             const external = action.href.startsWith("http");
             return (
               <Reveal key={project.slug} delay={i * 60}>
-                <article className="flex h-full flex-col rounded-2xl border border-line bg-paper p-6 sm:p-7">
-                  <div className="overflow-hidden rounded-xl bg-paper-soft p-3 sm:p-4 [&>div]:!shadow-none">
+                <article className="flex h-full flex-col overflow-hidden rounded-[28px] border border-line">
+                  <div
+                    className="overflow-hidden rounded-2xl p-5 sm:p-6 [&>div]:!shadow-none"
+                    style={{ backgroundColor: LAB_PANEL_COLOR[project.slug] ?? "#152049" }}
+                  >
                     {preview}
                   </div>
-                  <h3 className="mt-6 text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
-                  <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-ink-600">
-                    {withJourneyCount(project.desc)}
-                  </p>
-                  <a
-                    href={action.href}
-                    {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-                    className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
-                  >
-                    {action.label}
-                  </a>
+                  <div className="flex flex-1 flex-col p-6 sm:p-7">
+                    <h3 className="text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
+                    <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-ink-600">
+                      {withJourneyCount(project.desc)}
+                    </p>
+                    <a
+                      href={action.href}
+                      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+                      className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-[#1f9d70] px-4 py-2 text-sm font-medium text-[#1f9d70] transition-colors hover:bg-[#1f9d70]/10"
+                    >
+                      {action.label}
+                    </a>
+                  </div>
                 </article>
               </Reveal>
             );
@@ -347,74 +426,45 @@ function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
 
 /* Calculators.
 
-   This band used to be a heading, a two-line intro, one mono count and a
-   link - four lines of text holding a full py-32 section, with the right
-   half of the page empty and roughly 270px of nothing below it. The
-   emptiness was not restraint: the section had a real anchor available and
-   showed none of it.
-
-   The anchor is the library itself. getAllLiveSpecs() returns the 19 live
-   calculators with their real names, and LIBRARY_GROUP puts each one in its
-   real product group, so the right-hand column is the actual index - no
-   invented names, no placeholder tiles, and it cannot drift from what is
-   routable because it is read from the same catalog the routes are.
-
-   Names only, as a rail rather than cards: a name is not structured enough
-   to earn a border, and 19 bordered boxes is exactly the failure the Lab
-   index above already avoids. */
+   Was a heading + a grouped text-link rail (names only, no cards) - see
+   git history for the prior reasoning against boxing all 19 at once. Per
+   explicit site-owner direction, now a 6-card teaser reusing the exact
+   card CalculatorLibrary's own /calculators grid renders (EntryCard),
+   plus one "see all" link - the same shape as the Lab section above it.
+   getFeaturedCalcEntries() returns a genuine prefix of the real,
+   routable catalog (funnel order), not a hand-picked or invented list. */
 function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const specs = getAllLiveSpecs();
-  const groups = LIBRARY_GROUP_ORDER.map((group) => ({
-    group,
-    items: specs.filter((spec) => LIBRARY_GROUP[spec.slug] === group),
-  })).filter((g) => g.items.length > 0);
+  const entries = getFeaturedCalcEntries(lang, 6);
 
   return (
     <section id="calculators" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
-          <div>
-            <SectionHeading
-              eyebrow={t.home.calc.eyebrow}
-              title={t.home.calc.title}
-              intro={t.home.calc.intro}
-            />
-            <Reveal delay={90}>
-              <p className="mt-8 font-mono text-sm text-ink-500">
-                <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
-              </p>
-              <Link
-                href={t.nav.calculatorsHref}
-                className="mt-5 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-              >
-                {t.home.calc.more}
-                <ArrowRight aria-hidden className="size-3.5" />
-              </Link>
-            </Reveal>
-          </div>
+        <SectionHeading
+          eyebrow={t.home.calc.eyebrow}
+          title={t.home.calc.title}
+          intro={t.home.calc.intro}
+        />
+        <p className="mt-6 font-mono text-sm text-ink-500">
+          <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
+        </p>
 
-          <Reveal delay={140}>
-            <div className="flex flex-col gap-7 border-t border-line pt-7 lg:border-t-0 lg:pt-1">
-              {groups.map(({ group, items }) => (
-                <div key={group} className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-[10rem_minmax(0,1fr)]">
-                  <p className="altor-eyebrow pt-1 text-ink-400">{GROUP_LABEL[group][lang]}</p>
-                  <ul className="flex flex-wrap gap-x-5 gap-y-1.5">
-                    {items.map((spec) => (
-                      <li key={spec.slug}>
-                        <Link
-                          href={`${t.nav.calculatorsHref}/${spec.slug}`}
-                          className="text-[0.9375rem] text-ink-700 underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink-950 hover:decoration-ink-400"
-                        >
-                          {spec.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </Reveal>
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {entries.map((entry, i) => (
+            <Reveal key={entry.slug} delay={i * 50}>
+              <EntryCard entry={{ ...entry, searchText: "" }} index={i} />
+            </Reveal>
+          ))}
         </div>
+
+        <Reveal delay={entries.length * 50 + 40}>
+          <Link
+            href={t.nav.calculatorsHref}
+            className="mt-10 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+          >
+            {t.home.calc.more}
+            <ArrowRight aria-hidden className="size-3.5" />
+          </Link>
+        </Reveal>
       </div>
     </section>
   );
@@ -469,10 +519,10 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
     // used for the Contact form zone) - explicitly lighter than the old
     // black footer, per request. Link/heading colors flip from
     // white-on-dark to ink-on-light using the same token ramp.
-    <footer className="border-t border-line bg-paper-soft pt-16 pb-8">
+    <footer className="bg-paper-soft pt-16 pb-8">
       <div className="altor-container">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-16">
-          <Link href={home} className="shrink-0 text-[15px] font-semibold tracking-tight text-ink-950">
+          <Link href={home} className={`shrink-0 ${WORDMARK}`}>
             Ali Demirbaş
           </Link>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:gap-16">
@@ -481,7 +531,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
               <ul className="mt-4 flex flex-col gap-3">
                 {quickLinks.map((item) => (
                   <li key={item.href}>
-                    <Link href={item.href} className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                    <Link href={item.href} className={NAV_LINK}>
                       {item.label}
                     </Link>
                   </li>
@@ -496,7 +546,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
                     <a
                       href={project.links[0].href}
                       {...(project.links[0].href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
-                      className="text-sm text-ink-600 transition-colors hover:text-ink-950"
+                      className={NAV_LINK}
                     >
                       {project.name}
                     </a>
@@ -508,17 +558,17 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
               <p className="altor-eyebrow font-semibold tracking-wide text-ink-950 uppercase">{t.footer.connect}</p>
               <ul className="mt-4 flex flex-col gap-3">
                 <li>
-                  <a href={`mailto:${EMAIL}`} className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                  <a href={`mailto:${EMAIL}`} className={NAV_LINK}>
                     {EMAIL}
                   </a>
                 </li>
                 <li>
-                  <a href={LINKEDIN} target="_blank" rel="noreferrer" className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                  <a href={LINKEDIN} target="_blank" rel="noreferrer" className={NAV_LINK}>
                     LinkedIn
                   </a>
                 </li>
                 <li>
-                  <a href={GITHUB} target="_blank" rel="noreferrer" className="text-sm text-ink-600 transition-colors hover:text-ink-950">
+                  <a href={GITHUB} target="_blank" rel="noreferrer" className={NAV_LINK}>
                     GitHub
                   </a>
                 </li>

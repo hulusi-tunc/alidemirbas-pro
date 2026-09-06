@@ -1,0 +1,722 @@
+{
+ "id": "FBK-43",
+ "shortName": "Feedback Follow-Up",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "handoff",
+  "exit",
+  "human-task",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.received",
+   "event": "feedback_received",
+   "meaning": "feedback submitted through any channel, attributable to a person and an experience; enough substance to say what it is about - a description, a referent, or a score with words behind it",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "feedback submitted through any channel, attributable to a person and an experience",
+    "the record has enough substance to classify; a bare score is stored as a score and not routed",
+    "no follow-up instance is already open for this feedback record"
+   ],
+   "instanceKey": [
+    "feedback_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.persist",
+   "does": "Persist the record with its id, source, related entity, timestamp and any sentiment or category the person themselves selected - together with what they actually wrote, kept verbatim. Everything after this is our interpretation and is stored beside their words, never over them",
+   "writes": [
+    {
+     "field": "feedback_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.persist",
+   "key": "feedback_id"
+  },
+  {
+   "type": "state-update",
+   "node": "a.classify",
+   "does": "Classify the operational meaning as PRAISE, PRODUCT_FEEDBACK, SERVICE_ISSUE, SUPPORT_NEED, COMPLAINT, GENERAL_COMMENT or UNKNOWN, in its own field. A classification is a routing decision, not a finding about what went wrong",
+   "writes": [
+    {
+     "field": "feedback_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.route",
+   "asks": "What does this mean operationally?",
+   "branches": [
+    {
+     "label": "PRAISE",
+     "observes": null,
+     "test": "positive, with substance behind it",
+     "to": "a.persist-positive"
+    },
+    {
+     "label": "SERVICE_ISSUE or COMPLAINT",
+     "observes": null,
+     "test": "something went wrong, or is alleged to have",
+     "to": "c.existing"
+    },
+    {
+     "label": "SUPPORT_NEED",
+     "observes": null,
+     "test": "they need help with something rather than reporting a fault",
+     "to": "a.obligation"
+    },
+    {
+     "label": "PRODUCT_FEEDBACK",
+     "observes": null,
+     "test": "an observation about the product that creates no obligation to this individual",
+     "to": "a.product"
+    },
+    {
+     "label": "GENERAL_COMMENT",
+     "observes": null,
+     "test": "worth keeping, nothing to do",
+     "to": "c.acknowledge"
+    },
+    {
+     "label": "UNKNOWN",
+     "observes": null,
+     "test": "the meaning cannot be established reliably enough to route",
+     "to": "h.triage"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.recognition",
+   "asks": "Is recognition appropriate?",
+   "branches": [
+    {
+     "label": "Worth acknowledging",
+     "observes": "content",
+     "test": "they said something specific that a person could respond to",
+     "to": "a.acknowledge-positive"
+    },
+    {
+     "label": "Not needed",
+     "observes": "content",
+     "test": "an acknowledgement would be noise",
+     "to": "c.contribution"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.acknowledge-positive",
+   "touch": "t-positive",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "feedback.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.existing-case",
+    "s.no-fault",
+    "s.generic-thanks",
+    "s.not-consent",
+    "s.noise"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.acknowledge-positive",
+   "touch": "t-positive",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the acknowledgement should reach the person where they can keep it, which is the default for something they wrote to us"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the feedback was given inside the product and the person is still there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.acknowledge-positive",
+   "touch": "t-positive",
+   "stage": "recognition",
+   "purpose": "Acknowledge the specific thing they praised. Nothing generic, nothing that reads as a template.",
+   "brief": "Acknowledge the specific thing they said. A generic thank-you sent in response to praise is worse than silence, because it proves nobody read it",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route",
+    "c.recognition"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.acknowledge-positive",
+   "key": "feedback_id + touch id"
+  },
+  {
+   "type": "condition",
+   "node": "c.contribution",
+   "asks": "Did they volunteer something reusable - a written review, a quote, a story?",
+   "branches": [
+    {
+     "label": "Volunteered something",
+     "observes": "content",
+     "test": "they provided content beyond an answer to our question",
+     "to": "h.contribution"
+    },
+    {
+     "label": "Just feedback",
+     "observes": "content",
+     "test": "they answered and nothing more",
+     "to": "c.eligible"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.contribution",
+   "to": "external:advocacy-contribution",
+   "on": "a reusable contribution offered voluntarily",
+   "carries": [
+    "the contribution as given",
+    "the explicit fact that offering it is not permission to publish it, which has to be captured separately before anything is used"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "feedback_id",
+     "person_id",
+     "contribution",
+     "offered_at"
+    ]
+   }
+  },
+  {
+   "type": "condition",
+   "node": "c.eligible",
+   "asks": "Does the relationship now meet advocacy eligibility?",
+   "branches": [
+    {
+     "label": "Eligible",
+     "observes": "relationship_evidence",
+     "test": "this evidence, together with what already existed, is enough to justify asking for something",
+     "to": "h.advocacy"
+    },
+    {
+     "label": "Not eligible",
+     "observes": "relationship_evidence",
+     "test": "this is one good signal and the relationship has not accumulated more",
+     "to": "x.evidence"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.advocacy",
+   "to": "FBK-42",
+   "on": "positive evidence reaching the advocacy threshold",
+   "carries": [
+    "the evidence set, not only the latest item",
+    "the context the positive experience was in"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.evidence",
+   "class": "success",
+   "state": "recorded as evidence; no advocate state created",
+   "reEntry": "further positive feedback opens its own record and re-weighs the evidence"
+  },
+  {
+   "type": "state-update",
+   "node": "a.attach",
+   "does": "Attach the feedback to the existing case as further context. No second case is created and no parallel recovery is opened",
+   "writes": [
+    {
+     "field": "issue_context_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.attach",
+   "key": "feedback_id + open issue reference"
+  },
+  {
+   "type": "exit",
+   "node": "x.attached",
+   "class": "suppression",
+   "state": "attached to the existing case",
+   "reEntry": "the case's own lifecycle owns the outcome; the feedback record stays as evidence"
+  },
+  {
+   "type": "state-update",
+   "node": "a.assess",
+   "does": "Establish whether what they described is an actionable operational issue, or an experience we did not meet. Both are real; only one creates an obligation, and inventing the obligation to have somewhere to route to is the failure this step exists to prevent",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.actionable",
+   "asks": "Is there an actionable operational issue?",
+   "branches": [
+    {
+     "label": "Actionable",
+     "observes": "assessment",
+     "test": "something specific can be fixed, and fixing it is ours to do",
+     "to": "c.severity"
+    },
+    {
+     "label": "Not actionable",
+     "observes": "assessment",
+     "test": "an experience we did not meet, with nothing operational to fix",
+     "to": "a.acknowledge-negative"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.acknowledge-negative",
+   "touch": "t-negative",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "feedback.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.existing-case",
+    "s.no-fault",
+    "s.generic-thanks",
+    "s.not-consent",
+    "s.noise"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.acknowledge-negative",
+   "touch": "t-negative",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the acknowledgement should reach the person where they can keep it, which is the default for something they wrote to us"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the feedback was given inside the product and the person is still there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.acknowledge-negative",
+   "touch": "t-negative",
+   "stage": "acknowledgement",
+   "purpose": "Acknowledge what they said about an experience we did not meet, without manufacturing a fault and without offering compensation in place of a fix.",
+   "brief": "Acknowledge what they said and record it as relationship evidence. No fault is manufactured, no compensation is offered as a substitute for having nothing to fix",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route",
+    "c.existing",
+    "c.actionable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.acknowledge-negative",
+   "key": "feedback_id + touch id"
+  },
+  {
+   "type": "exit",
+   "node": "x.acknowledged",
+   "class": "success",
+   "state": "heard, nothing to fix",
+   "reEntry": "further feedback about the same experience opens its own record"
+  },
+  {
+   "type": "condition",
+   "node": "c.severity",
+   "asks": "Do the escalation criteria apply?",
+   "branches": [
+    {
+     "label": "Severe",
+     "observes": "escalation policy",
+     "test": "policy defines this as requiring escalation on severity, harm, or the parties involved",
+     "to": "a.escalate"
+    },
+    {
+     "label": "Ordinary",
+     "observes": "escalation policy",
+     "test": "actionable, at the normal level",
+     "to": "h.issue"
+    }
+   ]
+  },
+  {
+   "type": "human-task",
+   "node": "a.escalate",
+   "does": "Apply the policy escalation and mark the severity on the issue, so that the ownership and SLA it inherits are the escalated ones rather than the default",
+   "touch": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.issue",
+   "to": "FBK-46",
+   "on": "an actionable issue arising from feedback",
+   "carries": [
+    "the person's own account of it, unedited",
+    "the severity and whether policy escalation was applied",
+    "the link back to the feedback record, which stays open independently"
+   ],
+   "suppresses": [
+    "any automated satisfaction or retention outreach about the same experience while the issue is open"
+   ],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.persist-positive",
+   "does": "Store it as one dated, scoped piece of positive relationship evidence. Not a label, not a state, not an advocate flag - a fact about a moment",
+   "writes": [
+    {
+     "field": "relationship_evidence",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.existing",
+   "asks": "Does an open issue or case already cover this?",
+   "branches": [
+    {
+     "label": "Already open",
+     "observes": "open issues for the experience",
+     "test": "an open issue on the same experience or entity matches what they described",
+     "to": "a.attach"
+    },
+    {
+     "label": "Nothing open",
+     "observes": "open issues for the experience",
+     "test": "no open issue matches",
+     "to": "a.assess"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.triage",
+   "to": "DEC-181",
+   "on": "feedback that cannot be classified reliably",
+   "carries": [
+    "the record, unclassified, so a person reads what was written rather than a guess about it"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.product",
+   "does": "Pass it to product intake as evidence. Nothing is owed to this individual in return, and nothing is promised to them",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "human-task",
+   "node": "a.obligation",
+   "does": "Create the work item in the owning process. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events",
+   "touch": null
+  },
+  {
+   "type": "wait",
+   "node": "w.outcome",
+   "timing": {
+    "key": "feedback.obligation_sla",
+    "class": "decision-sla",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "x.open"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.outcome",
+   "cancelOn": [
+    {
+     "event": "work_item_outcome_recorded",
+     "meaning": "the operational outcome is recorded against the work item"
+    }
+   ],
+   "onEvent": "c.promise"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.outcome",
+   "reads": "the work item re-read from the owning process: outcome recorded or still open",
+   "before": "x.open"
+  },
+  {
+   "type": "exit",
+   "node": "x.open",
+   "class": "failure",
+   "state": "obligation outstanding; loop not closed",
+   "reEntry": "the outcome arriving later re-opens this to close the loop; the issue's own journey owns the escalation, and nothing here pretends the record is finished"
+  },
+  {
+   "type": "condition",
+   "node": "c.promise",
+   "asks": "Was a follow-up promised to the person?",
+   "branches": [
+    {
+     "label": "Promised",
+     "observes": null,
+     "test": "they were told they would hear back",
+     "to": "w.followup"
+    },
+    {
+     "label": "Nothing promised",
+     "observes": null,
+     "test": "no commitment was made to them",
+     "to": "x.closed"
+    }
+   ]
+  },
+  {
+   "type": "wait",
+   "node": "w.followup",
+   "timing": {
+    "key": "feedback.promise_window",
+    "class": "response-window",
+    "default": {
+     "min": "7 days",
+     "max": "14 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "promised_followup_at",
+   "onTimeout": "h.promise"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.followup",
+   "cancelOn": [
+    {
+     "event": "promised_followup_delivered",
+     "meaning": "the follow-up that was promised is delivered"
+    }
+   ],
+   "onEvent": "x.closed"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.followup",
+   "reads": "the promise re-read: delivered, or still outstanding",
+   "before": "h.promise"
+  },
+  {
+   "type": "handoff",
+   "node": "h.promise",
+   "to": "DEC-181",
+   "on": "a promised follow-up that did not happen",
+   "carries": [
+    "what was promised, when, and what has happened operationally since"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.acknowledge",
+   "asks": "Is an acknowledgement appropriate?",
+   "branches": [
+    {
+     "label": "Worth acknowledging",
+     "observes": null,
+     "test": "they addressed us directly and would expect some response",
+     "to": "a.acknowledge"
+    },
+    {
+     "label": "Not needed",
+     "observes": null,
+     "test": "an acknowledgement would be noise",
+     "to": "x.stored"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.acknowledge",
+   "touch": "t-comment",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "feedback.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.existing-case",
+    "s.no-fault",
+    "s.generic-thanks",
+    "s.not-consent",
+    "s.noise"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.acknowledge",
+   "touch": "t-comment",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the acknowledgement should reach the person where they can keep it, which is the default for something they wrote to us"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the feedback was given inside the product and the person is still there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.acknowledge",
+   "touch": "t-comment",
+   "stage": "acknowledgement",
+   "purpose": "Acknowledge a general comment specifically enough that it is clear a person could have read it.",
+   "brief": "Acknowledge specifically enough that it is clear a person could have read it",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route",
+    "c.acknowledge"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.acknowledge",
+   "key": "feedback_id + touch id"
+  },
+  {
+   "type": "exit",
+   "node": "x.stored",
+   "class": "success",
+   "state": "stored; nothing owed",
+   "reEntry": "the record contributes to relationship evidence and needs nothing further"
+  },
+  {
+   "type": "exit",
+   "node": "x.closed",
+   "class": "success",
+   "state": "loop closed",
+   "reEntry": "further feedback about the same experience opens its own record"
+  }
+ ]
+}

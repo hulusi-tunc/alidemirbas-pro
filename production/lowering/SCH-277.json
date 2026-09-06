@@ -1,0 +1,549 @@
+{
+ "id": "SCH-277",
+ "shortName": "Booking Confirmation",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "condition",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.requested",
+   "event": "reservation_request_recorded",
+   "meaning": "a reservation request recorded against a named requester, resource and slot; a permitted contact point for a booking notice",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a reservation request recorded against a named requester, resource and slot",
+    "a permitted contact point for a booking notice",
+    "no instance of this journey is already open for the the reservation request",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "booking_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.received",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "reservation_outcome.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.received",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.received",
+   "touch": "t1",
+   "stage": "received",
+   "purpose": "Acknowledge the request and say explicitly that it is not yet a commitment, naming when the outcome will come.",
+   "brief": "Acknowledge the request and say explicitly that it is not yet a commitment, naming when the outcome will come. The gap between asking for a time and holding it is where every double-booking dispute begins",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.received",
+   "key": "booking_id + a.received"
+  },
+  {
+   "type": "wait",
+   "node": "w.outcome",
+   "timing": {
+    "key": "reservation_outcome.outcome",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.lapse"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.outcome",
+   "cancelOn": [
+    {
+     "event": "booking_confirmed",
+     "meaning": "the booking is confirmed"
+    },
+    {
+     "event": "booking_request_rejected",
+     "meaning": "the request is rejected for want of capacity or eligibility"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.outcome",
+   "reads": "the the reservation request re-read from the system of record before acting on the timeout",
+   "before": "a.lapse"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What did revalidation decide?",
+   "branches": [
+    {
+     "label": "Committed",
+     "observes": null,
+     "test": "the capacity was committed and a confirmed reservation now exists",
+     "to": "a.confirm"
+    },
+    {
+     "label": "Gone, but something near",
+     "observes": null,
+     "test": "the slot was no longer available when it was re-read, and current availability holds something close enough to be worth offering",
+     "to": "a.reoffer"
+    },
+    {
+     "label": "Gone, nothing near",
+     "observes": null,
+     "test": "the slot was no longer available and nothing in current availability is a genuine alternative",
+     "to": "a.decline"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "reservation_outcome.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm",
+   "touch": "t2",
+   "stage": "confirm",
+   "purpose": "State the committed slot, the resource and the terms concretely - the date, the time, the place, what is needed on arrival.",
+   "brief": "State the committed slot, the resource and the terms concretely - the date, the time, the place, what is needed on arrival. A confirmation that does not restate the specifics is not something the requester can act on a month later",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm",
+   "key": "booking_id + a.confirm"
+  },
+  {
+   "type": "exit",
+   "node": "x.confirmed",
+   "class": "success",
+   "state": "committed and stated to the requester",
+   "reEntry": "a change or cancellation to this commitment is its own instance; a further request is a new one"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.reoffer",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "reservation_outcome.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.reoffer",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.reoffer",
+   "touch": "t3",
+   "stage": "reoffer",
+   "purpose": "Say the requested time is gone, name the slots available now, and give a deadline for choosing.",
+   "brief": "Say the requested time is gone, name the slots available now, and give a deadline for choosing. What is offered is current availability and never the set they were originally shown, which by definition contains one slot that no longer exists",
+   "destination": {
+    "target": "available-slots",
+    "boundTo": "booking_id",
+    "mustNotClaim": [
+     "that a slot is held",
+     "that the requested time is available"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.reoffer",
+   "key": "booking_id + a.reoffer"
+  },
+  {
+   "type": "wait",
+   "node": "w.choice",
+   "timing": {
+    "key": "reservation_outcome.choice",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "choice_deadline_at",
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.choice",
+   "cancelOn": [
+    {
+     "event": "offered_slot_requested",
+     "meaning": "the requester picks one of the offered slots"
+    },
+    {
+     "event": "offered_slots_declined",
+     "meaning": "the requester declines every offered slot"
+    }
+   ],
+   "onEvent": "c.choice"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.choice",
+   "reads": "the the reservation request re-read from the system of record before acting on the timeout",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "condition",
+   "node": "c.choice",
+   "asks": "Did they take one of them?",
+   "branches": [
+    {
+     "label": "Took a slot",
+     "observes": null,
+     "test": "the requester asked for one of the slots that were offered",
+     "to": "h.rebook"
+    },
+    {
+     "label": "Declined all",
+     "observes": null,
+     "test": "the requester declined every alternative offered",
+     "to": "x.declined"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.rebook",
+   "to": "SCH-173",
+   "on": "a requester choosing one of the alternative slots offered to them",
+   "carries": [
+    "the original request and why it could not be met",
+    "the slot chosen and when it was offered"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.declined",
+   "class": "success",
+   "state": "no commitment made, requester informed",
+   "reEntry": "a fresh request for a different time enters as a new instance"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.decline",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "reservation_outcome.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.decline",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.decline",
+   "touch": "t4",
+   "stage": "decline",
+   "purpose": "Say plainly that the time could not be committed, that nothing is being held, and when capacity of this kind is next expected.",
+   "brief": "Say plainly that the time could not be committed, that nothing is being held, and when capacity of this kind is next expected. A rejection with no next horizon sends the requester somewhere else rather than back to the calendar",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.decline",
+   "key": "booking_id + a.decline"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.lapse",
+   "touch": "t5",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "reservation_outcome.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.lapse",
+   "touch": "t5",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.lapse",
+   "touch": "t5",
+   "stage": "lapse",
+   "purpose": "Close the request as lapsed and say that nothing is held and nothing was booked.",
+   "brief": "Close the request as lapsed and say that nothing is held and nothing was booked. Requesters read silence as confirmation, which is the most expensive assumption in scheduling",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.lapse",
+   "key": "booking_id + a.lapse"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "request lapsed unresolved, nothing held",
+   "reEntry": "a fresh request starts the sequence again"
+  }
+ ]
+}

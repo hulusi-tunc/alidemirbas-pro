@@ -1,0 +1,515 @@
+{
+ "id": "SUB-163",
+ "shortName": "Renewal Reminder",
+ "strategy": "deadline-countdown",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "condition",
+  "handoff",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.window",
+   "event": "renewal_decision_window_opens",
+   "meaning": "a relationship whose term end is inside the renewal decision window its governing terms define",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a renewal decision window has opened on a continuing relationship with a current term",
+    "the renewal terms, model and required notice are defined - or the cycle goes to decision resolution first",
+    "no renewal instance is already open for this cycle"
+   ],
+   "instanceKey": [
+    "relationship_id",
+    "renewal_cycle_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.evaluate",
+   "does": "Evaluate renewal eligibility, the renewal model, the relationship's current state, the notice the terms require, the pricing and terms that would apply, any outstanding blockers, and whether the counterparty has to decide at all",
+   "writes": [
+    {
+     "field": "renewal_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.notice",
+   "asks": "Are the renewal terms and required notice period defined?",
+   "branches": [
+    {
+     "label": "Defined",
+     "observes": null,
+     "test": "the governing terms state the notice period, the renewal model and the terms that would apply",
+     "to": "c.notice-required"
+    },
+    {
+     "label": "Not defined",
+     "observes": null,
+     "test": "the notice period or the renewing terms are not stated anywhere authoritative",
+     "to": "h.undefined"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.undefined",
+   "to": "DEC-181",
+   "on": "a renewal window with no defined notice period or renewing terms",
+   "carries": [
+    "the relationship, its term end and what the terms do say",
+    "the explicit fact that no notice period or price was invented in order to proceed"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.notice-required",
+   "asks": "Do the governing terms require notice to actually be given?",
+   "branches": [
+    {
+     "label": "Notice is required",
+     "observes": null,
+     "test": "the terms oblige us to tell them the term is renewing before it does",
+     "to": "a.notice"
+    },
+    {
+     "label": "No notice obligation",
+     "observes": null,
+     "test": "the terms define the model and the period but require no notification",
+     "to": "c.blockers"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.notice",
+   "touch": "t-notice",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "renewal.discretionary_touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": {
+    "exclusionGroup": "relationship-continuity",
+    "scope": "subscription",
+    "precedence": "below a cancellation in motion and below an active risk state on the same relationship",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.undefined-terms",
+    "s.blocked",
+    "s.decided",
+    "s.asking-not-deciding",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.notice",
+   "touch": "t-notice",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the decision holder is active in the product and the decision is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.notice",
+   "touch": "t-notice",
+   "stage": "required-notice",
+   "purpose": "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if no decision is made.",
+   "brief": "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if they do nothing. Having defined a notice period is not the same as having given notice, and an auto-renew that reaches execution silently is exactly the case the obligation exists for. This is notice, not a request - it is never treated as the decision",
+   "destination": {
+    "target": "renewal-terms",
+    "boundTo": "renewal_cycle_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.notice",
+    "c.notice-required"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.notice",
+   "key": "renewal_cycle_id + touch id"
+  },
+  {
+   "type": "condition",
+   "node": "c.blockers",
+   "asks": "Does an outstanding blocker prevent the renewal from being decided?",
+   "branches": [
+    {
+     "label": "Blocked",
+     "observes": null,
+     "test": "an unresolved obligation, dispute or eligibility problem stands in the way",
+     "to": "a.review"
+    },
+    {
+     "label": "Clear",
+     "observes": null,
+     "test": "nothing outstanding prevents a decision",
+     "to": "c.model"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.model",
+   "asks": "What does the renewal model require?",
+   "branches": [
+    {
+     "label": "Auto-renew, requirements met",
+     "observes": null,
+     "test": "the terms renew automatically and every condition for that is satisfied",
+     "to": "a.decided"
+    },
+    {
+     "label": "An explicit decision",
+     "observes": null,
+     "test": "the terms require the counterparty to choose",
+     "to": "a.request"
+    },
+    {
+     "label": "Review first",
+     "observes": null,
+     "test": "the terms require an internal decision before renewal can be offered",
+     "to": "a.review"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.request",
+   "touch": "t-request",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "renewal.discretionary_touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": {
+    "exclusionGroup": "relationship-continuity",
+    "scope": "subscription",
+    "precedence": "below a cancellation in motion and below an active risk state on the same relationship",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.undefined-terms",
+    "s.blocked",
+    "s.decided",
+    "s.asking-not-deciding",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.request",
+   "touch": "t-request",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the decision holder is active in the product and the decision is taken there"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms",
+      "push"
+     ],
+     "eligibleWhen": "the notice deadline is inside the urgent horizon and permission for service messages on the channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.request",
+   "touch": "t-request",
+   "stage": "decision-request",
+   "purpose": "Put the renewal decision to whoever holds it, with the terms that would apply and the point by which the notice period requires an answer.",
+   "brief": "Put the renewal decision to whoever holds it, with the terms that would apply. Asking is not deciding - a renewal notice sent is a communication, and treating the send as the answer renews relationships nobody agreed to",
+   "destination": {
+    "target": "renewal-decision",
+    "boundTo": "renewal_cycle_id",
+    "mustNotClaim": [
+     "that a decision has been made"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.blockers",
+    "c.model"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.request",
+   "key": "renewal_cycle_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.decision",
+   "timing": {
+    "key": "renewal.decision_deadline",
+    "class": "attribute-bound",
+    "default": "term_end_at minus the notice period the terms require",
+    "basis": "attribute-bound",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "term_end_at",
+   "onTimeout": "a.default"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.decision",
+   "cancelOn": [
+    {
+     "event": "renewal_decision_recorded",
+     "meaning": "an authorised renewal decision is recorded"
+    }
+   ],
+   "onEvent": "c.decision"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.decision",
+   "reads": "the cycle re-read: a decision recorded elsewhere, a cancellation in motion, the terms unchanged",
+   "before": "a.default"
+  },
+  {
+   "type": "state-update",
+   "node": "a.default",
+   "does": "Apply what the governing terms define as the outcome when no decision is made - which for some renewal models is renewal and for others is non-renewal. Record that no decision was made rather than recording a decision, because someone who did not answer did not agree",
+   "writes": [
+    {
+     "field": "renewal_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.default",
+   "key": "renewal_cycle_id + default outcome"
+  },
+  {
+   "type": "condition",
+   "node": "c.decision",
+   "asks": "What is the outcome for the next term?",
+   "branches": [
+    {
+     "label": "Renew",
+     "observes": null,
+     "test": "the decision, or the terms' default, is to continue",
+     "to": "a.decided"
+    },
+    {
+     "label": "Do not renew",
+     "observes": null,
+     "test": "the decision, or the terms' default, is to let the term end",
+     "to": "a.non-renew"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.review",
+   "does": "Record RENEWAL_REVIEW with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
+   "writes": [
+    {
+     "field": "renewal_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.review",
+   "key": "renewal_cycle_id + review"
+  },
+  {
+   "type": "wait",
+   "node": "w.review",
+   "timing": {
+    "key": "renewal.notice_deadline",
+    "class": "attribute-bound",
+    "default": "term_end_at minus the notice period the terms require",
+    "basis": "attribute-bound",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "term_end_at",
+   "onTimeout": "h.escalate"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.review",
+   "cancelOn": [
+    {
+     "event": "renewal_decision_recorded",
+     "meaning": "an authorised renewal decision is recorded"
+    }
+   ],
+   "onEvent": "c.decision"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.review",
+   "reads": "the review re-read: concluded with an authorised decision, or still open",
+   "before": "h.escalate"
+  },
+  {
+   "type": "handoff",
+   "node": "h.escalate",
+   "to": "OWN-55",
+   "on": "a renewal review outliving the notice period",
+   "carries": [
+    "the relationship, its term end and what the review is waiting on"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.decided",
+   "does": "Record the renewal as decided, with the new term's dates and the terms that would apply. Decided is not renewed - the new term does not exist until its own requirements have been met, and a relationship can sit here and still lapse",
+   "writes": [
+    {
+     "field": "renewal_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.decided",
+   "key": "renewal_cycle_id + decision"
+  },
+  {
+   "type": "handoff",
+   "node": "h.execute",
+   "to": "SUB-164",
+   "on": "a renewal decided and ready for execution",
+   "carries": [
+    "the decision, the new term's dates and its terms",
+    "the explicit fact that the new term does not yet exist and its requirements have not been tested"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.non-renew",
+   "does": "Record NON_RENEWING with the effective end being the current term's end. The relationship is still active and still governed by its current term - non-renewing is a decision about the next term and says nothing about this one",
+   "writes": [
+    {
+     "field": "renewal_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.non-renew",
+   "key": "renewal_cycle_id + decision"
+  },
+  {
+   "type": "handoff",
+   "node": "h.scheduled-end",
+   "to": "SUB-168",
+   "on": "a non-renewal scheduling an end at the current term's end",
+   "carries": [
+    "the effective end date and the relationship version the decision was made against",
+    "the explicit fact that a later renewal, resubscription or plan change supersedes this and must suppress it"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

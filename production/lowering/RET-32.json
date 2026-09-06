@@ -1,0 +1,461 @@
+{
+ "id": "RET-32",
+ "shortName": "Lapsed Customer Win-Back",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "holdout",
+  "condition",
+  "state-update",
+  "idempotency-key",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "persistent holdout"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.lapsed",
+   "event": "lapsed_customer_detected",
+   "meaning": "a previously paid relationship has been inactive and unpaid past its lapse threshold",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "the relationship was paid - at least one completed paid term or purchase on it",
+    "it ended or went dormant under the company's lapse rule, and the cancellation's own save window and cooldown have passed",
+    "no active obligation, subscription, open complaint, payment recovery or process exists on the relationship",
+    "the recorded cancellation reason is not one policy lists as excluding outreach, and the refund and dispute history does not exclude it",
+    "purpose-level permission for commercial communication is recorded and was not withdrawn at cancellation, and hard gates (GLB-31) allow it"
+   ],
+   "instanceKey": [
+    "person_id",
+    "relationship_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "holdout",
+   "node": "t.lapsed",
+   "unit": "instance",
+   "share": {
+    "key": "winback.holdout_share",
+    "default": 10,
+    "basis": "example-only",
+    "required": false
+   },
+   "persistent": true
+  },
+  {
+   "type": "condition",
+   "node": "c.eligible",
+   "asks": "Is this relationship one we may write to about coming back?",
+   "branches": [
+    {
+     "label": "Eligible",
+     "observes": "relationship record, cancellation reason, refund and dispute history, permission record",
+     "test": "paid before, lapsed past the cancellation's own window, nothing open on it, a reason and history that do not exclude outreach, permission recorded and not withdrawn",
+     "to": "a.open"
+    },
+    {
+     "label": "Excluded",
+     "observes": "cancellation reason, refund and dispute history, open items, permission record",
+     "test": "the reason, the history, something open, or absent permission rules it out - the reason is recorded",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.open",
+   "does": "Open the win-back instance against the relationship and this lapse, recording the cancellation reason it will speak to and the date the cooldown will be counted from",
+   "writes": [
+    {
+     "field": "winback_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.open",
+   "key": "person_id + relationship_id + lapse date"
+  },
+  {
+   "type": "condition",
+   "node": "c.basis",
+   "asks": "What can the invitation honestly say?",
+   "branches": [
+    {
+     "label": "Something changed that speaks to why they left",
+     "observes": "cancellation reason, change record",
+     "test": "a recorded change since the lapse addresses the recorded reason - a fixed problem, a changed plan, a restored feature",
+     "to": "c.sendable"
+    },
+    {
+     "label": "Nothing specific",
+     "observes": "cancellation reason, change record",
+     "test": "no recorded change speaks to the reason, or no reason was recorded - the invitation is plain",
+     "to": "c.sendable"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.sendable",
+   "asks": "May the invitation go out?",
+   "branches": [
+    {
+     "label": "Sendable",
+     "observes": "send path stages 1-8",
+     "test": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the account, and no win-back cooldown in force",
+     "to": "a.touch1"
+    },
+    {
+     "label": "Suppressed",
+     "observes": "send path stages 1-8",
+     "test": "a gate stops it; the gate is recorded as the reason",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.record-no-action",
+   "does": "Record why nothing was sent - an excluding reason, history, something open, no permission, or a gate on the send path - so no-action is a measured outcome",
+   "writes": [
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch1",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "winback.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "retention-outreach",
+    "scope": "account",
+    "precedence": "lowest in the group - any live retention, complaint, risk or payment journey on the account means the relationship is not lapsed and this journey does not run",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.recent",
+    "s.reason",
+    "s.history",
+    "s.open",
+    "s.permission",
+    "s.honest"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch1",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the invitation should say what changed and carry the route back, and survive until the person reads it - the default for someone who is not in the product"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid push token still exists on a device the person kept the app on, and the route back is a single step"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch1",
+   "touch": "t1",
+   "stage": "invitation",
+   "purpose": "A plain invitation to come back: what actually changed since they left where something did, the route back, and nothing invented.",
+   "brief": "Invite them back plainly: what actually changed since they left where something did, and the route back. Nothing invented, no terms held that are not held, no discount policy does not enable",
+   "destination": {
+    "target": "return-route",
+    "boundTo": "relationship_id",
+    "mustNotClaim": [
+     "a change that did not happen",
+     "that their previous terms are held",
+     "a discount policy does not enable"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.eligible",
+    "c.basis",
+    "c.sendable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch1",
+   "key": "person_id + relationship_id + lapse date + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.response",
+   "timing": {
+    "key": "winback.response_window",
+    "class": "response-window",
+    "default": {
+     "min": "14 days",
+     "max": "30 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "c.second"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.response",
+   "cancelOn": [
+    {
+     "event": "relationship_repaid",
+     "meaning": "the lapsed relationship pays again"
+    },
+    {
+     "event": "purchase_completed",
+     "meaning": "an authoritative purchase for the person, on any subject"
+    }
+   ],
+   "onEvent": "x.won"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.response",
+   "reads": "the relationship re-read: still lapsed, nothing opened on it, permission still recorded",
+   "before": "c.second"
+  },
+  {
+   "type": "condition",
+   "node": "c.second",
+   "asks": "Is a follow-up enabled, and is there something honest to add?",
+   "branches": [
+    {
+     "label": "Enabled with something to add",
+     "observes": "winback.follow_up_enabled, winback.incentive_policy, change record",
+     "test": "the company has enabled the follow-up (winback.follow_up_enabled) and either an incentive policy enables an offer for the last touch or a further change is recorded",
+     "to": "c.sendable2"
+    },
+    {
+     "label": "Not enabled, or nothing to add",
+     "observes": "winback.follow_up_enabled, change record",
+     "test": "the follow-up is disabled, or there is nothing honest to say beyond the invitation already sent",
+     "to": "x.lapsed"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.sendable2",
+   "asks": "May the follow-up go out?",
+   "branches": [
+    {
+     "label": "Sendable",
+     "observes": "send path stages 1-8, touch budget",
+     "test": "the send path passes and the touch budget is not spent",
+     "to": "a.touch2"
+    },
+    {
+     "label": "Suppressed",
+     "observes": "send path stages 1-8",
+     "test": "a gate stops it; the gate is recorded",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch2",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "winback.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "retention-outreach",
+    "scope": "account",
+    "precedence": "lowest in the group - any live retention, complaint, risk or payment journey on the account means the relationship is not lapsed and this journey does not run",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.recent",
+    "s.reason",
+    "s.history",
+    "s.open",
+    "s.permission",
+    "s.honest"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch2",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the invitation should say what changed and carry the route back, and survive until the person reads it - the default for someone who is not in the product"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid push token still exists on a device the person kept the app on, and the route back is a single step"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch2",
+   "touch": "t2",
+   "stage": "follow-up",
+   "purpose": "One follow-up, only where the company enables it and there is something honest to add - an incentive policy enables, or a further change - with the same route back.",
+   "brief": "Say once what is being added - the enabled incentive, or the further change - with the same route back, and record the incentive's issuance per person where one is issued",
+   "destination": {
+    "target": "return-route",
+    "boundTo": "relationship_id",
+    "mustNotClaim": [
+     "a change that did not happen",
+     "that their previous terms are held"
+    ]
+   },
+   "label": "OPTIONAL_STRATEGY",
+   "prerequisites": [
+    "c.second",
+    "c.sendable2"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch2",
+   "key": "person_id + relationship_id + lapse date + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "winback.lifetime",
+    "class": "observation-window",
+    "default": {
+     "min": "30 days",
+     "max": "60 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "relationship_repaid",
+     "meaning": "the lapsed relationship pays again"
+    },
+    {
+     "event": "purchase_completed",
+     "meaning": "an authoritative purchase for the person, on any subject"
+    }
+   ],
+   "onEvent": "x.won"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "the relationship re-read from the system of record",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "exit",
+   "node": "x.won",
+   "class": "success",
+   "state": "won back; the relationship is repaid",
+   "reEntry": "a later lapse is a new instance, subject to the cooldown counted from this lapse"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-action",
+   "class": "no-action",
+   "state": "no invitation sent; the excluding reason or gate is recorded",
+   "reEntry": "an excluding reason or history is re-evaluated only when it changes; a gate on the send path is re-evaluated at the next lapse"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "invited, not returned; left alone for the cooldown",
+   "reEntry": "no further win-back instance until the cooldown has passed"
+  }
+ ]
+}

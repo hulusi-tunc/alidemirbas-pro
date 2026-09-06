@@ -173,6 +173,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Data intake → identify format → parse or reject",
+    shortName: "Data Parsing",
     purpose:
       "Get an incoming dataset into a stable readable form, without touching anything real while doing it.",
     entity: {
@@ -307,6 +308,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Parsed data → validate schema and semantics → accept, reject or quarantine",
+    shortName: "Data Validation",
     purpose:
       "Establish that the data is valid for the target it is going into, record by record where that is meaningful.",
     entity: {
@@ -497,6 +499,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Valid data → preview and impact analysis → confirm or hold",
+    shortName: "Data Change Approval",
     purpose:
       "Show what the mutation would actually do, so an approval attaches to that rather than to a filename.",
     entity: {
@@ -511,6 +514,10 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
         event: "validated_change_set_ready_to_mutate",
         evidence: {
           requires: ["a validated change set with an identified target scope"],
+          insufficientAlone: [
+            "a change set uploaded but not yet validated",
+            "a change set that only reads the target and mutates nothing",
+          ],
           source: "authoritative",
         },
         next: "a.delta",
@@ -654,7 +661,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Regenerate the delta against current state and present it again. The previous confirmation was for a different mutation and does not carry - a confirmation reused across a regenerated delta is an approval of something nobody saw",
         writes: [{ field: "intake_log", mode: "append" }],
-        next: "w.confirm",
+        next: "a.present",
       },
       {
         id: "a.expired",
@@ -699,6 +706,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Import execution → apply idempotently → complete, partial or fail",
+    shortName: "Import Execution",
     purpose:
       "Apply a fixed validated change set to production state, keeping every record's outcome.",
     entity: {
@@ -860,6 +868,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Partial import → isolate failed scope → correct → resume",
+    shortName: "Partial Import Recovery",
     purpose:
       "Fix only what did not land, without touching the records that already did.",
     entity: {
@@ -1042,6 +1051,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Migration plan → map source to target → validate readiness",
+    shortName: "Migration Readiness Validation",
     purpose:
       "Prove the target can carry the source's meaning before anything is moved.",
     entity: {
@@ -1198,6 +1208,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "data-integrity",
     channels: [],
     name: "Migration execute → copy and transform → verify population",
+    shortName: "Migration Verification",
     purpose:
       "Move the population and then prove the result still means what the source meant.",
     entity: {
@@ -1326,11 +1337,14 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Cutover → switch authority → observe → stabilize or roll back",
+    shortName: "Cutover Stabilization",
     purpose:
       "Change which system is authoritative, once, with a way back that was defined before it was needed.",
     entity: {
       scope: "the migration, the source system or state, and the target that would replace it",
-      note: "Exactly one side is authoritative at any moment. Dual authority is the failure this journey exists to prevent, not a transitional convenience.",
+      note: "Exactly one side is authoritative at any moment. Dual authority is the failure this journey exists to prevent, not a transitional convenience. rollback_snapshot_id identifies the specific set of writes the target accepted during one cutover-window, minted at a.rollback the moment authority reverts, so a.reconcile-preserved has a stable identity to reconcile against rather than an ambient 'whatever the target has' at reconciliation time.",
+      instanceKey: ["migration_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.ready",
     nodes: [
@@ -1433,17 +1447,53 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.rollback",
         kind: "action",
-        does: "Revert authority to the source under the defined plan, recording everything the target accepted during the cutover window so nothing written there is simply lost. A rollback that discards live work quietly is a second incident inside the first",
+        does: "Revert authority to the source under the defined plan, minting rollback_snapshot_id to identify everything the target accepted during the cutover window so nothing written there is simply lost. A rollback that discards live work quietly is a second incident inside the first",
         writes: [{ field: "migration_log", mode: "append" }],
-        next: "x.rolled-back",
+        next: "a.reconcile-preserved",
+        idempotencyKey: "migration_id + a.rollback",
+      },
+      {
+        id: "a.reconcile-preserved",
+        kind: "action",
+        does: "Reconcile the writes identified by rollback_snapshot_id against the source now authoritative again: apply what the source can absorb without contradiction, so real work the target accepted is not simply stranded. This is the action that makes 'recorded for reconciliation' actually happen, rather than a preservation step nothing downstream ever reads",
+        writes: [{ field: "migration_log", mode: "append" }],
+        next: "c.reconciled",
+        idempotencyKey: "rollback_snapshot_id + a.reconcile-preserved",
+      },
+      {
+        id: "c.reconciled",
+        kind: "condition",
+        asks: "Did the preserved writes reconcile cleanly against the reverted source?",
+        branches: [
+          {
+            label: "Cleanly",
+            when: "every preserved write applies without contradicting what the source did independently during the same window",
+            to: "x.rolled-back",
+          },
+          {
+            label: "Genuine conflict",
+            when: "the source changed the same records independently during the cutover window, and applying a preserved write as-is would overwrite that independent change",
+            to: "h.decide-conflict",
+          },
+        ],
+      },
+      {
+        id: "h.decide-conflict",
+        kind: "handoff",
+        to: "DEC-181",
+        on: "preserved cutover-window writes that conflict with what the source did independently during the same window",
+        carries: [
+          "rollback_snapshot_id, the preserved writes it identifies, and the source's own independent changes to the same records",
+          "the explicit fact that applying either side blindly discards real work - this is a judgment call, not a data-quality defect",
+        ],
       },
       {
         id: "x.rolled-back",
         kind: "exit",
-        state: "authority returned to the source; the target's cutover-window writes recorded for reconciliation",
+        state: "authority returned to the source; the target's cutover-window writes reconciled against it",
         terminal: false,
         reEntry:
-          "a further cutover attempt starts from a fresh verification. What the target accepted during this window is reconciled on its own terms rather than assumed lost",
+          "a further cutover attempt starts from a fresh verification. What the target accepted during this window has already been reconciled, not merely recorded",
       },
       {
         id: "a.forward",
@@ -1482,6 +1532,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
       "A migration copy completing is not a cutover completing.",
       "Uncontrolled dual authority is never permitted.",
       "Rollback semantics are defined before rollback is relied on.",
+      "Writes the target accepted during a cutover window that ends in rollback are reconciled against the reverted source, never merely preserved and left unconsumed - a genuine conflict with what the source did independently escalates to a decision rather than being applied or discarded blindly.",
     ],
     reusableRule:
       "Cutover changes the authoritative operating state only after the migrated target has been verified and while a controlled recovery path remains available.",
@@ -1493,13 +1544,16 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "historical-backfill",
     category: "data",
     goal: "data-integrity",
-    channels: [],
+    channels: ["task"],
     name: "Historical backfill → scope window → apply without replaying stale actions",
+    shortName: "Historical Backfill",
     purpose:
       "Repair a gap in the record without re-enacting the things those events would have caused.",
     entity: {
       scope: "the backfill, its defined window, and the target records inside it",
       note: "The window is exact. A backfill without a bounded scope is an unbounded rewrite that nobody can verify closed anything.",
+      instanceKey: ["backfill_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1570,6 +1624,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Load the historical data idempotently, keyed so that re-running the backfill fills the same gap rather than doubling it. Historical timestamps stay historical - restamping them to now makes the gap look filled and every subsequent report wrong",
         writes: [{ field: "backfill_log", mode: "append" }],
         next: "c.current-state",
+        idempotencyKey: "backfill_id + a.load",
       },
       {
         id: "c.current-state",
@@ -1591,9 +1646,11 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.reconcile-current",
         kind: "action",
-        does: "Reconcile the current state deliberately, decision by decision, rather than letting the load recompute it. A balance that should have been different for six months is a deliberate correction with consequences somebody has to own - not a side effect of a data load nobody reviewed",
+        does: "Reconcile the current state deliberately, decision by decision, under the review of an authorized operational role for this backfill's own domain - never as a side effect of the load itself. A balance that should have been different for six months is a deliberate correction with consequences somebody has to own, and this action records who that reviewer was alongside what changed",
         writes: [{ field: "backfill_log", mode: "append" }],
         next: "a.verify",
+        execution: "human",
+        idempotencyKey: "backfill_id + a.reconcile-current",
       },
       {
         id: "a.verify",
@@ -1642,6 +1699,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
       "A backfill is not a live event replay.",
       "Historical timestamps remain historical.",
       "Obsolete customer-facing actions are never triggered by a backfill.",
+      "A backfill that reconciles current authoritative state is never a side effect of the load - it is a deliberate correction made under an authorized reviewer's own decision, recorded alongside what changed.",
     ],
     reusableRule:
       "Historical backfill repairs missing data and derived state while separating historical truth from actions that would only have been appropriate in real time.",
@@ -1655,6 +1713,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Data transformation error → reconcile → correct, roll forward or roll back",
+    shortName: "Transformation Error Recovery",
     purpose:
       "Undo the wrong mutation without undoing the right things that happened after it.",
     entity: {

@@ -22,6 +22,8 @@ import {
 import { getContent, type CalcContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
 import { pageAlternates } from "@/lib/seo";
+import { breadcrumbList, webApplication } from "@/lib/schema";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
 /* Top-level section, a sibling of Lab and Stack - not a Lab project. Uses
    the same SiteHeader/SiteFooter chrome as About/Stack, not LabShell.
@@ -39,20 +41,20 @@ export const basePathFor = (lang: Lang) => (lang === "en" ? "/calculators" : "/t
 // this codebase already draws elsewhere (a calculator detail page's
 // `heroTitle` override vs. its own `seoTitle`).
 const T = {
-  en: { title: "Marketing Calculators", intro: "Quick, correct formulas for the numbers marketing teams check daily. No account, no tracking of your inputs." },
-  tr: { title: "Pazarlama Hesaplayıcıları", intro: "Pazarlama ekiplerinin günlük kontrol ettiği rakamlar için hızlı ve doğru formüller. Hesap gerektirmez, girdileriniz izlenmez." },
+  en: { title: "Free Marketing & Growth Calculators", intro: "Free marketing calculators for ROAS, CAC, CPC, CPM, retention, conversion rates, A/B testing and unit economics. No signup required." },
+  tr: { title: "Ücretsiz Pazarlama & Growth Hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, retention, dönüşüm oranı, A/B testleri ve birim ekonomisi için ücretsiz pazarlama ve growth hesaplama araçları." },
 };
 
 const HERO = {
   en: {
-    eyebrow: "Calculators",
-    title: "Growth math, without the spreadsheet.",
-    sub: "A collection of practical calculators covering growth, acquisition, retention, experimentation and unit economics - no account, no tracking of your inputs.",
+    eyebrow: "Free Marketing & Growth Calculators",
+    title: "Calculate what drives growth.",
+    sub: "Free calculators for growth, acquisition, retention, experimentation and unit economics. From ROAS and CAC to conversion rates and A/B testing - calculate the metrics that matter, with no signup or tracking.",
   },
   tr: {
-    eyebrow: "Hesaplayıcılar",
-    title: "Excel'e gerek kalmadan büyüme matematiği.",
-    sub: "Büyüme, edinme, elde tutma, deneysel test ve birim ekonomisini kapsayan pratik hesaplayıcılardan oluşan bir koleksiyon - hesap gerektirmez, girdileriniz izlenmez.",
+    eyebrow: "Ücretsiz Pazarlama & Growth Hesaplayıcıları",
+    title: "Büyümeyi etkileyen metrikleri hesaplayın.",
+    sub: "Growth, acquisition, retention, A/B testleri ve birim ekonomisi için ücretsiz hesaplama araçları. ROAS ve CAC'den dönüşüm oranlarına kadar ihtiyaç duyduğunuz metrikleri üyelik gerektirmeden kolayca hesaplayın.",
   },
 };
 
@@ -101,77 +103,6 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
    on Lab's index for Numerspace. */
 function calcSearchText(name: string, description: string, categoryLabel: string, aliases: string[]) {
   return [name, description, categoryLabel, ...aliases].join(" ").toLowerCase();
-}
-
-/* Bespoke dark FOOTER for this page only — matches a user-supplied mockup
-   (warm near-black #141311, full real site nav). The matching bespoke
-   dark HEADER this comment used to describe was removed per explicit
-   request ("header siyah, ikinci görseldeki gibi olsun" — dark headers
-   should match the shared light SiteHeader every other page uses);
-   CalculatorIndexPage now renders SiteHeader directly, same as
-   CalculatorDetailPage below already did. The footer wasn't part of
-   that request and is unchanged. */
-function CalcFooter({ lang }: { lang: Lang }) {
-  const t = copy[lang];
-  const home = lang === "en" ? "/" : "/tr";
-  const quickLinks = [
-    { label: t.footer.home, href: home },
-    { label: t.nav.about, href: t.nav.aboutHref },
-    { label: t.nav.lab, href: t.nav.labHref },
-    { label: t.nav.calculators, href: t.nav.calculatorsHref },
-    { label: t.nav.blog, href: t.nav.blogHref },
-    { label: t.nav.stack, href: t.nav.stackHref },
-    { label: t.nav.contact, href: t.nav.contactHref },
-  ];
-  const labProjects = copy[lang].lab.projects.map((p) => ({ label: p.name, href: p.links[0].href }));
-  return (
-    <footer style={{ background: "#141311", color: "#ffffff" }} className="border-t border-white/10 pt-16 pb-8">
-      <div className="mx-auto max-w-320 px-6 sm:px-12">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-          <div>
-            <p className="altor-eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>{t.footer.quickLinks}</p>
-            <ul className="mt-4 flex list-none flex-col gap-3 p-0">
-              {quickLinks.map((l) => (
-                <li key={l.href}><Link href={l.href} className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>{l.label}</Link></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="altor-eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>{t.footer.projects}</p>
-            <ul className="mt-4 flex list-none flex-col gap-3 p-0">
-              {labProjects.map((l) => {
-                const external = l.href.startsWith("http");
-                return (
-                  <li key={l.href}>
-                    <a href={l.href} {...(external ? { target: "_blank", rel: "noreferrer" } : {})} className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>
-                      {l.label}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <div>
-            <p className="altor-eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>Connect</p>
-            <ul className="mt-4 flex list-none flex-col gap-3 p-0">
-              <li><a href="mailto:mehmetalidemirbas@gmail.com" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>mehmetalidemirbas@gmail.com</a></li>
-              <li><a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>LinkedIn</a></li>
-              <li><a href="https://github.com/ali-demirbas" target="_blank" rel="noreferrer" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.7)" }}>GitHub</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-          <div className="flex items-center gap-3">
-            <span>{t.footer.left}</span><span aria-hidden>·</span><span>{t.footer.right}</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a href="https://www.linkedin.com/in/ali-demirbas/" target="_blank" rel="noreferrer" className="transition-colors hover:text-white">LinkedIn</a>
-            <a href="https://github.com/ali-demirbas" target="_blank" rel="noreferrer" className="transition-colors hover:text-white">GitHub</a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
 }
 
 export function CalculatorIndexPage({ lang }: { lang: Lang }) {
@@ -249,40 +180,62 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
     count: groupCounts.get(g)!,
   }));
 
+  const homeHref = lang === "en" ? "/" : "/tr";
+  const breadcrumb = breadcrumbList([
+    { name: copy[lang].footer.home, url: homeHref },
+    { name: copy[lang].nav.calculators, url: base },
+  ]);
+
   return (
-    <div style={{ background: "#faf9f6", color: "#201f1c" }} className="min-h-screen">
-      {/* Was a bespoke black CalcHeader (#171614) - replaced with the
-          shared light SiteHeader per explicit request to match every
-          other page's header. CalcFooter below is unchanged - only the
-          header was flagged. */}
+    <div className="min-h-screen bg-paper text-ink-950">
+      <JsonLdScript data={breadcrumb} />
       <SiteHeader
         t={copy[lang]}
         anchorBase={lang === "en" ? "/" : "/tr"}
         langHref={lang === "en" ? "/tr/calculators" : "/calculators"}
       />
       <main>
-        <section className="relative overflow-hidden pt-22 pb-10">
-          {/* The blue wash this hero borrowed from Contact came off in the
-              site-wide quieting: this page runs its own deliberate cream
-              palette (a user-supplied mockup), and blue blobs floating on
-              a cream ground were the one place two design languages sat
-              in the same viewport. The cream page now opens on its own
-              ground. */}
-          <div className="relative mx-auto max-w-320 px-6 text-center sm:px-12">
-            <p className="mb-4 text-xs font-medium tracking-[0.12em] uppercase" style={{ color: "#9c978c" }}>{hero.eyebrow}</p>
-            <h1 className="mx-auto max-w-xl text-[2.75rem] leading-[1.1] font-medium tracking-tight" style={{ color: "#141311" }}>{hero.title}</h1>
-            <p className="mx-auto mt-3 max-w-xl text-lg leading-relaxed" style={{ color: "rgba(20,19,17,0.65)" }}>{hero.sub}</p>
-          </div>
-        </section>
+        {/* The calculator family's stage, LIGHT (2026-08-30). The dark
+            ink-950 band with the blue radial wash is retired: it was the
+            site's first homepage hero, ported here, and it read as the
+            page's loudest element while carrying only a title and a
+            subtitle. The family opens white now and lets colour arrive
+            where the product is - the tinted category icons below, and the
+            blue answer plate on each detail page.
 
-        <section className="pt-3 pb-24">
+            PURE white here, unlike the detail template's stage, and the
+            difference is decided by what sits on the ground rather than by
+            taste: this band holds type and nothing else, so it can open at
+            full white; the detail stage holds the white tool card and
+            needs one step of ground under it to keep the card readable.
+            Safe from the padding-only seam rule because the seam to the
+            search row below is ~100px, well under the 220px an
+            identical-ground gap has to clear.
+
+            No wash and no gradient title - a tinted glow on white is the
+            "modern SaaS look" default, and the point here is a clean open,
+            not a second effect. Colour arrives one row down, in the
+            per-category icon tints. */}
+        {/* ONE white band, hero and library together. The stage was briefly
+            tinted `paper-soft` to give the seam between two white sections
+            something to be - but the honest fix was to stop having two
+            sections. Search is the primary action on an index of 21 tools,
+            so it moved up into the hero, and with the title, the search and
+            the results in one continuous flow there is no seam left to
+            solve: no tint, no rule, white throughout. */}
+        <section className="bg-paper pt-16 pb-24 md:pt-20">
           <div className="mx-auto max-w-320 px-6 sm:px-12">
-            <CalculatorLibrary lang={lang} entries={entries} categoryFacets={categoryFacets} />
-
+            <CalculatorLibrary
+              lang={lang}
+              entries={entries}
+              categoryFacets={categoryFacets}
+              heroTitle={hero.title}
+              heroSub={hero.sub}
+            />
           </div>
         </section>
       </main>
-      <CalcFooter lang={lang} />
+      <SiteFooter t={copy[lang]} lang={lang} />
     </div>
   );
 }
@@ -300,18 +253,34 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
      example and no "what this number means" - running them through the
      calculator template would mean inventing all four. */
   if (textTool) {
+    const path = `${base}/${slug}`;
+    const jsonLd = [
+      breadcrumbList([
+        { name: c.footer.home, url: home },
+        { name: c.nav.calculators, url: base },
+        { name: textTool.title[lang], url: path },
+      ]),
+      webApplication({
+        name: textTool.title[lang],
+        description: textTool.desc[lang],
+        url: path,
+        applicationCategory: "UtilitiesApplication",
+      }),
+    ];
     return (
       <>
+        <JsonLdScript data={jsonLd} />
         <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? `/tr/calculators/${slug}` : `/calculators/${slug}`} />
         <main>
-          <section data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 pt-24 pb-14">
+          {/* Light stage, same call as the listing and the detail template. */}
+          <section className="bg-paper-soft pt-24 pb-14">
             <div className="altor-container">
-              <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white">
+              <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-ink-400 transition-colors hover:text-ink-900">
                 <ArrowLeft aria-hidden className="size-3.5" />
                 {T[lang].title}
               </Link>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{textTool.title[lang]}</h1>
-              <p className="mt-3 max-w-xl text-base leading-relaxed text-white/70">{textTool.desc[lang]}</p>
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink-950 sm:text-4xl">{textTool.title[lang]}</h1>
+              <p className="mt-3 max-w-xl text-base leading-relaxed text-ink-500">{textTool.desc[lang]}</p>
             </div>
           </section>
           <div className="altor-container max-w-2xl py-12">
@@ -353,8 +322,28 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
       <CalculatorTool spec={runtime} lang={lang} />
     );
 
+  const path = `${base}/${slug}`;
+  // Same fallback order calculatorDetailMetadata() uses for its own meta
+  // description: authored Phase 4 copy first, the catalog-derived plain-
+  // English formula otherwise. Never the tagline, which is UI-only prose.
+  const appDescription = content.seo.seoDescription ?? correctedFormulaPlainEnglish(spec!);
+  const jsonLd = [
+    breadcrumbList([
+      { name: c.footer.home, url: home },
+      { name: c.nav.calculators, url: base },
+      { name: title, url: path },
+    ]),
+    webApplication({
+      name: title,
+      description: appDescription,
+      url: path,
+      applicationCategory: "BusinessApplication",
+    }),
+  ];
+
   return (
     <>
+      <JsonLdScript data={jsonLd} />
       <SiteHeader t={c} anchorBase={home} langHref={lang === "en" ? `/tr/calculators/${slug}` : `/calculators/${slug}`} />
       <main>
         <CalculatorDetailTemplate
@@ -380,6 +369,7 @@ function WorkedExampleRows({ content }: { content: CalcContent }) {
   const section = content.sections.find((s) => s.type === "worked-example");
   if (!section) return null;
   return (
+    // Set for the template's solid paper worked-example card.
     <div className="font-mono text-[13px]">
       {(section.inputs ?? []).map((row) => (
         <div key={row.label} className="flex justify-between gap-4 py-0.5 text-ink-600">

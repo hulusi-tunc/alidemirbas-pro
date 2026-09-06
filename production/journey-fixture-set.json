@@ -3,15 +3,18 @@
     "id": "ACT-15",
     "reason": "Shortest journey in the library (5 nodes) - the minimal-content floor a renderer must still handle gracefully.",
     "category": "activation",
-    "nodeCount": 5,
-    "edgeCount": 6,
+    "nodeCount": 10,
+    "edgeCount": 13,
     "primaryStructure": "router",
     "behaviors": [
-      "cross-journey-handoff"
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "external-handoff"
     ],
     "complexityTier": "simple",
-    "isMergedAlias": false,
-    "resolvesTo": null
+    "isMergedAlias": true,
+    "resolvesTo": "ACT-17"
   },
   {
     "id": "SUB-166",
@@ -52,8 +55,8 @@
     "id": "OWN-54",
     "reason": "Extreme complexity tier: most branch nodes (6), deepest forward chain (12), and the single longest node-headline text in the library (action.does, 483 chars) - also the surviving target of merged id CTL-240.",
     "category": "ownership",
-    "nodeCount": 20,
-    "edgeCount": 27,
+    "nodeCount": 19,
+    "edgeCount": 26,
     "primaryStructure": "router",
     "behaviors": [
       "backward-edge",
@@ -68,8 +71,8 @@
     "id": "CTL-240",
     "reason": "Merged-ID alias fixture - resolves to OWN-54. Exercises the noindex/redirect/banner contract on a real target that is itself a complexity outlier.",
     "category": "ownership",
-    "nodeCount": 20,
-    "edgeCount": 27,
+    "nodeCount": 19,
+    "edgeCount": 26,
     "primaryStructure": "router",
     "behaviors": [
       "backward-edge",
@@ -129,7 +132,7 @@
       "multi-exit",
       "no-re-entry"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "isMergedAlias": false,
     "resolvesTo": null
   },
@@ -154,8 +157,8 @@
     "id": "ACT-12",
     "reason": "One of only 2 journeys with preemptedBy, combined with a competition group - both rare governance relationships on one fixture.",
     "category": "activation",
-    "nodeCount": 10,
-    "edgeCount": 14,
+    "nodeCount": 12,
+    "edgeCount": 17,
     "primaryStructure": "mixed-termination",
     "behaviors": [
       "backward-edge",
@@ -164,7 +167,7 @@
       "preemption",
       "competition"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "complex",
     "isMergedAlias": false,
     "resolvesTo": null
   },
@@ -207,8 +210,8 @@
     "id": "RET-24",
     "reason": "Longest trigger evidence text (requires items, 319 chars combined).",
     "category": "retention",
-    "nodeCount": 12,
-    "edgeCount": 15,
+    "nodeCount": 13,
+    "edgeCount": 17,
     "primaryStructure": "mixed-termination",
     "behaviors": [
       "cross-journey-handoff",
@@ -223,15 +226,16 @@
     "id": "RET-28",
     "reason": "Longest branch.when text (211 chars) - overflow case distinct from the short branch.label.",
     "category": "retention",
-    "nodeCount": 14,
-    "edgeCount": 18,
+    "nodeCount": 16,
+    "edgeCount": 22,
     "primaryStructure": "mixed-termination",
     "behaviors": [
       "backward-edge",
       "wait-timeout",
-      "cross-journey-handoff"
+      "cross-journey-handoff",
+      "competition"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "extreme",
     "isMergedAlias": false,
     "resolvesTo": null
   },
@@ -279,7 +283,7 @@
       "multi-exit",
       "competition"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "isMergedAlias": false,
     "resolvesTo": null
   }

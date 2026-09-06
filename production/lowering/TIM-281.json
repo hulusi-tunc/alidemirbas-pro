@@ -1,0 +1,526 @@
+{
+ "id": "TIM-281",
+ "shortName": "Expired Access Recovery",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.touched",
+   "event": "holder_acted_on_expired_entity",
+   "meaning": "an authoritative expiry recorded against the entity; an attempt by the holder to use, renew or ask about it after that expiry; the holder being the party the entity belonged to",
+   "evidenceSource": "behavioral",
+   "entryFilters": [
+    "an authoritative expiry recorded against the entity",
+    "an attempt by the holder to use, renew or ask about it after that expiry",
+    "the holder being the party the entity belonged to",
+    "no instance of this journey is already open for the the expired entity and the holder's attempt to act on it",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "entity_ref",
+    "attempt_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.establish",
+   "does": "Establish what the expiry actually did to this entity - suspended it, invalidated it, or ended the relationship behind it - before naming any route back. Reading every lapse as the same lapse is how somebody is sent to renew something that can only be replaced",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.route",
+   "asks": "Which mechanism restores validity here?",
+   "branches": [
+    {
+     "label": "Renewal",
+     "observes": null,
+     "test": "the governing rules let the same entity be carried forward from where it stopped",
+     "to": "a.renew"
+    },
+    {
+     "label": "Requalification",
+     "observes": null,
+     "test": "validity depends on evidence or a check that has to be satisfied again",
+     "to": "a.requalify"
+    },
+    {
+     "label": "Replacement only",
+     "observes": null,
+     "test": "the expired entity cannot become valid again and a new one has to be issued in its place",
+     "to": "a.replace"
+    },
+    {
+     "label": "No route back",
+     "observes": null,
+     "test": "nothing restores validity - the basis for it has gone",
+     "to": "a.no-route"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.renew",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "expired_entity.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.renew",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.renew",
+   "touch": "t1",
+   "stage": "renew",
+   "purpose": "Name renewal as the route, what it costs, and what carries across the gap.",
+   "brief": "Name renewal as the route, what it costs, and what carries across the gap. Somebody who came back on their own does not need persuading, only telling exactly what to do next",
+   "destination": {
+    "target": "renewal-route",
+    "boundTo": "entity_ref",
+    "mustNotClaim": [
+     "that the gap did not happen"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.renew",
+   "key": "issue_id + person_id + a.renew"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.requalify",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "expired_entity.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.requalify",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.requalify",
+   "touch": "t2",
+   "stage": "requalify",
+   "purpose": "Say plainly that this is not a renewal and that the conditions have to be met again, listing them.",
+   "brief": "Say plainly that this is not a renewal and that the conditions have to be met again, listing them. Letting somebody believe a click will fix it, and then asking for evidence halfway through, is how an intent that arrived willing leaves annoyed",
+   "destination": {
+    "target": "requalification-conditions",
+    "boundTo": "entity_ref",
+    "mustNotClaim": [
+     "that this is a renewal"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.requalify",
+   "key": "issue_id + person_id + a.requalify"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.replace",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "expired_entity.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.replace",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.replace",
+   "touch": "t3",
+   "stage": "replace",
+   "purpose": "Explain that the old one stays expired and a new one is issued in its place, and what differs between them.",
+   "brief": "Explain that the old one stays expired and a new one is issued in its place, and what differs between them. The replacement is a different object, and the holder will be asked later about a period when they held neither",
+   "destination": {
+    "target": "replacement-issuance",
+    "boundTo": "entity_ref",
+    "mustNotClaim": [
+     "that the old one is revived"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.replace",
+   "key": "issue_id + person_id + a.replace"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.no-route",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "expired_entity.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.no-route",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.no-route",
+   "touch": "t4",
+   "stage": "no-route",
+   "purpose": "Say there is no way back to this one and name what exists instead, if anything does.",
+   "brief": "Say there is no way back to this one and name what exists instead, if anything does. A dead end stated clearly ends the attempt once; a dead end left vague produces three more attempts and a support contact",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.no-route",
+   "key": "issue_id + person_id + a.no-route"
+  },
+  {
+   "type": "wait",
+   "node": "w.act",
+   "timing": {
+    "key": "expired_entity.act",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": "expires_at",
+   "onTimeout": "x.still-expired"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.act",
+   "cancelOn": [
+    {
+     "event": "validity_restored",
+     "meaning": "the named route back is completed and validity restored"
+    },
+    {
+     "event": "recovery_attempt_abandoned",
+     "meaning": "the holder stops pursuing the route back"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.act",
+   "reads": "the the expired entity and the holder's attempt to act on it re-read from the system of record before acting on the timeout",
+   "before": "x.still-expired"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "Did validity come back?",
+   "branches": [
+    {
+     "label": "Valid again",
+     "observes": null,
+     "test": "the route completed and something valid now exists for the holder",
+     "to": "a.confirm"
+    },
+    {
+     "label": "Abandoned",
+     "observes": null,
+     "test": "the holder stopped partway or explicitly declined the route",
+     "to": "x.still-expired"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm",
+   "touch": "t5",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "expired_entity.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm",
+   "touch": "t5",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm",
+   "touch": "t5",
+   "stage": "confirm",
+   "purpose": "Confirm what is valid now and, where a replacement was issued, that it is a new one rather than the old one revived.",
+   "brief": "Confirm what is valid now and, where a replacement was issued, that it is a new one rather than the old one revived. The gap during which nothing was valid is a fact the holder will need later, and hiding it here is what makes that conversation go wrong",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm",
+   "key": "issue_id + person_id + a.confirm"
+  },
+  {
+   "type": "exit",
+   "node": "x.restored",
+   "class": "success",
+   "state": "valid again by the route that was named",
+   "reEntry": "the restored or replacement entity has its own expiry, and a later lapse enters here again"
+  },
+  {
+   "type": "exit",
+   "node": "x.still-expired",
+   "class": "timeout",
+   "state": "still expired; the route was offered and not taken",
+   "reEntry": "a further attempt by the holder starts a new instance with the route re-evaluated from current rules"
+  },
+  {
+   "type": "exit",
+   "node": "x.terminal",
+   "class": "invalid-state",
+   "state": "expired with no route back",
+   "reEntry": "nothing re-enters here - a new entitlement of this kind is a different object and starts at its own issuance"
+  }
+ ]
+}

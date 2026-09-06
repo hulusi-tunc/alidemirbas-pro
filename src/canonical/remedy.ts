@@ -172,19 +172,169 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: ["email"],
     name: "Post-completion issue → validate → remedy route",
+    shortName: "Post-Purchase Issue Recovery",
     purpose:
       "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
     entity: {
       scope: "the completed fulfillment or service, and the specific problem reported against it",
       note: "The issue is scoped to the fulfillment it concerns. A second problem with the same order is a second issue unless it is the same defect described again.",
+      instanceKey: [
+        "issue_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
-        journey: "FBK-44",
+        journey: "FBK-43",
         because:
-          "FBK-44 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it.",
+          "FBK-43 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it.",
       },
     ],
+    objective: "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
+    eligibility: [
+      "a concrete problem with a completed fulfillment or service: a wrong item or result, damaged output, a missing component, a quality problem, a service defect, an incorrect configuration or an incomplete outcome",
+      "no instance of this journey is already open for the the completed fulfillment or service",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "An issue reported is not a confirmed defect."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Negative feedback alone does not establish remedy eligibility."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Not every issue defaults to a refund."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "An existing case covering the same obligation suppresses a second recovery lifecycle."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "post_completion.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "post_completion.cooldown",
+        "rule": "This journey is per the completed fulfillment or service; a later instance concerns a different the completed fulfillment or service and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "acknowledge",
+          "action": "a.acknowledge",
+          "prerequisites": [
+            "c.duplicate",
+            "c.actionable"
+          ],
+          "purpose": "Acknowledge and explain, closing according to policy.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "issue_id",
+          "order_id",
+          "reported_problem",
+          "existing_case_ref",
+          "assessment",
+          "issue_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.attached",
+          "x.no-defect",
+          "h.remedy"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "post-purchase issue recovery",
+        "order problem report",
+        "wrong item received",
+        "damaged on arrival",
+        "post-delivery complaint"
+      ],
+      "useCases": [
+        "a concrete problem with something delivered, checked for an unresolved obligation",
+        "a report that establishes no obligation, acknowledged without manufacturing a defect"
+      ]
+    },
     entry: "t.reported",
     nodes: [
       {
@@ -209,6 +359,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the issue id, the fulfillment or service it concerns, the problem as reported, the affected scope, when it was reported and whatever evidence exists",
         writes: [{ field: "issue_log", mode: "append" }],
         next: "c.duplicate",
+        idempotencyKey: "order_id + a.capture",
       },
       {
         id: "c.duplicate",
@@ -233,6 +384,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Attach the new evidence and context to the existing case. No second recovery lifecycle is opened - two remedies running against one obligation produce two replacements or two refunds, and the second is found by accounting rather than by the process that issued it",
         writes: [{ field: "issue_log", mode: "append" }],
         next: "x.attached",
+        idempotencyKey: "order_id + a.attach",
       },
       {
         id: "x.attached",
@@ -241,6 +393,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "if that case closes with the problem still present, the recurrence is assessed on its own terms rather than as a fresh report",
+        class: "suppression",
       },
       {
         id: "a.assess",
@@ -272,6 +425,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "issue_log", mode: "append" }],
         next: "x.no-defect",
         execution: "communication",
+        idempotencyKey: "order_id + a.acknowledge",
       },
       {
         id: "x.no-defect",
@@ -280,6 +434,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "new evidence of an actual defect re-opens this. Repetition of the same report is itself worth reading, without becoming a defect by repetition",
+        class: "no-action",
       },
       {
         id: "a.classify",
@@ -287,6 +442,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify the remedy route the problem actually implies - a correction, a reperformance, a replacement, a return, a refund review, a service recovery, or another policy-defined remedy. Refund is one route among several rather than the default, and choosing it because it is the easiest to execute leaves the customer without the thing they wanted",
         writes: [{ field: "issue_log", mode: "append" }],
         next: "h.remedy",
+        idempotencyKey: "order_id + a.classify",
       },
       {
         id: "h.remedy",
@@ -315,13 +471,18 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "return-authorization",
     category: "remedy",
     goal: "eligibility-qualification",
-    channels: ["task"],
+    channels: ["task", "email"],
     name: "Return request → eligibility → authorize, reject or review",
+    shortName: "Return Request",
     purpose:
       "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
     entity: {
       scope: "the return request and the original fulfillment it concerns",
       note: "Return eligibility and refund eligibility are different questions with different rules. Authorising a return decides only the first.",
+      instanceKey: [
+        "return_request_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -330,6 +491,194 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           "This grants permission for a resource to come back. REM-153 tracks whether it actually does, which fails independently and often.",
       },
     ],
+    objective: "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
+    eligibility: [
+      "a request to send back an identified item, resource or deliverable",
+      "no instance of this journey is already open for the the return request and the original fulfillment it concerns",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A return requested is not a return authorized."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Return eligibility rules are never invented."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Refund eligibility and return eligibility may be different decisions with different answers."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "return_authorization.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; a review record and one decision notice"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "return_authorization.cooldown",
+        "rule": "This journey is per the return request and the original fulfillment it concerns; a later instance concerns a different the return request and the original fulfillment it concerns and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "human",
+          "channels": [
+            "task"
+          ],
+          "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "notify-rejection",
+          "action": "a.notify-rejection",
+          "prerequisites": [
+            "c.applicable",
+            "c.policy",
+            "c.eligible"
+          ],
+          "purpose": "Tell the requester the return was refused and the governing reason, whether policy ruled it out directly or a reviewer did.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "notify-authorization",
+          "action": "a.notify-authorization",
+          "prerequisites": [
+            "c.applicable",
+            "c.policy",
+            "c.eligible"
+          ],
+          "purpose": "Tell the requester the return is authorised, within what scope and by what method, and that authorisation permits the resource to come back without deciding that money is owed.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "return-instructions",
+            "boundTo": "return_request_id",
+            "mustNotClaim": [
+              "that a refund is owed"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "review",
+          "action": "a.review",
+          "prerequisites": [
+            "c.applicable",
+            "c.policy",
+            "c.eligible"
+          ],
+          "purpose": "Record RETURN_UNDER_REVIEW and gather what the decision requires.",
+          "channelRoles": [
+            "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "return_request_id",
+          "original_fulfillment_id",
+          "requester_id",
+          "eligibility_policy",
+          "decision_sla",
+          "return_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.rejected",
+          "h.alternative",
+          "h.undefined",
+          "h.escalate",
+          "h.transit"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "return request",
+        "return authorisation",
+        "RMA",
+        "return eligibility",
+        "send it back"
+      ],
+      "useCases": [
+        "whether something may enter a return process, decided separately from money",
+        "a return needing review, held without authorising anything"
+      ]
+    },
     entry: "t.requested",
     nodes: [
       {
@@ -351,6 +700,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the request id, the item or resource, the quantity or scope, the reason, the requester and the request time",
         writes: [{ field: "return_log", mode: "append" }],
         next: "c.applicable",
+        idempotencyKey: "return_request_id + a.capture",
       },
       {
         id: "c.applicable",
@@ -375,9 +725,11 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         to: "REM-157",
         on: "a return requested against something that cannot be returned",
         carries: [
-          "the request and the unresolved obligation behind it",
+          "the request and the unresolved obligation behind it - original_fulfillment_id becomes REM-157's obligation_id",
           "the fact that no return route exists, so the remedy is something else rather than nothing",
+          "a fresh issue_id, minted at this handoff and deterministically derived from return_request_id - REM-152 has no issue concept of its own, so REM-157's instance is opened here rather than carried",
         ],
+        contract: { requiredFields: ["issue_id", "obligation_id"] },
       },
       {
         id: "c.policy",
@@ -433,7 +785,16 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record RETURN_REJECTED with the reason drawn from the policy that ruled it out",
         writes: [{ field: "return_log", mode: "append" }],
+        next: "a.notify-rejection",
+        idempotencyKey: "return_request_id + a.reject",
+      },
+      {
+        id: "a.notify-rejection",
+        kind: "action",
+        does: "Tell the requester the return was refused and the governing reason, whether policy ruled it out directly or a reviewer did. Someone holding an item they were told nothing about goes on believing a return is still coming",
+        execution: "communication",
         next: "x.rejected",
+        idempotencyKey: "return_request_id + a.notify-rejection",
       },
       {
         id: "x.rejected",
@@ -442,6 +803,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a return refused does not settle whether another remedy is owed - that question is separate and is asked separately",
+        class: "failure",
       },
       {
         id: "a.review",
@@ -450,19 +812,28 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "return_log", mode: "append" }],
         next: "w.decision",
         execution: "human",
+        idempotencyKey: "return_request_id + a.review",
       },
       {
         id: "w.decision",
         kind: "wait",
-        until: ["a decision is recorded"],
+        until: [
+          "decision_recorded"
+        ],
         onEvent: "c.decision",
         timeout: {
-          after: "the decision SLA",
-          reason:
-            "a return request left undecided leaves someone holding something they were told they might send back, with no way to know whether they may",
+          "after": {
+            "key": "return_authorization.decision",
+            "rule": "The decision SLA.",
+            "class": "decision-sla",
+            "required": true
+          },
+          "reason": "a return request left undecided leaves someone holding something they were told they might send back, with no way to know whether they may",
+          "relativeTo": "trigger"
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
+        recheck: "the the return request and the original fulfillment it concerns re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.decision",
@@ -485,7 +856,16 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record RETURN_AUTHORIZED with the scope, the method and the validity. Authorising a return permits the resource to come back and decides nothing about whether money is owed - refund eligibility is a separate question with its own rules and its own answer",
         writes: [{ field: "return_log", mode: "append" }],
+        next: "a.notify-authorization",
+        idempotencyKey: "return_request_id + a.authorize",
+      },
+      {
+        id: "a.notify-authorization",
+        kind: "action",
+        does: "Tell the requester the return is authorised, within what scope and by what method, and that authorisation permits the resource to come back without deciding that money is owed. Leaving them to discover the answer from the transit lifecycle makes the next step arrive before the decision does",
+        execution: "communication",
         next: "h.transit",
+        idempotencyKey: "return_request_id + a.notify-authorization",
       },
       {
         id: "h.transit",
@@ -515,6 +895,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Return authorized → in transit, received, lost or expired",
+    shortName: "Return Transit Resolution",
     purpose:
       "Track whether an authorised return actually comes back, and hold the states where it might not have.",
     entity: {
@@ -679,6 +1060,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Returned item or deliverable → inspect → accept, reject or partial",
+    shortName: "Return Inspection",
     purpose:
       "Judge what came back against the conditions it was authorised under, keeping receipt and acceptance apart.",
     entity: {
@@ -810,6 +1192,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Replacement decision → allocate → fulfill → confirm",
+    shortName: "Replacement Fulfillment",
     purpose:
       "Deliver a second time against the same promise, tied to the defect it exists to resolve.",
     entity: {
@@ -971,11 +1354,16 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Reperformance or correction → execute → verify corrected outcome",
+    shortName: "Corrective Reperformance",
     purpose:
       "Produce the outcome that should have been produced, while the record still shows that the first one was wrong.",
     entity: {
       scope: "the original fulfillment or service, and the corrective obligation created against it",
       note: "Two records throughout. The original stays incorrect in the history, and the correction stands beside it rather than replacing it.",
+      instanceKey: [
+        "correction_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -984,6 +1372,73 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           "A replacement sends a different instance of the thing. A correction fixes the instance that exists, or performs the service again - which is why it has no allocation question and does have an original outcome that must not be overwritten.",
       },
     ],
+    objective: "Produce the outcome that should have been produced, while the record still shows that the first one was wrong.",
+    eligibility: [
+      "a correction or reperformance authorised as the remedy for an identified defect",
+      "no instance of this journey is already open for the the original fulfillment or service",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "The original fulfillment is not rewritten as though it had always been correct."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The original error history is preserved alongside the correction."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "An internal task completing is not a corrected business outcome."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "correction_id",
+          "original_fulfillment_id",
+          "required_outcome",
+          "correction_deadline_at",
+          "remedy_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.verify",
+          "h.alternative",
+          "h.escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "corrective reperformance",
+        "redo the service",
+        "correction of a wrong outcome",
+        "re-performance"
+      ],
+      "useCases": [
+        "the outcome that should have been produced, produced while the record shows the first was wrong",
+        "a correction that cannot produce the outcome, sent back for another remedy"
+      ]
+    },
     entry: "t.authorized",
     nodes: [
       {
@@ -992,6 +1447,11 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         event: "correction_or_reperformance_authorized",
         evidence: {
           requires: ["a correction or reperformance authorised as the remedy for an identified defect"],
+          insufficientAlone: [
+            "a complaint with no remedy decision behind it",
+            "a refund, which is a different remedy",
+            "an internal task created without an authorised correction"
+          ],
           source: "authoritative",
         },
         next: "a.define",
@@ -1002,6 +1462,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Define the defect, the affected scope, what a corrected outcome would actually look like, who owns it and any deadline. Record CORRECTION_REQUIRED",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "a.preserve",
+        idempotencyKey: "correction_id + a.define",
       },
       {
         id: "a.preserve",
@@ -1009,6 +1470,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Preserve the original incorrect outcome as history. The correction is a new corrective action rather than an edit - rewriting the original as though it had always been right removes the evidence anything needed fixing, and with it the ability to see the same fault recur across other work",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "a.execute",
+        idempotencyKey: "correction_id + a.preserve",
       },
       {
         id: "a.execute",
@@ -1016,19 +1478,30 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Execute the correction or reperformance against the defined corrected outcome",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "w.correction",
+        idempotencyKey: "correction_id + a.execute",
       },
       {
         id: "w.correction",
         kind: "wait",
-        until: ["a corrected outcome is produced", "the correction fails"],
+        until: [
+          "correction_produced",
+          "correction_failed"
+        ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the correction deadline",
-          reason:
-            "a correction that outlives its deadline leaves the customer with the original defect and a promise, which is worse than the defect alone",
+          "after": {
+            "key": "correction_reperformance.correction",
+            "rule": "The correction deadline.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a correction that outlives its deadline leaves the customer with the original defect and a promise, which is worse than the defect alone",
+          "relativeTo": "attribute",
+          "attribute": "correction_deadline_at"
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
+        recheck: "the the original fulfillment or service re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -1058,6 +1531,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record what was corrected and what remains, explicitly. Half a correction recorded as a whole one closes an obligation that is still live",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "h.verify",
+        idempotencyKey: "correction_id + a.partial",
       },
       {
         id: "h.verify",
@@ -1104,11 +1578,16 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: ["email", "in-app"],
     name: "Remedy selection → resolve obligation → financial handoff if needed",
+    shortName: "Remedy Confirmation",
     purpose:
       "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
     entity: {
       scope: "the confirmed issue and the unresolved obligation behind it",
       note: "The obligation is the input, not the complaint. What is owed and what someone is upset about are related and not the same, and only the first can be satisfied.",
+      instanceKey: [
+        "issue_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1117,6 +1596,198 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           "This decides which remedy applies. FIN-137 runs only if that decision is a refund, and then decides whether the refund is owed - a separate eligibility with separate rules.",
       },
     ],
+    objective: "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
+    eligibility: [
+      "a confirmed issue with an unresolved obligation and no remedy yet selected",
+      "no instance of this journey is already open for the the confirmed issue and the unresolved obligation behind it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A refund is not the universal remedy."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Compensation and resolution may be separate, and resolving the obligation does not require compensating for it."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Remedies that are not actually available are not offered."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "The selection starts from the unresolved obligation rather than from the complaint."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "remedy_selection.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "remedy_selection.cooldown",
+        "rule": "This journey is per the confirmed issue and the unresolved obligation behind it; a later instance concerns a different the confirmed issue and the unresolved obligation behind it and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "present",
+          "action": "a.present",
+          "prerequisites": [
+            "c.choice"
+          ],
+          "purpose": "Present only the options that are genuinely available, with what each would mean",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "remedy-options",
+            "boundTo": "issue_id",
+            "mustNotClaim": [
+              "a remedy that is not actually available"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "no-remedy",
+          "action": "a.no-remedy",
+          "prerequisites": [
+            "c.choice",
+            "c.route"
+          ],
+          "purpose": "State that the obligation is considered satisfied, or that policy provides no remedy for the facts as confirmed, and name a separate appeal or escalation route only where one actually exists.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "appeal-or-escalation-route",
+            "boundTo": "issue_id"
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "issue_id",
+          "obligation_id",
+          "available_remedies",
+          "counterparty_chooses",
+          "remedy_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.no-remedy",
+          "h.correction",
+          "h.replacement",
+          "h.return",
+          "h.financial"
+        ]
+      },
+      "businessOutcome": {
+        "event": "remedy_selected",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "remedy confirmation",
+        "remedy selection",
+        "choose a remedy",
+        "resolution options",
+        "refund or replacement choice"
+      ],
+      "useCases": [
+        "the remedy that would actually satisfy the obligation, chosen from the ones that exist",
+        "no remedy owed, stated with a separate appeal route"
+      ]
+    },
     entry: "t.decision",
     nodes: [
       {
@@ -1125,6 +1796,10 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         event: "remedy_decision_required",
         evidence: {
           requires: ["a confirmed issue with an unresolved obligation and no remedy yet selected"],
+          insufficientAlone: [
+            "a complaint received but not yet established as an operational fault, which is FBK-43's question",
+            "a refund request, which presumes the remedy this journey has not yet decided",
+          ],
           source: "authoritative",
         },
         next: "a.obligation",
@@ -1135,6 +1810,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Identify the unresolved obligation precisely - what was owed that has not been delivered, or what was delivered that is not what was owed. The remedy is chosen to satisfy that rather than to satisfy the complaint, and compensation for the inconvenience is a separate question asked separately",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "a.evaluate",
+        idempotencyKey: "obligation_id + issue_id + a.obligation",
       },
       {
         id: "a.evaluate",
@@ -1166,19 +1842,28 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "w.selection",
         execution: "communication",
+        idempotencyKey: "obligation_id + issue_id + a.present",
       },
       {
         id: "w.selection",
         kind: "wait",
-        until: ["a remedy is selected"],
+        until: [
+          "remedy_selected"
+        ],
         onEvent: "c.route",
         timeout: {
-          after: "the selection window",
-          reason:
-            "an unanswered choice leaves the obligation unresolved, and a default that policy defines is better than an open case waiting on someone who has moved on",
+          "after": {
+            "key": "remedy_selection.selection",
+            "rule": "The choice of remedy is waited for a bounded period from the options being presented; an unanswered choice takes the policy default.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an unanswered choice leaves the obligation unresolved, and a default that policy defines is better than an open case waiting on someone who has moved on",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "a.default",
         windowExtendsOnEngagement: false,
+        recheck: "the the confirmed issue and the unresolved obligation behind it re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.default",
@@ -1186,6 +1871,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the remedy policy defines as the default where one exists, recording that no selection was made rather than presenting the default as a choice",
         writes: [{ field: "remedy_log", mode: "append" }],
         next: "c.route",
+        idempotencyKey: "obligation_id + issue_id + a.default",
       },
       {
         id: "c.route",
@@ -1204,7 +1890,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           },
           {
             label: "Return, before anything else",
-            when: "the resource has to come back before a further remedy can be settled",
+            when: "the resource has to come back before a further remedy can be settled, and a return was not already rejected for this issue - a rejected return does not get re-selected when REM-152's own h.alternative routes back here; that path already arrives at c.route with the rejection recorded, and this branch's condition is false the second time",
             to: "h.return",
           },
           {
@@ -1215,7 +1901,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "No remedy is owed",
             when: "the obligation turns out to be satisfied, or no remedy applies under policy",
-            to: "x.no-remedy",
+            to: "a.no-remedy",
           },
         ],
       },
@@ -1254,12 +1940,21 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
+        id: "a.no-remedy",
+        kind: "action",
+        does: "State that the obligation is considered satisfied, or that policy provides no remedy for the facts as confirmed, and name a separate appeal or escalation route only where one actually exists. This journey opens from a confirmed issue - reaching no remedy and saying nothing leaves the person believing the question is still open",
+        execution: "communication",
+        next: "x.no-remedy",
+        idempotencyKey: "obligation_id + issue_id + a.no-remedy",
+      },
+      {
         id: "x.no-remedy",
         kind: "exit",
         state: "no remedy owed; the obligation is satisfied or none applies",
         terminal: false,
         reEntry:
           "new evidence about the obligation re-opens this. Compensation for impact, if any is appropriate, is a separate decision that this outcome does not settle either way",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1280,6 +1975,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Remedy execution → verify outcome → close or continue recovery",
+    shortName: "Remedy Outcome Verification",
     purpose:
       "Check that the remedy actually satisfied the obligation, rather than that it was carried out.",
     entity: {
@@ -1437,6 +2133,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Compensation decision → eligibility → grant or reject → deliver",
+    shortName: "Compensation Eligibility",
     purpose:
       "Decide separately whether impact warrants something beyond fixing the problem, and confirm it actually arrived.",
     entity: {
@@ -1651,6 +2348,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "compensation-remedy",
     channels: [],
     name: "Post-remedy reopen → validate recurrence → continue or new issue",
+    shortName: "Remedy Recurrence Assessment",
     purpose:
       "Tell a recurrence of the same problem apart from a new one, and from a remedy that never actually finished.",
     entity: {

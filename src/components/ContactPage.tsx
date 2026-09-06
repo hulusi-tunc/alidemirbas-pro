@@ -12,6 +12,11 @@ import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 const GITHUB = "https://github.com/ali-demirbas";
 const REASON_ICONS = [Briefcase, Users, MessageCircle];
 
+/* One hue per reason, positionally matched to REASON_ICONS above and drawn
+   from the site's category-tint family (calculators -> Stack -> Blog). Written
+   out in full: Tailwind only compiles class strings it can see literally. */
+const REASON_TINT = ["text-blue-500", "text-emerald-500", "text-fuchsia-500"];
+
 /* Contact page — CONTACT PILOT, see DESIGN-MIGRATION-PLAN.md.
 
    ROUND 1: merged the old dark hero band + separate "Main" section into
@@ -79,7 +84,10 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
             separate them, not enough to feel like two unrelated blocks. */}
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-14">
           <Reveal>
-            <p className="altor-eyebrow mb-4 text-ink-400">{c.eyebrow}</p>
+            {/* Plain case, matching Stack and the calculator family - the
+                mono-uppercase `.altor-eyebrow` rail was retired in the
+                2026-08-30 pass. */}
+            <p className="mb-4 text-[13px] font-medium text-ink-400">{c.eyebrow}</p>
             {/* max-w-xl -> max-w-md: Portrait's own real H1 caps at
                 `max-w-[10em]` (tight, editorial, forces controlled line
                 breaks) rather than running the full column width. */}
@@ -97,7 +105,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
             <div className="mt-6 flex flex-wrap gap-2.5">
               <a
                 href={`mailto:${EMAIL}`}
-                className="inline-flex items-center gap-2 rounded-full border border-line-soft px-4 py-2 text-sm text-ink-600 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-ink-300 hover:text-ink-950"
+                className="inline-flex items-center gap-2 rounded-full bg-paper-soft px-4 py-2 text-sm text-ink-700 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:bg-blue-50 hover:text-primary-700"
               >
                 <Mail aria-hidden className="size-4" />
                 {c.emailPill}
@@ -106,7 +114,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
                 href={LINKEDIN}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-line-soft px-4 py-2 text-sm text-ink-600 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-ink-300 hover:text-ink-950"
+                className="inline-flex items-center gap-2 rounded-full bg-paper-soft px-4 py-2 text-sm text-ink-700 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:bg-blue-50 hover:text-primary-700"
               >
                 <LinkedInMark className="size-4" />
                 LinkedIn
@@ -115,7 +123,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
                 href={GITHUB}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-line-soft px-4 py-2 text-sm text-ink-600 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-ink-300 hover:text-ink-950"
+                className="inline-flex items-center gap-2 rounded-full bg-paper-soft px-4 py-2 text-sm text-ink-700 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:bg-blue-50 hover:text-primary-700"
               >
                 <GitHubMark className="size-4" />
                 GitHub
@@ -132,13 +140,24 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
                 description are the actual focus, description now uses the
                 same heading-color-at-opacity technique as the intro copy
                 for one consistent "ink family" across the whole column. */}
-            <p className="altor-eyebrow mt-10 mb-4 text-ink-400">{c.reasonsTitle}</p>
+            <p className="mt-10 mb-4 text-[13px] font-medium text-ink-400">{c.reasonsTitle}</p>
             <div className="flex flex-col gap-6">
               {c.reasons.map((reason, i) => {
                 const Icon = REASON_ICONS[i] ?? MessageCircle;
+                /* Tinted, one hue per reason, from the same family the
+                   calculators/Stack/Blog now run. The round-3 note above
+                   says these icons stay "small/secondary… text-ink-400,
+                   unchanged" - the SIZE half of that still holds and is
+                   deliberately untouched, but the grey is superseded: with
+                   every other page carrying category colour, Contact was
+                   the last fully monochrome surface on the site. Colour at
+                   the same size does not promote the icon over the title
+                   next to it; it just stops three identical grey glyphs
+                   reading as one repeated bullet. */
+                const tint = REASON_TINT[i] ?? "text-ink-400";
                 return (
                   <div key={reason.title} className="flex gap-4">
-                    <Icon aria-hidden className="mt-0.5 size-5 shrink-0 text-ink-400" strokeWidth={1.5} />
+                    <Icon aria-hidden className={`mt-0.5 size-5 shrink-0 ${tint}`} strokeWidth={1.5} />
                     <div>
                       <p className="font-medium text-ink-950">{reason.title}</p>
                       <p className="mt-1 text-sm leading-relaxed text-ink-950/65">{reason.desc}</p>

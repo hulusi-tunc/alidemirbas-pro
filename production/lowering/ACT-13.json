@@ -1,0 +1,351 @@
+{
+ "id": "ACT-13",
+ "shortName": "Onboarding Blocker Reminder",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "human-task",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.blocked",
+   "event": "activation_blocked_by_named_requirement",
+   "meaning": "a specific unmet requirement: an integration not connected, a required configuration absent, a verification incomplete, a required person not yet present, a mandatory setup step unfinished",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a specific unmet requirement: an integration not connected, a required configuration absent, a verification incomplete, a required person not yet present, a mandatory setup step unfinished",
+    "no instance of this journey is already open for the the blocking requirement",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "account_id",
+    "requirement_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.identify",
+   "does": "Identify the exact requirement and what it is blocking, so everything downstream can name it rather than describe setup in general",
+   "writes": [
+    {
+     "field": "blocking_requirement",
+     "mode": "set"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.identify",
+   "key": "account_id + a.identify"
+  },
+  {
+   "type": "condition",
+   "node": "c.blocking",
+   "asks": "Does this requirement actually block activation?",
+   "branches": [
+    {
+     "label": "Genuinely blocking",
+     "observes": null,
+     "test": "activation cannot occur while it is unmet",
+     "to": "c.self-resolvable"
+    },
+    {
+     "label": "Incomplete but not blocking",
+     "observes": null,
+     "test": "the field or step is missing and value can still be produced without it",
+     "to": "x.not-blocking"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.not-blocking",
+   "class": "invalid-state",
+   "state": "not a blocker; ordinary onboarding continues",
+   "reEntry": "if the same requirement later becomes mandatory, it enters as a real blocker; presenting it as one now would teach people to ignore the ones that matter"
+  },
+  {
+   "type": "condition",
+   "node": "c.self-resolvable",
+   "asks": "Can this account resolve the requirement directly?",
+   "branches": [
+    {
+     "label": "Yes, directly",
+     "observes": null,
+     "test": "the account holds the access, the information and the permission needed",
+     "to": "a.specific-action"
+    },
+    {
+     "label": "No, it depends on someone else",
+     "observes": null,
+     "test": "it needs another team, an internal process, a third party, or a person who has not joined yet",
+     "to": "a.route-dependency"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.specific-action",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "activation_blocker.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.specific-action",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.specific-action",
+   "touch": "t1",
+   "stage": "specific-action",
+   "purpose": "Give the one specific action that clears this requirement, named as the thing it is - never a general prompt to finish setup, which tells someone who is already blocked nothing they did not know",
+   "brief": "Give the one specific action that clears this requirement, named as the thing it is - never a general prompt to finish setup, which tells someone who is already blocked nothing they did not know",
+   "destination": {
+    "target": "requirement-resolution-step",
+    "boundTo": "requirement_id",
+    "mustNotClaim": [
+     "that setup in general is unfinished"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.blocking",
+    "c.self-resolvable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.specific-action",
+   "key": "account_id + a.specific-action"
+  },
+  {
+   "type": "human-task",
+   "node": "a.route-dependency",
+   "does": "Raise the requirement with whoever can actually resolve it, carrying what is blocked and why. Ownership of the resume stays here, so the account is not handed away and forgotten",
+   "touch": "t2"
+  },
+  {
+   "type": "wait",
+   "node": "w.resolve",
+   "timing": {
+    "key": "activation_blocker.resolve",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "c.unresolved"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.resolve",
+   "cancelOn": [
+    {
+     "event": "named_requirement_satisfied",
+     "meaning": "the specific named requirement that blocked progress is recorded as satisfied"
+    }
+   ],
+   "onEvent": "a.stop-reminders"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.resolve",
+   "reads": "the the blocking requirement re-read from the system of record before acting on the timeout",
+   "before": "c.unresolved"
+  },
+  {
+   "type": "state-update",
+   "node": "a.stop-reminders",
+   "does": "Stop every reminder about this requirement immediately, including any already queued - a nudge about something the person has just finished is the clearest possible signal that nothing was watching",
+   "writes": [
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.stop-reminders",
+   "key": "account_id + a.stop-reminders"
+  },
+  {
+   "type": "condition",
+   "node": "c.next-blocker",
+   "asks": "With this requirement met, is activation now reachable?",
+   "branches": [
+    {
+     "label": "Reachable",
+     "observes": null,
+     "test": "no other mandatory requirement is outstanding",
+     "to": "h.resume"
+    },
+    {
+     "label": "Another requirement is blocking",
+     "observes": null,
+     "test": "clearing this one revealed a second mandatory requirement",
+     "to": "x.next-blocker"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.resume",
+   "to": "ACT-12",
+   "on": "the blocker cleared and activation reachable again",
+   "carries": [
+    "which requirement was resolved and how long it took",
+    "the setup state as it now stands, so onboarding resumes rather than restarts"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.next-blocker",
+   "class": "success",
+   "state": "resolved; a further requirement now blocks",
+   "reEntry": "the next requirement opens its own instance, named on its own terms - stacking them into one message is how a specific blocker turns back into generic setup pressure"
+  },
+  {
+   "type": "condition",
+   "node": "c.unresolved",
+   "asks": "What does this unresolved requirement warrant?",
+   "branches": [
+    {
+     "label": "Escalate to a person",
+     "observes": null,
+     "test": "the requirement matters enough to the outcome that a human should now own it",
+     "to": "h.escalate"
+    },
+    {
+     "label": "An alternate route exists",
+     "observes": null,
+     "test": "value can be reached by a different path that does not need this requirement",
+     "to": "h.reroute"
+    },
+    {
+     "label": "No route",
+     "observes": null,
+     "test": "the requirement is mandatory and neither resolvable nor avoidable",
+     "to": "x.blocked"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.escalate",
+   "to": "external:human-in-the-loop-lifecycle",
+   "on": "a blocker outliving its resolution horizon",
+   "carries": [
+    "the requirement, who was asked, and what has already been tried",
+    "what activation is waiting on, so the person picking it up starts informed"
+   ],
+   "suppresses": [
+    "automated reminders about this requirement while a person holds it"
+   ],
+   "contract": {
+    "requiredFields": [
+     "account_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  },
+  {
+   "type": "handoff",
+   "node": "h.reroute",
+   "to": "ACT-11",
+   "on": "an alternate path to value that does not require the blocked thing",
+   "carries": [
+    "the requirement that could not be met",
+    "the setup state already reached"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "exit",
+   "node": "x.blocked",
+   "class": "failure",
+   "state": "activation blocked, no route available",
+   "reEntry": "the requirement becoming satisfiable later re-opens this; nothing is repeatedly asked for in the meantime"
+  }
+ ]
+}

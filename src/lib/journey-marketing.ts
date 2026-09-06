@@ -1,5 +1,7 @@
 import { CATEGORIES, JOURNEYS, byId } from "@/canonical";
 import type { CanonicalJourney, CanonicalNode } from "@/canonical/types";
+import { configText } from "@/canonical/config-text";
+import { eventText } from "@/canonical/events";
 
 /* Read model for the Journey Builder PRODUCT PAGE (/lab/claude-lifecycle).
 
@@ -33,11 +35,11 @@ const kindCounts = (() => {
 })();
 
 export const JOURNEY_SCALE = {
-  /** 255 */
+  /** 284 */
   journeys: JOURNEYS.length,
   /** 26 */
   categories: CATEGORIES.length,
-  /** 3,186 */
+  /** 3,674 */
   nodes: ALL_NODES.length,
   /** 7 - trigger, action, condition, wait, outcome, exit, handoff */
   nodeKinds: kindCounts.size,
@@ -113,7 +115,7 @@ function projectNode(n: CanonicalNode): FlowNode {
       };
     case "wait":
       return {
-        id: n.id, kind: n.kind, label: n.until.join(", "), detail: n.timeout.after,
+        id: n.id, kind: n.kind, label: n.until.map(eventText).join(", "), detail: configText(n.timeout.after),
         edges: [{ to: n.onEvent, label: "on event" }, { to: n.onTimeout, label: "on timeout" }],
       };
     case "outcome":
@@ -189,8 +191,8 @@ export const FEATURED_JOURNEY: FeaturedJourney = (() => {
     wait:
       wait?.kind === "wait"
         ? {
-            until: wait.until,
-            timeoutAfter: wait.timeout.after,
+            until: wait.until.map(eventText),
+            timeoutAfter: configText(wait.timeout.after),
             timeoutReason: wait.timeout.reason,
             extendsOnEngagement: wait.windowExtendsOnEngagement,
           }
@@ -212,14 +214,19 @@ export const FEATURED_JOURNEY: FeaturedJourney = (() => {
    strip so a card reads as a FLOW rather than as an article. Six, not 255:
    the marketing page has no reason to render the whole library. */
 
-/* FIVE, not six: the spread highlights its centre card, and with an even
-   count there is no true centre to highlight. Five also crops symmetrically
-   against the 1280 measure. */
-const SHOWCASE_IDS = ["ACQ-09", "ACT-12", "CON-38", "TIM-65", "OWN-53"] as const;
+/* FOUR (2026-09; was five with a highlighted centre card). Five 320px cards
+   could not fit the 1280 measure and were cropped at both edges - a bleed
+   whose crop line ran through card text, which reads as a fault rather
+   than as continuation. Four fit the measure as a grid at every desktop
+   width, and the centre highlight went with the fifth card: it was the
+   reference's surface, not this library's. */
+const SHOWCASE_IDS = ["ACQ-09", "ACT-12", "CON-38", "TIM-65"] as const;
 
 export type ShowcaseCard = {
   id: string;
   name: string;
+  /** The plain-language name every card on this site leads with. */
+  shortName: string;
   purpose: string;
   categoryTitle: string;
   nodeCount: number;
@@ -236,6 +243,7 @@ export function showcaseCards(lang: Lang): ShowcaseCard[] {
     return {
       id: j.id,
       name: j.name,
+      shortName: j.shortName,
       purpose: j.purpose,
       categoryTitle: cat?.title ?? j.category,
       nodeCount: j.nodes.length,

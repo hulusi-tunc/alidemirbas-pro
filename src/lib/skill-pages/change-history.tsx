@@ -1,7 +1,25 @@
+import { Code2, MoreHorizontal, MousePointer2, Terminal } from "lucide-react";
 import type { SkillProductContent } from "@/components/SkillProductPage";
+import { CodeBlock, ToolSelectorCards, type ToolOption } from "@/components/ui/InstallationStepper";
 import { getAllSkillProjects, getSkillProject, githubUrl } from "@/lib/skill-catalog";
 import { withJourneyCount } from "@/lib/archive";
 import type { Lang } from "@/lib/content";
+
+/* The tool picker every install flow will eventually need (numerspace and
+   dashboard-builder don't have one yet - this is the first). Claude Code
+   is the only one this skill is actually built and tested for today;
+   Cursor/Codex/Other are shown INACTIVE (greyed, per ToolSelectorCards'
+   own documented contract - "marks which one(s) the current guide
+   actually verified rather than implying interactivity that isn't
+   there") rather than omitted, since more editors are coming and the
+   picker should already have somewhere to put them. Only the "Other"
+   label is language-dependent - the rest are proper product names. */
+const toolOptions = (lang: Lang): ToolOption[] => [
+  { id: "claude-code", label: "Claude Code", icon: Terminal },
+  { id: "cursor", label: "Cursor", icon: MousePointer2 },
+  { id: "codex", label: "Codex", icon: Code2 },
+  { id: "other", label: lang === "en" ? "Other" : "Diğer", icon: MoreHorizontal },
+];
 
 /* The Google Ads Change History Explorer's product page.
 
@@ -41,13 +59,14 @@ const T = {
       "The tool reports; it does not grade. It will say a campaign hasn't changed in 23 days. It will not say that neglecting it was a mistake - judging whether a change was good, risky or overdue is explicitly out of scope, and the dashboard has no severity colours or bare badges for that reason.",
     bullets: [
       "Answers who changed this campaign's budget last week, and what it was before.",
-      "Separates changes made by a person from changes made by an automation - a script, a bidding rule, a Recommendation.",
       "Shows which campaigns haven't been touched in 30+ days, and which category of change is most common right now.",
       "Rule Matches, off by default, lets you set your own magnitude thresholds in the browser; a match reads \"crossed the threshold you set\", always shown with the exact number beside it.",
       "Stops rather than guesses: an unrecognised column, an ambiguous date like 03/04/2026, or an uncategorised change combination exits with a structured status telling you which flag to re-run with.",
       "--mask-users replaces human names with User A / User B for external sharing, and keeps the same label for the same person across runs.",
     ],
     installTitle: "Install",
+    toolStepTitle: "Pick your AI tool",
+    toolStepDesc: "Built and tested for Claude Code today - support for other editors may follow.",
     step1Title: "As a Claude Code plugin",
     step1Desc: "Add the marketplace, then install the plugin.",
     step2Title: "Or run it directly, no Claude required",
@@ -56,6 +75,8 @@ const T = {
     step3Desc:
       "The built-in suite runs the whole pipeline end to end on synthetic data. 57 checks pass on the current version.",
     viewRepo: "Read the repository",
+    copyLabel: "Copy",
+    copiedLabel: "Copied",
     faqTitle: "Frequently asked questions",
     faq: [
       {
@@ -67,11 +88,6 @@ const T = {
         id: "formats",
         q: "Which export formats does it accept?",
         a: "CSV, TSV, and pre-flattened ChangeEvent JSON. It will not read an XLSX file or a Google Sheets URL directly - export to one of those three first.",
-      },
-      {
-        id: "unknown-columns",
-        q: "My export's column names don't match. What happens?",
-        a: "It stops and tells you, rather than guessing. The run exits non-zero with a structured JSON status naming the columns it could not map, and you re-run with --mapping-file. The mapping is then fingerprinted and saved, so the next export in the same shape needs no flag at all.",
       },
       {
         id: "offline",
@@ -96,13 +112,14 @@ const T = {
       "Araç raporlar, not vermez. Bir kampanyanın 23 gündür değişmediğini söyler; bunun bir ihmal olduğunu söylemez. Bir değişikliğin iyi, riskli ya da gecikmiş olduğuna karar vermek bilinçli olarak kapsam dışı - pano bu yüzden ne önem derecesi rengi ne de açıklamasız bir rozet kullanıyor.",
     bullets: [
       "Bu kampanyanın bütçesini geçen hafta kim değiştirmiş, öncesinde neydi - cevaplar.",
-      "İnsanın yaptığı değişiklikle otomasyonun yaptığını ayırır: bir script, bir teklif kuralı, bir Recommendation.",
       "30+ gündür dokunulmamış kampanyaları ve şu an en sık görülen değişiklik kategorisini gösterir.",
       "Varsayılan olarak kapalı olan Rule Matches, kendi büyüklük eşiklerinizi tarayıcıda ayarlamanızı sağlar; bir eşleşme \"belirlediğiniz eşiği aştı\" demektir ve her zaman tam sayısıyla birlikte görünür.",
       "Tahmin etmek yerine durur: tanınmayan bir sütun, 03/04/2026 gibi belirsiz bir tarih ya da kategorize edilemeyen bir değişiklik bileşimi, hangi bayrakla yeniden çalıştıracağınızı söyleyen yapılandırılmış bir durum çıktısıyla sonlanır.",
       "--mask-users, dışarıyla paylaşım için kişi adlarını User A / User B ile değiştirir ve aynı kişiye çalıştırmalar arasında aynı etiketi verir.",
     ],
     installTitle: "Kurulum",
+    toolStepTitle: "AI aracını seçin",
+    toolStepDesc: "Bugün Claude Code için geliştirildi ve test edildi - diğer editörler için destek gelebilir.",
     step1Title: "Claude Code eklentisi olarak",
     step1Desc: "Önce marketplace'i ekleyin, sonra eklentiyi kurun.",
     step2Title: "Ya da doğrudan çalıştırın, Claude gerekmez",
@@ -111,6 +128,8 @@ const T = {
     step3Desc:
       "Yerleşik test paketi tüm hattı sentetik veri üzerinde uçtan uca çalıştırır. Mevcut sürümde 57 kontrol geçiyor.",
     viewRepo: "Repoyu okuyun",
+    copyLabel: "Kopyala",
+    copiedLabel: "Kopyalandı",
     faqTitle: "Sık sorulan sorular",
     faq: [
       {
@@ -122,11 +141,6 @@ const T = {
         id: "formats",
         q: "Hangi dışa aktarma biçimlerini kabul ediyor?",
         a: "CSV, TSV ve düzleştirilmiş ChangeEvent JSON. XLSX dosyasını ya da bir Google Sheets bağlantısını doğrudan okumaz - önce bu üç biçimden birine aktarın.",
-      },
-      {
-        id: "unknown-columns",
-        q: "Dışa aktarımımın sütun adları uyuşmuyor, ne olur?",
-        a: "Tahmin etmez, durur ve söyler. Çalıştırma, eşleştiremediği sütunları adlandıran yapılandırılmış bir JSON durumuyla sıfırdan farklı çıkar; --mapping-file ile yeniden çalıştırırsınız. Eşleştirme sonra parmak izine bağlanıp kaydedilir, aynı biçimdeki bir sonraki dosyada hiçbir bayrak gerekmez.",
       },
       {
         id: "offline",
@@ -144,16 +158,6 @@ const T = {
 } as const;
 
 const SLUG = "google-ads-change-history-dashboard";
-
-/** The dark code plate the install steps use, same treatment as the
-    dashboard-builder page's clone line. */
-function Code({ children }: { children: React.ReactNode }) {
-  return (
-    <code className="block overflow-x-auto rounded-md border border-line bg-ink-950 px-4 py-3 font-mono text-xs leading-relaxed whitespace-pre text-white/85">
-      {children}
-    </code>
-  );
-}
 
 export function getChangeHistoryContent(lang: Lang): SkillProductContent | null {
   const project = getSkillProject(lang, SLUG);
@@ -186,31 +190,41 @@ export function getChangeHistoryContent(lang: Lang): SkillProductContent | null 
     installSteps: [
       {
         n: 1,
-        title: t.step1Title,
-        desc: t.step1Desc,
-        content: (
-          <Code>
-            {`/plugin marketplace add ali-demirbas/${SLUG}\n/plugin install ${SLUG}@${SLUG}`}
-          </Code>
-        ),
+        title: t.toolStepTitle,
+        desc: t.toolStepDesc,
+        content: <ToolSelectorCards options={toolOptions(lang)} activeId="claude-code" />,
       },
       {
         n: 2,
-        title: t.step2Title,
-        desc: t.step2Desc,
+        title: t.step1Title,
+        desc: t.step1Desc,
         content: (
-          <Code>
-            {`python3 ads_change_history.py run <export.csv> --out-dir ./out --open`}
-          </Code>
+          <CodeBlock
+            code={`/plugin marketplace add ali-demirbas/${SLUG}\n/plugin install ${SLUG}@${SLUG}`}
+            copyLabel={t.copyLabel}
+            copiedLabel={t.copiedLabel}
+          />
         ),
       },
       {
         n: 3,
+        title: t.step2Title,
+        desc: t.step2Desc,
+        content: (
+          <CodeBlock
+            code="python3 ads_change_history.py run <export.csv> --out-dir ./out --open"
+            copyLabel={t.copyLabel}
+            copiedLabel={t.copiedLabel}
+          />
+        ),
+      },
+      {
+        n: 4,
         title: t.step3Title,
         desc: t.step3Desc,
         content: (
           <div className="flex flex-col gap-3">
-            <Code>{`python3 ads_change_history.py self-test`}</Code>
+            <CodeBlock code="python3 ads_change_history.py self-test" copyLabel={t.copyLabel} copiedLabel={t.copiedLabel} />
             {repo ? (
               <a
                 href={repo}
@@ -229,5 +243,12 @@ export function getChangeHistoryContent(lang: Lang): SkillProductContent | null 
     faq: [...t.faq],
     relatedTitle: t.relatedTitle,
     related,
+    // Restates the page's own verified claim (step2Desc above): "Python 3
+    // and its standard library are the only requirements."
+    appSchema: {
+      type: "SoftwareApplication",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Cross-platform (Python 3, standard library only)",
+    },
   };
 }

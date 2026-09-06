@@ -1,0 +1,492 @@
+{
+ "id": "IDN-271",
+ "shortName": "Account Security Alert",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.signal",
+   "event": "compromise_incident_opened_with_scope_determined",
+   "meaning": "a security incident authoritatively opened against the account; the affected scope determined - which sessions, credentials and capabilities; a record of whether containment was applied and how wide",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a compromise incident is opened for the account with its scope determined",
+    "at least one verified destination exists that the signal does not implicate",
+    "the incident has a review point set"
+   ],
+   "instanceKey": [
+    "account_id",
+    "incident_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.route",
+   "asks": "Is there a destination the signal does not implicate?",
+   "branches": [
+    {
+     "label": "Clean route",
+     "observes": null,
+     "test": "a contact point sits outside the affected scope and was not itself added or changed inside the window under suspicion",
+     "to": "c.contained"
+    },
+    {
+     "label": "Every route implicated",
+     "observes": null,
+     "test": "the only destinations were changed in the suspicious window or sit behind the same access under question",
+     "to": "x.withheld"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.withheld",
+   "class": "no-action",
+   "state": "no destination outside the suspicion; no alert sent",
+   "reEntry": "if a destination outside the affected scope is established, the verification question runs from there"
+  },
+  {
+   "type": "condition",
+   "node": "c.contained",
+   "asks": "Has anything actually been restricted?",
+   "branches": [
+    {
+     "label": "Containment applied",
+     "observes": null,
+     "test": "sessions, credentials or capabilities were restricted, so the owner will meet the restriction whether or not we say so first",
+     "to": "a.alert-contained"
+    },
+    {
+     "label": "Nothing restricted",
+     "observes": null,
+     "test": "the evidence did not justify restriction and the account is operating normally",
+     "to": "a.alert-watch"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.alert-contained",
+   "touch": "t-contained",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "security_alert.discretionary_touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.implicated-route",
+    "s.no-claim",
+    "s.multi-destination",
+    "s.owner-informed-past-review",
+    "s.hard-gates-only"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.alert-contained",
+   "touch": "t-contained",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "a verified address the signal does not implicate exists; the alert must be kept and re-read"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "a verified number the signal does not implicate exists; the shortest route to the confirmation question"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": {
+    "allowed": true,
+    "reason": "every verified destination the signal does not implicate is told at once, because a single destination may itself be the compromised one"
+   }
+  },
+  {
+   "type": "message",
+   "node": "a.alert-contained",
+   "touch": "t-contained",
+   "stage": "alert",
+   "purpose": "Say what was restricted, why, and that confirming whether the recent activity was theirs is what resolves it.",
+   "brief": "Say what was restricted, why, and that confirming whether the recent activity was theirs is what resolves it. A restriction somebody walks into unwarned is indistinguishable from the compromise it was meant to contain",
+   "destination": {
+    "target": "activity-confirmation",
+    "boundTo": "incident_id",
+    "mustNotClaim": [
+     "that the account is confirmed compromised",
+     "a restriction that was not applied"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route",
+    "c.contained"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.alert-contained",
+   "key": "incident_id + touch id"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.alert-watch",
+   "touch": "t-watch",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "security_alert.discretionary_touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.implicated-route",
+    "s.no-claim",
+    "s.multi-destination",
+    "s.owner-informed-past-review",
+    "s.hard-gates-only"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.alert-watch",
+   "touch": "t-watch",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "a verified address the signal does not implicate exists; the alert must be kept and re-read"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "a verified number the signal does not implicate exists; the shortest route to the confirmation question"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": {
+    "allowed": true,
+    "reason": "every verified destination the signal does not implicate is told at once, because a single destination may itself be the compromised one"
+   }
+  },
+  {
+   "type": "message",
+   "node": "a.alert-watch",
+   "touch": "t-watch",
+   "stage": "alert",
+   "purpose": "Ask whether the recent activity was theirs and say plainly that nothing has been restricted.",
+   "brief": "Ask whether the recent activity was theirs and say plainly that nothing has been restricted. Suspected is not confirmed, and most of these signals are not - a message that implies otherwise converts a false positive into a frightened person",
+   "destination": {
+    "target": "activity-confirmation",
+    "boundTo": "incident_id",
+    "mustNotClaim": [
+     "that anything was restricted",
+     "that the account is confirmed compromised"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.route",
+    "c.contained"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.alert-watch",
+   "key": "incident_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.verify",
+   "timing": {
+    "key": "security_alert.review_point",
+    "class": "decision-sla",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "a.standing"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.verify",
+   "cancelOn": [
+    {
+     "event": "activity_confirmed_own",
+     "meaning": "the owner confirms the activity was theirs"
+    },
+    {
+     "event": "activity_reported_not_own",
+     "meaning": "the owner reports the activity was not theirs"
+    },
+    {
+     "event": "security_review_concluded",
+     "meaning": "the security review concludes"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.verify",
+   "reads": "the incident re-read: the owner's answer if any, the security review's state, and what remains restricted",
+   "before": "a.standing"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What did the answer establish?",
+   "branches": [
+    {
+     "label": "Theirs",
+     "observes": null,
+     "test": "the owner confirms the activity, or the review clears the signal without them",
+     "to": "a.cleared"
+    },
+    {
+     "label": "Not theirs",
+     "observes": null,
+     "test": "the owner reports the activity was not theirs, or the review confirms the compromise",
+     "to": "h.recovery"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.cleared",
+   "touch": "t-cleared",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "security_alert.discretionary_touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.implicated-route",
+    "s.no-claim",
+    "s.multi-destination",
+    "s.owner-informed-past-review",
+    "s.hard-gates-only"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.cleared",
+   "touch": "t-cleared",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "a verified address the signal does not implicate exists; the alert must be kept and re-read"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "a verified number the signal does not implicate exists; the shortest route to the confirmation question"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": {
+    "allowed": true,
+    "reason": "every verified destination the signal does not implicate is told at once, because a single destination may itself be the compromised one"
+   }
+  },
+  {
+   "type": "message",
+   "node": "a.cleared",
+   "touch": "t-cleared",
+   "stage": "resolution",
+   "purpose": "Say the signal is cleared and name anything that has been lifted, so a restriction met yesterday is not still assumed today.",
+   "brief": "Say the signal is cleared and name anything that has been lifted, so a restriction met yesterday is not still assumed today. The record of the signal stays; only the restriction goes",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.cleared",
+   "key": "incident_id + touch id"
+  },
+  {
+   "type": "exit",
+   "node": "x.cleared",
+   "class": "success",
+   "state": "cleared; restrictions lifted and the owner told",
+   "reEntry": "a further signal on the same account is a new incident and a new instance"
+  },
+  {
+   "type": "handoff",
+   "node": "h.recovery",
+   "to": "IDN-88",
+   "on": "a confirmed compromise where the owner needs secure control of the account rebuilt",
+   "carries": [
+    "the incident, its affected scope and what was contained",
+    "which destinations were treated as implicated and which carried the alert"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.standing",
+   "touch": "t-standing",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "security_alert.discretionary_touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.implicated-route",
+    "s.no-claim",
+    "s.multi-destination",
+    "s.owner-informed-past-review",
+    "s.hard-gates-only"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.standing",
+   "touch": "t-standing",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "a verified address the signal does not implicate exists; the alert must be kept and re-read"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "a verified number the signal does not implicate exists; the shortest route to the confirmation question"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": {
+    "allowed": true,
+    "reason": "every verified destination the signal does not implicate is told at once, because a single destination may itself be the compromised one"
+   }
+  },
+  {
+   "type": "message",
+   "node": "a.standing",
+   "touch": "t-standing",
+   "stage": "resolution",
+   "purpose": "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is assumed from their silence.",
+   "brief": "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is required from them. A restriction with no stated owner and no stated date is where duplicate cases come from",
+   "destination": {
+    "target": "incident-status",
+    "boundTo": "incident_id",
+    "mustNotClaim": [
+     "that the incident is resolved"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.standing",
+   "key": "incident_id + touch id"
+  },
+  {
+   "type": "exit",
+   "node": "x.open",
+   "class": "timeout",
+   "state": "incident open past its review point; the owner knows where it sits",
+   "reEntry": "the conclusion, whenever it lands, re-enters on the cleared or the recovery path"
+  }
+ ]
+}

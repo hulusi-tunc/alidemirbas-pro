@@ -303,6 +303,13 @@ export const MERGED_INTO: Readonly<Record<MergedJourneyId, string>> = {
   // risk category owns it; the retention copy is retired rather than kept as
   // a second door onto the same lifecycle.
   "RET-25": "RSK-192",
+  // vNext Gate 3 merges. Negative-feedback recovery and positive-feedback
+  // follow-up were two doors onto the same feedback record: the follow-up
+  // journey now routes both inside its own graph. First-value recognition
+  // was the opening step of adoption nurture, not a lifecycle of its own.
+  "FBK-44": "FBK-43",
+  "FBK-45": "FBK-43",
+  "ACT-15": "ACT-17",
 };
 
 /** Follows a consolidation redirect, so a stored id from before the merge

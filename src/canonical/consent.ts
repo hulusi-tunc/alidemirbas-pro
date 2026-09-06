@@ -144,11 +144,17 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: [],
     name: "Permission capture → validate scope → activate or reject",
+    shortName: "Permission Validation",
     purpose:
       "Turn a permission decision into an auditable record of what exactly was authorised, rather than a flag that says yes.",
     entity: {
       scope: "person plus the permission record, keyed by purpose, channel and scope",
       note: "One record per purpose x channel x scope. Consent to product notices by email is a different record from consent to marketing by email, and neither is a record about SMS.",
+      instanceKey: [
+        "person_id",
+        "purpose_channel_scope_key"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -157,6 +163,79 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           "This creates authorisation. CON-32 records how someone would like authorised communication done, which is a different fact and must never be able to create this one.",
       },
     ],
+    objective: "Turn a permission decision into an auditable record of what exactly was authorised, rather than a flag that says yes.",
+    eligibility: [
+      "a deliberate act of granting or refusing permission, identifying what is being permitted",
+      "no instance of this journey is already open for the person plus the permission record",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Creating an account is not consent. Nor is providing contact details, which is how someone reaches a service rather than an invitation to be marketed to."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Permission on one channel never transfers to another. Email consent is not SMS consent."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "An ambiguous scope is read narrowly. The broad reading is the one that has to be asked for."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A refusal is recorded as a decision, not as an absence - so that nothing later reads the silence as room to assume."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "person_id",
+          "purpose_channel_scope_key",
+          "decision",
+          "scope_statement",
+          "captured_at",
+          "permission_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.rejected",
+          "x.active"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "permission validation",
+        "consent capture",
+        "consent record",
+        "opt-in validation",
+        "consent scope"
+      ],
+      "useCases": [
+        "a deliberate opt-in recorded with exactly what it authorised",
+        "an ambiguous scope read narrowly and recorded as such"
+      ]
+    },
     entry: "t.decision",
     nodes: [
       {
@@ -183,6 +262,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the permission type, the purpose, the channel, the scope, the source, the time, and the evidence or consent-text version where one is required - the version matters, because what someone agreed to is the wording in front of them at the time",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "c.valid",
+        idempotencyKey: "person_id + purpose_channel_scope_key + a.capture",
       },
       {
         id: "c.valid",
@@ -212,6 +292,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record only the narrowest defensible reading, and flag the ambiguity so it can be resolved by asking rather than by assuming. Reading an unclear scope broadly is how one newsletter signup becomes a permission to send anything",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "c.existing",
+        idempotencyKey: "person_id + purpose_channel_scope_key + a.narrow",
       },
       {
         id: "x.rejected",
@@ -220,6 +301,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a genuine permission decision later creates one normally; nothing partial is stored that a later process could mistake for consent",
+        class: "invalid-state",
       },
       {
         id: "c.existing",
@@ -244,6 +326,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reconcile against the prior record using the authoritative rules for this permission type, appending rather than replacing - the previous grant, its source and its version stay readable, because a permission history is the only defence of what was sent under it",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "x.active",
+        idempotencyKey: "person_id + purpose_channel_scope_key + a.reconcile",
       },
       {
         id: "a.activate",
@@ -251,6 +334,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Activate the permission for exactly the purpose, channel and scope captured, and nothing adjacent to them",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "x.active",
+        idempotencyKey: "person_id + purpose_channel_scope_key + a.activate",
       },
       {
         id: "x.active",
@@ -259,6 +343,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "any later decision on the same combination opens a new instance; changes to an active permission are CON-35's, not this journey's",
+        class: "success",
       },
     ],
     guardrails: [
@@ -279,11 +364,79 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: [],
     name: "Preference capture → persist → personalise eligible communication",
+    shortName: "Preference Capture",
     purpose:
       "Record how someone would like permitted communication done, in a store that structurally cannot become permission.",
     entity: {
       scope: "person plus the declared-preference profile",
       note: "Declared preferences live in their own store. Inferred interests live in another, and the two are never written to the same field.",
+      instanceKey: [
+        "person_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Record how someone would like permitted communication done, in a store that structurally cannot become permission.",
+    eligibility: [
+      "the person deliberately setting or changing a preference: frequency, topic, category, language, preferred channel, content type",
+      "no instance of this journey is already open for the person plus the declared",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A preference is not consent. Preferring email says nothing about wanting marketing."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Inferred behaviour and declared preference stay in separate stores. The confidence attached to them is different and the merge cannot be undone."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A preference set where no permission exists is stored and applied to nothing."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "person_id",
+          "declared_preferences"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.stored-only",
+          "h.recalculate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "preference capture",
+        "preference centre",
+        "communication preferences",
+        "channel preference"
+      ],
+      "useCases": [
+        "a declared frequency or channel preference stored where it cannot become permission",
+        "a preference that changes running journeys, handed to recalculation"
+      ]
     },
     entry: "t.set",
     nodes: [
@@ -310,6 +463,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Persist the value with its source and the time it changed, into the store that holds declared answers only. Inference is written elsewhere - once the two share a field, nothing can tell what the person actually said",
         writes: [{ field: "declared_preferences", mode: "append" }],
         next: "c.permitted",
+        idempotencyKey: "person_id + a.persist",
       },
       {
         id: "c.permitted",
@@ -335,12 +489,14 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "if permission is granted later the stored preference applies from that moment; the preference waited rather than authorised anything",
+        class: "success",
       },
       {
         id: "a.apply",
         kind: "action",
         does: "Apply the preference to communication that is already permitted - which is the only thing a preference can do",
         next: "h.recalculate",
+        idempotencyKey: "person_id + a.apply",
       },
       {
         id: "h.recalculate",
@@ -370,11 +526,81 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: [],
     name: "Preference change → recalculate active journeys → suppress or adapt",
+    shortName: "Preference Recalculation",
     purpose:
       "Make a preference change reach the messages already sitting in a queue, not just the profile field.",
     entity: {
       scope: "person plus the preference plus every active journey instance and queued action it touches",
       note: "The scope is deliberately wide on the forward side and closed on the backward one: everything not yet executed, nothing already delivered.",
+      instanceKey: [
+        "person_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Make a preference change reach the messages already sitting in a queue, not just the profile field.",
+    eligibility: [
+      "a recorded preference change with its previous value",
+      "no instance of this journey is already open for the person plus the preference plus every active journey instance and queued action it touches",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A preference change does not rewrite what has already been sent."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A stale queued action never overrides a newer preference. Execution re-validates; scheduling is not a decision."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A preference change is not a permission change, however much it reduces what gets sent."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "person_id",
+          "declared_preferences",
+          "suppressed_sends"
+        ],
+        "optional": [
+          "adapted_sends"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.recalculated"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "preference recalculation",
+        "preference change propagation",
+        "queued message recalculation",
+        "apply preference to running journeys"
+      ],
+      "useCases": [
+        "a preference change that must reach messages already queued",
+        "adapting rather than suppressing a send the new preference reshapes"
+      ]
     },
     entry: "t.changed",
     nodes: [
@@ -384,6 +610,10 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         event: "authoritative_preference_changed",
         evidence: {
           requires: ["a recorded preference change with its previous value"],
+          insufficientAlone: [
+            "a preference inferred from behaviour rather than declared",
+            "a permission change, which is a different fact and reaches queued sends through suppression, not here"
+          ],
           source: "authoritative",
         },
         next: "a.history",
@@ -394,6 +624,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Persist the new value keeping the change history - what it was, what it became, and when. Messages already delivered under the old preference are not rewritten and not apologised for; they were correct when they went",
         writes: [{ field: "declared_preferences", mode: "append" }],
         next: "a.identify",
+        idempotencyKey: "person_id + a.history",
       },
       {
         id: "a.identify",
@@ -429,12 +660,15 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress the conflicting actions before they execute. A queued action written under the old preference must not be allowed to overwrite the new one simply by arriving first",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "x.recalculated",
+        idempotencyKey: "person_id + a.suppress",
       },
       {
         id: "a.adapt",
         kind: "action",
         does: "Adapt the pending actions to the new preference before execution rather than after - adapting afterwards is called an apology",
+        writes: [{ field: "adapted_sends", mode: "append" }],
         next: "x.recalculated",
+        idempotencyKey: "person_id + a.adapt",
       },
       {
         id: "x.recalculated",
@@ -442,6 +676,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "future orchestration aligned to the new preference; permission unchanged",
         terminal: false,
         reEntry: "the next preference change re-opens this",
+        class: "success",
       },
     ],
     guardrails: [
@@ -461,11 +696,14 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: [],
     name: "Communication frequency change → recalculate cadence → apply prospectively",
+    shortName: "Frequency Recalculation",
     purpose:
       "Recalculate how often optional communication may go out, without letting that quietly reach the messages someone has to receive.",
     entity: {
       scope: "person plus the communication classes the frequency preference actually governs",
-      note: "The governed set is the whole question. A frequency preference that silently covers required communication is an opt-out nobody chose.",
+      note: "The governed set is the whole question. A frequency preference that silently covers required communication is an opt-out nobody chose. This mechanism is a pure event-driven entry point - it is reached whenever frequency_preference_changed fires from wherever a person declares a cadence change (a preference center, a support-assisted change, an API), the same shallow entry-point shape as CMS-201/CON-35/OPS-121, not something another canonical journey hands off into.",
+      instanceKey: ["person_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -518,6 +756,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Include the required classes the policy names, and only those, recording which policy authorised it",
         writes: [{ field: "cadence_policy_applied", mode: "append" }],
         next: "a.recalculate",
+        idempotencyKey: "person_id + a.include",
       },
       {
         id: "a.exclude",
@@ -555,6 +794,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress or reschedule the optional communication that now exceeds the cadence, choosing between the two by whether the message keeps its meaning later",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "x.applied",
+        idempotencyKey: "person_id + a.trim",
       },
       {
         id: "x.applied",
@@ -581,11 +821,14 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: [],
     name: "Consent or permission change → immediate enforcement → propagate",
+    shortName: "Permission Change Enforcement",
     purpose:
       "Stop affected communication the moment permission changes, and let the distributed systems catch up afterwards.",
     entity: {
       scope: "person plus the permission record that changed, at its purpose, channel and scope",
-      note: "Enforcement is scoped to what actually changed. A withdrawal of marketing email consent does not suspend service notices, and treating it as though it did is its own failure.",
+      note: "Enforcement is scoped to what actually changed. A withdrawal of marketing email consent does not suspend service notices, and treating it as though it did is its own failure. change_version is a counter maintained per (person, purpose, channel, scope) combination, so it disambiguates successive changes on the same permission without colliding across different ones; change_origin names the system the change came from. Both are what a.propagate's own guardrail means by \"origin and version\" - carried explicitly, not left as an unnamed concept.",
+      instanceKey: ["person_id", "change_version"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -611,9 +854,10 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.record",
         kind: "action",
-        does: "Record the old state, the new state, the source, the time, and the scope, purpose and channel it applies to - appended, because the question later is always what we were authorised to do at a particular moment",
+        does: "Record the old state, the new state, the source, the time, and the scope, purpose and channel it applies to - appended, because the question later is always what we were authorised to do at a particular moment. Assigns change_version for this transition and records change_origin, the system it came from",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "c.direction",
+        idempotencyKey: "person_id + change_version + a.record",
       },
       {
         id: "c.direction",
@@ -638,11 +882,12 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress the affected outbound communication now, including everything queued, without waiting for any downstream system to acknowledge anything. The asymmetry is deliberate: a grant applied late costs a message that could have been sent, a withdrawal applied late costs one that should not have been",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "a.propagate",
+        idempotencyKey: "person_id + change_version + a.enforce",
       },
       {
         id: "a.propagate",
         kind: "action",
-        does: "Propagate the new state to the dependent systems, carrying origin and version so that an out-of-order echo cannot revert it and a redelivery cannot restart the exchange",
+        does: "Propagate the new state to the dependent systems, carrying change_origin and change_version so that an out-of-order echo cannot revert it and a redelivery cannot restart the exchange - a dependent system applies a propagation only if its incoming change_version is newer than what it already holds for this (person_id, purpose, channel, scope), which is what makes redelivery and reordering both safe",
         next: "w.converge",
       },
       {
@@ -681,10 +926,12 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CON-40",
         on: "systems failing to converge on the new permission state",
         carries: [
-          "the intended state with its version and origin",
+          "the intended state with change_version and change_origin",
+          "disputed_permission_ref, derived from this change's own (purpose, channel, scope), which CON-40's own conflict instance is keyed on",
           "which systems disagree and what each of them holds",
           "the fact that local enforcement is already applied, so the conflict is about consistency rather than about whether to send",
         ],
+        contract: { requiredFields: ["person_id", "disputed_permission_ref"] },
       },
       {
         id: "x.consistent",
@@ -712,11 +959,14 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Channel contactability change → recalculate reachability → route or suppress",
+    shortName: "Contactability Recalculation",
     purpose:
       "Track whether a channel can reach someone, as a state entirely separate from whether it may, and keep each destination's route health separately so future sending routes around what is broken.",
     entity: {
       scope: "person plus the specific contact point - this address, this number, this device token",
       note: "Contactability belongs to the contact point, not the person and not the channel class. One dead device token does not make push unreachable, and there is deliberately no person-level reachable flag - one would erase every route the failing one is not.",
+      instanceKey: ["contact_point_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -749,6 +999,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Update the contactability state to CONTACTABLE, TEMPORARILY_UNAVAILABLE, UNDELIVERABLE, INVALID or RESTORED, leaving permission untouched - a channel that cannot reach someone has expressed no opinion about whether it may",
         writes: [{ field: "contactability_log", mode: "append" }],
         next: "c.state",
+        idempotencyKey: "contact_point_id + a.state",
       },
       {
         id: "c.state",
@@ -778,6 +1029,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Make the new destination available for future eligible communication. Available is not consented - a verified address is a route, and whether it may carry a given purpose is a separate question decided separately",
         writes: [{ field: "contactability_log", mode: "append" }],
         next: "c.pending",
+        idempotencyKey: "contact_point_id + a.add",
       },
       {
         id: "a.resume",
@@ -785,6 +1037,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Allow future eligible communication on this contact point again, recorded from the current evidence rather than by clearing the history of why it was suppressed. The prior failures stay readable, because a route that keeps breaking and being restored is worth being able to see. What was missed while it was unreachable is not replayed - the queue described a state that has since moved",
         writes: [{ field: "contactability_log", mode: "append" }],
         next: "c.pending",
+        idempotencyKey: "contact_point_id + a.resume",
       },
       {
         id: "c.pending",
@@ -809,9 +1062,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CMS-202",
         on: "pending communication affected by a change in this destination's health",
         carries: [
+          "each affected obligation's own obligation_id - this fans out to CMS-202 once per obligation, not once for the batch",
           "the affected obligations and the destination whose state changed",
           "the explicit instruction to re-resolve destinations rather than to resend - nothing was delivered to the failing route",
         ],
+        contract: { requiredFields: ["obligation_id"] },
       },
       {
         id: "x.resumed",
@@ -826,6 +1081,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress future attempts on this contact point according to the failure class - a temporary failure and a permanently invalid destination are not held the same way and must not be recorded as though they were. Historical delivery records are untouched: a message delivered to this address last year was delivered, and rewriting that to match today's state destroys the record of what the person was actually told",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "c.pending-blocked",
+        idempotencyKey: "contact_point_id + a.suppress",
       },
       {
         id: "c.pending-blocked",
@@ -933,11 +1189,17 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Communication suppression → reason → release or persist",
+    shortName: "Communication Suppression",
     purpose:
       "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
     entity: {
       scope: "the person, message or journey instance the suppression applies to, at the scope recorded with it",
       note: "The scope is part of the record. A cooldown on one channel and a legal restriction across all of them are both suppressions and share nothing else.",
+      instanceKey: [
+        "person_id",
+        "suppression_scope"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -946,6 +1208,83 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           "A cooldown is one reason among the nine this journey holds. It has its own journey because its release is time-based and its scope is deliberately partial, which the general mechanism does not assume.",
       },
     ],
+    objective: "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
+    eligibility: [
+      "a condition that stops communication: permission withdrawn, a frequency policy, a contactability failure, a higher-priority journey taking ownership, a legal or policy restriction, a cooldown, a duplicate, an existing human resolution, or a temporary incident",
+      "no instance of this journey is already open for the the person",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Suppression is not deletion. Nothing is removed; sending is stopped."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Release is not replay. What was held is discarded and current eligibility is recalculated."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Different reasons carry different scopes, and a suppression without its scope cannot be released correctly."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Suppression we impose on ourselves is a separate state from permission the person gave us. A sender-side hold is not an unsubscribe, it is recorded against our own sending rather than against their consent, and nobody may read it as a decision they made."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Releasing a sender-side suppression asks for permission again rather than switching sending back on. Silence long enough to suppress for is not consent that survived it."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "person_id",
+          "suppression_scope",
+          "reason",
+          "release_condition",
+          "suppression_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.persistent",
+          "x.released"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "communication suppression",
+        "do-not-contact",
+        "suppression list",
+        "send hold",
+        "global suppression"
+      ],
+      "useCases": [
+        "permission withdrawn, a frequency cap hit, or a legal hold recorded as a scoped suppression",
+        "releasing a suppression by re-evaluating current state rather than replaying a backlog"
+      ]
+    },
     entry: "t.suppression",
     nodes: [
       {
@@ -955,6 +1294,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a condition that stops communication: permission withdrawn, a frequency policy, a contactability failure, a higher-priority journey taking ownership, a legal or policy restriction, a cooldown, a duplicate, an existing human resolution, or a temporary incident",
+          ],
+          insufficientAlone: [
+            "a soft delivery failure, which is a transient route fact",
+            "a preference reduction, which reshapes communication rather than stopping it",
+            "an internal hold with no recorded reason"
           ],
           source: "authoritative",
         },
@@ -966,6 +1310,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the reason, the scope, the source, the start time, and the release condition where one exists. Scope carries as much weight as reason: without it nothing downstream can tell what is still allowed",
         writes: [{ field: "suppression_log", mode: "append" }],
         next: "c.kind",
+        idempotencyKey: "person_id + a.record",
       },
       {
         id: "c.kind",
@@ -991,19 +1336,28 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a change to the state that caused it opens a new evaluation. Nothing was deleted here - the person, their history and their record are intact, and only sending is stopped",
+        class: "suppression",
       },
       {
         id: "w.release",
         kind: "wait",
-        until: ["the recorded release condition is met"],
+        until: [
+          "release_condition_met"
+        ],
         onEvent: "a.reevaluate",
         timeout: {
-          after: "a review horizon appropriate to the reason",
-          reason:
-            "a temporary suppression whose release condition never arrives has quietly become permanent, and the review is what forces that to be said out loud",
+          "after": {
+            "key": "communication_suppression.release",
+            "rule": "A review horizon appropriate to the reason.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a temporary suppression whose release condition never arrives has quietly become permanent, and the review is what forces that to be said out loud",
+          "relativeTo": "trigger"
         },
         onTimeout: "c.still",
         windowExtendsOnEngagement: false,
+        recheck: "the the person re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.still",
@@ -1028,6 +1382,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Re-evaluate what the affected journeys should do now, and act on that. What was held during the suppression is not replayed - those messages described a state that has since moved, and delivering a week of them at once is how a release becomes worse than the suppression",
         writes: [{ field: "suppression_log", mode: "append" }],
         next: "x.released",
+        idempotencyKey: "person_id + a.reevaluate",
       },
       {
         id: "x.released",
@@ -1035,6 +1390,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "suppression released; current state re-evaluated, backlog discarded",
         terminal: false,
         reEntry: "any new suppression condition opens its own instance with its own reason and scope",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1056,11 +1412,14 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Communication cooldown → hold optional messaging → re-evaluate",
+    shortName: "Communication Cooldown",
     purpose:
       "Reduce optional communication pressure for a while, without touching permission and without covering more than it needs to.",
     entity: {
       scope: "person or account plus the communication context the cooldown was created for",
-      note: "A cooldown covers what its reason justifies. One that reaches every channel by default is an opt-out that nobody chose and nobody can find.",
+      note: "A cooldown covers what its reason justifies. One that reaches every channel by default is an opt-out that nobody chose and nobody can find. cooldown_context is established at a.create itself, so a.create's own idempotency is scoped coarser (person_id alone) than the actions that follow it.",
+      instanceKey: ["person_id", "cooldown_context"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.cooldown",
     nodes: [
@@ -1079,9 +1438,10 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.create",
         kind: "action",
-        does: "Create the cooldown scoped to what its reason actually justifies, recording the reason, the scope, the start, and either an expiry or the condition that would end it early",
+        does: "Create the cooldown scoped to what its reason actually justifies, recording the reason, the scope, the start, and either an expiry or the condition that would end it early. Establishes cooldown_context itself",
         writes: [{ field: "cooldown_log", mode: "append" }],
         next: "c.scope",
+        idempotencyKey: "person_id + a.create",
       },
       {
         id: "c.scope",
@@ -1106,6 +1466,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Extend the cooldown only to the required communication the policy names, recording which policy did it - so the extension is attributable rather than inherited",
         writes: [{ field: "cooldown_log", mode: "append" }],
         next: "w.cooldown",
+        idempotencyKey: "person_id + cooldown_context + a.policy-scope",
       },
       {
         id: "w.cooldown",
@@ -1119,6 +1480,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "a.reevaluate",
         windowExtendsOnEngagement: false,
+        recheck: "current eligibility for the governed classes, re-read from authoritative state before re-evaluating - not the state as it stood when the cooldown began",
       },
       {
         id: "c.basis",
@@ -1143,9 +1505,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         to: "CON-38",
         on: "a cooldown outgrown by its own cause",
         carries: [
+          "person_id and suppression_scope (the cooldown's own communication context, carried forward as CON-38's own scope), which CON-38's own instance is keyed on",
           "the cooldown's reason and scope, and what changed",
           "the fact that this needs a stated reason and release condition rather than an expiry",
         ],
+        contract: { requiredFields: ["person_id", "suppression_scope"] },
       },
       {
         id: "a.reevaluate",
@@ -1153,6 +1517,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Re-evaluate what is eligible now and act on that. Anything queued when the cooldown began is discarded rather than released - a cooldown that ends by flushing a backlog has achieved nothing except a delay",
         writes: [{ field: "cooldown_log", mode: "append" }],
         next: "x.released",
+        idempotencyKey: "person_id + cooldown_context + a.reevaluate",
       },
       {
         id: "x.released",
@@ -1180,11 +1545,14 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Permission conflict → fail-safe state → reconcile → restore",
+    shortName: "Permission Conflict Resolution",
     purpose:
       "Hold optional communication closed while two systems disagree about permission, and reconcile on evidence rather than on whichever value allows more.",
     entity: {
       scope: "person plus the specific permission type, channel and purpose that disagrees",
-      note: "Only the disputed combination is suppressed. A conflict about marketing email does not close service notices, and widening it would make the fail-safe worse than the failure.",
+      note: "Only the disputed combination is suppressed. A conflict about marketing email does not close service notices, and widening it would make the fail-safe worse than the failure. disputed_permission_ref stands for the (permission_type, channel, purpose) combination a.scope resolves - one conflict instance per disputed combination, distinct from CON-35's own change_version (a conflict is about which value is right, not about a single ordered change).",
+      instanceKey: ["person_id", "disputed_permission_ref"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1216,6 +1584,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Suppress the affected optional outbound communication immediately, before anything is collected or decided. This runs first on purpose: investigating while still sending resolves the uncertainty in favour of sending, which is the one outcome the journey exists to prevent",
         writes: [{ field: "suppressed_sends", mode: "append" }],
         next: "a.collect",
+        idempotencyKey: "person_id + disputed_permission_ref + a.failsafe",
       },
       {
         id: "a.collect",
@@ -1223,6 +1592,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Collect from each participating system its state, source, timestamp, version and the provenance of the change. A timestamp alone is not authority - clocks disagree, and write order is not the order things were decided",
         writes: [{ field: "permission_conflict_log", mode: "append" }],
         next: "a.scope",
+        idempotencyKey: "person_id + disputed_permission_ref + a.collect",
       },
       {
         id: "a.scope",
@@ -1230,6 +1600,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine exactly which purpose, channel and scope combination is in dispute. Everything outside it is not in conflict and is not suppressed",
         writes: [{ field: "permission_conflict_log", mode: "append" }],
         next: "c.resolvable",
+        idempotencyKey: "person_id + disputed_permission_ref + a.scope",
       },
       {
         id: "c.resolvable",
@@ -1254,6 +1625,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PERMISSION_CONFLICT and leave the fail-safe suppression in force. Being unresolved is a state worth naming rather than a gap between two states",
         writes: [{ field: "permission_conflict_log", mode: "append" }],
         next: "w.reconcile",
+        idempotencyKey: "person_id + disputed_permission_ref + a.enter",
       },
       {
         id: "w.reconcile",
@@ -1281,14 +1653,15 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.apply",
         kind: "action",
-        does: "Apply the established state and propagate the correction with origin and version, so a redelivered or out-of-order echo is discarded rather than treated as a new change - which is what turns a reconciliation into a synchronisation loop",
+        does: "Apply the established state and propagate the correction with change_origin and a fresh change_version for the resolution, so a redelivered or out-of-order echo is discarded rather than treated as a new change - which is what turns a reconciliation into a synchronisation loop",
         writes: [{ field: "permission_log", mode: "append" }],
         next: "a.verify",
+        idempotencyKey: "person_id + disputed_permission_ref + a.apply",
       },
       {
         id: "a.verify",
         kind: "action",
-        does: "Verify convergence across the systems that are required to agree, using idempotent versioned writes so verification cannot itself become another round of the exchange",
+        does: "Verify convergence across the systems that are required to agree, using change_version-checked writes so verification cannot itself become another round of the exchange - a system's own report is only accepted at the resolution's change_version, never inferred from a bare acknowledgement",
         next: "c.converged",
       },
       {
@@ -1314,6 +1687,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Release the conflict state and re-evaluate what is eligible now. Communication withheld during the conflict is not replayed, whichever way the conflict resolved",
         writes: [{ field: "permission_conflict_log", mode: "append" }],
         next: "x.resolved",
+        idempotencyKey: "person_id + disputed_permission_ref + a.release",
       },
       {
         id: "x.resolved",
@@ -1340,11 +1714,16 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: ["email", "sms"],
     name: "Contact point added or changed → confirm → permitted or lapsed",
+    shortName: "Contact Verification",
     purpose:
       "Establish that the person who owns a new destination actually asked for it, before anything is ever sent there - and tell the destination it replaces, because a change nobody made is only visible from the address it is being taken away from.",
     entity: {
       scope: "the specific contact point being added or changed, plus the identity it is claimed for",
       note: "One destination, one confirmation. A second contact point on the same identity is its own instance and confirms on its own terms.",
+      instanceKey: [
+        "contact_point_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1358,6 +1737,228 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           "IDN-89 changes the attribute and reconciles what depended on it. This is the exchange with the two destinations that decides whether the new one is usable at all.",
       },
     ],
+    objective: "Make a new or changed contact point usable only when the destination itself confirms it - telling the destination being replaced that it is being replaced - and leave it unusable if it never does.",
+    eligibility: [
+      "a contact point is added or changed for an identity",
+      "the new destination is well-formed and deliverable in principle",
+      "no verification instance is already open for this contact point",
+      "change_source is not CON-272's own repair flow - a destination CON-272 already confirmed at its own a.confirm is not asked to confirm itself a second time for the same change"
+    ],
+    suppressions: [
+      {
+        "id": "s.nowhere-else",
+        "label": "CANONICAL_RULE",
+        "text": "The confirmation request goes to the new destination itself and nowhere else; a confirmation answered from inside an authenticated session proves control of the session, not of the destination."
+      },
+      {
+        "id": "s.old-told",
+        "label": "CANONICAL_RULE",
+        "text": "A destination being replaced is told it is being replaced, with what it is being replaced by and how to stop it; a silent replacement is how an account is taken over."
+      },
+      {
+        "id": "s.one-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "One reminder at the same destination, naming the point after which nothing will be sent there; then nothing more."
+      },
+      {
+        "id": "s.unconfirmed-unusable",
+        "label": "CANONICAL_RULE",
+        "text": "Permission is held by the destination that confirmed and by that destination only; an unconfirmed destination stays unusable for anything."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Verification messages are exempt from pressure caps and marketing permission; only hard gates (GLB-31) apply."
+      }
+    ],
+    contact: {
+      "defaultPriority": "security",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "contact_verification.reminders",
+          "rule": "Only the reminder is discretionary; the confirmation request and the notice to the replaced destination are the verification itself.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the graph sends one reminder"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "contact_verification.cooldown",
+        "rule": "Verification is per contact point change; a further change is a new instance and supersedes the open one.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the destination being confirmed or replaced is an address - the message goes to that destination itself"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "the destination being confirmed or replaced is a number - the message goes to that destination itself"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "CANONICAL_RULE"
+    },
+    orchestration: {
+      "strategy": "two-party-confirmation",
+      "touches": [
+        {
+          "id": "t-old",
+          "stage": "replacement-notice",
+          "action": "a.alert-old",
+          "prerequisites": [
+            "c.replacement"
+          ],
+          "purpose": "Tell the destination being replaced that it is being replaced, what it is being replaced with, and how to stop it.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "dispute-this-change",
+            "boundTo": "contact_point_id"
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-new",
+          "stage": "confirmation-request",
+          "action": "a.confirm-new",
+          "prerequisites": [
+            "c.replacement"
+          ],
+          "purpose": "Ask the new destination itself to confirm, and send that request nowhere else.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "confirm-this-destination",
+            "boundTo": "contact_point_id"
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-remind",
+          "stage": "reminder",
+          "action": "a.remind",
+          "after": "t-new",
+          "gatedBy": "w.confirm",
+          "prerequisites": [],
+          "purpose": "Ask once more, at the same destination, naming the point after which nothing will be sent there at all.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "confirm-this-destination",
+            "boundTo": "contact_point_id"
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        }
+      ],
+      "noAction": [
+        "s.nowhere-else",
+        "s.old-told",
+        "s.one-reminder",
+        "s.unconfirmed-unusable",
+        "s.hard-gates"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "contact_point_id",
+          "identity_id",
+          "destination_kind",
+          "new_destination",
+          "replaced_destination",
+          "confirmation_window_ends_at"
+        ],
+        "optional": [
+          "change_source",
+          "session_ref"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.permitted",
+          "x.lapsed",
+          "x.superseded",
+          "h.disputed"
+        ]
+      },
+      "businessOutcome": {
+        "event": "destination_confirmed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [
+        "destination_change_disputed"
+      ],
+      "guardrails": [
+        "confirmation_sent_elsewhere",
+        "replaced_destination_not_told",
+        "unconfirmed_destination_used",
+        "complaint"
+      ],
+      "operational": [
+        "change_volume",
+        "confirmation_rate",
+        "dispute_rate",
+        "reminder_rate",
+        "lapse_rate",
+        "time_to_confirmation"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "contact verification",
+        "email verification",
+        "phone verification",
+        "double opt-in",
+        "contact change confirmation",
+        "verify new address"
+      ],
+      "useCases": [
+        "a new address or number added to an account and confirmed at the destination itself",
+        "a replaced contact point whose previous destination is warned and can dispute"
+      ]
+    },
     entry: "t.contact-point",
     nodes: [
       {
@@ -1400,6 +2001,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Tell the destination being replaced that it is being replaced, what it is being replaced with, and how to stop it - sent to the old destination itself. A takeover is invisible from the address taking over and obvious from the one losing access",
         next: "a.confirm-new",
         execution: "communication",
+        idempotencyKey: "contact_point_id + touch id",
       },
       {
         id: "a.confirm-new",
@@ -1407,22 +2009,30 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask the new destination itself to confirm, and send that request nowhere else. A confirmation answered from inside the account proves control of the account, which was never the thing in doubt",
         next: "w.confirm",
         execution: "communication",
+        idempotencyKey: "contact_point_id + touch id",
       },
       {
         id: "w.confirm",
         kind: "wait",
         until: [
-          "the new destination confirms",
-          "the change is disputed from the destination it replaces",
-          "the contact point is withdrawn or changed again",
+          "destination_confirmed",
+          "destination_change_disputed",
+          "contact_point_changed_again"
         ],
         onEvent: "c.resolution",
         timeout: {
-          after: "the confirmation window defined for this kind of destination",
-          reason: "an unconfirmed destination that stays pending indefinitely gets read as usable by whatever looks at it next",
+          "after": {
+            "key": "contact_verification.confirmation_window",
+            "rule": "The confirmation window is the one defined for this kind of destination; the reminder is placed when it passes unanswered, and the remainder of the window bounds the reminder.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "an unconfirmed destination that stays pending indefinitely gets read as usable by whatever looks at it next",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "a.remind",
         windowExtendsOnEngagement: false,
+        recheck: "the contact point re-read: confirmed, disputed, changed again, or still pending",
       },
       {
         id: "c.resolution",
@@ -1461,6 +2071,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record the confirmation against this destination and this destination only. Permission held by the address it replaced is not lent forward - consent does not travel with a change of address, and treating it as though it does is how a confirmed opt-in becomes an unconfirmed one",
         next: "x.permitted",
+        idempotencyKey: "contact_point_id + a.activate",
       },
       {
         id: "x.permitted",
@@ -1468,6 +2079,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "confirmed and permitted for this destination",
         terminal: false,
         reEntry: "a later change to the same contact point is a new instance with its own confirmation",
+        class: "success",
       },
       {
         id: "a.remind",
@@ -1475,20 +2087,34 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask once more, at the same destination, naming the point after which nothing will be sent there at all. One repeat and no more - a destination that does not answer twice is more likely wrong than busy",
         next: "w.last",
         execution: "communication",
+        idempotencyKey: "contact_point_id + touch id",
       },
       {
         id: "w.last",
         kind: "wait",
         until: [
-          "the new destination confirms",
+          "destination_confirmed"
         ],
         onEvent: "a.activate",
         timeout: {
-          after: "the remainder of the confirmation window",
-          reason: "the window is what keeps an unanswered destination out of every send, rather than merely late",
+          "after": {
+            "key": "contact_verification.window_remainder",
+            "rule": "After the reminder, only the remainder of the original confirmation window is waited; the window is never extended by the reminder.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "the remainder of the confirmation window, counted from the first request",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "the window is what keeps an unanswered destination out of every send, rather than merely late",
+          "relativeTo": "attribute",
+          "attribute": "confirmation_window_ends_at"
         },
         onTimeout: "x.lapsed",
         windowExtendsOnEngagement: false,
+        recheck: "the contact point re-read at the end of the window",
       },
       {
         id: "x.lapsed",
@@ -1496,6 +2122,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "unconfirmed; the destination stays unusable",
         terminal: false,
         reEntry: "the same destination submitted again starts a fresh confirmation, not a continuation of this one",
+        class: "timeout",
       },
       {
         id: "x.superseded",
@@ -1503,6 +2130,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "superseded before confirmation",
         terminal: false,
         reEntry: "the destination that replaced it runs its own confirmation",
+        class: "invalid-state",
       },
     ],
     guardrails: [
@@ -1519,13 +2147,19 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "contactability-repair",
     category: "consent",
     goal: "delivery-confirmation",
-    channels: ["in-app", "sms"],
+    channels: ["in-app", "sms", "email"],
     name: "Contact point unreachable → alternate route → corrected or suppressed",
+    shortName: "Contact Recovery",
     purpose:
       "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
     entity: {
       scope: "the person plus the one contact point that failed - this address, this number, this token",
       note: "The failure belongs to the destination, not to the person and not to the channel class. A second destination failing is its own instance and gets its own repair cycle.",
+      instanceKey: [
+        "contact_point_id",
+        "person_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1538,7 +2172,230 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed.",
       },
+      {
+        journey: "CON-264",
+        because:
+          "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart.",
+      },
     ],
+    objective: "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
+    eligibility: [
+      "a permanent delivery failure or invalid-destination result recorded against one specific contact point",
+      "a failure class that marks the destination unusable rather than temporarily unavailable",
+      "no instance of this journey is already open for the the person plus the one contact point that failed",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Undeliverable is not opted out, and nothing here changes what may be sent."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "The repair request never goes to the destination being repaired."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "An available alternative route is not permission to use it. Availability is the easiest thing to check and the least meaningful."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "One repair cycle per destination. A dead route asked twice is still dead and the second ask is paid for in delivery reputation."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "A corrected value is verified before the destination is treated as usable, and nothing held is replayed on it."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "contactability_repair.discretionary_touches",
+          "rule": "Every touch in the plan is the repair itself and is mandatory; nothing discretionary exists to cap.",
+          "default": {
+            "value": 0,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "every touch is marked mandatory"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "contactability_repair.cooldown",
+        "rule": "This journey is per the person plus the one contact point that failed; a later instance concerns a different the person plus the one contact point that failed and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "prompt-in-app",
+          "action": "a.prompt-in-app",
+          "prerequisites": [
+            "c.route"
+          ],
+          "purpose": "Ask for a corrected destination where the person already is, naming which one stopped working and what is being held because of it.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "contact-point-update",
+            "boundTo": "contact_point_id"
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "prompt-alt",
+          "action": "a.prompt-alt",
+          "prerequisites": [
+            "c.route"
+          ],
+          "purpose": "Ask for a corrected destination on the surviving permitted route, naming the one that failed.",
+          "channelRoles": [
+            "urgent",
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "contact-point-update",
+            "boundTo": "contact_point_id"
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "confirm",
+          "action": "a.confirm",
+          "gatedBy": "w.corrected",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent.",
+          "channelRoles": [
+            "in-session",
+            "persistent",
+            "urgent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4",
+        "s.g5"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "contact_point_id",
+          "person_id",
+          "failure_class",
+          "failed_at",
+          "surviving_routes",
+          "held_messages"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.dark",
+          "x.repaired",
+          "x.recovered",
+          "x.suppressed"
+        ]
+      },
+      "businessOutcome": {
+        "event": "replacement_destination_verified",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "contact recovery",
+        "bounce repair",
+        "undeliverable contact fix",
+        "dead address recovery",
+        "contact point repair"
+      ],
+      "useCases": [
+        "a hard bounce repaired by asking on a route that still works",
+        "a dead push token replaced without touching what may be sent"
+      ]
+    },
     entry: "t.dead",
     nodes: [
       {
@@ -1587,6 +2444,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask for a corrected destination where the person already is, naming which one stopped working and what is being held because of it. Seeing the request somewhere other than the failed route is what makes it credible rather than suspicious",
         next: "w.corrected",
         execution: "communication",
+        idempotencyKey: "contact_point_id + person_id + a.prompt-in-app",
       },
       {
         id: "a.prompt-alt",
@@ -1594,6 +2452,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Ask for a corrected destination on the surviving permitted route, naming the one that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
         next: "w.corrected",
         execution: "communication",
+        idempotencyKey: "contact_point_id + person_id + a.prompt-alt",
       },
       {
         id: "x.dark",
@@ -1601,22 +2460,30 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "no working permitted route; the destination stays suppressed",
         terminal: false,
         reEntry: "if any route becomes deliverable and permitted, the repair request runs from there",
+        class: "suppression",
       },
       {
         id: "w.corrected",
         kind: "wait",
         until: [
-          "a replacement destination is supplied and verified",
-          "the original destination becomes deliverable again",
-          "the person removes the destination",
+          "replacement_destination_verified",
+          "destination_deliverable_again",
+          "destination_removed"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the single repair cycle allowed for this destination",
-          reason: "repair attempts are bounded - a destination not corrected inside its cycle stays suppressed rather than being retried blind against a route already known to be dead",
+          "after": {
+            "key": "contactability_repair.corrected",
+            "rule": "The single repair cycle allowed for this destination.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "repair attempts are bounded - a destination not corrected inside its cycle stays suppressed rather than being retried blind against a route already known to be dead",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.suppressed",
         windowExtendsOnEngagement: false,
+        recheck: "the the person plus the one contact point that failed re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -1641,6 +2508,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
         next: "x.repaired",
         execution: "communication",
+        idempotencyKey: "contact_point_id + person_id + a.confirm",
       },
       {
         id: "x.repaired",
@@ -1648,6 +2516,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "destination replaced and in use; permission unchanged",
         terminal: false,
         reEntry: "a later failure on any destination is its own instance",
+        class: "success",
       },
       {
         id: "x.recovered",
@@ -1655,6 +2524,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "original destination reachable again; nothing replayed",
         terminal: false,
         reEntry: "a further failure on the same destination re-enters here with a new repair cycle",
+        class: "success",
       },
       {
         id: "x.suppressed",
@@ -1662,6 +2532,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "destination stays suppressed after one repair cycle",
         terminal: false,
         reEntry: "a corrected destination supplied later re-enters at confirmation, once it has verified",
+        class: "suppression",
       },
     ],
     guardrails: [
@@ -1681,11 +2552,16 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "consent-permission",
     channels: ["email"],
     name: "Frequency reduced → cadence recalculated → kept rather than lost",
+    shortName: "Frequency Preference Update",
     purpose:
       "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.",
     entity: {
       scope: "the person and the optional communication classes the reduced frequency actually governs",
       note: "The governed set is the whole question. A frequency preference that quietly reaches required communication is an opt-out nobody chose.",
+      instanceKey: [
+        "person_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1699,6 +2575,169 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           "CON-38 records a stop and decides when it releases. A reduction is not a stop, and recording the two as the same state loses exactly the relationship the person was trying to keep.",
       },
     ],
+    objective: "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.",
+    eligibility: [
+      "an authoritative frequency preference recorded against the person",
+      "the new cadence expressed as something that can actually be applied",
+      "the classes it governs",
+      "no instance of this journey is already open for the the person and the optional communication classes the reduced frequency actually governs",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Fewer is not none. A reduction that is enforced as a stop loses the relationship the person was trying to keep."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Required and transactional communication stays governed by its own rules, whatever the preference says."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "One confirmation, and it is the last message at the old cadence rather than the first at the new one."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A cadence change is prospective. What was already delivered is not revisited."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "frequency_reduction.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "frequency_reduction.cooldown",
+        "rule": "This journey is per the person and the optional communication classes the reduced frequency actually governs; a later instance concerns a different the person and the optional communication classes the reduced frequency actually governs and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "confirm",
+          "action": "a.confirm",
+          "prerequisites": [
+            "c.less-or-none",
+            "c.queued"
+          ],
+          "purpose": "Confirm once what changed: how often optional communication will now arrive, what is unaffected because it was never optional, and the route to stopping it altogether.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "preference-centre",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "that required or transactional communication changes"
+            ]
+          }
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "person_id",
+          "new_cadence",
+          "governed_classes",
+          "queued_optional_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.opted-out",
+          "x.reduced-again",
+          "x.holding"
+        ]
+      },
+      "businessOutcome": {
+        "event": "frequency_preference_changed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "frequency preference update",
+        "send-less confirmation",
+        "frequency reduction",
+        "reduce emails confirmation"
+      ],
+      "useCases": [
+        "someone who asked for fewer messages told exactly what changes",
+        "trimming what is already scheduled to the new cadence before confirming"
+      ]
+    },
     entry: "t.reduced",
     nodes: [
       {
@@ -1742,6 +2781,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "full opt-out; this journey sends nothing",
         terminal: false,
         reEntry: "if a reduced cadence is later chosen instead of none, that qualifies here again",
+        class: "no-action",
       },
       {
         id: "a.recalculate",
@@ -1778,21 +2818,29 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm once what changed: how often optional communication will now arrive, what is unaffected because it was never optional, and the route to stopping it altogether. Naming what is unaffected is what stops the person concluding that nothing was applied when a required notice arrives next week",
         next: "w.cycle",
         execution: "communication",
+        idempotencyKey: "person_id + a.confirm",
       },
       {
         id: "w.cycle",
         kind: "wait",
         until: [
-          "a further frequency change is recorded",
-          "a full withdrawal from optional communication is recorded",
+          "frequency_preference_changed",
+          "optional_communication_withdrawn"
         ],
         onEvent: "c.settled",
         timeout: {
-          after: "one full cycle at the new cadence",
-          reason: "a preference that has survived a cycle is the settled state, and holding the journey open past that invents an interest in the preference that nobody has",
+          "after": {
+            "key": "frequency_reduction.cycle",
+            "rule": "One full cycle at the new cadence.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a preference that has survived a cycle is the settled state, and holding the journey open past that invents an interest in the preference that nobody has",
+          "relativeTo": "previous-touch"
         },
         onTimeout: "x.holding",
         windowExtendsOnEngagement: false,
+        recheck: "the the person and the optional communication classes the reduced frequency actually governs re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.settled",
@@ -1817,6 +2865,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "reduced a second time before the first cadence settled",
         terminal: false,
         reEntry: "each recorded reduction is its own instance and gets its own single confirmation",
+        class: "success",
       },
       {
         id: "x.holding",
@@ -1824,6 +2873,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "reduced cadence in effect and holding",
         terminal: false,
         reEntry: "a later change to the same preference starts a new instance",
+        class: "success",
       },
     ],
     guardrails: [

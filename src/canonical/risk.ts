@@ -189,6 +189,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "risk-compliance",
     channels: [],
     name: "Policy check → evaluate → pass, block or review",
+    shortName: "Policy Evaluation",
     purpose:
       "Decide whether a specific action is permitted under the rules that actually govern it, at the version that actually applies.",
     entity: {
@@ -343,11 +344,14 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "risk-compliance",
     channels: [],
     name: "Risk signal → correlate evidence → clear, monitor, restrict or review",
+    shortName: "Risk Evidence Assessment",
     purpose:
       "Turn a measurement into a state change no larger than the evidence behind it supports, and no longer-lived than the question stays open.",
     entity: {
       scope: "the risk case and the actor, account, transaction or resource it concerns",
-      note: "One case per correlated risk, accumulating signals. A case that opens per signal produces a queue of fragments nobody can assess together. The case is scoped to what the evidence is actually about - a flagged transaction is a flagged transaction, and reading it as a flagged customer is how one anomaly becomes a permanent mark.",
+      note: "One case per correlated risk, accumulating signals. A case that opens per signal produces a queue of fragments nobody can assess together. The case is scoped to what the evidence is actually about - a flagged transaction is a flagged transaction, and reading it as a flagged customer is how one anomaly becomes a permanent mark. risk_subject_id is that specific evidence subject (the actor, account, transaction or resource the signal concerns), never the broader actor generally - a.case is the atomic authority for that identity: two signals correlating to the same subject at the same time settle on one case between them, never two.",
+      instanceKey: ["risk_subject_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -517,9 +521,10 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.case",
         kind: "action",
-        does: "Record the risk case with its evidence and the provenance of each piece. A risk state whose basis cannot be shown cannot be appealed, explained or corrected - and this is exactly the state someone will eventually ask us to justify",
+        does: "Atomically record the risk case for this risk_subject_id: if no open case already exists for it, create one with its evidence and the provenance of each piece; if a concurrent evaluation already opened one for the same subject between the evidence check and this action, fold this evidence into the existing case rather than creating a second one. A risk state whose basis cannot be shown cannot be appealed, explained or corrected - and this is exactly the state someone will eventually ask us to justify",
         writes: [{ field: "risk_log", mode: "append" }],
         next: "c.route",
+        idempotencyKey: "risk_subject_id + a.case",
       },
       {
         id: "c.route",
@@ -569,6 +574,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       "This journey restricts nothing itself. Where a restriction is warranted it hands to the journey whose job that is, carrying the fact that nothing has been concluded.",
       "A signal later cleared stays auditable. Erasing it removes the ability to tell a first occurrence from a fifth.",
       "Evidence and its provenance are preserved so the reasoning can be shown.",
+      "Concurrent evaluation of the same risk_subject_id yields at most one canonical case - a.case is atomic on that identity, and a losing concurrent evaluator folds its evidence into the existing case rather than opening a second one.",
     ],
     reusableRule:
       "Risk signals should change state only in proportion to the combined evidence and the policy-defined consequence of that evidence.",
@@ -582,6 +588,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Risk threshold crossed → apply scoped restriction → review or release",
+    shortName: "Risk Restriction Management",
     purpose:
       "Stop the smallest thing that manages the risk, and keep a stated route back.",
     entity: {
@@ -762,6 +769,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "risk-compliance",
     channels: [],
     name: "Policy violation detected → validate → correct, restrict or escalate",
+    shortName: "Policy Violation Validation",
     purpose:
       "Establish that a rule was actually broken, against the version that governed it, before anything follows from that.",
     entity: {
@@ -1006,6 +1014,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "risk-compliance",
     channels: [],
     name: "Compliance requirement → collect and verify → satisfied or blocked",
+    shortName: "Compliance Requirement Verification",
     purpose:
       "Hold one mandatory requirement as its own state, blocking only what genuinely depends on it.",
     entity: {
@@ -1229,6 +1238,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Compliance or policy hold → preserve state → resolve → resume or terminate",
+    shortName: "Compliance Hold Resolution",
     purpose:
       "Pause what a policy question makes unsafe, and leave everything else running.",
     entity: {
@@ -1398,6 +1408,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: [],
     name: "Exception request → validate authority → approve, reject or review",
+    shortName: "Policy Exception Review",
     purpose:
       "Ask for a controlled deviation from a named rule, over a stated scope, from someone entitled to ask.",
     entity: {
@@ -1621,11 +1632,14 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Exception granted → apply scoped override → expire or revoke",
+    shortName: "Policy Exception Lifecycle",
     purpose:
       "Let an authorized deviation apply exactly where it was authorized, and stop applying the moment it should.",
     entity: {
       scope: "the granted exception and each action it is invoked against",
-      note: "The exception is one record; each use is an event on it. Validity is asked at each use rather than set once when it was granted.",
+      note: "The exception is one record; each use is an event on it. Validity is asked at each use rather than set once when it was granted. exception_id's own concurrency is one-active-per-key precisely because validity and consumption are separated across c.applicable, a.override, c.single and a.consume: without serializing invocations against the same exception, two concurrent invocations of a single-use exception could both pass c.applicable's not-consumed check before either reaches a.consume's own mark, applying the override twice against an authorization for one. Serializing per exception_id is what keeps the validity-check-through-consume sequence atomic in effect without collapsing it into one node.",
+      instanceKey: ["exception_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1758,6 +1772,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the override for this action only, and record the use. The underlying policy is untouched - an exception overrides a decision rather than disabling a rule, and the next action it does not cover gets the normal answer",
         writes: [{ field: "exception_log", mode: "append" }],
         next: "c.single",
+        idempotencyKey: "exception_id + invocation + a.override",
       },
       {
         id: "c.single",
@@ -1779,9 +1794,10 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.consume",
         kind: "action",
-        does: "Mark the exception consumed. Its authority is spent, and any later invocation is refused rather than quietly honoured",
+        does: "Atomically mark the exception consumed for this exception_id: the first invocation to reach this action claims the single use and its authority is spent; a concurrent second invocation racing the same single-use exception finds it already consumed rather than being allowed to apply a second override, because exception_id's own one-active-per-key concurrency serializes both invocations' path through c.applicable and this action rather than letting them interleave. Any later invocation is refused rather than quietly honoured",
         writes: [{ field: "exception_log", mode: "append" }],
         next: "x.consumed",
+        idempotencyKey: "exception_id + a.consume",
       },
       {
         id: "x.consumed",
@@ -1833,6 +1849,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       "An exception for one action or entity never leaks to another.",
       "An expired or revoked exception is never reused by stale work.",
       "An expiration is never invented where none exists.",
+      "A single-use exception authorizes exactly one deviation - concurrent invocations against the same exception_id are serialized so at most one can consume it, never two applying the override before either is marked consumed.",
     ],
     reusableRule:
       "Granted exceptions override only the policy decision explicitly authorized for their defined scope and validity.",
@@ -1846,6 +1863,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Limit or quota reached → block, wait, increase or reset",
+    shortName: "Limit Enforcement",
     purpose:
       "Treat a limit being reached as the limit working, and give the constrained action a real path forward.",
     entity: {
@@ -2058,6 +2076,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Policy or risk state changed → re-evaluate affected work → resume, restrict or preserve",
+    shortName: "Risk State Recalculation",
     purpose:
       "Apply a change where the new authority actually reaches, and leave the past alone.",
     entity: {
@@ -2254,11 +2273,18 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "access-entitlement-change",
     channels: ["in-app", "email"],
     name: "Usage limit reached → capacity path → upgrade, wait for reset or stay blocked",
+    shortName: "Usage Limit Alert",
     purpose:
       "Meet somebody at the moment a limit stops them with the three facts that decide what happens next - what the limit is, when it resets, and whether more capacity can be bought - without any of it reading as an accusation.",
     entity: {
       scope: "the entity and the one limit constraining it, in one measurement window",
       note: "One limit, one window, one authoritative count. Reaching it is an operational fact about usage and says nothing about the person.",
+      instanceKey: [
+        "entity_ref",
+        "limit_id",
+        "window_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2272,6 +2298,251 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           "RSK-193 restricts in response to risk. A limit reached is the limit working, and routing it through a risk message is how ordinary usage gets treated as suspicion.",
       },
     ],
+    objective: "Meet somebody at the moment a limit stops them with the three facts that decide what happens next - what the limit is, when it resets, and whether more capacity can be bought - without any of it reading as an accusation.",
+    eligibility: [
+      "an authoritative usage figure against a defined limit and measurement window",
+      "an action actually blocked or held by that limit",
+      "no instance of this journey is already open for the the entity and the one limit constraining it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A limit reached is not abuse, and the message never borrows the vocabulary of one."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A reset point is never invented. If the authoritative source has no date, no date is stated."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "The free path is named wherever it exists, even in the message that offers the paid one."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Where the capacity decision belongs to somebody else, both parties are told - the one waiting and the one who can end the wait."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "usage_limit.touches",
+          "rule": "The wall notice and the reset notice are mandatory; the discretionary offers run against a budget of the plan's own length.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "usage_limit.cooldown",
+        "rule": "This journey is per the entity and the one limit constraining it; a later instance concerns a different the entity and the one limit constraining it and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "at-the-wall",
+          "action": "a.at-the-wall",
+          "prerequisites": [],
+          "purpose": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "offer-self",
+          "action": "a.offer-self",
+          "after": "t1",
+          "prerequisites": [
+            "c.path",
+            "c.decider"
+          ],
+          "purpose": "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "purchase-capacity",
+            "boundTo": "limit_id",
+            "mustNotClaim": [
+              "a reset point the source does not assert",
+              "that the limit is abuse"
+            ]
+          }
+        },
+        {
+          "id": "t3",
+          "stage": "offer-holder",
+          "action": "a.offer-holder",
+          "prerequisites": [
+            "c.path",
+            "c.decider"
+          ],
+          "purpose": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "purchase-capacity",
+            "boundTo": "limit_id",
+            "mustNotClaim": [
+              "a reset point the source does not assert"
+            ]
+          }
+        },
+        {
+          "id": "t4",
+          "stage": "notify-blocked-party",
+          "action": "a.notify-blocked-party",
+          "after": "t3",
+          "prerequisites": [
+            "c.path",
+            "c.decider"
+          ],
+          "purpose": "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t5",
+          "stage": "reset",
+          "action": "a.reset",
+          "gatedBy": "w.capacity",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "entity_ref",
+          "limit_id",
+          "window_id",
+          "usage",
+          "limit_value",
+          "window_resets_at",
+          "capacity_decider"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.reset",
+          "x.blocked",
+          "h.capacity"
+        ]
+      },
+      "businessOutcome": {
+        "event": "capacity_authorised",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "usage limit alert",
+        "quota reached",
+        "rate limit reached notice",
+        "plan limit hit",
+        "over the limit"
+      ],
+      "useCases": [
+        "someone stopped by a limit, told what it is, when it resets and whether more capacity exists",
+        "a capacity decision that sits with somebody else, with the blocked person told who"
+      ]
+    },
     entry: "t.blocked",
     nodes: [
       {
@@ -2297,6 +2568,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
         next: "c.path",
         execution: "communication",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.at-the-wall",
       },
       {
         id: "c.path",
@@ -2343,29 +2615,47 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing. Withholding the free path in order to sell the paid one is the fastest way to make a limit read as a trap",
         next: "w.capacity",
         execution: "communication",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.offer-self",
       },
       {
         id: "a.offer-holder",
         kind: "action",
-        does: "Tell the party who holds the decision what is blocked and for whom, and tell the blocked party that the decision now sits elsewhere. Either half sent alone leaves somebody waiting on a person who does not know they are being waited on",
+        does: "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
+        next: "a.notify-blocked-party",
+        execution: "communication",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.offer-holder",
+      },
+      {
+        id: "a.notify-blocked-party",
+        kind: "action",
+        does: "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway. Told only that they hit a limit, they wait on a person who does not know they are being waited on",
         next: "w.capacity",
         execution: "communication",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.notify-blocked-party",
       },
       {
         id: "w.capacity",
         kind: "wait",
         until: [
-          "additional capacity is authorised",
-          "the authoritative reset occurs",
-          "the held action is abandoned",
+          "capacity_authorised",
+          "limit_reset",
+          "held_action_abandoned"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the authoritative reset point for this window",
-          reason: "the reset is the one date in the message the person is relying on, and passing it in silence makes the message retrospectively false",
+          "after": {
+            "key": "usage_limit.capacity",
+            "rule": "The held action waits until the authoritative reset of the window or an authorised capacity increase; no reset point is ever invented.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the reset is the one date in the message the person is relying on, and passing it in silence makes the message retrospectively false",
+          "relativeTo": "attribute",
+          "attribute": "window_resets_at"
         },
         onTimeout: "c.outcome",
         windowExtendsOnEngagement: false,
+        recheck: "the the entity and the one limit constraining it re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
@@ -2405,6 +2695,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
         next: "x.reset",
         execution: "communication",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.reset",
       },
       {
         id: "x.reset",
@@ -2412,6 +2703,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         state: "window reset; capacity available again under the same limit",
         terminal: false,
         reEntry: "reaching the limit again in a later window re-enters here",
+        class: "success",
       },
       {
         id: "x.blocked",
@@ -2419,6 +2711,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         state: "at the limit with no route to more capacity in this window",
         terminal: false,
         reEntry: "a reset, or a change to the limit authorised elsewhere, qualifies this again as a new instance",
+        class: "no-action",
       },
     ],
     guardrails: [

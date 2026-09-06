@@ -1,13 +1,13 @@
 {
   "totals": {
     "abPages": 211,
-    "journeyPages": 255,
-    "total": 466,
-    "expected": 466
+    "journeyPages": 284,
+    "total": 495,
+    "expected": 495
   },
   "counts": {
     "errors": 0,
-    "warnings": 39
+    "warnings": 67
   },
   "needsSeoReview": [
     {
@@ -83,8 +83,32 @@
       "reason": "Near-identical in subject to ACC-74, which also models removing capability after an entitlement ends."
     },
     {
+      "id": "ACC-261",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "ACC-263",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
       "id": "ACQ-08",
       "reason": "Near-identical in subject to ACT-16, which also models a journey releasing ownership and cancelling queued messages on an authoritative outcome."
+    },
+    {
+      "id": "ACQ-11",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "ACQ-12",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "ACQ-13",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "ACQ-285",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
     },
     {
       "id": "ACT-16",
@@ -115,6 +139,18 @@
       "reason": "Close neighbour of CON-38, the general suppression-state journey; this record covers the time-bound cooldown case only."
     },
     {
+      "id": "CON-264",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "CON-272",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "CON-283",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
       "id": "DEC-185",
       "reason": "Close neighbour of DEC-188, which also revalidates an approval before use; DEC-185 revalidates the target at execution while DEC-188 tests the approval's own validity boundaries."
     },
@@ -125,6 +161,14 @@
     {
       "id": "DEC-190",
       "reason": "Near-identical subject to FBK-47 (appeal and dispute review): both model revisiting a decision that has already been made."
+    },
+    {
+      "id": "DEC-267",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "DOC-286",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
     },
     {
       "id": "FBK-47",
@@ -139,12 +183,40 @@
       "reason": "Overlaps with FIN-135 (unknown payment reconciliation) on reconciliation search intent; the scopes differ (disagreeing record sets vs one payment attempt) and need separate positioning."
     },
     {
+      "id": "FUL-265",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "FUL-276",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
       "id": "IDN-86",
       "reason": "Subject overlaps materially with IDN-85 (authentication challenge); both cover authenticating an actor with a step-up or deny outcome and may compete on the same query."
     },
     {
+      "id": "IDN-270",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "IDN-271",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
       "id": "INT-120",
       "reason": "Subject overlaps materially with INT-113 (integration health degradation) and INT-116 (integration failure); all three model losing and recovering an integration capability."
+    },
+    {
+      "id": "INT-269",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "INT-278",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "OPS-131",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
     },
     {
       "id": "OWN-53",
@@ -155,8 +227,64 @@
       "reason": "Subject overlaps closely with OWN-53: both cover handing an active entity to a new owner. This page is the authoritative ownership change and obligation transfer; OWN-53 is the context handover after an assignment becomes effective."
     },
     {
+      "id": "REL-284",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "RET-31",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "RET-32",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "RLT-279",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "RSK-273",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "SCH-266",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "SCH-277",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "SCH-280",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "SCH-282",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "SUB-262",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
       "id": "TIM-67",
       "reason": "Subject overlaps TIM-66 (temporary-exception): both model a time-bound state ending in revert or transition; TIM-67 is the generic case, TIM-66 the granted-exception case. Confirm the two pages stay distinct."
+    },
+    {
+      "id": "TIM-268",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "TIM-274",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "TIM-281",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "TRM-275",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
     }
   ],
   "exactDuplicateTitles": [],
@@ -169,15 +297,89 @@
       "aTitle": "Category Ordering A/B Test on Listing Pages",
       "bTitle": "Menu Category Order A/B Test on Listing Pages",
       "flagged": true
+    },
+    {
+      "a": "ACC-261",
+      "b": "TIM-281",
+      "similarity": 0.833,
+      "aTitle": "Access Recovery Lifecycle Journey Example",
+      "bTitle": "Expired Access Recovery Lifecycle Journey Example",
+      "flagged": true
     }
   ],
   "nearDuplicateDescriptions": [],
   "findings": [
     {
       "severity": "warning",
+      "code": "description_length",
+      "id": "ACC-261",
+      "message": "description is 115 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
+      "code": "description_length",
+      "id": "ACC-263",
+      "message": "description is 109 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
+      "code": "description_length",
+      "id": "ACQ-11",
+      "message": "description is 72 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
+      "code": "description_length",
+      "id": "ACQ-12",
+      "message": "description is 38 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
+      "code": "description_length",
+      "id": "ACQ-13",
+      "message": "description is 72 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
+      "code": "description_length",
+      "id": "CON-264",
+      "message": "description is 110 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
+      "code": "description_length",
+      "id": "DEC-267",
+      "message": "description is 84 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
+      "code": "description_length",
+      "id": "INT-278",
+      "message": "description is 104 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
+      "code": "description_length",
+      "id": "RET-32",
+      "message": "description is 74 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
+      "code": "description_length",
+      "id": "RSK-273",
+      "message": "description is 97 chars (target 140-155, tolerated 120-165)"
+    },
+    {
+      "severity": "warning",
       "code": "near_duplicate_title",
       "id": "AB-024/AB-031",
       "message": "title similarity 0.80 (flagged)"
+    },
+    {
+      "severity": "warning",
+      "code": "near_duplicate_title",
+      "id": "ACC-261/TIM-281",
+      "message": "title similarity 0.83 (flagged)"
     },
     {
       "severity": "warning",
@@ -230,7 +432,25 @@
     {
       "severity": "warning",
       "code": "title_description_mismatch",
+      "id": "ACC-263",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
       "id": "ACQ-04",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "ACQ-12",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "ACQ-285",
       "message": "description shares no content token with the title"
     },
     {
@@ -243,6 +463,24 @@
       "severity": "warning",
       "code": "title_description_mismatch",
       "id": "CMS-203",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "CON-264",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "CON-272",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "CON-283",
       "message": "description shares no content token with the title"
     },
     {
@@ -272,13 +510,13 @@
     {
       "severity": "warning",
       "code": "title_description_mismatch",
-      "id": "FBK-42",
+      "id": "DOC-286",
       "message": "description shares no content token with the title"
     },
     {
       "severity": "warning",
       "code": "title_description_mismatch",
-      "id": "FBK-45",
+      "id": "FBK-42",
       "message": "description shares no content token with the title"
     },
     {
@@ -332,6 +570,18 @@
     {
       "severity": "warning",
       "code": "title_description_mismatch",
+      "id": "FUL-265",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "FUL-276",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
       "id": "IDN-85",
       "message": "description shares no content token with the title"
     },
@@ -339,6 +589,12 @@
       "severity": "warning",
       "code": "title_description_mismatch",
       "id": "IDN-87",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "IDN-271",
       "message": "description shares no content token with the title"
     },
     {
@@ -356,6 +612,18 @@
     {
       "severity": "warning",
       "code": "title_description_mismatch",
+      "id": "INT-269",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "INT-278",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
       "id": "OPS-126",
       "message": "description shares no content token with the title"
     },
@@ -363,6 +631,18 @@
       "severity": "warning",
       "code": "title_description_mismatch",
       "id": "OWN-55",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "REL-284",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "RLT-279",
       "message": "description shares no content token with the title"
     },
     {
@@ -386,13 +666,37 @@
     {
       "severity": "warning",
       "code": "title_description_mismatch",
+      "id": "SCH-277",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "SCH-280",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
       "id": "SUB-167",
       "message": "description shares no content token with the title"
     },
     {
       "severity": "warning",
       "code": "title_description_mismatch",
+      "id": "SUB-262",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
       "id": "TIM-69",
+      "message": "description shares no content token with the title"
+    },
+    {
+      "severity": "warning",
+      "code": "title_description_mismatch",
+      "id": "TIM-268",
       "message": "description shares no content token with the title"
     },
     {

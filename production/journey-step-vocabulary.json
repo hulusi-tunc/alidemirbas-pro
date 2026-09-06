@@ -1,46 +1,46 @@
 {
   "_description": "Journey Step Vocabulary - Level 1 (structural) and Level 2 (semantic/design subtype) inventory, derived from the full 255-journey / 3186-node canonical corpus. src/canonical/ was never modified. Regenerate: node production/generate-journey-step-vocabulary.mjs",
   "corpus": {
-    "journeys": 255,
-    "nodes": 3186,
-    "edges": 3816
+    "journeys": 283,
+    "nodes": 3664,
+    "edges": 4412
   },
   "structuralTypes": [
     {
       "kind": "trigger",
-      "occurrences": 255,
-      "journeys": 255,
+      "occurrences": 283,
+      "journeys": 283,
       "corpusCoveragePct": 100
     },
     {
       "kind": "condition",
-      "occurrences": 702,
-      "journeys": 254,
+      "occurrences": 819,
+      "journeys": 282,
       "corpusCoveragePct": 99.6
     },
     {
       "kind": "wait",
-      "occurrences": 164,
-      "journeys": 146,
-      "corpusCoveragePct": 57.3
+      "occurrences": 225,
+      "journeys": 177,
+      "corpusCoveragePct": 62.5
     },
     {
       "kind": "exit",
-      "occurrences": 433,
-      "journeys": 225,
-      "corpusCoveragePct": 88.2
+      "occurrences": 537,
+      "journeys": 254,
+      "corpusCoveragePct": 89.8
     },
     {
       "kind": "action",
-      "occurrences": 1131,
-      "journeys": 255,
+      "occurrences": 1280,
+      "journeys": 283,
       "corpusCoveragePct": 100
     },
     {
       "kind": "handoff",
-      "occurrences": 500,
-      "journeys": 239,
-      "corpusCoveragePct": 93.7
+      "occurrences": 519,
+      "journeys": 255,
+      "corpusCoveragePct": 90.1
     },
     {
       "kind": "outcome",
@@ -52,17 +52,17 @@
   "levelTwoSubtypes": {
     "action": {
       "designSignal": "leading imperative verb, clustered into 11 families",
-      "coveragePct": 76.7,
+      "coveragePct": 71.6,
       "families": [
         {
           "id": "record-create",
-          "occurrences": 455,
+          "occurrences": 467,
           "categorySpread": 26,
           "goalSpread": 21
         },
         {
           "id": "generic-uncovered",
-          "occurrences": 263,
+          "occurrences": 363,
           "categorySpread": 26,
           "goalSpread": 21
         },
@@ -73,83 +73,83 @@
           "goalSpread": 21
         },
         {
-          "id": "apply-establish",
-          "occurrences": 56,
+          "id": "verify-validate",
+          "occurrences": 66,
           "categorySpread": 22,
           "goalSpread": 17
         },
         {
-          "id": "verify-validate",
-          "occurrences": 47,
-          "categorySpread": 21,
-          "goalSpread": 15
+          "id": "apply-establish",
+          "occurrences": 57,
+          "categorySpread": 22,
+          "goalSpread": 17
         },
         {
           "id": "suppress-block",
-          "occurrences": 45,
+          "occurrences": 47,
           "categorySpread": 20,
-          "goalSpread": 15
+          "goalSpread": 16
         },
         {
           "id": "preserve-hold",
-          "occurrences": 45,
+          "occurrences": 44,
           "categorySpread": 20,
           "goalSpread": 14
         },
         {
           "id": "reconcile-resolve",
-          "occurrences": 37,
+          "occurrences": 39,
           "categorySpread": 20,
           "goalSpread": 18
         },
         {
           "id": "stop-close-release",
-          "occurrences": 28,
-          "categorySpread": 15,
-          "goalSpread": 12
+          "occurrences": 32,
+          "categorySpread": 16,
+          "goalSpread": 13
         },
         {
           "id": "collect-request",
-          "occurrences": 24,
+          "occurrences": 23,
           "categorySpread": 15,
           "goalSpread": 11
+        },
+        {
+          "id": "send-external",
+          "occurrences": 17,
+          "categorySpread": 12,
+          "goalSpread": 9
         },
         {
           "id": "retry-execute",
           "occurrences": 16,
           "categorySpread": 12,
           "goalSpread": 6
-        },
-        {
-          "id": "send-external",
-          "occurrences": 6,
-          "categorySpread": 5,
-          "goalSpread": 4
         }
       ]
     },
     "condition": {
       "designSignal": "PRIMARY: branch cardinality (structural). SECONDARY/optional: business-topic tag (partial coverage, informational only).",
       "cardinality": {
-        "binary": 553,
-        "multi-way": 149
+        "binary": 640,
+        "multi-way": 179
       },
       "topicTags": [
         {
-          "id": "state-status",
-          "count": 80
+          "id": "existence-duplicate",
+          "count": 94
         },
         {
-          "id": "existence-duplicate",
-          "count": 75
+          "id": "state-status",
+          "count": 81
         },
         {
           "id": "eligibility-authorization",
-          "count": 36
+          "count": 39
         },
         {
           "id": "ownership-authority",
-          "count": 35
+          "count": 36
         },
         {
           "id": "identity-verification",
@@ -157,22 +157,22 @@
         },
         {
           "id": "timing-deadline",
-          "count": 19
+          "count": 20
         },
         {
           "id": "comparison-threshold",
-          "count": 10
+          "count": 11
         }
       ],
-      "topicTagCoveragePct": 39.5
+      "topicTagCoveragePct": 37
     },
     "trigger": {
       "designSignal": "evidence.source (existing schema field) - not the event name, which is Level 3",
       "sources": {
-        "behavioral": 14,
-        "declared": 21,
-        "authoritative": 213,
-        "inferred": 7
+        "behavioral": 17,
+        "declared": 22,
+        "authoritative": 236,
+        "inferred": 8
       }
     },
     "wait": {
@@ -181,34 +181,34 @@
     "handoff": {
       "designSignal": "internal (resolves to a real canonical journey) vs external (`external:` prefix)",
       "subtypes": {
-        "internal": 423,
-        "external": 77
+        "internal": 438,
+        "external": 81
       }
     },
     "exit": {
       "designSignal": "terminal flag (rare, badge-level) is high-confidence. Reason-text families are LOW confidence (partial coverage, see reasonTagCoveragePct) - not recommended as a required subtype system.",
-      "terminalCount": 5,
-      "terminalPct": 1.2,
+      "terminalCount": 14,
+      "terminalPct": 2.6,
       "reasonTags": [
         {
           "id": "completed-satisfied",
-          "count": 42
+          "count": 51
         },
         {
           "id": "expired-stale",
-          "count": 38
+          "count": 45
         },
         {
           "id": "suppressed-blocked",
-          "count": 21
+          "count": 25
         },
         {
           "id": "cancelled-withdrawn",
-          "count": 15
+          "count": 20
         },
         {
           "id": "ineligible-declined",
-          "count": 12
+          "count": 14
         },
         {
           "id": "failed-unresolved",
@@ -223,7 +223,7 @@
           "count": 2
         }
       ],
-      "reasonTagCoveragePct": 33
+      "reasonTagCoveragePct": 31.7
     },
     "outcome": {
       "designSignal": "1 occurrence in the entire corpus (0.03% of nodes) - too rare for a dedicated component; recommend generic fallback treatment."

@@ -2,9 +2,9 @@
   "_description": "Output of search/run-query-fixtures.mjs against search/headless-search-prototype.mjs. Regenerate by re-running that script.",
   "summary": {
     "total": 70,
-    "pass": 67,
-    "fail": 0,
-    "knownGap": 3
+    "pass": 59,
+    "fail": 9,
+    "knownGap": 2
   },
   "results": [
     {
@@ -27,7 +27,7 @@
       "top3": [
         "calculator:roas",
         "calculator:break-even-point",
-        "calculator:marketing-roi"
+        "calculator:ab-test"
       ],
       "reason": "exact title match"
     },
@@ -39,7 +39,7 @@
       "top3": [
         "lab-product:dashboard-builder",
         "lab-product:claude-lifecycle",
-        "calculator:marketing-roi"
+        "ab-test:AB-046"
       ],
       "reason": "exact title match"
     },
@@ -51,7 +51,7 @@
       "top3": [
         "lab-product:ab-test-playbook",
         "calculator:ab-test",
-        "calculator:test-duration-estimator"
+        "blog-article:the-guardrail-metric-most-ab-tests-forget"
       ],
       "reason": "exact title match"
     },
@@ -104,11 +104,9 @@
     {
       "query": "MDE",
       "expectedType": "acronym",
-      "ok": true,
+      "ok": false,
       "isKnownGap": false,
-      "top3": [
-        "calculator:minimum-detectable-effect"
-      ],
+      "top3": [],
       "reason": "acronym exact match"
     },
     {
@@ -117,19 +115,17 @@
       "ok": true,
       "isKnownGap": false,
       "top3": [
-        "calculator:nrr",
-        "calculator:saas-quick-ratio"
+        "calculator:nrr"
       ],
       "reason": "acronym exact match"
     },
     {
       "query": "CTOR",
       "expectedType": "acronym",
-      "ok": true,
+      "ok": false,
       "isKnownGap": false,
       "top3": [
-        "calculator:ctor",
-        "calculator:ctr"
+        "calculator:email-performance"
       ],
       "reason": "acronym exact match"
     },
@@ -164,15 +160,15 @@
       "isKnownGap": false,
       "top3": [
         "calculator:cr",
-        "calculator:cpa",
-        "calculator:funnel-analysis-multistep"
+        "calculator:funnel-analysis-multistep",
+        "ab-test:AB-147"
       ],
       "reason": "broad term hits calculator, ab-test and journey documents - content-type balancing should prevent one type from taking all 10 slots"
     },
     {
       "query": "checkout",
       "expectedType": "broad-concept",
-      "ok": true,
+      "ok": false,
       "isKnownGap": false,
       "top3": [
         "ab-test:AB-013",
@@ -189,7 +185,7 @@
       "top3": [
         "blog-article:reading-d1-d7-d30-retention-without-fooling-yourself",
         "calculator:retention-rate",
-        "calculator:d1-retention"
+        "journey:RET-29"
       ],
       "reason": "should surface the retention-family calculators near the top given title/keyword weight over the more diffuse journey/ab-test matches"
     },
@@ -225,7 +221,7 @@
       "top3": [
         "ab-test:AB-003",
         "ab-test:AB-010",
-        "calculator:cart-abandonment"
+        "ab-test:AB-001"
       ],
       "reason": "matches AB-003's seoTitle/summary concept (free shipping progress bar affecting cart value) via token overlap"
     },
@@ -235,8 +231,8 @@
       "ok": true,
       "isKnownGap": false,
       "top3": [
-        "calculator:cart-abandonment",
         "ab-test:AB-004",
+        "journey:ACQ-11",
         "ab-test:AB-014"
       ],
       "reason": "matches AB-004's own topic (visible coupon field vs cart abandonment) - also the worked example on the /lab/ab-testing product page itself"
@@ -285,7 +281,7 @@
       "top3": [
         "journey:ACC-71",
         "journey:ACQ-02",
-        "journey:ACQ-04"
+        "journey:ACQ-05"
       ],
       "reason": "exact title-token match"
     },
@@ -297,7 +293,7 @@
       "top3": [
         "journey:RET-24",
         "calculator:logo-churn",
-        "journey:RSK-192"
+        "journey:ACQ-03"
       ],
       "reason": "exact title-token match"
     },
@@ -320,8 +316,8 @@
       "isKnownGap": false,
       "top3": [
         "journey:RSK-192",
-        "journey:RSK-193",
-        "journey:RSK-200"
+        "journey:FBK-48",
+        "journey:RSK-193"
       ],
       "reason": "exact title-token match - also the survivor of the RET-25 merge, see the alias fixture below"
     },
@@ -332,8 +328,8 @@
       "isKnownGap": false,
       "top3": [
         "journey:CMS-208",
-        "calculator:delivery-rate",
-        "journey:FUL-148"
+        "journey:FUL-148",
+        "journey:IDN-84"
       ],
       "reason": "matches CMS-208's own title"
     },
@@ -345,7 +341,7 @@
       "top3": [
         "calculator:roas",
         "blog-article:why-your-roas-looks-different-on-every-ad-platform",
-        "ab-test:AB-165"
+        "journey:REM-152"
       ],
       "reason": "synonym expansion (ROAS <-> return on ad spend) should surface the exact calculator"
     },
@@ -357,31 +353,31 @@
       "top3": [
         "calculator:cac",
         "journey:ACQ-08",
-        "ab-test:AB-077"
+        "journey:ACT-20"
       ],
       "reason": "synonym expansion (CAC)"
     },
     {
       "query": "click through rate",
       "expectedType": "metric",
-      "ok": true,
+      "ok": false,
       "isKnownGap": false,
       "top3": [
-        "calculator:ctor",
-        "calculator:ctr",
-        "calculator:activation-rate"
+        "calculator:cr",
+        "calculator:retention-rate",
+        "calculator:cpc"
       ],
       "reason": "synonym expansion (CTR)"
     },
     {
       "query": "cost per lead",
       "expectedType": "metric",
-      "ok": true,
+      "ok": false,
       "isKnownGap": false,
       "top3": [
-        "calculator:cpl",
-        "calculator:revenue-per-recipient",
-        "calculator:revenue-per-visitor"
+        "calculator:cac",
+        "calculator:cpc",
+        "calculator:cpm"
       ],
       "reason": "synonym expansion (CPL)"
     },
@@ -405,7 +401,7 @@
       "top3": [
         "calculator:nrr",
         "calculator:retention-rate",
-        "calculator:revenue-per-recipient"
+        "journey:RET-29"
       ],
       "reason": "synonym expansion (NRR)"
     },
@@ -415,9 +411,9 @@
       "ok": true,
       "isKnownGap": false,
       "top3": [
-        "calculator:cart-abandonment",
         "ab-test:AB-001",
-        "ab-test:AB-002"
+        "ab-test:AB-002",
+        "ab-test:AB-008"
       ],
       "reason": "matches ab-test surface='cart' broadly across many records - a genuine broad-surface query"
     },
@@ -444,12 +440,12 @@
     {
       "query": "converion rate",
       "expectedType": "misspelling",
-      "ok": false,
-      "isKnownGap": true,
+      "ok": true,
+      "isKnownGap": false,
       "top3": [
-        "calculator:activation-rate",
-        "calculator:bounce-rate-email",
-        "calculator:cart-abandonment"
+        "calculator:cr",
+        "calculator:retention-rate",
+        "calculator:email-performance"
       ],
       "reason": "missing 's' in conversion - same known-gap caveat as above"
     },
@@ -473,7 +469,7 @@
       "top3": [
         "calculator:cac",
         "journey:ACQ-08",
-        "calculator:cpa"
+        "journey:ACQ-01"
       ],
       "reason": "missing 'o' - known-gap caveat"
     },
@@ -570,24 +566,24 @@
     {
       "query": "rate",
       "expectedType": "ambiguous-query",
-      "ok": true,
+      "ok": false,
       "isKnownGap": false,
       "top3": [
-        "calculator:activation-rate",
-        "calculator:bounce-rate-email",
-        "calculator:cart-abandonment"
+        "calculator:cr",
+        "calculator:retention-rate",
+        "calculator:email-performance"
       ],
       "reason": "TESTED: genuinely, deterministically tied (all score 21.49) across at least 5 real, distinct '...Rate'-family calculators - ties are broken by title alphabetical order (see scoreDocument's own sort comparator), a real and reproducible outcome for a maximally generic single-word query, not an arbitrary one."
     },
     {
       "query": "test",
       "expectedType": "ambiguous-query",
-      "ok": true,
+      "ok": false,
       "isKnownGap": false,
       "top3": [
-        "calculator:test-duration-estimator",
         "ab-test:AB-098",
-        "ab-test:AB-109"
+        "ab-test:AB-109",
+        "ab-test:AB-011"
       ],
       "reason": "TESTED: 'test' is ambiguous across all 211 ab-test documents plus this one calculator, but calculator:test-duration-estimator wins clearly (score 82 vs. next-best ab-test at 64) via its own exact title-token + prefix bonus - a genuine, non-marginal single winner among many plausible candidates."
     },
@@ -602,7 +598,7 @@
     {
       "query": "checkout optimization",
       "expectedType": "mixed-intent",
-      "ok": true,
+      "ok": false,
       "isKnownGap": false,
       "top3": [
         "ab-test:AB-005",
@@ -614,12 +610,12 @@
     {
       "query": "cart abandonment",
       "expectedType": "mixed-intent",
-      "ok": true,
+      "ok": false,
       "isKnownGap": false,
       "top3": [
-        "calculator:cart-abandonment",
-        "ab-test:AB-001",
-        "ab-test:AB-002"
+        "journey:ACQ-12",
+        "journey:ACQ-11",
+        "ab-test:AB-001"
       ],
       "reason": "exact calculator title-token match should outrank the broader ab-test/journey matches on the same concept"
     },
@@ -750,8 +746,8 @@
       "isKnownGap": false,
       "top3": [
         "lab-product:google-ads-change-history-dashboard",
-        "calculator:ctr",
-        "journey:REL-99"
+        "journey:CON-33",
+        "journey:IDN-89"
       ],
       "reason": "exact title-token match"
     },
@@ -775,7 +771,7 @@
       "top3": [
         "blog-article:the-guardrail-metric-most-ab-tests-forget",
         "calculator:ab-test",
-        "calculator:test-duration-estimator"
+        "ab-test:AB-001"
       ],
       "reason": "exact title-token match"
     },
@@ -821,9 +817,9 @@
       "ok": true,
       "isKnownGap": false,
       "top3": [
-        "calculator:d1-retention",
         "blog-article:reading-d1-d7-d30-retention-without-fooling-yourself",
-        "calculator:retention-rate"
+        "calculator:retention-rate",
+        "journey:RET-29"
       ],
       "reason": "exact title-token match, also overlaps with calculator:d1-retention - a genuine, expected multi-type result"
     }

@@ -1,0 +1,437 @@
+{
+ "id": "IDN-270",
+ "shortName": "Account Recovery",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "handoff",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.recovery",
+   "event": "account_recovery_case_opened",
+   "meaning": "a recovery case authoritatively opened against one existing account; the recovery basis and the evidence that basis requires; a recovery window with a stated end",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a recovery case authoritatively opened against one existing account",
+    "the recovery basis and the evidence that basis requires",
+    "a recovery window with a stated end",
+    "no instance of this journey is already open for the one existing account plus this recovery case and its window",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "recovery_case_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.incident",
+   "asks": "Is this account already under an open security incident?",
+   "branches": [
+    {
+     "label": "Incident open",
+     "observes": null,
+     "test": "a compromise signal or security incident is live on this account",
+     "to": "h.security"
+    },
+    {
+     "label": "Clear",
+     "observes": null,
+     "test": "the account has no open incident and this is an ordinary loss of access",
+     "to": "a.issue"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.security",
+   "to": "IDN-90",
+   "on": "a recovery attempt on an account that is already under an open compromise signal",
+   "carries": [
+    "the recovery case and the basis claimed",
+    "which destinations the request arrived from, and which were already on the account"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.issue",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "account_recovery.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.issue",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.issue",
+   "touch": "t1",
+   "stage": "issue",
+   "purpose": "Send the recovery route to a destination the account already held, and state exactly what evidence is required and when the window closes.",
+   "brief": "Send the recovery route to a destination the account already held, and state exactly what evidence is required and when the window closes. A route sent to whichever destination asked for it is not recovery, it is the thing recovery exists to prevent",
+   "destination": {
+    "target": "recovery-route",
+    "boundTo": "recovery_case_id",
+    "mustNotClaim": [
+     "a destination supplied inside the request"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.incident"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.issue",
+   "key": "issue_id + account_id + a.issue"
+  },
+  {
+   "type": "wait",
+   "node": "w.proof",
+   "timing": {
+    "key": "account_recovery.proof",
+    "class": "reminder-before-attribute",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "recovery_window_ends_at",
+   "onTimeout": "c.remind"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.proof",
+   "cancelOn": [
+    {
+     "event": "proof_of_control_provided",
+     "meaning": "sufficient proof of control or identity is provided"
+    },
+    {
+     "event": "access_regained",
+     "meaning": "the requester regains access by ordinary authentication"
+    },
+    {
+     "event": "request_withdrawn",
+     "meaning": "the requester withdraws the request"
+    }
+   ],
+   "onEvent": "c.proof"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.proof",
+   "reads": "the one existing account plus this recovery case and its window re-read from the system of record before acting on the timeout",
+   "before": "c.remind"
+  },
+  {
+   "type": "condition",
+   "node": "c.proof",
+   "asks": "What ended the wait?",
+   "branches": [
+    {
+     "label": "Control proven",
+     "observes": null,
+     "test": "the evidence the basis required was provided and judged sufficient",
+     "to": "a.restored"
+    },
+    {
+     "label": "Resolved elsewhere",
+     "observes": null,
+     "test": "the requester got back in by ordinary means, or withdrew the case",
+     "to": "x.moot"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.restored",
+   "touch": "t2",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "account_recovery.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.restored",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.restored",
+   "touch": "t2",
+   "stage": "restored",
+   "purpose": "Confirm that control is back and name what was invalidated on the way - the sessions and credentials that will no longer work.",
+   "brief": "Confirm that control is back and name what was invalidated on the way - the sessions and credentials that will no longer work. Somebody who is not told what was cut off reads the next refusal as a second compromise",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.proof"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.restored",
+   "key": "issue_id + account_id + a.restored"
+  },
+  {
+   "type": "exit",
+   "node": "x.restored",
+   "class": "success",
+   "state": "control restored and confirmed",
+   "reEntry": "a later recovery case on the same account is a new instance with its own window"
+  },
+  {
+   "type": "exit",
+   "node": "x.moot",
+   "class": "success",
+   "state": "recovery closed without being used",
+   "reEntry": "a new request opens a new case; this one is not resumed"
+  },
+  {
+   "type": "condition",
+   "node": "c.remind",
+   "asks": "Is one reminder still worth sending?",
+   "branches": [
+    {
+     "label": "Time remains",
+     "observes": null,
+     "test": "enough of the window is left for the outstanding evidence to be produced, and no reminder has been sent for this case",
+     "to": "a.remind"
+    },
+    {
+     "label": "Effectively closed",
+     "observes": null,
+     "test": "too little of the window remains for the evidence to arrive in time",
+     "to": "x.closed"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "none",
+   "localCap": {
+    "value": {
+     "key": "account_recovery.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t3",
+   "stage": "remind",
+   "purpose": "Send one reminder on the same already-held destination, naming the deadline and the evidence still outstanding.",
+   "brief": "Send one reminder on the same already-held destination, naming the deadline and the evidence still outstanding. There is no second reminder - a recovery nobody is pursuing has usually been abandoned rather than forgotten, and repetition on a security route is itself a pressure tactic",
+   "destination": {
+    "target": "recovery-route",
+    "boundTo": "recovery_case_id",
+    "mustNotClaim": [
+     "a restarted window"
+    ]
+   },
+   "label": "RECOMMENDED_DEFAULT",
+   "prerequisites": [
+    "c.remind"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "issue_id + account_id + a.remind"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "account_recovery.final",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "recovery_window_ends_at",
+   "onTimeout": "x.closed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "proof_of_control_provided",
+     "meaning": "sufficient proof of control or identity is provided"
+    }
+   ],
+   "onEvent": "c.proof"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "the one existing account plus this recovery case and its window re-read from the system of record before acting on the timeout",
+   "before": "x.closed"
+  },
+  {
+   "type": "exit",
+   "node": "x.closed",
+   "class": "timeout",
+   "state": "recovery window closed without sufficient proof",
+   "reEntry": "a fresh request opens a new case and a new window; the closed one is never extended"
+  }
+ ]
+}

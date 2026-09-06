@@ -1,0 +1,455 @@
+{
+ "id": "FUL-148",
+ "shortName": "Failed Delivery Recovery",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.failed",
+   "event": "authoritative_delivery_attempt_failure",
+   "meaning": "a delivery executor confirming an attempt was made and delivery did not occur",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a delivery executor confirming an attempt was made and delivery did not occur",
+    "no instance of this journey is already open for the the individual delivery attempt and the obligation it was serving",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "delivery_attempt_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.classify",
+   "does": "Classify the failure into the class the executor actually reported. Refused and unavailable are different outcomes - one is a decision by the recipient and the other is an absence, and treating the first as the second keeps redelivering to someone who has already said no",
+   "writes": [
+    {
+     "field": "delivery_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.classify",
+   "key": "order_id + obligation_id + a.classify"
+  },
+  {
+   "type": "condition",
+   "node": "c.class",
+   "asks": "What kind of failure was it?",
+   "branches": [
+    {
+     "label": "Correctable information needed",
+     "observes": null,
+     "test": "the destination is wrong, or access to it is blocked in a way information would resolve",
+     "to": "a.correct"
+    },
+    {
+     "label": "A reattempt is safe",
+     "observes": null,
+     "test": "the recipient was unavailable, the time window was missed, or the executor itself failed",
+     "to": "c.budget"
+    },
+    {
+     "label": "The recipient refused it",
+     "observes": null,
+     "test": "someone with authority to refuse did so",
+     "to": "h.return"
+    },
+    {
+     "label": "Damaged",
+     "observes": null,
+     "test": "what arrived is not what should have been delivered",
+     "to": "h.exception"
+    },
+    {
+     "label": "No usable reason given",
+     "observes": null,
+     "test": "the executor reported a failure that cannot be turned into an action",
+     "to": "c.budget"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.correct",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "delivery_attempt.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.correct",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.correct",
+   "touch": "t1",
+   "stage": "correct",
+   "purpose": "Request the exact correction - the address, the access instruction, the contact.",
+   "brief": "Request the exact correction - the address, the access instruction, the contact. Naming what is missing is what makes it fixable, and a generic notice that delivery failed sends the recipient to guess",
+   "destination": {
+    "target": "delivery-correction",
+    "boundTo": "delivery_attempt_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.class"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.correct",
+   "key": "order_id + obligation_id + a.correct"
+  },
+  {
+   "type": "wait",
+   "node": "w.correction",
+   "timing": {
+    "key": "delivery_attempt.correction",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "h.return"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.correction",
+   "cancelOn": [
+    {
+     "event": "delivery_correction_provided",
+     "meaning": "the recipient provides the requested correction"
+    }
+   ],
+   "onEvent": "c.budget"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.correction",
+   "reads": "the the individual delivery attempt and the obligation it was serving re-read from the system of record before acting on the timeout",
+   "before": "h.return"
+  },
+  {
+   "type": "condition",
+   "node": "c.budget",
+   "asks": "Is a reattempt available within the bounded policy?",
+   "branches": [
+    {
+     "label": "Attempts remain",
+     "observes": null,
+     "test": "the policy's attempt limit has not been reached",
+     "to": "c.alternate"
+    },
+    {
+     "label": "Exhausted",
+     "observes": null,
+     "test": "the attempt limit is reached",
+     "to": "h.return"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.alternate",
+   "asks": "Would an alternative route serve better than another attempt at the same one?",
+   "branches": [
+    {
+     "label": "An alternative is better, and policy authorises it",
+     "observes": null,
+     "test": "a collection point, a different window or another executor is more likely to succeed, and policy permits the change without asking",
+     "to": "a.alternate"
+    },
+    {
+     "label": "An alternative is better, but it is the recipient's to choose",
+     "observes": null,
+     "test": "the change would move where or when they must be present, which policy does not let us decide for them",
+     "to": "a.offer-route"
+    },
+    {
+     "label": "Reattempt the same route",
+     "observes": null,
+     "test": "the original route remains the best option",
+     "to": "a.reattempt"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.alternate",
+   "does": "Use the authorised alternative route, recorded as a change of route rather than a new obligation. Reached either because policy permits the change or because the recipient chose it - the authority exists before the route moves",
+   "writes": [
+    {
+     "field": "delivery_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.alternate",
+   "key": "order_id + obligation_id + a.alternate"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer-route",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "delivery_attempt.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer-route",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer-route",
+   "touch": "t2",
+   "stage": "offer-route",
+   "purpose": "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way.",
+   "brief": "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way. Moving where somebody has to be, without asking, is a decision taken on their behalf",
+   "destination": {
+    "target": "delivery-alternatives",
+    "boundTo": "delivery_attempt_id",
+    "mustNotClaim": [
+     "an alternative that is not actually available"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.class",
+    "c.budget",
+    "c.alternate"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer-route",
+   "key": "order_id + obligation_id + a.offer-route"
+  },
+  {
+   "type": "wait",
+   "node": "w.route-choice",
+   "timing": {
+    "key": "delivery_attempt.route_choice",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.reattempt"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.route-choice",
+   "cancelOn": [
+    {
+     "event": "delivery_alternative_selected",
+     "meaning": "the recipient selects an alternative route"
+    },
+    {
+     "event": "delivery_alternatives_declined",
+     "meaning": "the recipient declines every alternative"
+    }
+   ],
+   "onEvent": "c.route-answer"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.route-choice",
+   "reads": "the the individual delivery attempt and the obligation it was serving re-read from the system of record before acting on the timeout",
+   "before": "a.reattempt"
+  },
+  {
+   "type": "condition",
+   "node": "c.route-answer",
+   "asks": "What did the recipient say?",
+   "branches": [
+    {
+     "label": "Selected an alternative",
+     "observes": null,
+     "test": "they named one of the offered routes",
+     "to": "a.alternate"
+    },
+    {
+     "label": "Declined all of them",
+     "observes": null,
+     "test": "none of the offered routes works for them and they said so",
+     "to": "h.return"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.reattempt",
+   "does": "Schedule the bounded reattempt, against the remaining attempt budget rather than a fresh one",
+   "writes": [
+    {
+     "field": "delivery_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.reattempt",
+   "key": "order_id + obligation_id + a.reattempt"
+  },
+  {
+   "type": "handoff",
+   "node": "h.retry",
+   "to": "FUL-147",
+   "on": "a further delivery attempt being dispatched",
+   "carries": [
+    "the attempt history and the remaining budget, which does not reset",
+    "whatever correction or route change was applied"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.return",
+   "to": "REM-151",
+   "on": "a delivery that cannot be completed - refused, uncorrectable, or out of attempts",
+   "carries": [
+    "the failure classification and the full attempt history",
+    "the obligation, which is unresolved rather than discharged - and any financial consequence, which is a separate lifecycle"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.exception",
+   "to": "FUL-145",
+   "on": "an item that arrived damaged",
+   "carries": [
+    "what was damaged and the scope it affects",
+    "the fact that this is a fulfillment problem rather than a delivery one - the delivery worked and the thing delivered did not"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

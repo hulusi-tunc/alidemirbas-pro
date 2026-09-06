@@ -1,0 +1,385 @@
+{
+ "id": "REM-157",
+ "shortName": "Remedy Confirmation",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.decision",
+   "event": "remedy_decision_required",
+   "meaning": "a confirmed issue with an unresolved obligation and no remedy yet selected",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a confirmed issue with an unresolved obligation and no remedy yet selected",
+    "no instance of this journey is already open for the the confirmed issue and the unresolved obligation behind it",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "issue_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.obligation",
+   "does": "Identify the unresolved obligation precisely - what was owed that has not been delivered, or what was delivered that is not what was owed. The remedy is chosen to satisfy that rather than to satisfy the complaint, and compensation for the inconvenience is a separate question asked separately",
+   "writes": [
+    {
+     "field": "remedy_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.obligation",
+   "key": "obligation_id + issue_id + a.obligation"
+  },
+  {
+   "type": "state-update",
+   "node": "a.evaluate",
+   "does": "Evaluate the remedies policy actually makes available for this obligation. A remedy that cannot be delivered is not offered - offering one converts a solvable problem into a broken second promise, and the second one costs more than the first",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.choice",
+   "asks": "Does the counterparty choose between remedies?",
+   "branches": [
+    {
+     "label": "They choose",
+     "observes": null,
+     "test": "more than one available remedy would satisfy the obligation and the preference is theirs",
+     "to": "a.present"
+    },
+    {
+     "label": "No choice to make",
+     "observes": null,
+     "test": "one remedy applies, or policy determines it",
+     "to": "c.route"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.present",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "remedy_selection.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.present",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.present",
+   "touch": "t1",
+   "stage": "present",
+   "purpose": "Present only the options that are genuinely available, with what each would mean",
+   "brief": "Present only the options that are genuinely available, with what each would mean",
+   "destination": {
+    "target": "remedy-options",
+    "boundTo": "issue_id",
+    "mustNotClaim": [
+     "a remedy that is not actually available"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.choice"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.present",
+   "key": "obligation_id + issue_id + a.present"
+  },
+  {
+   "type": "wait",
+   "node": "w.selection",
+   "timing": {
+    "key": "remedy_selection.selection",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.default"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.selection",
+   "cancelOn": [
+    {
+     "event": "remedy_selected",
+     "meaning": "the person selects a remedy"
+    }
+   ],
+   "onEvent": "c.route"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.selection",
+   "reads": "the the confirmed issue and the unresolved obligation behind it re-read from the system of record before acting on the timeout",
+   "before": "a.default"
+  },
+  {
+   "type": "state-update",
+   "node": "a.default",
+   "does": "Apply the remedy policy defines as the default where one exists, recording that no selection was made rather than presenting the default as a choice",
+   "writes": [
+    {
+     "field": "remedy_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.default",
+   "key": "obligation_id + issue_id + a.default"
+  },
+  {
+   "type": "condition",
+   "node": "c.route",
+   "asks": "Which remedy resolves the obligation?",
+   "branches": [
+    {
+     "label": "Correction or reperformance",
+     "observes": null,
+     "test": "what exists can be made right, or the service can be performed again",
+     "to": "h.correction"
+    },
+    {
+     "label": "Replacement",
+     "observes": null,
+     "test": "a different instance of the thing is what satisfies the obligation",
+     "to": "h.replacement"
+    },
+    {
+     "label": "Return, before anything else",
+     "observes": null,
+     "test": "the resource has to come back before a further remedy can be settled",
+     "to": "h.return"
+    },
+    {
+     "label": "Refund or credit",
+     "observes": null,
+     "test": "money is the remedy the obligation calls for",
+     "to": "h.financial"
+    },
+    {
+     "label": "No remedy is owed",
+     "observes": null,
+     "test": "the obligation turns out to be satisfied, or no remedy applies under policy",
+     "to": "a.no-remedy"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.correction",
+   "to": "REM-156",
+   "on": "correction or reperformance selected",
+   "carries": [
+    "the defect and the corrected outcome required",
+    "the affected scope"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.replacement",
+   "to": "REM-155",
+   "on": "replacement selected",
+   "carries": [
+    "the original fulfillment and the defect",
+    "the replacement scope required"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.return",
+   "to": "REM-152",
+   "on": "a return required before the remedy can be settled",
+   "carries": [
+    "the resource to be returned and why",
+    "the remedy that is waiting on it, so the return is not mistaken for the remedy itself"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.financial",
+   "to": "FIN-137",
+   "on": "a refund or credit selected as the remedy",
+   "carries": [
+    "the original transaction and the unresolved scope the refund would cover",
+    "the explicit fact that this journey selected the remedy and did not decide the refund is owed"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.no-remedy",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "remedy_selection.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.no-remedy",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.no-remedy",
+   "touch": "t2",
+   "stage": "no-remedy",
+   "purpose": "State that the obligation is considered satisfied, or that policy provides no remedy for the facts as confirmed, and name a separate appeal or escalation route only where one actually exists.",
+   "brief": "State that the obligation is considered satisfied, or that policy provides no remedy for the facts as confirmed, and name a separate appeal or escalation route only where one actually exists. This journey opens from a confirmed issue - reaching no remedy and saying nothing leaves the person believing the question is still open",
+   "destination": {
+    "target": "appeal-or-escalation-route",
+    "boundTo": "issue_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.choice",
+    "c.route"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.no-remedy",
+   "key": "obligation_id + issue_id + a.no-remedy"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-remedy",
+   "class": "success",
+   "state": "no remedy owed; the obligation is satisfied or none applies",
+   "reEntry": "new evidence about the obligation re-opens this. Compensation for impact, if any is appropriate, is a separate decision that this outcome does not settle either way"
+  }
+ ]
+}

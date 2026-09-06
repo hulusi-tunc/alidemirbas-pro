@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
      they have not checked what the old URL was:
 
        /lab/crm-journeys  "CRM Journey Archive"  ->  the Canonical Journey
-                          Library, the same archive rebuilt (281 journeys)
+                          Library, the same archive rebuilt (284 journeys)
        /content           "Insights", the LinkedIn post archive  ->  /blog,
                           the writing section that replaced it
 
@@ -38,6 +38,14 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/lab/crm-journeys", destination: "/lab/journeys", permanent: true },
+      // The old two-way split (has channels / has none) became four
+      // product surfaces read from the journeys themselves. The
+      // communication page became the customer surface; the internal
+      // page's closest successor is the operational surface.
+      { source: "/lab/communication-journeys", destination: "/lab/customer-journeys", permanent: true },
+      { source: "/tr/lab/communication-journeys", destination: "/tr/lab/customer-journeys", permanent: true },
+      { source: "/lab/internal-journeys", destination: "/lab/operational-workflows", permanent: true },
+      { source: "/tr/lab/internal-journeys", destination: "/tr/lab/operational-workflows", permanent: true },
       { source: "/tr/lab/crm-journeys", destination: "/tr/lab/journeys", permanent: true },
       { source: "/content", destination: "/blog", permanent: true },
       { source: "/tr/content", destination: "/tr/blog", permanent: true },

@@ -1,0 +1,430 @@
+{
+ "id": "CON-264",
+ "shortName": "Contact Verification",
+ "strategy": "two-party-confirmation",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff",
+  "state-update",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.contact-point",
+   "event": "contact_point_added_or_changed",
+   "meaning": "a new or changed contact point recorded against a known identity; a destination in a form that can actually be sent to",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a contact point is added or changed for an identity",
+    "the new destination is well-formed and deliverable in principle",
+    "no verification instance is already open for this contact point"
+   ],
+   "instanceKey": [
+    "contact_point_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.replacement",
+   "asks": "Is this replacing a destination that already exists?",
+   "branches": [
+    {
+     "label": "Replaces an existing one",
+     "observes": null,
+     "test": "a contact point of this kind is already recorded and reachable for this identity",
+     "to": "a.alert-old"
+    },
+    {
+     "label": "First of its kind",
+     "observes": null,
+     "test": "no prior contact point of this kind exists, so there is nowhere else to warn",
+     "to": "a.confirm-new"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.alert-old",
+   "touch": "t-old",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "contact_verification.reminders",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.nowhere-else",
+    "s.old-told",
+    "s.one-reminder",
+    "s.unconfirmed-unusable",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.alert-old",
+   "touch": "t-old",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the destination being confirmed or replaced is an address - the message goes to that destination itself"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "the destination being confirmed or replaced is a number - the message goes to that destination itself"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.alert-old",
+   "touch": "t-old",
+   "stage": "replacement-notice",
+   "purpose": "Tell the destination being replaced that it is being replaced, what it is being replaced with, and how to stop it.",
+   "brief": "Tell the destination being replaced that it is being replaced, what it is being replaced with, and how to stop it - sent to the old destination itself. A takeover is invisible from the address taking over and obvious from the one losing access",
+   "destination": {
+    "target": "dispute-this-change",
+    "boundTo": "contact_point_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.replacement"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.alert-old",
+   "key": "contact_point_id + touch id"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm-new",
+   "touch": "t-new",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "contact_verification.reminders",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.nowhere-else",
+    "s.old-told",
+    "s.one-reminder",
+    "s.unconfirmed-unusable",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm-new",
+   "touch": "t-new",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the destination being confirmed or replaced is an address - the message goes to that destination itself"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "the destination being confirmed or replaced is a number - the message goes to that destination itself"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm-new",
+   "touch": "t-new",
+   "stage": "confirmation-request",
+   "purpose": "Ask the new destination itself to confirm, and send that request nowhere else.",
+   "brief": "Ask the new destination itself to confirm, and send that request nowhere else. A confirmation answered from inside the account proves control of the account, which was never the thing in doubt",
+   "destination": {
+    "target": "confirm-this-destination",
+    "boundTo": "contact_point_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.replacement"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm-new",
+   "key": "contact_point_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.confirm",
+   "timing": {
+    "key": "contact_verification.confirmation_window",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.remind"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.confirm",
+   "cancelOn": [
+    {
+     "event": "destination_confirmed",
+     "meaning": "the new destination confirms from inside itself"
+    },
+    {
+     "event": "destination_change_disputed",
+     "meaning": "the old destination disputes the change"
+    },
+    {
+     "event": "contact_point_changed_again",
+     "meaning": "the contact point is withdrawn or changed again before confirmation"
+    }
+   ],
+   "onEvent": "c.resolution"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.confirm",
+   "reads": "the contact point re-read: confirmed, disputed, changed again, or still pending",
+   "before": "a.remind"
+  },
+  {
+   "type": "condition",
+   "node": "c.resolution",
+   "asks": "What ended the wait?",
+   "branches": [
+    {
+     "label": "Confirmed",
+     "observes": null,
+     "test": "the owner of the new destination confirmed from that destination",
+     "to": "a.activate"
+    },
+    {
+     "label": "Disputed",
+     "observes": null,
+     "test": "the destination being replaced says the change was not theirs",
+     "to": "h.disputed"
+    },
+    {
+     "label": "Superseded",
+     "observes": null,
+     "test": "the contact point was withdrawn or changed again before any confirmation",
+     "to": "x.superseded"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.disputed",
+   "to": "IDN-89",
+   "on": "a contact point change the previous destination says it did not make",
+   "carries": [
+    "the old and the new destination and when the change was recorded",
+    "the dispute and the route it arrived on"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.activate",
+   "does": "Record the confirmation against this destination and this destination only. Permission held by the address it replaced is not lent forward - consent does not travel with a change of address, and treating it as though it does is how a confirmed opt-in becomes an unconfirmed one",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.activate",
+   "key": "contact_point_id + confirmation"
+  },
+  {
+   "type": "exit",
+   "node": "x.permitted",
+   "class": "success",
+   "state": "confirmed and permitted for this destination",
+   "reEntry": "a later change to the same contact point is a new instance with its own confirmation"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t-remind",
+   "mandatory": false,
+   "pressureClass": "none",
+   "localCap": {
+    "value": {
+     "key": "contact_verification.reminders",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.nowhere-else",
+    "s.old-told",
+    "s.one-reminder",
+    "s.unconfirmed-unusable",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t-remind",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the destination being confirmed or replaced is an address - the message goes to that destination itself"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "the destination being confirmed or replaced is a number - the message goes to that destination itself"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t-remind",
+   "stage": "reminder",
+   "purpose": "Ask once more, at the same destination, naming the point after which nothing will be sent there at all.",
+   "brief": "Ask once more, at the same destination, naming the point after which nothing will be sent there at all. One repeat and no more - a destination that does not answer twice is more likely wrong than busy",
+   "destination": {
+    "target": "confirm-this-destination",
+    "boundTo": "contact_point_id"
+   },
+   "label": "RECOMMENDED_DEFAULT",
+   "prerequisites": [],
+   "after": "t-new"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "contact_point_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.last",
+   "timing": {
+    "key": "contact_verification.window_remainder",
+    "class": "attribute-bound",
+    "default": "the remainder of the confirmation window, counted from the first request",
+    "basis": "attribute-bound",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "confirmation_window_ends_at",
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.last",
+   "cancelOn": [
+    {
+     "event": "destination_confirmed",
+     "meaning": "the new destination confirms from inside itself"
+    }
+   ],
+   "onEvent": "a.activate"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.last",
+   "reads": "the contact point re-read at the end of the window",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "unconfirmed; the destination stays unusable",
+   "reEntry": "the same destination submitted again starts a fresh confirmation, not a continuation of this one"
+  },
+  {
+   "type": "exit",
+   "node": "x.superseded",
+   "class": "invalid-state",
+   "state": "superseded before confirmation",
+   "reEntry": "the destination that replaced it runs its own confirmation"
+  }
+ ]
+}

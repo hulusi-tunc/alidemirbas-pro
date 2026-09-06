@@ -43,7 +43,7 @@
       "representativeLabels": [
         "a.wind-down",
         "a.exclude",
-        "a.history"
+        "a.preserve-personal"
       ]
     },
     {
@@ -51,7 +51,7 @@
       "pattern": "^(suppress|block|reject|invalidate)\\b",
       "representativeLabels": [
         "a.suppress",
-        "a.invalidate",
+        "a.stop-permission",
         "a.invalidate"
       ]
     },
@@ -61,7 +61,7 @@
       "representativeLabels": [
         "a.suppress",
         "a.suppress",
-        "a.sunset"
+        "a.stop-contactability"
       ]
     },
     {
@@ -96,8 +96,8 @@
       "pattern": "^send\\b",
       "representativeLabels": [
         "a.educate",
-        "a.followup",
-        "a.final"
+        "a.first-touch",
+        "a.deliver"
       ]
     }
   ],

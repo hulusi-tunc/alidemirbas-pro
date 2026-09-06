@@ -1,0 +1,271 @@
+{
+ "id": "RET-26",
+ "shortName": "Service Recovery",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "condition",
+  "exit",
+  "handoff",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.negative",
+   "event": "authoritative_negative_experience",
+   "meaning": "a recorded failure: a service failure, a failed fulfilment, a confirmed disruption, a failed critical action, or severe support dissatisfaction",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an authoritative record of a negative experience or service failure attributable to this person and an experience entity",
+    "no other recovery process is already handling the same failure",
+    "the underlying issue is resolved - nothing is said about a failure that is still ongoing",
+    "hard gates (GLB-31) permit service communication"
+   ],
+   "instanceKey": [
+    "person_id",
+    "failure_ref"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.assess",
+   "does": "Establish what failed, what it cost the customer, whether it has been resolved, whether they are still affected, and whether some other process is already handling it",
+   "writes": [
+    {
+     "field": "failure_record",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.duplicate",
+   "asks": "Is another recovery process already handling this failure?",
+   "branches": [
+    {
+     "label": "Already handled",
+     "observes": null,
+     "test": "an open case, an assigned owner or another recovery journey covers the same incident",
+     "to": "x.defer"
+    },
+    {
+     "label": "Nobody on it",
+     "observes": null,
+     "test": "no existing process covers it",
+     "to": "c.resolved"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.defer",
+   "class": "suppression",
+   "state": "deferred to the process already handling it",
+   "reEntry": "if that process closes with the customer still affected, this re-opens - two apologies from two systems is worse than one, because it proves neither knew about the other"
+  },
+  {
+   "type": "condition",
+   "node": "c.resolved",
+   "asks": "Is the underlying issue still unresolved?",
+   "branches": [
+    {
+     "label": "Still broken",
+     "observes": null,
+     "test": "the customer remains affected",
+     "to": "h.operational"
+    },
+    {
+     "label": "Resolved",
+     "observes": null,
+     "test": "the failure is over and the customer is no longer affected",
+     "to": "c.useful"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.operational",
+   "to": "external:operational-resolution",
+   "on": "a failure that is still ongoing",
+   "carries": [
+    "what failed and who is affected",
+    "the fact that no recovery message has been sent yet"
+   ],
+   "suppresses": [
+    "apology and compensation messaging until the thing being apologised for has stopped happening"
+   ],
+   "contract": {
+    "requiredFields": [
+     "failure_ref",
+     "experience_ref",
+     "person_id",
+     "impact",
+     "detected_at"
+    ]
+   }
+  },
+  {
+   "type": "condition",
+   "node": "c.useful",
+   "asks": "Is a recovery communication actually useful here?",
+   "branches": [
+    {
+     "label": "Useful",
+     "observes": null,
+     "test": "the customer noticed, or would want to know it was handled",
+     "to": "c.compensation"
+    },
+    {
+     "label": "Not useful",
+     "observes": null,
+     "test": "the failure was resolved before it reached them - raising it now creates the concern it would be apologising for",
+     "to": "x.silent"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.silent",
+   "class": "no-action",
+   "state": "resolved without contact",
+   "reEntry": "a recurrence, or any sign they did notice, re-opens this"
+  },
+  {
+   "type": "condition",
+   "node": "c.compensation",
+   "asks": "Does policy and the actual impact support compensation?",
+   "branches": [
+    {
+     "label": "Owed",
+     "observes": null,
+     "test": "the impact and the policy both support a remedy",
+     "to": "h.compensation"
+    },
+    {
+     "label": "Not owed",
+     "observes": null,
+     "test": "the failure was real but no remedy is justified - which is most failures",
+     "to": "a.acknowledge"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.compensation",
+   "to": "REM-159",
+   "on": "a remedy that policy and impact both support",
+   "carries": [
+    "the failure and its assessed impact",
+    "what has already been said to the customer"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.acknowledge",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "service_recovery.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.duplicate",
+    "s.unresolved",
+    "s.not-useful",
+    "s.compensation",
+    "s.permission"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.acknowledge",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the acknowledgement should be something the person can keep - what failed, what was done, what prevents it - which is the default"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "the failure happened inside the app, the person is active there, and the acknowledgement is short"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.acknowledge",
+   "touch": "t1",
+   "stage": "acknowledgement",
+   "purpose": "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation.",
+   "brief": "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation - a remedy offered instead of an account of what went wrong reads as buying silence",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.duplicate",
+    "c.resolved",
+    "c.useful",
+    "c.compensation"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.acknowledge",
+   "key": "person_id + failure_ref + touch id"
+  },
+  {
+   "type": "exit",
+   "node": "x.acknowledged",
+   "class": "success",
+   "state": "failure acknowledged, no remedy owed",
+   "reEntry": "a recurrence changes the assessment, and repetition is itself part of the impact"
+  }
+ ]
+}

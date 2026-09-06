@@ -27,6 +27,7 @@ export default function JourneyRowCard({
   href,
   id,
   name,
+  shortName,
   goalLabel,
   categoryTitle,
   nodeCount,
@@ -37,6 +38,8 @@ export default function JourneyRowCard({
   href: string;
   id: string;
   name: string;
+  /** See CanonicalJourney.shortName - the row leads with it where present. */
+  shortName?: string;
   goalLabel: string;
   categoryTitle: string;
   nodeCount: number;
@@ -63,8 +66,11 @@ export default function JourneyRowCard({
       <div className="min-w-0">
         <p className="font-mono text-[10px] tracking-[0.08em] text-ink-400 tabular-nums sm:hidden">{id}</p>
         <p className="mt-0.5 text-[15px] leading-snug font-medium tracking-tight text-ink-950 sm:mt-0">
-          {name}
+          {shortName ?? name}
         </p>
+        {shortName ? (
+          <p className="mt-0.5 text-[12.5px] leading-snug text-ink-400">{name}</p>
+        ) : null}
         <p className="mt-0.5 text-[13px] leading-snug text-ink-600">{goalLabel}</p>
         <p className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 text-xs text-ink-400">
           <span>{categoryTitle}</span>

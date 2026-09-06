@@ -1,0 +1,280 @@
+{
+ "id": "IDN-85",
+ "shortName": "Login Verification",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.required",
+   "event": "authentication_required",
+   "meaning": "a context requiring the actor's control of an identity to be established",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a context requiring the actor's control of an identity to be established",
+    "no instance of this journey is already open for the the authentication session",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "session_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.assurance",
+   "does": "Determine the assurance level this context requires. Assurance is a property of what is being done rather than of who is doing it - setting it per user produces an over-challenged ordinary session and an under-challenged sensitive one at the same time",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.sufficient",
+   "asks": "Does the existing authentication already meet the required level?",
+   "branches": [
+    {
+     "label": "Sufficient",
+     "observes": null,
+     "test": "a current session holds the required assurance and has not expired",
+     "to": "x.satisfied"
+    },
+    {
+     "label": "Not sufficient",
+     "observes": null,
+     "test": "no session, an expired one, or one at a lower assurance than this context needs",
+     "to": "a.challenge"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.satisfied",
+   "class": "success",
+   "state": "already authenticated at the required level",
+   "reEntry": "a context requiring higher assurance re-opens this. Being authenticated says who the actor is and nothing about what they may do"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.challenge",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "authentication_challenge.touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.challenge",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.challenge",
+   "touch": "t1",
+   "stage": "challenge",
+   "purpose": "Issue the challenge appropriate to the required assurance level",
+   "brief": "Issue the challenge appropriate to the required assurance level",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.sufficient"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.challenge",
+   "key": "identity_id + account_id + a.challenge"
+  },
+  {
+   "type": "wait",
+   "node": "w.auth",
+   "timing": {
+    "key": "authentication_challenge.auth",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.timeout"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.auth",
+   "cancelOn": [
+    {
+     "event": "authentication_succeeded",
+     "meaning": "the authentication challenge succeeds"
+    },
+    {
+     "event": "authentication_failed",
+     "meaning": "the authentication challenge fails"
+    }
+   ],
+   "onEvent": "c.result"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.auth",
+   "reads": "the the authentication session re-read from the system of record before acting on the timeout",
+   "before": "x.timeout"
+  },
+  {
+   "type": "exit",
+   "node": "x.timeout",
+   "class": "timeout",
+   "state": "challenge unanswered; nothing authenticated and nothing recorded against the actor",
+   "reEntry": "a new attempt issues a new challenge"
+  },
+  {
+   "type": "condition",
+   "node": "c.result",
+   "asks": "What was established?",
+   "branches": [
+    {
+     "label": "Authenticated at the required level",
+     "observes": null,
+     "test": "the challenge succeeded at the assurance this context needs",
+     "to": "a.session"
+    },
+    {
+     "label": "Authenticated below the required level",
+     "observes": null,
+     "test": "control was established, at a lower assurance than the context requires",
+     "to": "h.stepup"
+    },
+    {
+     "label": "Failed",
+     "observes": null,
+     "test": "the challenge was not satisfied",
+     "to": "h.failure"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.session",
+   "does": "Issue or update the authenticated session with an explicit assurance level and an explicit validity. Both are needed downstream: without the level nothing can require a step-up, and without the validity nothing can decide the session has aged out",
+   "writes": [
+    {
+     "field": "authentication_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.session",
+   "key": "identity_id + account_id + a.session"
+  },
+  {
+   "type": "exit",
+   "node": "x.authenticated",
+   "class": "success",
+   "state": "authenticated, at a stated assurance and for a stated validity",
+   "reEntry": "authorization for any particular action is decided separately, every time - a successful login proves control of an account and entitlement to nothing"
+  },
+  {
+   "type": "handoff",
+   "node": "h.stepup",
+   "to": "IDN-86",
+   "on": "control established below the assurance the context requires",
+   "carries": [
+    "the session and the assurance it currently holds",
+    "the level the context requires"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.failure",
+   "to": "IDN-87",
+   "on": "an authentication failure",
+   "carries": [
+    "the attempt and its context",
+    "the explicit fact that one failure is a signal rather than a finding"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

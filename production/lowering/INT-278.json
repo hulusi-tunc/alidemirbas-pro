@@ -1,0 +1,563 @@
+{
+ "id": "INT-278",
+ "shortName": "Integration Setup",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "exit",
+  "handoff",
+  "wait",
+  "event-cancellation",
+  "state-recheck"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.started",
+   "event": "integration_connection_attempt_resolved",
+   "meaning": "a connection attempt recorded against a named integration by a named configurer; a recorded outcome from the authentication, scope and capability checks",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a connection attempt recorded against a named integration by a named configurer",
+    "a recorded outcome from the authentication, scope and capability checks",
+    "no instance of this journey is already open for the the single connection attempt and the integration it configures",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "connection_attempt_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "How far did the attempt get?",
+   "branches": [
+    {
+     "label": "Active",
+     "observes": null,
+     "test": "authentication, required scope and the capability probe all passed and the connection is recorded active",
+     "to": "a.active"
+    },
+    {
+     "label": "Failed at a named stage",
+     "observes": null,
+     "test": "the attempt failed and which stage failed is authoritatively recorded",
+     "to": "c.stage"
+    },
+    {
+     "label": "Failed, stage unidentified",
+     "observes": null,
+     "test": "the attempt failed and no stage is authoritatively identified",
+     "to": "a.generic"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.active",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "integration_setup.touches",
+     "default": null,
+     "basis": null,
+     "required": true
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.active",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.active",
+   "touch": "t1",
+   "stage": "active",
+   "purpose": "Confirm the connection is active and name the capabilities that were actually validated rather than the ones that were configured.",
+   "brief": "Confirm the connection is active and name the capabilities that were actually validated rather than the ones that were configured. The difference is what stops somebody building on a permission they do not have",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.active",
+   "key": "person_id + a.active"
+  },
+  {
+   "type": "exit",
+   "node": "x.active",
+   "class": "success",
+   "state": "active, with validated capabilities stated",
+   "reEntry": "a further connection to the same provider is a new instance"
+  },
+  {
+   "type": "condition",
+   "node": "c.stage",
+   "asks": "Which stage failed?",
+   "branches": [
+    {
+     "label": "Credential",
+     "observes": null,
+     "test": "the provider refused the credential or the authorisation was never completed",
+     "to": "a.fix-auth"
+    },
+    {
+     "label": "Permission",
+     "observes": null,
+     "test": "the credential was accepted but a required permission was not granted",
+     "to": "a.fix-scope"
+    },
+    {
+     "label": "Capability",
+     "observes": null,
+     "test": "credential and permission both passed but the safe probe could not perform the minimum operation",
+     "to": "a.fix-capability"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.fix-auth",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "integration_setup.touches",
+     "default": null,
+     "basis": null,
+     "required": true
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.fix-auth",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.fix-auth",
+   "touch": "t2",
+   "stage": "fix-auth",
+   "purpose": "Say the credential itself was refused and give the one step that re-establishes it.",
+   "brief": "Say the credential itself was refused and give the one step that re-establishes it. This is the only stage the configurer can usually fix unaided, and it is the one most often buried under a generic error",
+   "destination": {
+    "target": "re-enter-credential",
+    "boundTo": "connection_attempt_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome",
+    "c.stage"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.fix-auth",
+   "key": "person_id + a.fix-auth"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.fix-scope",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "integration_setup.touches",
+     "default": null,
+     "basis": null,
+     "required": true
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.fix-scope",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.fix-scope",
+   "touch": "t3",
+   "stage": "fix-scope",
+   "purpose": "Name the specific permission that is missing and where it is granted.",
+   "brief": "Name the specific permission that is missing and where it is granted. A missing permission reported as a failed setup makes somebody redo an entire connection to change one switch",
+   "destination": {
+    "target": "grant-missing-permission",
+    "boundTo": "connection_attempt_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome",
+    "c.stage"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.fix-scope",
+   "key": "person_id + a.fix-scope"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.fix-capability",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "integration_setup.touches",
+     "default": null,
+     "basis": null,
+     "required": true
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.fix-capability",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.fix-capability",
+   "touch": "t4",
+   "stage": "fix-capability",
+   "purpose": "Say that access was granted but the minimum operation could not be performed, and name which operation.",
+   "brief": "Say that access was granted but the minimum operation could not be performed, and name which operation. This usually sits with a limit on the provider side, so the message points there rather than at the configurer",
+   "destination": {
+    "target": "capability-check",
+    "boundTo": "connection_attempt_id",
+    "mustNotClaim": [
+     "that a saved credential is a connection"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome",
+    "c.stage"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.fix-capability",
+   "key": "person_id + a.fix-capability"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.generic",
+   "touch": "t5",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "integration_setup.touches",
+     "default": null,
+     "basis": null,
+     "required": true
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.generic",
+   "touch": "t5",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.generic",
+   "touch": "t5",
+   "stage": "generic",
+   "purpose": "Say the attempt failed, that the stage has not been identified, and that nothing further is needed from the configurer while it is looked at.",
+   "brief": "Say the attempt failed, that the stage has not been identified, and that nothing further is needed from the configurer while it is looked at. Admitting there is no cause yet beats inventing one - a guessed cause sends somebody to fix what is not broken",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.generic",
+   "key": "person_id + a.generic"
+  },
+  {
+   "type": "handoff",
+   "node": "h.diagnose",
+   "to": "INT-111",
+   "on": "a failed connection attempt with no stage authoritatively identified",
+   "carries": [
+    "the attempt, its provider and what the configurer has already been told",
+    "which stages did pass before the failure"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "wait",
+   "node": "w.retry",
+   "timing": {
+    "key": "integration_setup.retry",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.abandoned"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.retry",
+   "cancelOn": [
+    {
+     "event": "connection_attempt_recorded",
+     "meaning": "a further connection attempt is recorded"
+    },
+    {
+     "event": "connection_removed",
+     "meaning": "the holder removes the connection"
+    }
+   ],
+   "onEvent": "c.retry"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.retry",
+   "reads": "the the single connection attempt and the integration it configures re-read from the system of record before acting on the timeout",
+   "before": "x.abandoned"
+  },
+  {
+   "type": "condition",
+   "node": "c.retry",
+   "asks": "What did the next attempt do?",
+   "branches": [
+    {
+     "label": "Now active",
+     "observes": null,
+     "test": "a later attempt passed every stage and the connection is recorded active",
+     "to": "a.active"
+    },
+    {
+     "label": "Failed again",
+     "observes": null,
+     "test": "a later attempt failed at a stage that has already been named to the configurer",
+     "to": "x.unresolved"
+    },
+    {
+     "label": "Failed at a different stage",
+     "observes": null,
+     "test": "a later attempt cleared the stage that was named and failed at one that has not been named yet",
+     "to": "c.stage"
+    },
+    {
+     "label": "Removed",
+     "observes": null,
+     "test": "the configuration was removed before any attempt succeeded",
+     "to": "x.abandoned"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.unresolved",
+   "class": "failure",
+   "state": "still not connected after the named fix",
+   "reEntry": "a later attempt re-enters at the outcome check; a fix already given is not sent twice"
+  },
+  {
+   "type": "exit",
+   "node": "x.abandoned",
+   "class": "timeout",
+   "state": "abandoned before the connection was ever made",
+   "reEntry": "a new attempt on the same integration starts a fresh instance"
+  }
+ ]
+}

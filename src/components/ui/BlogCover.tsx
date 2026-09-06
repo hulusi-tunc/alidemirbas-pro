@@ -34,26 +34,55 @@ const ACCENT: Record<
   CoverAccent,
   { ground: string; dot: string; text: string; diagram: string; big: string }
 > = {
+  /* RE-HUED 2026-08-30. The three accents above this line used to be
+     primary-blue / sand / paper-soft, under an earlier brief's "no
+     rainbow" constraint. That constraint has been superseded: the
+     calculator library now ships SEVEN real category tints
+     (`CATEGORY_TINT` in ui/CalculatorLibrary.tsx) after the all-blue
+     version was rejected in review, and Stack runs the same system per
+     tool group. Three near-neutral covers on a white page was the
+     concrete complaint here - `lifecycle` in particular sat on
+     `paper-soft`, which is the page's own background, so that cover had
+     no ground at all.
+
+     The hues are not picked for variety; each one is the hue the
+     calculator library already uses for the SAME concept, so a reader
+     moving between the two sections meets one colour language:
+     "Growth Metrics" takes revenue/unit-economics' emerald,
+     "Lifecycle & CRM" takes email-crm's teal, and "Experimentation"
+     takes experimentation's fuchsia verbatim. The cover STRUCTURE is
+     untouched - these are still typographic covers built from each
+     post's own idea, not imagery. */
   experimentation: {
-    ground: "bg-primary-50",
-    dot: "bg-primary-600",
-    text: "text-primary-700",
-    diagram: "text-primary-600",
-    big: "text-primary-900",
+    ground: "bg-fuchsia-50",
+    dot: "bg-fuchsia-500",
+    text: "text-fuchsia-700",
+    diagram: "text-fuchsia-600",
+    big: "text-fuchsia-900",
   },
   growth: {
-    ground: "bg-sand-100",
-    dot: "bg-neutral-600",
-    text: "text-neutral-700",
-    diagram: "text-neutral-600",
-    big: "text-ink-900",
+    ground: "bg-emerald-50",
+    dot: "bg-emerald-500",
+    text: "text-emerald-700",
+    diagram: "text-emerald-600",
+    big: "text-emerald-900",
   },
+  /* Blue, not the teal that email-crm uses in the calculator library.
+     Teal was the closer semantic match and it was tried first, but at the
+     `-50` step teal and emerald are within a hair of each other, and with
+     three of the five posts filing under "Growth Metrics" the grid came
+     out reading as one undifferentiated green block - the same complaint
+     the re-hue was meant to fix, in a new colour. Hue distance wins here
+     because the accent's job on this page is telling covers apart at a
+     glance; blue is also the brand's own, and this cover set already
+     proved it (the pre-2026-08-30 experimentation accent was primary
+     blue). */
   lifecycle: {
-    ground: "bg-paper-soft",
-    dot: "bg-ink-700",
-    text: "text-ink-700",
-    diagram: "text-ink-800",
-    big: "text-ink-950",
+    ground: "bg-blue-50",
+    dot: "bg-blue-500",
+    text: "text-blue-700",
+    diagram: "text-blue-600",
+    big: "text-blue-900",
   },
 };
 
@@ -181,9 +210,29 @@ function Diagram({ kind, spec }: { kind: CoverSpec["diagram"]; spec: CoverSpec }
   }
 }
 
-export function BlogCover({ spec, size = "grid" }: { spec: CoverSpec; size?: "grid" | "featured" }) {
+export function BlogCover({ spec, size = "grid" }: { spec: CoverSpec; size?: "grid" | "featured" | "compact" }) {
   const a = ACCENT[spec.accent];
   const featured = size === "featured";
+
+  /* "compact" — the small square thumbnail beside a title in a list row
+     (BlogLibrary's featured+list split). Same ground/tag/type-mark system
+     as the other two sizes, just the tag and diagram dropped: at ~64px
+     there's no room for a third element, and the mark alone (e.g. "LTV")
+     is already this cover's whole identity. */
+  if (size === "compact") {
+    return (
+      <div aria-hidden className={`flex h-full w-full items-center justify-center overflow-hidden p-2 ${a.ground}`}>
+        <span className={`text-center text-[11px] leading-tight font-semibold tracking-tight ${a.big}`}>
+          {spec.lines.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div
       aria-hidden

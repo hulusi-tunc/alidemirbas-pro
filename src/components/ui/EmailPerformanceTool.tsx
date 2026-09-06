@@ -141,13 +141,29 @@ export default function EmailPerformanceTool({ spec, lang }: { spec: RuntimeCalc
 
   const anyFilled = filled.size > 0;
 
+  /* The plate's answer burst fires whenever the set of computed metrics
+     changes - this tool has no single answer, so "the answer changed"
+     means any metric appearing or moving. Mid-sweep pulses are absorbed
+     by PixelBurst, so a keystroke run doesn't strobe. */
+  const anyComputable = METRICS.some(
+    ({ key, needs }) =>
+      needs.every((n) => filled.has(n)) && Number.isFinite(results[key] as number),
+  );
+  const signature = anyComputable ? JSON.stringify(values) : null;
+  const [pulsedFor, setPulsedFor] = useState(signature);
+  const [pulse, setPulse] = useState(0);
+  if (signature !== pulsedFor) {
+    setPulsedFor(signature);
+    if (signature !== null) setPulse((p) => p + 1);
+  }
+
   return (
     <CalcPanel
       split="input-heavy"
+      answerPulse={pulse}
       inputs={
         <>
-          <PanelLabel>{lang === "en" ? "Inputs" : "Girdiler"}</PanelLabel>
-          <div className="mt-4 flex flex-col gap-5">
+          <div className="flex flex-col gap-5">
             {GROUPS.map((group) => (
               <fieldset key={group.id} className="border-0 p-0">
                 <legend className="mb-2.5 text-[13px] font-medium text-ink-700">
@@ -177,7 +193,7 @@ export default function EmailPerformanceTool({ spec, lang }: { spec: RuntimeCalc
       results={
         <div aria-live="polite">
           <PanelLabel>{t.results}</PanelLabel>
-          <p className="mt-2 text-[13px] leading-snug text-ink-400">{t.hint}</p>
+          <p className="mt-2 text-[13px] leading-snug text-white/60">{t.hint}</p>
 
           <div className="mt-5 flex flex-col gap-4">
             {METRICS.map(({ key, needs }) => {
@@ -190,16 +206,16 @@ export default function EmailPerformanceTool({ spec, lang }: { spec: RuntimeCalc
               return (
                 <div key={key}>
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-sm font-medium text-ink-900">{output.label}</span>
+                    <span className="text-sm font-medium text-white/90">{output.label}</span>
                     <span
                       className={`font-mono text-base font-semibold tabular-nums ${
-                        computable ? "text-blue-700" : "text-ink-300"
+                        computable ? "text-white" : "text-white/35"
                       }`}
                     >
-                      {computable ? formatByUnit(value, output.unit) : "—"}
+                      {computable ? formatByUnit(value, output.unit, lang) : "—"}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-[12.5px] leading-snug text-ink-500">{t.metrics[key]}</p>
+                  <p className="mt-0.5 text-[12.5px] leading-snug text-white/60">{t.metrics[key]}</p>
                   {/* Says which figures are still outstanding rather than just
                       showing a dash - with ten optional fields feeding eight
                       metrics, "what would make this one appear" is the thing a
@@ -207,12 +223,12 @@ export default function EmailPerformanceTool({ spec, lang }: { spec: RuntimeCalc
                       filling the form in; on an empty form every metric is
                       pending and eight of these would be noise. */}
                   {anyFilled && !ready ? (
-                    <p className="mt-0.5 text-[12px] text-ink-400">
+                    <p className="mt-0.5 text-[12px] text-white/60">
                       {t.pending}: {missing.map((m) => inputByKey.get(m)?.label ?? m).join(", ")}
                     </p>
                   ) : null}
                   {ready && !computable ? (
-                    <p className="mt-0.5 text-[12px] text-amber-700">{t.undefinedResult}</p>
+                    <p className="mt-0.5 text-[12px] text-amber-300">{t.undefinedResult}</p>
                   ) : null}
                 </div>
               );
@@ -258,7 +274,7 @@ function CountInput({
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errId : undefined}
-        className="rounded-md border border-line px-3 py-2 text-ink-950 outline-none focus:border-ink-900"
+        className="rounded-md border border-line px-3 py-2 text-ink-950 outline-none focus:border-primary-600"
       />
       {error && (
         <span id={errId} className="text-xs text-red-600">

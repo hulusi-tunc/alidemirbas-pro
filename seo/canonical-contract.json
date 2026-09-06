@@ -39,7 +39,7 @@
       "pageType": "journey-merged",
       "canonicalSource": "the SURVIVOR journey's canonical URL, not self",
       "selfCanonical": false,
-      "aliasBehavior": "5 known ids (con-37, cms-209, ctl-239, ctl-240, ret-25) resolve via src/canonical/index.ts's MERGED_INTO map and 200-render the survivor's full content with a merge banner. Canonical points at the survivor: `${SITE_URL}${basePathFor(lang)}/${survivor.slug}`. No hreflang languages block is set for this case (only canonical) - confirmed live code (JourneyRoutes.tsx:34), matching production/journey-merged-id-contract.json's documented intent exactly. DO NOT change this to a hard 301/302 redirect without checking with the journey library's own maintainers first - the existing contract explicitly frames this as 'existing behavior only, no new redirect created,' i.e. a deliberate choice, not an oversight.",
+      "aliasBehavior": "8 known ids (con-37, cms-209, ctl-239, ctl-240, ret-25, fbk-44, fbk-45, act-15) resolve via src/canonical/index.ts's MERGED_INTO map and 200-render the survivor's full content with a merge banner. Canonical points at the survivor: `${SITE_URL}${basePathFor(lang)}/${survivor.slug}`. No hreflang languages block is set for this case (only canonical) - confirmed live code (JourneyRoutes.tsx:34), matching production/journey-merged-id-contract.json's documented intent exactly. DO NOT change this to a hard 301/302 redirect without checking with the journey library's own maintainers first - the existing contract explicitly frames this as 'existing behavior only, no new redirect created,' i.e. a deliberate choice, not an oversight.",
       "queryParameterBehavior": "n/a",
       "trailingSlashBehavior": "n/a"
     },

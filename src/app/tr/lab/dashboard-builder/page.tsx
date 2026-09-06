@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import SkillProductPage from "@/components/SkillProductPage";
+import DashboardBuilderPage from "@/components/DashboardBuilderPage";
 import { getDashboardBuilderContent } from "@/lib/skill-pages/dashboard-builder";
 import { pageAlternates } from "@/lib/seo";
 
@@ -17,5 +17,5 @@ export const metadata: Metadata = content
 
 export default function DashboardBuilderTr() {
   if (!content) notFound();
-  return <SkillProductPage lang="tr" content={content} />;
+  return <DashboardBuilderPage lang="tr" content={content} />;
 }

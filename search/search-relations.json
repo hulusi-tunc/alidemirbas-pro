@@ -16,115 +16,7 @@
     "calculator:ab-test": {
       "relatedPrimary": [
         {
-          "to": "calculator:confidence-interval-calculator",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
           "to": "calculator:sample-size-calculator",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:activation-rate": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:cr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-102",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-103",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-104",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:aov": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:revenue-per-visitor",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-001",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-002",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-003",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:bounce-rate-email": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:delivery-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:open-rate",
           "reasons": [
             "explicit-product-relation"
           ],
@@ -135,13 +27,6 @@
     },
     "calculator:break-even-point": {
       "relatedPrimary": [
-        {
-          "to": "calculator:contribution-margin",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
         {
           "to": "calculator:roas",
           "reasons": [
@@ -219,196 +104,10 @@
         }
       ]
     },
-    "calculator:cart-abandonment": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:cr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-001",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-002",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-003",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:complaint-rate": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:delivery-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:open-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:confidence-interval-calculator": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ab-test",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:contribution-margin": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:gross-margin",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:profit-margin",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:break-even-point",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-001",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-002",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-003",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:cpa": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:cpc",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:cpm",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:cpl",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
     "calculator:cpc": {
       "relatedPrimary": [
         {
           "to": "calculator:cpm",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:cpa",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:cpl",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:cpl": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:cpc",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:cpm",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:cpa",
           "reasons": [
             "explicit-product-relation"
           ],
@@ -425,235 +124,14 @@
             "explicit-product-relation"
           ],
           "score": 1
-        },
-        {
-          "to": "calculator:cpa",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:cpl",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
         }
       ],
       "relatedSecondary": []
     },
-    "calculator:cr": {
+    "calculator:email-performance": {
       "relatedPrimary": [
         {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:ctor": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:delivery-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:open-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:ctr": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:delivery-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:open-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:ctor",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:d1-retention": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:retention-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:logo-churn",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-102",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-103",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-104",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:dau-mau-stickiness": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:delivery-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:open-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-102",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-103",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-104",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:delivery-rate": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:open-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:ctor",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:engagement-rate": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:delivery-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:open-rate",
+          "to": "calculator:cr",
           "reasons": [
             "explicit-product-relation"
           ],
@@ -670,80 +148,6 @@
             "explicit-product-relation"
           ],
           "score": 1
-        },
-        {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:gross-margin": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:contribution-margin",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:profit-margin",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-001",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-002",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-003",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:list-growth-rate": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:delivery-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:open-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
         }
       ],
       "relatedSecondary": []
@@ -752,13 +156,6 @@
       "relatedPrimary": [
         {
           "to": "calculator:retention-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:d1-retention",
           "reasons": [
             "explicit-product-relation"
           ],
@@ -834,78 +231,6 @@
       ],
       "relatedSecondary": []
     },
-    "calculator:marketing-roi": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:roas",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:profit-margin",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:minimum-detectable-effect": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:sample-size-calculator",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:test-duration-estimator",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:mrr": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:saas-quick-ratio",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-162",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-163",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-164",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
     "calculator:nrr": {
       "relatedPrimary": [
         {
@@ -914,13 +239,6 @@
             "explicit-product-relation"
           ],
           "score": 1
-        },
-        {
-          "to": "calculator:mrr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
         }
       ],
       "relatedSecondary": [
@@ -940,80 +258,6 @@
         },
         {
           "to": "ab-test:AB-164",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:open-rate": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:delivery-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:ctor",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:profit-margin": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:gross-margin",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:contribution-margin",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:marketing-roi",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-001",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-002",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-003",
           "reasons": [
             "shared-category"
           ],
@@ -1023,13 +267,6 @@
     },
     "calculator:retention-rate": {
       "relatedPrimary": [
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
         {
           "to": "calculator:logo-churn",
           "reasons": [
@@ -1061,252 +298,6 @@
           "score": 0.5
         }
       ]
-    },
-    "calculator:revenue-per-recipient": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:revenue-per-visitor",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:saas-quick-ratio",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:rule-of-40",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:revenue-per-visitor": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:revenue-per-recipient",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:saas-quick-ratio",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:rule-of-40",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-001",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-002",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-003",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:roas": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:marketing-roi",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:rule-of-40": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:revenue-per-visitor",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:revenue-per-recipient",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:saas-quick-ratio",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-162",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-163",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-164",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:saas-quick-ratio": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:revenue-per-visitor",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:revenue-per-recipient",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:rule-of-40",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": [
-        {
-          "to": "ab-test:AB-162",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-163",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-164",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "calculator:sample-size-calculator": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:minimum-detectable-effect",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:test-duration-estimator",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:test-duration-estimator": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:sample-size-calculator",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:minimum-detectable-effect",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "calculator:unsubscribe-rate": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:ctr",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:delivery-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:open-rate",
-          "reasons": [
-            "explicit-product-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
     },
     "blog-article:ltv-cac-ratio-doesnt-tell-you-when-to-scale": {
       "relatedPrimary": [
@@ -1342,20 +333,6 @@
             "explicit-content-relation"
           ],
           "score": 1
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "explicit-content-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "explicit-content-relation"
-          ],
-          "score": 1
         }
       ],
       "relatedSecondary": []
@@ -1364,39 +341,6 @@
       "relatedPrimary": [
         {
           "to": "calculator:roas",
-          "reasons": [
-            "explicit-content-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:marketing-roi",
-          "reasons": [
-            "explicit-content-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:cpa",
-          "reasons": [
-            "explicit-content-relation"
-          ],
-          "score": 1
-        }
-      ],
-      "relatedSecondary": []
-    },
-    "blog-article:what-belongs-in-a-lifecycle-journey-vs-a-campaign": {
-      "relatedPrimary": [
-        {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "explicit-content-relation"
-          ],
-          "score": 1
-        },
-        {
-          "to": "calculator:activation-rate",
           "reasons": [
             "explicit-content-relation"
           ],
@@ -1431,311 +375,25 @@
       ],
       "relatedSecondary": []
     },
-    "ab-test:AB-102": {
+    "calculator:aov": {
       "relatedPrimary": [],
       "relatedSecondary": [
         {
-          "to": "calculator:activation-rate",
+          "to": "ab-test:AB-001",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:d1-retention",
+          "to": "ab-test:AB-002",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-103": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-104": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-105": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-106": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-107": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-108": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-109": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-110": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-111": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-112": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "ab-test:AB-113": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:activation-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:d1-retention",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:dau-mau-stickiness",
+          "to": "ab-test:AB-003",
           "reasons": [
             "shared-category"
           ],
@@ -1754,14 +412,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -1780,14 +431,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -1806,14 +450,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -1832,14 +469,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -1858,14 +488,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -1884,14 +507,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -1910,14 +526,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -1936,14 +545,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -1962,14 +564,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -1988,14 +583,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2014,14 +602,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2040,14 +621,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2066,14 +640,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2092,14 +659,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2118,14 +678,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2144,14 +697,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2170,14 +716,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2196,14 +735,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2222,14 +754,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2248,14 +773,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2274,14 +792,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2300,14 +811,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2326,14 +830,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2352,14 +849,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2378,14 +868,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -2404,14 +887,7 @@
           "score": 0.5
         },
         {
-          "to": "calculator:cart-abandonment",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "calculator:contribution-margin",
+          "to": "calculator:gross-margin",
           "reasons": [
             "shared-category"
           ],
@@ -3797,6 +2273,32 @@
         }
       ]
     },
+    "calculator:gross-margin": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-001",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-002",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-003",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
     "ab-test:AB-162": {
       "relatedPrimary": [],
       "relatedSecondary": [
@@ -3808,14 +2310,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -3834,14 +2336,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -3860,14 +2362,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -3886,14 +2388,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -3912,14 +2414,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -3938,14 +2440,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -3964,14 +2466,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -3990,14 +2492,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -4016,14 +2518,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -4042,14 +2544,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -4068,14 +2570,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -4094,14 +2596,14 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
           "reasons": [
             "shared-category"
           ],
@@ -4120,14 +2622,40 @@
           "score": 0.5
         },
         {
-          "to": "calculator:mrr",
+          "to": "calculator:nrr",
           "reasons": [
             "shared-category"
           ],
           "score": 0.5
         },
         {
-          "to": "calculator:nrr",
+          "to": "calculator:rule-of-40",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "calculator:rule-of-40": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "ab-test:AB-162",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-163",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-164",
           "reasons": [
             "shared-category"
           ],
@@ -4395,6 +2923,110 @@
         }
       ]
     },
+    "journey:ACQ-11": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-12": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-13": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:ACQ-285": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:cac",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-049",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        },
+        {
+          "to": "ab-test:AB-050",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
     "journey:ACT-11": {
       "relatedPrimary": [],
       "relatedSecondary": [
@@ -4474,32 +3106,6 @@
       ]
     },
     "journey:ACT-14": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:cac",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-049",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-050",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "journey:ACT-15": {
       "relatedPrimary": [],
       "relatedSecondary": [
         {
@@ -4752,6 +3358,30 @@
       ]
     },
     "journey:RET-30": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-31": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
+    },
+    "journey:RET-32": {
       "relatedPrimary": [],
       "relatedSecondary": [
         {

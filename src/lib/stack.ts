@@ -95,21 +95,20 @@ export const stackGroups: ToolGroup[] = [
   },
 ];
 
-// A curated cross-section of the full stack, surfaced on the home page -
-// ported from the cv site's own stack-data.ts (same 8 names, same order).
-export const stackPreviewNames = [
-  "Figma",
-  "Google Analytics 4",
-  "Google Tag Manager",
-  "Adjust",
-  "Mixpanel",
-  "Data Studio",
-  "Insider",
-  "Braze",
-];
-
-export function stackPreview(): Tool[] {
-  const byName = new Map<string, Tool>();
-  stackGroups.forEach((g) => g.tools.forEach((tool) => byName.set(tool.name, tool)));
-  return stackPreviewNames.map((name) => byName.get(name)).filter((t): t is Tool => Boolean(t));
+// Homepage teaser: each category's own first (primary) tool, one card per
+// category rather than a hand-picked cross-section - so the teaser can't
+// drift from stackGroups (add/reorder a category and the teaser follows).
+// De-duplicated by name: the CRO/A-B Test group's only tool (Insider)
+// already appears via CRM & Engagement, so it's dropped here rather than
+// showing the same tool twice.
+export function stackOnePerCategory(): Tool[] {
+  const seen = new Set<string>();
+  const picks: Tool[] = [];
+  for (const group of stackGroups) {
+    const tool = group.tools[0];
+    if (!tool || seen.has(tool.name)) continue;
+    seen.add(tool.name);
+    picks.push(tool);
+  }
+  return picks;
 }

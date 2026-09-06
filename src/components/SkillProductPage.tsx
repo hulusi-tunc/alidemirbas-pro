@@ -5,6 +5,8 @@ import { FaqAccordion, type FaqItem } from "@/components/ui/FaqAccordion";
 import { InstallationStepper, type InstallStep } from "@/components/ui/InstallationStepper";
 import { RelatedGrid, type RelatedItem } from "@/components/ui/RelatedGrid";
 import { Reveal } from "@/components/ui/Reveal";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
+import { breadcrumbList, howTo, softwareApplication, webApplication } from "@/lib/schema";
 import { copy, type Lang } from "@/lib/content";
 
 /* Reusable Skill/Plugin Product Page template - foundation for
@@ -39,6 +41,17 @@ export type SkillProductContent = {
   faq?: FaqItem[];
   relatedTitle: string;
   related: RelatedItem[];
+  /** Which schema.org app type this project actually is - a hosted web app
+      with nothing to install (Numerspace) vs a repository/plugin
+      (dashboard-builder). Omitted rather than guessed for a project this
+      doesn't cleanly describe. `operatingSystem` is SoftwareApplication-only
+      and should restate what the project's own install copy already says
+      it runs on, never a new claim. */
+  appSchema?: {
+    type: "WebApplication" | "SoftwareApplication";
+    applicationCategory: string;
+    operatingSystem?: string;
+  };
 };
 
 function Hero({ c }: { c: SkillProductContent }) {
@@ -177,8 +190,56 @@ export default function SkillProductPage({ lang, content }: { lang: Lang; conten
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? `/tr/lab/${content.slug}` : `/lab/${content.slug}`;
+  const path = lang === "en" ? `/lab/${content.slug}` : `/tr/lab/${content.slug}`;
+
+  const jsonLd: object[] = [
+    breadcrumbList([
+      { name: t.footer.home, url: home },
+      { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+      { name: content.title, url: path },
+    ]),
+  ];
+  if (content.appSchema) {
+    // The GitHub link over the page's own "Explore project" self-link where
+    // both exist (project.links carries both) - see each skill-pages file's
+    // own primaryLinks construction.
+    const appUrl =
+      content.primaryLinks.find((l) => l.href.includes("github.com"))?.href ??
+      content.primaryLinks.find((l) => l.href.startsWith("http"))?.href ??
+      content.primaryLinks[0]?.href;
+    if (appUrl) {
+      jsonLd.push(
+        content.appSchema.type === "WebApplication"
+          ? webApplication({
+              name: content.title,
+              description: content.sub,
+              url: appUrl,
+              applicationCategory: content.appSchema.applicationCategory,
+            })
+          : softwareApplication({
+              name: content.title,
+              description: content.sub,
+              url: appUrl,
+              applicationCategory: content.appSchema.applicationCategory,
+              operatingSystem: content.appSchema.operatingSystem ?? "Cross-platform",
+              ...(appUrl.includes("github.com") ? { codeRepository: appUrl } : {}),
+            }),
+      );
+    }
+  }
+  if (content.installSteps.length > 0) {
+    jsonLd.push(
+      howTo({
+        name: content.installTitle,
+        description: content.whatItDoes.body,
+        steps: content.installSteps.map((s) => ({ name: s.title, text: s.desc ?? s.title })),
+      }),
+    );
+  }
+
   return (
     <>
+      <JsonLdScript data={jsonLd} />
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
         <Hero c={content} />

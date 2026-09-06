@@ -3,7 +3,7 @@ import Link from "next/link";
 import { VariableDiagram } from "@/components/ui/VariableDiagram";
 import { abPlaybookText, abSetupMode, abVariableKind } from "@/lib/ab-test-playbook";
 import type { AbVariableKind } from "@/lib/ab-test-playbook";
-import type { AbTestDetail } from "@/lib/ab-test-view";
+import { surfaceLabel, type AbTestDetail } from "@/lib/ab-test-view";
 
 /* The A/B test detail page, built to the AB001_Detail_Page_v5 reference.
 
@@ -80,17 +80,6 @@ const T = {
 
 const RAIL = "font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase";
 
-/* `surface` is a lowercase enum key on the record ("cart", "pdp",
-   "generic-ui"). Presented as-is it reads as a slug sitting next to fully
-   formed prose, so the hyphen becomes a space and the acronyms - which are
-   what most of these keys are - stay upper. No mapping table: that would be
-   a second name for each surface to keep in sync with the data. */
-const ACRONYMS = new Set(["pdp", "plp", "ui", "saas"]);
-const surfaceLabel = (surface: string) =>
-  surface
-    .split("-")
-    .map((w) => (ACRONYMS.has(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1)))
-    .join(" ");
 
 export default function AbTestPlaybookPage({
   test,

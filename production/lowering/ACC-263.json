@@ -1,0 +1,414 @@
+{
+ "id": "ACC-263",
+ "shortName": "Activation Reminder",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.issued",
+   "event": "entitlement_provisioned_and_reachable",
+   "meaning": "an entitlement or credential authoritatively granted to a named holder; confirmation that it is provisioned and reachable by that holder; an activation window or expiry",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an entitlement or credential authoritatively granted to a named holder",
+    "confirmation that it is provisioned and reachable by that holder",
+    "an activation window or expiry",
+    "no instance of this journey is already open for the the issued entitlement or credential and its activation window",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "entitlement_id",
+    "holder_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.first-time",
+   "asks": "Is this the holder's first entitlement of this kind?",
+   "branches": [
+    {
+     "label": "First time",
+     "observes": null,
+     "test": "the holder has never used this capability before and needs to be told what it is for",
+     "to": "a.ready"
+    },
+    {
+     "label": "Already familiar",
+     "observes": null,
+     "test": "the holder has used this capability before - a renewal, a replacement or an additional seat",
+     "to": "a.brief"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.ready",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "entitlement_activation.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.ready",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.ready",
+   "touch": "t1",
+   "stage": "ready",
+   "purpose": "Say what is now available, what it lets them do, and the single first action that uses it.",
+   "brief": "Say what is now available, what it lets them do, and the single first action that uses it. Naming one action rather than listing the capability is the difference between an announcement and an activation",
+   "destination": {
+    "target": "first-use-action",
+    "boundTo": "entitlement_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.first-time"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.ready",
+   "key": "issue_id + identity_id + a.ready"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.brief",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "entitlement_activation.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.brief",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.brief",
+   "touch": "t2",
+   "stage": "brief",
+   "purpose": "Confirm the new grant briefly and name only what changed from what they already had.",
+   "brief": "Confirm the new grant briefly and name only what changed from what they already had. Re-explaining a capability somebody already uses reads as a system that does not know them",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.first-time"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.brief",
+   "key": "issue_id + identity_id + a.brief"
+  },
+  {
+   "type": "wait",
+   "node": "w.first-use",
+   "timing": {
+    "key": "entitlement_activation.first_use",
+    "class": "reminder-before-attribute",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "activation_window_ends_at",
+   "onTimeout": "c.remind"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.first-use",
+   "cancelOn": [
+    {
+     "event": "capability_first_used",
+     "meaning": "the granted capability is used for the first time"
+    },
+    {
+     "event": "entitlement_revoked_or_replaced",
+     "meaning": "the entitlement is revoked or replaced"
+    }
+   ],
+   "onEvent": "c.used"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.first-use",
+   "reads": "the the issued entitlement or credential and its activation window re-read from the system of record before acting on the timeout",
+   "before": "c.remind"
+  },
+  {
+   "type": "condition",
+   "node": "c.used",
+   "asks": "What ended the wait?",
+   "branches": [
+    {
+     "label": "Used",
+     "observes": null,
+     "test": "an authoritative first-use event was recorded",
+     "to": "x.activated"
+    },
+    {
+     "label": "Withdrawn",
+     "observes": null,
+     "test": "the entitlement was revoked or replaced before any use",
+     "to": "x.moot"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.activated",
+   "class": "success",
+   "state": "activated",
+   "reEntry": "a further entitlement to the same holder is a new instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.moot",
+   "class": "invalid-state",
+   "state": "entitlement withdrawn before use",
+   "reEntry": "a reissued entitlement starts a fresh window"
+  },
+  {
+   "type": "condition",
+   "node": "c.remind",
+   "asks": "Is there still time to claim it?",
+   "branches": [
+    {
+     "label": "Time remains",
+     "observes": null,
+     "test": "the window has a meaningful period left and no reminder has been sent for this issuance",
+     "to": "a.remind"
+    },
+    {
+     "label": "Window closed",
+     "observes": null,
+     "test": "the activation window has ended",
+     "to": "x.lapsed"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "entitlement_activation.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t3",
+   "stage": "remind",
+   "purpose": "Send one reminder naming the deadline and the same single first action.",
+   "brief": "Send one reminder naming the deadline and the same single first action. There is no second reminder - a capability nobody wanted is not made wanted by asking twice",
+   "destination": {
+    "target": "first-use-action",
+    "boundTo": "entitlement_id",
+    "mustNotClaim": [
+     "a moved deadline"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.remind"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "issue_id + identity_id + a.remind"
+  },
+  {
+   "type": "wait",
+   "node": "w.last-chance",
+   "timing": {
+    "key": "entitlement_activation.last_chance",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "activation_window_ends_at",
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.last-chance",
+   "cancelOn": [
+    {
+     "event": "capability_first_used",
+     "meaning": "the granted capability is used for the first time"
+    }
+   ],
+   "onEvent": "x.activated"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.last-chance",
+   "reads": "the the issued entitlement or credential and its activation window re-read from the system of record before acting on the timeout",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "lapsed unclaimed",
+   "reEntry": "a new grant of the same capability starts a new window"
+  }
+ ]
+}

@@ -1,0 +1,381 @@
+{
+ "id": "TIM-63",
+ "shortName": "Expiry Reminder",
+ "strategy": "deadline-countdown",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "condition",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.window",
+   "event": "pre_expiry_window_entered",
+   "meaning": "a time-bound entity entering a pre-expiry window whose length reflects how long acting on it actually takes",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a pre-expiry window has been entered for a time-bound entity with an asserted expiry",
+    "the entity is still expiring - not already renewed, replaced or completed - when re-read",
+    "hard gates (GLB-31) permit service communication to the responsible actor"
+   ],
+   "instanceKey": [
+    "entity_ref",
+    "validity_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.reread",
+   "does": "Re-read the entity's current state. The window opened on a schedule, and the entity may have been renewed, replaced or completed since that schedule was written",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.already",
+   "asks": "Has it already been renewed, replaced or completed?",
+   "branches": [
+    {
+     "label": "Already resolved",
+     "observes": null,
+     "test": "the entity is no longer heading toward this expiry",
+     "to": "x.suppressed"
+    },
+    {
+     "label": "Still expiring",
+     "observes": null,
+     "test": "the expiry still applies",
+     "to": "c.action"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.suppressed",
+   "class": "suppression",
+   "state": "pre-expiry journey suppressed; nothing is expiring",
+   "reEntry": "the replacement entity has its own expiry and its own window"
+  },
+  {
+   "type": "condition",
+   "node": "c.action",
+   "asks": "Is an action available that would materially change the outcome?",
+   "branches": [
+    {
+     "label": "Action available",
+     "observes": null,
+     "test": "renewal, completion or replacement is possible and someone can carry it out",
+     "to": "a.actor"
+    },
+    {
+     "label": "Nothing can be done",
+     "observes": null,
+     "test": "the expiry will happen regardless - no renewal exists, or the decision is not the holder's to make",
+     "to": "c.informational"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.actor",
+   "does": "Establish who is responsible for acting and what the action actually is. A pre-expiry message addressed to someone who cannot perform the renewal is a notification pretending to be a call to action",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.prompt-action",
+   "touch": "t-prompt",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "expiry.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.already-resolved",
+    "s.no-actor",
+    "s.nothing-to-say",
+    "s.no-call-where-no-action",
+    "s.stale-queue"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.prompt-action",
+   "touch": "t-prompt",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message names an action and a boundary and must survive until the responsible actor can act - the default"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the responsible actor is in the product and the action is taken there"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms",
+      "push"
+     ],
+     "eligibleWhen": "the expiry is inside the urgent horizon, the action is a single step, and permission for service messages on the channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.prompt-action",
+   "touch": "t-prompt",
+   "stage": "action-prompt",
+   "purpose": "Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point by which it must be taken.",
+   "brief": "Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point after which that action stops being available. Establishing who must act and then waiting for them to act, without ever telling them, is a call to action nobody received",
+   "destination": {
+    "target": "expiry-action",
+    "boundTo": "validity_id",
+    "mustNotClaim": [
+     "an expiry the system of record does not assert",
+     "that the action has been taken"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.already",
+    "c.action"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.prompt-action",
+   "key": "validity_id + touch id"
+  },
+  {
+   "type": "condition",
+   "node": "c.informational",
+   "asks": "Is telling anyone useful even though nothing can be done?",
+   "branches": [
+    {
+     "label": "Worth saying",
+     "observes": null,
+     "test": "the holder needs to plan around it, or would otherwise be surprised",
+     "to": "a.inform"
+    },
+    {
+     "label": "Not worth saying",
+     "observes": null,
+     "test": "nobody gains anything from knowing earlier",
+     "to": "x.silent"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.inform",
+   "touch": "t-inform",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "expiry.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.already-resolved",
+    "s.no-actor",
+    "s.nothing-to-say",
+    "s.no-call-where-no-action",
+    "s.stale-queue"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.inform",
+   "touch": "t-inform",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message names an action and a boundary and must survive until the responsible actor can act - the default"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.inform",
+   "touch": "t-inform",
+   "stage": "informational-notice",
+   "purpose": "Say what will happen and when, with no prompt to act attached, because there is no action.",
+   "brief": "Say what will happen and when, with no call to action attached - because there is no action. A prompt to act where acting is impossible is worse than silence",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.already",
+    "c.action",
+    "c.informational"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.inform",
+   "key": "validity_id + touch id"
+  },
+  {
+   "type": "exit",
+   "node": "x.silent",
+   "class": "no-action",
+   "state": "expiring, nothing to do and nothing worth saying",
+   "reEntry": "the expiry itself is handled at the moment it arrives"
+  },
+  {
+   "type": "wait",
+   "node": "w.resolution",
+   "timing": {
+    "key": "expiry.expiry_moment",
+    "class": "attribute-bound",
+    "default": "expires_at as the system of record asserts it",
+    "basis": "attribute-bound",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "expires_at",
+   "onTimeout": "h.expiry"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.resolution",
+   "cancelOn": [
+    {
+     "event": "renewed",
+     "meaning": "the expiring item is renewed"
+    },
+    {
+     "event": "completion_recorded",
+     "meaning": "the required action is completed before expiry"
+    },
+    {
+     "event": "replaced",
+     "meaning": "the expiring item is replaced"
+    }
+   ],
+   "onEvent": "a.invalidate"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.resolution",
+   "reads": "the entity re-read at the expiry moment: renewed, replaced, completed, or still expiring",
+   "before": "h.expiry"
+  },
+  {
+   "type": "state-update",
+   "node": "a.invalidate",
+   "does": "Invalidate the expiry actions queued against the old validity, so a renewal granted today is not undone by an expiry scheduled yesterday",
+   "writes": [
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.invalidate",
+   "key": "validity_id + invalidation"
+  },
+  {
+   "type": "handoff",
+   "node": "h.resolved",
+   "to": "external:renewal-lifecycle",
+   "on": "an entity resolved before its expiry",
+   "carries": [
+    "the entity and its new validity period",
+    "the old expiry, now invalidated, so nothing downstream still holds it"
+   ],
+   "suppresses": [
+    "every expiry action scheduled under the previous validity"
+   ],
+   "contract": {
+    "requiredFields": [
+     "entity_ref",
+     "validity_id",
+     "resolution_type",
+     "resolved_at"
+    ]
+   }
+  },
+  {
+   "type": "handoff",
+   "node": "h.expiry",
+   "to": "TIM-64",
+   "on": "the window closing without resolution",
+   "carries": [
+    "the entity and what was attempted during the window"
+   ],
+   "suppresses": [],
+   "contract": null
+  }
+ ]
+}

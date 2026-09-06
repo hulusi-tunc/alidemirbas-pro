@@ -1,0 +1,163 @@
+{
+ "id": "ACQ-04",
+ "shortName": "High-Intent Lead Routing",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "handoff",
+  "human-task"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.high-intent",
+   "event": "high_intent_commercial_action",
+   "meaning": "a pricing request, an enterprise contact request, a completed quote, a sales-qualified submission, or a high-value application",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "a pricing request, an enterprise contact request, a completed quote, a sales-qualified submission, or a high-value application",
+    "no instance of this journey is already open for the lead",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "lead_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.resolve",
+   "does": "Resolve the existing account and any open opportunity before creating anything, so a repeated or duplicated request updates what exists instead of opening a second record against the same person",
+   "writes": [
+    {
+     "field": "commercial_entity_link",
+     "mode": "set"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.resolve",
+   "key": "account_id + lead_id + a.resolve"
+  },
+  {
+   "type": "condition",
+   "node": "c.converted",
+   "asks": "Has this account already reached the destination this action would pursue?",
+   "branches": [
+    {
+     "label": "Already there",
+     "observes": null,
+     "test": "the system of record shows the destination state already reached for this entity scope",
+     "to": "h.reached"
+    },
+    {
+     "label": "Not yet",
+     "observes": null,
+     "test": "no destination state exists for this scope",
+     "to": "c.human"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.reached",
+   "to": "ACQ-08",
+   "on": "a high-intent action arriving after the destination was already reached",
+   "carries": [
+    "the destination entity that already exists",
+    "the action that arrived late, which is worth keeping as a signal even though it changes nothing"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "condition",
+   "node": "c.human",
+   "asks": "Does this action need human judgement?",
+   "branches": [
+    {
+     "label": "Human judgement required",
+     "observes": null,
+     "test": "value, complexity, contract terms, or the request itself asks for a person",
+     "to": "a.assign"
+    },
+    {
+     "label": "Automated continuation is sufficient",
+     "observes": null,
+     "test": "the request is self-serve and unambiguous, and a person would add latency without adding judgement",
+     "to": "h.automated"
+    }
+   ]
+  },
+  {
+   "type": "human-task",
+   "node": "a.assign",
+   "does": "Create or update the internal commercial entity, assign an owner, and raise a task carrying the evidence that justified it - ownership changes are appended so the trail of who held it survives",
+   "touch": "t1"
+  },
+  {
+   "type": "handoff",
+   "node": "h.human",
+   "to": "external:human-in-the-loop-lifecycle",
+   "on": "an assigned owner now holding the next step",
+   "carries": [
+    "the opportunity and its assigned owner",
+    "the evidence of intent, so the first human contact is not a discovery call about what they already told us",
+    "an SLA for the first human response, which the receiving lifecycle enforces"
+   ],
+   "suppresses": [
+    "automated commercial follow-up on this entity while a person holds it"
+   ],
+   "contract": {
+    "requiredFields": [
+     "account_id",
+     "lead_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  },
+  {
+   "type": "handoff",
+   "node": "h.automated",
+   "to": "external:automated-continuation",
+   "on": "a self-serve request that needs no human judgement",
+   "carries": [
+    "the request and its context",
+    "the resolved account link"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "account_id",
+     "lead_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  }
+ ]
+}

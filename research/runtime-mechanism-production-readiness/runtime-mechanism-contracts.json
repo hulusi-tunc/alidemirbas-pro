@@ -1,0 +1,2789 @@
+[
+  {
+    "id": "CMS-201",
+    "shortName": "Communication Obligation Creation",
+    "responsibility": "Decide whether a business event actually creates a communication obligation, and deduplicate against an already-outstanding one for the same recipient.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The suppress/reuse/create split and CMS-R2's discipline are sound; a.create is now atomically create-if-absent on (recipient_id, obligation_subject) with a declared idempotencyKey and instanceKey - a concurrent duplicate-event race resolves to one canonical obligation, never two. The one remaining P0 this round found is closed.",
+    "inputContract": [
+      {
+        "field": "authoritative business event with an identified recipient",
+        "required": true,
+        "provenance": "an upstream business system (order, subscription, security, etc.) - not itself one of the 24"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "persisted-mutation"
+      ],
+      "distinguishableOutcomes": [
+        "x.none (no obligation)",
+        "x.reused (folded into existing)",
+        "h.recipient (new obligation created)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.create is atomically create-if-absent on (recipient_id, obligation_subject); a losing concurrent caller resolves to the existing obligation rather than duplicating it - c.existing's own read is a fast-path optimization, not the safety mechanism",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "compare-and-set",
+      "raceAddressed": "two concurrent deliveries of the same authoritative_business_event both reaching a.create for the same (recipient_id, obligation_subject) - now resolved by making a.create itself atomic on that identity"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.recipient",
+        "target": "CMS-202",
+        "requiredContext": [
+          "obligation_id, minted deterministically at a.create, which every downstream mechanism in this pipeline keys on",
+          "the obligation, its purpose, its urgency and the outcome it requires",
+          "the explicit fact that no recipient has been resolved and no channel has been chosen"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CMS-201's own graph, via communication_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Does a communication requirement exist for this event and this recipient?; Is an equivalent communication already outstanding for this recipient, as far as a non-atomic read can tell?",
+      "sideEffectAttempted": "communication_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [],
+    "consumersNote": "entry point of the CMS pipeline; triggered by authoritative_business_event, presumably emitted by any of the 68 message-sending journeys' own execution:\"communication\" actions, but no canonical journey structurally hands off into CMS-201 - a legitimate event-driven entry-point shape, the same as CON-35/OPS-121/OPS-128",
+    "testScenarios": [
+      {
+        "kind": "concurrent-invocation",
+        "given": "two authoritative_business_event deliveries for the same recipient and subject arrive within milliseconds of each other",
+        "expect": "exactly one communication obligation exists afterward - a.create's own atomicity on (recipient_id, obligation_subject) resolves the race, not c.existing's earlier read"
+      },
+      {
+        "kind": "duplicate-invocation",
+        "given": "the same business event is redelivered (at-least-once queue semantics)",
+        "expect": "c.existing folds it into the prior obligation via a.reuse, or - if the race window was hit - a.create itself resolves to the same existing obligation"
+      }
+    ],
+    "gaps": [
+      {
+        "priority": "P2",
+        "area": "consumer-coverage",
+        "finding": "No canonical journey structurally hands off into CMS-201; it is reached only via its own named trigger event, which is not itself emitted by any of the 68 message-sending journeys' own nodes in a traceable way - documented as a legitimate event-driven entry point, not treated as a defect."
+      }
+    ]
+  },
+  {
+    "id": "CMS-202",
+    "shortName": "Recipient Resolution",
+    "responsibility": "Resolve who an obligation is actually owed to and which of their destinations currently work, before permission is evaluated.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Clean two-step who-then-where resolution with an explicit role-vs-named-party distinction and a real verification wait/timeout. Every writing action now carries a declared idempotencyKey scoped to obligation_id, formalizing what was already low-risk by construction.",
+    "inputContract": [
+      {
+        "field": "obligation with a stated purpose and required outcome",
+        "required": true,
+        "provenance": "CMS-201's h.recipient handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "route"
+      ],
+      "distinguishableOutcomes": [
+        "x.unresolved (RECIPIENT_UNRESOLVED)",
+        "x.no-route (CONTACT_ROUTE_UNAVAILABLE)",
+        "h.permission (ready, with destinations)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "reads-only",
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "every writing action (a.identity, a.unresolved, a.role, a.destinations, a.no-route, a.hold, a.ready) now declares idempotencyKey scoped to obligation_id",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "destination currently valid (not merely present in the record)",
+        "role's current holder, not who held it when the record was written"
+      ]
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.permission",
+        "target": "CMS-203",
+        "requiredContext": [
+          "the recipient, the candidate destinations and the obligation's purpose",
+          "the explicit fact that a destination working is not a destination permitted for this purpose"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CMS-202's own graph, via communication_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is the intended recipient resolvable?; Does this recipient resolve through a role rather than a named person?; Is at least one valid destination available?; Does reaching this recipient at these destinations require further verification or authorization?; How did the authorization resolve?",
+      "sideEffectAttempted": "communication_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CON-36",
+        "kind": "handoff"
+      },
+      {
+        "id": "CMS-201",
+        "kind": "handoff"
+      },
+      {
+        "id": "CMS-205",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "3 handoff consumers: CON-36 (contact-point restored, reroute), CMS-201 (new obligation), CMS-205 (destination invalidated mid-flight, reroute)",
+    "testScenarios": [
+      {
+        "kind": "stale-state",
+        "given": "a destination that was valid when the obligation was created has since hard-bounced",
+        "expect": "a.destinations excludes it; the obligation routes around it or reaches x.no-route if none remain"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "CMS-203",
+    "shortName": "Channel Eligibility Resolution",
+    "responsibility": "Decide whether a working destination may carry this specific message, given its purpose - reading permission state, never writing it.",
+    "readiness": "READY",
+    "readinessWhy": "A pure read-and-evaluate decision mechanism with an explicit, well-enforced write/read boundary against CON-35, no side effects beyond its own routing log, and an honest escalation to DEC-181 rather than inventing a permission rule when none is defined. Every writing action now carries a declared idempotencyKey for completeness, though the mechanism's own low risk was never in question.",
+    "inputContract": [
+      {
+        "field": "resolved recipient with candidate destinations",
+        "required": true,
+        "provenance": "CMS-202's h.permission handoff"
+      },
+      {
+        "field": "obligation's purpose",
+        "required": true,
+        "provenance": "carried from CMS-201 through CMS-202"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision"
+      ],
+      "distinguishableOutcomes": [
+        "h.route (channels permitted)",
+        "x.undeliverable (UNDELIVERABLE_BY_POLICY)",
+        "h.escalate (mandatory, no route)",
+        "h.review (rules undefined)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "reads-only",
+        "decides-only"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "pure evaluation against current permission state; every writing action (a.purpose, a.alternate, a.candidates, a.undeliverable) now declares idempotencyKey scoped to obligation_id",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "current permission/consent/preference/suppression state at evaluation time, not a cached view"
+      ]
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.review",
+        "target": "DEC-181",
+        "requiredContext": [
+          "the purpose, the recipient's permission state and the channels in question",
+          "the explicit fact that no consent requirement was invented in either direction - inventing one either suppresses a notice somebody was owed or sends one they refused"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.route",
+        "target": "CMS-204",
+        "requiredContext": [
+          "obligation_id, carried from CMS-201 through CMS-202 and this mechanism unchanged",
+          "the permitted channels and the rule permitting each",
+          "the purpose and urgency, which decide how many of them are actually needed"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.escalate",
+        "target": "CMS-210",
+        "requiredContext": [
+          "obligation_id",
+          "the purpose, the routes evaluated and the rule that closed each one",
+          "the explicit fact that this is policy rather than failure, so no retry will resolve it"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CMS-203's own graph, via communication_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Are the permission rules for this purpose and these channels defined?; What does the evaluation leave available?; Does a permitted alternate exist?; Does this obligation require escalation when no route is permitted?",
+      "sideEffectAttempted": "communication_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CMS-202",
+        "kind": "handoff"
+      },
+      {
+        "id": "CMS-208",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "2 handoff consumers: CMS-202 (recipient/destinations resolved), CMS-208 (fallback channel needs its own purpose/permission check)",
+    "testScenarios": [
+      {
+        "kind": "happy-path",
+        "given": "a permission rule is defined and permits at least one channel for this purpose",
+        "expect": "h.route carries the permitted channels and the rule permitting each"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "CMS-204",
+    "shortName": "Channel Routing",
+    "responsibility": "Pick the smallest channel set that satisfies the obligation and prepare the message instance for it.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The smallest-valid-set selection discipline and the explicit non-duplication guardrails are sound; a.prepare now mints message_id deterministically from obligation_id, declared as the entity's own instanceKey, closing the identity gap CMS-206's attempt tracking depends on.",
+    "inputContract": [
+      {
+        "field": "one or more channels permitted for this obligation's purpose",
+        "required": true,
+        "provenance": "CMS-203's h.route handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "normalized-state"
+      ],
+      "distinguishableOutcomes": [
+        "h.send-ready (prepared message on a selected route)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.prepare mints message_id deterministically from obligation_id and declares idempotencyKey scoped to it - a redelivered t.permitted for the same obligation reuses message_id rather than minting a second prepared instance",
+      "attemptIdentity": {
+        "fields": [
+          "message_id"
+        ],
+        "provenance": "self-minted-on-entry"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.send-ready",
+        "target": "CMS-205",
+        "requiredContext": [
+          "the message, its route, and the business state it was built from",
+          "message_id, minted deterministically from obligation_id at a.prepare, so CMS-206 can later persist an attempt against a stable identity rather than inventing one",
+          "the explicit fact that it has not been revalidated - what it claims was true when it was written"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CMS-204's own graph, via communication_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Does the obligation genuinely require more than one channel?",
+      "sideEffectAttempted": "communication_log",
+      "attemptIdentity": "message_id (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CMS-203",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "1 handoff consumer: CMS-203",
+    "testScenarios": [
+      {
+        "kind": "duplicate-invocation",
+        "given": "channel selection is re-invoked for the same obligation after a lost response",
+        "expect": "a.prepare's own idempotencyKey (obligation_id) resolves to the same message_id rather than minting a second prepared instance"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "CMS-205",
+    "shortName": "Send Eligibility Check",
+    "responsibility": "Re-check the message is still true immediately before it is submitted, and stop or regenerate it if the world has moved.",
+    "readiness": "READY",
+    "readinessWhy": "The single cleanest implementation of the corpus-wide revalidate-from-now house rule in this entire audit round. a.send now explicitly mints attempt_id (the identity CMS-206 persists), is idempotent on message_id since this mechanism runs at most once per message (CMS-208's own recovery loop retries independently downstream rather than looping back through here), and every writing action carries a declared idempotencyKey.",
+    "inputContract": [
+      {
+        "field": "prepared message instance about to be submitted for delivery",
+        "required": true,
+        "provenance": "CMS-204's h.send-ready handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "normalized-state"
+      ],
+      "distinguishableOutcomes": [
+        "x.suppressed (stale, superseded)",
+        "h.reroute (destination invalid)",
+        "h.attempt (validated, ready to submit)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "reads-only",
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.send is idempotent on message_id - this mechanism runs at most once per message, so a redelivered trigger reuses the attempt_id already minted rather than minting a second one and risking a duplicate provider submission",
+      "attemptIdentity": {
+        "fields": [
+          "attempt_id"
+        ],
+        "provenance": "self-minted-on-entry"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "the reason for the message and its subject both still stand",
+        "the recipient/channel is still valid",
+        "content that depends on data (amount, date, status, name) is still current"
+      ]
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.reroute",
+        "target": "CMS-202",
+        "requiredContext": [
+          "obligation_id",
+          "the obligation, still unmet, and what changed about the routing",
+          "the explicit fact that nothing was sent, so no duplicate arises from re-resolving"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.attempt",
+        "target": "CMS-206",
+        "requiredContext": [
+          "the message, its content version and the state it was validated against",
+          "message_id (carried from CMS-204) and the fresh attempt_id minted at a.send, so CMS-206 persists an attempt against an identity established before submission rather than one it invents itself",
+          "the route selected and the fallback held in reserve"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CMS-205's own graph, via communication_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is the communication still valid?; Does the content depend on data that has changed since preparation?",
+      "sideEffectAttempted": "communication_log, suppressed_sends",
+      "attemptIdentity": "attempt_id (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "retriedSuppressedSuperseded": "suppressed_sends log",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CMS-204",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "1 handoff consumer: CMS-204",
+    "testScenarios": [
+      {
+        "kind": "stale-state",
+        "given": "the appointment a reminder concerns was cancelled after preparation but before send",
+        "expect": "a.suppress fires; nothing is sent"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "CMS-206",
+    "shortName": "Send Attempt Status",
+    "responsibility": "Record the handover to a provider - accepted, refused, or unknown - as a fact about the provider's queue, distinct from delivery.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The strongest attempt-identity design in the round, now fully structural: entity.instanceKey is (message_id, attempt_id), both caller-supplied before submission per entity.note's own explicit provenance statement, and a.persist's idempotencyKey is exactly that composite key. The unknown-outcome path (timeout -> a.unknown -> c.duplicates -> h.reconcile) remains exemplary.",
+    "inputContract": [
+      {
+        "field": "validated message submitted to a delivery mechanism or provider, carrying a message_id and an attempt_id already minted by the caller",
+        "required": true,
+        "provenance": "CMS-205's h.attempt handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "execution-attempt",
+        "provider-status"
+      ],
+      "distinguishableOutcomes": [
+        "x.pending (SENT, DELIVERY_PENDING)",
+        "h.recover (accepted-then-refused, or unknown-but-safe-to-resend)",
+        "h.reconcile (unknown, duplicate would matter)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "submits-to-provider",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "attempt_id is caller-supplied, minted by CMS-205's a.send before this mechanism ever runs - a.persist's idempotencyKey (message_id + attempt_id) means a redelivered t.submitted for the same already-minted attempt persists once, not twice",
+      "attemptIdentity": {
+        "fields": [
+          "message_id",
+          "attempt_id"
+        ],
+        "provenance": "caller-supplied"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "retry": {
+      "ownsRetryLoop": false,
+      "failureClasses": [
+        "retryable",
+        "non-retryable",
+        "unknown"
+      ],
+      "budgetDurable": false,
+      "revalidatesBeforeRetry": false
+    },
+    "unknownOutcome": {
+      "handled": true,
+      "vocabulary": "DELIVERY_UNKNOWN",
+      "reconciliationTarget": "external:external-status-reconciliation (via h.reconcile) or CMS-208 (via h.recover, when a duplicate is harmless)"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.recover",
+        "target": "CMS-208",
+        "requiredContext": [
+          "message_id and destination_id, both established at a.persist, which is what CMS-208's own recovery instance is keyed on",
+          "the attempt, the channel and what the provider actually said",
+          "the fallback held in reserve and the obligation's remaining relevance window"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.reconcile",
+        "target": "external:external-status-reconciliation",
+        "requiredContext": [
+          "the attempt, its provider reference and everything last known about it",
+          "the explicit instruction that no resend happens until the outcome is established"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": true
+      }
+    ],
+    "observability": {
+      "whatRan": "CMS-206's own graph, via delivery_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "What did the provider do with it?; Would a duplicate matter for this communication?",
+      "sideEffectAttempted": "delivery_log, suppressed_sends",
+      "attemptIdentity": "message_id, attempt_id (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "retriedSuppressedSuperseded": "suppressed_sends log",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CMS-205",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "1 handoff consumer: CMS-205",
+    "testScenarios": [
+      {
+        "kind": "unknown-outcome",
+        "given": "the submission connection drops before the provider accepts or refuses, and the message carries a payment link",
+        "expect": "a.unknown -> c.duplicates -> h.reconcile; no resend until the true state is established"
+      },
+      {
+        "kind": "duplicate-invocation",
+        "given": "t.submitted is redelivered for the same (message_id, attempt_id)",
+        "expect": "a.persist's own idempotencyKey resolves it to a single persisted attempt record"
+      }
+    ],
+    "gaps": [
+      {
+        "priority": "P2",
+        "area": "unknown-outcome",
+        "finding": "A late provider acceptance/refusal arriving after w.acceptance's own timeout already routed to a.unknown is not explicitly addressed within CMS-206 itself - it presumably lands on CMS-207 (which does handle late/duplicate outcomes correctly via c.idempotent), but CMS-206's own graph does not show that path explicitly."
+      }
+    ]
+  },
+  {
+    "id": "OPS-131",
+    "shortName": "Journey Competition Arbitration",
+    "responsibility": "Decide, atomically and deterministically, which of several currently-eligible journeys owns a contested scope instance when they share a declared exclusion group, and apply what happens to everyone who does not - GLB-01 through GLB-10 made executable.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Added in the competition-arbitration repair round to close the round's own confirmed architectural P0 - no runtime primitive anywhere enforced journey-declared competition/exclusionGroup/precedence, though 7 structured groups (22 member journeys, re-derived from current source, corrected from the prior round's undercount of 3) declare it. This mechanism's atomic claim step reuses CMS-201's own at-most-one-canonical-outcome pattern (compare-and-set on a composite identity, a losing concurrent evaluator resolves to the existing owner rather than duplicating), its precedence step implements GLB-02 literally (explicit policy only, no invented tie-break, genuine ties escalate to DEC-181 - the same escalation target CMS-203/CMS-210 already use for undefined-policy cases), and its loser-handling/re-evaluation/stale-work steps implement GLB-05/06/07/10 directly rather than restating them as a second, disconnected policy. Rated READY_WITH_MAPPING rather than READY because - exactly as with every event-triggered mechanism in the corpus - a company still has to wire its own eligibility-evaluation layer to fire this mechanism's trigger event, and each competing journey's own consequential actions still have to consult current ownership before firing (see gaps).",
+    "inputContract": [
+      {
+        "field": "at least two journey instances, each independently eligible under its own canonical eligibility rules, declaring the same exclusionGroup and the same CompetitionScope",
+        "required": true,
+        "provenance": "each contender's own canonical eligibility evaluation and its own declared competition (top-level) or contact.competition (vNext communicating) field"
+      },
+      {
+        "field": "the same concrete scope_instance_id, not merely the same scope type",
+        "required": true,
+        "provenance": "read directly off each contender's own entity - GLB-01's own key, never a second mechanism-specific identifier"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "ownership-transfer",
+        "suppression-result"
+      ],
+      "distinguishableOutcomes": [
+        "x.no-contest (eligibility resolved itself before a winner had to be chosen)",
+        "h.escalate (genuine tie, no policy-resolvable precedence)",
+        "a.claim/a.suppress-losers (one winner established, every loser's own declared onLoss applied)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state",
+        "transfers-ownership",
+        "suppresses-queued-work"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.claim is atomic create-if-absent on (exclusion_group, scope_instance_id) - a losing concurrent evaluator resolves to the already-established owner rather than creating a second one, the identical invariant CMS-201's own repair established for obligation creation. a.load-contenders, a.suppress-losers and a.reevaluate all carry idempotencyKey scoped to the same composite identity.",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "compare-and-set",
+      "raceAddressed": "two or more workers evaluating the same (exclusion_group, scope_instance_id) simultaneously, each proposing a different winner - exactly the shape of race CMS-201's own fix closed, one level up, for ownership of a contested scope rather than an obligation"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "every contender's current eligibility, re-read at a.load-contenders rather than trusted from the trigger",
+        "the winning contender's own current state and eligibility, re-read at every w.ownership release/check-in before a.reevaluate re-runs arbitration"
+      ]
+    },
+    "unknownOutcome": {
+      "handled": false,
+      "vocabulary": "not applicable - no external provider boundary; the one genuinely uncertain path (a policy-unresolvable tie) is handled by explicit escalation to DEC-181, not by an unknown-outcome classification"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": true,
+      "note": "The one mechanism, among the corpus's 25, whose entire responsibility is this. Added in the competition-arbitration repair round after confirming no existing mechanism could own it without becoming a god-object (OPS-125 compares claims to the SAME operation; OPS-123/OPS-128 transfer WORKER ownership of a job, not JOURNEY ownership of a business scope) and no non-canonical owner could be named with evidence.",
+      "contract": {
+        "ownerMechanismId": "OPS-131",
+        "scopeKey": [
+          "exclusion_group",
+          "scope_instance_id"
+        ],
+        "inputSource": "canonical competition metadata read directly off each contender (top-level competition or vNext contact.competition, plus preemptedBy where declared) - never copied into a separate runtime-specific configuration",
+        "decisionSemantics": "GLB-02: explicit declared policy precedence only; where policy leaves two or more contenders at equal standing and neither of GLB-02's two named discriminators (an authoritative fresh event over a stale inferred state, an active valid ownership over a merely-eligible contender) applies, escalate to DEC-181 rather than inventing a local tie-break",
+        "atomicityPrimitive": "compare-and-set",
+        "freshnessRequirement": "re-read every contender's current eligibility before choosing a winner, and re-read the winner's own current state before treating a prior claim as still valid - never arbitrate on a stale, previously-observed eligibility snapshot",
+        "outputStates": [
+          "no-contest",
+          "escalated",
+          "won",
+          "lost-suppressed",
+          "lost-paused",
+          "lost-superseded",
+          "lost-exit"
+        ],
+        "observabilityFields": [
+          "exclusion_group",
+          "scope_instance_id",
+          "contenders_considered",
+          "precedence_rule_applied",
+          "winner",
+          "losers_and_onLoss_applied",
+          "escalated_to_DEC-181",
+          "re-evaluation_trigger"
+        ]
+      }
+    },
+    "handoffs": [
+      {
+        "node": "h.escalate",
+        "target": "DEC-181",
+        "requiredContext": [
+          "the exclusion_group and scope_instance_id in contest",
+          "every remaining contender, its own declared precedence text, and why none discriminates the others"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-131's own graph, via competition_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "After re-reading current eligibility, do at least two contenders remain?; Does declared policy precedence separate the remaining contenders into exactly one highest-ranked contender?",
+      "sideEffectAttempted": "competition_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [],
+    "consumersNote": "0 handoff consumers by design - an event-triggered entry point, the same shape as CMS-201/CON-34/CON-35/OPS-121/OPS-128. 22 canonical journeys across 7 exclusion groups (account-restriction-authority: ACC-78, IDN-90; purchase-intent: ACQ-04, ACQ-07, ACQ-08; commerce-recovery: ACQ-11, ACQ-12, ACQ-13, RET-31, SCH-282; lifecycle-stage: ACT-12, ACT-20; retention-outreach: ACT-18, FBK-46, RET-24, RET-28, RET-30, RET-32; outbound-ask: FBK-41, FBK-42; relationship-continuity: SUB-163, SUB-167) declare the competition metadata this mechanism arbitrates, re-derived directly from current source rather than assumed from the prior round's undercount of 3 groups / 7 members - the prior count missed every contact.competition declaration (a vNext communicating journey's own nested form of the same field), catching only the plainer top-level competition field.",
+    "testScenarios": [
+      {
+        "kind": "simultaneous-eligibility",
+        "given": "ACC-78 (business-reason suspension) and IDN-90 (suspected compromise) both become eligible on the same account",
+        "expect": "c.precedence resolves deterministically to IDN-90 (its own declared precedence: highest in the group) without escalation; ACC-78 is suppressed via a.suppress-losers applying its own declared onLoss (\"paused\")"
+      },
+      {
+        "kind": "concurrent-workers",
+        "given": "two workers each evaluate the same (exclusion_group=account-restriction-authority, scope_instance_id=<account>) at the same instant, one proposing IDN-90 and one proposing ACC-78 as the winner",
+        "expect": "a.claim's own atomicity resolves both evaluations to the same single owner (IDN-90) - the losing worker's own claim attempt returns the already-established owner rather than creating a second, conflicting ownership record"
+      },
+      {
+        "kind": "duplicate-arbitration",
+        "given": "the same contender set for one (exclusion_group, scope_instance_id) is re-submitted for arbitration after already being resolved",
+        "expect": "a.claim's idempotencyKey resolves it to the same existing owner and the same outcome, not a re-decision"
+      },
+      {
+        "kind": "stronger-contender-later",
+        "given": "ACQ-07 (lowest precedence in purchase-intent) already owns a product scope instance when ACQ-08 (highest - a reached commercial destination) becomes eligible on the same instance",
+        "expect": "a fresh trigger re-arbitrates the same scope_instance_id; c.precedence now resolves to ACQ-08; a.suppress-losers applies ACQ-07's own declared onLoss (\"exit\") and invalidates whatever ACQ-07 still had queued"
+      },
+      {
+        "kind": "winner-resolves-reentry",
+        "given": "SUB-167 (cancellation in motion) wins relationship-continuity ownership over SUB-163 (renewal decision), then SUB-167 itself resolves (the cancellation completes or is withdrawn)",
+        "expect": "w.ownership's onEvent fires a.reevaluate, which re-runs arbitration from SUB-163's CURRENT eligibility (GLB-06) rather than resuming SUB-163 from the standing it had when it lost (GLB-10) - if SUB-163 is no longer eligible for an unrelated reason, it does not silently resume"
+      },
+      {
+        "kind": "stale-queued-action",
+        "given": "RET-24 already had a retention message queued when RET-28 (declared cancellation intent, higher precedence) becomes eligible and wins the same account scope instance",
+        "expect": "a.suppress-losers invalidates RET-24's queued message before it executes (GLB-07) - RET-24 does not send merely because the message was queued before RET-24 lost ownership"
+      },
+      {
+        "kind": "different-scope-isolation",
+        "given": "ACQ-11/ACQ-12 compete on person P1's commerce-recovery scope while the identical journey pair also runs on an unrelated person P2",
+        "expect": "GLB-01/GLB-08: P1's contest and P2's contest are evaluated independently on their own scope_instance_id - winning ownership on P1 has no effect on P2's own arbitration"
+      },
+      {
+        "kind": "equal-precedence",
+        "given": "FBK-41 (satisfaction ask) and FBK-42 (advocacy ask) both become eligible for the same person at the same moment",
+        "expect": "not a genuine tie: each journey's own declared precedence text names the other by id and states the outcome directly (FBK-42 wins, FBK-41 is suppressed and free to re-open at its next moment) - c.precedence resolves without escalation, since GLB-02's own policy is fully explicit here even though it reads unusually for a pairwise rule"
+      },
+      {
+        "kind": "genuine-tie-escalation",
+        "given": "a hypothetical future exclusion group whose declared precedence leaves two contenders at literally equal standing with neither GLB-02 discriminator applicable",
+        "expect": "h.escalate hands off to DEC-181 rather than inventing a local tie-break (arrival order, alphabetical id, or any other unstated rule) - the round's own DO-NOT instruction against using worker/arrival order as precedence"
+      }
+    ],
+    "gaps": [
+      {
+        "priority": "P2",
+        "area": "consumer-coverage",
+        "finding": "This mechanism's own contract is complete, but none of the 22 current competition-group member journeys structurally hand off into it (by design - it is event-triggered, like every other zero-handoff-consumer mechanism in the corpus) or explicitly revalidate current ownership from it before executing a consequential action. A company adopting this mechanism must wire two integration points: (1) its own eligibility-evaluation layer must fire competing_journeys_became_simultaneously_eligible whenever two members of a declared exclusionGroup become eligible on the same scope instance, and (2) each competing journey's own consequential actions must consult this mechanism's current-owner record before firing, mirroring the freshness-before-execution pattern the runtime-mechanism round's own Validator I already checks for the 25 mechanisms themselves. Neither gap is a defect in this mechanism's own contract; both are mapping work no canonical specification can perform on a company's behalf."
+      },
+      {
+        "priority": "P2",
+        "area": "freshness",
+        "finding": "w.ownership's own timeout is conditional: a bounded check-in interval applies only where the winning contender's governing policy states a maximum plausible ownership duration; where none is stated, staleness detection depends entirely on the winner's own release event firing reliably. This is consistent with the corpus's general reliance on authoritative events elsewhere (not a mechanism-specific weakness), but is worth naming explicitly since this mechanism's entire purpose is preventing exactly the kind of stale-ownership race a lost release event would reopen."
+      }
+    ]
+  },
+  {
+    "id": "CMS-207",
+    "shortName": "Delivery Outcome Reconciliation",
+    "responsibility": "Derive real delivery state from what the channel reports, correlated to the exact attempt and ordered correctly against what is already known.",
+    "readiness": "READY",
+    "readinessWhy": "The best-designed idempotent-consumer pattern in the entire round: an explicit c.idempotent condition classifying every inbound outcome as new/duplicate/late-and-weaker before acting on it, x.duplicate-event as a first-class no-op exit, and a.late's explicit non-overwrite-of-stronger-evidence rule. Every writing action now also carries a formal idempotencyKey scoped to attempt_id (or the raw provider reference, for the pre-correlation step), matching what the mechanism's own condition logic already enforced correctly.",
+    "inputContract": [
+      {
+        "field": "delivery event or status reported by the channel",
+        "required": true,
+        "provenance": "an external provider webhook/callback - not one of the 24"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "normalized-state",
+        "provider-status"
+      ],
+      "distinguishableOutcomes": [
+        "x.duplicate-event (no-op)",
+        "x.late (recorded, not authoritative)",
+        "h.obligation (DELIVERED)",
+        "h.recover (DELIVERY_FAILED)",
+        "h.reconcile (uncorrelated or ambiguous)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "explicit: c.idempotent classifies every inbound event as new-and-current / already-processed / late-and-weaker before any write; repeated webhook delivery is a named, handled case. Every writing action's own idempotencyKey (attempt_id-scoped, or raw_status_reference-scoped for a.correlate specifically, since attempt_id is not yet confirmed at that point) is a second, structural layer of the same protection",
+      "attemptIdentity": {
+        "fields": [
+          "attempt_id"
+        ],
+        "provenance": "correlated-to-prior-attempt"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "unknownOutcome": {
+      "handled": true,
+      "vocabulary": "DELIVERY_UNKNOWN",
+      "reconciliationTarget": "external:external-status-reconciliation (via h.reconcile)"
+    },
+    "ordering": {
+      "required": true,
+      "mechanism": "explicit new/duplicate/late classification against what is already recorded; a late failure never overwrites a confirmed delivery unless channel semantics explicitly say it does"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.reconcile",
+        "target": "external:external-status-reconciliation",
+        "requiredContext": [
+          "the raw outcome as reported and the attempts it might concern",
+          "the explicit instruction that no delivery state is written on a guess about which message it belongs to"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.obligation",
+        "target": "CMS-210",
+        "requiredContext": [
+          "obligation_id, read off the attempt record this delivery correlated to",
+          "which attempt delivered, on which channel and when",
+          "the explicit fact that delivered is not read, so an obligation requiring comprehension is not met by this"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.recover",
+        "target": "CMS-208",
+        "requiredContext": [
+          "message_id and destination_id, read off the attempt record this outcome correlated to",
+          "the failure as the channel reported it, unclassified",
+          "the attempt, the channel and the obligation's remaining relevance"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CMS-207's own graph, via delivery_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Did it correlate to a known attempt?; Is this outcome new, repeated, or older than what is already recorded?; What does the channel report?",
+      "sideEffectAttempted": "delivery_log",
+      "attemptIdentity": "attempt_id (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CMS-206",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "0 handoff consumers within the canonical corpus - triggered externally by delivery_status_received (a provider webhook), correctly not journey-initiated",
+    "testScenarios": [
+      {
+        "kind": "duplicate-invocation",
+        "given": "the same delivery webhook fires twice",
+        "expect": "x.duplicate-event; recorded state unchanged"
+      },
+      {
+        "kind": "late-callback",
+        "given": "a bounce notification arrives after a confirmed-delivery event for the same attempt",
+        "expect": "a.late records it without overwriting the stronger DELIVERED evidence, unless channel semantics say otherwise"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "CMS-208",
+    "shortName": "Message Delivery Recovery",
+    "responsibility": "Classify a delivery failure by its real cause and respond with the smallest correct action - retry, fallback, or stop - scoped to the destination, never the person.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The failure-class taxonomy and destination-scoping discipline are exemplary. The retry-ownership ambiguity this round found is resolved: distinctFrom now states explicitly that this mechanism owns its own complete channel-aware retry loop end to end and does not invoke OPS-124, because channel failure classification is domain knowledge OPS-124 deliberately has no reason to carry. a.retry now carries a declared attemptBudget (required: true, no invented number) scoped to (message_id, destination_id).",
+    "inputContract": [
+      {
+        "field": "delivery failure reported authoritatively by the channel or provider",
+        "required": true,
+        "provenance": "CMS-206's h.recover or CMS-207's h.recover handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "failure-classification",
+        "retry-schedule"
+      ],
+      "distinguishableOutcomes": [
+        "x.abandoned (superseded)",
+        "x.retrying (within budget)",
+        "h.contactability (permanent, raise CON-36)",
+        "h.fallback (alternate channel)",
+        "h.obligation (exhausted)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "submits-to-provider",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "\"the retry budget is fixed at the first failure and does not renew\" is now a declared attemptBudget Config (required: true), scoped to (message_id, destination_id); every writing action carries idempotencyKey on the same composite key",
+      "attemptIdentity": {
+        "fields": [
+          "message_id",
+          "destination_id"
+        ],
+        "provenance": "caller-supplied"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "whether the communication is still relevant before recovering (c.relevant)"
+      ]
+    },
+    "retry": {
+      "ownsRetryLoop": true,
+      "failureClasses": [
+        "retryable",
+        "non-retryable",
+        "unknown"
+      ],
+      "budgetDurable": true,
+      "revalidatesBeforeRetry": true
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.contactability",
+        "target": "CON-36",
+        "requiredContext": [
+          "destination_id, which is contact_point_id under this mechanism's own attempt-scoped name - the same durable contact point CON-36 tracks by its permanent record identity",
+          "the failure class, the destination, the channel and the provider's response",
+          "the explicit scope: this destination only, with the recipient's other routes unaffected",
+          "the explicit fact that this is a deliverability problem and not an opt-out - it says nothing about permission on this channel or any other"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.fallback",
+        "target": "CMS-203",
+        "requiredContext": [
+          "obligation_id, read off the message_id this recovery instance is keyed on",
+          "the obligation, its purpose and the channel that has now failed",
+          "the explicit requirement that the fallback passes the purpose and permission check on its own terms - a fallback that skips it delivers a message down a route the recipient declined, and the failure becomes the excuse for it",
+          "the fact that a permitted alternative allows the move and does not require it - the sending journey still decides whether the message warrants changing channel"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.obligation",
+        "target": "CMS-210",
+        "requiredContext": [
+          "obligation_id, read off the message_id this recovery instance is keyed on",
+          "every route attempted and how each failed",
+          "the explicit fact that this is exhaustion of routes rather than proof the recipient is unreachable in general"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CMS-208's own graph, via delivery_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is the communication still relevant?; What does the failure class call for?; Does retry budget remain?; Is an alternate channel available?",
+      "sideEffectAttempted": "delivery_log, suppressed_sends",
+      "attemptIdentity": "message_id, destination_id (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "retriedSuppressedSuperseded": "suppressed_sends log",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CMS-206",
+        "kind": "handoff"
+      },
+      {
+        "id": "CMS-207",
+        "kind": "handoff"
+      },
+      {
+        "id": "DOC-214",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "3 handoff consumers: CMS-206, CMS-207, DOC-214 (DOC-214's own h.recover contract now declares message_id + destination_id explicitly)",
+    "testScenarios": [
+      {
+        "kind": "dependency-retryable-failure",
+        "given": "a TEMPORARY or RATE_LIMITED failure with retry budget remaining",
+        "expect": "a.retry mints a fresh attempt for this physical try, spends one unit of the (message_id, destination_id)-scoped budget, then c.budget re-evaluates"
+      },
+      {
+        "kind": "partial-failure",
+        "given": "the same underlying communication also has an active OPS-124 retry instance for a non-communication side effect it triggered",
+        "expect": "the two budgets are independent by design - this mechanism's own distinctFrom now states explicitly it does not delegate to OPS-124"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "CMS-210",
+    "shortName": "Communication Obligation Closure",
+    "responsibility": "Close a communication obligation against the completion standard it actually requires - attempt or confirmed delivery - and escalate what could never be met.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The completion-semantics discipline is exemplary (attempt vs. delivery is never guessed, DEC-181 escalation when undefined), and the superseded-vs-unmet distinction is exactly the kind of output-class completeness this round asks every mechanism for. Every writing action now carries a declared idempotencyKey scoped to obligation_id.",
+    "inputContract": [
+      {
+        "field": "obligation whose deliveries have reached a state that could close it",
+        "required": true,
+        "provenance": "CMS-207's h.obligation or CMS-208's h.obligation handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "normalized-state"
+      ],
+      "distinguishableOutcomes": [
+        "x.superseded",
+        "x.completed (COMMUNICATION_COMPLETED)",
+        "x.in-progress",
+        "x.unreachable (UNREACHABLE_FOR_PURPOSE)",
+        "h.escalate (mandatory, unreachable)",
+        "h.review (completion standard undefined)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.superseded, a.complete, a.unreachable all carry idempotencyKey scoped to obligation_id",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "whether the communication became obsolete before delivery (c.obsolete)"
+      ]
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.review",
+        "target": "DEC-181",
+        "requiredContext": [
+          "the obligation, its purpose and every delivery made against it",
+          "the explicit fact that no completion standard was invented - guessing closes something unmet or escalates something that was fine, and for a legal notice the difference is the whole point"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.escalate",
+        "target": "DEC-181",
+        "requiredContext": [
+          "every route attempted, why each failed, and the requirement that makes this mandatory",
+          "the explicit fact that more retries will not resolve it - what is needed is a person and an alternate process"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CMS-210's own graph, via communication_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Did the communication become obsolete before it was delivered?; What does this obligation require to be satisfied?; Is delivery confirmed?; Is a documented send attempt on record?; Are all permissible delivery routes exhausted?; Is this communication mandatory or critical?",
+      "sideEffectAttempted": "communication_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CMS-203",
+        "kind": "handoff"
+      },
+      {
+        "id": "CMS-207",
+        "kind": "handoff"
+      },
+      {
+        "id": "CMS-208",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "3 handoff consumers: CMS-203 (escalated undeliverable), CMS-207 (confirmed delivery), CMS-208 (exhausted routes) - all three now declare obligation_id in their own contract.requiredFields",
+    "testScenarios": [
+      {
+        "kind": "happy-path",
+        "given": "delivery is confirmed and the obligation requires confirmed delivery",
+        "expect": "a.complete -> x.completed"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "CON-34",
+    "shortName": "Frequency Recalculation",
+    "responsibility": "Recalculate optional-communication cadence when a frequency preference changes, prospectively only.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The default-optional-only scoping and the never-retroactive guardrail are sound. a.include and a.trim now carry declared idempotencyKeys scoped to person_id. The isolation this round's audit flagged is resolved by classification, not by a code change: entity.note now documents explicitly that this is a legitimate event-driven entry point, the same shape as CMS-201/CON-35/OPS-121/OPS-128, not an orphan.",
+    "inputContract": [
+      {
+        "field": "deliberate change to how often communication should arrive",
+        "required": true,
+        "provenance": "a declared, first-party preference change - not modeled elsewhere in the 24"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "normalized-state",
+        "suppression-result"
+      ],
+      "distinguishableOutcomes": [
+        "x.applied"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state",
+        "suppresses-queued-work"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.recalculate writes with mode:\"set\" (naturally idempotent); a.include and a.trim now carry idempotencyKey scoped to person_id",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [],
+    "observability": {
+      "whatRan": "CON-34's own graph, via cadence_policy_applied",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Does the governing policy extend this preference to required or transactional communication?; Does what is already queued exceed the new cadence?",
+      "sideEffectAttempted": "cadence_policy_applied, cadence_state, suppressed_sends",
+      "attemptIdentity": "not recorded",
+      "retriedSuppressedSuperseded": "suppressed_sends log"
+    },
+    "consumers": [
+      {
+        "id": "CON-283",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "0 handoff consumers and 0 outbound handoffs - classified this round as a legitimate event-driven entry point (frequency_preference_changed, a declared first-party act), the same shape as the other zero-handoff-consumer mechanisms, not an orphan; documented explicitly in entity.note",
+    "testScenarios": [
+      {
+        "kind": "happy-path",
+        "given": "a person reduces marketing frequency from weekly to monthly",
+        "expect": "future cadence recalculated; already-delivered messages untouched"
+      }
+    ],
+    "gaps": [
+      {
+        "priority": "P2",
+        "area": "consumer-coverage",
+        "finding": "Still no traceable structural consumer of any kind (handoff or otherwise) - this round's investigation concluded the mechanism is a legitimate event-driven entry point rather than an orphan, but that conclusion rests on the trigger event's own registered meaning, not on a confirmed real emitter in the current 283-journey corpus."
+      }
+    ]
+  },
+  {
+    "id": "CON-35",
+    "shortName": "Permission Change Enforcement",
+    "responsibility": "Stop affected communication the moment permission changes, and propagate the change to dependent systems asynchronously.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The enforce-first-propagate-after asymmetry is exactly the right design, and origin/version-based propagation with an explicit CON-40 conflict escalation path is a genuine, well-reasoned optimistic-convergence pattern. change_origin and change_version (matching IDN-89's own naming convention from the silent-lifecycle-state round) are now declared instanceKey/idempotencyKey fields rather than prose-only.",
+    "inputContract": [
+      {
+        "field": "recorded transition on an existing permission",
+        "required": true,
+        "provenance": "an authoritative permission system - not one of the 24"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "suppression-result",
+        "persisted-mutation"
+      ],
+      "distinguishableOutcomes": [
+        "x.consistent",
+        "h.conflict (systems diverge)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "writes-internal-state",
+        "suppresses-queued-work"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.record assigns change_version and change_origin explicitly; a.propagate carries both so a dependent system only applies a propagation newer than what it already holds - now a declared instanceKey (person_id, change_version), not prose alone",
+      "attemptIdentity": {
+        "fields": [
+          "change_version",
+          "change_origin"
+        ],
+        "provenance": "self-minted-on-entry"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "optimistic-version-check",
+      "raceAddressed": "an out-of-order echo or a redelivered propagation event, explicitly guarded against by change_origin+change_version comparison"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "ordering": {
+      "required": true,
+      "mechanism": "change_origin and change_version, so a redelivered or out-of-order propagation event is discarded rather than reapplied"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.conflict",
+        "target": "CON-40",
+        "requiredContext": [
+          "the intended state with change_version and change_origin",
+          "disputed_permission_ref, derived from this change's own (purpose, channel, scope), which CON-40's own conflict instance is keyed on",
+          "which systems disagree and what each of them holds",
+          "the fact that local enforcement is already applied, so the conflict is about consistency rather than about whether to send"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CON-35's own graph, via permission_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Does this reduce permission or extend it?; Do the dependent systems now agree?",
+      "sideEffectAttempted": "permission_log, suppressed_sends",
+      "attemptIdentity": "change_version, change_origin (named in prose, not a declared field)",
+      "retriedSuppressedSuperseded": "suppressed_sends log",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CON-36",
+        "kind": "prose-reference"
+      },
+      {
+        "id": "CON-40",
+        "kind": "prose-reference"
+      },
+      {
+        "id": "CMS-203",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "0 handoff consumers - triggered by authoritative_permission_change, an authoritative system event, appropriately not journey-initiated. Hands off to CON-40 on convergence failure, now carrying disputed_permission_ref explicitly.",
+    "testScenarios": [
+      {
+        "kind": "late-callback",
+        "given": "a propagation confirmation for an older change_version arrives after a newer one already converged",
+        "expect": "discarded by version comparison rather than reverting the newer state"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "CON-36",
+    "shortName": "Contactability Recalculation",
+    "responsibility": "Track whether a specific destination can technically be reached, entirely separate from whether it may be used - per-destination, never per-person.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The per-destination (not per-person, not per-channel) granularity is the single most important correctness property this mechanism has and it holds it without exception; contactability/permission separation is airtight. entity.instanceKey (contact_point_id) is now declared and every writing action carries a matching idempotencyKey.",
+    "inputContract": [
+      {
+        "field": "a change in whether a contact point can technically be reached",
+        "required": true,
+        "provenance": "an authoritative channel/provider signal - not one of the 24"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "normalized-state",
+        "route"
+      ],
+      "distinguishableOutcomes": [
+        "x.resumed",
+        "x.alternative",
+        "x.unreachable",
+        "h.reroute (pending work affected)",
+        "h.human (important, no route)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "writes-internal-state",
+        "suppresses-queued-work"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.state/a.add/a.resume/a.suppress all now carry idempotencyKey scoped to contact_point_id",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "retry": {
+      "ownsRetryLoop": false,
+      "failureClasses": [
+        "retryable",
+        "non-retryable"
+      ],
+      "budgetDurable": false,
+      "revalidatesBeforeRetry": false
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.reroute",
+        "target": "CMS-202",
+        "requiredContext": [
+          "each affected obligation's own obligation_id - this fans out to CMS-202 once per obligation, not once for the batch",
+          "the affected obligations and the destination whose state changed",
+          "the explicit instruction to re-resolve destinations rather than to resend - nothing was delivered to the failing route"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.human",
+        "target": "external:human-in-the-loop-lifecycle",
+        "requiredContext": [
+          "which contact points failed and how",
+          "what needed to reach them, so a person can decide whether another route is worth it"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CON-36's own graph, via contactability_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "What does the evidence establish about this contact point?; Is any pending communication waiting on this contact point?; Is any pending communication aimed at this contact point?; What can reach this person instead?",
+      "sideEffectAttempted": "contactability_log, suppressed_sends",
+      "attemptIdentity": "not recorded",
+      "retriedSuppressedSuperseded": "suppressed_sends log",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "ACC-261",
+        "kind": "handoff"
+      },
+      {
+        "id": "FUL-276",
+        "kind": "handoff"
+      },
+      {
+        "id": "CMS-208",
+        "kind": "handoff"
+      },
+      {
+        "id": "CON-272",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "3 handoff consumers: ACC-261, FUL-276 (both outside this round's 24, referencing CON-36 as authoritative contactability - their own h.unreachable handoffs remain a documented, reviewed exception since they report all-routes-exhausted rather than a single contact_point_id), CMS-208 (permanent-destination evidence, now declaring contact_point_id explicitly)",
+    "testScenarios": [
+      {
+        "kind": "happy-path",
+        "given": "an email address hard-bounces",
+        "expect": "a.suppress records UNDELIVERABLE for that destination only; other destinations on the same person are untouched"
+      }
+    ],
+    "gaps": [
+      {
+        "priority": "P2",
+        "area": "idempotency",
+        "finding": "\"Repair attempts are bounded per cycle\" is a stated guardrail with no attemptBudget Config declared - unlike CMS-208/OPS-124, this mechanism has no single dedicated repair-retry action node to attach the budget to, so this remains a documented, unresolved gap rather than a fix."
+      }
+    ]
+  },
+  {
+    "id": "CON-39",
+    "shortName": "Communication Cooldown",
+    "responsibility": "Hold optional communication for a bounded window without touching permission, scoped to only what the reason justifies.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "Correctly bounded (expiry is the ordinary path, not an exception), correctly scoped (does not cover every channel by default), and the discard-not-replay guardrail on release matches CON-38's identical rule exactly. entity.instanceKey (person_id, cooldown_context) is now declared, every writing action carries idempotencyKey, and w.cooldown now carries an explicit recheck.",
+    "inputContract": [
+      {
+        "field": "an event that justifies a quiet period",
+        "required": true,
+        "provenance": "not modeled elsewhere in the 24 - a business-rule trigger"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "suppression-result"
+      ],
+      "distinguishableOutcomes": [
+        "x.released",
+        "h.suppression (reason hardened into CON-38)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.create (coarser, person_id-scoped, since it establishes cooldown_context itself), a.policy-scope and a.reevaluate (both cooldown_context-scoped) now all carry idempotencyKey",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "current eligibility recalculated at release (w.cooldown's own recheck), backlog discarded rather than replayed"
+      ]
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.suppression",
+        "target": "CON-38",
+        "requiredContext": [
+          "person_id and suppression_scope (the cooldown's own communication context, carried forward as CON-38's own scope), which CON-38's own instance is keyed on",
+          "the cooldown's reason and scope, and what changed",
+          "the fact that this needs a stated reason and release condition rather than an expiry"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CON-39's own graph, via cooldown_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Does this reason justify holding required or safety communication as well?; How did the underlying condition change?",
+      "sideEffectAttempted": "cooldown_log",
+      "attemptIdentity": "not recorded",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CON-38",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "0 handoff consumers - triggered by cooldown_triggering_event, presumably emitted by business logic elsewhere, not traceable via handoff. Hands off to CON-38 when a cooldown's reason hardens, now declaring person_id + suppression_scope explicitly.",
+    "testScenarios": [
+      {
+        "kind": "happy-path",
+        "given": "the cooldown period elapses with no basis change",
+        "expect": "a.reevaluate recalculates current eligibility; backlog discarded"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "CON-40",
+    "shortName": "Permission Conflict Resolution",
+    "responsibility": "Hold optional communication closed while distributed systems disagree about permission, and reconcile on evidence rather than on whichever value is more permissive.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The best-designed conflict-resolution mechanism in the round: fail-safe-first ordering, change_origin/change_version-based reconciliation, and explicit change-version-checked verification writes. entity.instanceKey (person_id, disputed_permission_ref) is now declared and every writing action carries a matching idempotencyKey.",
+    "inputContract": [
+      {
+        "field": "two or more systems reporting different permission states for the same person/type/channel/purpose",
+        "required": true,
+        "provenance": "detected by comparing authoritative systems - not one of the 24"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "suppression-result",
+        "persisted-mutation"
+      ],
+      "distinguishableOutcomes": [
+        "x.resolved",
+        "h.manual (automated reconciliation exhausted)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "writes-internal-state",
+        "suppresses-queued-work"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.failsafe, a.collect, a.scope, a.enter, a.apply, a.release all carry idempotencyKey scoped to (person_id, disputed_permission_ref); a.apply propagates a fresh change_version for the resolution; a.verify checks convergence against that same version",
+      "attemptIdentity": {
+        "fields": [
+          "change_origin",
+          "change_version"
+        ],
+        "provenance": "self-minted-on-entry"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "optimistic-version-check",
+      "raceAddressed": "two systems each correcting the other in a synchronisation loop, explicitly named and guarded against"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "ordering": {
+      "required": true,
+      "mechanism": "provenance and change_version identify which record reflects the actual decision; a system timestamp alone is explicitly rejected as authority"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.manual",
+        "target": "DEC-181",
+        "requiredContext": [
+          "every reported state with its source, version and provenance",
+          "the disputed scope, and the fact that communication has been closed on it throughout"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "CON-40's own graph, via suppressed_sends",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is a safe authoritative state immediately determinable from the evidence?; Do all required systems now hold the resolved state?",
+      "sideEffectAttempted": "suppressed_sends, permission_conflict_log, permission_log",
+      "attemptIdentity": "change_origin, change_version (named in prose, not a declared field)",
+      "retriedSuppressedSuperseded": "suppressed_sends log",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "CON-35",
+        "kind": "handoff"
+      },
+      {
+        "id": "INT-119",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "1 handoff consumer: CON-35 (on convergence failure, now carrying disputed_permission_ref explicitly)",
+    "testScenarios": [
+      {
+        "kind": "partial-failure",
+        "given": "reconciliation applies a corrected state but one required system does not converge",
+        "expect": "c.converged routes back to h.manual rather than declaring success"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "OPS-121",
+    "shortName": "Asynchronous Work Processing",
+    "responsibility": "Give asynchronous work explicit accepted/queued/processing/terminal states so infrastructure acknowledgement is never mistaken for business completion.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The foundational mechanism of the entire OPS domain; the accepted-is-not-completed discipline is exactly right, and the round's most consequential idempotency gap is now closed here: entity.instanceKey is (work_id, logical_operation_key), with the two identities' distinct roles documented explicitly in entity.note (logical_operation_key is the caller-supplied dedup identity; work_id is this mechanism's own record identity, minted at acceptance). Every writing action carries a matching idempotencyKey.",
+    "inputContract": [
+      {
+        "field": "the system accepting a unit of asynchronous work on behalf of a business action",
+        "required": true,
+        "provenance": "any caller with work to run asynchronously - not itself modeled"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "normalized-state",
+        "execution-attempt"
+      ],
+      "distinguishableOutcomes": [
+        "x.cancelled",
+        "h.verify (technical completion)",
+        "h.retry (retryable failure)",
+        "h.dead-letter (terminal failure)",
+        "h.reconcile (unknown)",
+        "h.lag (queue SLA exceeded)",
+        "h.stalled (execution window exceeded)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.persist is idempotent on logical_operation_key - a second acceptance call for the same key returns the existing work_id rather than minting a new one. a.queued and a.processing (which also mints attempt_number for its own bookkeeping) are scoped to work_id, the narrower identity that already exists by that point",
+      "attemptIdentity": {
+        "fields": [
+          "logical_operation_key",
+          "work_id",
+          "attempt_number"
+        ],
+        "provenance": "caller-supplied"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "compare-and-set",
+      "raceAddressed": "two acceptance calls for the same logical_operation_key racing to mint work_id"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "unknownOutcome": {
+      "handled": true,
+      "vocabulary": "UNKNOWN",
+      "reconciliationTarget": "external:side-effect-reconciliation (via h.reconcile)"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.lag",
+        "target": "OPS-122",
+        "requiredContext": [
+          "workload_class, the item's age and its deadline",
+          "the fact that the item has not failed - it has not been started"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.stalled",
+        "target": "OPS-123",
+        "requiredContext": [
+          "the attempt record, the worker ownership and the lease",
+          "which side effects the work is known to have produced so far"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.verify",
+        "target": "OPS-130",
+        "requiredContext": [
+          "the work item and the business state it was intended to create",
+          "the explicit fact that the job reporting success is not yet the outcome existing"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.retry",
+        "target": "OPS-124",
+        "requiredContext": [
+          "the failure class, the attempt history and the side-effect certainty"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.dead-letter",
+        "target": "OPS-127",
+        "requiredContext": [
+          "the failure reason and the full attempt history"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.reconcile",
+        "target": "external:side-effect-reconciliation",
+        "requiredContext": [
+          "the work, its idempotency key and everything known about how far it got",
+          "the explicit fact that this is unknown rather than failed"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": true
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-121's own graph, via work_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is capacity available to start now?; Which happened?; What outcome did the work report?",
+      "sideEffectAttempted": "work_log",
+      "attemptIdentity": "logical_operation_key, work_id, attempt_number (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "DAT-224",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "0 handoff consumers within the canonical corpus - the root of the async-processing tree, entered by any asynchronous business action; 5 outbound handoffs (OPS-122, OPS-123, OPS-124, OPS-127, OPS-130) make it the domain's clear hub, now all declaring workload_class/work_id/logical_operation_key explicitly where the target requires it",
+    "testScenarios": [
+      {
+        "kind": "duplicate-invocation",
+        "given": "the same business action is accepted as work twice (a redelivered request) under the same logical_operation_key",
+        "expect": "a.persist's own idempotencyKey resolves both calls to the same work_id"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "OPS-122",
+    "shortName": "Queue Lag Management",
+    "responsibility": "Measure whether a queue can keep up, by the age of its oldest unfinished item rather than its depth, and respond per workload class.",
+    "readiness": "READY",
+    "readinessWhy": "An aggregate measurement-and-response mechanism, not a per-item transactional one, which genuinely lowers its own idempotency/concurrency risk relative to the rest of the domain. entity.instanceKey (workload_class) is now declared and every writing action carries a matching idempotencyKey, formalizing what was already low-risk by construction.",
+    "inputContract": [
+      {
+        "field": "queue latency or depth crossing a meaningful threshold for a workload class",
+        "required": true,
+        "provenance": "the queue's own monitoring, not one of the 24"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "normalized-state"
+      ],
+      "distinguishableOutcomes": [
+        "x.observe (burst, no response)",
+        "h.drain (recovered, backlog to drain)",
+        "h.escalate (SLA threatened or response window exhausted)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.measure, a.lagging, a.urgent, a.response all carry idempotencyKey scoped to workload_class",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "throughput and oldest-item age re-measured at every threshold crossing and again at w.recovery's resolution"
+      ]
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.drain",
+        "target": "OPS-129",
+        "requiredContext": [
+          "the backlog inventory and the age distribution within it",
+          "which classes were delayed and by how much"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.escalate",
+        "target": "OWN-55",
+        "requiredContext": [
+          "the affected classes, the oldest work age and the SLA exposure",
+          "what operational response has already been applied"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-122's own graph, via queue_health_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is this a temporary burst the current throughput will absorb?; Is a customer or business SLA threatened?; Which way did it move?",
+      "sideEffectAttempted": "queue_health_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "OPS-121",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "1 handoff consumer: OPS-121 (queue SLA exceeded, now declaring workload_class explicitly). Hands off to OPS-129 (drain) and OWN-55 (escalate).",
+    "testScenarios": [
+      {
+        "kind": "happy-path",
+        "given": "a burst that current throughput will absorb within SLA",
+        "expect": "x.observe; no operational response applied, avoiding alert fatigue"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "OPS-123",
+    "shortName": "Stalled Work Recovery",
+    "responsibility": "Distinguish work that is merely slow from work that has actually stopped, and recover only where side effects are known.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The long-running-is-not-stalled distinction and the side-effect-uncertainty gate before any reclaim are both exactly right. The vocabulary gap this round found (vaguer than OPS-128's own lease language) is closed: entity.note now explicitly names this as the same lease concept OPS-128 uses, applied to a work item whose owner is still nominally alive; a.reclaim's own text now says \"transferring the work item's lease\" rather than the earlier generic \"coordinating ownership.\"",
+    "inputContract": [
+      {
+        "field": "work exceeding its expected progress threshold without an authoritative completion",
+        "required": true,
+        "provenance": "OPS-121's h.stalled handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "ownership-transfer"
+      ],
+      "distinguishableOutcomes": [
+        "x.observe (progressing)",
+        "x.recovered (reclaimed)",
+        "h.reconcile (side effects unknown)",
+        "h.escalate (not safely recoverable)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state",
+        "transfers-ownership"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.inspect, a.stalled, and a.reclaim all carry idempotencyKey scoped to work_id",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "lease",
+      "raceAddressed": "two workers concurrently recovering the same exclusive job - now named explicitly as the same lease concept OPS-128 uses"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "unknownOutcome": {
+      "handled": true,
+      "vocabulary": "handled via h.reconcile before any reclaim",
+      "reconciliationTarget": "external:side-effect-reconciliation"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.reconcile",
+        "target": "external:side-effect-reconciliation",
+        "requiredContext": [
+          "the work, its idempotency key and the last known progress",
+          "the explicit instruction that nothing is retried until the true state is known"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": true
+      },
+      {
+        "node": "h.escalate",
+        "target": "OWN-55",
+        "requiredContext": [
+          "what the work was doing and how far it got",
+          "the side effects it is known to have produced, which constrain what a person can safely do next"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-123's own graph, via work_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is the work actually still making progress?; Is the side-effect state established?; Can this be recovered safely under its execution semantics?",
+      "sideEffectAttempted": "work_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "OPS-121",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "1 handoff consumer: OPS-121",
+    "testScenarios": [
+      {
+        "kind": "concurrent-invocation",
+        "given": "two recovery attempts fire for the same stalled job near-simultaneously",
+        "expect": "the lease transfer in a.reclaim is the coordination point - now named consistently with OPS-128's own concept"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "OPS-124",
+    "shortName": "Retry Management",
+    "responsibility": "Repeat a transient failure within a durable, bounded budget, only where repeating is safe and the work is still wanted.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The most complete retry contract in the corpus, now fully structural: entity.instanceKey (work_id, logical_operation_key) with the two identities' roles documented precisely (logical_operation_key is what a.attempt sends downstream unchanged across every retry, so a receiver that got attempt 1 can absorb attempt 2; attempt_number is this mechanism's own local bookkeeping, never sent downstream). a.attempt carries a declared attemptBudget (required: true). The caller/callee ambiguity with CMS-208 is resolved via CMS-208's own corrected distinctFrom.",
+    "inputContract": [
+      {
+        "field": "a failure classified as transient by an explicit classification",
+        "required": true,
+        "provenance": "OPS-121's h.retry, OPS-126's h.retry (now declaring work_id + logical_operation_key explicitly)"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "retry-schedule",
+        "execution-attempt"
+      ],
+      "distinguishableOutcomes": [
+        "x.cancelled",
+        "x.stale (CANCELLED_STALE)",
+        "h.verify (retry succeeded)",
+        "h.dead-letter (budget exhausted, or not safely repeatable)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state",
+        "submits-to-provider"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.attempt executes under logical_operation_key - the same value on every physical try - so a downstream that received an earlier attempt can absorb this one; attempt_number still advances for this mechanism's own bookkeeping but is never itself part of the downstream dedup key",
+      "attemptIdentity": {
+        "fields": [
+          "logical_operation_key",
+          "work_id",
+          "attempt_number"
+        ],
+        "provenance": "caller-supplied"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "work and target entity revalidated against current state before every attempt, after backoff"
+      ]
+    },
+    "retry": {
+      "ownsRetryLoop": true,
+      "failureClasses": [
+        "retryable",
+        "non-retryable",
+        "unknown"
+      ],
+      "budgetDurable": true,
+      "revalidatesBeforeRetry": true
+    },
+    "unknownOutcome": {
+      "handled": true,
+      "vocabulary": "handled via h.reconcile before backoff is even calculated",
+      "reconciliationTarget": "external:side-effect-reconciliation"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.reconcile",
+        "target": "external:side-effect-reconciliation",
+        "requiredContext": [
+          "the work, its idempotency key and the attempt history",
+          "the fact that transience alone does not make a replay safe"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": true
+      },
+      {
+        "node": "h.verify",
+        "target": "OPS-130",
+        "requiredContext": [
+          "the work and the business state it was meant to create",
+          "the attempt history"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.dead-letter",
+        "target": "OPS-127",
+        "requiredContext": [
+          "the full attempt history and every failure reason",
+          "the last known side-effect state, which constrains what a controlled replay may do"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-124's own graph, via work_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is retrying actually safe?; Is the work still required?; What did the retry produce?",
+      "sideEffectAttempted": "work_log",
+      "attemptIdentity": "logical_operation_key, work_id, attempt_number (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "OPS-121",
+        "kind": "handoff"
+      },
+      {
+        "id": "OPS-126",
+        "kind": "handoff"
+      },
+      {
+        "id": "OPS-127",
+        "kind": "prose-reference"
+      },
+      {
+        "id": "FIN-134",
+        "kind": "prose-reference"
+      },
+      {
+        "id": "CMS-208",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "2 handoff consumers: OPS-121, OPS-126 (now declaring work_id + logical_operation_key explicitly). CMS-208's own distinctFrom now explicitly states it does NOT delegate to this mechanism, resolving the prior round's caller/callee ambiguity.",
+    "testScenarios": [
+      {
+        "kind": "dependency-retryable-failure",
+        "given": "a transient failure with budget remaining and the work still required at revalidation",
+        "expect": "a.attempt executes idempotently under logical_operation_key"
+      },
+      {
+        "kind": "stale-state",
+        "given": "the target entity moved during backoff and the work is no longer required",
+        "expect": "x.stale; the retry is cancelled with a reason rather than executed"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "OPS-125",
+    "shortName": "Work Deduplication",
+    "responsibility": "Stop the same logical business operation from running twice, without collapsing two legitimate repeats of the same payload into one.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The identity-is-the-business-operation-not-the-payload distinction (OPS-R7) is the correct answer to the single most common deduplication mistake. entity.instanceKey (logical_operation_key) is now declared, matching OPS-121/OPS-124's own field exactly, and every writing action carries a matching idempotencyKey.",
+    "inputContract": [
+      {
+        "field": "two or more work instances that may represent the same logical business operation",
+        "required": true,
+        "provenance": "FIN-135's own handoff (now declaring logical_operation_key explicitly), or any duplicate-detection trigger"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "normalized-state"
+      ],
+      "distinguishableOutcomes": [
+        "x.independent (not a duplicate)",
+        "x.suppressed (canonical result reused)",
+        "x.attached (waiting on in-flight canonical execution)",
+        "h.reconcile (conflicting outcomes)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state",
+        "suppresses-queued-work"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.compare, a.reuse, a.attach all carry idempotencyKey scoped to logical_operation_key - the same field OPS-121/OPS-124 mint and carry, not a second independently-invented identity",
+      "attemptIdentity": {
+        "fields": [
+          "logical_operation_key"
+        ],
+        "provenance": "caller-supplied"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "instance-affinity",
+      "raceAddressed": "an in-flight canonical execution vs. a newly arriving duplicate - a.attach's join-in-progress pattern"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.reconcile",
+        "target": "external:side-effect-reconciliation",
+        "requiredContext": [
+          "each instance, its identifiers and what it reports",
+          "the target entity's current state, which is the only thing that can settle it"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-125's own graph, via dedup_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is this the same logical operation?; What state is the canonical execution in?",
+      "sideEffectAttempted": "dedup_log",
+      "attemptIdentity": "logical_operation_key (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "FIN-135",
+        "kind": "handoff"
+      },
+      {
+        "id": "OPS-131",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "1 handoff consumer: FIN-135 (now declaring logical_operation_key explicitly)",
+    "testScenarios": [
+      {
+        "kind": "duplicate-invocation",
+        "given": "the canonical execution completed and its result is still valid",
+        "expect": "a.reuse suppresses the duplicate and reuses the result"
+      },
+      {
+        "kind": "concurrent-invocation",
+        "given": "the canonical execution is still running when the duplicate arrives",
+        "expect": "a.attach joins it rather than starting a second execution, where the architecture permits"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "OPS-126",
+    "shortName": "Partial Processing Recovery",
+    "responsibility": "Recover the failed part of a composite/batch operation without re-running the part that already succeeded.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The design itself is sound (never replay successful children, honest escalation when no aggregation policy is defined, explicit compensation-only-when-transaction-semantics-require-it). entity.instanceKey (composite_job_id) is now declared and every writing action carries a matching idempotencyKey; the h.retry handoff into OPS-124 now declares each failed child's own work_id + logical_operation_key explicitly. This round's consumer-coverage investigation concludes: unconsumed-but-valid, not orphaned or duplicate.",
+    "inputContract": [
+      {
+        "field": "a composite, batch or fan-out operation ending with children in different states",
+        "required": true,
+        "provenance": "not traceably emitted by any of the 283 journeys"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "normalized-state"
+      ],
+      "distinguishableOutcomes": [
+        "x.recomputed (parent state recalculated)",
+        "h.retry (independently retryable children)",
+        "h.compensate (unwind required)",
+        "h.reconcile (unknown children)",
+        "h.undefined (no aggregation policy)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.classify and a.recompute both carry idempotencyKey scoped to composite_job_id; the parent state is always recomputed from authoritative child outcomes rather than incrementally applied",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "parent state recomputed from authoritative child outcomes on every re-entry, never from the events that reported them"
+      ]
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.undefined",
+        "target": "DEC-181",
+        "requiredContext": [
+          "each child and its outcome",
+          "the explicit fact that no ALL, ANY or majority rule was invented in order to produce a parent state"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.retry",
+        "target": "OPS-124",
+        "requiredContext": [
+          "only the failed child scope",
+          "each failed child's own work_id and logical_operation_key, established when it was individually accepted as work - a composite job's failure does not invent new identity for its children",
+          "the explicit boundary that the completed children are not part of this retry"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.compensate",
+        "target": "external:correction-or-compensation",
+        "requiredContext": [
+          "the children that completed and what each of them did",
+          "the failure that made compensation necessary"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.reconcile",
+        "target": "external:side-effect-reconciliation",
+        "requiredContext": [
+          "each unknown child, its identifiers and how far it got"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-126's own graph, via composite_work_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is an aggregation policy defined for this parent?; What do the unresolved children need?",
+      "sideEffectAttempted": "composite_work_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "DAT-225",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "0 handoff consumers; DAT-225's only reference to it is a distinctFrom explaining why DAT-225 does not use it. This round's investigation (Part 24) classifies this mechanism as unconsumed-but-valid: the design is sound and would correctly serve real composite/batch/fan-out work, but no confirmed consumer exists in the current 283-journey corpus. Not deleted, not flagged as duplicate or obsolete - no evidence supports either label.",
+    "testScenarios": [
+      {
+        "kind": "partial-failure",
+        "given": "a batch operation with some children succeeded and some failed retryably",
+        "expect": "a.classify marks each individually; h.retry carries only the failed scope, with each child's own work_id + logical_operation_key"
+      }
+    ],
+    "gaps": [
+      {
+        "priority": "P2",
+        "area": "consumer-coverage",
+        "finding": "No canonical journey in the current 283-journey corpus is confirmed to produce composite/fan-out/batch work this mechanism would receive. This round's investigation concludes 'unconsumed-but-valid' rather than 'orphaned' or 'candidate-deprecated' - the design is sound for a shape of work the corpus does not yet contain, which is different from a defect. Downgraded from P1 (open question) to P2 (documented, non-blocking conclusion) now that the classification is settled."
+      }
+    ]
+  },
+  {
+    "id": "OPS-127",
+    "shortName": "Dead-Letter Recovery",
+    "responsibility": "Turn work automation could not finish into an explicit, owned remediation obligation rather than an invisible queue.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The review-horizon escalation prevents the dead-letter queue from becoming invisible storage, the replay-preserves-audit-chain rule is explicit, and the side-effect-uncertainty gate before any replay is consistent with the rest of the domain. entity.instanceKey (work_id) is now declared and every writing action carries a matching idempotencyKey; a.correct now explicitly mints replay_id linked via original_work_id.",
+    "inputContract": [
+      {
+        "field": "work that has exhausted its automated retry policy, or reached a state automation cannot process",
+        "required": true,
+        "provenance": "OPS-121's h.dead-letter or OPS-124's h.dead-letter handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "failure-classification",
+        "handoff-context"
+      ],
+      "distinguishableOutcomes": [
+        "x.replayed (corrected)",
+        "x.obsolete (closed with reason)",
+        "h.manual (needs a person)",
+        "h.escalate (undiagnosed past review horizon)",
+        "h.reconcile (side effects uncertain)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "writes-internal-state",
+        "creates-task-or-obligation"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.preserve, a.correct, a.close all carry idempotencyKey scoped to work_id; a.correct's own replay_id (linked via original_work_id) is the corpus's clearest parent-child attempt-chain pattern, now named as fields rather than left as pure prose",
+      "attemptIdentity": {
+        "fields": [
+          "replay_id",
+          "original_work_id"
+        ],
+        "provenance": "self-minted-on-entry"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": false
+    },
+    "unknownOutcome": {
+      "handled": true,
+      "vocabulary": "handled via h.reconcile before any remediation is chosen",
+      "reconciliationTarget": "external:side-effect-reconciliation"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.reconcile",
+        "target": "external:side-effect-reconciliation",
+        "requiredContext": [
+          "the work, its identifiers and the full attempt history",
+          "the explicit instruction that no replay happens until the true state is known"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": true
+      },
+      {
+        "node": "h.manual",
+        "target": "DEC-181",
+        "requiredContext": [
+          "the original work, its context and everything automation tried",
+          "operational ownership, so the item has a name against it rather than a queue position"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      },
+      {
+        "node": "h.escalate",
+        "target": "OWN-55",
+        "requiredContext": [
+          "the item, its age and what it was for",
+          "the fact that a dead-letter queue nobody reviews is indistinguishable from deletion, except that it produces a reassuring metric"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-127's own graph, via dead_letter_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is the side-effect state uncertain?; What would resolve this?",
+      "sideEffectAttempted": "dead_letter_log",
+      "attemptIdentity": "replay_id, original_work_id (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "OPS-121",
+        "kind": "handoff"
+      },
+      {
+        "id": "OPS-124",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "2 handoff consumers: OPS-121, OPS-124",
+    "testScenarios": [
+      {
+        "kind": "happy-path",
+        "given": "the authoritative problem is diagnosable and fixable",
+        "expect": "a.correct replays under a new replay_id linked to the original via original_work_id, audit chain intact"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "OPS-128",
+    "shortName": "Worker Failure Recovery",
+    "responsibility": "Transfer execution responsibility off a failed worker without assuming the work itself failed, and without letting two workers hold the same job.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The single most concrete concurrency primitive in the entire round: an explicit lease with a wait-out-the-lease-before-reclaiming semantics, correctly distinguishing worker death from work failure, and gating any restart behind a confirmed-not-completed check. entity.instanceKey (work_id, lease_id) is now declared, formalizing the lease concept the mechanism's own prose already named precisely.",
+    "inputContract": [
+      {
+        "field": "a worker becoming unavailable while holding in-flight work",
+        "required": true,
+        "provenance": "infrastructure heartbeat/health monitoring - not one of the 24"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "ownership-transfer",
+        "execution-attempt"
+      ],
+      "distinguishableOutcomes": [
+        "x.original (original worker finished)",
+        "x.no-replay (already completed)",
+        "x.resumed (checkpoint or restart)",
+        "h.reconcile (side effects unknown)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "transfers-ownership"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.identify, a.checkpoint, a.restart all carry idempotencyKey; a.checkpoint/a.restart both mint a fresh lease_id for the new owner; c.confirmed gates on \"an authoritative completion exists\" before ever considering a restart, which is the correct order (check completion, then check lease, then resume)",
+      "attemptIdentity": {
+        "fields": [
+          "lease_id"
+        ],
+        "provenance": "self-minted-on-entry"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "lease",
+      "raceAddressed": "two workers holding the same job - explicitly, concretely handled via wait-out-the-lease before reclaiming"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "completion status re-confirmed before any resume/restart decision"
+      ]
+    },
+    "unknownOutcome": {
+      "handled": true,
+      "vocabulary": "handled via h.reconcile",
+      "reconciliationTarget": "external:side-effect-reconciliation"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.reconcile",
+        "target": "external:side-effect-reconciliation",
+        "requiredContext": [
+          "the work, its idempotency key and its last checkpoint",
+          "the explicit instruction that nothing is restarted until the true state is known"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": true
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-128's own graph, via work_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Could the previous lease still be live?; Is the work's completion already confirmed?; How can execution be resumed?",
+      "sideEffectAttempted": "work_log",
+      "attemptIdentity": "lease_id (named in prose, not a declared field)",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "OPS-131",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "0 handoff consumers - triggered by infrastructure heartbeat loss, appropriately not journey-initiated",
+    "testScenarios": [
+      {
+        "kind": "cancellation-race",
+        "given": "the original worker completes the work just as its heartbeat is judged lost",
+        "expect": "c.lease's wait-out-the-lease path (w.lease -> x.original) prevents the reclaim from racing the legitimate completion"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "OPS-129",
+    "shortName": "Backlog Recovery",
+    "responsibility": "Deliberately drain an accumulated backlog - discarding what has gone stale, pacing what has not, never flushing everything at once.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The stale-work-is-cancelled-not-delivered rule and the priority-not-arrival-order drain strategy are both exactly the corpus's own OPS-R12/R13/R14 rules made concrete. entity.instanceKey (workload_class) is now declared and every writing action carries a matching idempotencyKey.",
+    "inputContract": [
+      {
+        "field": "processing capacity recovering with a material backlog accumulated behind it",
+        "required": true,
+        "provenance": "OPS-122's h.drain handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "normalized-state",
+        "decision"
+      ],
+      "distinguishableOutcomes": [
+        "x.normal (drained, stable)",
+        "h.escalate (cannot drain at any safe rate)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "a.inventory, a.cancel, a.strategy, a.drain, a.throttle all carry idempotencyKey scoped to workload_class",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "backlog validity re-assessed at inventory time (c.relevant); stale items cancelled rather than delivered because they were once queued"
+      ]
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [
+      {
+        "node": "h.escalate",
+        "target": "OWN-55",
+        "requiredContext": [
+          "the remaining backlog, its age distribution and its deadline exposure",
+          "the fact that capacity has recovered and is still not sufficient, which is a capacity decision rather than an incident"
+        ],
+        "ownershipTransfer": true,
+        "suppressSource": false
+      }
+    ],
+    "observability": {
+      "whatRan": "OPS-129's own graph, via backlog_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is all the accumulated work still relevant?; Can the rate be reduced further and still make progress?",
+      "sideEffectAttempted": "backlog_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)",
+      "currentOwner": "transfers via its own handoff nodes; see handoffs"
+    },
+    "consumers": [
+      {
+        "id": "OPS-122",
+        "kind": "handoff"
+      }
+    ],
+    "consumersNote": "1 handoff consumer: OPS-122",
+    "testScenarios": [
+      {
+        "kind": "stale-state",
+        "given": "part of the backlog describes a customer-facing action no longer appropriate",
+        "expect": "a.cancel suppresses it with a reason rather than delivering it because it was once queued"
+      }
+    ],
+    "gaps": []
+  },
+  {
+    "id": "OPS-130",
+    "shortName": "Business Outcome Verification",
+    "responsibility": "Check that the business state a job existed to create actually exists, wherever the job's own technical success is not proof of it.",
+    "readiness": "READY_WITH_MAPPING",
+    "readinessWhy": "The technical-completion-is-not-business-completion distinction, stated once and applied as its own dedicated mechanism rather than folded into every producer, is the corpus's cleanest single architectural decision in the round. entity.instanceKey (work_id) is now declared and every writing action carries a matching idempotencyKey - a.verify's own idempotency was already true by construction; the key is now a consistent structural marker of that fact rather than the thing making it safe.",
+    "inputContract": [
+      {
+        "field": "a technical job reporting completion",
+        "required": true,
+        "provenance": "OPS-121's h.verify or OPS-124's h.verify handoff"
+      }
+    ],
+    "outputContract": {
+      "classes": [
+        "decision",
+        "normalized-state"
+      ],
+      "distinguishableOutcomes": [
+        "x.complete (technical success was the business fact)",
+        "x.business-complete (BUSINESS_COMPLETED)",
+        "x.reconciliation (RECONCILIATION_REQUIRED)"
+      ],
+      "proseOnlyOutcome": false
+    },
+    "sideEffectBoundary": {
+      "classes": [
+        "reads-only",
+        "decides-only",
+        "writes-internal-state"
+      ]
+    },
+    "idempotency": {
+      "retryBehavior": "explicitly idempotent by design - \"verification is idempotent, so checking twice costs nothing and proves the same thing each time\" - now backed by a declared idempotencyKey on a.finalize, a.verify and a.business-complete, scoped to work_id",
+      "attemptIdentity": {
+        "fields": [],
+        "provenance": "undeclared"
+      },
+      "structurallyDeclared": true
+    },
+    "concurrency": {
+      "primitive": "none-required"
+    },
+    "freshness": {
+      "revalidatesBeforeExecution": true,
+      "checks": [
+        "the actual business state - record exists, state transitioned, balance updated, entitlement applied - re-read every time rather than trusted from the job's own report"
+      ]
+    },
+    "unknownOutcome": {
+      "handled": true,
+      "vocabulary": "RECONCILIATION_REQUIRED",
+      "reconciliationTarget": "not further delegated - this exit IS the reconciliation signal, surfaced rather than auto-resolved"
+    },
+    "conflictArbitration": {
+      "enforcesJourneyCompetition": false
+    },
+    "handoffs": [],
+    "observability": {
+      "whatRan": "OPS-130's own graph, via work_log",
+      "forWhichInstance": "the work/obligation/attempt this mechanism was entered against, per its own entity.scope",
+      "decisionBasis": "Is technical completion itself authoritative for business completion here?; What does verification show?",
+      "sideEffectAttempted": "work_log",
+      "attemptIdentity": "not recorded",
+      "dependencyResponse": "recorded per-attempt where the mechanism crosses a provider/worker boundary (see delivery_log/work_log writes)"
+    },
+    "consumers": [
+      {
+        "id": "OPS-121",
+        "kind": "handoff"
+      },
+      {
+        "id": "OPS-124",
+        "kind": "handoff"
+      },
+      {
+        "id": "FUL-144",
+        "kind": "prose-reference"
+      }
+    ],
+    "consumersNote": "2 handoff consumers: OPS-121, OPS-124",
+    "testScenarios": [
+      {
+        "kind": "partial-failure",
+        "given": "the job reports success but the record it was supposed to write is missing",
+        "expect": "x.reconciliation surfaces the gap rather than closing the obligation as done"
+      }
+    ],
+    "gaps": []
+  }
+]

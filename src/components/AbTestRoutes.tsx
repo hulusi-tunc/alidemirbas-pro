@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import AbTestBrowser from "@/components/AbTestBrowser";
+import AbTestGallery from "@/components/AbTestGallery";
 import AbTestPlaybookPage from "@/components/AbTestPlaybookPage";
 import LabShell from "@/components/LabShell";
-import { AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail, type Surface } from "@/lib/ab-test-view";
+import { AB_CATEGORIES, AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail } from "@/lib/ab-test-view";
 import { pageAlternates } from "@/lib/seo";
+import { breadcrumbList } from "@/lib/schema";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
+import { copy } from "@/lib/content";
 
 type Lang = "en" | "tr";
 
@@ -34,8 +37,14 @@ export function abLibraryDetailMetadata(lang: Lang, slug: string): Metadata {
 export function AbLibraryIndexPage({ lang }: { lang: Lang }) {
   const t = T[lang];
   const base = basePathFor(lang);
+  const breadcrumb = breadcrumbList([
+    { name: copy[lang].footer.home, url: lang === "en" ? "/" : "/tr" },
+    { name: copy[lang].nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+    { name: t.title, url: base },
+  ]);
   return (
     <LabShell lang={lang}>
+      <JsonLdScript data={breadcrumb} />
       <div className="border-b border-line px-4 py-6 md:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-wrap items-center gap-3">
@@ -49,7 +58,7 @@ export function AbLibraryIndexPage({ lang }: { lang: Lang }) {
       </div>
       <div className="px-4 py-6 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <AbTestBrowser lang={lang} rows={AB_TEST_ROWS} surfaces={SURFACES as readonly Surface[]} basePath={base} />
+          <AbTestGallery lang={lang} rows={AB_TEST_ROWS} categories={AB_CATEGORIES} surfaces={SURFACES} basePath={base} />
         </div>
       </div>
     </LabShell>
@@ -63,9 +72,16 @@ export function AbLibraryDetailPage({ lang, slug }: { lang: Lang; slug: string }
   // Position in the library, for the header rail. Derived from the same
   // ordered row list the index page renders, so the two can't disagree.
   const position = AB_TEST_ROWS.findIndex((row) => row.id === r.id) + 1;
+  const breadcrumb = breadcrumbList([
+    { name: copy[lang].footer.home, url: lang === "en" ? "/" : "/tr" },
+    { name: copy[lang].nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+    { name: T[lang].title, url: base },
+    { name: r.seoTitle ?? r.question, url: `${base}/${slug}` },
+  ]);
 
   return (
     <LabShell lang={lang}>
+      <JsonLdScript data={breadcrumb} />
       <AbTestPlaybookPage
         test={r}
         lang={lang}

@@ -1,0 +1,904 @@
+{
+ "id": "ACQ-11",
+ "shortName": "Abandoned Process Recovery",
+ "strategy": "progressive-recovery",
+ "primitivesUsed": [
+  "entry",
+  "holdout",
+  "condition",
+  "state-update",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "multi-event cancellation",
+  "ordered channel-role resolution",
+  "class-level pressure cap",
+  "persistent holdout",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.started",
+   "event": "process_started",
+   "meaning": "an authoritative record that a resumable process (checkout, application, quote, registration) opened for a person with at least one item and a resumable state",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "the identity behind the process resolves to a person we may contact",
+    "the process is still resumable in the system of record, with at least one item and a resume destination",
+    "no recovery instance is already open for this logical process",
+    "no payment failure is recorded on the process - a failed payment is FIN-134's, not abandonment",
+    "purpose-level permission for commercial recovery communication is recorded, and hard gates (GLB-31) allow it"
+   ],
+   "instanceKey": [
+    "person_id",
+    "logical_process_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "holdout",
+   "node": "t.started",
+   "unit": "instance",
+   "share": {
+    "key": "recovery.holdout_share",
+    "default": 10,
+    "basis": "example-only",
+    "required": false
+   },
+   "persistent": true
+  },
+  {
+   "type": "condition",
+   "node": "c.eligible",
+   "asks": "Can this process be recovered for this person at all?",
+   "branches": [
+    {
+     "label": "Eligible",
+     "observes": "process state, identity resolution, permission record",
+     "test": "the identity resolves to a contactable person, the process is resumable with items and a destination, no instance is open for it, no payment failure is recorded on it, and commercial recovery permission is recorded",
+     "to": "a.open"
+    },
+    {
+     "label": "Not eligible",
+     "observes": "process state, identity resolution, permission record",
+     "test": "any of those fails - the reason is recorded as the no-action reason",
+     "to": "x.no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.open",
+   "does": "Open the recovery instance against the logical process and start the abandonment clock from the last activity on it, not from when it opened. Activity before the first touch moves the clock; nothing after the first touch extends any window",
+   "writes": [
+    {
+     "field": "recovery_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.open",
+   "key": "logical_process_id"
+  },
+  {
+   "type": "wait",
+   "node": "w.abandon",
+   "timing": {
+    "key": "recovery.first_check",
+    "class": "recovery-window",
+    "default": {
+     "min": "30 minutes",
+     "max": "60 minutes"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "last_activity_at",
+   "onTimeout": "c.state"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.abandon",
+   "cancelOn": [
+    {
+     "event": "process_completed",
+     "meaning": "the logical process reached its completion in the system of record"
+    },
+    {
+     "event": "process_cancelled",
+     "meaning": "the person cancelled the logical process"
+    },
+    {
+     "event": "process_expired",
+     "meaning": "the platform expired the logical process"
+    },
+    {
+     "event": "items_removed_all",
+     "meaning": "every item was removed from the process"
+    },
+    {
+     "event": "payment_failed",
+     "meaning": "an authoritative provider response classifies a payment attempt as failed"
+    }
+   ],
+   "onEvent": "c.state"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.abandon",
+   "reads": "the process re-read from the system of record: still resumable, items still present, no order placed, no payment failure",
+   "before": "c.state"
+  },
+  {
+   "type": "condition",
+   "node": "c.state",
+   "asks": "What is the process now?",
+   "branches": [
+    {
+     "label": "Still resumable",
+     "observes": "process state",
+     "test": "the process is open with items and a resume destination and no order has been placed against it",
+     "to": "c.sendable"
+    },
+    {
+     "label": "Completed",
+     "observes": "process_completed",
+     "test": "an order or completion is recorded against the process by any channel",
+     "to": "x.converted"
+    },
+    {
+     "label": "Cancelled, expired or emptied",
+     "observes": "process state",
+     "test": "the person cancelled it, the platform expired it, or every item was removed",
+     "to": "x.invalid"
+    },
+    {
+     "label": "Superseded",
+     "observes": "newer process for person",
+     "test": "a newer logical process exists for the same person and the supersession rule applies",
+     "to": "x.superseded"
+    },
+    {
+     "label": "Payment failed",
+     "observes": "payment_failed",
+     "test": "a payment failure is recorded against this process",
+     "to": "h.payment"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.sendable",
+   "asks": "May the first touch go out?",
+   "branches": [
+    {
+     "label": "Sendable",
+     "observes": "send path stages 1-8",
+     "test": "the send path passes: permission for commercial recovery, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the account, and no cooldown in force",
+     "to": "a.touch1"
+    },
+    {
+     "label": "Suppressed",
+     "observes": "send path stages 1-8",
+     "test": "a gate stops it; the gate is recorded as the reason",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.record-no-action",
+   "does": "Record which gate stopped the touch and against which process, so no-action is a measured outcome rather than a silent absence",
+   "writes": [
+    {
+     "field": "suppressed_sends",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch1",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "recovery.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "highest in the group - a process in motion outranks a held selection, an inferred interest or a predicted need for the same person",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.completed",
+    "s.invalid",
+    "s.payment",
+    "s.permission",
+    "s.contest",
+    "s.superseded",
+    "s.cooldown"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch1",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "low-friction",
+     "channels": [
+      "push",
+      "in-app"
+     ],
+     "eligibleWhen": "an app session or a valid push token exists for this person - the intent is minutes old and a nudge back beats content"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no low-friction route exists, or the touch has to carry the items and survive until the person can act"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch1",
+   "touch": "t1",
+   "stage": "initial-recovery",
+   "purpose": "The process is still open; here are the items; here is the link that reopens this exact process with its state restored. Nothing the system does not assert.",
+   "brief": "Say the process is still open, show the items as they are now, and give the link that reopens this exact process with its state restored. Claim nothing the system does not assert - no reserved stock, no held price, no discount",
+   "destination": {
+    "target": "process-resume",
+    "boundTo": "logical_process_id",
+    "mustNotClaim": [
+     "stock is reserved",
+     "the price is held",
+     "a discount applies"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.state",
+    "c.sendable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch1",
+   "key": "logical_process_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.second",
+   "timing": {
+    "key": "recovery.second_check",
+    "class": "recovery-window",
+    "default": {
+     "min": "20 hours",
+     "max": "28 hours"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "c.state2"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.second",
+   "cancelOn": [
+    {
+     "event": "process_resumed",
+     "meaning": "an authenticated session resumes the same logical process"
+    },
+    {
+     "event": "process_completed",
+     "meaning": "the logical process reached its completion in the system of record"
+    },
+    {
+     "event": "process_cancelled",
+     "meaning": "the person cancelled the logical process"
+    },
+    {
+     "event": "process_expired",
+     "meaning": "the platform expired the logical process"
+    },
+    {
+     "event": "items_removed_all",
+     "meaning": "every item was removed from the process"
+    },
+    {
+     "event": "payment_failed",
+     "meaning": "an authoritative provider response classifies a payment attempt as failed"
+    }
+   ],
+   "onEvent": "c.state2"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.second",
+   "reads": "the process re-read from the system of record, plus whether the person resumed it since the first touch",
+   "before": "c.state2"
+  },
+  {
+   "type": "condition",
+   "node": "c.state2",
+   "asks": "What is the process now, and did they come back?",
+   "branches": [
+    {
+     "label": "Completed",
+     "observes": "process_completed",
+     "test": "an order or completion is recorded against the process",
+     "to": "x.converted"
+    },
+    {
+     "label": "Cancelled, expired or emptied",
+     "observes": "process state",
+     "test": "the process can no longer be returned to",
+     "to": "x.invalid"
+    },
+    {
+     "label": "Superseded",
+     "observes": "newer process for person",
+     "test": "a newer logical process exists for the same person and the supersession rule applies",
+     "to": "x.superseded"
+    },
+    {
+     "label": "Payment failed",
+     "observes": "payment_failed",
+     "test": "a payment failure is recorded against this process",
+     "to": "h.payment"
+    },
+    {
+     "label": "Resumed, still open",
+     "observes": "process_resumed since last touch",
+     "test": "an authenticated session touched the process since the first touch and it is still open - the person is deciding, not forgetting",
+     "to": "a.note-return"
+    },
+    {
+     "label": "Still open, not resumed",
+     "observes": "process state",
+     "test": "the process is open and untouched since the first touch",
+     "to": "c.sendable2"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.note-return",
+   "does": "Record the return and re-arm one further wait from the new last activity. A person who came back and left again is deciding; the second touch is held once, not skipped and not hurried",
+   "writes": [
+    {
+     "field": "recovery_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": {
+    "key": "recovery.resume_rearms",
+    "default": 1,
+    "basis": "corpus-rule",
+    "required": false
+   }
+  },
+  {
+   "type": "wait",
+   "node": "w.resumed",
+   "timing": {
+    "key": "recovery.first_check",
+    "class": "recovery-window",
+    "default": {
+     "min": "30 minutes",
+     "max": "60 minutes"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "last_activity_at",
+   "onTimeout": "c.state2"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.resumed",
+   "cancelOn": [
+    {
+     "event": "process_completed",
+     "meaning": "the logical process reached its completion in the system of record"
+    },
+    {
+     "event": "process_cancelled",
+     "meaning": "the person cancelled the logical process"
+    },
+    {
+     "event": "process_expired",
+     "meaning": "the platform expired the logical process"
+    },
+    {
+     "event": "items_removed_all",
+     "meaning": "every item was removed from the process"
+    },
+    {
+     "event": "payment_failed",
+     "meaning": "an authoritative provider response classifies a payment attempt as failed"
+    }
+   ],
+   "onEvent": "c.state2"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.resumed",
+   "reads": "the process re-read from the system of record",
+   "before": "c.state2"
+  },
+  {
+   "type": "condition",
+   "node": "c.sendable2",
+   "asks": "May the second touch go out?",
+   "branches": [
+    {
+     "label": "Sendable",
+     "observes": "send path stages 1-8, touch budget",
+     "test": "the send path passes and the touch budget is not spent",
+     "to": "a.touch2"
+    },
+    {
+     "label": "Suppressed",
+     "observes": "send path stages 1-8",
+     "test": "a gate stops it; the gate is recorded",
+     "to": "a.record-no-action"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch2",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "recovery.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "highest in the group - a process in motion outranks a held selection, an inferred interest or a predicted need for the same person",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.completed",
+    "s.invalid",
+    "s.payment",
+    "s.permission",
+    "s.contest",
+    "s.superseded",
+    "s.cooldown"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch2",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no low-friction route exists, or the touch has to carry the items and survive until the person can act"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push",
+      "in-app"
+     ],
+     "eligibleWhen": "an app session or a valid push token exists for this person - the intent is minutes old and a nudge back beats content"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch2",
+   "touch": "t2",
+   "stage": "follow-up",
+   "purpose": "Address the likely blocker - shipping, returns, trust, a route to ask a question - with the same link. Still nothing the system does not assert.",
+   "brief": "Address the likely blocker - shipping, returns, trust, a route to ask a question - with the same link back into the process. Still nothing the system does not assert",
+   "destination": {
+    "target": "process-resume",
+    "boundTo": "logical_process_id",
+    "mustNotClaim": [
+     "stock is reserved",
+     "the price is held",
+     "a discount applies"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.state2",
+    "c.sendable2"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch2",
+   "key": "logical_process_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "recovery.lifetime",
+    "class": "recovery-window",
+    "default": {
+     "min": "3 days",
+     "max": "7 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "c.state3"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "process_completed",
+     "meaning": "the logical process reached its completion in the system of record"
+    },
+    {
+     "event": "process_cancelled",
+     "meaning": "the person cancelled the logical process"
+    },
+    {
+     "event": "process_expired",
+     "meaning": "the platform expired the logical process"
+    },
+    {
+     "event": "items_removed_all",
+     "meaning": "every item was removed from the process"
+    },
+    {
+     "event": "payment_failed",
+     "meaning": "an authoritative provider response classifies a payment attempt as failed"
+    }
+   ],
+   "onEvent": "c.state3"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "the process re-read from the system of record, and whether the platform asserts an expiry",
+   "before": "c.state3"
+  },
+  {
+   "type": "condition",
+   "node": "c.state3",
+   "asks": "At the end of the recovery lifetime, what is the process?",
+   "branches": [
+    {
+     "label": "Completed",
+     "observes": "process_completed",
+     "test": "an order or completion is recorded against the process",
+     "to": "x.converted"
+    },
+    {
+     "label": "Cancelled, expired or emptied",
+     "observes": "process state",
+     "test": "the process can no longer be returned to",
+     "to": "x.invalid"
+    },
+    {
+     "label": "Superseded",
+     "observes": "newer process for person",
+     "test": "a newer logical process exists for the same person and the supersession rule applies",
+     "to": "x.superseded"
+    },
+    {
+     "label": "Payment failed",
+     "observes": "payment_failed",
+     "test": "a payment failure is recorded against this process",
+     "to": "h.payment"
+    },
+    {
+     "label": "Still open",
+     "observes": "process state",
+     "test": "the process is open and resumable",
+     "to": "c.final-enabled"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.final-enabled",
+   "asks": "Is a final notice enabled, and is there a real expiry to name?",
+   "branches": [
+    {
+     "label": "Enabled, expiry asserted",
+     "observes": "recovery.final_notice_enabled, expires_at, send path",
+     "test": "the company has enabled the final notice (recovery.final_notice_enabled), the platform asserts an expiry for this process, and the send path passes",
+     "to": "a.touch3"
+    },
+    {
+     "label": "Disabled, or no honest expiry",
+     "observes": "recovery.final_notice_enabled, expires_at",
+     "test": "the final notice is disabled, or no expiry is asserted that the notice could truthfully name",
+     "to": "x.lapsed"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.touch3",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "recovery.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "highest in the group - a process in motion outranks a held selection, an inferred interest or a predicted need for the same person",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.completed",
+    "s.invalid",
+    "s.payment",
+    "s.permission",
+    "s.contest",
+    "s.superseded",
+    "s.cooldown"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.touch3",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no low-friction route exists, or the touch has to carry the items and survive until the person can act"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "explicit commercial SMS permission exists and the process carries an asserted time-bound element - an expiry, a hold, a delivery cut-off"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.touch3",
+   "touch": "t3",
+   "stage": "final-notice",
+   "purpose": "The last honest statement: the process closes at its real expiry, and here is the link. No urgency the system does not assert.",
+   "brief": "Say, once, that the process closes at its real expiry and give the link. No urgency the system does not assert, and no incentive unless policy enables one for the last touch",
+   "destination": {
+    "target": "process-resume",
+    "boundTo": "logical_process_id",
+    "mustNotClaim": [
+     "an expiry the platform does not enforce",
+     "stock is reserved",
+     "the price is held"
+    ]
+   },
+   "label": "OPTIONAL_STRATEGY",
+   "prerequisites": [
+    "c.state3",
+    "c.final-enabled"
+   ],
+   "after": "t2"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.touch3",
+   "key": "logical_process_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.close",
+   "timing": {
+    "key": "recovery.process_expiry",
+    "class": "attribute-bound",
+    "default": "expires_at as asserted by the platform",
+    "basis": "attribute-bound",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "expires_at",
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.close",
+   "cancelOn": [
+    {
+     "event": "process_completed",
+     "meaning": "the logical process reached its completion in the system of record"
+    },
+    {
+     "event": "process_cancelled",
+     "meaning": "the person cancelled the logical process"
+    },
+    {
+     "event": "process_expired",
+     "meaning": "the platform expired the logical process"
+    },
+    {
+     "event": "items_removed_all",
+     "meaning": "every item was removed from the process"
+    },
+    {
+     "event": "payment_failed",
+     "meaning": "an authoritative provider response classifies a payment attempt as failed"
+    }
+   ],
+   "onEvent": "c.close"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.close",
+   "reads": "the process re-read from the system of record at its expiry",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "condition",
+   "node": "c.close",
+   "asks": "What ended the final wait?",
+   "branches": [
+    {
+     "label": "Completed",
+     "observes": "process_completed",
+     "test": "an order or completion is recorded against the process",
+     "to": "x.converted"
+    },
+    {
+     "label": "Payment failed",
+     "observes": "payment_failed",
+     "test": "a payment failure is recorded against this process",
+     "to": "h.payment"
+    },
+    {
+     "label": "Closed unfinished",
+     "observes": "process state",
+     "test": "the process was cancelled, expired or emptied",
+     "to": "x.invalid"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.converted",
+   "class": "success",
+   "state": "completed; the process reached its end",
+   "reEntry": "a new logical process is a new instance; this one is closed as converted"
+  },
+  {
+   "type": "exit",
+   "node": "x.invalid",
+   "class": "invalid-state",
+   "state": "closed unfinished - cancelled, expired or emptied; nothing further is sent",
+   "reEntry": "a new logical process is a new instance"
+  },
+  {
+   "type": "exit",
+   "node": "x.superseded",
+   "class": "suppression",
+   "state": "superseded by a newer process for the same person",
+   "reEntry": "none for this process; the newer process owns recovery"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-action",
+   "class": "no-action",
+   "state": "no touch sent; the gate that stopped it is recorded",
+   "reEntry": "a new logical process is a new instance, subject to the cooldown when this one lapsed or was suppressed"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "recovery lifetime passed with the process still open; nothing further is sent",
+   "reEntry": "a new logical process is a new instance, and enters silently while the cooldown runs"
+  },
+  {
+   "type": "handoff",
+   "node": "h.payment",
+   "to": "FIN-134",
+   "on": "a payment failure recorded against the process - a failed payment is not abandonment",
+   "carries": [
+    "the logical process and its items",
+    "the obligation the failed attempt was against",
+    "that recovery communication about the process stops here"
+   ],
+   "suppresses": [
+    "every queued recovery touch for this process"
+   ],
+   "contract": {
+    "requiredFields": [
+     "logical_process_id",
+     "person_id",
+     "obligation_id",
+     "failed_at"
+    ]
+   }
+  }
+ ]
+}

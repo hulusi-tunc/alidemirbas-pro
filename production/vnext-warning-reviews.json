@@ -1,0 +1,1749 @@
+{
+ "_about": "Warnings on vNext journeys that a person reviewed and accepted, with the reason. The validator counts vNext warnings not listed here as unreviewed. `match` is an optional substring of the message.",
+ "reviews": [
+  {
+   "id": "SCH-266",
+   "code": "simultaneous_review",
+   "match": "touches t2, t3",
+   "note": "t2 (at-risk notice) and t3 (reminder) are the two exclusive arms of c.critical - a critical prerequisite is either missing or it is not. They are never sent together; no simultaneous rule is needed.",
+   "reviewedBy": "migration pass, Gate 2",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "ACT-17",
+   "code": "router_journey",
+   "note": "Adoption nurture ends only in handoffs by design: stable adoption goes to the lifecycle owner, a stall goes to adoption recovery. There is no outcome it owns alone.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "SUB-163",
+   "code": "router_journey",
+   "note": "Renewal reminder ends only in handoffs by design: a decided renewal executes (SUB-164), a non-renewal schedules its end (SUB-168), an undefined term or an overrun review goes to decision or ownership. The decision is the outcome and each decision has an owner.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "SUB-165",
+   "code": "router_journey",
+   "note": "Renewal payment recovery is a relationship-state holder: it ends in completion, end or decision resolution, all owned elsewhere. Its communication is FIN-134's.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "SCH-280",
+   "code": "touch_no_destination",
+   "match": "t-ack",
+   "note": "The acknowledgement deliberately carries no route: there is nothing to rebook onto, and a rebooking prompt with nothing behind it is the false call to action the journey forbids.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "SCH-280",
+   "code": "simultaneous_review",
+   "match": "t-offer, t-ack",
+   "note": "t-offer and t-ack are the two exclusive arms of c.rebookable - rebooking is available or it is not. Never both.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "CON-264",
+   "code": "simultaneous_review",
+   "match": "t-old, t-new",
+   "note": "t-old and t-new are both sent, in sequence, to two different destinations: the replaced destination is warned, then the new destination is asked to confirm. This is the two-party confirmation itself, not a simultaneous send to one person's channels; the channel is the destination's own kind.",
+   "reviewedBy": "migration pass, Gate 3",
+   "reviewedAt": "2026-09-01"
+  },
+  {
+   "id": "ACT-11",
+   "code": "router_journey",
+   "note": "Route assignment chooses a path and hands over: blocked start to ACT-13, clear start to ACT-12. It owns no outcome of its own.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACT-13",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "t1 (specific action to the account) and t2 (raise with the dependency owner) are the exclusive arms of c.self-resolvable. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACT-20",
+   "code": "engagement_as_progression",
+   "match": "meaningful_return",
+   "note": "The corpus's own rule: success is a meaningful return - a real action in the product - never an open or a click. The event is inspected (a.inspect) before anything advances.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACQ-02",
+   "code": "router_journey",
+   "note": "Interest routing ends in a handoff on every path by design: a named destination, a disqualifier, or education.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACQ-04",
+   "code": "router_journey",
+   "note": "High-intent routing decides who owns the next step and hands to them: an assigned person, automated continuation, or the already-reached destination.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "RET-27",
+   "code": "router_journey",
+   "note": "The stability check owns only the observation: sustained recovery hands to the lifecycle owner, relapse hands back to diagnosis.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACQ-285",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "t1 (a person will follow up) and t2 (deliver the material) are the exclusive arms of c.declared - what the person asked for. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "CON-272",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "t1 (in product) and t2 (surviving off-product route) are the exclusive arms of c.route - what can carry the repair request. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "CON-272",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The confirmation states that the replacement is in use; it asks for nothing and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FBK-42",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The light and heavy asks are the exclusive arms of c.type - the size of request the evidence supports.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FBK-47",
+   "code": "simultaneous_review",
+   "match": "t2, t3",
+   "note": "The information request and the outcome statement are the exclusive arms of c.outcome (MORE_INFORMATION_REQUIRED vs a conclusion).",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FBK-49",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The customer request and the internal request are the exclusive arms of c.provider - who can supply the item.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-268",
+   "code": "touch_no_destination",
+   "match": "t2",
+   "note": "The discharge confirmation asks for nothing; it closes the loop and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-274",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The restricted notice and the quiet notice are the exclusive arms of c.restricted - whether grace reduces anything the holder will notice.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-274",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The recovery confirmation asks for nothing; it names what returned and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-281",
+   "code": "simultaneous_review",
+   "match": "t1, t2, t3, t4",
+   "note": "The four route statements are the exclusive arms of c.route - which mechanism restores validity. Exactly one is ever sent.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-281",
+   "code": "touch_no_destination",
+   "match": "t5",
+   "note": "The confirmation of restored validity asks for nothing and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACC-261",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The restoration confirmation asks for nothing; it names what returned and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACC-263",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The first-time notice and the brief confirmation are the exclusive arms of c.first-time. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACC-263",
+   "code": "touch_no_destination",
+   "match": "t2",
+   "note": "The brief confirmation to a familiar holder names only what changed and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "IDN-270",
+   "code": "touch_no_destination",
+   "match": "t2",
+   "note": "The restoration confirmation asks for nothing; it names what was invalidated and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "REL-284",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The known-holder and new-counterparty invitations are the exclusive arms of c.known. Never both.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "REL-284",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The activation confirmation to both sides names scope and direction and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TRM-106",
+   "code": "simultaneous_review",
+   "match": "t2, t4",
+   "note": "The non-recoverable notice (t2) and the recoverable blocker (t4) are the exclusive arms of c.blockers.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TRM-106",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The closure confirmation states what closed and what closure is not; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TRM-275",
+   "code": "simultaneous_review",
+   "match": "t4, t5",
+   "note": "Full and partial closure records are the exclusive arms of c.outcome.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TRM-275",
+   "code": "touch_no_destination",
+   "match": "t4",
+   "note": "The closure record is the durable answer to the request; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-269",
+   "code": "simultaneous_review",
+   "match": "t2, t3",
+   "note": "Partial and total notices are the exclusive arms of c.scope - how much of the connection is affected.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-269",
+   "code": "touch_no_destination",
+   "match": "t4",
+   "note": "The restoration confirmation names what came back and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-278",
+   "code": "simultaneous_review",
+   "match": "t1, t5",
+   "note": "The active confirmation and the generic failure are the exclusive arms of c.outcome.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-278",
+   "code": "simultaneous_review",
+   "match": "t2, t3, t4",
+   "note": "The credential, permission and capability fixes are the exclusive arms of c.stage - exactly one stage failed.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "INT-278",
+   "code": "touch_no_destination",
+   "match": "t1",
+   "note": "The active confirmation names the validated capabilities and carries no route by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-142",
+   "code": "router_journey",
+   "match": null,
+   "note": "Allocation decides whether resources exist and hands to reservation or to cancellation reconciliation.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-145",
+   "code": "router_journey",
+   "match": null,
+   "note": "Every resolution of an exception belongs to execution, delay handling or cancellation reconciliation.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-146",
+   "code": "router_journey",
+   "match": null,
+   "note": "A delay ends in resumption, an exception, a cancellation or ownership escalation - all owned elsewhere.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-147",
+   "code": "router_journey",
+   "match": null,
+   "note": "The executor's report decides the next journey: confirmation, failed-attempt recovery or delay.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-148",
+   "code": "router_journey",
+   "match": null,
+   "note": "A failed attempt ends in a retry dispatch, a return or an exception - all owned elsewhere.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "REM-156",
+   "code": "router_journey",
+   "match": null,
+   "note": "A correction ends in verification, an alternative remedy or ownership escalation.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FIN-137",
+   "code": "simultaneous_review",
+   "match": "t2, t3, t4, t5",
+   "note": "Rejection notice, review acknowledgement, human review and approval share c.eligible's prerequisites: rejection, review and approval are its exclusive arms, and the acknowledgement follows the review step.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FIN-137",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The under-review acknowledgement states a state without implying an outcome; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-146",
+   "code": "simultaneous_review",
+   "match": "t2, t3",
+   "note": "The no-choice update and the offer are the exclusive arms of c.choice.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-265",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "The arrival confirmation states the evidence of delivery and asks for nothing; the acceptance request that may follow carries the route.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-276",
+   "code": "simultaneous_review",
+   "match": "t3, t4",
+   "note": "The accept and decline confirmations are the exclusive arms of c.answer.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-276",
+   "code": "touch_no_destination",
+   "match": "t3",
+   "note": "A confirmation or lapse notice closes the offer and asks for nothing by design; the offer and reminder carried the route.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-276",
+   "code": "touch_no_destination",
+   "match": "t4",
+   "note": "A confirmation or lapse notice closes the offer and asks for nothing by design; the offer and reminder carried the route.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "FUL-276",
+   "code": "touch_no_destination",
+   "match": "t5",
+   "note": "A confirmation or lapse notice closes the offer and asks for nothing by design; the offer and reminder carried the route.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "REM-152",
+   "code": "simultaneous_review",
+   "match": "t1, t2, t3",
+   "note": "Rejection notice, authorisation notice and human review are the exclusive arms of c.eligible.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "TIM-268",
+   "code": "simultaneous_review",
+   "match": "t2, t3",
+   "note": "The discharge confirmation and the overdue notice are the exclusive arms of c.settled at the deadline.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "SUB-262",
+   "code": "touch_no_destination",
+   "match": "t1",
+   "note": "The cancellation confirmation states the end date and what remains; it asks for nothing by design and never re-litigates.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "SCH-180",
+   "code": "touch_no_destination",
+   "match": "t1",
+   "note": "The reallocation notice tells the customer what changed while the time stands; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "SCH-277",
+   "code": "simultaneous_review",
+   "match": "t2, t3, t4",
+   "note": "Confirmation, re-offer and decline are the exclusive arms of c.outcome - what revalidation decided.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "SCH-282",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The nearest-window offer and the waitlist offer are the exclusive arms of c.options.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "DEC-184",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The external request and the internal request are the exclusive arms of c.source-type - who holds the information.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "DEC-267",
+   "code": "touch_no_destination",
+   "match": "t2",
+   "note": "The cleared confirmation names what the decision no longer affects; it asks for nothing by design.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "DEC-267",
+   "code": "simultaneous_review",
+   "match": "t1, t4, t5",
+   "note": "Correctable, reapplicable and final are the exclusive arms of c.path - exactly one is true.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "RSK-273",
+   "code": "simultaneous_review",
+   "match": "t2, t3, t4",
+   "note": "Self-offer and holder-offer are the exclusive arms of c.decider; the blocked-party notice follows the holder-offer in sequence.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "DOC-286",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The actionable and standing notices are the exclusive arms of c.usable - whether the entitlement is exercised or held.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "RLT-279",
+   "code": "simultaneous_review",
+   "match": "t1, t2",
+   "note": "The hold notice and the blocker prompt are the exclusive arms of c.resolvable.",
+   "reviewedBy": "migration pass, Gate 4",
+   "reviewedAt": "2026-09-02"
+  },
+  {
+   "id": "ACC-78",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-01",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-04",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-07",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-09",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-10",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-11",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-12",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-16",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-19",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-20",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "CON-264",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "DOC-220",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-42",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-43",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FIN-134",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FIN-136",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-141",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-142",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-143",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-144",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-146",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-147",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-148",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-149",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-150",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-265",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-270",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-81",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-87",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-88",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-90",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "INT-269",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REM-156",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REM-157",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-22",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-23",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-24",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-27",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-30",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RSK-273",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-173",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-176",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-177",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-178",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-179",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-277",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-280",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-161",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-162",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-165",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-166",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TIM-65",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Outside this round's scope (silent lifecycle state, mechanism, or operational workflow, not one of the 71 communicating Customer Journeys audited this round). Validator B (handoff identifier provenance) is deliberately warn-only corpus-wide and surfaces this as a prompt to check, not a verdict - see VALIDATOR-COVERAGE.md in research/journey-production-readiness/. Tracked as corpus debt for a future round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Reviewed individually for this round's 71 communicating Customer Journeys. The flagged target-journey instanceKey field is not carried because the target mints it itself on entry, from the real-world record its own trigger event creates (a booking, a requirement, an onboarding instance, a case) - not a value this journey's own graph could carry even in principle. Where this round found the identifier genuinely missing with no minting path (the issue_id-keyed remedy-chain handoffs), it was fixed directly with an explicit contract.requiredFields and a documented minting rule, not reviewed away - see FIXES-APPLIED.md.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACC-71",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACC-78",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACC-79",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-01",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-02",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-05",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-06",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-08",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-10",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "CON-31",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-141",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-142",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-143",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-144",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-147",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-149",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-88",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-89",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REL-100",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REL-94",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "REM-156",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-23",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-29",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-172",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-173",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-161",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-105",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-108",
+   "code": "idempotency_field_undeclared",
+   "note": "Systemic idempotencyKey template-copy defect found by re-running the idempotency-provenance check corpus-wide (production readiness gap-closure round). Outside this round's scope (silent lifecycle state, not one of the 71 communicating Customer Journeys) - every in-scope instance of this same defect was corrected directly, not reviewed away. Tracked as corpus debt for a future silent-lifecycle-states round.",
+   "reviewedBy": "production-readiness gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-03",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.suppress\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-07",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.downgrade\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-07",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.suppress\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.note-return\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.open\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch1\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch2\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-11",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch3\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.rearm\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.open\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch1\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.touch2\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACQ-13",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-12",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.surface\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.identify\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.specific-action\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.route-dependency\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACT-13",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.stop-reminders\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-26",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.assess\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.no-reason\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.ask\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.record-reason\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-28",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.offer\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-31",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "RET-32",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.record-no-action\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "CON-38",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.record\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "CON-38",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.reevaluate\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-43",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.classify\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-43",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.persist-positive\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-46",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.close\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FBK-46",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.close-unconfirmed\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TIM-63",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.prompt-action\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TIM-63",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.inform\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.alert-contained\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.alert-watch\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.cleared\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "IDN-271",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.standing\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.state\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.notify-unauthorized\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.notify-cannot-close\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.confirm-closure\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.surface\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.execute\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "TRM-106",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.verify\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FIN-134",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.classify\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.offer\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.remind\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.confirm-accept\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.confirm-decline\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "FUL-276",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.lapse\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-163",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.evaluate\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-163",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.notice\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-163",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.request\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SUB-163",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.default\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.scope\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.protect\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.reallocate\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.release-old\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.inform\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.cancel\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.release-cancel\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-180",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.notify-provider-cancel\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-280",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.acknowledge\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "SCH-280",
+   "code": "composite_instance_key_component_missing",
+   "match": "action \"a.offer\"",
+   "note": "New review-only validator added in the Silent Lifecycle State gap-closure round, always a warning by design (see VALIDATOR-COVERAGE.md there) - it flags an idempotencyKey that is a strict subset of entity.instanceKey so a human can confirm the narrower scope is intentional. Not reviewed per-instance in that round since it applies corpus-wide and the round's own P0 target was the 64 silent states, not this broader signal.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "DOC-215",
+   "code": "state_write_without_idempotency",
+   "match": "action \"a.unbounded\"",
+   "note": "New validator added in the Silent Lifecycle State gap-closure round (research/lifecycle-state-production-readiness/), scoped to error only for the 64 silent states it audited and fixed. This is a genuine, newly-discovered idempotency gap in a communicating (message-sending) journey, outside that round's scope to fix (its brief explicitly excludes re-touching the 68 message-sending journeys). Tracked here for a future round in that domain.",
+   "reviewedBy": "silent-lifecycle-state gap-closure round",
+   "reviewedAt": "2026-09-03"
+  },
+  {
+   "id": "ACC-261",
+   "code": "handoff_identifier_unprovenanced",
+   "match": "handoff \"h.unreachable\"",
+   "note": "Surfaced by the Runtime Mechanism gap-closure round giving CON-36 a real entity.instanceKey (contact_point_id) for the first time. Not a defect this round's fix introduced: ACC-261's h.unreachable fires once every permitted route has been exhausted, not against one specific contact point, so it structurally cannot carry a single contact_point_id - each individual destination's own UNDELIVERABLE transition already reaches CON-36 separately via its own t.contactability trigger. This handoff is escalation/context for a person-level exhaustion finding, which CON-36's own design deliberately has no single-identity entry point for (see CON-36's own guardrail: no person-level reachable flag). Left as a documented, reviewed gap rather than forcing an invented contact_point_id onto a handoff that does not have one; resolving it properly would mean either CON-36 gaining an aggregate/person-scoped view or ACC-261 iterating per destination, both out of this round's scope (do not invent data, do not add canonical topology to satisfy a validator).",
+   "reviewedBy": "runtime-mechanism gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "FUL-276",
+   "code": "handoff_identifier_unprovenanced",
+   "match": "handoff \"h.unreachable\"",
+   "note": "Same finding and same reasoning as ACC-261's h.unreachable, above - an independent instance of the identical shape (all permitted routes exhausted, no single contact_point_id to carry) into the same target.",
+   "reviewedBy": "runtime-mechanism gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "FBK-47",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Surfaced by the Operational Workflow gap-closure round giving DEC-181 a real entity.instanceKey (request_id) for the first time, to close the round's own confirmed P0 (DEC-181's entry contract assumed a human/customer requester; ~30 real senders, most internal referrals, do not have one). request_id is minted by DEC-181's own a.capture the moment ANY referral - human-submitted or internally referred - is received; no sender, this one included, could carry it even in principle, since it does not exist until DEC-181 itself creates it. This is the self-minted-by-receiver case DEC-181's own repair documents explicitly in its entity.note, not a gap this round's fix introduced or left unaddressed.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "IDN-84",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "REL-100",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "FIN-137",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "REM-152",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "SUB-163",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Covers SUB-163's own h.undefined handoff into DEC-181 - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry. (SUB-163's separate h.execute handoff into SUB-164 was fixed directly, not reviewed away - it now carries renewal_cycle_id explicitly in both carries and contract.requiredFields, since SUB-163 already tracks that identity in its own idempotencyKey vocabulary and genuinely can supply it.)",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "SUB-167",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Covers both of SUB-167's handoffs into DEC-181 (h.authority and h.undefined) - request_id is minted by DEC-181's own a.capture on receipt, not a value either handoff could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "SUB-169",
+   "code": "handoff_identifier_unprovenanced",
+   "note": "Same finding and same reasoning as FBK-47's DEC-181 handoff, above - request_id is minted by DEC-181's own a.capture on receipt, not a value any sender could carry.",
+   "reviewedBy": "operational-workflow gap-closure round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "ACQ-07",
+   "code": "competition_member_unenforced",
+   "note": "a.downgrade and a.suppress act only on this journey's own queued follow-up (reclassifying its own intent, suppressing its own future send) - they are not a consequential external effect a stale-loser race could produce, so there is nothing for a live-ownership check to protect. Confirmed by direct source read during the cross-library integration repair round's own competition-adoption audit: ACQ-07/ACQ-08 have no execution: \"communication\" action of their own.",
+   "reviewedBy": "cross-library integration repair round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "ACQ-12",
+   "code": "competition_member_unenforced",
+   "note": "a.rearm only records the change and re-arms this journey's own first wait timer from the new last-activity time, bounded - it is not a consequential external effect (the actual send, a.touch1/a.touch2, is execution: \"communication\" and is already covered by CMS-205's generic re-check).",
+   "reviewedBy": "cross-library integration repair round",
+   "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "IDN-90",
+   "code": "competition_member_unenforced",
+   "note": "IDN-90 is account-restriction-authority's own highest-precedence member (\"a suspected compromise is the more urgent, safety-critical question\") - it never defers to ACC-78, the group's only other member, so it structurally has nothing to check before acting. The actual P0 this group had (ACC-78 not checking IDN-90's live state before releasing a restriction) was fixed directly in ACC-78's own graph (a.check-authority/c.authority-clear) this round; see FIXES-APPLIED.md.",
+   "reviewedBy": "cross-library integration repair round",
+   "reviewedAt": "2026-09-04"
+  }
+ ]
+}

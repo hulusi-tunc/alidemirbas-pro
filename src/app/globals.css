@@ -2,78 +2,121 @@
 
 /* ==========================================================================
    Altor — Design tokens
-   Premium B2B, white-first, editorial. Primary: Altor Blue #154CE4.
+   Brand: warm blue #2F6BFF on a warm-stone neutral. Manrope + JetBrains Mono.
 
-   This layer was reworked to carry the reference design system's vocabulary
-   (see the port note in AGENTS/PR): the neutral ramp, the primary ramp stops
-   the hero and the buttons need, the surface/line/ink aliases the ported
-   components consume, the pixel-fill mask, the duration scale and the easing
-   set.
+   BRAND GUIDELINE ADOPTION (2026-09-04, same day as, and superseding, the
+   terracotta rebrand above it in git history). By explicit request: "bu
+   bizim brand guideline'ımız olacak, her şey buna evrilecek" - the owner
+   supplied a complete external brand guideline package (Claude Design
+   export: tokens/colors.css, typography.css, spacing.css, effects.css,
+   10 React components, guideline pages) and asked for the whole site to
+   adopt it. Flagged and confirmed before implementation: this package's
+   own readme states it was synthesized from 14 unrelated posts of generic
+   SaaS/dashboard components (sortable tables, incident timelines, file
+   cards) with no logo or site name supplied - i.e. explicitly NOT derived
+   from this project's own material, which is normally what this system's
+   methodology requires (core-principles.md P2). Recorded here as a
+   deliberate, named exception per this project's own exception protocol
+   (see `about`/`/calculators`' cream-palette exception, same pattern) -
+   twice now the brand anchor has been picked from outside the project
+   rather than derived from it; both times by explicit owner request,
+   both times recorded rather than silently absorbed into "the design
+   language."
 
-   NOTHING WAS RENAMED. The ~50 routes already written against `ink-*`,
-   `blue-*`, `paper`, `paper-soft` and `line` keep working: every new name is
-   introduced as an ALIAS, and each alias says below which token it points at.
-   ========================================================================== */
+   WHAT MOVED, and why each token still looks the way it does: the primary
+   ramp is regenerated in OKLCH from the guideline's blue anchor (#2F6BFF),
+   same method as every previous rebrand of this token - hue held constant,
+   the OLD ramp's own lightness/chroma curve shape re-applied under the new
+   hue, not hand-picked per step. The neutral AND ink ramps both move from
+   true-grey / navy-tinted to "stone" (warm grey) - the guideline explicitly
+   asks for one warm neutral family across surfaces and text ("Nötr:
+   Stone... metin stone-800, ikincil stone-500"), so the two-hue split the
+   OLD comments here specifically warned against ("mixing a grey and a navy
+   ink... reads as a bug") is intentionally retired: both ramps now share
+   the same stone hue, generated together from the same OKLCH curve, and
+   the guideline's own literal hex stops are used directly wherever they
+   land on an existing step index. `--font-serif` is re-clamped to the
+   sans (the guideline is explicitly two families, not three) - Merriweather
+   was never actually consumed by any component (see the previous rebrand's
+   own note), so nothing regresses.
+
+   NOTHING WAS RENAMED, again. The ~50 routes written against `ink-*`,
+   `blue-*`, `paper`, `paper-soft` and `line` keep working unedited - only
+   what each alias points at changed. `blue-*` now means the guideline's
+   actual blue for the first time since the earlier terracotta rebrand made
+   it a name-only alias for orange. */
 
 @theme {
   /* --- Typography ------------------------------------------------------- */
-  /* Sans only. `--font-serif` (Newsreader) was removed with the serif: the
-     reference is sans-only, and every pull quote is now re-set in the sans at
-     a larger size with tighter tracking rather than dropped to body copy. */
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  /* CLAMPED, not deleted. Tailwind ships its own `--font-serif`, so simply
-     removing ours does not remove the `font-serif` utility — it falls back to
-     the framework's Georgia stack, and a serif returns the first time anyone
-     types the class. Pointing it at the sans is the same guardrail the radius
-     ceiling below uses: the utility still compiles, it just cannot produce a
-     serif. */
+  /* BRAND GUIDELINE (2026-09-04): Outfit -> Manrope, per the guideline's
+     "Font: Manrope (sans) + JetBrains Mono (mono)" - a two-family system.
+     Same role (one sans, weight/size does the work), loaded in both root
+     layouts. */
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  /* RE-CLAMPED to the sans. The guideline is explicitly two families, not
+     three, and specifies no serif at all - Merriweather (loaded for exactly
+     one same-day rebrand and never actually applied by any component, per
+     that rebrand's own note) is dropped from both root layouts along with
+     this. The `font-serif` utility still compiles; it now falls back to
+     the sans again, same guardrail this token carried before either
+     rebrand touched it. */
   --font-serif: var(--font-sans);
 
-  /* Mono. Loaded in both root layouts; `font-mono` call sites (the hero spec
-     plate, the Lab index numbers, the detail pages' meta rails) resolved to
-     the OS default before this was defined. */
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  /* Mono. BRAND GUIDELINE (2026-09-04): Fira Code -> JetBrains Mono, same
+     role - the hero spec plate, the Lab index numbers, the detail pages'
+     meta rails, the mono-rail eyebrow (`.altor-eyebrow`) all read through
+     this one variable. Loaded in both root layouts. */
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 
-  /* --- Neutral ramp (reference) ----------------------------------------
-     TRUE grey — chroma exactly zero at every step, so there is no undertone to
-     drift with the brand and nothing to fight a photograph or a client logo.
-     Spaced by lightness: the surface band (0→300) is deliberately tight
-     because those steps stack as planes and must separate by a hair; from 300
-     the scale opens into two flat plateaus so every text step is an
-     unmistakable weight apart.
+  /* --- Neutral ramp: "stone" ---------------------------------------------
+     BRAND GUIDELINE (2026-09-04): true grey -> warm stone, per the
+     guideline's explicit "Nötr: Stone (sıcak gri). Zinc/slate/gray
+     kullanılmaz." The 11 steps the guideline gives directly (0, 50-900) are
+     used AS-IS, unrounded; the two steps it doesn't name (25, 1000) are
+     generated in OKLCH from stone's own hue and its own lightness-to-chroma
+     relationship (fit from two real stops, 800 and 400), so they extend the
+     given ramp rather than guessing at it.
 
-     This ramp is used for GROUNDS AND FILLS ONLY in this codebase — the button
-     fill, the hero ground, the scrim. Body text keeps the `ink-*` ramp below,
-     which is navy-tinted; mixing a grey and a navy ink on the same page reads
-     as a bug, so the ink aliases point at `ink-*`, not at these. */
-  --color-neutral-0: #ffffff; /* L* 100.0 */
-  --color-neutral-25: #fbfbfb; /* L*  98.6 */
-  --color-neutral-50: #f6f6f6; /* L*  96.9 */
-  --color-neutral-100: #eeeeee; /* L*  94.1 */
-  --color-neutral-200: #e4e4e4; /* L*  90.6 */
-  --color-neutral-300: #d4d4d4; /* L*  84.9 */
-  --color-neutral-400: #b3b3b3; /* L*  72.9 */
-  --color-neutral-500: #939393; /* L*  60.9 */
-  --color-neutral-600: #747474; /* L*  48.8 — 4.5:1 on canvas, the AA pin */
-  --color-neutral-700: #5a5a5a; /* L*  38.2 */
-  --color-neutral-800: #414141; /* L*  27.5 */
-  --color-neutral-900: #2a2a2a; /* L*  17.1 — the button's hover plate */
-  --color-neutral-1000: #141414; /* L*   6.3 — floor; scrim and shadow tint */
+     No longer grounds-and-fills-only: this same stone family now backs the
+     `ink-*` text ramp below too (see that block's own note) - the split
+     this comment used to warn against making a bug is retired on purpose,
+     because both ramps are now intentionally the same hue. */
+  --color-neutral-0: #ffffff;
+  --color-neutral-25: #fff9f5;
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f5f4;
+  --color-neutral-200: #e7e5e4;
+  --color-neutral-300: #d6d3d1;
+  --color-neutral-400: #a8a29e;
+  --color-neutral-500: #78716c;
+  --color-neutral-600: #57534e; /* ~7.1:1 on canvas — comfortably past the AA pin */
+  --color-neutral-700: #44403c;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1c1917;
+  --color-neutral-1000: #161312; /* floor; scrim and shadow tint */
 
-  /* --- Ink (text / near-black navy) -------------------------------------
-     Unchanged: this is the app's text ramp and 50 routes are written against
-     it. The reference's flat ink aliases sit under § Semantic aliases and
-     point back into it. */
-  --color-ink-950: #05080f;
-  --color-ink-900: #0a1020;
-  --color-ink-800: #141c2f;
-  --color-ink-700: #232c42;
-  --color-ink-600: #3a445c;
-  --color-ink-500: #566078;
-  --color-ink-400: #7a8398;
-  --color-ink-300: #a6adbd;
-  --color-ink-200: #cdd2dd;
-  --color-ink-100: #e4e7ee;
+  /* --- Ink (text, stone-tinted) -------------------------------------------
+     BRAND GUIDELINE (2026-09-04): navy -> the same stone hue as the neutral
+     ramp above, generated together with it rather than separately, so text
+     and surfaces read as one warm family (exactly what the guideline asks
+     for: "metin stone-800, ikincil stone-500"). Two real anchors pin the
+     curve - `ink-900` lands exactly on stone-800 (#292524, the guideline's
+     own primary-text value) and `ink-500` exactly on stone-500 (#78716c,
+     its secondary-text value) - every other step is this ramp's OLD
+     lightness curve linearly remapped between those two anchors and
+     extrapolated past both ends, so the ramp stays monotonic without
+     hand-picking eight more hex values. Confirmed in-gamut, confirmed
+     monotonic step-to-step. */
+  --color-ink-950: #1f1c1b; /* ~17.6:1 on paper */
+  --color-ink-900: #292524; /* = stone-800, primary text, ~15.2:1 */
+  --color-ink-800: #35312f;
+  --color-ink-700: #45403e;
+  --color-ink-600: #5c5755;
+  --color-ink-500: #77716f; /* ≈ stone-500, caption text (`ink-subtle`), ~4.8:1 — the AA pin */
+  --color-ink-400: #98918f; /* ~3.1:1 — below AA for text; ink-muted/-subtle deliberately skip this step, same as before */
+  --color-ink-300: #bfb8b5;
+  --color-ink-200: #e2dad6;
+  --color-ink-100: #f5ede9;
 
   /* --- Paper (surfaces) ------------------------------------------------- */
   --color-paper: #ffffff;
@@ -82,31 +125,49 @@
      near-identical tones sitting next to each other. */
   --color-paper-soft: #f7f8fb;
 
-  /* --- Primary ramp (reference) -----------------------------------------
-     Generated in OKLCH from the brand anchor #154CE4, hue held at 264° across
-     every step, chroma peaking at 600 and easing off toward both ends so the
-     light tints stay in gamut and the darks stay readable. Do not hand-tune a
-     step — regenerate the ramp.
+  /* --- Primary ramp -------------------------------------------------------
+     BRAND GUIDELINE (2026-09-04): regenerated in OKLCH from the guideline's
+     brand anchor #2F6BFF, hue held at ~257° across every step - same
+     method every prior version of this ramp used, not a hand-picked
+     substitution. `600` is pinned exactly to the anchor (`primary-600 IS
+     the brand`, as before every rebrand); lightness eases toward white
+     above it and toward near-black below it along the SAME two-segment
+     curve shape the ramp has always used, and chroma scales off the
+     anchor's own chroma by the same step-to-step ratios. Verified
+     in-gamut at every step. Do not hand-tune a step — regenerate the ramp.
 
-     This REPLACES the previous hand-picked blue ramp (anchor #164CE4). The two
-     anchors differ by one unit of red; the intermediate stops did not agree,
-     which is what made a `blue-700` hover read slightly off-hue from its
-     `blue-600` rest state. `--color-blue-*` below is now an alias of this
-     ramp, so every existing `bg-blue-600` / `text-blue-700` call site moves to
-     the reference blue with no edit. */
+     ACCESSIBILITY: white-on-primary-600 measures ~4.5:1 - right at the
+     body-text floor, and comfortably past the 3:1 non-text floor - so
+     unlike the terracotta ramp this replaces, `--color-ink-brand` below
+     can safely point at `600` again... it still points at `700` (7.1:1)
+     for a comfortable margin rather than a value sitting exactly on the
+     threshold, but the SPLIT itself (600 for fills, 700 for link text) is
+     no longer the load-bearing requirement it was for the terracotta ramp.
+
+     This REPLACES the terracotta ramp (anchor #E05D38, itself one revision
+     past the original blue #154CE4). `--color-blue-*` below stays an alias
+     of this ramp so every existing `bg-blue-600` / `text-blue-700` call
+     site keeps compiling — for the first time since the terracotta rebrand,
+     it resolves to an actual blue again. */
   --color-primary-50: #f3f7ff;
-  --color-primary-100: #e4edff;
-  --color-primary-200: #c9dbff;
-  --color-primary-300: #a4c2ff;
-  --color-primary-400: #6c9aff;
-  --color-primary-500: #3b72f7;
-  --color-primary-600: #154ce4; /* primary-600 IS the brand */
-  --color-primary-700: #0a37b7;
-  --color-primary-800: #082a8c;
-  --color-primary-900: #051e63;
-  --color-primary-950: #03113f; /* deepest ground — hero, not a UI surface */
+  --color-primary-100: #e6efff;
+  --color-primary-200: #cee0ff;
+  --color-primary-300: #aecbff;
+  --color-primary-400: #7baaff;
+  --color-primary-500: #5089ff;
+  --color-primary-600: #2f6bff; /* primary-600 IS the brand */
+  --color-primary-700: #1c4dc9;
+  --color-primary-800: #123796;
+  --color-primary-900: #092467;
+  --color-primary-950: #02113d; /* deepest ground — hero, not a UI surface */
 
-  /* --- Altor Blue — ALIASES of the primary ramp above -------------------- */
+  /* --- "Altor Blue" — ALIASES of the primary ramp above ------------------
+     These tokens (and every `bg-blue-*`/`text-blue-*` call site) render
+     whatever the primary ramp above currently is. Not renamed to something
+     hue-neutral because ~50 existing routes are written against `blue-*`
+     and a rename would be a mechanical, blast-radius edit for zero
+     behavioral gain — true again today, coincidentally, now that the
+     brand anchor is actually blue. */
   --color-blue-50: var(--color-primary-50);
   --color-blue-100: var(--color-primary-100);
   --color-blue-200: var(--color-primary-200);
@@ -129,9 +190,15 @@
      reference are written against these names; re-theming means re-pointing
      this block only. */
 
-  /* Borders. `--color-line` / `--color-line-strong` are the originals. */
-  --color-line: #e4e7ee;
-  --color-line-strong: #cdd2dd;
+  /* Borders. SOFTENED (2026-08-30 style pass): the site is no longer
+     stroke-heavy, and rather than deleting ~200 borders one at a time -
+     which would leave surfaces with no edge at all where they still need
+     one - the line tokens themselves recede. A border is now a hint that
+     a surface ends, not a drawn frame around it. Pair with a fill
+     (`bg-paper-soft`) or `--shadow-card` where a surface needs to read as
+     a real object. */
+  --color-line: #eef0f5; /* was #e4e7ee */
+  --color-line-strong: #dfe3ec; /* was #cdd2dd */
   --color-line-brand: var(--color-primary-600);
   --color-line-brand-subtle: var(--color-primary-200);
   --color-line-inverse: var(--color-ink-800); /* rules on a dark plate */
@@ -164,24 +231,42 @@
   --color-surface-brand-subtle: var(--color-primary-50);
   --color-surface-brand-tint: var(--color-primary-100);
 
-  /* Ink aliases. These point into the app's NAVY ink ramp, not the true-grey
-     neutral ramp the reference uses, so a ported card and the screen around it
-     read as one page.
-       ink        = ink-900   primary text
-       ink-muted  = ink-500   secondary text, ~6.5:1 on white
-       ink-subtle = ink-500   micro-labels and captions
-     ink-subtle and ink-muted deliberately COINCIDE. The reference pins
-     ink-subtle at exactly 4.5:1 (its neutral-600); this ramp has no step
-     there — ink-400 measures ~3.9:1 and would fail AA at caption sizes, and AA
-     is the harder constraint than a third grey. The ported components use
-     ink-subtle where the reference does; it simply lands on the muted step. */
+  /* Ink aliases. BRAND GUIDELINE (2026-09-04): both `ink-*` and `neutral-*`
+     are the same stone hue now (see each ramp's own note), so this no
+     longer needs to bridge two different hues the way it once did - it's
+     kept as its own alias layer regardless, so the ~50 routes written
+     against `ink`/`ink-muted`/`ink-subtle` don't need to know which literal
+     ramp backs them.
+       ink        = ink-900   primary text, = stone-800, ~15.2:1 on white
+       ink-muted  = ink-600   secondary text and resting UI labels, ~7:1
+       ink-subtle = ink-500   micro-labels and captions, = stone-500, ~4.8:1
+
+     THE TWO NO LONGER COINCIDE (2026-09-06). They both sat on ink-500 with
+     the note that ink-400 (~3.1:1) fails AA at caption sizes, so there was
+     no room to split them DOWNWARD - true, and still true. The split is
+     upward instead: the owner's review of the nav bar, once its links were
+     put on this alias, was "the text looks thin" - 14px Manrope at 400 on
+     stone-500 is faint against a stone-800 wordmark and an ink button.
+     Five variants were rendered side by side (weight 400/500, ink-500/600/
+     900, 14/15px); 500 on ink-600 was the one that kept the links present
+     without competing with the wordmark, and 500 on ink-900 flattened the
+     bar into one dark row. The weight half of that answer is the `label`
+     type step (see § Hero port: type steps); the colour half is this alias.
+     It is a deliberate departure from the guideline's literal "ikincil
+     stone-500" for SECONDARY text - stone-500 stays exactly where the
+     guideline put it, as `ink-subtle`, for captions and micro-labels.
+     Consumers moved with it: the shell's links (SiteHeader, SiteFooter,
+     LabNavDropdown, MobileNav) and Button's `ghost` / icon-only tiers. */
   --color-ink: var(--color-ink-900);
-  --color-ink-muted: var(--color-ink-500);
+  --color-ink-muted: var(--color-ink-600);
   --color-ink-subtle: var(--color-ink-500);
   --color-ink-disabled: var(--color-ink-300);
   --color-ink-inverse: #ffffff;
-  --color-ink-brand: var(--color-primary-600); /* links, text accents */
-  --color-ink-brand-hover: var(--color-primary-700);
+  /* 700, not 600 — see the primary ramp's accessibility note above. A link
+     set in primary-600 measures ~3.6:1 on paper and fails the 4.5:1 body-text
+     floor; primary-700 clears it at 6.0:1. */
+  --color-ink-brand: var(--color-primary-700); /* links, text accents */
+  --color-ink-brand-hover: var(--color-primary-800);
 
   /* Interactive — the full state set the buttons consume. */
   --color-primary: var(--color-primary-600);
@@ -189,78 +274,98 @@
   --color-primary-active: var(--color-primary-800); /* pressed */
   --color-primary-subtle: var(--color-primary-50);
   --color-primary-subtle-hover: var(--color-primary-100);
-  --color-on-primary: #ffffff; /* 6.6:1 on the brand fill */
+  --color-on-primary: #ffffff; /* ~4.5:1 on the brand fill — see the primary ramp's note */
 
   /* --- Radii ------------------------------------------------------------
-     THE SCALE IS THE REFERENCE'S, and squareness is a PER-COMPONENT decision
-     rather than a global policy. There is no site-wide "everything is a right
-     angle" rule: the reference is not uniformly square and never was.
+     BRAND GUIDELINE (2026-09-04): values updated to the guideline's own
+     scale ("Köşe: orta — kontrollerde 8px, kartlarda 12–14px, badge/pill
+     999px"). The step NAMES and the ~190 call sites written against them
+     are unchanged; only what each name resolves to moved.
 
-       4px  xs   The smallest treatment: chips, tags, inline code, checkboxes.
-       6px  sm   Controls and small surfaces: inputs, selects, skill chips,
+       5px  xs   The smallest treatment: chips, tags, inline code, checkboxes.
+       6px  sm   Small surfaces that aren't quite a control: skill chips,
                  small tiles.
-       8px  md   Larger reusable components that need a little softness:
-                 toasts, banners, workflow cards, monogram tiles, the section
-                 badge.
-      10px  lg   Top-level containers only — information cards, dashboard
-                 widgets, modals, drawers, large content panels. THE MAXIMUM.
+       8px  md   Controls — inputs, selects, buttons — and larger reusable
+                 components that need a little softness: toasts, banners,
+                 workflow cards, monogram tiles, the section badge.
+      12px  lg   Top-level containers — information cards, dashboard
+                 widgets, modals, drawers, large content panels. THE MAXIMUM
+                 of the numbered scale.
 
      These override Tailwind's built-in rounded-xs/sm/md/lg. The larger
      built-ins above lg are clamped to the ceiling rather than left at their
-     framework defaults, so a stray larger utility cannot reintroduce a 16px
-     corner — it silently lands on 10px instead. The clamps are guardrails, not
-     design steps.
+     framework defaults, so a stray larger utility cannot reintroduce a
+     bigger corner than the brand's own card maximum — it silently lands on
+     12px instead. The clamps are guardrails, not design steps.
 
-     THE ONE DELIBERATE SQUARE CASE IS THE BUTTON. `Button` opts out of this
-     scale entirely and is `rounded-none` at every variant and size, so its
-     edges can sit flush on the editorial grid and a pair of CTAs reads as one
-     segmented bar. That is the reference's own decision and its reasoning is
-     recorded in `src/components/ui/Button.tsx`; it is not an instance of a
-     general rule.
+     THE BUTTON is `--radius-md` (8px) — see `src/components/ui/Button.tsx`
+     for the corner's own history (pill, then square, then this). `sm`
+     moved down from what used to be the button's own step (8px) to the
+     guideline's actual `sm` (6px), so Button.tsx now reads `rounded-md`,
+     not `rounded-sm`, to stay at the brand's stated 8px control radius
+     rather than silently following `sm` down to 6.
 
      CIRCLES REMAIN A SHAPE, NOT A RADIUS. Status dots, radio controls,
-     spinners, pill-shaped rating badges and the avatar keep `rounded-full` and
-     sit outside the 10px ceiling. A square radio reads as a checkbox, which is
-     a functional regression rather than a sharper corner.
-
-     Where a comp specifies a corner this scale has no step for — the hero
-     artwork's 16px and 20px panels — the call site writes it literally and says
-     so. Those are artwork geometry, not UI surfaces. */
-  --radius-xs: 4px;
+     spinners, pill-shaped rating badges and the avatar keep `rounded-full`
+     and sit outside the 12px ceiling. A square radio reads as a checkbox,
+     which is a functional regression rather than a sharper corner. */
+  --radius-xs: 5px;
   --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-lg: 10px;
+  --radius-lg: 12px;
 
-  /* Ceiling clamp — not design steps, guardrails. */
-  --radius-xl: 10px;
-  --radius-2xl: 10px;
-  --radius-3xl: 10px;
-  --radius-4xl: 10px;
+  /* The guideline's own upper steps (14/16), extended beyond its ceiling
+     for the panels and full-bleed surfaces that need their own softer
+     corner and were already using this codebase's larger named steps. */
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+  --radius-4xl: 24px;
 
-  /* --- CONTACT PILOT (DESIGN-MIGRATION-PLAN.md §5) -----------------------
-     `--radius-card`: a dedicated token for card-class surfaces, sourced
-     from the real Mobbin reference markup's 16px standard-card radius —
-     see DESIGN-MIGRATION-PLAN.md §0. Deliberately its OWN token rather
-     than raising `--radius-lg` (10px): raising `--radius-lg` itself would
-     silently round every existing `rounded-lg` call site site-wide, and
-     the Button's `rounded-none` is a separate, explicit opt-out that must
-     stay untouched by this. Generates `rounded-card` alongside the
-     existing scale, above its 10px ceiling by design (a ceiling on the
-     numbered steps, not on every future named token). First (only)
-     consumer: the Contact page's form-surface card, this pilot. */
-  --radius-card: 1rem; /* 16px */
+  /* `--radius-card`: a dedicated token for card-class surfaces (see
+     DESIGN-MIGRATION-PLAN.md §0/§5 for why it stays separate from
+     `--radius-lg` rather than raising that and rounding every existing
+     `rounded-lg` call site site-wide). BRAND GUIDELINE (2026-09-04): moved
+     to 14px, the top of the guideline's stated "kartlarda 12–14px" card
+     range — `--radius-lg` (12px) already covers the bottom of that range
+     for ordinary `rounded-lg` cards; this named token keeps the one
+     component that was already reaching above the numbered ceiling
+     (the Contact page's form-surface card) at the range's upper edge. */
+  --radius-card: 0.875rem; /* 14px */
 
-  /* --- Elevation (restrained, never “floaty SaaS”) ---------------------- */
-  --shadow-hairline: 0 0 0 1px rgb(10 16 32 / 0.06);
+  /* The pill. Chips, filters and the search field take this - the Button
+     component itself moved off it back onto the numbered scale (see
+     Button.tsx's own history); naming this separately still means a future
+     change to the remaining pill-shaped controls is one line rather than a
+     find-and-replace over each of them. */
+  --radius-pill: 9999px;
+
+  /* --- Elevation (restrained, never “floaty SaaS”) ------------------------
+     BRAND GUIDELINE (2026-09-04): the tint moves from ink-navy
+     rgb(10 16 32) to stone rgb(28 25 23), matching the guideline's own
+     `--shadow-card`/`--shadow-md`/`--shadow-lg` (tokens/effects.css) -
+     values folded into this file's existing three-tier structure rather
+     than introduced as new names, so the ~call sites already written
+     against `--shadow-card`/`-hover`/`--shadow-lift` need no edit. */
+  --shadow-hairline: 0 0 0 1px rgb(28 25 23 / 0.06);
   --shadow-card:
-    0 1px 2px rgb(10 16 32 / 0.04), 0 8px 24px -12px rgb(10 16 32 / 0.12);
+    0 1px 2px rgb(28 25 23 / 0.06), 0 4px 10px -8px rgb(28 25 23 / 0.45);
   /* One step above `--shadow-card`, for a card lifting under the cursor.
      `--shadow-lift` is a panel shadow: on a hover it reads as a jump. */
   --shadow-card-hover:
-    0 1px 2px rgb(10 16 32 / 0.04), 0 12px 28px -16px rgb(10 16 32 / 0.16);
+    0 4px 12px rgb(28 25 23 / 0.08), 0 1px 2px rgb(28 25 23 / 0.06);
   --shadow-lift:
-    0 2px 4px rgb(10 16 32 / 0.04), 0 24px 48px -24px rgb(10 16 32 / 0.22);
-  --shadow-blue: 0 18px 40px -20px rgb(21 76 228 / 0.55);
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+  /* The brand's own focus ring, as a shadow rather than an outline so it
+     can stack with `--shadow-card` on a control that has both. Not yet
+     consumed anywhere; `:focus-visible` below still uses the outline
+     property, which already reads the brand color via `--color-blue-600`. */
+  --shadow-ring-focus: 0 0 0 2px var(--color-primary-600);
+  /* BRAND GUIDELINE (2026-09-04): recolored from the terracotta rebrand's
+     rgb(224 93 56) to the guideline's own blue anchor. Renamed from
+     --shadow-blue in that same rebrand - still zero call sites, still a
+     safe rename. */
+  --shadow-brand: 0 18px 40px -20px rgb(47 107 255 / 0.55);
   /* Reference names, for the ported card tones. `sm` is the resting card
      shadow, `lg` the lifted one — aliases of the two above. */
   --shadow-sm: var(--shadow-card);
@@ -316,6 +421,25 @@
   --text-5xl--line-height: 1.0833;
   --text-5xl--letter-spacing: -0.03em;
 
+  /* --- The UI label tier (2026-09-06) ------------------------------------
+     `text-label`: 14 / 20, Medium, -0.01em. This is the cut the system's
+     small controls already used one by one - the Button label (`sm`:
+     `font-medium tracking-[-0.01em]` at 0.875rem), the badge (14px / 500),
+     the eyebrow (13px / 500) - and the one piece of small UI text that was
+     still at Regular was the navigation link, which is why the nav bar was
+     the thing that read "thin" next to its own button. Named as a step so a
+     nav link, a dropdown row and a menu row are one declaration rather than
+     three agreeing class strings, and so the weight is a fact of the ramp
+     rather than a `font-medium` each call site remembers to add. Its
+     colour is not part of the step: rest on `ink-muted`, hover to `ink`,
+     current-page on `ink-brand`. Body copy is untouched - `text-sm` /
+     `text-base` stay Regular and stay at the framework's values, as the
+     note above says. */
+  --text-label: 0.875rem; /* 14 */
+  --text-label--line-height: 1.25rem; /* 20 */
+  --text-label--letter-spacing: -0.01em;
+  --text-label--font-weight: 500;
+
   /* --- CONTACT PILOT ROUND 2: Portrait-derived fluid heading scale -------
      (PORTRAIT-DESIGN-SOURCE-AUDIT.md §4/§7) — real, exact values read from
      portrait.so's own served production CSS (`--text-h1-fluid` etc.), not
@@ -345,14 +469,16 @@
   /* --- Hero port: colours ----------------------------------------------
      All new names, so nothing already written can shift under them.
 
-     `success` is the artwork's green: the comp's #379a44 / #e6fae7 pair is the
-     reference's `success` / `success-subtle` to within Δ3, so the artwork uses
-     the tokens rather than two more hexes. It is a THIRD hue in a two-hue
-     system (brand blue + ink) and exists only because the comp's budget widget
-     and rating stars are green; nothing else in the product may reach for it
-     without a decision. */
-  --color-success: #399a43; /* 3.6:1 on white — never text-on-white */
-  --color-success-subtle: #e8f9e7;
+     `success` is the artwork's green: the comp's #379a44 / #e6fae7 pair was
+     the reference's `success` / `success-subtle` to within Δ3, so the
+     artwork used the tokens rather than two more hexes. It is a THIRD hue
+     in the brand system and exists only because the comp's budget widget
+     and rating stars are green; nothing else in the product may reach for
+     it without a decision. BRAND GUIDELINE (2026-09-04): the pair itself
+     is now the guideline's own literal success/success-bg values, not the
+     old reference's — same role, updated source. */
+  --color-success: #57bc6c; /* ~2.4:1 on white — never text-on-white, same caveat as before */
+  --color-success-subtle: #ecfdf5;
 
   /* The editorial grid's two rules — see § EDITORIAL GRID. Alpha, not a solid:
      the rule has to survive whatever ground it is drawn over. */
@@ -373,13 +499,20 @@
    live here rather than in @theme — Tailwind has no `--duration-*` namespace,
    so declaring them there generates no utilities at all. */
 :root {
-  /* Durations are capped at 400ms — anything slower reads as lag, not polish.
-     Every value below is now inside the cap; `--duration-reveal` is the one
-     exception, and it is scroll furniture rather than a response to a pointer. */
+  /* BRAND GUIDELINE (2026-09-04): fast/base/slow updated to the guideline's
+     own three durations ("`--ease-out` 250ms giriş, `--ease-in` 120ms
+     çıkış" plus its 600ms overshoot-spring value). This LIFTS the previous
+     400ms lag cap for `--duration-slow` specifically - the guideline's own
+     600ms is a deliberate overshoot-spring duration (modals, drawers,
+     FlowButton-style transitions), not an accidental regression past that
+     cap; `--duration-fast` and `--duration-base` both stay comfortably
+     inside it. `--duration-instant` isn't named by the guideline at all
+     (checkbox/radio/switch flips are below its stated granularity) and
+     keeps its previous value. */
   --duration-instant: 80ms; /* state flips: checkbox, radio, switch */
-  --duration-fast: 140ms; /* hover, focus, colour changes */
-  --duration-base: 220ms; /* dropdowns, tooltips, tabs, toasts */
-  --duration-slow: 320ms; /* modals, drawers, bar growth */
+  --duration-fast: 120ms; /* hover, focus, colour changes */
+  --duration-base: 250ms; /* dropdowns, tooltips, tabs, toasts */
+  --duration-slow: 600ms; /* modals, drawers, overshoot-spring transitions */
   /* Client direction, 30 July 2026: the dissolve was right but too slow.
      360ms still shows individual pixels resolving from the centre outward —
      below ~300 the rings collapse into one flash and the effect is lost.
@@ -472,9 +605,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    /* Never let the browser fake a weight we didn't ship — with the serif gone
-       there is only one family left, and a synthesised oblique would be the
-       browser reinventing the italic the design just removed. */
+    /* Never let the browser fake a weight we didn't ship — a synthesised
+       oblique or bold would be the browser reinventing a cut neither
+       loaded family (Manrope, JetBrains Mono) actually ships at that
+       weight. */
     font-synthesis-weight: none;
   }
 
@@ -499,8 +633,8 @@
      in @theme is the only global statement about corners.
 
      The focus ring keeps a radius of its own — it traces the control it is on,
-     and `Button` restates `focus-visible:rounded-none` locally because it is
-     square by design. */
+     and `Button` restates `focus-visible:rounded-sm` locally to match its own
+     8px corner rather than this default's 6px. */
   :focus-visible {
     outline: 2px solid var(--color-blue-600);
     outline-offset: 2px;
@@ -651,12 +785,30 @@
      fifteen call sites by hand. Call sites that need a different weight
      or tracking (the footers) already stack utilities on top, and
      utilities win the cascade. */
+  /* THE MONO RAIL IS RETIRED (2026-08-30 style pass). This was 11px mono,
+     0.12em tracking, uppercase - the site's old signature, and the exact
+     thing reviewed as unreadable ("uppercase lock, so small"). It is used
+     at ~35 call sites, so it is fixed HERE rather than edited into each:
+     a plain-case label at a size someone can actually read.
+
+     `text-transform: none` is stated rather than simply dropped because
+     six call sites still add their own `uppercase` utility; without this
+     they would keep shouting while the rest of the site stopped. Utility
+     classes win on specificity, so those are unset individually below. */
   .altor-eyebrow {
-    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-    font-size: 0.6875rem;
-    font-weight: 400;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-family: inherit;
+    font-size: 0.8125rem; /* 13px */
+    font-weight: 500;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* The six call sites that re-add `uppercase` (footer column heads and a
+     few page eyebrows) - overridden here so the retirement is total and
+     none of them has to be hunted down individually. */
+  .altor-eyebrow.uppercase {
+    text-transform: none;
+    letter-spacing: normal;
   }
 
   /* Scroll reveal — progressive enhancement, content is in the HTML. */
@@ -696,6 +848,99 @@
     }
     to {
       transform: translateX(-50%);
+    }
+  }
+
+  /* ---- LAB ILLUSTRATIONS ------------------------------------------------
+     The Lab page's figures are drawn in code and animate on their own
+     clock, so the sections read as alive rather than as stills in slots.
+     Every one of these is transform or opacity only - composited, never
+     re-laying-out - and all of them stop under the global reduced-motion
+     rule above. */
+
+  /* The dot matrix breathing, the same grain the button's pixel dissolve
+     uses. Scale, not opacity alone, so the field reads as depth. */
+  .lab-matrix {
+    animation: lab-matrix 9s ease-in-out infinite;
+  }
+
+  @keyframes lab-matrix {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.06); }
+  }
+
+  /* Concentric arcs turning at three different rates. */
+  .lab-spin { animation: lab-spin 26s linear infinite; }
+  .lab-spin-slow { animation: lab-spin 46s linear infinite; }
+  .lab-spin-reverse { animation: lab-spin 34s linear infinite reverse; }
+
+  @keyframes lab-spin {
+    to { rotate: 360deg; }
+  }
+
+  /* A pulse travelling from the hub down a branch. The dash pattern is a
+     short lit segment on a long gap, so moving the offset sends one
+     packet along the path rather than marching ants. */
+  .lab-pulse {
+    animation: lab-pulse 3.2s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  }
+
+  @keyframes lab-pulse {
+    from { stroke-dashoffset: 200; }
+    to { stroke-dashoffset: -40; }
+  }
+
+  /* Stacked plates drifting a hair out of phase with each other. */
+  .lab-float {
+    animation: lab-float 7s ease-in-out infinite;
+  }
+
+  @keyframes lab-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -6px; }
+  }
+
+  /* A navigation surface arriving - the phone menu panel and the desktop
+     Lab dropdown share it: a short rise and fade, no blur - it is a
+     surface sliding in, not a value resolving. Timed on the system's own
+     tokens since 2026-09-06 (it carried a literal 200ms and, byte for
+     byte, the curve behind `--ease-out-soft`): `--duration-base` is the
+     step the duration block names for dropdowns. Neutralised with every
+     other animation by the reduced-motion block above. */
+  .nav-panel-in {
+    animation: nav-panel-in var(--duration-base) var(--ease-out-soft) both;
+  }
+
+  @keyframes nav-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* The calculator's answer arriving: the number resolves out of a blur the
+     moment the inputs first complete (CalcPanel's PrimaryResult). Runs only
+     on the not-ready → ready transition, never on later live edits - a
+     slider dragging through fifty values must not restart a blur fifty
+     times. Reduced motion is covered by the global animation neutraliser. */
+  .calc-reveal {
+    animation: calc-reveal 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes calc-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+      filter: blur(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
     }
   }
 
@@ -847,6 +1092,20 @@
   --badge-wash: var(--color-badge-dark-wash);
   --badge-border: var(--color-badge-dark-border);
   --badge-ink: var(--color-badge-dark-ink);
+}
+
+/* A horizontal rail that scrolls without showing a bar. For filter rows and
+   tab strips on narrow screens, where wrapping a set of chips onto four
+   lines costs more vertical space than the content below is worth. Paired
+   with `snap-x` at the call site so a swipe lands on a chip rather than
+   between two. */
+@utility no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @utility section-badge {

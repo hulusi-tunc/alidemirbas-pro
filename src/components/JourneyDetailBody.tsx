@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PractitionerView from "@/components/PractitionerView";
 
 import JourneyCanvas from "@/components/JourneyCanvas";
 import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
@@ -81,7 +82,7 @@ export const JOURNEY_CANVAS_REGRESSION_FIXTURE: ReadonlySet<string> = new Set([
   "DEC-183",
   "TIM-61",
   "RSK-194",
-  "ACT-15",
+  "ACT-17",
   // Tier 2 - population/distribution coverage
   "TIM-68",
   "CMS-203",
@@ -156,6 +157,18 @@ export default function JourneyDetailBody({
         <p className="mb-6 border border-line bg-paper-soft px-4 py-3 text-[13px] leading-snug text-ink-600">
           {t.mergedNote.replace("{from}", merged.from).replace("{to}", merged.to)}
         </p>
+      ) : null}
+
+      {/* vNext: the practitioner's view leads on a migrated journey - what
+          triggers it, who enters, the touch plan with its timing and roles,
+          what stops it, what to configure, what to measure. The graph
+          follows as the technical logic behind it. Nothing in the view is
+          hand-written; it is projected from the journey's own fields. */}
+      {detail.practitioner ? (
+        <>
+          <PractitionerView view={detail.practitioner} lang={lang} t={t.practitioner} basePath={basePath} />
+          <h2 className="mt-12 mb-4 border-t border-ink-900 pt-6 text-base font-semibold tracking-tight text-ink-950">{t.practitioner.technical}</h2>
+        </>
       ) : null}
 
       <JourneyCanvas

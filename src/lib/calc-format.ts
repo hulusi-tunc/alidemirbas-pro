@@ -1,37 +1,49 @@
+import type { Lang } from "@/lib/content";
+
 /* Output formatting, keyed by the `unit` string carried on each catalog
    output field. Client-safe (no JSON catalog import) and framework-free -
    this is the one place that decides how a raw computed number becomes
    display text, so percentage vs percentage-point vs ratio vs currency
-   handling only needs to be correct once (Phase 2 §8/§9). */
+   handling only needs to be correct once (Phase 2 §8/§9).
 
-export function formatByUnit(value: unknown, unit: string | null | undefined): string {
+   `lang` picks the grouping/decimal separators, not just the language:
+   en-US groups with "," and marks decimals with "." (1,234.56), tr-TR
+   does the reverse (1.234,56). Passing `undefined` to toLocaleString (the
+   old behaviour) defers to whatever locale the *browser* happens to be
+   set to, which can silently mismatch the page's own language - a Turkish
+   page read on an en-US browser showed English-style separators, and vice
+   versa. Every call below is pinned to the page's lang instead, so a
+   number on a /tr page always reads the Turkish way. Defaults to "en" only
+   as a last resort for the few call sites that predate this parameter. */
+export function formatByUnit(value: unknown, unit: string | null | undefined, lang: Lang = "en"): string {
   if (value === undefined || value === null) return "-";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (typeof value === "string") return value; // already-formatted (e.g. a model label)
   if (typeof value !== "number" || !Number.isFinite(value)) return "-";
 
+  const locale = lang === "en" ? "en-US" : "tr-TR";
   const u = unit ?? "";
   if (u === "%") return `${(value * 100).toFixed(2)}%`;
   if (u === "percentage points") {
     const sign = value > 0 ? "+" : "";
-    return `${sign}${round(value, 2)} pts`;
+    return `${sign}${round(value, 2, locale)} pts`;
   }
-  if (u.startsWith("x (")) return `${round(value, 2)}x`;
+  if (u.startsWith("x (")) return `${round(value, 2, locale)}x`;
   if (u === "currency") {
     const sign = value < 0 ? "-" : "";
-    return `${sign}$${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `${sign}$${Math.abs(value).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
-  if (u === "months") return `${round(value, 1)} months`;
+  if (u === "months") return `${round(value, 1, locale)} months`;
   if (u === "days") return `${Math.ceil(value)} days`;
-  if (u === "years") return `${round(value, 1)} years`;
-  if (u === "periods") return `${round(value, 1)} periods`;
-  if (u === "count") return Math.round(value).toLocaleString();
-  if (u === "number") return round(value, 4).toString();
-  return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  if (u === "years") return `${round(value, 1, locale)} years`;
+  if (u === "periods") return `${round(value, 1, locale)} periods`;
+  if (u === "count") return Math.round(value).toLocaleString(locale);
+  if (u === "number") return round(value, 4, locale).toString();
+  return value.toLocaleString(locale, { maximumFractionDigits: 2 });
 }
 
-function round(n: number, d: number): string {
-  return n.toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+function round(n: number, d: number, locale: string): string {
+  return n.toLocaleString(locale, { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 
 /* Parses one raw form-string into a number per the field's unit, or

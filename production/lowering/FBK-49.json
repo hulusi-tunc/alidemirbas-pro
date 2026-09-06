@@ -1,0 +1,332 @@
+{
+ "id": "FBK-49",
+ "shortName": "Missing Information Reminder",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "human-task",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.blocked",
+   "event": "required_data_missing_and_blocking",
+   "meaning": "a named business process that cannot safely proceed, and the specific field, document or value it is waiting on",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a named business process that cannot safely proceed, and the specific field, document or value it is waiting on",
+    "no instance of this journey is already open for the the business entity that is blocked plus the specific missing requirement",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "blocked_entity_id",
+    "requirement_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.identify",
+   "does": "Identify the exact missing item and the named process it blocks. A request that cannot name what it unblocks is progressive profiling wearing a blocker's clothes, and the two must not be confusable",
+   "writes": [
+    {
+     "field": "blocking_requirement_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.identify",
+   "key": "person_id + a.identify"
+  },
+  {
+   "type": "condition",
+   "node": "c.authoritative",
+   "asks": "Can an authoritative source supply this without asking anyone?",
+   "branches": [
+    {
+     "label": "We already have it",
+     "observes": null,
+     "test": "an authoritative system holds it, or it can be derived or reconciled from what we hold",
+     "to": "a.retrieve"
+    },
+    {
+     "label": "It has to be provided",
+     "observes": null,
+     "test": "no system holds it and someone has to supply it",
+     "to": "c.provider"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.retrieve",
+   "does": "Retrieve and reconcile it. Asking someone for what we already hold authoritatively is the fastest way to demonstrate that we do not know our own records",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.provider",
+   "asks": "Who can actually supply the missing item?",
+   "branches": [
+    {
+     "label": "The customer or account holder",
+     "observes": null,
+     "test": "only the person the record is about holds it, or policy requires it from them directly",
+     "to": "a.request"
+    },
+    {
+     "label": "Someone inside the organisation",
+     "observes": null,
+     "test": "an internal owner, team or operator holds it, or is the one authorised to produce it",
+     "to": "a.request-internal"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.request",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "missing_critical.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.request",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.request",
+   "touch": "t1",
+   "stage": "request",
+   "purpose": "Request it from the person the record is about, stating what it unblocks, so the request is answerable rather than merely received",
+   "brief": "Request it from the person the record is about, stating what it unblocks, so the request is answerable rather than merely received",
+   "destination": {
+    "target": "provide-missing-item",
+    "boundTo": "requirement_id",
+    "mustNotClaim": [
+     "that nice-to-have data is required"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.authoritative",
+    "c.provider"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.request",
+   "key": "person_id + a.request"
+  },
+  {
+   "type": "human-task",
+   "node": "a.request-internal",
+   "does": "Raise the request as owned work against the internal party who holds the item, carrying the blocked process and the running deadline. Routing an internal dependency down a customer channel asks the wrong person on a route they never agreed to",
+   "touch": "t2"
+  },
+  {
+   "type": "wait",
+   "node": "w.received",
+   "timing": {
+    "key": "missing_critical.received",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "c.criticality"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.received",
+   "cancelOn": [
+    {
+     "event": "requested_information_received",
+     "meaning": "the requested information is received"
+    }
+   ],
+   "onEvent": "c.valid"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.received",
+   "reads": "the the business entity that is blocked plus the specific missing requirement re-read from the system of record before acting on the timeout",
+   "before": "c.criticality"
+  },
+  {
+   "type": "condition",
+   "node": "c.valid",
+   "asks": "Is what we now have valid?",
+   "branches": [
+    {
+     "label": "Valid",
+     "observes": null,
+     "test": "it satisfies the requirement",
+     "to": "a.persist"
+    },
+    {
+     "label": "Invalid or incomplete",
+     "observes": null,
+     "test": "what arrived does not satisfy the requirement",
+     "to": "c.criticality"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.persist",
+   "does": "Persist it and re-evaluate the blocked process, which resumes because its dependency is satisfied rather than because it was told to",
+   "writes": [
+    {
+     "field": "blocking_requirement_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.persist",
+   "key": "person_id + a.persist"
+  },
+  {
+   "type": "exit",
+   "node": "x.resumed",
+   "class": "success",
+   "state": "requirement satisfied; the blocked process is free to continue",
+   "reEntry": "a further missing requirement is its own dependency with its own instance"
+  },
+  {
+   "type": "condition",
+   "node": "c.criticality",
+   "asks": "Given how critical the blocked process is, what now?",
+   "branches": [
+    {
+     "label": "Critical enough for a person",
+     "observes": null,
+     "test": "the process matters enough that someone should own getting this resolved",
+     "to": "h.escalate"
+    },
+    {
+     "label": "An alternate route exists",
+     "observes": null,
+     "test": "the process can proceed by a path that does not require this item",
+     "to": "x.alternate"
+    },
+    {
+     "label": "Not worth pursuing further",
+     "observes": null,
+     "test": "the blocked process can wait or be abandoned without harm",
+     "to": "x.abandoned"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.escalate",
+   "to": "external:human-in-the-loop-lifecycle",
+   "on": "a critical dependency that requesting did not resolve",
+   "carries": [
+    "the missing item, who was asked, and what is blocked",
+    "what has already been tried, so the person does not repeat the request that failed"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "person_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  },
+  {
+   "type": "exit",
+   "node": "x.alternate",
+   "class": "invalid-state",
+   "state": "blocked process proceeding by a route that does not need this",
+   "reEntry": "if the alternate route later requires it after all, that is a new dependency"
+  },
+  {
+   "type": "exit",
+   "node": "x.abandoned",
+   "class": "failure",
+   "state": "requirement unmet; the blocked process stays blocked and says so",
+   "reEntry": "the item arriving later re-opens this normally; it is not re-requested repeatedly in the meantime"
+  }
+ ]
+}

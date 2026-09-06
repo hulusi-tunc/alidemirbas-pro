@@ -1,0 +1,328 @@
+{
+ "id": "FBK-41",
+ "shortName": "Feedback Request",
+ "strategy": "single-notice",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.moment",
+   "event": "potential_feedback_moment",
+   "meaning": "an experience reaching a point worth asking about: a transaction completed, a service interaction finished, an onboarding milestone reached, a support case resolved, a meaningful usage milestone",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a potential feedback moment is recorded against a person and a specific experience",
+    "the experience is complete from the person's side, or completes inside its own horizon",
+    "no unresolved issue exists in the same context",
+    "feedback has not already been collected for this context recently",
+    "the ask stays within the bound on how often this person is asked anything, and hard gates (GLB-31) allow it"
+   ],
+   "instanceKey": [
+    "person_id",
+    "experience_ref"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.complete",
+   "asks": "Is the experience actually complete from the person's side?",
+   "branches": [
+    {
+     "label": "Complete",
+     "observes": null,
+     "test": "the thing being asked about has finished for them, not only for us",
+     "to": "c.open-issue"
+    },
+    {
+     "label": "Not yet",
+     "observes": null,
+     "test": "it is still in progress - the order has not arrived, the work is not finished",
+     "to": "w.completion"
+    }
+   ]
+  },
+  {
+   "type": "wait",
+   "node": "w.completion",
+   "timing": {
+    "key": "feedback_request.completion_horizon",
+    "class": "external-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "x.never-completed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.completion",
+   "cancelOn": [
+    {
+     "event": "experience_completed",
+     "meaning": "the experience the feedback would be about completes"
+    }
+   ],
+   "onEvent": "c.open-issue"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.completion",
+   "reads": "the experience re-read: complete from the person's side, or not",
+   "before": "x.never-completed"
+  },
+  {
+   "type": "exit",
+   "node": "x.never-completed",
+   "class": "invalid-state",
+   "state": "experience never completed; nothing asked",
+   "reEntry": "a later completion opens a new instance"
+  },
+  {
+   "type": "condition",
+   "node": "c.open-issue",
+   "asks": "Is there an unresolved issue in this context?",
+   "branches": [
+    {
+     "label": "Unresolved",
+     "observes": null,
+     "test": "the person still has an open problem here - judged on the evidence, not on whether a ticket is marked closed",
+     "to": "x.deferred"
+    },
+    {
+     "label": "Nothing open",
+     "observes": null,
+     "test": "no outstanding problem in this context",
+     "to": "c.recent"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.deferred",
+   "class": "suppression",
+   "state": "deferred; resolution owns this before satisfaction does",
+   "reEntry": "once the issue is genuinely resolved this becomes eligible again - asking how we did while it is still broken measures our own latency and reads as indifference"
+  },
+  {
+   "type": "condition",
+   "node": "c.recent",
+   "asks": "Has feedback already been collected for this context recently?",
+   "branches": [
+    {
+     "label": "Already asked",
+     "observes": null,
+     "test": "a recent request or response covers the same experience",
+     "to": "x.duplicate"
+    },
+    {
+     "label": "Not yet",
+     "observes": null,
+     "test": "nothing recent covers it",
+     "to": "c.moment"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.duplicate",
+   "class": "suppression",
+   "state": "suppressed as a duplicate ask",
+   "reEntry": "a genuinely different experience is a different context and is asked about on its own terms"
+  },
+  {
+   "type": "condition",
+   "node": "c.moment",
+   "asks": "Is this an appropriate moment, within the bound on how often this person is asked anything?",
+   "branches": [
+    {
+     "label": "Appropriate",
+     "observes": null,
+     "test": "the timing fits the experience and the overall ask budget has room",
+     "to": "a.request"
+    },
+    {
+     "label": "Not now",
+     "observes": null,
+     "test": "the timing is wrong, or this person has been asked enough recently across every context",
+     "to": "x.not-now"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.not-now",
+   "class": "no-action",
+   "state": "eligible in principle, not asked",
+   "reEntry": "the next moment for this experience, if one exists - the request is not queued to fire the moment the budget clears"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.request",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "lifecycle",
+   "localCap": {
+    "value": {
+     "key": "feedback_request.touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "lifecycle",
+   "competition": {
+    "exclusionGroup": "outbound-ask",
+    "scope": "communication-purpose",
+    "precedence": "policy orders satisfaction and advocacy asks against each other; neither is assumed to outrank the other",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.incomplete",
+    "s.open-issue",
+    "s.duplicate",
+    "s.frequency",
+    "s.permission"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.request",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the experience ended inside the product and the person is still there - the shortest route to the question"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the experience ended elsewhere, or the person has left the product"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token exists and the question can be answered in a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.request",
+   "touch": "t1",
+   "stage": "request",
+   "purpose": "Ask about this specific experience, in terms the person would recognise as being about the thing they did, with a route to answer.",
+   "brief": "Request feedback about this specific experience, in terms the person would recognise as being about the thing that just happened",
+   "destination": {
+    "target": "feedback-form-for-experience",
+    "boundTo": "experience_ref"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.complete",
+    "c.open-issue",
+    "c.recent",
+    "c.moment"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.request",
+   "key": "person_id + experience_ref + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.response",
+   "timing": {
+    "key": "feedback_request.response_window",
+    "class": "response-window",
+    "default": {
+     "min": "3 days",
+     "max": "7 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.no-response"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.response",
+   "cancelOn": [
+    {
+     "event": "feedback_submitted",
+     "meaning": "the person submits feedback"
+    }
+   ],
+   "onEvent": "x.received"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.response",
+   "reads": "whether feedback for this context arrived by any route",
+   "before": "x.no-response"
+  },
+  {
+   "type": "exit",
+   "node": "x.received",
+   "class": "success",
+   "state": "feedback received; FBK-43 owns what it means",
+   "reEntry": "this journey's job ended at the ask; what came back has its own lifecycle"
+  },
+  {
+   "type": "exit",
+   "node": "x.no-response",
+   "class": "timeout",
+   "state": "asked, no response",
+   "reEntry": "a future experience may be asked about; nothing here is recorded as a signal, because silence is not dissatisfaction and nothing downstream may read it as one"
+  }
+ ]
+}

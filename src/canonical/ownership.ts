@@ -142,6 +142,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: ["task"],
     name: "Work created → routing → assignment",
+    shortName: "Task Assignment",
     purpose:
       "Get new work into the smallest responsibility scope that is genuinely valid, and refuse to invent one where the policy is silent.",
     entity: {
@@ -290,6 +291,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "routing-assignment",
     channels: [],
     name: "Assignment → acceptance → active responsibility",
+    shortName: "Assignment Acceptance",
     purpose:
       "Keep proposed responsibility and accepted responsibility as different states, so work nobody has taken is visible as such.",
     entity: {
@@ -438,6 +440,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: [],
     name: "Owner assignment → context transfer → work start",
+    shortName: "Ownership Context Transfer",
     purpose:
       "Give a new owner what they need to continue an existing obligation, rather than an entity with their name on it.",
     entity: {
@@ -564,6 +567,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "ownership-transfer",
     channels: ["task"],
     name: "Ownership change → transfer obligations → continue",
+    shortName: "Ownership Transfer",
     purpose:
       "Move responsibility for an active entity without losing anything that was already owed, without letting the clock restart, and without rewriting who did what before the change.",
     entity: {
@@ -578,6 +582,10 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         event: "authoritative_ownership_change",
         evidence: {
           requires: ["a recorded change of owner on an entity with active obligations"],
+          insufficientAlone: [
+            "a request to change ownership that nobody with authority has approved",
+            "an owner becoming unavailable, which is OWN-55's escalation and not a transfer",
+          ],
           source: "authoritative",
         },
         next: "a.record",
@@ -585,14 +593,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.record",
         kind: "action",
-        does: "Record the previous owner, the next owner, the reason and the effective time, appended to the ownership chain",
-        writes: [{ field: "ownership_chain", mode: "append" }],
-        next: "a.history",
-      },
-      {
-        id: "a.history",
-        kind: "action",
-        does: "Leave every historical action, decision, payment, document, approval and obligation attributed exactly as it occurred. This is done first rather than last, because everything after it is tempted to rewrite it - and a new owner appearing as the author of last year's approvals produces a record that is not merely wrong but actively misleading to anyone auditing it",
+        does: "Record the previous owner, the next owner, the reason and the effective time, appended to the ownership chain - and in the same act leave every historical action, decision, payment, document, approval and obligation attributed exactly as it occurred. Preserving authorship is a property of how the change is written rather than a state the entity passes through, and it belongs here because everything after this point is tempted to rewrite it: a new owner appearing as the author of last year's approvals produces a record that is not merely wrong but actively misleading to anyone auditing it",
         writes: [{ field: "ownership_chain", mode: "append" }],
         next: "a.inventory",
       },
@@ -806,6 +807,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: ["task"],
     name: "Responsibility escalation → higher authority → resolution or return",
+    shortName: "Ownership Escalation",
     purpose:
       "Move a blocker up to the level that can clear it, without the original owner putting the work down by raising it.",
     entity: {
@@ -1005,11 +1007,14 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Approval request → review → approve, reject or request changes",
+    shortName: "Approval Request",
     purpose:
       "Bind an approval to the exact version reviewed, and keep approving separate from doing.",
     entity: {
       scope: "the approval request, bound to one specific version of the subject",
-      note: "The version binding is the mechanism. An approval attached to an entity rather than a version authorises whatever that entity becomes afterwards.",
+      note: "The version binding is the mechanism. An approval attached to an entity rather than a version authorises whatever that entity becomes afterwards. Three identities are kept distinct: the requester (who submitted the version for review), the executor (who acts on the approval once granted, via h.execute), and the approver (who decides). This journey's own purpose - keep approving separate from doing - requires the approver to be a different identity from the requester specifically; it says nothing about the executor, who is routinely the requester acting on their own now-approved request.",
+      instanceKey: ["request_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1034,10 +1039,11 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.create",
         kind: "action",
-        does: "Create the approval request bound to the exact version of the subject under review, and record the state as PENDING_REVIEW. Requested is not approved, and until this resolves nothing downstream may act as though it were",
+        does: "Create the approval request bound to the exact version of the subject under review, recording the requester's own identity alongside it so eligibility can exclude them from acting as approver on this same request, and record the state as PENDING_REVIEW. Requested is not approved, and until this resolves nothing downstream may act as though it were",
         writes: [{ field: "approval_log", mode: "append" }],
         next: "w.review",
         execution: "human",
+        idempotencyKey: "request_id + a.create",
       },
       {
         id: "w.review",
@@ -1055,9 +1061,18 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "c.outcome",
         kind: "condition",
-        asks: "What did the reviewer decide?",
+        asks: "What did the reviewer decide, and is the reviewer eligible to decide it?",
         branches: [
-          { label: "APPROVED", when: "the reviewed version is approved", to: "a.approved" },
+          {
+            label: "APPROVED",
+            when: "the reviewed version is approved by a reviewer whose identity differs from this request's own requester",
+            to: "a.approved",
+          },
+          {
+            label: "Self-approval attempted",
+            when: "the acting reviewer is the same identity as this request's own requester - not eligible to approve their own request, whatever the decision they recorded",
+            to: "h.rejected",
+          },
           { label: "REJECTED", when: "the reviewed version is rejected", to: "h.rejected" },
           {
             label: "CHANGES_REQUESTED",
@@ -1072,6 +1087,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the approval against the exact version reviewed, with who approved it and when. This authorises that version and nothing else",
         writes: [{ field: "approval_log", mode: "append" }],
         next: "h.execute",
+        idempotencyKey: "request_id + a.approved",
       },
       {
         id: "h.execute",
@@ -1087,8 +1103,11 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         id: "h.rejected",
         kind: "handoff",
         to: "OWN-59",
-        on: "a rejected approval outcome",
-        carries: ["the rejection reason", "the exact version rejected, which must not later execute"],
+        on: "a rejected approval outcome, including a blocked self-approval attempt",
+        carries: [
+          "the rejection reason - a content rejection or, for a blocked self-approval attempt, that no eligible review occurred at all",
+          "the exact version rejected, which must not later execute",
+        ],
       },
       {
         id: "a.changes",
@@ -1142,6 +1161,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
       "Requested is not approved. The pending state exists so nothing can quietly proceed on the request itself.",
       "Approval is not execution. It authorises an action that still has to happen and be recorded separately.",
       "The approval names the exact version reviewed. An approval without a version is an authorisation with no boundary.",
+      "The requester cannot approve their own request - a decision recorded by the requester against their own request is treated as a blocked self-approval, never as a valid APPROVED or REJECTED outcome, regardless of what the requester themselves recorded.",
     ],
     reusableRule:
       "Approval authorizes a specific reviewed state; it should not silently authorize materially different future states.",
@@ -1155,6 +1175,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: [],
     name: "Multi-party approval → aggregate required decisions → authorised or blocked",
+    shortName: "Multi-Party Approval",
     purpose:
       "Combine several genuinely independent approval decisions strictly according to the governing policy, and refuse to proceed where no policy defines how.",
     entity: {
@@ -1385,6 +1406,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Material change after approval → impact check → re-approval or continue",
+    shortName: "Re-Approval Request",
     purpose:
       "Work out whether an approval still covers what the subject has become, and re-open only the decisions whose basis stopped being true.",
     entity: {
@@ -1400,6 +1422,10 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a change to a subject that already carries an approval, before that approval has been fully executed or the work completed",
+          ],
+          insufficientAlone: [
+            "a cosmetic change to the subject that touches nothing the approval rested on",
+            "a change made after execution, which is a new subject rather than a changed one",
           ],
           source: "authoritative",
         },
@@ -1584,6 +1610,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: [],
     name: "Approval rejected → revision eligibility → resubmit or close",
+    shortName: "Approval Re-Entry",
     purpose:
       "Keep rejection from being either a dead end by default or a retry loop, and make sure a rejected version cannot quietly execute later.",
     entity: {
@@ -1727,6 +1754,7 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "decision-approval",
     channels: ["task"],
     name: "Decision authority change → revalidate pending decisions → transfer or continue",
+    shortName: "Approval Owner Update",
     purpose:
       "Re-evaluate decisions against who is actually authorised now, without unapproving history or blindly moving what is pending.",
     entity: {
@@ -1749,6 +1777,10 @@ export const OWNERSHIP_JOURNEYS: readonly CanonicalJourney[] = [
         evidence: {
           requires: [
             "a change to who holds decision authority: an approver leaving, a role change, authority revoked, organisational responsibility moving, an approval limit changing, or a delegation beginning or ending",
+          ],
+          insufficientAlone: [
+            "an approver being temporarily unavailable, which is a routing question and not a change of authority",
+            "a change to who does the work, which is OWN-54's ownership",
           ],
           source: "authoritative",
         },

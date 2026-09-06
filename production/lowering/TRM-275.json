@@ -1,0 +1,498 @@
+{
+ "id": "TRM-275",
+ "shortName": "Data Deletion Confirmation",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.request",
+   "event": "data_deletion_requested_by_subject",
+   "meaning": "a deletion request recorded against a named data subject; the scope the request itself names; the response window the governing obligation sets",
+   "evidenceSource": "declared",
+   "entryFilters": [
+    "a deletion request recorded against a named data subject",
+    "the scope the request itself names",
+    "the response window the governing obligation sets",
+    "no instance of this journey is already open for the the data subject and the single deletion request they raised",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "deletion_request_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.acknowledge",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "deletion_request.touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.acknowledge",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.acknowledge",
+   "touch": "t1",
+   "stage": "acknowledge",
+   "purpose": "Acknowledge the request, state the date by which the obligation requires an answer, and say that establishing who is asking comes first.",
+   "brief": "Acknowledge the request, state the date by which the obligation requires an answer, and say that establishing who is asking comes first. An unacknowledged request leaves the person unable to tell a mandated wait from being ignored",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.acknowledge",
+   "key": "person_id + a.acknowledge"
+  },
+  {
+   "type": "condition",
+   "node": "c.verified",
+   "asks": "Is the requester's control of the named scope already established?",
+   "branches": [
+    {
+     "label": "Already established",
+     "observes": null,
+     "test": "control of the account or authority over the named scope meets the standard the obligation requires",
+     "to": "w.decision"
+    },
+    {
+     "label": "Not yet established",
+     "observes": null,
+     "test": "the request arrived without sufficient proof that the requester controls what they are asking to erase",
+     "to": "a.verify"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.verify",
+   "touch": "t2",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "deletion_request.touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.verify",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.verify",
+   "touch": "t2",
+   "stage": "verify",
+   "purpose": "Ask for exactly the proof of control the obligation requires and nothing beyond it.",
+   "brief": "Ask for exactly the proof of control the obligation requires and nothing beyond it. Collecting extra identifying data in order to honour a deletion request is the contradiction the request exists to end",
+   "destination": {
+    "target": "proof-of-control",
+    "boundTo": "deletion_request_id",
+    "mustNotClaim": [
+     "a need for identifying data beyond what the obligation requires"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.verified"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.verify",
+   "key": "person_id + a.verify"
+  },
+  {
+   "type": "wait",
+   "node": "w.verify",
+   "timing": {
+    "key": "deletion_request.verify",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "a.unverified"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.verify",
+   "cancelOn": [
+    {
+     "event": "proof_of_control_provided",
+     "meaning": "sufficient proof of control or identity is provided"
+    }
+   ],
+   "onEvent": "w.decision"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.verify",
+   "reads": "the the data subject and the single deletion request they raised re-read from the system of record before acting on the timeout",
+   "before": "a.unverified"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.unverified",
+   "touch": "t3",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "deletion_request.touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.unverified",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.unverified",
+   "touch": "t3",
+   "stage": "unverified",
+   "purpose": "Close the request as unverified, saying plainly that nothing was deleted, why, and that a fresh request can be raised at any time.",
+   "brief": "Close the request as unverified, saying plainly that nothing was deleted, why, and that a fresh request can be raised at any time. A silent close reads as a deletion that happened",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": "t2"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.unverified",
+   "key": "person_id + a.unverified"
+  },
+  {
+   "type": "exit",
+   "node": "x.unverified",
+   "class": "invalid-state",
+   "state": "closed unverified, nothing deleted",
+   "reEntry": "a fresh request from the same person is a new instance with its own window and its own verification"
+  },
+  {
+   "type": "wait",
+   "node": "w.decision",
+   "timing": {
+    "key": "deletion_request.decision",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "response_deadline_at",
+   "onTimeout": "h.overdue"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.decision",
+   "cancelOn": [
+    {
+     "event": "deletion_resolved",
+     "meaning": "scope, retained items and deletion outcome are all resolved"
+    }
+   ],
+   "onEvent": "c.outcome"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.decision",
+   "reads": "the the data subject and the single deletion request they raised re-read from the system of record before acting on the timeout",
+   "before": "h.overdue"
+  },
+  {
+   "type": "handoff",
+   "node": "h.overdue",
+   "to": "external:data-protection-escalation",
+   "on": "a deletion request that reaches its mandated response window with no authoritative outcome to state",
+   "carries": [
+    "the request, its scope, its window and what the requester has already been told",
+    "which part of the scope remains unresolved and who holds it"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "person_id",
+     "handed_at",
+     "reason"
+    ]
+   }
+  },
+  {
+   "type": "condition",
+   "node": "c.outcome",
+   "asks": "What does the resolved outcome actually say?",
+   "branches": [
+    {
+     "label": "Deleted in full",
+     "observes": null,
+     "test": "everything in the named scope was deleted and no retention obligation covers any of it",
+     "to": "a.closed-full"
+    },
+    {
+     "label": "Partly retained",
+     "observes": null,
+     "test": "an authoritative retention obligation covers part of the named scope",
+     "to": "a.closed-partial"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.closed-full",
+   "touch": "t4",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "deletion_request.touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.closed-full",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.closed-full",
+   "touch": "t4",
+   "stage": "closed-full",
+   "purpose": "Confirm what was deleted, the scope it covered and the date the request closed.",
+   "brief": "Confirm what was deleted, the scope it covered and the date the request closed. This message is the record the requester keeps, so it states the outcome rather than thanking them for their patience",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.closed-full",
+   "key": "person_id + a.closed-full"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.closed-partial",
+   "touch": "t5",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "deletion_request.touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.closed-partial",
+   "touch": "t5",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.closed-partial",
+   "touch": "t5",
+   "stage": "closed-partial",
+   "purpose": "State what was deleted, what is retained, which obligation requires it and when that obligation ends.",
+   "brief": "State what was deleted, what is retained, which obligation requires it and when that obligation ends. Naming the obligation is what makes retention a rule rather than a preference",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.outcome"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.closed-partial",
+   "key": "person_id + a.closed-partial"
+  },
+  {
+   "type": "exit",
+   "node": "x.closed",
+   "class": "success",
+   "state": "answered and closed on the record",
+   "reEntry": "a later deletion request from the same person is a new instance, verified again from the start"
+  }
+ ]
+}

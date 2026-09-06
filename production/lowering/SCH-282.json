@@ -1,0 +1,420 @@
+{
+ "id": "SCH-282",
+ "shortName": "Availability Search Abandonment",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "exit",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "state-update",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.queried",
+   "event": "availability_query_closed_without_reservation",
+   "meaning": "an availability query recorded for a named person against a specific resource and window; no reservation or hold created by that person for that window since",
+   "evidenceSource": "behavioral",
+   "entryFilters": [
+    "an availability query recorded for a named person against a specific resource and window",
+    "no reservation or hold created by that person for that window since",
+    "no instance of this journey is already open for the the availability question",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "person_id",
+    "availability_query_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.permitted",
+   "asks": "May an unprompted offer be sent to this person at all?",
+   "branches": [
+    {
+     "label": "Identified and permitted",
+     "observes": null,
+     "test": "the person is known and at least one contact point is valid and permitted for an offer of this kind",
+     "to": "w.settle"
+    },
+    {
+     "label": "Anonymous or not permitted",
+     "observes": null,
+     "test": "the query cannot be attributed to a person we may contact for this purpose",
+     "to": "x.no-route"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.no-route",
+   "class": "no-action",
+   "state": "no offer made; the query cannot be attributed to a reachable person",
+   "reEntry": "a later query from an identified person qualifies normally"
+  },
+  {
+   "type": "wait",
+   "node": "w.settle",
+   "timing": {
+    "key": "availability_searched.settle",
+    "class": "recovery-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "a.recheck"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.settle",
+   "cancelOn": [
+    {
+     "event": "booking_confirmed",
+     "meaning": "the booking is confirmed"
+    },
+    {
+     "event": "availability_lost",
+     "meaning": "the requested window is taken or withdrawn"
+    }
+   ],
+   "onEvent": "c.settled"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.settle",
+   "reads": "the the availability question re-read from the system of record before acting on the timeout",
+   "before": "a.recheck"
+  },
+  {
+   "type": "condition",
+   "node": "c.settled",
+   "asks": "What ended the delay?",
+   "branches": [
+    {
+     "label": "Booked unprompted",
+     "observes": null,
+     "test": "the person reserved or held something for the window themselves",
+     "to": "x.booked"
+    },
+    {
+     "label": "Window gone",
+     "observes": null,
+     "test": "the window they asked about was taken or withdrawn before they acted",
+     "to": "a.recheck"
+    }
+   ]
+  },
+  {
+   "type": "exit",
+   "node": "x.booked",
+   "class": "success",
+   "state": "booked; no offer was needed",
+   "reEntry": "a later query with no booking behind it starts a new instance"
+  },
+  {
+   "type": "state-update",
+   "node": "a.recheck",
+   "does": "Re-evaluate what is genuinely bookable now rather than reusing what the query returned. Nothing shown at query time was ever held, and an offer of a window that has since gone costs more than sending nothing would",
+   "writes": [],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.options",
+   "asks": "What is actually available now?",
+   "branches": [
+    {
+     "label": "A near window is bookable",
+     "observes": null,
+     "test": "capacity exists close enough to what was asked for that it answers the same need",
+     "to": "a.offer"
+    },
+    {
+     "label": "Nothing fits, waitlist exists",
+     "observes": null,
+     "test": "no window answers the request and the resource supports a waitlist",
+     "to": "a.waitlist"
+    },
+    {
+     "label": "Nothing fits, no waitlist",
+     "observes": null,
+     "test": "no window answers the request and there is nothing to put the person on",
+     "to": "x.nothing"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "availability_searched.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "below process recovery and selection recovery; alongside interest recovery - an availability enquiry that asked for a specific window outranks inferred interest for the same person",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer",
+   "touch": "t1",
+   "stage": "offer",
+   "purpose": "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held.",
+   "brief": "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held. Somebody who wanted one day and is shown another should see that at a glance, not discover it at the point of booking",
+   "destination": {
+    "target": "nearest-bookable-window",
+    "boundTo": "availability_query_id",
+    "mustNotClaim": [
+     "that the window is held",
+     "that it is the window asked for"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.options"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer",
+   "key": "booking_id + a.offer"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.waitlist",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "promotional",
+   "localCap": {
+    "value": {
+     "key": "availability_searched.touches",
+     "default": 2,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "promotional",
+   "competition": {
+    "exclusionGroup": "commerce-recovery",
+    "scope": "person",
+    "precedence": "below process recovery and selection recovery; alongside interest recovery - an availability enquiry that asked for a specific window outranks inferred interest for the same person",
+    "onLoss": "suppressed"
+   },
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.waitlist",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "low-friction",
+     "channels": [
+      "push"
+     ],
+     "eligibleWhen": "a valid token or app session exists and the message is a single step from the notification"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.waitlist",
+   "touch": "t2",
+   "stage": "waitlist",
+   "purpose": "Offer a waitlist place and state that it reserves nothing.",
+   "brief": "Offer a waitlist place and state that it reserves nothing. Somebody who believes they hold a place they do not hold will plan around it, and that is a worse outcome than being told there was nothing",
+   "destination": {
+    "target": "waitlist-place",
+    "boundTo": "availability_query_id",
+    "mustNotClaim": [
+     "that a place is reserved"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.options"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.waitlist",
+   "key": "booking_id + a.waitlist"
+  },
+  {
+   "type": "wait",
+   "node": "w.waitlist",
+   "timing": {
+    "key": "availability_searched.waitlist",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.waitlist",
+   "cancelOn": [
+    {
+     "event": "waitlist_place_taken",
+     "meaning": "the person takes the offered waitlist place"
+    }
+   ],
+   "onEvent": "x.waitlisted"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.waitlist",
+   "reads": "the the availability question re-read from the system of record before acting on the timeout",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "exit",
+   "node": "x.waitlisted",
+   "class": "success",
+   "state": "waitlisted; nothing is reserved",
+   "reEntry": "capacity reaching the waitlist is that mechanism's business, not a new instance of this one"
+  },
+  {
+   "type": "exit",
+   "node": "x.nothing",
+   "class": "no-action",
+   "state": "nothing to offer; no message sent",
+   "reEntry": "a later query for a window that does have capacity qualifies again"
+  },
+  {
+   "type": "wait",
+   "node": "w.respond",
+   "timing": {
+    "key": "availability_searched.respond",
+    "class": "observation-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.lapsed"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.respond",
+   "cancelOn": [
+    {
+     "event": "booking_confirmed",
+     "meaning": "the booking is confirmed"
+    }
+   ],
+   "onEvent": "x.booked"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.respond",
+   "reads": "the the availability question re-read from the system of record before acting on the timeout",
+   "before": "x.lapsed"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "offer made and not taken",
+   "reEntry": "a new availability query is a new instance; this one is never re-offered"
+  }
+ ]
+}

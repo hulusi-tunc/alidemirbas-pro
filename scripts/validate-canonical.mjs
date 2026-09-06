@@ -90,6 +90,7 @@ const all = loaded.flatMap((l) => l.journeys);
 const ids = new Set(all.map((j) => j.id));
 const seenIds = new Set();
 const seenSlugs = new Set();
+const seenShortNames = new Set();
 
 for (const j of all) {
   const w = j.id;
@@ -98,6 +99,21 @@ for (const j of all) {
   seenIds.add(j.id);
   if (seenSlugs.has(j.slug)) err("duplicate_slug", w, `slug "${j.slug}" is used twice`);
   seenSlugs.add(j.slug);
+
+  /* shortName is optional - only the 87 communication journeys carry one so
+     far - but where it exists it is what a card and a page title show, so
+     two journeys answering to the same label is a real collision, not a
+     cosmetic one. Caught once already: "Delivery Status Tracking" (CMS-206,
+     a message send attempt) against "Delivery Tracking" (FUL-265, an actual
+     parcel) - the exact two facts CMS-206's own reusable rule exists to keep
+     apart. */
+  if (!j.shortName || !String(j.shortName).trim()) {
+    err("shortname_missing", w, "no shortName - every journey needs a plain-language label, it is what cards and page titles show");
+  } else {
+    if (seenShortNames.has(j.shortName))
+      err("duplicate_shortname", w, `shortName "${j.shortName}" is already used by another journey`);
+    else seenShortNames.add(j.shortName);
+  }
 
   const nodeIds = new Set();
   for (const n of j.nodes) {
@@ -151,7 +167,11 @@ for (const j of all) {
         break;
       case "wait":
         if (!n.until?.length) err("wait_no_event", w, `wait "${n.id}" names no awaited event`);
-        if (!n.timeout?.after?.trim()) err("wait_no_timeout", w, `wait "${n.id}" has no timeout - it can strand people forever`);
+        {
+          const a = n.timeout?.after;
+          const has = typeof a === "string" ? a.trim().length > 0 : !!(a && typeof a === "object" && a.key && a.rule);
+          if (!has) err("wait_no_timeout", w, `wait "${n.id}" has no timeout - it can strand people forever`);
+        }
         if (!n.timeout?.reason?.trim()) warn("wait_timeout_unexplained", w, `wait "${n.id}" has a timeout with no stated reason`);
         if (n.windowExtendsOnEngagement === undefined)
           err("wait_window_policy", w, `wait "${n.id}" does not say whether engagement extends the window`);
@@ -298,13 +318,15 @@ sendPath.forEach((s2, i) => {
    actually meets, which is the failure the competition rules exist to stop. */
 const groups = {};
 for (const j of all) {
-  if (!j.competition) continue;
-  const { scope, exclusionGroup, precedence, onLoss } = j.competition;
+  // vNext journeys carry their contest inside `contact`; the group check is the same
+  const comp = j.contact && j.contact.competition && j.contact.competition !== "none" ? j.contact.competition : j.competition;
+  if (!comp) continue;
+  const { scope, exclusionGroup, precedence, onLoss } = comp;
   if (!scope || !exclusionGroup || !precedence || !onLoss)
     err("competition_incomplete", j.id, "competition needs scope, exclusionGroup, precedence and onLoss");
   if (!["suppressed", "paused", "superseded", "exit"].includes(onLoss))
     err("competition_onloss", j.id, `onLoss "${onLoss}" is not a defined losing state`);
-  (groups[exclusionGroup] ??= []).push({ id: j.id, scope });
+  (groups[exclusionGroup] ??= []).push({ id: j.id, scope, precedence });
 }
 for (const [g, members] of Object.entries(groups)) {
   if (members.length < 2)
@@ -369,14 +391,233 @@ for (const j of all) {
     );
 }
 
+/* vNext rules (scripts/vnext-rules.mjs). Errors for journeys that declare
+   `measurement`, warnings for the un-migrated rest, so the migration backlog
+   is visible without blocking the build. */
+import { checkVnext } from "./vnext-rules.mjs";
+const eventsSrc = await readFile("src/canonical/events.ts", "utf8");
+const registry = [...eventsSrc.matchAll(/\{ id: "([^"]+)", meaning: "((?:[^"\\]|\\.)*)", source: "([^"]+)"/g)].map((m) => ({ id: m[1], meaning: m[2], source: m[3] }));
+const surfaceSrc = await readFile("src/canonical/surface.ts", "utf8");
+const pickList = (name) => new Set([...surfaceSrc.match(new RegExp(`export const ${name}[^=]*=\\s*\\[([\\s\\S]*?)\\];`))[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]));
+const customerEntity = new RegExp(surfaceSrc.match(/CUSTOMER_ENTITY = \/(.*)\/i;/)[1], "i");
+let surfaceFile = null;
+try { surfaceFile = JSON.parse(await readFile("production/surface-assignment.json", "utf8")); } catch { warn("surface_file_missing", "corpus", "production/surface-assignment.json not found - run scripts/surface-assignment.mjs"); }
+const mechanismIds = pickList("MECHANISM_IDS");
+const vnextStats = checkVnext({ all, registry, surfaceFile, mechanismIds, customerCategories: pickList("CUSTOMER_CATEGORIES"), customerEntity, err, warn });
+
+/* A precedence string exists to separate two contenders. If the exact same
+   precedence text appears twice within one live group, the ordering does not
+   actually distinguish them - most likely a copy-paste, not a genuine
+   declared tie (compare FBK-41/FBK-42, whose real tie is resolved by each
+   naming the OTHER by id, in different text, not by sharing one string).
+   Warn rather than error: a near-identical precedence pair is architecture
+   judgment about whether it's actually ambiguous, not a mechanical proof. */
+for (const [g, members] of Object.entries(groups)) {
+  const byPrecedence = {};
+  for (const m of members) (byPrecedence[m.precedence] ??= []).push(m.id);
+  for (const mids of Object.values(byPrecedence)) {
+    if (mids.length > 1)
+      warn("competition_duplicate_precedence", g, `${mids.join(", ")} declare the exact same precedence text - an ordering that does not actually distinguish them`);
+  }
+}
+
+/* Every exclusion group with a real contest (2+ members) needs a runtime
+   component that actually reads competition/exclusionGroup/precedence and
+   establishes one owner - GLB-01..GLB-10 declared as policy is not the same
+   as GLB-01..GLB-10 enforced. OPS-131 (surface.ts's own
+   COMPETITION_ARBITRATION_MECHANISM_ID) is that component, added in the
+   competition-arbitration repair round; this check exists so a future edit
+   that removes it without a replacement is caught immediately rather than
+   silently reopening the architectural P0 this round closed. */
+if (Object.keys(groups).length > 0) {
+  const arbiterId = surfaceSrc.match(/COMPETITION_ARBITRATION_MECHANISM_ID = "([^"]+)"/)?.[1];
+  if (!arbiterId) err("competition_runtime_unenforced", "corpus", "structured competition groups exist but no COMPETITION_ARBITRATION_MECHANISM_ID is declared in surface.ts");
+  else if (!mechanismIds.has(arbiterId)) err("competition_runtime_unenforced", "corpus", `COMPETITION_ARBITRATION_MECHANISM_ID "${arbiterId}" is declared but is not itself in MECHANISM_IDS`);
+  else if (!ids.has(arbiterId)) err("competition_runtime_unenforced", "corpus", `COMPETITION_ARBITRATION_MECHANISM_ID "${arbiterId}" does not correspond to any canonical journey`);
+}
+
+/* Operational Workflow gap-closure round: which journeys are on the
+   operational surface, computed the same way surface.ts's own surfaceOf()
+   derives it (mechanism, then sends, then customer-category+customer-entity,
+   then operational by elimination) - inlined here rather than imported
+   because this whole script parses src/canonical/*.ts as text and evals it,
+   never importing TypeScript directly. */
+const customerCategoriesSet = pickList("CUSTOMER_CATEGORIES");
+function operationalSurfaceOf(j) {
+  if (mechanismIds.has(j.id)) return false;
+  const sends = (j.channels ?? []).some((c) => MESSAGE_CHANNELS.has(c));
+  if (sends) return false;
+  if (customerCategoriesSet.has(j.category) && customerEntity.test(j.entity?.scope ?? "")) return false;
+  return true;
+}
+const operationalIds = new Set(all.filter(operationalSurfaceOf).map((j) => j.id));
+
+/* durable_work_without_idempotency: an Operational Workflow action that
+   durably records consequential state (writes append) and can plausibly be
+   replayed (reached from a trigger, an authoritative event, or a handoff -
+   all of which a company's own infrastructure can redeliver) declares no
+   idempotencyKey. Mirrors the customer-facing/mechanism rounds' own
+   state_write_without_idempotency check, scoped to the operational surface
+   instead. Warn, not error: unlike the 25 Runtime Mechanisms (closed, every
+   instance fixed before the check was widened to error there), the 124
+   Operational Workflows predate the entity.instanceKey/idempotencyKey
+   convention almost entirely - this round fixed the 11 P0-adjacent
+   instances, not all ~40 the audit found. Widening to error is future work
+   once the corpus is actually ready for it, the same phased approach the
+   Runtime Mechanism round itself used. */
+for (const j of all) {
+  if (!operationalIds.has(j.id)) continue;
+  for (const n of j.nodes) {
+    if (n.kind !== "action") continue;
+    const appends = (n.writes ?? []).filter((w) => w.mode === "append");
+    if (appends.length && !n.idempotencyKey) {
+      warn("durable_work_without_idempotency", j.id, `action "${n.id}" appends to ${appends.map((w) => w.field).join(", ")} and declares no idempotencyKey - a replayed trigger, event or handoff can duplicate the write`);
+    }
+  }
+}
+
+/* workflow_result_unconsumed: an Operational Workflow with zero corpus-wide
+   handoff consumers AND zero outbound handoffs of its own is fully isolated
+   - the exact shape this round's audit confirmed for its two genuine
+   orphan-candidates (REL-99, INT-120), as distinct from the ~35 correctly
+   event-driven workflows (zero inbound consumers but at least one real
+   outbound handoff, so the work they do reaches somewhere). Deliberately
+   narrow to avoid false-positiving on event-driven entry points, per the
+   round's own "zero consumers does not automatically mean orphaned"
+   instruction - this is a warning/review signal, not a claim of deletion. */
+const handoffTargets = new Map(); // targetId -> [senderIds]
+for (const j of all) for (const n of j.nodes) if (n.kind === "handoff" && ids.has(n.to)) (handoffTargets.get(n.to) ?? handoffTargets.set(n.to, []).get(n.to)).push(j.id);
+for (const j of all) {
+  if (!operationalIds.has(j.id)) continue;
+  const hasInbound = handoffTargets.has(j.id) && handoffTargets.get(j.id).length > 0;
+  const hasOutbound = j.nodes.some((n) => n.kind === "handoff");
+  if (!hasInbound && !hasOutbound) {
+    warn("workflow_result_unconsumed", j.id, "zero corpus-wide handoff consumers and zero outbound handoffs of its own - fully isolated; confirm this is a legitimate event-driven entry point with no downstream result to propagate, or a genuine orphan candidate (see CONSUMER-COVERAGE.md)");
+  }
+}
+
+/* Cross-Library Integration repair round: byId, for the two checks below and
+   for anything else that needs to look up a journey by its own id rather
+   than scan `all` repeatedly. */
+const byId = new Map(all.map((j) => [j.id, j]));
+
+/* competition_member_unenforced (+ the competing_member_no_live_state_check
+   candidate from VALIDATOR-OPPORTUNITIES.md, merged into this one rather
+   than built as a second validator detecting the same root issue, per that
+   document's own instruction): a declared competition member's consequential
+   `execution: "human"` action - the shape not generically covered by
+   CMS-205's own send-path revalidation, added this round for every
+   `execution: "communication"` action corpus-wide - has no node anywhere in
+   its own graph whose text shows a live re-check of current competition/
+   ownership state before that action fires. `execution: "communication"`
+   actions are deliberately not flagged here: re-litigating CMS-205's own
+   architectural fix one journey at a time would be exactly the caller-side
+   duplication the repair round's own brief said not to do.
+
+   WARN, not ERROR: recognising a real structural check from a node's own
+   `does`/`asks`/branch `when` text is judgment, not mechanical certainty -
+   several genuinely protected members phrase their check differently from
+   each other (`ACC-78`'s "currently open", `ACQ-04`'s "already reached the
+   destination"), and a future member may phrase it differently again without
+   being unprotected. The two confirmed-unsafe instances this round found
+   (`account-restriction-authority`, `retention-outreach`) were repaired
+   directly in source, not left for this validator to catch after the fact -
+   this validator exists to catch regressions and new competition members
+   that skip the pattern going forward. */
+const ENFORCEMENT_MARKERS = [
+  /\b(current(ly)?|live|still)\b[^.]{0,80}\b(own|claim|contend|precedence|open|holds?)\b/i,
+  /\balready (reached|resolved|won|claimed|decided)\b/i,
+  /\bre-?(read|check)\b[^.]{0,80}\b(current|live)\b/i,
+  /\bnow\b[^.]{0,60}\b(in motion|open|active|claims?)\b/i,
+  /\bOPS-131\b/,
+];
+// Opening the tracked instance or recording a bare no-action/decline outcome is
+// bookkeeping, not itself the consequential external effect a stale-loser race
+// could fire - excluded by id so the check targets the actual send/release/apply
+// action, not every write-bearing node on the path to it.
+const NON_CONSEQUENTIAL_ACTION_ID = /^a\.(record|open)\b/i;
+for (const [g, members] of Object.entries(groups)) {
+  for (const m of members) {
+    const j = byId.get(m.id);
+    if (!j) continue;
+    if (!j.nodes.some((n) => n.kind === "wait")) continue; // no async gap for ownership to go stale across
+    // Consequential = writes durable state and is not itself an execution:"communication"
+    // action (those are covered generically by CMS-205's own re-check, added this round).
+    const consequential = j.nodes.filter(
+      (n) => n.kind === "action" && n.execution !== "communication" && (n.writes ?? []).length > 0 && !NON_CONSEQUENTIAL_ACTION_ID.test(n.id),
+    );
+    if (!consequential.length) continue;
+    const hasMarker = j.nodes.some((n) => {
+      const text = [n.does, n.asks, ...(n.branches ?? []).map((b) => b.when)].filter(Boolean).join(" ");
+      return ENFORCEMENT_MARKERS.some((re) => re.test(text));
+    });
+    if (!hasMarker) {
+      warn("competition_member_unenforced", m.id, `declares competition group "${g}" and has a consequential action reachable after a wait (${consequential.map((n) => n.id).join(", ")}), but no node re-checks current competition/ownership state before it fires`);
+    }
+  }
+}
+
+/* runtime_arbiter_result_unconsumed: a Runtime Mechanism exit whose own
+   `reEntry` text explicitly states a propagation intent (the outcome is
+   supposed to be visible to, or acted on by, something else) has zero
+   outbound handoffs anywhere in the same journey. This is a narrower,
+   intent-scoped sibling of `workflow_result_unconsumed` (Operational
+   Workflow round): that one flags a fully isolated workflow; this one
+   flags a specific declared-important outcome with no consumer even when
+   the mechanism as a whole has other traffic (in-degree, other exits) -
+   exactly the shape `OPS-130`'s pre-repair `RECONCILIATION_REQUIRED` had
+   (in-degree 2, zero outbound handoffs anywhere in the journey).
+
+   ERROR: unlike the WARN-tier checks above, a Runtime Mechanism whose own
+   text says an outcome must reach something else and structurally cannot
+   is the exact "business result lost across layers" shape the governing
+   brief rates P0 - this is not a judgment call the way recognising an
+   enforcement check's phrasing is. Deliberately narrow to avoid flagging a
+   legitimate synchronous return value: only exits whose own text uses an
+   explicit propagation-intent phrase are considered, and only where the
+   whole journey has no outbound handoff at all (a journey with any
+   outbound handoff is presumed to have a real route for its results, even
+   if not from this exact exit - refining that distinction further is a
+   possible future tightening, not required to make this check safe today). */
+const PROPAGATION_INTENT = /\bso (that|it)\b[^.]{0,120}\b(visible|acted on|resolved|reaches|notice)\b/i;
+for (const j of all) {
+  if (!mechanismIds.has(j.id)) continue;
+  const hasOutboundHandoff = j.nodes.some((n) => n.kind === "handoff");
+  if (hasOutboundHandoff) continue;
+  for (const n of j.nodes) {
+    if (n.kind !== "exit" || !n.reEntry) continue;
+    if (PROPAGATION_INTENT.test(n.reEntry)) {
+      err("runtime_arbiter_result_unconsumed", j.id, `exit "${n.id}" states a propagation intent in its own reEntry text ("${n.reEntry.slice(0, 100)}...") but this journey has zero outbound handoffs anywhere - the outcome cannot structurally reach whatever it says needs to see it`);
+    }
+  }
+}
+
+/* Warnings on a vNext journey are not free: each one is either fixed or
+   reviewed by a person and recorded in production/vnext-warning-reviews.json
+   with a note. The summary counts the unreviewed ones; the migration is not
+   complete while that number is above zero. */
+let reviews = [];
+try { reviews = JSON.parse(await readFile("production/vnext-warning-reviews.json", "utf8")).reviews ?? []; } catch { /* none yet */ }
+const vnextIds = new Set(all.filter((j) => j.measurement).map((j) => j.id));
+const isReviewed = (w) => { const m = w.match(/^\[([^\]]+)\] ([A-Z]{3}-\d+): (.*)$/); if (!m) return true; return reviews.some((r) => r.id === m[2] && r.code === m[1] && (!r.match || m[3].includes(r.match))); };
+const vnextWarnings = warnings.filter((w) => { const m = w.match(/^\[[^\]]+\] ([A-Z]{3}-\d+):/); return m && vnextIds.has(m[1]); });
+const unreviewed = vnextWarnings.filter((w) => !isReviewed(w));
+
 const line = (s) => console.log("  " + s);
 if (errors.length) {
   console.log(`\nERRORS (${errors.length})`);
   errors.forEach(line);
 }
 if (warnings.length) {
-  console.log(`\nWARNINGS (${warnings.length})`);
-  warnings.forEach(line);
+  const byCode = {};
+  for (const w of warnings) { const c = w.match(/^\[([^\]]+)\]/)[1]; byCode[c] = (byCode[c] || 0) + 1; }
+  console.log(`\nWARNINGS (${warnings.length}) by code`);
+  Object.entries(byCode).sort((a, b) => b[1] - a[1]).forEach(([c, n]) => line(`${String(n).padStart(5)}  ${c}`));
+  if (process.env.SHOW_WARNINGS) warnings.forEach(line);
+}
+if (unreviewed.length) {
+  console.log(`\nUNREVIEWED WARNINGS ON vNEXT JOURNEYS (${unreviewed.length})`);
+  unreviewed.forEach(line);
 }
 if (externals.size) {
   console.log(`\nPENDING EXTERNAL TARGETS (${externals.size}) - a later category has to define these`);
@@ -388,6 +629,6 @@ const ruleCount = loaded.reduce((n, l) => n + l.rules.length, 0);
 console.log(
   `\n${all.length} canonical journeys · ${nodeCount} nodes · ${ruleCount} orchestration rules · ` +
     `${globalRules.length} global rules · ${Object.keys(groups).length} competition groups · ${sendPath.length} send-path stages · ` +
-    `${Object.keys(merged).length} merged redirects (not counted) · ${errors.length} errors · ${warnings.length} warnings`,
+    `${Object.keys(merged).length} merged redirects (not counted) · surfaces customer ${vnextStats.counts.customer} (${vnextStats.counts["customer-communicating"]} communicating / ${vnextStats.counts["customer-silent"]} silent) · mechanism ${vnextStats.counts.mechanism} · operational ${vnextStats.counts.operational} · ${vnextStats.vnext} vNext · ${errors.length} errors · ${warnings.length} warnings (${unreviewed.length} unreviewed on vNext journeys)`,
 );
 process.exit(errors.length ? 1 : 0);

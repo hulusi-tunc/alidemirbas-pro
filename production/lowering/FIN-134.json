@@ -1,0 +1,691 @@
+{
+ "id": "FIN-134",
+ "shortName": "Payment Failure Recovery",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "condition",
+  "idempotency-key",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "downstream outcome through handoff chain",
+  "ordered channel-role resolution",
+  "mandatory touch exempt from caps"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.failure",
+   "event": "authoritative_payment_failure",
+   "meaning": "a payment system stating that the attempt failed, with whatever reason it gave",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "the obligation is still outstanding in the system of record",
+    "the failure class is established from the provider's own response - temporary, customer-fixable, or declined with or without a usable reason - before anything is retried or said",
+    "no recovery instance is already open for this obligation; a second failure on the same obligation is an event inside the open instance (GLB-19)",
+    "the relationship has not been terminated",
+    "hard gates (GLB-31) permit obligation communication to this person - a closed account still receives it, a fraud or security hold does not"
+   ],
+   "instanceKey": [
+    "obligation_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.classify",
+   "does": "Classify the failure into the class the provider actually reported: temporary, insufficient funds, invalid method, expired method, authentication required, provider failure, policy decline, or unknown reason. A decline reason is never invented - telling someone their card had insufficient funds when the provider said only 'do not honour' is a checkable falsehood that sends them to fix the wrong thing",
+   "writes": [
+    {
+     "field": "payment_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "condition",
+   "node": "c.class",
+   "asks": "What kind of failure was it?",
+   "branches": [
+    {
+     "label": "Transient, safe to retry",
+     "observes": null,
+     "test": "a temporary condition or a provider-side failure, with the same idempotency key still valid",
+     "to": "a.retry"
+    },
+    {
+     "label": "The customer can fix it",
+     "observes": null,
+     "test": "insufficient funds, an invalid or expired method, or an authentication that was not completed",
+     "to": "a.corrective"
+    },
+    {
+     "label": "Declined, or no usable reason given",
+     "observes": null,
+     "test": "a policy decline, or a decline whose reason cannot be turned into an instruction",
+     "to": "c.alternate"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.retry",
+   "does": "Retry within the bounded policy, using the same idempotency key so that a first attempt which did land can be absorbed rather than repeated",
+   "writes": [
+    {
+     "field": "payment_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.retry",
+   "key": "the failed attempt's own idempotency key - the same key, so a first attempt that did land is absorbed rather than repeated"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.corrective",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "payment.discretionary_touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.resolved",
+    "s.retry-in-progress",
+    "s.no-instruction",
+    "s.unknown-outcome",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.corrective",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person has an active session in the product - the corrective action is a form, and the shortest route to it is inside the product"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no active session, or the instruction and its link have to survive until the person can act"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.corrective",
+   "touch": "t1",
+   "stage": "corrective-request",
+   "purpose": "Name the exact corrective action - update the method, complete the authentication, choose another method - and what is owed. Provider risk detail and internal decline codes are never shown.",
+   "brief": "Request the exact corrective action - update the method, complete the authentication, choose another method. Naming what to fix is the whole value of the classification, and a generic notice that payment failed makes the person guess. Provider risk detail and internal decline codes are not exposed",
+   "destination": {
+    "target": "payment-method-update",
+    "boundTo": "obligation_id",
+    "mustNotClaim": [
+     "the reason the provider gave, beyond its class",
+     "that the obligation is waived, reduced or extended"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.class"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.corrective",
+   "key": "obligation_id + touch id"
+  },
+  {
+   "type": "condition",
+   "node": "c.alternate",
+   "asks": "Is an alternative valid payment route available, and whose decision is it?",
+   "branches": [
+    {
+     "label": "A defined fallback the system may use",
+     "observes": null,
+     "test": "another stored method exists and standing authority already covers charging it without asking again",
+     "to": "a.use-alternate"
+    },
+    {
+     "label": "The customer has to choose or authorise one",
+     "observes": null,
+     "test": "an alternative exists but no standing authority covers it, so using it would be charging a method they did not pick",
+     "to": "a.offer-alternate"
+    },
+    {
+     "label": "Nothing further to offer",
+     "observes": null,
+     "test": "no alternative route is available or permitted",
+     "to": "w.recovery"
+    }
+   ]
+  },
+  {
+   "type": "state-update",
+   "node": "a.use-alternate",
+   "does": "Charge the authorised alternative route as a new attempt with its own identifiers. Reached either because standing authority already covered it or because the customer selected it - in both cases the authority to use this method exists before it is used",
+   "writes": [
+    {
+     "field": "payment_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.use-alternate",
+   "key": "obligation_id + the new attempt's identifier"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer-alternate",
+   "touch": "t1-alt",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "payment.discretionary_touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.resolved",
+    "s.retry-in-progress",
+    "s.no-instruction",
+    "s.unknown-outcome",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer-alternate",
+   "touch": "t1-alt",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person has an active session in the product - the corrective action is a form, and the shortest route to it is inside the product"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no active session, or the instruction and its link have to survive until the person can act"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer-alternate",
+   "touch": "t1-alt",
+   "stage": "offer-alternate",
+   "purpose": "Put the available alternative methods in front of the customer and ask which to use, stating that the obligation stands either way. Choosing a payment method is theirs to make.",
+   "brief": "Put the available alternatives in front of the customer and ask which to use, stating that the obligation stands either way. Choosing a payment method is theirs to make; an internal action that quietly picks one is a charge they did not authorise",
+   "destination": {
+    "target": "payment-method-choice",
+    "boundTo": "obligation_id",
+    "mustNotClaim": [
+     "that a method was chosen for them"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.class",
+    "c.alternate"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer-alternate",
+   "key": "obligation_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.alternate-choice",
+   "timing": {
+    "key": "payment.alternate_choice_window",
+    "class": "response-window",
+    "default": {
+     "min": "3 days",
+     "max": "7 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "c.next"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.alternate-choice",
+   "cancelOn": [
+    {
+     "event": "alternate_method_selected",
+     "meaning": "the customer selects or authorises an alternative payment method"
+    }
+   ],
+   "onEvent": "a.use-alternate"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.alternate-choice",
+   "reads": "the obligation is still outstanding and no method has been selected, read from the system of record",
+   "before": "c.next"
+  },
+  {
+   "type": "wait",
+   "node": "w.recovery",
+   "timing": {
+    "key": "payment.reminder_point",
+    "class": "reminder-before-attribute",
+    "default": {
+     "min": "2 days",
+     "max": "3 days"
+    },
+    "basis": "example-only",
+    "required": false
+   },
+   "relativeTo": "attribute",
+   "attribute": "consequence_date",
+   "onTimeout": "c.reminder"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.recovery",
+   "cancelOn": [
+    {
+     "event": "obligation_satisfied",
+     "meaning": "the obligation is satisfied in the system of record"
+    },
+    {
+     "event": "recovery_attempt_abandoned",
+     "meaning": "the holder stops pursuing the route back"
+    }
+   ],
+   "onEvent": "c.recovered"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.recovery",
+   "reads": "the obligation is still outstanding and the method is still invalid, read from the system of record immediately before the reminder",
+   "before": "c.reminder"
+  },
+  {
+   "type": "condition",
+   "node": "c.reminder",
+   "asks": "Is a reminder still useful, and is there a consequence to name?",
+   "branches": [
+    {
+     "label": "Consequence ahead, obligation open",
+     "observes": "obligation state and consequence_date",
+     "test": "the obligation is still outstanding, the method is still invalid, and an asserted consequence date lies ahead",
+     "to": "a.remind"
+    },
+    {
+     "label": "Nothing to add",
+     "observes": "obligation state and consequence_date",
+     "test": "no consequence date exists, or the situation has not changed in a way a reminder would change",
+     "to": "c.next"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "none",
+   "localCap": {
+    "value": {
+     "key": "payment.discretionary_touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": true
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.resolved",
+    "s.retry-in-progress",
+    "s.no-instruction",
+    "s.unknown-outcome",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no active session, or the instruction and its link have to survive until the person can act"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms",
+      "push"
+     ],
+     "eligibleWhen": "an asserted consequence date exists inside the urgent horizon and permission for service messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t2",
+   "stage": "reminder",
+   "purpose": "One reminder naming the consequence and its date, with the same corrective action. It is not repeated.",
+   "brief": "Say once that the consequence is approaching and when, and repeat the same corrective action. One notice - a second one is a recovery sequence, not a reminder",
+   "destination": {
+    "target": "payment-method-update",
+    "boundTo": "obligation_id",
+    "mustNotClaim": [
+     "the reason the provider gave, beyond its class"
+    ]
+   },
+   "label": "OPTIONAL_STRATEGY",
+   "prerequisites": [
+    "c.reminder"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "obligation_id + touch id"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "payment.recovery_window",
+    "class": "recovery-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "trigger",
+   "attribute": null,
+   "onTimeout": "c.next"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "obligation_satisfied",
+     "meaning": "the obligation is satisfied in the system of record"
+    },
+    {
+     "event": "recovery_attempt_abandoned",
+     "meaning": "the holder stops pursuing the route back"
+    }
+   ],
+   "onEvent": "c.recovered"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "the obligation is still outstanding, read from the system of record",
+   "before": "c.next"
+  },
+  {
+   "type": "condition",
+   "node": "c.recovered",
+   "asks": "How did recovery end?",
+   "branches": [
+    {
+     "label": "Satisfied",
+     "observes": null,
+     "test": "a subsequent attempt discharged the obligation",
+     "to": "a.confirmed"
+    },
+    {
+     "label": "Abandoned",
+     "observes": null,
+     "test": "the customer stopped trying",
+     "to": "c.next"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirmed",
+   "touch": "t3",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "payment.discretionary_touches",
+     "default": 1,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "transactional",
+   "competition": "none",
+   "noActionReasons": [
+    "s.resolved",
+    "s.retry-in-progress",
+    "s.no-instruction",
+    "s.unknown-outcome",
+    "s.hard-gates"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirmed",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "no active session, or the instruction and its link have to survive until the person can act"
+    },
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person has an active session in the product - the corrective action is a form, and the shortest route to it is inside the product"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirmed",
+   "touch": "t3",
+   "stage": "confirmation",
+   "purpose": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking.",
+   "brief": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact looks like from inside",
+   "destination": {
+    "target": "obligation-receipt",
+    "boundTo": "obligation_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.recovered"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirmed",
+   "key": "obligation_id + touch id"
+  },
+  {
+   "type": "exit",
+   "node": "x.recovered",
+   "class": "success",
+   "state": "obligation satisfied through recovery",
+   "reEntry": "a future failure against a future obligation is its own instance"
+  },
+  {
+   "type": "condition",
+   "node": "c.next",
+   "asks": "The obligation is unpaid after the recovery window - what does policy apply?",
+   "branches": [
+    {
+     "label": "Grace period",
+     "observes": null,
+     "test": "policy continues limited service while the obligation remains unresolved",
+     "to": "h.grace"
+    },
+    {
+     "label": "Overdue tracking",
+     "observes": null,
+     "test": "the obligation moves to an overdue operational state without immediate consequence",
+     "to": "h.overdue"
+    },
+    {
+     "label": "Access restriction",
+     "observes": null,
+     "test": "policy restricts capability while the obligation is unpaid",
+     "to": "h.restrict"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.grace",
+   "to": "TIM-65",
+   "on": "an unpaid obligation entering a grace period",
+   "carries": [
+    "the obligation and the recovery already attempted",
+    "the explicit fact that the commercial relationship has not ended - this is a payment problem"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "obligation_id",
+     "amount_outstanding",
+     "failure_class",
+     "attempts",
+     "consequence_policy"
+    ]
+   }
+  },
+  {
+   "type": "handoff",
+   "node": "h.overdue",
+   "to": "TIM-62",
+   "on": "an unpaid obligation becoming overdue",
+   "carries": [
+    "the obligation, its due date and the failure history against it"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "obligation_id",
+     "amount_outstanding",
+     "failure_class",
+     "attempts",
+     "consequence_policy"
+    ]
+   }
+  },
+  {
+   "type": "handoff",
+   "node": "h.restrict",
+   "to": "ACC-78",
+   "on": "policy restricting capability while an obligation is unpaid",
+   "carries": [
+    "the obligation, so restoring access has something to check against",
+    "the explicit instruction that the restriction is scoped to what the unpaid obligation covers"
+   ],
+   "suppresses": [],
+   "contract": {
+    "requiredFields": [
+     "obligation_id",
+     "amount_outstanding",
+     "failure_class",
+     "attempts",
+     "consequence_policy",
+     "restriction_scope"
+    ]
+   }
+  }
+ ]
+}

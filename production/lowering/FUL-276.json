@@ -1,0 +1,550 @@
+{
+ "id": "FUL-276",
+ "shortName": "Substitution Approval",
+ "strategy": "offer-decide-remind",
+ "primitivesUsed": [
+  "entry",
+  "condition",
+  "handoff",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "idempotency-key",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "attribute-relative wait",
+  "ordered channel-role resolution",
+  "class-level pressure cap"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.substitute",
+   "event": "substitution_required_with_defined_alternative",
+   "meaning": "an authoritative exception recorded against a named scope of the obligation; a specific alternative identified and actually available; the difference between what was promised and what would be supplied instead",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "an authoritative exception recorded against a named scope of the obligation",
+    "a specific alternative identified and actually available",
+    "the difference between what was promised and what would be supplied instead",
+    "no instance of this journey is already open for the the affected scope of the obligation and the single alternative offered against it",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "obligation_id",
+    "substitution_offer_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "condition",
+   "node": "c.reachable",
+   "asks": "Is there a permitted route that reaches them in time to decide?",
+   "branches": [
+    {
+     "label": "Reachable",
+     "observes": null,
+     "test": "at least one contact point is valid, permitted for a service notice of this kind, and arrives inside the decision window",
+     "to": "a.offer"
+    },
+    {
+     "label": "Unreachable",
+     "observes": null,
+     "test": "no permitted route would arrive before the window would have to close",
+     "to": "h.unreachable"
+    }
+   ]
+  },
+  {
+   "type": "handoff",
+   "node": "h.unreachable",
+   "to": "CON-36",
+   "on": "a substitution offer that cannot be delivered on any permitted route before its window closes",
+   "carries": [
+    "the affected scope, the alternative and the decision window",
+    "which routes were tried and why each was closed"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.offer",
+   "touch": "t1",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "substitution_offer.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.offer",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.offer",
+   "touch": "t1",
+   "stage": "offer",
+   "purpose": "State what cannot be supplied, name the one alternative and the difference in plain terms, and give explicit accept and decline paths with the date the offer ends.",
+   "brief": "State what cannot be supplied, name the one alternative and the difference in plain terms, and give explicit accept and decline paths with the date the offer ends. A decline route harder to find than the accept route is not a choice",
+   "destination": {
+    "target": "accept-or-decline-substitute",
+    "boundTo": "substitution_offer_id",
+    "mustNotClaim": [
+     "that silence means acceptance"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.reachable"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.offer",
+   "key": "obligation_id + a.offer"
+  },
+  {
+   "type": "wait",
+   "node": "w.decision",
+   "timing": {
+    "key": "substitution_offer.decision",
+    "class": "reminder-before-attribute",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "offer_closes_at",
+   "onTimeout": "a.remind"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.decision",
+   "cancelOn": [
+    {
+     "event": "substitute_approved",
+     "meaning": "the substitute is approved"
+    },
+    {
+     "event": "substitute_declined",
+     "meaning": "the substitute is declined"
+    }
+   ],
+   "onEvent": "c.answer"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.decision",
+   "reads": "the the affected scope of the obligation and the single alternative offered against it re-read from the system of record before acting on the timeout",
+   "before": "a.remind"
+  },
+  {
+   "type": "condition",
+   "node": "c.answer",
+   "asks": "What came back?",
+   "branches": [
+    {
+     "label": "Accepted",
+     "observes": null,
+     "test": "the recipient explicitly accepted the alternative",
+     "to": "a.confirm-accept"
+    },
+    {
+     "label": "Declined",
+     "observes": null,
+     "test": "the recipient explicitly declined it",
+     "to": "a.confirm-decline"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.remind",
+   "touch": "t2",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "substitution_offer.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.remind",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.remind",
+   "touch": "t2",
+   "stage": "remind",
+   "purpose": "Send one reminder naming the same alternative, the same two paths and the exact date the offer closes.",
+   "brief": "Send one reminder naming the same alternative, the same two paths and the exact date the offer closes. There is no second reminder - a choice nobody wanted to make is not made easier by being asked again",
+   "destination": {
+    "target": "accept-or-decline-substitute",
+    "boundTo": "substitution_offer_id",
+    "mustNotClaim": [
+     "a moved closing date"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.remind",
+   "key": "obligation_id + a.remind"
+  },
+  {
+   "type": "wait",
+   "node": "w.final",
+   "timing": {
+    "key": "substitution_offer.final",
+    "class": "attribute-bound",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "attribute",
+   "attribute": "offer_closes_at",
+   "onTimeout": "a.lapse"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.final",
+   "cancelOn": [
+    {
+     "event": "substitute_approved",
+     "meaning": "the substitute is approved"
+    },
+    {
+     "event": "substitute_declined",
+     "meaning": "the substitute is declined"
+    }
+   ],
+   "onEvent": "c.answer"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.final",
+   "reads": "the the affected scope of the obligation and the single alternative offered against it re-read from the system of record before acting on the timeout",
+   "before": "a.lapse"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm-accept",
+   "touch": "t3",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "substitution_offer.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm-accept",
+   "touch": "t3",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm-accept",
+   "touch": "t3",
+   "stage": "confirm-accept",
+   "purpose": "Confirm what will now be supplied, on what terms, and what is unchanged about the rest of the obligation.",
+   "brief": "Confirm what will now be supplied, on what terms, and what is unchanged about the rest of the obligation. Accepting a substitute creates a new promise, and it is stated as one rather than treated as the old one continuing",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.answer"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm-accept",
+   "key": "obligation_id + a.confirm-accept"
+  },
+  {
+   "type": "exit",
+   "node": "x.accepted",
+   "class": "success",
+   "state": "alternative accepted and confirmed",
+   "reEntry": "a further exception on the same obligation is a new instance with its own offer"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.confirm-decline",
+   "touch": "t4",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "substitution_offer.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.confirm-decline",
+   "touch": "t4",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.confirm-decline",
+   "touch": "t4",
+   "stage": "confirm-decline",
+   "purpose": "Confirm the decline, say that the obligation stays open and unfulfilled for the affected scope, and name what happens to it next.",
+   "brief": "Confirm the decline, say that the obligation stays open and unfulfilled for the affected scope, and name what happens to it next. A decline is not a cancellation and must never be recorded as one",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.answer"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.confirm-decline",
+   "key": "obligation_id + a.confirm-decline"
+  },
+  {
+   "type": "exit",
+   "node": "x.declined",
+   "class": "failure",
+   "state": "alternative declined, affected scope still owed",
+   "reEntry": "a different alternative found later is a new offer"
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.lapse",
+   "touch": "t5",
+   "mandatory": false,
+   "pressureClass": "service",
+   "localCap": {
+    "value": {
+     "key": "substitution_offer.touches",
+     "default": 3,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "all",
+    "counts": true
+   },
+   "priority": "service",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4",
+    "s.g5"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.lapse",
+   "touch": "t5",
+   "orderedRoles": [
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    },
+    {
+     "role": "urgent",
+     "channels": [
+      "sms"
+     ],
+     "eligibleWhen": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.lapse",
+   "touch": "t5",
+   "stage": "lapse",
+   "purpose": "Close the offer, release the alternative and say plainly that nothing was substituted and the affected scope is still open.",
+   "brief": "Close the offer, release the alternative and say plainly that nothing was substituted and the affected scope is still open. Silence at the end of a window gets read as agreement, which is exactly what a substitution must never rest on",
+   "destination": null,
+   "label": "CANONICAL_RULE",
+   "prerequisites": [],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.lapse",
+   "key": "obligation_id + a.lapse"
+  },
+  {
+   "type": "exit",
+   "node": "x.lapsed",
+   "class": "timeout",
+   "state": "offer lapsed undecided, affected scope still open",
+   "reEntry": "a new alternative identified later starts a new offer"
+  }
+ ]
+}

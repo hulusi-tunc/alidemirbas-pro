@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { JOURNEY_ROWS } from "@/lib/canonical-view";
+import { JOURNEY_ROWS, PRESET_ROWS, SURFACE_PATH } from "@/lib/canonical-view";
 import { getAllBlogPosts } from "@/lib/blog";
 import { SITE_URL } from "@/lib/seo";
 import { ALL_TOOL_SLUGS } from "@/lib/calc-catalog";
@@ -9,7 +9,13 @@ import { ALL_AB_TEST_SLUGS } from "@/lib/ab-test-view";
 // post archive) is deliberately not in this list - it was decided the new
 // site won't carry that section at all.
 const routes = [
-  "", "/about", "/lab", "/lab/journeys", "/lab/ab-testing", "/lab/dashboard-builder", "/stack", "/contact", "/blog",
+  "", "/about", "/lab", "/lab/journeys",
+  // The library's four product surfaces (canonical-view.ts's SURFACE_ROWS).
+  // Deliberately NOT under /lab/journeys/: that segment is owned by journey
+  // slugs and their modal interceptor - see LabPage.tsx. They are ordinary
+  // /lab pages and take the default priority.
+  ...Object.values(SURFACE_PATH),
+  "/lab/ab-testing", "/lab/dashboard-builder", "/stack", "/contact", "/blog",
   // The Journey Builder product page. /lab/journeys above is the LIBRARY;
   // this is the product page in front of it, added this round.
   "/lab/claude-lifecycle",
@@ -34,6 +40,8 @@ const routes = [
   // resolve into a survivor are deliberately absent: they are noindex, and a
   // sitemap entry would ask for exactly the indexing they decline.
   ...JOURNEY_ROWS.map((j) => `/lab/journeys/${j.slug}`),
+  // Presets are their own pages: a parent journey with the preset applied.
+  ...PRESET_ROWS.map((p) => `/lab/journeys/${p.slug}`),
   // Blog posts are EN-only (see lib/blog.ts) - no /tr/blog/{slug} entries.
   ...getAllBlogPosts("en").map((p) => `/blog/${p.slug}`),
 ];

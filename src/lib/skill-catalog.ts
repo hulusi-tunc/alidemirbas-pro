@@ -16,6 +16,11 @@ export type SkillProject = {
   slug: string;
   desc: string;
   tags: readonly string[];
+  /** The one real number/line already used to prove the project on the
+      /lab hub cards (e.g. "211 scenarios") - exposed here so a page that
+      links to another Lab project (Numerspace's "Other Lab projects") can
+      show the same real proof rather than inventing its own. */
+  proof: string;
   links: readonly { label: string; href: string }[];
 };
 

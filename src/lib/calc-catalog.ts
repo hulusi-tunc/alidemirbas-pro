@@ -296,3 +296,39 @@ export function shortDescription(spec: CalcSpec, lang: Lang): string {
   void lang;
   return correctedFormulaPlainEnglish(spec);
 }
+
+/** Homepage teaser entry - the same shape CalculatorLibrary's own
+    `CalcEntry` uses (kept structurally compatible, not imported, so this
+    lib file stays free of component imports), minus `searchText` (that
+    field exists only for CalculatorLibrary's own search box, which the
+    teaser doesn't render). */
+export type FeaturedCalcEntry = {
+  slug: string;
+  name: string;
+  description: string;
+  categoryLabel: string;
+  categoryKey: string;
+  href: string;
+};
+
+/* The first `count` real calculators, in the same funnel
+   (LIBRARY_GROUP_ORDER) sequence the full /calculators grid uses - a
+   genuine prefix of the real index, not a hand-picked, drift-prone list. */
+export function getFeaturedCalcEntries(lang: Lang, count: number): FeaturedCalcEntry[] {
+  const base = lang === "en" ? "/calculators" : "/tr/calculators";
+  const groupOf = (slug: string): LibraryGroup => LIBRARY_GROUP[slug] ?? "revenue-unit-economics";
+  return getAllLiveSpecs()
+    .map((spec) => {
+      const group = groupOf(spec.slug);
+      return {
+        slug: spec.slug,
+        name: spec.name,
+        description: correctedFormulaPlainEnglish(spec),
+        categoryLabel: GROUP_LABEL[group][lang],
+        categoryKey: group,
+        href: `${base}/${spec.slug}`,
+      };
+    })
+    .sort((a, b) => LIBRARY_GROUP_ORDER.indexOf(a.categoryKey as LibraryGroup) - LIBRARY_GROUP_ORDER.indexOf(b.categoryKey as LibraryGroup))
+    .slice(0, count);
+}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Check, Minus } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 
 import {
   Connector, FlowStrip, Fork, ForkArm, JourneyNode, NODE_KIND_META, kindLabel, nodeById,
@@ -327,27 +327,24 @@ export function HandoffInspector({ lang }: { lang: Lang }) {
 }
 
 /* ====================================================================
-   VISUAL-J07 — Library showcase: journeys as FLOWS, cropped.
-   The Peerbie-screenshot-1 moment, but a journey card is a flow object,
-   not an article card - the mini node strip is what makes that read.
+   VISUAL-J07 — Library showcase: journeys as FLOWS.
+   A journey card is a flow object, not an article card - the mini node
+   strip is what makes that read. Used to be five cards cropped at both
+   edges of the measure with a highlighted centre; now four, uncropped
+   (see SHOWCASE_IDS in journey-marketing.ts for why).
    ==================================================================== */
 
 function JourneyCardTile({
-  card, centre, lang,
+  card, lang,
 }: {
   card: ReturnType<typeof showcaseCards>[number];
-  centre: boolean;
   lang: Lang;
 }) {
   const t = copy[lang].journeyBuilder.library;
   return (
     <Link
       href={card.href}
-      className={`flex w-[19rem] shrink-0 snap-center flex-col rounded-card border bg-paper p-5 transition-[border-color,box-shadow] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-line-strong lg:w-[20rem] ${
-        centre
-          ? "border-line-strong shadow-[0_20px_50px_-24px_rgba(3,17,63,0.4)]"
-          : "border-line-soft shadow-[0_10px_30px_-24px_rgba(3,17,63,0.3)]"
-      }`}
+      className="flex w-[19rem] shrink-0 snap-center flex-col rounded-card border border-line-soft bg-paper p-5 shadow-[0_10px_30px_-24px_rgba(3,17,63,0.3)] transition-[border-color,box-shadow] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-line-strong lg:w-auto"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono text-[11px] text-ink-400 tabular-nums">{card.id}</span>
@@ -358,7 +355,11 @@ function JourneyCardTile({
           {card.categoryTitle}
         </span>
       </div>
-      <p className="mt-3 min-h-[3.25rem] text-[14px] leading-snug font-medium text-ink-950">{card.name}</p>
+      {/* shortName, not the canonical name - the same rule as JourneyIdeaCard:
+          in a row of cards the eye scans titles, and "Onboarding progress ->
+          next best setup step -> activation" is a second title competing
+          with the first. The canonical name leads the detail page. */}
+      <p className="mt-3 min-h-[3.25rem] text-[14px] leading-snug font-medium text-ink-950">{card.shortName}</p>
       <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-ink-500">{card.purpose}</p>
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-line-soft pt-3.5">
         <FlowStrip strip={card.strip} lang={lang} />
@@ -380,7 +381,7 @@ export function JourneyLibrarySpread({ lang }: { lang: Lang }) {
         {JOURNEY_CATEGORY_COUNTS.slice(0, 6).map((c) => (
           <span
             key={c.id}
-            className="rounded-full border border-line-soft bg-paper px-3 py-1.5 text-[13px] text-ink-600"
+            className="max-w-full rounded-full border border-line-soft bg-paper px-3 py-1.5 text-center text-[13px] text-ink-600"
           >
             {c.title}
             <span className="ml-1.5 text-ink-400 tabular-nums">{c.count}</span>
@@ -391,26 +392,17 @@ export function JourneyLibrarySpread({ lang }: { lang: Lang }) {
         </span>
       </div>
 
-      <div className="mt-10 -mx-5 overflow-x-auto sm:-mx-8 lg:-mx-12 lg:overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex w-max snap-x snap-mandatory gap-5 px-5 sm:px-8 lg:w-full lg:justify-center lg:px-0">
-          {cards.map((card, i) => (
-            <JourneyCardTile key={card.id} card={card} centre={i === 2} lang={lang} />
+      {/* Below lg: a snap-scrolling row that bleeds to the viewport edge,
+          which is what tells a thumb there is more. At lg and up: a grid
+          inside the measure, so nothing is ever cropped on a screen that
+          has no scroll affordance to explain the crop. */}
+      <div className="mt-10 -mx-5 overflow-x-auto sm:-mx-8 lg:mx-0 lg:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex w-max snap-x snap-mandatory gap-5 px-5 sm:px-8 lg:grid lg:w-full lg:grid-cols-2 lg:px-0 xl:grid-cols-4">
+          {cards.map((card) => (
+            <JourneyCardTile key={card.id} card={card} lang={lang} />
           ))}
         </div>
       </div>
     </div>
-  );
-}
-
-/* ---- A small shared CTA used by the library + hero -------------------- */
-export function JourneyLibraryCta({ lang, label }: { lang: Lang; label: string }) {
-  return (
-    <Link
-      href={lang === "en" ? "/lab/journeys" : "/tr/lab/journeys"}
-      className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors duration-[var(--duration-fast)] hover:bg-primary-600"
-    >
-      {label}
-      <ArrowRight aria-hidden className="size-4" />
-    </Link>
   );
 }

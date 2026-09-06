@@ -6,6 +6,7 @@ import { getCompute } from "@/lib/calc-registry";
 import { validateInputs, errorMessage } from "@/lib/calc-validate";
 import { formatByUnit, isEnumUnit, parseEnumOptions } from "@/lib/calc-format";
 import { CalcPanel, PanelLabel, PrimaryResult, ResultHint, SecondaryResults } from "@/components/ui/CalcPanel";
+import { Button } from "@/components/ui/Button";
 import type { Lang } from "@/lib/content";
 
 type Stage = { label: string; count: string };
@@ -39,6 +40,11 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
     { label: "", count: "" },
     { label: "", count: "" },
   ]);
+  /* Nothing is judged before the reader asks to be judged: validation
+     messages and the result panel both wait for the first Calculate.
+     After that the tool goes live - the button has done its job of
+     marking the moment, and from then on edits recompute as they type. */
+  const [attempted, setAttempted] = useState(false);
 
   const compute = useMemo(() => getCompute(spec.slug), [spec.slug]);
 
@@ -54,9 +60,23 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
     const v = validateInputs(inputs, raw, spec.slug);
     if (v.ok && compute) {
       results = compute(v.values);
-    } else if (!v.ok && Object.keys(raw).length > 0) {
+    } else if (!v.ok && attempted) {
       errors = Object.fromEntries(Object.entries(v.errors).map(([k, e]) => [k, errorMessage(e, lang)]));
     }
+  }
+
+  /* One pixel wavefront across the answer plate EVERY time the shown
+     answer changes (PixelBurst absorbs pulses that land mid-sweep, so a
+     keystroke run reads as back-to-back sweeps, not a strobe). Gated on
+     `attempted` like the panel itself, so nothing fires before the first
+     Calculate. Derived during render, same pattern as PrimaryResult's
+     reveal. */
+  const signature = attempted && results ? JSON.stringify(results) : null;
+  const [pulsedFor, setPulsedFor] = useState(signature);
+  const [pulse, setPulse] = useState(0);
+  if (signature !== pulsedFor) {
+    setPulsedFor(signature);
+    if (signature !== null) setPulse((p) => p + 1);
   }
 
   /* The headline result, and everything else in the order the catalog
@@ -71,12 +91,24 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
     <CalcPanel
       // The funnel's stage list is a form that grows; give it the room.
       split={isFunnel || inputs.length > 4 ? "input-heavy" : "even"}
+      answerPulse={pulse}
+      plateWatermark={unitGlyph(primary.unit)}
+      plateFootnote={prettyFormula(spec, activeMode)}
       inputs={
-        <>
-          <PanelLabel>{lang === "en" ? "Inputs" : "Girdiler"}</PanelLabel>
-
+        /* No "Inputs" heading: a form of labelled fields says what it is,
+           and the micro-label that used to sit here was rejected in review.
+           A real form: Enter in any field is the same as pressing the
+           Calculate button, the site's primary control with its pixel
+           dissolve - the press that produces the answer. */
+        <form
+          className="flex flex-1 flex-col"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setAttempted(true);
+          }}
+        >
           {hasModes && (
-            <fieldset className="mt-4 border-0 p-0">
+            <fieldset className="border-0 p-0">
               <legend className="mb-2 text-sm font-medium text-ink-900">
                 {lang === "en" ? "Model" : "Model"}
               </legend>
@@ -88,8 +120,10 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
                     role="radio"
                     aria-checked={m.id === modeId}
                     onClick={() => setModeId(m.id)}
-                    className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-                      m.id === modeId ? "border-ink-900 bg-ink-900 text-white" : "border-line text-ink-700 hover:border-ink-900"
+                    className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${
+                      m.id === modeId
+                        ? "bg-primary-600 text-white"
+                        : "bg-paper-soft text-ink-700 hover:bg-blue-50 hover:text-primary-700"
                     }`}
                   >
                     {m.label}
@@ -105,30 +139,64 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
           )}
 
           {isFunnel ? (
-            <div className="mt-4">
+            <div className={hasModes ? "mt-4" : ""}>
               <FunnelInputs stages={stages} setStages={setStages} lang={lang} />
             </div>
           ) : (
             /* One column up to four fields, two beyond that - a calculator
                with two inputs shouldn't have them squeezed side by side in
                half a panel, and one with six shouldn't run off the fold. */
-            <div className={`mt-4 grid gap-4 ${inputs.length > 4 ? "sm:grid-cols-2" : ""}`}>
+            <div className={`${hasModes ? "mt-4 " : ""}grid gap-4 ${inputs.length > 4 ? "sm:grid-cols-2" : ""}`}>
               {inputs.map((input) => (
                 <ScalarInput
                   key={input.key}
                   input={input}
                   value={raw[input.key] ?? ""}
                   error={errors[input.key]}
+                  placeholder={examplePlaceholder(spec, activeMode, input.key)}
                   onChange={(v) => setRaw((r) => ({ ...r, [input.key]: v }))}
                 />
               ))}
             </div>
           )}
-        </>
+
+          {/* Grows to eat the panel's spare height, so the button below sits
+              on the bottom edge whatever the field count - with at least a
+              field-gap of air when the form is tall. */}
+          <div aria-hidden className="min-h-6 flex-1" />
+
+          {/* `sm` is the compact 40px tier - the 56px control read as
+              oversized in this panel. (This carried `btn-keep-tone` while
+              the stage band was data-tone="dark" and would otherwise have
+              flipped the primary to its white dark-ground plate. The band
+              is light as of 2026-08-30, so there is no flip to opt out of
+              and the class is gone rather than left as a no-op.) */}
+          <Button type="submit" variant="primary" size="sm" className="w-full">
+            {lang === "en" ? "Calculate" : "Hesapla"}
+          </Button>
+        </form>
       }
       results={
         <div aria-live="polite">
-          {isFunnel ? (
+          {!attempted ? (
+            /* Before the first Calculate: the answer's own shape, ghosted.
+               The catalog's documented example output at full display size,
+               faint enough to read as a placeholder - the same number the
+               worked-example strip below the tool derives, so it is real
+               content, not an invented figure. The live answer then
+               resolves in its place (PrimaryResult's reveal). */
+            <>
+              <PanelLabel>{isFunnel ? (lang === "en" ? "Conversion by step" : "Adım bazında dönüşüm") : primary.label}</PanelLabel>
+              <p className="mt-2 font-semibold tracking-[-0.03em] tabular-nums text-white/25 text-[clamp(3rem,1.9rem+4.4vw,4.75rem)] leading-[1.02]">
+                {ghostValue(spec, activeMode, primary.key)}
+              </p>
+              <ResultHint>
+                {lang === "en"
+                  ? "Enter your numbers and press Calculate."
+                  : "Sayılarınızı girin ve Hesapla'ya basın."}
+              </ResultHint>
+            </>
+          ) : isFunnel ? (
             <>
               <PanelLabel>{lang === "en" ? "Conversion by step" : "Adım bazında dönüşüm"}</PanelLabel>
               {results ? (
@@ -147,14 +215,14 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
             <>
               <PrimaryResult
                 label={primary.label}
-                value={results ? formatByUnit(results[primary.key], primary.unit) : ""}
+                value={results ? formatByUnit(results[primary.key], primary.unit, lang) : ""}
                 ready={Boolean(results)}
               />
               <SecondaryResults
                 items={rest.map((o) => ({
                   key: o.key,
                   label: o.label,
-                  value: results ? formatByUnit(results[o.key], o.unit) : "",
+                  value: results ? formatByUnit(results[o.key], o.unit, lang) : "",
                   ready: Boolean(results),
                 }))}
               />
@@ -171,15 +239,80 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
   );
 }
 
+/* The plate's giant corner watermark: the primary metric's unit as a
+   single glyph. Units without a one-glyph identity get no watermark
+   rather than a strained one. */
+function unitGlyph(unit: string | null | undefined): string | undefined {
+  if (unit === "%") return "%";
+  if (unit?.startsWith("x")) return "×";
+  if (unit === "currency") return "$";
+  return undefined;
+}
+
+/* The plate footnote: the catalog's code-cased formula read back through
+   its own field labels (the two don't always agree on names - roas's
+   `adSpend` vs the key `spend` - so unknown identifiers are decamelized
+   instead), operators set in real glyphs. Mode-aware: each mode is its own
+   equation over its own inputs. */
+function prettyFormula(
+  spec: RuntimeCalcSpec,
+  mode?: NonNullable<RuntimeCalcSpec["modes"]>[number],
+): string {
+  if (!mode && spec.formulaDisplay) return spec.formulaDisplay;
+  const fields = mode ? [...mode.inputs, ...mode.outputs] : [...spec.inputs, ...spec.outputs];
+  const formula = mode?.formula ?? spec.formula;
+  const pretty = formula.replace(/[A-Za-z_][A-Za-z0-9_]*/g, (token) => {
+    const field = fields.find((x) => x.key.toLowerCase() === token.toLowerCase());
+    if (field) return field.label;
+    return token.replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase();
+  });
+  return pretty.replace(/\//g, "÷").replace(/\*/g, "×");
+}
+
+/* A field's placeholder: the catalog's own documented example figure for
+   that input, mode-aware (each mode documents its own example over its own
+   inputs). Real catalog data, never an invented number - and it is the same
+   example the worked-example strip under the tool derives, so a reader who
+   types the placeholders back in gets exactly the figure shown there. */
+function examplePlaceholder(
+  spec: RuntimeCalcSpec,
+  mode: NonNullable<RuntimeCalcSpec["modes"]>[number] | undefined,
+  key: string,
+): string | undefined {
+  const input = (mode && spec.examplesByMode?.[mode.id]?.input) ?? spec.exampleInput;
+  const value = input?.[key];
+  return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
+}
+
+/* The ghost the empty panel shows: the catalog's own documented example
+   output for the primary metric, already formatted by the catalog
+   ("5.00x", "720.00"). Mode-aware, because each mode documents its own
+   example. Falls back to a dash for the one calculator (the funnel) whose
+   example output is a table rather than a number. */
+function ghostValue(
+  spec: RuntimeCalcSpec,
+  mode: NonNullable<RuntimeCalcSpec["modes"]>[number] | undefined,
+  primaryKey: string,
+): string {
+  const output = (mode && spec.examplesByMode?.[mode.id]?.output) ?? spec.exampleOutput;
+  const value = output?.[primaryKey];
+  return typeof value === "string" || typeof value === "number" ? String(value) : "—";
+}
+
 function ScalarInput({
   input,
   value,
   error,
+  placeholder,
   onChange,
 }: {
   input: RuntimeCalcSpec["inputs"][number];
   value: string;
   error?: string;
+  /** The catalog's own documented example figure for this field - a real
+      number, shown greyed so the field says what shape of input it wants
+      (and at what magnitude) instead of sitting blank. */
+  placeholder?: string;
   onChange: (v: string) => void;
 }) {
   const id = useId();
@@ -195,7 +328,7 @@ function ScalarInput({
           onChange={(e) => onChange(e.target.value)}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errId : undefined}
-          className="rounded-md border border-line bg-white px-3 py-2 text-ink-950 outline-none focus:border-ink-900"
+          className="rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
         >
           <option value="" disabled>
             {"— select —"}
@@ -227,10 +360,11 @@ function ScalarInput({
         inputMode="decimal"
         step="any"
         value={value}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errId : undefined}
-        className="rounded-md border border-line px-3 py-2 text-ink-950 outline-none focus:border-ink-900"
+        className="rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow placeholder:text-ink-300 focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
       />
       {error && (
         <span id={errId} className="text-xs text-red-600">
@@ -265,7 +399,7 @@ function FunnelInputs({
               value={s.label}
               onChange={(e) => update(i, "label", e.target.value)}
               placeholder={lang === "en" ? `Stage ${i + 1} (e.g. Visit)` : `${i + 1}. aşama (örn. Ziyaret)`}
-              className="w-full rounded-md border border-line px-3 py-2 text-ink-950 outline-none focus:border-ink-900"
+              className="w-full rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
             />
           </label>
           <label className="w-32 text-sm">
@@ -276,7 +410,7 @@ function FunnelInputs({
               value={s.count}
               onChange={(e) => update(i, "count", e.target.value)}
               placeholder="0"
-              className="w-full rounded-md border border-line px-3 py-2 text-ink-950 outline-none focus:border-ink-900"
+              className="w-full rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
             />
           </label>
           {stages.length > 2 && (
@@ -284,7 +418,7 @@ function FunnelInputs({
               type="button"
               onClick={() => setStages(stages.filter((_, idx) => idx !== i))}
               aria-label={lang === "en" ? `Remove stage ${i + 1}` : `${i + 1}. aşamayı kaldır`}
-              className="rounded-md border border-line px-2 text-sm text-neutral-500 hover:border-red-400 hover:text-red-600"
+              className="rounded-full bg-paper-soft px-2.5 text-sm text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
             >
               ×
             </button>
@@ -295,7 +429,7 @@ function FunnelInputs({
         <button
           type="button"
           onClick={() => setStages([...stages, { label: "", count: "" }])}
-          className="mt-1 self-start rounded-md border border-line px-3 py-1.5 text-sm text-ink-700 hover:border-ink-900"
+          className="mt-1 self-start rounded-full bg-paper-soft px-3.5 py-1.5 text-sm text-ink-700 transition-colors hover:bg-blue-50 hover:text-primary-700"
         >
           {lang === "en" ? "+ Add stage" : "+ Aşama ekle"}
         </button>
@@ -310,15 +444,15 @@ function FunnelResults({ results, lang }: { results: Record<string, unknown>; la
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-baseline justify-between gap-4">
-        <span className="text-sm text-neutral-600">{lang === "en" ? "Overall conversion" : "Genel dönüşüm"}</span>
-        <span className="font-mono text-lg font-semibold text-ink-950 tabular-nums">
+        <span className="text-sm text-white/70">{lang === "en" ? "Overall conversion" : "Genel dönüşüm"}</span>
+        <span className="font-mono text-lg font-semibold text-white tabular-nums">
           {formatByUnit(results.overallConversion, "%")}
         </span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-neutral-500">
+            <tr className="text-left text-white/60">
               <th className="py-1 pr-4 font-medium">{lang === "en" ? "Step" : "Adım"}</th>
               <th className="py-1 pr-4 font-medium">{lang === "en" ? "Conversion" : "Dönüşüm"}</th>
               <th className="py-1 font-medium">{lang === "en" ? "Drop-off" : "Kayıp"}</th>
@@ -334,9 +468,9 @@ function FunnelResults({ results, lang }: { results: Record<string, unknown>; la
               // normal rate.
               const roseAboveHundred = Number.isFinite(s.value) && s.value > 1;
               return (
-                <tr key={i} className="border-t border-line">
-                  <td className="py-1.5 pr-4 text-ink-900">{s.label}</td>
-                  <td className="py-1.5 pr-4 font-mono tabular-nums text-ink-950">
+                <tr key={i} className="border-t border-white/15">
+                  <td className="py-1.5 pr-4 text-white/80">{s.label}</td>
+                  <td className="py-1.5 pr-4 font-mono tabular-nums text-white">
                     {formatByUnit(s.value, "%")}
                     {roseAboveHundred && (
                       <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 align-middle text-xs font-sans font-medium text-amber-800">
@@ -344,7 +478,7 @@ function FunnelResults({ results, lang }: { results: Record<string, unknown>; la
                       </span>
                     )}
                   </td>
-                  <td className="py-1.5 font-mono tabular-nums text-ink-950">{formatByUnit(drop[i]?.value, "%")}</td>
+                  <td className="py-1.5 font-mono tabular-nums text-white">{formatByUnit(drop[i]?.value, "%")}</td>
                 </tr>
               );
             })}

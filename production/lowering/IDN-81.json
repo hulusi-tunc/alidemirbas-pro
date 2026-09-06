@@ -1,0 +1,398 @@
+{
+ "id": "IDN-81",
+ "shortName": "Identity Verification",
+ "strategy": "notice-then-confirm",
+ "primitivesUsed": [
+  "entry",
+  "state-update",
+  "idempotency-key",
+  "condition",
+  "frequency-gate",
+  "channel-role-resolution",
+  "message",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "exit",
+  "handoff"
+ ],
+ "primitivesAvailable": [
+  "entry",
+  "condition",
+  "wait",
+  "event-cancellation",
+  "state-recheck",
+  "channel-role-resolution",
+  "message",
+  "frequency-gate",
+  "holdout",
+  "handoff",
+  "exit",
+  "state-update",
+  "human-task",
+  "idempotency-key"
+ ],
+ "unsupportedConstructs": [],
+ "flags": [
+  "ordered channel-role resolution",
+  "mandatory touch exempt from caps",
+  "bounded re-arm / attempt budget"
+ ],
+ "primitives": [
+  {
+   "type": "entry",
+   "node": "t.required",
+   "event": "identity_verification_required",
+   "meaning": "a specific identity claim that a process or policy requires to be verified, at a stated scope",
+   "evidenceSource": "authoritative",
+   "entryFilters": [
+    "a specific identity claim that a process or policy requires to be verified, at a stated scope",
+    "no instance of this journey is already open for the the individual identity claim",
+    "hard gates (GLB-31) allow communication for this purpose"
+   ],
+   "instanceKey": [
+    "claim_id"
+   ],
+   "concurrency": "one-active-per-key"
+  },
+  {
+   "type": "state-update",
+   "node": "a.instance",
+   "does": "Create the verification instance bound to the exact claim - which attribute, at what assurance level, for what purpose - and record it as PENDING. A verification that is not bound to a claim verifies nothing in particular, and is read later as having verified everything",
+   "writes": [
+    {
+     "field": "verification_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.instance",
+   "key": "issue_id + identity_id + a.instance"
+  },
+  {
+   "type": "condition",
+   "node": "c.evidence",
+   "asks": "Is the required evidence already available?",
+   "branches": [
+    {
+     "label": "Available",
+     "observes": null,
+     "test": "evidence sufficient for this claim at this assurance is already held",
+     "to": "a.validate"
+    },
+    {
+     "label": "Not yet",
+     "observes": null,
+     "test": "the claim cannot be assessed on what is held",
+     "to": "a.request"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.request",
+   "touch": "t1",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "identity_claim.touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.request",
+   "touch": "t1",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.request",
+   "touch": "t1",
+   "stage": "request",
+   "purpose": "Request the minimum evidence this claim requires, and record the state as EVIDENCE_REQUIRED.",
+   "brief": "Request the minimum evidence this claim requires, and record the state as EVIDENCE_REQUIRED. Evidence is scoped to the claim - collecting more than it needs creates a liability without creating confidence, and asking for a passport to confirm a phone number tells the person we do not know what we are checking",
+   "destination": {
+    "target": "evidence-submission",
+    "boundTo": "claim_id",
+    "mustNotClaim": [
+     "that unrelated attributes are verified"
+    ]
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.evidence"
+   ],
+   "after": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.request",
+   "key": "issue_id + identity_id + a.request"
+  },
+  {
+   "type": "wait",
+   "node": "w.evidence",
+   "timing": {
+    "key": "identity_claim.evidence",
+    "class": "response-window",
+    "default": null,
+    "basis": null,
+    "required": true
+   },
+   "relativeTo": "previous-touch",
+   "attribute": null,
+   "onTimeout": "x.expired"
+  },
+  {
+   "type": "event-cancellation",
+   "node": "w.evidence",
+   "cancelOn": [
+    {
+     "event": "verification_evidence_received",
+     "meaning": "the requested evidence for the claim is received"
+    }
+   ],
+   "onEvent": "a.validate"
+  },
+  {
+   "type": "state-recheck",
+   "node": "w.evidence",
+   "reads": "the the individual identity claim re-read from the system of record before acting on the timeout",
+   "before": "x.expired"
+  },
+  {
+   "type": "exit",
+   "node": "x.expired",
+   "class": "timeout",
+   "state": "EXPIRED; the claim was never verified",
+   "reEntry": "a new verification instance may be opened for the same claim. Expired is not rejected - nobody assessed the claim and found against it"
+  },
+  {
+   "type": "state-update",
+   "node": "a.validate",
+   "does": "Validate the evidence against this claim's acceptance rules, recording the state as UNDER_REVIEW while it runs",
+   "writes": [
+    {
+     "field": "verification_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": {
+    "key": "identity_claim.validate_budget",
+    "default": null,
+    "basis": null,
+    "required": true
+   }
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.validate",
+   "key": "issue_id + identity_id + a.validate"
+  },
+  {
+   "type": "condition",
+   "node": "c.result",
+   "asks": "What did validation conclude?",
+   "branches": [
+    {
+     "label": "Verified",
+     "observes": null,
+     "test": "the evidence establishes the claim at the required assurance",
+     "to": "a.verified"
+    },
+    {
+     "label": "Rejected",
+     "observes": null,
+     "test": "the evidence does not establish the claim, and the reason is known",
+     "to": "h.failure"
+    },
+    {
+     "label": "Inconclusive, more evidence would help",
+     "observes": null,
+     "test": "the claim is neither established nor refuted and further evidence could settle it",
+     "to": "c.rounds"
+    },
+    {
+     "label": "Needs human judgement",
+     "observes": null,
+     "test": "the evidence requires a person to weigh it",
+     "to": "h.review"
+    }
+   ]
+  },
+  {
+   "type": "condition",
+   "node": "c.rounds",
+   "asks": "Does the policy allow another evidence round?",
+   "branches": [
+    {
+     "label": "Round available",
+     "observes": null,
+     "test": "the number of evidence requests for this claim is within the policy limit",
+     "to": "a.request-more"
+    },
+    {
+     "label": "Limit reached",
+     "observes": null,
+     "test": "the claim has been through as many rounds as policy allows",
+     "to": "h.review"
+    }
+   ]
+  },
+  {
+   "type": "frequency-gate",
+   "node": "a.request-more",
+   "touch": "t2",
+   "mandatory": true,
+   "pressureClass": "exempt",
+   "localCap": {
+    "value": {
+     "key": "identity_claim.touches",
+     "default": 0,
+     "basis": "corpus-rule",
+     "required": false
+    },
+    "appliesTo": "non-mandatory",
+    "counts": false
+   },
+   "priority": "security",
+   "competition": "none",
+   "noActionReasons": [
+    "s.g1",
+    "s.g2",
+    "s.g3",
+    "s.g4"
+   ]
+  },
+  {
+   "type": "channel-role-resolution",
+   "node": "a.request-more",
+   "touch": "t2",
+   "orderedRoles": [
+    {
+     "role": "in-session",
+     "channels": [
+      "in-app"
+     ],
+     "eligibleWhen": "the person is active in the product and the action is taken there"
+    },
+    {
+     "role": "persistent",
+     "channels": [
+      "email"
+     ],
+     "eligibleWhen": "the message has to be kept and survive until the person can act on it"
+    }
+   ],
+   "deliveryFallback": "same-role-other-channel",
+   "simultaneous": null
+  },
+  {
+   "type": "message",
+   "node": "a.request-more",
+   "touch": "t2",
+   "stage": "request-more",
+   "purpose": "Request the specific additional evidence that would settle it, naming what is missing rather than repeating the original request",
+   "brief": "Request the specific additional evidence that would settle it, naming what is missing rather than repeating the original request",
+   "destination": {
+    "target": "evidence-submission",
+    "boundTo": "claim_id"
+   },
+   "label": "CANONICAL_RULE",
+   "prerequisites": [
+    "c.evidence",
+    "c.result",
+    "c.rounds"
+   ],
+   "after": "t1"
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.request-more",
+   "key": "issue_id + identity_id + a.request-more"
+  },
+  {
+   "type": "handoff",
+   "node": "h.review",
+   "to": "DEC-181",
+   "on": "a claim that automated validation cannot settle",
+   "carries": [
+    "the claim, the evidence gathered and what was inconclusive about it",
+    "how many rounds have already run, so the person is not asked to repeat them"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "handoff",
+   "node": "h.failure",
+   "to": "IDN-84",
+   "on": "verification failing against a claim",
+   "carries": [
+    "the claim and the failure as observed, unclassified",
+    "the process waiting on this verification, if any"
+   ],
+   "suppresses": [],
+   "contract": null
+  },
+  {
+   "type": "state-update",
+   "node": "a.verified",
+   "does": "Mark this exact claim VERIFIED, at the assurance the evidence supports and for the scope it covers, together with the evidence that established it. Verifying one attribute verifies nothing else - a verified address says nothing about a verified identity, and the binding is what stops the second being read out of the first",
+   "writes": [
+    {
+     "field": "verification_log",
+     "mode": "append"
+    }
+   ],
+   "attemptBudget": null
+  },
+  {
+   "type": "idempotency-key",
+   "node": "a.verified",
+   "key": "issue_id + identity_id + a.verified"
+  },
+  {
+   "type": "exit",
+   "node": "x.verified",
+   "class": "success",
+   "state": "VERIFIED for this claim, at this scope and assurance",
+   "reEntry": "a different claim is verified on its own evidence, and this one is re-verified when its own validity lapses"
+  }
+ ]
+}

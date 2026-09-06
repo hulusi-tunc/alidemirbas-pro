@@ -178,12 +178,17 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: [],
     name: "Continuing relationship created → validate → activate or pending",
+    shortName: "Relationship Activation",
     purpose:
       "Keep the existence of a continuing agreement apart from the moment it actually starts running.",
     entity: {
       scope:
         "the continuing relationship record - a subscription, contract, membership, policy, licence or service agreement",
       note: "One record per relationship, carrying every term it has ever run under. Terms are versions inside it rather than replacements of it. This category owns continuing relationships governed by terms and effective periods, with the lifecycle semantics that follow from them. It does not own a structural link between entities merely because that link is long-lived - that is REL-91.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -192,6 +197,78 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "REL-91 links two entities: a person to an organisation, a parent account to a child, a representative to the entity they act for. Such a link has no term, nothing to renew and nothing to lapse. What is created here has all three, and it is frequently attached to a link REL-91 created rather than replacing it.",
       },
     ],
+    objective: "Keep the existence of a continuing agreement apart from the moment it actually starts running.",
+    eligibility: [
+      "an authorised agreement to enter a continuing relationship, with parties, scope and a term",
+      "no instance of this journey is already open for the the continuing relationship record",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A record created is not a relationship active."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Payment success alone does not define every contract's activation."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A structural link is not an agreement. A person belonging to an organisation, or one account being the parent of another, is a relationship with no term to run, and it belongs to the entity-structure lifecycle rather than here."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "No entitlement is granted before the authoritative effective conditions are met."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "parties",
+          "effective_at",
+          "activation_requirements",
+          "relationship_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.never-active",
+          "h.scheduled",
+          "h.entitlement"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "relationship activation",
+        "subscription start",
+        "contract activation",
+        "membership activation"
+      ],
+      "useCases": [
+        "an authorised agreement kept apart from the moment it starts running",
+        "a created relationship that never activates, ending without an entitlement"
+      ]
+    },
     entry: "t.authorized",
     nodes: [
       {
@@ -217,6 +294,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Create the relationship record. Capture the relationship id, the parties, the product or service scope, the start and effective date, the term, the renewal model, the reference to its financial terms, the basis on which it grants entitlements, and its status. Record CREATED - the agreement exists and nothing is running",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.effective",
+        idempotencyKey: "relationship_id + a.create",
       },
       {
         id: "c.effective",
@@ -241,6 +319,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PENDING_EFFECTIVE_DATE. Nothing is granted and nothing is billed against a relationship that has not started",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "h.scheduled",
+        idempotencyKey: "relationship_id + a.pending-date",
       },
       {
         id: "h.scheduled",
@@ -257,6 +336,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Determine the activation requirements that actually govern this relationship - payment, verification, contract execution, a provisioning prerequisite, a regulatory condition. Which of them apply is a property of this agreement rather than a universal list, and assuming payment is the only one activates contracts that were never signed",
         next: "c.satisfied",
+        idempotencyKey: "relationship_id + a.requirements",
       },
       {
         id: "c.satisfied",
@@ -281,19 +361,29 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record PENDING_REQUIREMENT, naming which requirement is outstanding. A relationship stuck as pending with no stated reason is indistinguishable from one that is simply broken",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "w.requirement",
+        idempotencyKey: "relationship_id + a.pending-req",
       },
       {
         id: "w.requirement",
         kind: "wait",
-        until: ["the outstanding requirements are satisfied", "the agreement is withdrawn before starting"],
+        until: [
+          "activation_requirements_satisfied",
+          "agreement_withdrawn"
+        ],
         onEvent: "c.recheck",
         timeout: {
-          after: "the window policy allows a created but unstarted relationship to remain open",
-          reason:
-            "a relationship that never activates is not a relationship, and leaving it pending indefinitely holds resources and reporting against something that will never begin",
+          "after": {
+            "key": "continuing_relationship.requirement",
+            "rule": "The window policy allows a created but unstarted relationship to remain open.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a relationship that never activates is not a relationship, and leaving it pending indefinitely holds resources and reporting against something that will never begin",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.abandon",
         windowExtendsOnEngagement: false,
+        recheck: "the the continuing relationship record re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.recheck",
@@ -318,6 +408,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the relationship as never activated, preserving the record and the reason. It existed and did not start, which is a different thing from never having been created and is worth being able to count",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "x.never-active",
+        idempotencyKey: "relationship_id + a.abandon",
       },
       {
         id: "x.never-active",
@@ -326,6 +417,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new agreement between the same parties is a new relationship rather than this one resuming, and it starts from its own conditions",
+        class: "invalid-state",
       },
       {
         id: "a.activate",
@@ -333,6 +425,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ACTIVE with the effective date and what satisfied each requirement. Active describes the agreement running - it does not describe what the agreement grants. Every entitlement comes from the relationship's stated entitlement basis, so that a relationship being active is never mistaken for entitlement to everything",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "h.entitlement",
+        idempotencyKey: "relationship_id + a.activate",
       },
       {
         id: "h.entitlement",
@@ -363,11 +456,81 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "scheduling-commitment",
     channels: [],
     name: "Future effective start → wait → revalidate → activate or abort",
+    shortName: "Future Activation Revalidation",
     purpose:
       "Activate a future-dated relationship from what is true at the effective time, not from what was true when it was scheduled.",
     entity: {
       scope: "the future-dated continuing relationship and its scheduled activation",
       note: "The prerequisites recorded at scheduling are a snapshot kept for comparison. They are never the basis on which activation proceeds.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
+    },
+    objective: "Activate a future-dated relationship from what is true at the effective time, not from what was true when it was scheduled.",
+    eligibility: [
+      "a created relationship whose effective start is in the future",
+      "no instance of this journey is already open for the the future",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A future agreement is not a currently active relationship."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A scheduled activation never executes blindly if its prerequisites changed."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A pre-start cancellation suppresses the stale activation job."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "relationship_log",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.cancelled-before-start",
+          "x.failed",
+          "h.entitlement"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "future activation revalidation",
+        "scheduled start",
+        "future-dated subscription",
+        "activation at effective date"
+      ],
+      "useCases": [
+        "a future-dated relationship activated from what is true at its start",
+        "a cancellation before start suppressing the stale activation"
+      ]
     },
     entry: "t.future",
     nodes: [
@@ -377,6 +540,11 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         event: "relationship_created_with_future_start",
         evidence: {
           requires: ["a created relationship whose effective start is in the future"],
+          insufficientAlone: [
+            "a relationship effective immediately",
+            "a scheduled activation with no relationship record behind it",
+            "a cancellation before start, which suppresses the activation rather than starting it"
+          ],
           source: "authoritative",
         },
         next: "a.schedule",
@@ -387,22 +555,30 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record SCHEDULED with the effective time and the prerequisites as they stand today. What is stored is a snapshot for comparison later - a future agreement is not a currently active relationship, and nothing it would grant exists yet",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "w.effective",
+        idempotencyKey: "relationship_id + a.schedule",
       },
       {
         id: "w.effective",
         kind: "wait",
         until: [
-          "the relationship is cancelled before it starts",
-          "a material prerequisite changes",
+          "cancellation_confirmed",
+          "prerequisite_changed"
         ],
         onEvent: "c.preempt",
         timeout: {
-          after: "the effective time",
-          reason:
-            "reaching the effective time is what this wait exists for. It is the normal outcome rather than a failure, and it is the point at which everything is checked again",
+          "after": {
+            "key": "future_effective.effective",
+            "rule": "The scheduled activation waits until its own effective time and revalidates there; nothing activates from what was true when it was scheduled.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "reaching the effective time is what this wait exists for. It is the normal outcome rather than a failure, and it is the point at which everything is checked again",
+          "relativeTo": "attribute",
+          "attribute": "effective_at"
         },
         onTimeout: "a.revalidate",
         windowExtendsOnEngagement: false,
+        recheck: "the the future re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.preempt",
@@ -427,6 +603,12 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the change against the scheduled activation and keep waiting, rather than acting on it now. A prerequisite that lapsed in March may be back in order by the June start date, and failing the activation three months early answers a question nobody has asked yet. The wait's timeout is a fixed calendar point, so returning to it cannot extend it",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "w.effective",
+        idempotencyKey: "relationship_id + a.note",
+        attemptBudget: {
+          "key": "future_effective.note_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
       },
       {
         id: "a.cancel-scheduled",
@@ -437,6 +619,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.cancelled-before-start",
+        idempotencyKey: "relationship_id + a.cancel-scheduled",
       },
       {
         id: "x.cancelled-before-start",
@@ -445,6 +628,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new agreement is a new relationship. This one is closed at a state it never left",
+        class: "invalid-state",
       },
       {
         id: "a.revalidate",
@@ -480,19 +664,28 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record HOLD with exactly what is missing and what would clear it. The relationship has reached its start date without starting, which is a state worth naming rather than leaving as an activation that silently did not happen",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "w.hold",
+        idempotencyKey: "relationship_id + a.hold",
       },
       {
         id: "w.hold",
         kind: "wait",
-        until: ["the missing prerequisite is satisfied"],
+        until: [
+          "activation_requirements_satisfied"
+        ],
         onEvent: "a.activate",
         timeout: {
-          after: "the hold window the governing terms allow",
-          reason:
-            "a relationship held past its own start date indefinitely has effectively failed to activate, and saying so is better than an open hold that ages quietly",
+          "after": {
+            "key": "future_effective.hold",
+            "rule": "The hold window the governing terms allow.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a relationship held past its own start date indefinitely has effectively failed to activate, and saying so is better than an open hold that ages quietly",
+          "relativeTo": "trigger"
         },
         onTimeout: "a.failed",
         windowExtendsOnEngagement: false,
+        recheck: "the the future re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.failed",
@@ -500,6 +693,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record FAILED_ACTIVATION or CANCELLED, according to which the governing policy defines for this failure. The two mean different things to the counterparty and the policy chooses between them - the distinction is not invented here",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "x.failed",
+        idempotencyKey: "relationship_id + a.failed",
       },
       {
         id: "x.failed",
@@ -508,6 +702,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the prerequisites being satisfied later does not activate this relationship retroactively. A new agreement is created if the parties still want one",
+        class: "failure",
       },
       {
         id: "a.activate",
@@ -515,6 +710,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ACTIVE from the effective date, with what was true at the moment of activation rather than at the moment of scheduling",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "h.entitlement",
+        idempotencyKey: "relationship_id + a.activate",
       },
       {
         id: "h.entitlement",
@@ -544,11 +740,17 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "eligibility-qualification",
     channels: ["email", "in-app", "push", "sms"],
     name: "Renewal window → eligibility → renew, non-renew or review",
+    shortName: "Renewal Reminder",
     purpose:
       "Reach a decision about the next term, as a decision - separate from anything that makes the next term real.",
     entity: {
       scope: "the continuing relationship and the renewal cycle currently open on it",
       note: "One renewal cycle per term boundary. A relationship renewed eight times has eight cycles in its history, each with what was decided and why.",
+      instanceKey: [
+        "relationship_id",
+        "renewal_cycle_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -557,12 +759,236 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This produces a decision. SUB-164 makes the new term exist, which depends on payment, confirmation and eligibility that this journey does not touch. A relationship can be decided-to-renew and still not renew.",
       },
     ],
-    competition: {
-      scope: "subscription",
-      exclusionGroup: "relationship-continuity",
-      precedence:
-        "below a cancellation in motion and below an active risk state on the same relationship",
-      onLoss: "suppressed",
+    objective: "Bring a renewal cycle to a recorded decision before the notice deadline: give the notice the terms require, put the decision to whoever holds it where one is needed, and apply what the terms say when none is made.",
+    eligibility: [
+      "a renewal decision window has opened on a continuing relationship with a current term",
+      "the renewal terms, model and required notice are defined - or the cycle goes to decision resolution first",
+      "no renewal instance is already open for this cycle",
+      "no open payment recovery process exists on the relationship - payment recovery owns the relationship until it resolves"
+    ],
+    suppressions: [
+      {
+        "id": "s.undefined-terms",
+        "label": "CANONICAL_RULE",
+        "text": "A window with no defined notice period or renewing terms goes to decision resolution (DEC-181); nothing is asked or noticed on undefined terms."
+      },
+      {
+        "id": "s.blocked",
+        "label": "CANONICAL_RULE",
+        "text": "An outstanding blocker puts the cycle in review; the relationship stays active on its current term throughout and no decision is requested until the blocker is settled."
+      },
+      {
+        "id": "s.decided",
+        "label": "CANONICAL_RULE",
+        "text": "A recorded, authorised decision ends asking; nothing further is sent by this journey once the decision exists."
+      },
+      {
+        "id": "s.asking-not-deciding",
+        "label": "CANONICAL_RULE",
+        "text": "Putting the decision to its holder is not deciding; a non-response is resolved by what the governing terms define, never assumed."
+      },
+      {
+        "id": "s.payment-recovery",
+        "label": "CANONICAL_RULE",
+        "text": "An open payment recovery process on the relationship suppresses the renewal decision request entirely; a routine renewal ask is not put to someone whose current term is already in question over an unresolved payment failure."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Hard gates (GLB-31) apply; pressure caps do not to the required notice, which is an obligation of the terms rather than outreach."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "renewal.discretionary_touches",
+          "rule": "Only the decision request counts against the cap; the notice the terms require is an obligation, not a touch to ration.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "the graph puts the decision once"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "renewal.cooldown",
+        "rule": "Renewal is per cycle; the next cycle is its own instance and no cooldown applies between cycles.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "relationship-continuity",
+        "scope": "subscription",
+        "precedence": "below a cancellation in motion, below an active risk state, and below an open payment recovery process on the same relationship",
+        "onLoss": "suppressed"
+      }
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the decision holder is active in the product and the decision is taken there"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms",
+            "push"
+          ],
+          "when": "the notice deadline is inside the urgent horizon and permission for service messages on the channel is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "deadline-countdown",
+      "touches": [
+        {
+          "id": "t-notice",
+          "stage": "required-notice",
+          "action": "a.notice",
+          "prerequisites": [
+            "c.notice",
+            "c.notice-required"
+          ],
+          "purpose": "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if no decision is made.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "renewal-terms",
+            "boundTo": "renewal_cycle_id"
+          },
+          "mandatory": true,
+          "priority": "transactional",
+          "priorityReason": "a notice the governing terms require is an obligation of the relationship, not outreach; it is never rationed or deferred",
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-request",
+          "stage": "decision-request",
+          "action": "a.request",
+          "prerequisites": [
+            "c.blockers",
+            "c.model"
+          ],
+          "purpose": "Put the renewal decision to whoever holds it, with the terms that would apply and the point by which the notice period requires an answer.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "urgent"
+          ],
+          "destination": {
+            "target": "renewal-decision",
+            "boundTo": "renewal_cycle_id",
+            "mustNotClaim": [
+              "that a decision has been made"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.undefined-terms",
+        "s.blocked",
+        "s.decided",
+        "s.asking-not-deciding",
+        "s.payment-recovery",
+        "s.hard-gates"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "renewal_cycle_id",
+          "term_end_at",
+          "renewal_model",
+          "notice_period",
+          "renewing_terms",
+          "decision_holder"
+        ],
+        "optional": [
+          "blockers",
+          "has_active_session",
+          "urgent_channel_permission"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.execute",
+          "h.scheduled-end",
+          "h.escalate",
+          "h.undefined"
+        ]
+      },
+      "businessOutcome": {
+        "event": "renewal_decision_recorded",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "notice_missed",
+        "decision_assumed",
+        "support_contact_within_24h"
+      ],
+      "operational": [
+        "window_volume",
+        "undefined_terms_rate",
+        "notice_given_rate",
+        "decision_requested_rate",
+        "default_applied_rate",
+        "review_escalation_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "renewal reminder",
+        "renewal notice",
+        "auto-renewal notice",
+        "contract renewal",
+        "subscription renewal reminder",
+        "term-end reminder"
+      ],
+      "useCases": [
+        "an annual contract approaching its notice deadline",
+        "an auto-renewing subscription whose terms require advance notice",
+        "a renewal that needs an explicit decision from an account holder"
+      ]
     },
     entry: "t.window",
     nodes: [
@@ -596,7 +1022,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Defined",
             when: "the governing terms state the notice period, the renewal model and the terms that would apply",
-            to: "c.blockers",
+            to: "c.notice-required",
           },
           {
             label: "Not defined",
@@ -614,6 +1040,31 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "the relationship, its term end and what the terms do say",
           "the explicit fact that no notice period or price was invented in order to proceed",
         ],
+      },
+      {
+        id: "c.notice-required",
+        kind: "condition",
+        asks: "Do the governing terms require notice to actually be given?",
+        branches: [
+          {
+            label: "Notice is required",
+            when: "the terms oblige us to tell them the term is renewing before it does",
+            to: "a.notice",
+          },
+          {
+            label: "No notice obligation",
+            when: "the terms define the model and the period but require no notification",
+            to: "c.blockers",
+          },
+        ],
+      },
+      {
+        id: "a.notice",
+        kind: "action",
+        does: "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if they do nothing. Having defined a notice period is not the same as having given notice, and an auto-renew that reaches execution silently is exactly the case the obligation exists for. This is notice, not a request - it is never treated as the decision",
+        execution: "communication",
+        next: "c.blockers",
+        idempotencyKey: "renewal_cycle_id + touch id",
       },
       {
         id: "c.blockers",
@@ -661,19 +1112,34 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.decision",
         execution: "communication",
+        idempotencyKey: "renewal_cycle_id + touch id",
       },
       {
         id: "w.decision",
         kind: "wait",
-        until: ["an authorized renewal decision is recorded"],
+        until: [
+          "renewal_decision_recorded"
+        ],
         onEvent: "c.decision",
         timeout: {
-          after: "the last point at which the required notice period still allows a decision",
-          reason:
-            "the notice period is what makes the deadline real - past it, the terms themselves determine what happens, and pretending the decision is still open misrepresents the relationship",
+          "after": {
+            "key": "renewal.decision_deadline",
+            "rule": "The decision is waited for until the last point at which the required notice period still allows one; then the governing terms decide.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "term_end_at minus the notice period the terms require",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "the notice period is what makes the deadline real - past it, the terms themselves determine what happens, and pretending the decision is still open misrepresents the relationship",
+          "relativeTo": "attribute",
+          "attribute": "term_end_at"
         },
         onTimeout: "a.default",
         windowExtendsOnEngagement: false,
+        recheck: "the cycle re-read: a decision recorded elsewhere, a cancellation in motion, the terms unchanged",
       },
       {
         id: "a.default",
@@ -681,6 +1147,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply what the governing terms define as the outcome when no decision is made - which for some renewal models is renewal and for others is non-renewal. Record that no decision was made rather than recording a decision, because someone who did not answer did not agree",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "c.decision",
+        idempotencyKey: "renewal_cycle_id + default outcome",
       },
       {
         id: "c.decision",
@@ -688,16 +1155,30 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         asks: "What is the outcome for the next term?",
         branches: [
           {
+            label: "Cancellation in motion",
+            when: "the cycle re-read shows a cancellation now in motion on the relationship - this journey's own declared precedence is below an active cancellation, and resolving a renewal decision independently while one is in motion would contradict it",
+            to: "x.superseded",
+          },
+          {
             label: "Renew",
-            when: "the decision, or the terms' default, is to continue",
+            when: "the decision, or the terms' default, is to continue, and no cancellation is in motion",
             to: "a.decided",
           },
           {
             label: "Do not renew",
-            when: "the decision, or the terms' default, is to let the term end",
+            when: "the decision, or the terms' default, is to let the term end, and no cancellation is in motion",
             to: "a.non-renew",
           },
         ],
+      },
+      {
+        id: "x.superseded",
+        kind: "exit",
+        state: "renewal decision suppressed; a cancellation in motion on the relationship takes precedence",
+        terminal: false,
+        reEntry:
+          "the cancellation's own resolution decides what happens next - if it is withdrawn, the renewal cycle re-opens fresh rather than resuming a decision made under a since-lifted cancellation",
+        class: "suppression",
       },
       {
         id: "a.review",
@@ -705,19 +1186,34 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record RENEWAL_REVIEW with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.review",
+        idempotencyKey: "renewal_cycle_id + relationship_id + a.review",
       },
       {
         id: "w.review",
         kind: "wait",
-        until: ["the review concludes with an authorized decision"],
+        until: [
+          "renewal_decision_recorded"
+        ],
         onEvent: "c.decision",
         timeout: {
-          after: "the notice deadline",
-          reason:
-            "a review that outlives the notice period has removed the counterparty's ability to plan, whichever way it eventually goes",
+          "after": {
+            "key": "renewal.notice_deadline",
+            "rule": "A review that outlives the notice deadline is escalated to ownership; the relationship stays on its current term meanwhile.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "term_end_at minus the notice period the terms require",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "a review that outlives the notice period has removed the counterparty's ability to plan, whichever way it eventually goes",
+          "relativeTo": "attribute",
+          "attribute": "term_end_at"
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
+        recheck: "the review re-read: concluded with an authorised decision, still open, or a cancellation now in motion on the relationship",
       },
       {
         id: "h.escalate",
@@ -732,6 +1228,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the renewal as decided, with the new term's dates and the terms that would apply. Decided is not renewed - the new term does not exist until its own requirements have been met, and a relationship can sit here and still lapse",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "h.execute",
+        idempotencyKey: "renewal_cycle_id + relationship_id + a.decided",
       },
       {
         id: "h.execute",
@@ -739,9 +1236,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "SUB-164",
         on: "a renewal decided and ready for execution",
         carries: [
-          "the decision, the new term's dates and its terms",
+          "renewal_cycle_id, the decision, the new term's dates and its terms",
           "the explicit fact that the new term does not yet exist and its requirements have not been tested",
         ],
+        contract: { requiredFields: ["renewal_cycle_id"] },
       },
       {
         id: "a.non-renew",
@@ -749,6 +1247,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record NON_RENEWING with the effective end being the current term's end. The relationship is still active and still governed by its current term - non-renewing is a decision about the next term and says nothing about this one",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "h.scheduled-end",
+        idempotencyKey: "renewal_cycle_id + relationship_id + a.non-renew",
       },
       {
         id: "h.scheduled-end",
@@ -767,6 +1266,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "Renewal notice periods and renewing terms are never invented.",
       "A relationship under renewal review stays active on its current term.",
       "A relationship with a cancellation already in motion, or with an active risk state, is not sent a routine renewal message. The lifecycle that already owns the person takes precedence, and a renewal reminder arriving during a cancellation reads as a system that is not paying attention.",
+      "A cancellation that starts in motion after the decision request was already sent is not resolved as a renewal or a non-renewal - w.decision's and w.review's own recheck surface it, and c.decision's own branch defers to it (x.superseded) rather than letting a stale wait resolve to a decision the relationship no longer stands behind.",
     ],
     reusableRule:
       "Renewal is a new term decision governed by the current relationship state and applicable renewal rules.",
@@ -780,10 +1280,13 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Renewal execution → financial and dependency check → new term active",
+    shortName: "Renewal Execution",
     purpose: "Make the new term exist, once the things it depends on have actually happened.",
     entity: {
       scope: "the renewal operation and the new term it would create",
-      note: "The new term is created as a new term. The previous one keeps its dates, its price and its scope, because that is what any later question about the relationship is asked against.",
+      note: "The new term is created as a new term. The previous one keeps its dates, its price and its scope, because that is what any later question about the relationship is asked against. renewal_cycle_id identifies this specific renewal cycle - the same relationship renews many times over its life, and each cycle is its own instance; a redelivered renewal_authorized_for_execution event for the same renewal_cycle_id must resolve to the same financial obligation and the same new term, never a second one, while a genuinely later renewal cycle for the same relationship is its own renewal_cycle_id and its own legitimate instance.",
+      instanceKey: ["renewal_cycle_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -833,9 +1336,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.financial",
         kind: "action",
-        does: "Raise the renewal's financial obligation through the financial lifecycle, which owns whether it is created, due and satisfied. This journey keeps ownership of the new term and waits for that outcome rather than handing the term away - otherwise a failed payment leaves a renewal nobody is holding",
+        does: "Raise the renewal's financial obligation through the financial lifecycle, which owns whether it is created, due and satisfied, once per renewal_cycle_id: a redelivered renewal_authorized_for_execution event for the same renewal_cycle_id resolves to the obligation already raised rather than raising a second one. This journey keeps ownership of the new term and waits for that outcome rather than handing the term away - otherwise a failed payment leaves a renewal nobody is holding",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.dependencies",
+        idempotencyKey: "renewal_cycle_id + a.financial",
       },
       {
         id: "w.dependencies",
@@ -861,7 +1365,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "All satisfied",
             when: "every authoritative requirement for the new term is met",
-            to: "a.new-term",
+            to: "c.terms-current",
           },
           {
             label: "Something failed",
@@ -869,6 +1373,31 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
             to: "c.blocker",
           },
         ],
+      },
+      {
+        id: "c.terms-current",
+        kind: "condition",
+        asks: "Do the governing terms carried from the decision still match what currently governs this relationship?",
+        branches: [
+          {
+            label: "Unchanged",
+            when: "the dates, pricing and terms carried at a.decided's handoff still match the relationship's current governing terms - the ordinary case, since w.dependencies' own window is bounded",
+            to: "a.new-term",
+          },
+          {
+            label: "Materially changed",
+            when: "a policy or pricing change landed on the relationship between SUB-163's decision and this point - the decision to renew still stands, but what it renews on does not",
+            to: "a.reconcile-terms",
+          },
+        ],
+      },
+      {
+        id: "a.reconcile-terms",
+        kind: "action",
+        does: "Re-derive the new term's actual dates, pricing and scope from the relationship's current governing terms rather than the snapshot carried at SUB-163's own decision - the decision to renew is not re-litigated here, only what it renews on. This is the same current-state-over-stale-snapshot discipline CTL-233/CTL-232 and FIN-135 already apply at their own execution points",
+        writes: [{ field: "renewal_log", mode: "append" }],
+        next: "a.new-term",
+        idempotencyKey: "renewal_cycle_id + a.reconcile-terms",
       },
       {
         id: "c.blocker",
@@ -925,9 +1454,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.new-term",
         kind: "action",
-        does: "Create the new term as a new term, with its own dates, price and scope, and leave the previous term intact. Overwriting the old term's dates with the new ones erases that the relationship ran at a different price for a different period, which is the exact record anyone auditing a renewal is looking for",
+        does: "Create the new term as a new term, with its own dates, price and scope, and leave the previous term intact, once per renewal_cycle_id - if a new term already exists for this renewal_cycle_id (reached again after a redelivered dependency-resolution event), return that existing term rather than creating a second one. Overwriting the old term's dates with the new ones erases that the relationship ran at a different price for a different period, which is the exact record anyone auditing a renewal is looking for",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "a.activate-term",
+        idempotencyKey: "renewal_cycle_id + a.new-term",
       },
       {
         id: "a.activate-term",
@@ -993,6 +1523,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "A renewal scheduled is not a renewal completed.",
       "A payment attempt is not renewal completion.",
       "The previous term is never overwritten with the new term's dates.",
+      "A redelivered authorization for the same renewal_cycle_id raises at most one financial obligation and creates at most one new term - never a duplicate of either.",
+      "The new term is never created from a stale terms snapshot once w.dependencies' own bounded window has elapsed - c.terms-current re-checks against the relationship's current governing terms immediately before a.new-term, and a.reconcile-terms re-derives dates, pricing and scope from that current state rather than what SUB-163 carried at decision time. The decision to renew itself is never re-litigated here, only what it renews on.",
     ],
     reusableRule:
       "A renewal becomes effective only after the requirements for the new term have actually been satisfied.",
@@ -1006,11 +1538,17 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "expiry-renewal",
     channels: [],
     name: "Renewal payment failure → grace or recover → renew or lapse",
+    shortName: "Renewal Payment Recovery",
     purpose:
       "Decide what the relationship does while a failed renewal payment is being chased, without ending it by reflex.",
     entity: {
       scope: "the continuing relationship and the renewal obligation whose payment failed",
       note: "Two lifecycles running at once. The financial one is chasing money; this one is deciding what the counterparty can do in the meantime.",
+      instanceKey: [
+        "subscription_id",
+        "renewal_cycle_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1019,6 +1557,95 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "FIN-134 classifies the payment failure and tries to collect. This decides what the relationship is while that happens - in grace, restricted, pending or lapsing - which is a question about the contract rather than about the money.",
       },
     ],
+    objective: "Hold a renewal whose payment failed in the state the grace policy defines - active, restricted or pending - until the payment is recovered, an authorised alternate resolution is agreed, or the grace deadline passes; the communication belongs to payment failure recovery.",
+    eligibility: [
+      "a renewal payment has failed on a subscription with a defined grace policy",
+      "the renewal was decided and executed up to the payment step",
+      "no recovery state instance is already open for this cycle"
+    ],
+    suppressions: [
+      {
+        "id": "s.undefined-grace",
+        "label": "CANONICAL_RULE",
+        "text": "A subscription class with no defined grace policy goes to decision resolution (DEC-181); no grace state is invented."
+      },
+      {
+        "id": "s.no-messages-here",
+        "label": "CANONICAL_RULE",
+        "text": "This journey holds the relationship state; every message about the failed payment is payment failure recovery's (FIN-134), never a second one from here."
+      },
+      {
+        "id": "s.recovered",
+        "label": "CANONICAL_RULE",
+        "text": "A recovered payment completes the renewal; an authorised alternate resolution does the same on its own terms."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "subscription_id",
+          "renewal_cycle_id",
+          "grace_policy_id",
+          "grace_deadline_at",
+          "failed_at",
+          "obligation_id"
+        ],
+        "optional": [
+          "restriction_scope",
+          "alternate_resolution_ref"
+        ]
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "handoff",
+        "refs": [
+          "h.complete",
+          "h.end",
+          "h.undefined"
+        ]
+      },
+      "businessOutcome": {
+        "event": "obligation_satisfied",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [
+        "alternate_resolution_agreed"
+      ],
+      "guardrails": [
+        "duplicate_payment_message",
+        "grace_state_invented",
+        "end_before_grace_deadline"
+      ],
+      "operational": [
+        "failure_volume",
+        "grace_state_distribution",
+        "recovery_rate_within_grace",
+        "alternate_resolution_rate",
+        "end_rate"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "renewal payment recovery",
+        "renewal dunning (state)",
+        "failed renewal charge",
+        "grace period",
+        "involuntary churn (renewal)"
+      ],
+      "useCases": [
+        "a subscription renewal charge that failed, held in grace while payment recovery runs",
+        "a renewal whose grace deadline passes without payment and must end honestly"
+      ]
+    },
     entry: "t.failed",
     nodes: [
       {
@@ -1040,6 +1667,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the failure into the payment recovery lifecycle, which owns classification and collection. This journey does not chase the money; it holds the relationship's state while that runs, which is why it does not hand the relationship away",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "c.policy",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.recovery",
       },
       {
         id: "c.policy",
@@ -1074,6 +1702,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the relationship state policy defines during recovery - ACTIVE_IN_GRACE, RENEWAL_PENDING, RESTRICTED or LAPSE_PENDING. What the counterparty keeps access to follows from that state and from policy, never from a default of leaving everything running or switching everything off",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.restrict",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.state",
       },
       {
         id: "c.restrict",
@@ -1098,22 +1727,35 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the restriction through the access lifecycle, with the scope policy defines. What is switched off and how is owned there; what the relationship's contractual state is remains owned here",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "w.recovery",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.restrict",
       },
       {
         id: "w.recovery",
         kind: "wait",
         until: [
-          "the payment is recovered",
-          "an authorized alternate resolution is agreed",
+          "obligation_satisfied",
+          "alternate_resolution_agreed"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the grace deadline policy defines",
-          reason:
-            "the grace period is policy's own answer to how long this may run. Extending it is a decision nobody made, and shortening it takes back something the counterparty was granted",
+          "after": {
+            "key": "renewal_payment.grace_deadline",
+            "rule": "The grace state lasts exactly as long as the grace policy for this subscription class defines; its end is the consequence, never an extension invented here.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "the grace deadline the policy defines for this subscription class",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "the grace period is policy's own answer to how long this may run. Extending it is a decision nobody made, and shortening it takes back something the counterparty was granted",
+          "relativeTo": "attribute",
+          "attribute": "grace_deadline_at"
         },
         onTimeout: "a.lapse",
         windowExtendsOnEngagement: false,
+        recheck: "the obligation and the subscription re-read: paid, resolved otherwise, or still outstanding at the deadline",
       },
       {
         id: "c.outcome",
@@ -1138,6 +1780,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record how the obligation was resolved other than by the original payment. The renewal proceeds on that basis and the record says which basis, because a term that renewed on a waiver is not the same fact as one that renewed on a payment",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "c.remaining",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.alternate",
       },
       {
         id: "c.remaining",
@@ -1172,6 +1815,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the outcome this relationship's own semantics define - LAPSED, EXPIRED or NON_RENEWED. These are different words for genuinely different things, and which one applies changes what the counterparty is told and what they can do next",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "h.end",
+        idempotencyKey: "subscription_id + renewal_cycle_id + a.lapse",
       },
       {
         id: "h.end",
@@ -1202,11 +1846,16 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "change-versioning",
     channels: [],
     name: "Plan or terms change request → validate → schedule, apply or reject",
+    shortName: "Plan Change Validation",
     purpose:
       "Apply an authorized change to a running relationship at the right time, as a delta against whatever is actually there then.",
     entity: {
       scope: "the continuing relationship and the change request raised against it",
       note: "The request stores a delta and the relationship version it was authorized against. It never stores the resulting terms, because those depend on a relationship that will have moved. What changes here is what a term-bearing continuing relationship is authorized to run under. It does not own a change to the structural link between the entities merely because the same two parties are involved - that is REL-92.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1220,6 +1869,82 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This changes the authorized terms a continuing relationship runs under. REL-92 changes what the structural relationship between the entities means. A tier change leaves the person exactly as related to the organisation as they were, and a membership type changing leaves the plan exactly as it was priced.",
       },
     ],
+    objective: "Apply an authorized change to a running relationship at the right time, as a delta against whatever is actually there then.",
+    eligibility: [
+      "an authorized request to change a running term-bearing relationship's plan, tier, scope or terms",
+      "no instance of this journey is already open for the the continuing relationship and the change request raised against it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A change requested is not a change applied."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Historical terms are never rewritten."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A structural link changing type or state is not a plan or terms change merely because the same entities are involved."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A scheduled upgrade or downgrade never executes against a relationship that has ended or materially changed without revalidation."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "change_log",
+          "suppressed_sends",
+          "relationship_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.rejected",
+          "x.void",
+          "x.not-applied",
+          "x.applied",
+          "h.undefined",
+          "h.review",
+          "h.entitlement",
+          "h.financial"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "plan change validation",
+        "upgrade or downgrade",
+        "change of terms",
+        "plan switch"
+      ],
+      "useCases": [
+        "an authorised change applied as a delta against the terms actually in force",
+        "a scheduled change revalidated at its effective time"
+      ]
+    },
     entry: "t.requested",
     nodes: [
       {
@@ -1244,6 +1969,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Capture the current terms, the requested terms, the requested effective time, the scope delta and the reference to its financial impact. What is stored is the delta and the relationship version it was authorized against",
         writes: [{ field: "change_log", mode: "append" }],
         next: "c.allowed",
+        idempotencyKey: "relationship_id + a.capture",
       },
       {
         id: "c.allowed",
@@ -1283,6 +2009,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the change as rejected, naming the term that rules it out. The relationship continues unchanged on its current terms",
         writes: [{ field: "change_log", mode: "append" }],
         next: "x.rejected",
+        idempotencyKey: "relationship_id + a.reject",
       },
       {
         id: "x.rejected",
@@ -1291,6 +2018,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the same change may become permitted at a different point in the relationship - at a term boundary, or after a minimum period - and is requested again then",
+        class: "invalid-state",
       },
       {
         id: "c.timing",
@@ -1315,22 +2043,30 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record SCHEDULED_CHANGE with the delta, the effective time and the relationship version it was authorized against. The delta is stored rather than the resulting terms, because what those terms would be depends on the relationship as it stands when the change lands",
         writes: [{ field: "change_log", mode: "append" }],
         next: "w.effective",
+        idempotencyKey: "relationship_id + a.schedule",
       },
       {
         id: "w.effective",
         kind: "wait",
         until: [
-          "the relationship ends before the change lands",
-          "the change is withdrawn",
+          "relationship_ended",
+          "change_withdrawn"
         ],
         onEvent: "a.void",
         timeout: {
-          after: "the change's effective time",
-          reason:
-            "reaching the effective time is what the wait exists for, and it is the point at which the delta is checked against the relationship rather than applied to it",
+          "after": {
+            "key": "terms_change.effective",
+            "rule": "A scheduled change waits until its own effective time and is revalidated there against the relationship as it then stands.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "reaching the effective time is what the wait exists for, and it is the point at which the delta is checked against the relationship rather than applied to it",
+          "relativeTo": "attribute",
+          "attribute": "change_effective_at"
         },
         onTimeout: "a.revalidate",
         windowExtendsOnEngagement: false,
+        recheck: "the the continuing relationship and the change request raised against it re-read from the system of record before acting on the timeout",
       },
       {
         id: "a.void",
@@ -1341,6 +2077,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.void",
+        idempotencyKey: "relationship_id + a.void",
       },
       {
         id: "x.void",
@@ -1349,6 +2086,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the change can be requested again against whatever relationship exists now, and is evaluated on those terms",
+        class: "invalid-state",
       },
       {
         id: "a.revalidate",
@@ -1412,6 +2150,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the change as not applied, naming the dependency that blocked it, and leave the current terms in force. A half-applied change - new price, old scope - is worse than no change at all",
         writes: [{ field: "change_log", mode: "append" }],
         next: "x.not-applied",
+        idempotencyKey: "relationship_id + a.not-applied",
       },
       {
         id: "x.not-applied",
@@ -1420,6 +2159,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the change can be requested again once the blocking dependency is available",
+        class: "invalid-state",
       },
       {
         id: "a.apply",
@@ -1427,6 +2167,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the delta as a new terms version, dated from its effective time. The prior terms stay in the record with the period they governed - rewriting them means last month's invoice no longer matches any terms the system holds",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.scope",
+        idempotencyKey: "relationship_id + a.apply",
       },
       {
         id: "c.scope",
@@ -1477,6 +2218,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "further changes are new requests evaluated against this version rather than against the original agreement",
+        class: "success",
       },
     ],
     guardrails: [
@@ -1497,11 +2239,16 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Cancellation request → determine effective end → schedule or cancel now",
+    shortName: "Cancellation Effective-Date Resolution",
     purpose:
       "Establish whether and when a relationship will end, while the current term keeps running until it does.",
     entity: {
       scope: "the continuing relationship and the cancellation request raised against it",
       note: "The request produces an effective end date. It does not produce an ended relationship, and between the two the relationship is entirely normal.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1510,6 +2257,77 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This decides that the relationship will end and when. SUB-168 checks, at that date, whether the decision still applies to the relationship as it then is - which is a different question with a different failure mode.",
       },
     ],
+    objective: "Establish whether and when a relationship will end, while the current term keeps running until it does.",
+    eligibility: [
+      "an authorized request to end a continuing relationship",
+      "no instance of this journey is already open for the the continuing relationship and the cancellation request raised against it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A cancellation requested is not a relationship cancelled."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Non-renewing is not currently inactive."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Current entitlement is never ended early when the cancellation is end-of-term."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Cancellation semantics are never invented."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "cancellation_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.blocked",
+          "h.authority",
+          "h.undefined",
+          "h.end",
+          "h.scheduled"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "cancellation effective-date resolution",
+        "cancel subscription request",
+        "when a cancellation takes effect",
+        "cancellation request handling"
+      ],
+      "useCases": [
+        "whether and when a relationship ends, while the current term keeps running",
+        "a cancellation blocked by a valid requirement, left standing"
+      ]
+    },
     competition: {
       scope: "subscription",
       exclusionGroup: "relationship-continuity",
@@ -1538,6 +2356,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine who holds the authority, the current term and state, what the relationship's cancellation semantics actually say, the effective end those semantics produce, and the obligations that already exist and will outlive it",
         writes: [{ field: "cancellation_log", mode: "append" }],
         next: "c.authority",
+        idempotencyKey: "relationship_id + a.determine",
       },
       {
         id: "c.authority",
@@ -1616,6 +2435,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the blocker explicitly, with what would clear it and when. A cancellation refused without a stated reason becomes a complaint, and then a dispute, over something that was usually a date the counterparty could have waited for",
         writes: [{ field: "cancellation_log", mode: "append" }],
         next: "x.blocked",
+        idempotencyKey: "relationship_id + a.blocked",
       },
       {
         id: "x.blocked",
@@ -1624,6 +2444,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "the request proceeds once the blocker clears. Nothing about the relationship changed in the meantime, including its entitlements",
+        class: "failure",
       },
       {
         id: "c.timing",
@@ -1648,6 +2469,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the effective end as now, under the semantics that permit it, together with what remains owed on both sides",
         writes: [{ field: "cancellation_log", mode: "append" }],
         next: "h.end",
+        idempotencyKey: "relationship_id + a.immediate",
       },
       {
         id: "h.end",
@@ -1665,6 +2487,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record NON_RENEWING or CANCELLATION_SCHEDULED with the effective end, and leave the relationship ACTIVE. The current term keeps running and every entitlement it grants keeps working until that date - cutting access at the moment of request bills someone for a period they cannot use, and turns a clean exit into a refund claim",
         writes: [{ field: "cancellation_log", mode: "append" }],
         next: "h.scheduled",
+        idempotencyKey: "relationship_id + a.schedule",
       },
       {
         id: "h.scheduled",
@@ -1695,11 +2518,16 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Scheduled cancellation → revalidate at effective time → end or preserve",
+    shortName: "Scheduled Cancellation Revalidation",
     purpose:
       "Stop a scheduled end from executing against a relationship the counterparty has since chosen to keep.",
     entity: {
       scope: "the continuing relationship and the scheduled termination standing against it",
       note: "The termination carries the relationship version it was authorized against. Comparing that version against the current one is the whole job.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1708,6 +2536,70 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "SUB-167 decides the end. This is the guard between that decision and its execution, months later, against a relationship that may have been renewed, upgraded or resubscribed in between.",
       },
     ],
+    objective: "Stop a scheduled end from executing against a relationship the counterparty has since chosen to keep.",
+    eligibility: [
+      "a scheduled termination whose effective time has arrived",
+      "no instance of this journey is already open for the the continuing relationship and the scheduled termination standing against it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A scheduled cancellation is version-aware."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A reactivation, resubscription or change after scheduling invalidates the old cancellation."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Termination never deletes relationship history."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "cancellation_log",
+          "suppressed_sends",
+          "relationship_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.suppressed",
+          "h.end"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "scheduled cancellation revalidation",
+        "end-of-term cancellation execution",
+        "scheduled termination check"
+      ],
+      "useCases": [
+        "a scheduled end stopped from executing against a relationship the counterparty chose to keep",
+        "a still-valid scheduled termination executed"
+      ]
+    },
     entry: "t.effective",
     nodes: [
       {
@@ -1716,6 +2608,11 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         event: "scheduled_cancellation_effective_time_reached",
         evidence: {
           requires: ["a scheduled termination whose effective time has arrived"],
+          insufficientAlone: [
+            "a scheduled end whose effective time has not arrived",
+            "a cancellation requested but not scheduled",
+            "a renewal decision, which is its own lifecycle"
+          ],
           source: "authoritative",
         },
         next: "a.reread",
@@ -1752,6 +2649,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "x.suppressed",
+        idempotencyKey: "relationship_id + a.suppress",
       },
       {
         id: "x.suppressed",
@@ -1760,6 +2658,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a fresh cancellation against the current relationship is a new decision with its own effective end. The suppressed one stays in the record as something that was decided and then overtaken",
+        class: "suppression",
       },
       {
         id: "a.obligations",
@@ -1767,6 +2666,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine what remains owed at the end - open fulfillment, unbilled usage, outstanding payments, commitments made while the relationship was active. This is established before the end rather than discovered after it",
         writes: [{ field: "cancellation_log", mode: "append" }],
         next: "a.end",
+        idempotencyKey: "relationship_id + a.obligations",
       },
       {
         id: "a.end",
@@ -1774,6 +2674,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the terminal state the relationship's semantics define - ENDED, CANCELLED or EXPIRED. The whole history stays: every term, every renewal, every suspension and every price it ran at. A termination that deletes the relationship removes the answer to every question anyone will later ask about it",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "h.end",
+        idempotencyKey: "relationship_id + a.end",
       },
       {
         id: "h.end",
@@ -1803,11 +2704,16 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "suspension-restoration",
     channels: [],
     name: "Suspension or hold → restrict relationship → restore or end",
+    shortName: "Relationship Suspension",
     purpose:
       "Hold a relationship in a state where it cannot operate normally and has not ended.",
     entity: {
       scope: "the continuing relationship and the suspension standing against it",
       note: "The relationship keeps existing, keeps its term and, unless policy says otherwise, keeps counting toward its own renewal.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -1816,6 +2722,75 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This is the commercial relationship's suspension state. ACC-78 is what happens to capability and access as a result. A relationship can be suspended for reasons that restrict nothing, and access can be suspended without the contract changing at all.",
       },
     ],
+    objective: "Hold a relationship in a state where it cannot operate normally and has not ended.",
+    eligibility: [
+      "an authoritative suspension or hold condition - financial, administrative, security, eligibility, operational or otherwise policy-defined",
+      "no instance of this journey is already open for the the continuing relationship and the suspension standing against it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "Suspended is not cancelled."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A suspension never silently resets renewal or end dates unless governing policy explicitly does so."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "Restoration uses current terms rather than a historical snapshot."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A suspension always states the condition that would restore it."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "relationship_log"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.restored",
+          "h.review",
+          "h.end"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "relationship suspension",
+        "subscription on hold",
+        "pause subscription",
+        "relationship hold"
+      ],
+      "useCases": [
+        "a relationship held where it cannot operate and has not ended",
+        "a suspension reaching its maximum duration undecided"
+      ]
+    },
     entry: "t.condition",
     nodes: [
       {
@@ -1840,6 +2815,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the reason, the scope, the effective time, what behaviour remains allowed, and the condition that would restore it. A suspension with no stated restoration condition has no way out, and becomes a termination nobody decided and nobody can point to",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.dates",
+        idempotencyKey: "relationship_id + a.record",
       },
       {
         id: "c.dates",
@@ -1864,6 +2840,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the adjustment policy defines, recording it as an adjustment with its basis rather than silently editing the term. The dates moved because a rule moved them, and the record has to say which rule",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "a.restrict",
+        idempotencyKey: "relationship_id + a.adjust",
       },
       {
         id: "a.keep",
@@ -1871,6 +2848,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Leave the renewal and end dates where they are. Silently pushing them out extends a relationship nobody agreed to extend, and it surfaces months later as a charge the counterparty did not expect on a date they did not know about",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "a.restrict",
+        idempotencyKey: "relationship_id + a.keep",
       },
       {
         id: "a.restrict",
@@ -1878,22 +2856,30 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record SUSPENDED and raise whatever capability restriction the suspension calls for through the access lifecycle, which owns what is switched off and how. This journey owns the relationship's contractual state; suspended is not cancelled, and the relationship survives this entirely",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "w.suspension",
+        idempotencyKey: "relationship_id + a.restrict",
       },
       {
         id: "w.suspension",
         kind: "wait",
         until: [
-          "the suspension reason is resolved",
-          "a terminal decision is taken on the relationship",
+          "suspension_reason_resolved",
+          "terminal_decision_recorded"
         ],
         onEvent: "c.outcome",
         timeout: {
-          after: "the maximum suspension duration policy defines",
-          reason:
-            "an indefinite suspension is a termination without a decision. Reaching the limit forces the question rather than letting the relationship sit unusable and un-ended",
+          "after": {
+            "key": "relationship_suspension.suspension",
+            "rule": "The maximum suspension duration policy defines.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "an indefinite suspension is a termination without a decision. Reaching the limit forces the question rather than letting the relationship sit unusable and un-ended",
+          "relativeTo": "attribute",
+          "attribute": "maximum_suspension_ends_at"
         },
         onTimeout: "h.review",
         windowExtendsOnEngagement: false,
+        recheck: "the the continuing relationship and the suspension standing against it re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.review",
@@ -1951,6 +2937,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record ACTIVE again and raise the capability restoration through the access lifecycle, built from the relationship's current terms rather than from what it held before",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "x.restored",
+        idempotencyKey: "relationship_id + a.restore",
       },
       {
         id: "x.restored",
@@ -1959,6 +2946,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a further suspension is a new suspension with its own reason and its own restoration condition. The previous one stays in the record",
+        class: "success",
       },
       {
         id: "h.end",
@@ -1989,11 +2977,16 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: [],
     name: "Relationship end → final reconciliation → former or expired state",
+    shortName: "Continuing Relationship End Reconciliation",
     purpose:
       "Stop what the relationship was granting, while everything it created keeps its own lifecycle.",
     entity: {
       scope: "the ended continuing relationship and the state that depended on it",
       note: "The relationship record survives its own ending. The end is a state it reaches, not a deletion of what it was. What ends here is a term. The structural links between the same parties are untouched by it, and removing one of those is a separate decision owned by REL-93.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2007,6 +3000,80 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "REL-93 ends a structural link between two entities, and what stops is what depended on the link existing. This ends a term, and what stops is what the term was granting. Someone can leave an organisation while the subscription they paid for personally keeps running, and a policy can expire while the person stays exactly as related to the organisation as before.",
       },
     ],
+    objective: "Stop what the relationship was granting, while everything it created keeps its own lifecycle.",
+    eligibility: [
+      "an authoritative end of a term-bearing continuing relationship taking effect, by cancellation, non-renewal, expiry, termination or lapse",
+      "no instance of this journey is already open for the the ended continuing relationship and the state that depended on it",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship ending is not an account closure."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship ending is not data deletion."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship ending is not the removal of a structural link. The parties can stay exactly as connected as they were, and unlinking them is a decision nobody made here."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship ending never erases historical entitlements, payments or fulfilled obligations."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "Commitments created while active are reconciled separately and can outlive the relationship."
+      }
+    ],
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "relationship_log",
+          "suppressed_sends"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.former",
+          "h.escalate"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "state_written_on_stale_entity"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "relationship end reconciliation",
+        "subscription ended",
+        "contract expiry reconciliation",
+        "post-termination obligations"
+      ],
+      "useCases": [
+        "what the relationship granted stopped, while everything it created keeps its lifecycle",
+        "a wind-down outliving its window, escalated"
+      ]
+    },
     entry: "t.end",
     nodes: [
       {
@@ -2032,6 +3099,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the end reason, the effective end, the final term and the authority that ended it. Which of the five causes it was is kept - cancelled, not renewed, expired, terminated and lapsed mean different things to whoever reads this afterwards, and to what the counterparty can do next",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "a.stop",
+        idempotencyKey: "relationship_id + a.record",
       },
       {
         id: "a.stop",
@@ -2042,6 +3110,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "a.entitlement-loss",
+        idempotencyKey: "relationship_id + a.stop",
       },
       {
         id: "a.entitlement-loss",
@@ -2049,6 +3118,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the entitlement withdrawal through the entitlement lifecycle rather than switching anything off here. Which rights survive an ending and which do not is a property of the entitlements themselves, and a relationship record deciding it locally will eventually disagree with the entitlement lifecycle about who can do what",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "a.wind-down",
+        idempotencyKey: "relationship_id + a.entitlement-loss",
       },
       {
         id: "a.wind-down",
@@ -2056,6 +3126,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Raise the wind-down each dependent area needs - deprovisioning, final billing, any refund or credit due, open fulfillment, and data retention where it applies. Each runs on its own lifecycle and reaches its own conclusion; none of them is implemented here",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.obligations",
+        idempotencyKey: "relationship_id + a.wind-down",
       },
       {
         id: "c.obligations",
@@ -2080,6 +3151,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Preserve those obligations and let them resolve on their own lifecycles. An order placed while the subscription was live is still owed, a refund still due is still due, and a dispute still open is still open. Ending stops future rights, and does not cancel commitments already made in either direction",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "c.complete",
+        idempotencyKey: "relationship_id + a.preserve",
       },
       {
         id: "c.complete",
@@ -2101,15 +3173,23 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.winddown",
         kind: "wait",
-        until: ["the relationship-specific wind-down completes"],
+        until: [
+          "wind_down_completed"
+        ],
         onEvent: "a.terminal",
         timeout: {
-          after: "the wind-down window",
-          reason:
-            "a relationship stuck mid-wind-down is neither active nor former, and everything downstream that asks which one it is gets no answer",
+          "after": {
+            "key": "continuing_relationship.winddown",
+            "rule": "Relationship-specific obligations still running at the end are given the wind-down window policy defines; past it the wind-down escalates to ownership.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a relationship stuck mid-wind-down is neither active nor former, and everything downstream that asks which one it is gets no answer",
+          "relativeTo": "trigger"
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
+        recheck: "the the ended continuing relationship and the state that depended on it re-read from the system of record before acting on the timeout",
       },
       {
         id: "h.escalate",
@@ -2124,6 +3204,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the terminal relationship state its own semantics define - FORMER, EXPIRED or TERMINATED. This is the relationship ending. It is not the account closing and it is not the data being deleted; both of those are separate decisions, with their own authority and their own lifecycles, and neither follows from this one",
         writes: [{ field: "relationship_log", mode: "append" }],
         next: "x.former",
+        idempotencyKey: "relationship_id + a.terminal",
       },
       {
         id: "x.former",
@@ -2132,6 +3213,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new subscription, contract or membership is a new relationship rather than this one resuming. Its history remains readable, and everything it legitimately created during its term remains owed until its own lifecycle resolves it",
+        class: "success",
       },
     ],
     guardrails: [
@@ -2151,11 +3233,16 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "cancellation-termination",
     channels: ["email", "in-app"],
     name: "Cancellation confirmed → wind-down window → access ends or customer returns",
+    shortName: "Cancellation Confirmation",
     purpose:
       "Carry somebody through the period between deciding to leave and actually losing access, so the end date is never a surprise and returning stays possible right up to it.",
     entity: {
       scope: "the cancelled relationship plus its effective end date",
       note: "The wind-down belongs to this cancellation. A second cancellation after a reactivation is a new instance with its own window.",
+      instanceKey: [
+        "relationship_id"
+      ],
+      concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
@@ -2169,6 +3256,170 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "SUB-167 establishes whether and when the relationship ends. This is what the customer is told across that window.",
       },
     ],
+    objective: "Carry somebody through the period between deciding to leave and actually losing access, so the end date is never a surprise and returning stays possible right up to it.",
+    eligibility: [
+      "an authoritative cancellation recorded against the relationship",
+      "an effective end date",
+      "no instance of this journey is already open for the the cancelled relationship plus its effective end date",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    suppressions: [
+      {
+        "id": "s.g1",
+        "label": "CANONICAL_RULE",
+        "text": "The cancellation is never re-litigated. A save attempt after the decision is a different journey and belongs before this one."
+      },
+      {
+        "id": "s.g2",
+        "label": "CANONICAL_RULE",
+        "text": "Paid-for access runs to its end date. Cancelling early does not shorten it."
+      },
+      {
+        "id": "s.g3",
+        "label": "CANONICAL_RULE",
+        "text": "The end date is stated in the first message and never moves silently."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Withdrawal exits the journey immediately - a reminder that access is ending, sent to somebody who has just stayed, is worse than sending nothing."
+      }
+    ],
+    contact: {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "cancellation_wind.touches",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "cancellation_wind.cooldown",
+        "rule": "This journey is per the cancelled relationship plus its effective end date; a later instance concerns a different the cancelled relationship plus its effective end date and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note: one instance per entity"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    channelStrategy: {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is active in the product and the action is taken there"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    orchestration: {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "confirm",
+          "action": "a.confirm",
+          "prerequisites": [],
+          "purpose": "Confirm the cancellation, the exact date access ends, and what remains available until then.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "ending",
+          "action": "a.ending",
+          "after": "t1",
+          "gatedBy": "w.window",
+          "prerequisites": [],
+          "purpose": "Say that access ends shortly and what will and will not survive it - exports, history, outstanding obligations.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.g1",
+        "s.g2",
+        "s.g3",
+        "s.g4"
+      ]
+    },
+    implementation: {
+      "attributes": {
+        "required": [
+          "relationship_id",
+          "cancellation_confirmed_at",
+          "effective_end_at",
+          "surviving_items",
+          "outstanding_obligations"
+        ],
+        "optional": []
+      }
+    },
+    measurement: {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.returned",
+          "x.ended",
+          "h.obligations"
+        ]
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "message_after_success",
+        "unsubscribe"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_exit"
+      ]
+    },
+    discovery: {
+      "aliases": [
+        "cancellation confirmation",
+        "subscription cancelled notice",
+        "access ends on date",
+        "wind-down notice"
+      ],
+      "useCases": [
+        "a cancellation confirmed with the exact end date and what remains until then",
+        "a notice shortly before access ends naming what survives"
+      ]
+    },
     entry: "t.cancelled",
     nodes: [
       {
@@ -2195,6 +3446,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Confirm the cancellation, the exact date access ends, and what remains available until then. Paid-for access is not cut short because somebody cancelled early, and saying so is what stops the immediate 'have I lost it already' contact",
         next: "c.window",
         execution: "communication",
+        idempotencyKey: "relationship_id + a.confirm",
       },
       {
         id: "c.window",
@@ -2217,16 +3469,24 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.window",
         kind: "wait",
         until: [
-          "the cancellation is withdrawn",
-          "the effective end date is reached",
+          "cancellation_withdrawn",
+          "effective_end_reached"
         ],
         onEvent: "c.withdrawn",
         timeout: {
-          after: "the effective end date",
-          reason: "the window closing is the event this journey exists to mark",
+          "after": {
+            "key": "cancellation_wind.window",
+            "rule": "The wind-down runs to the effective end date stated in the first message; the date never moves.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "the window closing is the event this journey exists to mark",
+          "relativeTo": "attribute",
+          "attribute": "effective_end_at"
         },
         onTimeout: "a.ending",
         windowExtendsOnEngagement: false,
+        recheck: "the the cancelled relationship plus its effective end date re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.withdrawn",
@@ -2251,6 +3511,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "cancellation withdrawn, relationship continues",
         terminal: false,
         reEntry: "a later cancellation starts a new wind-down",
+        class: "invalid-state",
       },
       {
         id: "a.ending",
@@ -2258,6 +3519,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Say that access ends shortly and what will and will not survive it - exports, history, outstanding obligations. This is information the person needs whether or not they intend to come back",
         next: "c.obligations",
         execution: "communication",
+        idempotencyKey: "relationship_id + a.ending",
       },
       {
         id: "c.obligations",
@@ -2292,6 +3554,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         state: "ended with nothing outstanding",
         terminal: false,
         reEntry: "a former customer returning enters through acquisition or reactivation, not here",
+        class: "success",
       },
     ],
     guardrails: [

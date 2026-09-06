@@ -1,65 +1,65 @@
 {
   "counts": {
-    "totalJourneys": 255,
+    "totalJourneys": 283,
     "categoryValues": 26,
     "lifecycleStageValues": 5,
     "goalValues": 20,
-    "reviewRequired": 18
+    "reviewRequired": 20
   },
   "handoffPrimitiveTest": {
-    "zeroHandoff": 16,
-    "withHandoff": 239,
-    "mixedTerminal": 209,
-    "handoffOnlyTerminal": 30,
-    "totalJourneys": 255,
+    "zeroHandoff": 28,
+    "withHandoff": 255,
+    "mixedTerminal": 226,
+    "handoffOnlyTerminal": 29,
+    "totalJourneys": 283,
     "byCategory": {
       "acquisition": {
-        "total": 10,
-        "withHandoff": 10
+        "total": 14,
+        "withHandoff": 13
       },
       "activation": {
-        "total": 10,
-        "withHandoff": 10
-      },
-      "retention": {
         "total": 9,
         "withHandoff": 9
       },
+      "retention": {
+        "total": 11,
+        "withHandoff": 9
+      },
       "consent": {
-        "total": 9,
-        "withHandoff": 5
+        "total": 12,
+        "withHandoff": 6
       },
       "feedback": {
-        "total": 10,
-        "withHandoff": 7
+        "total": 8,
+        "withHandoff": 5
       },
       "ownership": {
         "total": 10,
         "withHandoff": 10
       },
       "time": {
-        "total": 10,
-        "withHandoff": 10
+        "total": 13,
+        "withHandoff": 11
       },
       "access": {
-        "total": 10,
-        "withHandoff": 9
+        "total": 12,
+        "withHandoff": 10
       },
       "identity": {
-        "total": 10,
-        "withHandoff": 9
+        "total": 12,
+        "withHandoff": 11
       },
       "structure": {
-        "total": 10,
+        "total": 11,
         "withHandoff": 9
       },
       "terminal": {
-        "total": 10,
-        "withHandoff": 10
+        "total": 11,
+        "withHandoff": 11
       },
       "integration": {
-        "total": 10,
-        "withHandoff": 9
+        "total": 12,
+        "withHandoff": 11
       },
       "processing": {
         "total": 10,
@@ -70,35 +70,35 @@
         "withHandoff": 10
       },
       "fulfillment": {
-        "total": 10,
-        "withHandoff": 10
+        "total": 12,
+        "withHandoff": 12
       },
       "remedy": {
         "total": 10,
         "withHandoff": 10
       },
       "subscription": {
-        "total": 10,
-        "withHandoff": 10
+        "total": 11,
+        "withHandoff": 11
       },
       "scheduling": {
-        "total": 10,
-        "withHandoff": 8
+        "total": 14,
+        "withHandoff": 11
       },
       "decision": {
-        "total": 10,
+        "total": 11,
         "withHandoff": 10
       },
       "risk": {
-        "total": 10,
-        "withHandoff": 9
+        "total": 11,
+        "withHandoff": 10
       },
       "communication": {
         "total": 9,
         "withHandoff": 9
       },
       "document": {
-        "total": 10,
+        "total": 11,
         "withHandoff": 10
       },
       "data": {
@@ -110,8 +110,8 @@
         "withHandoff": 8
       },
       "rollout": {
-        "total": 10,
-        "withHandoff": 10
+        "total": 11,
+        "withHandoff": 11
       },
       "incident": {
         "total": 10,
@@ -119,10 +119,12 @@
       }
     }
   },
-  "errors": [],
+  "errors": [
+    "Classified 283 journeys, expected 255"
+  ],
   "warnings": [
     "Goal values with <4 journeys (kept distinct on purpose, see audit doc): compensation-remedy(3)",
-    "lifecycleStage \"cross-lifecycle\" holds 216/255 (85%) - real but lopsided, see audit doc"
+    "lifecycleStage \"cross-lifecycle\" holds 238/255 (93%) - real but lopsided, see audit doc"
   ],
-  "status": "PASS"
+  "status": "FAIL"
 }

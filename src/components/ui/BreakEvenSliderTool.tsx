@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalcPanel, PanelLabel, PrimaryResult, ResultHint, SecondaryResults } from "@/components/ui/CalcPanel";
+import { CalcPanel, PrimaryResult, ResultHint, SecondaryResults } from "@/components/ui/CalcPanel";
 import type { RuntimeCalcSpec } from "@/lib/calc-catalog";
 import { getCompute } from "@/lib/calc-registry";
 import { formatByUnit } from "@/lib/calc-format";
@@ -52,7 +52,7 @@ const T = {
 } as const;
 
 function Slider({
-  label, value, min, max, step, unit, onChange,
+  label, value, min, max, step, unit, onChange, lang,
 }: {
   label: string;
   value: number;
@@ -61,8 +61,13 @@ function Slider({
   step: number;
   unit: "currency" | "count";
   onChange: (v: number) => void;
+  lang: Lang;
 }) {
-  const display = unit === "currency" ? `$${value.toLocaleString()}` : value.toLocaleString();
+  // Locale-pinned, not browser-default: en-US groups 1,234 / decimals with
+  // ".", tr-TR groups 1.234 / decimals with "," - a /tr page must read the
+  // Turkish way regardless of the visitor's own browser locale.
+  const locale = lang === "en" ? "en-US" : "tr-TR";
+  const display = unit === "currency" ? `$${value.toLocaleString(locale)}` : value.toLocaleString(locale);
   const pct = ((value - min) / (max - min)) * 100;
   return (
     <div>
@@ -80,8 +85,8 @@ function Slider({
         style={{ background: `linear-gradient(to right, var(--color-primary-600) ${pct}%, var(--color-line) ${pct}%)` }}
       />
       <div className="mt-1.5 flex justify-between text-xs tabular-nums text-ink-950/40">
-        <span>{unit === "currency" ? `$${min.toLocaleString()}` : min.toLocaleString()}</span>
-        <span>{unit === "currency" ? `$${max.toLocaleString()}` : max.toLocaleString()}</span>
+        <span>{unit === "currency" ? `$${min.toLocaleString(locale)}` : min.toLocaleString(locale)}</span>
+        <span>{unit === "currency" ? `$${max.toLocaleString(locale)}` : max.toLocaleString(locale)}</span>
       </div>
     </div>
   );
@@ -108,13 +113,26 @@ export function BreakEvenSliderTool({ spec, lang }: { spec: RuntimeCalcSpec; lan
   const vcMax = Math.max(pricePerUnit - 1, 0);
   const clampedVariableCost = Math.min(variableCostPerUnit, vcMax);
 
+  /* This tool opens ALREADY answered (the sliders start on the example),
+     so the plate's answer burst never fires on load - only when a slider
+     actually moves the answer. A drag changes it continuously; PixelBurst
+     absorbs the mid-sweep pulses, so dragging reads as back-to-back
+     sweeps rather than a strobe. */
+  const signature = valid ? JSON.stringify(results) : null;
+  const [pulsedFor, setPulsedFor] = useState(signature);
+  const [pulse, setPulse] = useState(0);
+  if (signature !== pulsedFor) {
+    setPulsedFor(signature);
+    if (signature !== null) setPulse((p) => p + 1);
+  }
+
   return (
     <CalcPanel
       split="input-heavy"
+      answerPulse={pulse}
       inputs={
         <>
-          <PanelLabel>{lang === "en" ? "Inputs" : "Girdiler"}</PanelLabel>
-          <div className="mt-4 flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <Slider
               label={byKey.get("fixedCosts")?.label ?? "Fixed costs"}
               value={fixedCosts}
@@ -123,6 +141,7 @@ export function BreakEvenSliderTool({ spec, lang }: { spec: RuntimeCalcSpec; lan
               step={BOUNDS.fixedCosts.step}
               unit="currency"
               onChange={setFixedCosts}
+              lang={lang}
             />
             <Slider
               label={byKey.get("pricePerUnit")?.label ?? "Price per unit"}
@@ -132,6 +151,7 @@ export function BreakEvenSliderTool({ spec, lang }: { spec: RuntimeCalcSpec; lan
               step={BOUNDS.pricePerUnit.step}
               unit="currency"
               onChange={setPricePerUnit}
+              lang={lang}
             />
             <Slider
               label={byKey.get("variableCostPerUnit")?.label ?? "Variable cost per unit"}
@@ -141,6 +161,7 @@ export function BreakEvenSliderTool({ spec, lang }: { spec: RuntimeCalcSpec; lan
               step={BOUNDS.variableCostPerUnit.step}
               unit="currency"
               onChange={setVariableCostPerUnit}
+              lang={lang}
             />
           </div>
         </>
@@ -149,7 +170,7 @@ export function BreakEvenSliderTool({ spec, lang }: { spec: RuntimeCalcSpec; lan
         <div aria-live="polite">
           <PrimaryResult
             label={outByKey.get("breakEvenUnits")?.label ?? "Break-Even Units"}
-            value={valid ? formatByUnit(results.breakEvenUnits, "count") : ""}
+            value={valid ? formatByUnit(results.breakEvenUnits, "count", lang) : ""}
             ready={Boolean(valid)}
           />
           <SecondaryResults
@@ -157,13 +178,13 @@ export function BreakEvenSliderTool({ spec, lang }: { spec: RuntimeCalcSpec; lan
               {
                 key: "breakEvenCac",
                 label: outByKey.get("breakEvenCac")?.label ?? "Break-Even CAC",
-                value: valid ? formatByUnit(results.breakEvenCac, "currency") : "",
+                value: valid ? formatByUnit(results.breakEvenCac, "currency", lang) : "",
                 ready: Boolean(valid),
               },
               {
                 key: "breakEvenRoas",
                 label: outByKey.get("breakEvenRoas")?.label ?? "Break-Even ROAS",
-                value: valid ? formatByUnit(results.breakEvenRoas, "x (multiplier)") : "",
+                value: valid ? formatByUnit(results.breakEvenRoas, "x (multiplier)", lang) : "",
                 ready: Boolean(valid),
               },
             ]}

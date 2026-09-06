@@ -158,11 +158,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "progression-milestone",
     channels: [],
     name: "Work accepted → queue → process → complete or fail",
+    shortName: "Asynchronous Work Processing",
     purpose:
       "Give asynchronous work explicit states so that acknowledging it, holding it, running it and finishing it are never read as the same event.",
     entity: {
       scope: "the individual work item, keyed by its own idempotency and correlation identifiers",
-      note: "The record exists from acceptance. Work acknowledged to a caller but not recorded anywhere is work that will be lost without anyone knowing it existed.",
+      note: "The record exists from acceptance. Work acknowledged to a caller but not recorded anywhere is work that will be lost without anyone knowing it existed. logical_operation_key is the caller-supplied identity of the business operation this work item represents - accepting work twice under the same key resolves to the one existing work record, never a second one; work_id is this mechanism's own record identity, minted at acceptance and distinct from logical_operation_key the same way CMS-206's attempt_id is distinct from message_id (this domain's own version of the same invocation-identity-versus-record-identity distinction). correlation_id, also persisted at acceptance, is a separate concern from either - it exists purely to trace one logical operation across the mechanisms it passes through (OPS-122 through OPS-130), not to gate any write.",
+      instanceKey: ["work_id", "logical_operation_key"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -190,9 +193,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.persist",
         kind: "action",
-        does: "Persist the work id, its type, the target entity, the request time, the request version and context, the priority where one is defined, and the idempotency and correlation keys. Record ACCEPTED - which acknowledges that we hold the work, not that anything has happened to it",
+        does: "Persist the work id, its type, the target entity, the request time, the request version and context, the priority where one is defined, and the idempotency and correlation keys. Record ACCEPTED - which acknowledges that we hold the work, not that anything has happened to it. Acceptance is itself idempotent on logical_operation_key: a second t.accepted for the same key returns the existing work_id rather than minting a new one",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.immediate",
+        idempotencyKey: "logical_operation_key + a.persist",
       },
       {
         id: "c.immediate",
@@ -209,6 +213,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record QUEUED. Queued is a healthy state and not a failure - work waiting its turn is the normal condition of an asynchronous system",
         writes: [{ field: "work_log", mode: "append" }],
         next: "w.start",
+        idempotencyKey: "work_id + a.queued",
       },
       {
         id: "w.start",
@@ -229,9 +234,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         to: "OPS-122",
         on: "work exceeding its queue SLA without starting",
         carries: [
-          "the work class, the item's age and its deadline",
+          "workload_class, the item's age and its deadline",
           "the fact that the item has not failed - it has not been started",
         ],
+        contract: { requiredFields: ["workload_class"] },
       },
       {
         id: "c.started",
@@ -256,9 +262,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.processing",
         kind: "action",
-        does: "Record PROCESSING with the execution attempt - which worker, which attempt number, when it started. The attempt record is what makes a later stall or worker failure diagnosable rather than merely visible",
+        does: "Record PROCESSING with the execution attempt - which worker, which attempt number, when it started, minting attempt_number fresh for this specific execution try. The attempt record is what makes a later stall or worker failure diagnosable rather than merely visible",
         writes: [{ field: "work_log", mode: "append" }],
         next: "w.execution",
+        idempotencyKey: "work_id + attempt_number + a.processing",
       },
       {
         id: "w.execution",
@@ -364,11 +371,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Queue lag → measure → prioritise, scale or degrade",
+    shortName: "Queue Lag Management",
     purpose:
       "Respond to a queue that cannot keep up, measured by how old the unfinished work is rather than by how much of it there is.",
     entity: {
       scope: "the queue or workload class that is lagging, assessed per class",
       note: "Different work classes carry different SLAs. A single queue-wide verdict either over-reacts for the tolerant classes or under-reacts for the urgent ones.",
+      instanceKey: ["workload_class"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -399,6 +409,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Measure depth, the age of the oldest unfinished item, throughput, arrival rate, which workload classes are affected and what SLA exposure that creates. Age is the signal that matters - a deep queue draining fast is healthy, and a shallow one that has not moved in an hour is not",
         writes: [{ field: "queue_health_log", mode: "append" }],
         next: "c.burst",
+        idempotencyKey: "workload_class + a.measure",
       },
       {
         id: "c.burst",
@@ -431,6 +442,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record LAGGING for the affected workload classes, scoped to them rather than to the whole queue",
         writes: [{ field: "queue_health_log", mode: "append" }],
         next: "c.sla",
+        idempotencyKey: "workload_class + a.lagging",
       },
       {
         id: "c.sla",
@@ -455,6 +467,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the operational response and degrade or escalate the affected capability. An external commitment at risk is what makes this urgent rather than merely untidy, and it is the difference between an engineering task and an incident",
         writes: [{ field: "queue_health_log", mode: "append" }],
         next: "h.escalate",
+        idempotencyKey: "workload_class + a.urgent",
       },
       {
         id: "a.response",
@@ -462,6 +475,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Apply the defined operational response - capacity scaling, priority adjustment, delaying non-critical classes, rate control. Work is never silently dropped to make the metric look healthy, because that converts a visible backlog into an invisible loss",
         writes: [{ field: "queue_health_log", mode: "append" }],
         next: "w.recovery",
+        idempotencyKey: "workload_class + a.response",
       },
       {
         id: "w.recovery",
@@ -532,11 +546,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Work stalled → detect lack of progress → recover, fail or escalate",
+    shortName: "Stalled Work Recovery",
     purpose:
       "Distinguish work that is taking a long time from work that has stopped, and recover only where the side effects are known.",
     entity: {
       scope: "the individual in-flight work item and the worker that holds it",
-      note: "Recovery has to coordinate ownership. Two workers reclaiming the same exclusive job is a worse outcome than the stall that prompted it.",
+      note: "Recovery has to coordinate ownership. Two workers reclaiming the same exclusive job is a worse outcome than the stall that prompted it. This is the same lease concept OPS-128 names explicitly for worker failure, applied here to a work item whose owner is still nominally alive but has stopped progressing: a.reclaim only transfers ownership once the current lease is confirmed expired or explicitly released, never on the strength of the stall signal alone.",
+      instanceKey: ["work_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.threshold",
     nodes: [
@@ -561,6 +578,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Inspect the last recorded progress, who owns it, whether the lease or lock is still live, whether it is blocked on an external dependency, the attempt state, and which side effects have already been produced. The last of those decides everything that follows",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.progressing",
+        idempotencyKey: "work_id + a.inspect",
       },
       {
         id: "c.progressing",
@@ -593,6 +611,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record STALLED against this attempt, with what the inspection found",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.side-effects",
+        idempotencyKey: "work_id + a.stalled",
       },
       {
         id: "c.side-effects",
@@ -642,9 +661,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.reclaim",
         kind: "action",
-        does: "Reclaim and restart according to the execution semantics, coordinating ownership so that two workers cannot recover the same exclusive job concurrently. The coordination is the point - an uncoordinated reclaim turns one stalled job into two running ones",
+        does: "Reclaim and restart according to the execution semantics, transferring the work item's lease so that two workers cannot recover the same exclusive job concurrently. The coordination is the point - an uncoordinated reclaim turns one stalled job into two running ones",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.recovered",
+        idempotencyKey: "work_id + a.reclaim",
       },
       {
         id: "x.recovered",
@@ -682,11 +702,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Retryable failure → backoff → retry → resolve or exhaust",
+    shortName: "Retry Management",
     purpose:
       "Repeat a transient failure within a bounded budget, only where repeating is safe and the work is still wanted.",
     entity: {
       scope: "the work item together with its durable attempt history",
-      note: "The attempt count lives with the work, not with the worker. A counter that resets on restart is a budget that renews itself.",
+      note: "The attempt count lives with the work, not with the worker. A counter that resets on restart is a budget that renews itself. Two different identities are in play here, deliberately not merged into one: logical_operation_key (carried unchanged from OPS-121, the same value on every retry) is what a.attempt sends downstream so a receiver that already processed one physical try can absorb a repeat under it - the side-effect idempotency identity. attempt_number is a separate, incrementing counter scoped to this mechanism's own bookkeeping only (backoff calculation, diagnosability) and is never itself sent downstream as a dedup key - encoding it into the downstream key would turn every retry into a fresh, undeduped operation, exactly the failure this design avoids.",
+      instanceKey: ["work_id", "logical_operation_key"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -716,6 +739,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record the failure class, the attempt number, when it last failed, how certain we are about side effects, and retry eligibility. The attempt count is durable and does not reset because a worker restarted - a counter held in process memory is a retry budget that renews itself every deploy",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.safe",
+        idempotencyKey: "work_id + attempt_number + a.record",
       },
       {
         id: "c.safe",
@@ -756,6 +780,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Calculate the policy-defined backoff for this attempt number",
         writes: [{ field: "work_log", mode: "append" }],
         next: "w.retry",
+        idempotencyKey: "work_id + attempt_number + a.backoff",
       },
       {
         id: "w.retry",
@@ -783,6 +808,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Revalidate the work and its target entity against current state before attempting anything. Time passed during the backoff, and a retry that executes an instruction written against a state that has since moved is worse than not retrying at all",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.required",
+        idempotencyKey: "work_id + attempt_number + a.revalidate",
       },
       {
         id: "c.required",
@@ -808,9 +834,15 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.attempt",
         kind: "action",
-        does: "Execute the retry idempotently, under the same idempotency key, so that a downstream that did receive the first attempt can absorb this one",
+        does: "Execute the retry idempotently, under logical_operation_key - the same value on every physical try - so that a downstream that did receive an earlier attempt can absorb this one rather than double-processing it. attempt_number still advances for this mechanism's own bookkeeping; it is never itself part of what the downstream dedupes on",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.result",
+        idempotencyKey: "logical_operation_key + a.attempt",
+        attemptBudget: {
+          key: "retryable_failure_recovery.attempt_budget",
+          rule: "Fixed once when the work item's retry history opens, durable across worker restarts; never renewed by revalidation, by backoff completing, or by delegation from another mechanism.",
+          required: true,
+        },
       },
       {
         id: "c.result",
@@ -866,11 +898,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "reconciliation-correction",
     channels: [],
     name: "Duplicate work detected → deduplicate → reuse, suppress or reconcile",
+    shortName: "Work Deduplication",
     purpose:
       "Stop the same logical operation running twice, without collapsing two legitimate repeats into one.",
     entity: {
       scope: "the logical business operation, and the work instances claiming to be it",
-      note: "Identity is the business operation, not the payload. Two identical payloads can be two things someone genuinely asked for.",
+      note: "Identity is the business operation, not the payload. Two identical payloads can be two things someone genuinely asked for. logical_operation_key is the same field OPS-121/OPS-124 carry - deduplication here compares against it directly rather than against a second, independently-invented identity.",
+      instanceKey: ["logical_operation_key"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.duplicate",
     nodes: [
@@ -892,9 +927,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.compare",
         kind: "action",
-        does: "Compare the stable identifiers: the idempotency key, the business operation identity, the target entity, the relevant version and the execution history. The deduplication window and scope follow the business semantics rather than a convenient interval",
+        does: "Compare the stable identifiers: logical_operation_key, the business operation identity, the target entity, the relevant version and the execution history. The deduplication window and scope follow the business semantics rather than a convenient interval",
         writes: [{ field: "dedup_log", mode: "append" }],
         next: "c.same",
+        idempotencyKey: "logical_operation_key + a.compare",
       },
       {
         id: "c.same",
@@ -949,6 +985,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reuse the existing result where it remains valid, and suppress the duplicate execution rather than running it and discarding the output",
         writes: [{ field: "dedup_log", mode: "append" }],
         next: "x.suppressed",
+        idempotencyKey: "logical_operation_key + a.reuse",
       },
       {
         id: "x.suppressed",
@@ -963,6 +1000,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Attach to the in-flight execution and wait for its outcome rather than starting a second one, where the architecture permits it. Where it does not, the duplicate is suppressed instead",
         writes: [{ field: "dedup_log", mode: "append" }],
         next: "x.attached",
+        idempotencyKey: "logical_operation_key + a.attach",
       },
       {
         id: "x.attached",
@@ -999,11 +1037,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Partial processing → preserve completed work → retry only the failed scope",
+    shortName: "Partial Processing Recovery",
     purpose:
       "Recover the part of a composite operation that failed, without re-running the part that worked.",
     entity: {
       scope: "the composite job and each child operation individually",
       note: "Children are classified individually and the parent state is recomputed from them. A single verdict across the batch either replays successes or abandons recoverable failures.",
+      instanceKey: ["composite_job_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.mixed",
     nodes: [
@@ -1023,6 +1064,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Classify each child as COMPLETED, FAILED_RETRYABLE, FAILED_TERMINAL, PENDING or UNKNOWN, and record PARTIALLY_COMPLETED for the parent. Successful children are never replayed - in a batch with side effects, re-running the successes is a larger incident than the original failure",
         writes: [{ field: "composite_work_log", mode: "append" }],
         next: "c.policy",
+        idempotencyKey: "composite_job_id + a.classify",
       },
       {
         id: "c.policy",
@@ -1085,8 +1127,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         on: "failed children that can be retried independently",
         carries: [
           "only the failed child scope",
+          "each failed child's own work_id and logical_operation_key, established when it was individually accepted as work - a composite job's failure does not invent new identity for its children",
           "the explicit boundary that the completed children are not part of this retry",
         ],
+        contract: { requiredFields: ["work_id", "logical_operation_key"] },
       },
       {
         id: "h.compensate",
@@ -1111,6 +1155,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Recalculate the parent state from the authoritative child outcomes using the aggregation policy, rather than from the events that reported them. Partial completion is not total failure, and the parent's state has to be able to say which of the two it is",
         writes: [{ field: "composite_work_log", mode: "append" }],
         next: "x.recomputed",
+        idempotencyKey: "composite_job_id + a.recompute",
       },
       {
         id: "x.recomputed",
@@ -1138,11 +1183,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "escalation-exception",
     channels: [],
     name: "Dead-letter entry → diagnose → replay, correct or close",
+    shortName: "Dead-Letter Recovery",
     purpose:
       "Turn work that automation could not finish into an obligation someone owns, rather than a queue nobody reads.",
     entity: {
       scope: "the dead-lettered item, linked to the original work it came from",
-      note: "The link back is what makes a later replay attributable. A corrected payload with no relationship to the original is a new job that hides a failure.",
+      note: "The link back is what makes a later replay attributable. A corrected payload with no relationship to the original is a new job that hides a failure. replay_id (minted at a.correct) is a fresh identity for the new attempt, carrying original_work_id forward as its own link back - the same parent/child attempt-chain shape CMS-208's minted attempt_ids use, applied here at the dead-letter granularity.",
+      instanceKey: ["work_id"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1171,6 +1219,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Preserve the original payload or a reference to it, the target entity, the full attempt history, the failure reasons, the last known side-effect state, and the created and dead-lettered timestamps. Dead-lettered is not deleted - it is work automation could not finish, and someone now owns it",
         writes: [{ field: "dead_letter_log", mode: "append" }],
         next: "c.uncertain",
+        idempotencyKey: "work_id + a.preserve",
       },
       {
         id: "c.uncertain",
@@ -1230,9 +1279,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.correct",
         kind: "action",
-        does: "Correct the authoritative problem, then create a controlled replay linked to the original work. The replay is a new attempt with its own record and does not reset the original's audit history - correcting a payload preserves the relationship to what first failed",
+        does: "Correct the authoritative problem, then mint replay_id and create a controlled replay linked to the original work via original_work_id. The replay is a new attempt with its own record and does not reset the original's audit history - correcting a payload preserves the relationship to what first failed",
         writes: [{ field: "dead_letter_log", mode: "append" }],
         next: "x.replayed",
+        idempotencyKey: "work_id + a.correct",
       },
       {
         id: "x.replayed",
@@ -1247,6 +1297,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Close the item as obsolete with the reason recorded. Closing with a reason and abandoning silently produce the same queue depth and entirely different accountability",
         writes: [{ field: "dead_letter_log", mode: "append" }],
         next: "x.obsolete",
+        idempotencyKey: "work_id + a.close",
       },
       {
         id: "x.obsolete",
@@ -1307,11 +1358,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Worker or processor failure → reclaim work → resume safely",
+    shortName: "Worker Failure Recovery",
     purpose:
       "Move execution responsibility off a failed worker without assuming the work failed and without letting two workers hold it.",
     entity: {
       scope: "the failed worker and each in-flight work item it owned",
-      note: "The lease is the coordination mechanism. Replaying while the previous lease may still be live is how one job becomes two running copies.",
+      note: "The lease is the coordination mechanism. Replaying while the previous lease may still be live is how one job becomes two running copies. lease_id identifies the current lease on work_id; c.lease's own branch is what makes waiting out an unexpired lease the default over reclaiming on suspicion, and c.confirmed's completion check runs before either resume path is even considered - the order these three checks run in is itself the safety property, not just their individual correctness.",
+      instanceKey: ["work_id", "lease_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.worker-down",
     nodes: [
@@ -1334,6 +1388,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Identify the affected work using the lease, the heartbeat, the execution record, any checkpoint and the ownership metadata",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.lease",
+        idempotencyKey: "work_id + lease_id + a.identify",
       },
       {
         id: "c.lease",
@@ -1423,16 +1478,18 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.checkpoint",
         kind: "action",
-        does: "Resume from the checkpoint under new ownership, so the completed portion is not repeated",
+        does: "Resume from the checkpoint under new ownership, minting a fresh lease_id for the new owner, so the completed portion is not repeated",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.resumed",
+        idempotencyKey: "work_id + a.checkpoint",
       },
       {
         id: "a.restart",
         kind: "action",
-        does: "Reclaim and restart idempotently, with ownership coordinated so no second worker can take it concurrently",
+        does: "Reclaim and restart idempotently, minting a fresh lease_id so no second worker can take it concurrently",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.resumed",
+        idempotencyKey: "work_id + a.restart",
       },
       {
         id: "x.resumed",
@@ -1471,11 +1528,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "recovery-retry",
     channels: [],
     name: "Backlog recovery → revalidate → controlled drain → normal state",
+    shortName: "Backlog Recovery",
     purpose:
       "Work through an accumulated backlog deliberately, discarding what has gone stale and pacing what has not.",
     entity: {
       scope: "the accumulated backlog, inventoried by workload class",
       note: "Arrival order is not the drain order. New urgent work should not wait behind old obsolete work simply because the old work arrived first.",
+      instanceKey: ["workload_class"],
+      concurrency: "one-active-per-key",
     },
     distinctFrom: [
       {
@@ -1505,6 +1565,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Inventory the backlog by age, priority, business validity, deadline, dependency and customer impact. The inventory is what turns the drain into a decision rather than a flush",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "c.relevant",
+        idempotencyKey: "workload_class + a.inventory",
       },
       {
         id: "c.relevant",
@@ -1529,6 +1590,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Cancel or suppress the stale work with its reason recorded. A customer-facing action that was right when it was queued may be wrong now, and delivering it because it was once queued is the specific failure this step prevents",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "a.strategy",
+        idempotencyKey: "workload_class + a.cancel",
       },
       {
         id: "a.strategy",
@@ -1536,6 +1598,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Determine the drain strategy - priority-based, rate-limited, dependency-aware, oldest-valid-first, or whatever the policy defines. New high-priority work does not necessarily wait behind older obsolete backlog, and a strict arrival order would make it",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "a.drain",
+        idempotencyKey: "workload_class + a.strategy",
       },
       {
         id: "a.drain",
@@ -1543,6 +1606,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Drain gradually, within downstream capacity, preserving each item's original deadline and business context",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "w.monitor",
+        idempotencyKey: "workload_class + a.drain",
       },
       {
         id: "w.monitor",
@@ -1565,6 +1629,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Reduce the drain rate. A recovery that takes the system down again is not a recovery, and the second outage looks like a new fault rather than our own doing",
         writes: [{ field: "backlog_log", mode: "append" }],
         next: "c.floor",
+        idempotencyKey: "workload_class + a.throttle",
       },
       {
         id: "c.floor",
@@ -1619,11 +1684,14 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
     goal: "delivery-confirmation",
     channels: [],
     name: "Technical completion → verify business outcome → finalize or reconcile",
+    shortName: "Business Outcome Verification",
     purpose:
       "Check that the state a job existed to create actually exists, wherever the job's own success is not proof of it.",
     entity: {
       scope: "the completed technical job and the business entity it was meant to change",
       note: "Verification is idempotent, so checking twice costs nothing and proves the same thing. That is what makes it safe to run on every completion.",
+      instanceKey: ["work_id"],
+      concurrency: "one-active-per-key",
     },
     entry: "t.technical",
     nodes: [
@@ -1663,6 +1731,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Finalize the work as complete, recording that technical completion was authoritative for this work type",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.complete",
+        idempotencyKey: "work_id + a.finalize",
       },
       {
         id: "x.complete",
@@ -1674,9 +1743,10 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.verify",
         kind: "action",
-        does: "Verify the business state the work was meant to create - the record exists, the state transitioned, the resource is available, the balance updated, the entitlement applied, the downstream system acknowledged. The verification is idempotent, so running it on every completion costs nothing and proves the same thing each time",
+        does: "Verify the business state the work was meant to create - the record exists, the state transitioned, the resource is available, the balance updated, the entitlement applied, the downstream system acknowledged. The verification is idempotent by construction (re-checking recomputes the same conclusion from current state), and its own idempotencyKey is a consistent structural marker rather than the thing making repetition safe",
         writes: [{ field: "work_log", mode: "append" }],
         next: "c.confirmed",
+        idempotencyKey: "work_id + a.verify",
       },
       {
         id: "c.confirmed",
@@ -1691,7 +1761,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Missing or conflicting",
             when: "the job reported success and the state it was supposed to produce is not there",
-            to: "x.reconciliation",
+            to: "a.reconcile",
           },
           {
             label: "Still pending asynchronously",
@@ -1706,6 +1776,7 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Record BUSINESS_COMPLETED, which is the state that closes the obligation the work existed to serve",
         writes: [{ field: "work_log", mode: "append" }],
         next: "x.business-complete",
+        idempotencyKey: "work_id + a.business-complete",
       },
       {
         id: "x.business-complete",
@@ -1724,16 +1795,29 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
           reason:
             "a state that has not appeared within its window is a discrepancy rather than a delay, and it needs reconciling rather than more patience",
         },
-        onTimeout: "x.reconciliation",
+        onTimeout: "a.reconcile",
         windowExtendsOnEngagement: false,
       },
       {
-        id: "x.reconciliation",
-        kind: "exit",
-        state: "RECONCILIATION_REQUIRED; technical success without the business state it implies",
-        terminal: false,
-        reEntry:
-          "the job's SUCCESS does not close the user's or the business's obligation when the state it was supposed to produce is not there - this exit exists so that gap is visible rather than reported as done",
+        id: "a.reconcile",
+        kind: "action",
+        does: "Record RECONCILIATION_REQUIRED: technical success without the business state it implies. The job's SUCCESS does not close the user's or the business's obligation when the state it was supposed to produce is not there - this is recorded so the gap is visible rather than reported as done, once per work_id (a redelivered technical-completion report or a repeated timeout on the same work_id resolves to the same reconciliation record rather than opening a second one)",
+        writes: [{ field: "work_log", mode: "append" }],
+        next: "h.escalate",
+        idempotencyKey: "work_id + a.reconcile",
+      },
+      {
+        id: "h.escalate",
+        kind: "handoff",
+        to: "DEC-181",
+        on: "technical success without the business state it was supposed to produce, needing an authorized decision on how to resolve the gap",
+        carries: [
+          "work_id, logical_operation_key and correlation_id (carried from OPS-121 through this mechanism), so the case can be traced back to the originating technical operation",
+          "the business entity the work was meant to change, what was expected, and what verification actually found",
+          "the technical result (SUCCESS) and the evidence gathered at a.verify - a provider response, a downstream acknowledgement or its absence, whatever verification actually checked",
+          "the explicit fact that this needs an authorized decision - confirm the state is actually present and verification was premature or wrong, authorize remediation, or formally accept the loss - not a re-run of verification, which has already run and is idempotent",
+        ],
+        contract: { requiredFields: ["work_id"] },
       },
     ],
     guardrails: [
@@ -1741,8 +1825,169 @@ export const PROCESSING_JOURNEYS: readonly CanonicalJourney[] = [
       "A job reporting SUCCESS does not close a user or business obligation when the required state was not produced.",
       "Verification is idempotent.",
       "An outcome still pending asynchronously stays pending - completion is not claimed early.",
+      "RECONCILIATION_REQUIRED is not a dead end: a.reconcile hands the gap to DEC-181 for an authorized decision, the same generic decision-request sink roughly thirty other Runtime Mechanisms and Operational Workflows already use for exactly this shape of case - a mechanical outcome (technical success, business state missing) that this mechanism cannot itself resolve, because deciding whether to confirm, remediate or write off is a business judgment this infrastructure-layer mechanism has no authority to make on its own. DEC-181's own resolution path (h.execute -> external:operational-resolution, carrying which canonical lifecycle owns the action) is the same path every other referred decision already resolves through - no special return loop was added here, since inventing one for this one caller would be inconsistent with how the other ~30 already work, and a remediation applied through that path produces its own new technical job, verified through this same mechanism on its own work_id.",
     ],
     reusableRule:
       "Technical processing is complete only at the infrastructure layer; business completion requires confirmation of the state the work was intended to create.",
+  },
+
+  /* ------------------------------------------------------------ OPS-131 */
+  {
+    id: "OPS-131",
+    slug: "journey-competition-arbitration",
+    category: "processing",
+    goal: "routing-assignment",
+    channels: [],
+    name: "Two or more journeys eligible on one exclusion scope → arbitrate → establish one owner",
+    shortName: "Journey Competition Arbitration",
+    purpose:
+      "Decide, atomically and deterministically, which of several currently-eligible journeys owns a contested scope instance when they share a declared exclusion group, and apply what happens to everyone who does not - GLB-01 through GLB-10 made executable rather than left as policy nobody runs.",
+    entity: {
+      scope: "the exclusion group and the specific scope instance being contested, and the journey instances currently eligible for it",
+      note: "scope_instance_id is not a new canonical concept - it is whatever identifier the contending journeys' own declared CompetitionScope already names for one instance (an account id for scope \"account\", a product id for \"product\", a subscription id for \"subscription\", a person id for \"person\", a communication-purpose id for \"communication-purpose\"), read directly off each contender's own entity rather than duplicated into a second, mechanism-specific identifier. GLB-01's own key is exactly this pair: two journeys sharing only the exclusion group name are not yet competing; sharing the group and the same scope_instance_id, they are. GLB-08 is this key's mirror at the other end - a contest resolved on one instance constrains only that instance. This mechanism reads a contender's own declared precedence and onLoss text directly; it does not copy either into a separate runtime-specific configuration, so the two can never drift apart.",
+      instanceKey: ["exclusion_group", "scope_instance_id"],
+      concurrency: "one-active-per-key",
+    },
+    distinctFrom: [
+      {
+        journey: "OPS-125",
+        because:
+          "OPS-125 resolves multiple claims to the SAME logical operation - the identity is one business action retried or duplicated, and its own instance key (logical_operation_key) never varies between claimants. This mechanism resolves a contest between DIFFERENT journeys, each with its own identity, each independently and legitimately eligible under its own canonical rules, over one shared scope instance under a declared exclusionGroup. Deduplication asks whether two claims are the same thing said twice; this mechanism asks which of two genuinely different things gets to happen.",
+      },
+      {
+        journey: "OPS-128",
+        because:
+          "OPS-128 transfers a work item's execution ownership between workers when one becomes unavailable - an infrastructure-layer concern with no business precedence involved and no losing side, only a successor. This mechanism establishes which journey owns a contested business scope: the contenders are canonical journeys, not workers, and the winner is chosen by declared business precedence (GLB-02), not by which worker's heartbeat survived.",
+      },
+    ],
+    entry: "t.contended",
+    nodes: [
+      {
+        id: "t.contended",
+        kind: "trigger",
+        event: "competing_journeys_became_simultaneously_eligible",
+        evidence: {
+          requires: [
+            "at least two journey instances, each independently eligible under its own canonical eligibility rules",
+            "each declaring the same exclusionGroup - as a top-level competition field or as contact.competition on a vNext communicating journey - and the same CompetitionScope",
+            "the same concrete scope_instance_id, not merely the same scope type (GLB-01)",
+          ],
+          insufficientAlone: [
+            "two journeys sharing an exclusionGroup name on two different scope instances - GLB-01 is explicit that the scope instance, not the scope type, is the key, and unrelated instances run in parallel",
+            "one journey being eligible while no other member of its declared exclusionGroup currently is - a contest needs another side (competition_group_of_one)",
+          ],
+          source: "authoritative",
+        },
+        next: "a.load-contenders",
+      },
+      {
+        id: "a.load-contenders",
+        kind: "action",
+        does: "Load every journey instance currently declared eligible for this (exclusion_group, scope_instance_id) pair, re-reading each one's own current eligibility from authoritative state rather than trusting whatever was true at the moment this trigger fired - eligibility can have changed in the time it took to reach this action, and a contender that has already exited is not a real contender",
+        writes: [{ field: "competition_log", mode: "append" }],
+        next: "c.still-contested",
+        idempotencyKey: "exclusion_group + scope_instance_id + a.load-contenders",
+      },
+      {
+        id: "c.still-contested",
+        kind: "condition",
+        asks: "After re-reading current eligibility, do at least two contenders remain?",
+        branches: [
+          {
+            label: "Fewer than two remain",
+            when: "eligibility changed since the trigger and at most one contender is still genuinely eligible for this scope instance",
+            to: "x.no-contest",
+          },
+          {
+            label: "Two or more remain",
+            when: "at least two independently-eligible contenders still declare the same exclusion_group and scope_instance_id",
+            to: "c.precedence",
+          },
+        ],
+      },
+      {
+        id: "x.no-contest",
+        kind: "exit",
+        state: "no arbitration required - the contest resolved itself before a winner had to be chosen, because eligibility changed out from under it",
+        terminal: false,
+        reEntry: "a fresh trigger with its own freshly re-read contenders is a new arbitration, not a continuation of this one",
+      },
+      {
+        id: "c.precedence",
+        kind: "condition",
+        asks: "Does declared policy precedence separate the remaining contenders into exactly one highest-ranked contender?",
+        branches: [
+          {
+            label: "Strict order exists",
+            when: "each remaining contender's own declared precedence text - or one of the two discriminators GLB-02 permits beyond stated policy, an authoritative fresh event over a stale inferred state, or an active valid ownership over a merely-eligible contender - yields exactly one highest-ranked contender",
+            to: "a.claim",
+          },
+          {
+            label: "Genuine tie",
+            when: "declared policy leaves two or more remaining contenders at equal standing and neither GLB-02 discriminator applies",
+            to: "h.escalate",
+          },
+        ],
+      },
+      {
+        id: "h.escalate",
+        kind: "handoff",
+        to: "DEC-181",
+        on: "a competition whose remaining contenders have no policy-resolvable precedence between them",
+        carries: [
+          "the exclusion_group and scope_instance_id in contest",
+          "every remaining contender, its own declared precedence text, and why none discriminates the others",
+        ],
+        contract: { requiredFields: ["exclusion_group", "scope_instance_id"] },
+      },
+      {
+        id: "a.claim",
+        kind: "action",
+        does: "Atomically claim ownership of (exclusion_group, scope_instance_id) for the highest-ranked contender: if no owner is currently established, establish this one; if a concurrent evaluation already established an owner for the same identity between c.precedence's read and this action, return that existing owner rather than establishing a second one. This is the same at-most-one-canonical-outcome guarantee CMS-201's own obligation creation uses, applied to ownership of a contested scope instead of to an obligation - exactly one claim ever succeeds for one identity, and the loser of the race receives the authoritative winner rather than an error",
+        writes: [{ field: "competition_log", mode: "append" }],
+        next: "a.suppress-losers",
+        idempotencyKey: "exclusion_group + scope_instance_id + a.claim",
+      },
+      {
+        id: "a.suppress-losers",
+        kind: "action",
+        does: "Apply every non-winning contender's own declared onLoss - suppressed, paused, superseded or exit, never invented or defaulted - and invalidate whatever that contender already had queued for execution before it can fire: a losing contender's queued message or action does not get to run merely because it was queued before it lost (GLB-07)",
+        writes: [{ field: "competition_log", mode: "append" }],
+        next: "w.ownership",
+        idempotencyKey: "exclusion_group + scope_instance_id + a.suppress-losers",
+      },
+      {
+        id: "w.ownership",
+        kind: "wait",
+        until: ["the winning contender resolves, expires, fails, or otherwise becomes ineligible for this scope instance"],
+        onEvent: "a.reevaluate",
+        timeout: {
+          after: "a bounded check-in interval, where the winning contender's own governing policy states a maximum plausible ownership duration; otherwise no timeout-driven check is owed beyond the release event itself",
+          reason: "an owner that never explicitly reports release is not assumed to hold the scope forever on the strength of one earlier claim - a bounded check-in re-confirms current, authoritative ownership rather than resting on a record of having won once",
+        },
+        onTimeout: "a.reevaluate",
+        recheck: "the winning contender's own current eligibility and state, and whether any contender - including one this mechanism previously suppressed - is now independently eligible for the same (exclusion_group, scope_instance_id)",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "a.reevaluate",
+        kind: "action",
+        does: "Re-run arbitration for (exclusion_group, scope_instance_id) from current authoritative state rather than from the standing anyone held when they last won or lost (GLB-06). A previously-suppressed contender is never simply resumed from where it stopped (GLB-10) - it re-enters exactly as a new contender would, evaluated against current eligibility, intent, entity state, permission, cooldown and destination completion, the same list GLB-06 itself names",
+        writes: [{ field: "competition_log", mode: "append" }],
+        next: "c.still-contested",
+        idempotencyKey: "exclusion_group + scope_instance_id + a.reevaluate",
+      },
+    ],
+    guardrails: [
+      "Two journeys sharing an exclusionGroup name are not in competition unless they also share the same scope instance (GLB-01).",
+      "The winner is never selected by arrival order, worker scheduling, or which evaluation happened to run first - only by declared policy precedence, or by one of the two discriminators GLB-02 names explicitly.",
+      "Concurrent evaluation of the same (exclusion_group, scope_instance_id) yields at most one canonical owner - a losing concurrent claim resolves to the already-established owner rather than erroring or duplicating.",
+      "A losing contender's own onLoss value decides what happens to it - suppressed, paused, superseded and exit are different outcomes for different reasons, and collapsing them loses that difference (GLB-05).",
+      "A contest resolved on one scope instance constrains only that instance - winning ownership of one account, product or subscription never suppresses a journey about a different one (GLB-08).",
+      "Suppression ending is not the losing journey resuming from where it stopped - re-entry is recomputed from current state (GLB-10).",
+      "Work already queued by a contender that has since lost ownership is invalidated before it executes, not merely marked lost after the fact (GLB-07).",
+    ],
+    reusableRule:
+      "GLB-01 through GLB-10 - the corpus's own declared rules for journey competition and ownership resolution - made executable: load current contenders, apply declared precedence deterministically, establish exactly one winner atomically, apply each loser's own declared consequence, and re-evaluate from current state whenever the winner releases the scope, rather than leaving these ten rules as policy no runtime component actually runs.",
   },
 ];

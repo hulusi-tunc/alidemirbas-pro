@@ -1,5 +1,5 @@
 {
-  "_description": "Production contract for the 5 merged redirects. Represents existing behavior only — no new redirect created. Merged ids are never counted as active journeys, categories, or graph statistics.",
+  "_description": "Production contract for the 8 merged redirects. Represents existing behavior only — no new redirect created. Merged ids are never counted as active journeys, categories, or graph statistics.",
   "records": [
     {
       "requestedId": "CON-37",
@@ -45,6 +45,33 @@
       "follow": true,
       "sitemap": false,
       "bannerContext": "'RET-25 was consolidated into RSK-192' — the mechanism this id used to own now lives on Risk signal → correlate evidence → clear, monitor, restrict or review"
+    },
+    {
+      "requestedId": "FBK-44",
+      "resolvedJourneyId": "FBK-43",
+      "canonicalSlug": "feedback-routing-and-loop-closure",
+      "index": false,
+      "follow": true,
+      "sitemap": false,
+      "bannerContext": "'FBK-44 was consolidated into FBK-43' - Negative feedback recovery was folded into feedback follow-up: one feedback record, one router."
+    },
+    {
+      "requestedId": "FBK-45",
+      "resolvedJourneyId": "FBK-43",
+      "canonicalSlug": "feedback-routing-and-loop-closure",
+      "index": false,
+      "follow": true,
+      "sitemap": false,
+      "bannerContext": "'FBK-45 was consolidated into FBK-43' - Positive feedback follow-up was folded into feedback follow-up: one feedback record, one router."
+    },
+    {
+      "requestedId": "ACT-15",
+      "resolvedJourneyId": "ACT-17",
+      "canonicalSlug": "early-adoption-to-stable-use",
+      "index": false,
+      "follow": true,
+      "sitemap": false,
+      "bannerContext": "'ACT-15 was consolidated into ACT-17' - First-value recognition became the opening step of adoption nurture rather than a lifecycle of its own."
     }
   ]
 }
