@@ -4,9 +4,9 @@ export const copy = {
   en: {
     nav: { about: "About", aboutHref: "/about", lab: "Lab", labHref: "/lab", calculators: "Calculators", calculatorsHref: "/calculators", blog: "Blog", blogHref: "/blog", stack: "Stack", stackHref: "/stack", contact: "Contact", contactHref: "/contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
-      line1: "Growth you can measure.",
-      line2: "Products that keep users.",
-      lead: "I'm a growth marketer for mobile products. I build acquisition, CRM and lifecycle programs on data, not guesswork, and open-source the tools along the way.",
+      line1: "Growth is",
+      line2: "more than a single metric.",
+      lead: "I'm Ali Demirbaş. I focus on growth, user acquisition, and performance across digital products.",
       ctaPrimary: "Get in touch",
       ctaSecondary: "LinkedIn",
       portraitPill: "Based in Istanbul",
@@ -23,8 +23,8 @@ export const copy = {
     home: {
       work: {
         eyebrow: "What I do",
-        title: "Most growth problems are measurement problems in disguise.",
-        lede: "Measurement first, because the other three depend on it.",
+        title: "I approach growth through data, testing, and user behavior.",
+        lede: "I work across growth, from measurement infrastructure and user behavior to paid acquisition, testing, and optimization. Across GA4, GTM, Adjust, ad platforms, CRO, and lifecycle, the common thread is understanding what works through data and feeding those insights back into product and marketing.",
         builtFor: "Built for this",
         services: [
           {
@@ -35,7 +35,7 @@ export const copy = {
           {
             tool: "lifecycle-card-archive",
             title: "Lifecycle and CRM programs",
-            body: "Onboarding, activation, retention and win-back journeys designed as state machines: a trigger, the waits, the exits, and which lifecycle owns the person next.",
+            body: "I design user journeys from onboarding to re-engagement by defining what triggers them and what should happen next.",
           },
           {
             tool: "google-ads-change-history-dashboard",
@@ -51,9 +51,9 @@ export const copy = {
       },
       calc: {
         eyebrow: "Calculators",
-        title: "Marketing math, answered in one screen.",
+        title: "Marketing metric calculators.",
         intro:
-          "Free calculators for the numbers growth teams argue about: CAC payback, LTV, ROAS, retention, sample size and test duration. No account, no export gate.",
+          "Tools I built to quickly calculate commonly used metrics such as ROAS, CAC, LTV, CPC, CPM, AOV, and gross margin.",
         countSuffix: "tools live right now.",
         more: "Open all calculators",
       },
@@ -122,8 +122,8 @@ export const copy = {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
           short: "A/B Test Playbook",
-          tagline: "211 real test scenarios, set up properly",
-          desc: "211 real-world A/B test scenarios with the hypothesis, primary metric, guardrails and statistical checks needed to run them properly.",
+          tagline: "Always Testing, Always Learning",
+          desc: "I bring together hundreds of A/B test scenarios across the funnel, from acquisition to retention, with a clear view of what each test changes and how success should be measured.",
           tags: ["Experimentation", "CRO", "Claude Code"],
           proof: "211 scenarios",
           links: [
@@ -145,11 +145,11 @@ export const copy = {
           ],
         },
         {
-          name: "Google Ads Change History Explorer",
+          name: "Google Ads Change History",
           slug: "google-ads-change-history-dashboard",
           short: "Change History Explorer",
           tagline: "Every Google Ads change, searchable",
-          desc: "Turns Google Ads change history into a searchable dashboard - the exact campaign, category, old value, new value and timestamp behind every change.",
+          desc: "I track changes made across Google Ads accounts alongside date, campaign, and performance data. The goal is to quickly see what changed before a result moved.",
           tags: ["Google Ads", "Analytics", "Python"],
           proof: "Zero dependencies · 57 self-tests",
           links: [
@@ -495,12 +495,12 @@ export const copy = {
     stack: {
       metaTitle: "Stack - Ali Demirbaş",
       metaDesc: "The tools Ali Demirbaş instruments, queries and optimizes growth with every day.",
-      eyebrow: "Stack",
+      eyebrow: "Tools",
       title: "Stack",
       sub: "Tools I use to design, build, measure and grow.",
       // Home page teaser only - the /stack page keeps its own title/sub above.
       homeTitle: "Tools I use",
-      homeIntro: "The tools I use to design experiments, build reliable measurement, analyze user behavior, and optimize growth.",
+      homeIntro: "Tools I use to collect data, analyze it, run tests, and turn findings into action.",
       homeMore: "Explore my toolkit",
     },
     contact: {
@@ -880,8 +880,8 @@ export const copy = {
       },
     },
     finalCta: {
-      title: "Let's talk growth.",
-      body: "Whether it's a role, a project or a question about lifecycle marketing - my inbox is open.",
+      title: "If you'd like to talk, I'm here.",
+      body: "If you have a question or want to share an idea, feel free to reach out.",
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "Connect on LinkedIn",
     },
@@ -905,9 +905,9 @@ export const copy = {
   tr: {
     nav: { about: "Hakkımda", aboutHref: "/tr/about", lab: "Lab", labHref: "/tr/lab", calculators: "Hesaplayıcılar", calculatorsHref: "/tr/calculators", blog: "Blog", blogHref: "/tr/blog", stack: "Yığın", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
-      line1: "Ölçülebilir büyüme.",
-      line2: "Kullanıcıyı tutan ürünler.",
-      lead: "Mobil ürünler için growth marketer'ım. Edinim, CRM ve lifecycle programlarını tahminle değil veriyle kuruyor, yol boyunca yaptığım araçları açık kaynak paylaşıyorum.",
+      line1: "Büyüme,",
+      line2: "tek bir metrikten daha fazlası.",
+      lead: "Ben Ali Demirbaş. Dijital ürünlerde büyüme, kullanıcı kazanımı ve performans üzerine çalışıyorum.",
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
       portraitPill: "İstanbul'da",
@@ -922,8 +922,8 @@ export const copy = {
     home: {
       work: {
         eyebrow: "Ne yapıyorum",
-        title: "Büyüme problemlerinin çoğu, kılık değiştirmiş ölçüm problemidir.",
-        lede: "Önce ölçüm; diğer üçü ona dayanıyor.",
+        title: "Büyümeyi veri, test ve kullanıcı davranışı üzerinden ele alıyorum.",
+        lede: "Büyüme üzerine çalışıyorum. Ölçüm altyapısından kullanıcı davranışına, paid acquisition'dan test ve optimizasyona kadar farklı alanlarla ilgileniyorum. GA4, GTM, Adjust, reklam platformları, CRO ve lifecycle tarafındaki çalışmalarımın ortak noktası, neyin işe yaradığını veriden okuyup bunu ürüne ve pazarlamaya geri taşımak.",
         builtFor: "Bunun için yaptım",
         services: [
           {
@@ -934,7 +934,7 @@ export const copy = {
           {
             tool: "lifecycle-card-archive",
             title: "Lifecycle ve CRM programları",
-            body: "Onboarding, aktivasyon, tutundurma ve geri kazanım journey'leri durum makinesi olarak: bir tetikleyici, beklemeler, çıkışlar ve kişiyi sonra hangi lifecycle'ın devraldığı.",
+            body: "Kullanıcının ilk adımdan geri kazanıma kadar geçtiği yolculukları, neyin başlattığını ve sonrasında ne olması gerektiğini netleştirerek tasarlıyorum.",
           },
           {
             tool: "google-ads-change-history-dashboard",
@@ -950,9 +950,9 @@ export const copy = {
       },
       calc: {
         eyebrow: "Hesaplayıcılar",
-        title: "Pazarlama matematiği, tek ekranda.",
+        title: "Pazarlama metrikleri için hesaplayıcılar.",
         intro:
-          "Growth ekiplerinin tartıştığı sayılar için ücretsiz hesaplayıcılar: CAC geri dönüş süresi, LTV, ROAS, retention, örneklem büyüklüğü ve test süresi. Hesap yok, indirme duvarı yok.",
+          "ROAS, CAC, LTV, CPC, CPM, AOV ve gross margin gibi sık kullanılan metrikleri hızlıca hesaplamak için hazırladığım araçlar.",
         countSuffix: "araç şu anda yayında.",
         more: "Tüm hesaplayıcıları aç",
       },
@@ -993,8 +993,8 @@ export const copy = {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
           short: "A/B Test Playbook",
-          tagline: "Doğru kurulmuş 211 gerçek test senaryosu",
-          desc: "Gerçek dünyadan 211 A/B test senaryosu - doğru çalıştırmak için gereken hipotez, birincil metrik, guardrail'ler ve istatistiksel kontrollerle birlikte.",
+          tagline: "Test et, öğren, geliştir",
+          desc: "Acquisition'dan retention'a kadar farklı aşamalar için yüzlerce A/B test senaryosunu, neyi test ettiğini ve nasıl ölçüleceğini netleştirerek bir araya getiriyorum.",
           tags: ["Deneysel Test", "CRO", "Claude Code"],
           proof: "211 senaryo",
           links: [
@@ -1016,11 +1016,11 @@ export const copy = {
           ],
         },
         {
-          name: "Google Ads Değişiklik Geçmişi Gezgini",
+          name: "Google Ads Değişiklik Geçmişi",
           slug: "google-ads-change-history-dashboard",
           short: "Değişiklik Geçmişi Gezgini",
           tagline: "Her Google Ads değişikliği, aranabilir",
-          desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir - her değişikliğin arkasındaki tam kampanya, kategori, eski değer, yeni değer ve zaman damgası.",
+          desc: "Google Ads hesaplarında yapılan değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip ediyorum. Amaç, sonuç değiştiğinde önce neyin değiştiğini hızlıca görebilmek.",
           tags: ["Google Ads", "Analitik", "Python"],
           proof: "Sıfır bağımlılık · 57 self-test",
           links: [
@@ -1316,11 +1316,11 @@ export const copy = {
     stack: {
       metaTitle: "Yığın - Ali Demirbaş",
       metaDesc: "Her gün büyümeyi ölçmek, sorgulamak ve optimize etmek için kullandığım araçlar.",
-      eyebrow: "Yığın",
+      eyebrow: "Araçlar",
       title: "Yığın",
       sub: "Tasarlamak, üretmek, ölçmek ve büyümek için kullandığım araçlar.",
       homeTitle: "Kullandığım araçlar",
-      homeIntro: "Deney tasarlamak, güvenilir ölçümleme kurmak, kullanıcı davranışını analiz etmek ve büyümeyi optimize etmek için kullandığım araçlar.",
+      homeIntro: "Veriyi toplamak, analiz etmek, test etmek ve aksiyona çevirmek için kullandığım araçlar.",
       homeMore: "Araç setimi keşfet",
     },
     contact: {
@@ -1689,8 +1689,8 @@ export const copy = {
       },
     },
     finalCta: {
-      title: "Büyümeyi konuşalım.",
-      body: "Bir rol, bir proje ya da lifecycle marketing üzerine bir soru - kutum açık.",
+      title: "Konuşmak istersen buradayım.",
+      body: "Bir soru sormak ya da fikir paylaşmak istersen bana ulaşabilirsin.",
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "LinkedIn'de bağlan",
     },
