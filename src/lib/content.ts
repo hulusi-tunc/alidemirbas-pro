@@ -83,10 +83,19 @@ export const copy = {
       // reshape doesn't touch either of those.
       intro: "Open-source tools and experiments built around problems I kept running into. Mostly growth, lifecycle and analytics. Occasionally something else.",
       viewAll: "Explore the archive",
+      // `short` is the project's compact name - the hero's tab rail, the
+      // header dropdown and the section eyebrows all use it, because the
+      // full names run to five words and a tab cannot. `tagline` is the
+      // one-line claim under the name in the dropdown and the hero rail;
+      // every number in one traces to the same `proof` already here, and
+      // the {count}/{categories} tokens are filled by withJourneyCount at
+      // render exactly like `desc`.
       projects: [
         {
           name: "Lifecycle Marketing Journey Builder",
           slug: "claude-lifecycle",
+          short: "Journey Builder",
+          tagline: "Signals in, lifecycle journeys out",
           desc: "Turns the customer signals you already track into lifecycle journeys you can actually trigger, measure and improve.",
           tags: ["Lifecycle", "CRM", "Claude Code"],
           proof: "26 journey patterns",
@@ -99,6 +108,8 @@ export const copy = {
         {
           name: "Canonical Journey Library",
           slug: "lifecycle-card-archive",
+          short: "Journey Library",
+          tagline: "{count} reusable lifecycle journeys, {categories} categories",
           desc: "A library of {count} reusable lifecycle journeys - from activation and retention to risk, consent, incidents and subscriptions.",
           tags: ["Lifecycle", "Orchestration"],
           proof: "{count} journeys · {categories} categories",
@@ -107,6 +118,8 @@ export const copy = {
         {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
+          short: "A/B Test Playbook",
+          tagline: "211 real test scenarios, set up properly",
           desc: "211 real-world A/B test scenarios with the hypothesis, primary metric, guardrails and statistical checks needed to run them properly.",
           tags: ["Experimentation", "CRO", "Claude Code"],
           proof: "211 scenarios",
@@ -118,6 +131,8 @@ export const copy = {
         {
           name: "Marketing Dashboard Builder",
           slug: "dashboard-builder",
+          short: "Dashboard Builder",
+          tagline: "Messy exports in, comparable metrics out",
           desc: "Turns messy marketing exports into validated, comparable metrics and decision-ready dashboards.",
           tags: ["Analytics", "Data Quality", "Claude Code"],
           proof: "11 dashboard templates",
@@ -129,6 +144,8 @@ export const copy = {
         {
           name: "Google Ads Change History Explorer",
           slug: "google-ads-change-history-dashboard",
+          short: "Change History Explorer",
+          tagline: "Every Google Ads change, searchable",
           desc: "Turns Google Ads change history into a searchable dashboard - the exact campaign, category, old value, new value and timestamp behind every change.",
           tags: ["Google Ads", "Analytics", "Python"],
           proof: "Zero dependencies · 57 self-tests",
@@ -140,6 +157,8 @@ export const copy = {
         {
           name: "Numerspace",
           slug: "numerspace",
+          short: "Numerspace",
+          tagline: "97 free calculators, no paywall",
           desc: "Free calculators for marketing, finance, health, career and everyday decisions - fast answers, no account or paywall.",
           tags: ["Web App", "Calculators"],
           // Was "75+ tools" - stale. numerspace.com's own sitemap lists 97
@@ -942,6 +961,8 @@ export const copy = {
         {
           name: "Lifecycle Pazarlama Journey Üretici",
           slug: "claude-lifecycle",
+          short: "Journey Üretici",
+          tagline: "Sinyaller girer, lifecycle journey'ler çıkar",
           desc: "Zaten takip ettiğin müşteri sinyallerini, tetikleyebileceğin, ölçebileceğin ve geliştirebileceğin lifecycle journey'lere dönüştürür.",
           tags: ["Lifecycle", "CRM", "Claude Code"],
           proof: "26 journey deseni",
@@ -954,6 +975,8 @@ export const copy = {
         {
           name: "Canonical Journey Kütüphanesi",
           slug: "lifecycle-card-archive",
+          short: "Journey Kütüphanesi",
+          tagline: "{count} yeniden kullanılabilir lifecycle journey, {categories} kategori",
           desc: "Aktivasyon ve elde tutmadan risk, onay, olay ve aboneliğe kadar {count} yeniden kullanılabilir lifecycle journey'den oluşan bir kütüphane.",
           tags: ["Lifecycle", "Orkestrasyon"],
           proof: "{count} journey · {categories} kategori",
@@ -962,6 +985,8 @@ export const copy = {
         {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
+          short: "A/B Test Playbook",
+          tagline: "Doğru kurulmuş 211 gerçek test senaryosu",
           desc: "Gerçek dünyadan 211 A/B test senaryosu - doğru çalıştırmak için gereken hipotez, birincil metrik, guardrail'ler ve istatistiksel kontrollerle birlikte.",
           tags: ["Deneysel Test", "CRO", "Claude Code"],
           proof: "211 senaryo",
@@ -973,6 +998,8 @@ export const copy = {
         {
           name: "Pazarlama Dashboard Üretici",
           slug: "dashboard-builder",
+          short: "Dashboard Üretici",
+          tagline: "Dağınık exportlar girer, karşılaştırılabilir metrikler çıkar",
           desc: "Dağınık pazarlama exportlarını doğrulanmış, karşılaştırılabilir metriklere ve karar-hazır dashboard'lara çevirir.",
           tags: ["Analitik", "Veri Kalitesi", "Claude Code"],
           proof: "11 dashboard şablonu",
@@ -984,6 +1011,8 @@ export const copy = {
         {
           name: "Google Ads Değişiklik Geçmişi Gezgini",
           slug: "google-ads-change-history-dashboard",
+          short: "Değişiklik Geçmişi Gezgini",
+          tagline: "Her Google Ads değişikliği, aranabilir",
           desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir - her değişikliğin arkasındaki tam kampanya, kategori, eski değer, yeni değer ve zaman damgası.",
           tags: ["Google Ads", "Analitik", "Python"],
           proof: "Sıfır bağımlılık · 57 self-test",
@@ -995,6 +1024,8 @@ export const copy = {
         {
           name: "Numerspace",
           slug: "numerspace",
+          short: "Numerspace",
+          tagline: "97 ücretsiz hesaplayıcı, ücret duvarı yok",
           desc: "Pazarlama, finans, sağlık, kariyer ve günlük kararlar için ücretsiz hesaplayıcılar - hesap ya da ücret duvarı olmadan hızlı cevaplar.",
           tags: ["Web Uygulaması", "Hesaplayıcılar"],
           proof: "97 hesaplayıcı · 13 kategori",

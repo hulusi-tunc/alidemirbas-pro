@@ -15,8 +15,12 @@ import { copy, type Lang } from "@/lib/content";
    or an honestly-labelled illustrative bar chart for the two projects
    with no single number to visualize.
 
-   LabIndexPage.tsx renders these unchanged (same components, same props);
-   nothing about that page's output should move. */
+   WHO USES WHAT (2026-09-05). The homepage teaser still renders all six.
+   The Lab index now shows real product material per project (ui/LabPanels.tsx)
+   and reaches in here only for the two previews that are already real
+   records - CategoryLibraryPreview (live counts) and AbTestPreview (AB-004);
+   its dashboard and change-history witnesses come from the tools' own data
+   instead of the illustrative bars and rows below. */
 
 export type Project = (typeof copy)[Lang]["lab"]["projects"][number];
 
@@ -109,9 +113,11 @@ export function CategoryLibraryPreview({ lang }: { lang: Lang }) {
   );
 }
 
-/** Mirrors real AB-004 ("Açık kupon kodu alanı sepet terkini artırır mı?"). */
-export function AbTestPreview({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
-  const T2 = {
+/** The real AB-004 record ("Açık kupon kodu alanı sepet terkini artırır mı?"),
+    in both languages. Shared by AbTestPreview below and by the Lab hero's
+    playbook panel (LabPanels.tsx), so the two never show two different
+    versions of the same test. */
+export const AB004_TEXT = {
     en: {
       category: "Cart & Checkout",
       question: "Does a visible coupon-code field increase cart abandonment?",
@@ -132,7 +138,11 @@ export function AbTestPreview({ lang, compact = false }: { lang: Lang; compact?:
       avoidLabel: "Ne yapılmamalı",
       avoid: "Aynı testte hem konumu hem metni değiştirmeyin.",
     },
-  }[lang];
+} as const;
+
+/** Mirrors real AB-004 ("Açık kupon kodu alanı sepet terkini artırır mı?"). */
+export function AbTestPreview({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
+  const T2 = AB004_TEXT[lang];
   return (
     <div aria-hidden className="rounded-t-[12px] bg-paper p-5 pb-2 shadow-[0_0_0_1px_rgb(0_0_0/0.08),0_1px_2px_rgb(10_16_32/0.04),0_8px_24px_-12px_rgb(10_16_32/0.12)] transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-smooth)] group-hover:scale-[1.01]">
       <div className="flex items-center gap-2">
@@ -239,11 +249,10 @@ export function ChangeHistoryPreview({ lang }: { lang: Lang }) {
   );
 }
 
-export function ToolGridPreview({ lang, size = "md" }: { lang: Lang; size?: "md" | "lg" }) {
+export function ToolGridPreview({ lang, size = "md", sub }: { lang: Lang; size?: "md" | "lg"; sub?: string }) {
   const T2 = {
     en: {
       label: "numerspace.com",
-      sub: "75+ tools · EN/TR",
       items: [
         ["Finance", "Compound interest"],
         ["Health", "BMI"],
@@ -253,7 +262,6 @@ export function ToolGridPreview({ lang, size = "md" }: { lang: Lang; size?: "md"
     },
     tr: {
       label: "numerspace.com",
-      sub: "75+ araç · EN/TR",
       items: [
         ["Finans", "Bileşik faiz"],
         ["Sağlık", "VKİ"],
@@ -269,7 +277,7 @@ export function ToolGridPreview({ lang, size = "md" }: { lang: Lang; size?: "md"
     >
       <div className="flex items-baseline justify-between gap-3">
         <p className={size === "lg" ? "text-base font-semibold text-ink-950" : "text-[13px] font-semibold text-ink-950"}>{T2.label}</p>
-        <p className="text-xs text-ink-400">{T2.sub}</p>
+        {sub && <p className="text-xs text-ink-400 tabular-nums">{sub}</p>}
       </div>
       {/* Column count is driven by `size`, not a viewport breakpoint: the
           old `sm:grid-cols-4` fired on any ≥640px viewport regardless of
@@ -310,7 +318,9 @@ export const LAB_PREVIEWS: Record<
   "ab-test-playbook": ({ lang, compact }) => <AbTestPreview lang={lang} compact={compact} />,
   "dashboard-builder": ({ project, lang }) => <DashboardBarsPreview project={project} lang={lang} />,
   "google-ads-change-history-dashboard": ({ lang }) => <ChangeHistoryPreview lang={lang} />,
-  numerspace: ({ lang, layout, compact }) => (
-    <ToolGridPreview lang={lang} size={!compact && layout === "wide-reverse" ? "lg" : "md"} />
+  // `sub` is the project's own proof line ("97 calculators · 13 categories"),
+  // not a number typed here - the old hardcoded "75+ tools" had gone stale.
+  numerspace: ({ project, lang, layout, compact }) => (
+    <ToolGridPreview lang={lang} size={!compact && layout === "wide-reverse" ? "lg" : "md"} sub={project.proof} />
   ),
 };

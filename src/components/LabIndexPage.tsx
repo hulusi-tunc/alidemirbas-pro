@@ -1,198 +1,263 @@
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+import type { ReactNode } from "react";
+import { ArrowRight, ArrowUpRight, CircleCheck, Radio, Workflow } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
+import {
+  BuilderScene,
+  DashboardScene,
+  ExplorerScene,
+  LabHeroPanel,
+  LibraryScene,
+  NumerspaceScene,
+  PlaybookScene,
+} from "@/components/ui/LabPanels";
+import type { Project } from "@/components/ui/LabPreviews";
+import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
+import { SpyList } from "@/components/ui/LabScroll";
+import { LabShowcase, type ShowcaseItem } from "@/components/ui/LabShowcase";
+import { PixelFill } from "@/components/ui/PixelFill";
 import { Reveal } from "@/components/ui/Reveal";
-import Image from "next/image";
-
-import { LAB_PREVIEWS, type Project } from "@/components/ui/LabPreviews";
-import { DepthStack, DotMatrix, OrbitRings, SignalFlow } from "@/components/ui/LabVisuals";
-import { ScrollSpy } from "@/components/ui/ScrollSpy";
 import { withJourneyCount } from "@/lib/archive";
+import { JOURNEY_ROWS } from "@/lib/canonical-view";
+import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
-import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
-/* Lab index — LANDING-PAGE REDESIGN (2026-08-31).
+/* Lab index.
 
-   The page was six instances of one card stacked in a column: same ground,
-   same shape, same rhythm, top to bottom. It read as an index, and the
-   brief was that it should read as a product landing page - sections that
-   differentiate, grounds that change, scroll that has movement in it.
+   HISTORY, BRIEFLY. The page was six copies of one card; the 2026-08-31
+   redesign made it a landing page with three section shapes and tried and
+   rejected three hero backdrops before settling on clean white. On
+   2026-09-05 the hero became a scene - one generated daylight meadow that
+   depicts nothing, with a real product window floating on its horizon,
+   cut by the fold - and gained a six-tab rail (ui/LabShowcase.tsx) that
+   shows each project's REAL material (ui/LabPanels.tsx), never a mock-up.
+   The same round gave every project one section, opened by its own mark
+   (glyph + hue, ui/LabProjectIdentity.tsx), and made every action a real
+   button (ui/Button.tsx). Earlier on 2026-09-06 the six sections were
+   briefly one sticky card deck - rejected the same day, see below.
 
-   THE STRUCTURE. A clean opening, then one BAND PER PROJECT rather than
-   one card per project. Each band owns a full stripe of the page and the
-   ground alternates paper -> tinted -> paper, so no two neighbours share a
-   backdrop - the "her section farklı" note, executed as a real tone change
-   rather than a border.
+   THIS ROUND (2026-09-06, Hulusi, two reviews). First: "sections keep
+   repeating itself, no scroll animation, stick sections, make one section
+   dark bg, be creative." Read as "make the sections stick", that became a
+   deck of six pinned cards - and the second review corrected it: "I meant
+   each section needs its own thing, not all sections' structure stick;
+   one section can have a two-column structure, title can be sticky and
+   the right side three images with scroll animation, another one can
+   have a three-card structure." So: SIX SECTIONS, SIX STRUCTURES, and
+   sticky is one of them. In order:
 
-   THE SCROLL. Inside every band the text column is `lg:sticky` and the
-   visual is what moves past it, so the project's name and claim stay
-   parked while its evidence scrolls - the sticky-scroll feel, with no
-   JavaScript and no scroll listener. `Reveal` (already in the system)
-   fades each band in on entry. Both are neutralised under
-   `prefers-reduced-motion` by the global rule in globals.css.
+     Journey Builder    STICKY RAIL. Two columns; the statement stays put on
+                        the left while three product windows scroll past
+                        on the right - the builder's canvas with each of its
+                        three patterns open. A spy list under the statement
+                        (ui/LabScroll.tsx) names the one passing.
+     Journey Library    HEADLINE + THREE FRAMES. The headline rail, then
+                        three frames side by side: a journey as a graph, a
+                        fan of journeys, the browser's search.
+     A/B Test Playbook  CENTRED + ONE SCENARIO. The statement centred, then
+                        one frame: the question, the two carts, the split,
+                        the deciding metric, the library's scale.
+     Dashboard Builder  MIRRORED SPLIT. The pipeline as three beats on the
+                        left - exports in, the check, dashboard out - the
+                        statement on the right.
+     Change History     DARK CONSOLE. The page's single dark block; one
+                        timeline card on the warm plate, cut by the frame's
+                        right and bottom edges.
+     Numerspace         SPLIT + SHELF. The statement on the left; on the right
+                        a frame holding two rows of the 13 calculator
+                        categories, icons and counts, gliding endlessly in
+                        opposite directions on their own.
 
-   THE VISUALS ARE STILL THE REAL TOOLS. Every preview is the same
-   LAB_PREVIEWS component the page already used - real journey-canvas
-   nodes, the real category registry counts, the real AB-004 record. What
-   changed is their PRESENTATION: each one now sits on a raised stage
-   (rounded plate, soft shadow, its own ground) at a much larger size, the
-   "in-app görsellerin kalitesi" note. No generated product screenshot,
-   no mocked dashboard, no invented number - the site's own absolute rule
-   (AGENTS.md), and these pages exist precisely to prove the tools are
-   real.
+   THE VISUALS ARE FRAMES. Hulusi's reference (2026-09-06, third review):
+   a tinted, grainy, clouded plate per project - "matching background,
+   different tone colours, a bit abstract" - and on it only the part of
+   the product that tells the story, cropped by the plate's edge: the
+   library browser cut by the right edge, the builder's canvas alone. So
+   each section places ONE fragment inside a `LabFrame` (below; ground in
+   globals.css) with its own anchoring - top-left and cut right, cut on
+   the left, centred and run off the bottom, chrome cut away above. The
+   fragments are the product windows drawn by the parallel session on the
+   "real product screenshots" ask (ui/LabWindow.tsx is the kit, the
+   *Window components in ui/LabPanels.tsx the screenshots, every value the
+   product's own); this file decides the frame and the structure around it.
 
-   NO BACKDROP ART, ANYWHERE ON THIS PAGE. Three were tried and all three
-   were rejected: an ink-950 hero slab with a blue gradient, CSS brand
-   blooms, and Higgsfield-generated parallax layers behind the hero, plus
-   two generated grounds behind the bands. The page carries itself on type,
-   tone changes between bands, and the real tool previews - which is the
-   quieter and, on this evidence, the correct answer. `ParallaxField` and
-   the generated files are deleted rather than left switched off, so
-   nobody re-enables them by accident. */
+   MOTION HAS A JOB IN EACH: the sticky rail keeps the claim beside its
+   three proofs; the spy list orients; the three cards and the console
+   rows arrive in sequence because sequence is what they are; the rail
+   slides so scrolling down reads a row left to right. Nothing loops,
+   nothing floats. Grounds: paper (with the sky-mesh ramp out of the hero)
+   / soft / paper / soft / ink-950 / teal-50 - neutral to the dark block,
+   one colour to close. The closing FinalCta is the brand-blue plate
+   (Site.tsx), so the dark section is the only dark one. */
 
 const T = {
   en: {
     heroPrefix: "Things I've been",
     heroHighlight: "building",
-    scrollCue: "Six projects",
-    kicker: "Open source · Built with Claude Code",
-    sysLabel: "The lifecycle system",
-    sysTitle: "One system: patterns you can trigger, a library you can reuse.",
-    sysBody:
-      "The two lifecycle projects are halves of the same idea. One turns the signals a product already emits into journeys you can act on; the other is the catalogue those journeys are drawn from.",
-    toolsLabel: "The tools",
-    toolsTitle: "Built because I needed them, not to have a portfolio.",
-    restLabel: "Also in the Lab",
-    spyHero: "Overview",
-    spySystem: "Lifecycle system",
-    spyTools: "Tools",
-    spyRest: "More",
-    sectionLabel: (i: number, total: number) => `${String(i).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
+    tablist: "Lab projects",
+    builderViews: ["A signal becomes a journey", "A journey, as the builder draws it", "Where journeys end"],
   },
   tr: {
     heroPrefix: "Üzerinde",
     heroHighlight: "çalıştıklarım",
-    scrollCue: "Altı proje",
-    kicker: "Açık kaynak · Claude Code ile",
-    sysLabel: "Lifecycle sistemi",
-    sysTitle: "Tek sistem: tetikleyebileceğin desenler, tekrar kullanabileceğin bir kütüphane.",
-    sysBody:
-      "İki lifecycle projesi aynı fikrin iki yarısı. Biri ürünün zaten ürettiği sinyalleri harekete geçirilebilir journey'lere çeviriyor; diğeri bu journey'lerin çekildiği katalog.",
-    toolsLabel: "Araçlar",
-    toolsTitle: "Portföy olsun diye değil, ihtiyacım olduğu için yapıldı.",
-    restLabel: "Lab'da ayrıca",
-    spyHero: "Genel bakış",
-    spySystem: "Lifecycle sistemi",
-    spyTools: "Araçlar",
-    spyRest: "Diğerleri",
-    sectionLabel: (i: number, total: number) => `${String(i).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
+    tablist: "Lab projeleri",
+    builderViews: ["Bir sinyal journey'e dönüşür", "Builder'ın çizdiği haliyle bir journey", "Journey'lerin bittiği yer"],
   },
 } as const;
 
 /** The one tag the two lifecycle projects share - the understated cue
-    that they're parts of the same system without merging their cards. */
+    that they're parts of the same system without merging their sections. */
 function isEcosystemTag(tag: string) {
   return tag === "Lifecycle";
 }
 
-function TagPill({ tag, onDark = false }: { tag: string; onDark?: boolean }) {
-  if (onDark) {
-    return (
-      <span
-        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-          isEcosystemTag(tag) ? "bg-primary-500/25 text-blue-100" : "bg-white/10 text-white/70"
-        }`}
-      >
-        {tag}
-      </span>
-    );
-  }
+function TagPill({ tag, dark }: { tag: string; dark: boolean }) {
   return (
     <span
-      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-        isEcosystemTag(tag) ? "bg-primary-50 text-primary-700" : "bg-paper text-ink-500"
-      }`}
+      className={clsx(
+        "rounded-full px-2.5 py-1 text-xs font-medium",
+        dark
+          ? "bg-white/10 text-white/80"
+          : isEcosystemTag(tag)
+            ? "bg-primary-50 text-primary-700"
+            : "bg-paper text-ink-600 shadow-hairline",
+      )}
     >
       {tag}
     </span>
   );
 }
 
-function ProjectActions({ project, onDark = false }: { project: Project; onDark?: boolean }) {
+type Action = Project["links"][number];
+
+/** One action as a button. External links keep `buttonStyles` + PixelFill
+    on an <a>, the component's own convention, so a GitHub button and its
+    neighbour answer the pointer identically. */
+function ActionButton({ link, variant, size }: { link: Action; variant: "primary" | "outline"; size: "sm" | "md" }) {
+  const external = link.href.startsWith("http");
+  const label = (
+    <>
+      {link.label}
+      {external ? <ArrowUpRight aria-hidden className="size-4" /> : <ArrowRight aria-hidden className="size-4" />}
+    </>
+  );
+  if (external) {
+    return (
+      <a href={link.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant, size })}>
+        <PixelFill />
+        {label}
+      </a>
+    );
+  }
   return (
-    <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-      {project.links.map((link, i) => {
-        const external = link.href.startsWith("http");
-        const primary = i === 0;
-        const Icon = external ? ArrowUpRight : ArrowRight;
-        return (
-          <a
-            key={link.label}
-            href={link.href}
-            {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-            className={`group/action flex items-center gap-1.5 text-sm transition-colors duration-[var(--duration-fast)] ${
-              onDark
-                ? primary
-                  ? "font-medium text-white hover:text-blue-200"
-                  : "text-white/60 hover:text-white"
-                : primary
-                  ? "font-medium text-ink-950 hover:text-primary-600"
-                  : "text-ink-500 hover:text-primary-600"
-            }`}
-          >
-            {link.label}
-            <Icon
-              aria-hidden
-              className="size-3.5 transition-transform duration-[var(--duration-fast)] group-hover/action:translate-x-0.5"
-            />
-          </a>
-        );
-      })}
+    <ButtonLink href={link.href} variant={variant} size={size}>
+      {label}
+    </ButtonLink>
+  );
+}
+
+/** The project's actions, as buttons. The first link is always the
+    project's own page on this site (content.ts's CTA convention), so it
+    takes the primary plate; GitHub, demos and the one external product
+    take the outline. `stack` is for a narrow column with three actions:
+    the primary alone on its line, the secondaries compact beneath it -
+    a hierarchy, not a wrap. On the dark section both flip to their
+    dark-ground forms through `data-tone` - nothing here knows about tone. */
+function ProjectActions({ project, center = false, stack = false }: { project: Project; center?: boolean; stack?: boolean }) {
+  const [primary, ...secondary] = project.links;
+  if (stack) {
+    return (
+      <div className="flex flex-col items-start gap-3">
+        <ActionButton link={primary} variant="primary" size="md" />
+        {secondary.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            {secondary.map((link) => (
+              <ActionButton key={link.label} link={link} variant="outline" size="sm" />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className={clsx("flex flex-wrap items-center gap-3", center && "justify-center")}>
+      {project.links.map((link, i) => (
+        <ActionButton key={link.label} link={link} variant={i === 0 ? "primary" : "outline"} size="md" />
+      ))}
     </div>
   );
 }
 
 /* ---------------------------------------------------------------- HERO */
 
+/** The library tab's product: the library's largest graph. Derived,
+    never hand-picked - the same rule experiment-a uses - so it follows
+    the library as journeys are added. Computed once at module load,
+    server side, like JOURNEY_ROWS itself. */
+const HERO_JOURNEY = JOURNEY_ROWS.reduce((a, b) => (b.nodeCount > a.nodeCount ? b : a));
+
 function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; projects: Project[] }) {
   const tt = T[lang];
 
+  /* Everything the client tab rail needs, resolved here on the server:
+     the real counts filled into the facts and taglines, and each panel
+     already rendered. The showcase receives nodes and strings only. */
+  const items: ShowcaseItem[] = projects.map((p) => ({
+    slug: p.slug,
+    label: p.short,
+    name: p.name,
+    fact: withJourneyCount(p.proof),
+    tagline: withJourneyCount(p.tagline),
+    tags: p.tags,
+    href: p.links[0].href,
+    cta: p.links[0].label,
+    panel: <LabHeroPanel slug={p.slug} lang={lang} journey={HERO_JOURNEY} />,
+  }));
+
   return (
-    /* CLEAN WHITE, AND NOTHING BEHIND IT. This band has been through three
-       backdrops - an ink-950 slab with a blue gradient, then CSS brand
-       blooms, then the generated parallax layers - and every one of them
-       was rejected. The decision now is that the hero has no ground at
-       all: paper, centred type, the six real projects under it. The art
-       that was here is not "temporarily off", it is gone; the page gets
-       its interest from the banded sections below instead. */
+    /* THE HERO IS A SCENE, AND THE PRODUCT IS IN IT. Centred type over a
+       photographic daylight sky, and one real product window floating on
+       the horizon, cut by the fold - the reference Hulusi supplied. */
     <section
       id="overview"
-      className="relative isolate scroll-mt-24 overflow-hidden bg-paper pt-20 pb-24 text-center md:pt-28 md:pb-32"
+      className="relative isolate scroll-mt-24 overflow-hidden pt-20 text-center md:pt-28"
     >
-      {/* Ethereal ground, not a picture: cloud and diffused light with no
-          object in it, faded hard at the bottom so the section hands off
-          to white rather than ending on an edge. Every backdrop before
-          this one was rejected for having SHAPES in it - a gradient of
-          light has nothing to look at, which is the point. */}
+      {/* THE SCENE. A level grass horizon under a pale daylight sky,
+          generated (Higgsfield, 2026-09-05) to depict nothing: no object,
+          no figure, no interface, no text - so the only thing in the
+          picture is the real product window. The plate keeps its upper
+          three quarters almost empty so ink-950 type stays readable, and
+          puts the horizon at ~75% of its height; with `object-bottom`
+          that line crosses the lower half of the window at every width.
+          Chosen in two rounds (eight candidates across four scene
+          directions, then three refinements of the meadow); the shipped
+          plate is the early-morning one - a cloudless, even sky, since
+          cirrus read as blotches behind the headline, and a faint warm
+          haze on the horizon that lifts the window's top edge. */}
       <Image
-        src="/lab/sky-hero.jpg"
+        src="/lab/hero-meadow.jpg"
         alt=""
         aria-hidden
         fill
         priority
         sizes="100vw"
-        className="-z-20 object-cover opacity-60"
+        className="-z-20 object-cover object-bottom opacity-65"
       />
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-paper/40 via-paper/70 to-paper"
-      />
-      <DotMatrix className="inset-x-0 top-0 h-[26rem] opacity-50" />
+      {/* The plate at sixty-five percent over the paper ground (Hulusi,
+          2026-09-06: "I want the hero background image to be softer") -
+          the wind-streak plate keeps its colour in the field and the sky
+          washes toward paper under the headline. */}
+      {/* Hand-off to the header above: the top few rems fade to paper so
+          the translucent header does not sit on a hard photographic edge. */}
+      <div aria-hidden className="absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b from-paper/80 to-transparent" />
 
       <div className="altor-container relative">
         <Reveal>
-          <p className="text-[13px] font-medium text-ink-400">{t.lab.label}</p>
+          <p className="text-[13px] font-medium text-ink-500">{t.lab.label}</p>
           <h1 className="mx-auto mt-4 max-w-4xl text-[clamp(2.5rem,1.6rem+3.6vw,4.5rem)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance text-ink-950">
             {tt.heroPrefix}{" "}
             <span className="bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
@@ -201,306 +266,425 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
           </h1>
         </Reveal>
         <Reveal delay={90}>
-          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-pretty text-ink-600">
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-pretty text-ink-700">
             {t.lab.intro}
           </p>
         </Reveal>
-
-        {/* WHAT'S INSIDE, above the fold. Still the six real projects and
-            still jump links into the bands below - but each entry now
-            carries that project's own `proof`, so the opening states the
-            Lab's scale instead of only naming its parts.
-
-            The mechanism is taken from mobbin.com/mcp, which opens by
-            saying how much it holds ("621,500+ shipped screens") and only
-            then shows the evidence. Its surface is not taken: no card
-            imagery, no borrowed palette, nothing about how that page
-            looks. Claim first, witnesses below, is the transferable part.
-
-            This also retires six single-label pills. A box around one word
-            is a fence, not a card (anti-patterns.md #6, whose detector is
-            content-node diversity per card <= 1); these hold two real
-            nodes now - a name and a sourced number - so the tile earns
-            its ground.
-
-            NOTHING HERE IS COMPUTED. Every number is the project's own
-            `proof` string from content.ts, already sourced and already
-            rendered inside its band; `withJourneyCount` fills the Journey
-            Library's live {count}/{categories} tokens exactly as the band
-            does. All six carry one today, but `proof` is nullable by
-            design and the second line is therefore conditional: a project
-            without a real number shows its name alone. An absent line,
-            never an invented one. */}
-        <Reveal delay={160}>
-          <ul className="mx-auto mt-10 grid max-w-3xl list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map((p) => {
-              const proof = p.proof ? withJourneyCount(p.proof) : null;
-              return (
-                <li key={p.slug}>
-                  <a
-                    href={`#${p.slug}`}
-                    className="flex h-full flex-col gap-0.5 rounded-card bg-paper-soft px-4 py-3 text-left transition-colors hover:bg-blue-50"
-                  >
-                    <span className="text-[14px] leading-snug font-medium text-ink-950">{p.name}</span>
-                    {proof && <span className="text-[13px] text-ink-500 tabular-nums">{proof}</span>}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </Reveal>
       </div>
+
+      <Reveal delay={160}>
+        <LabShowcase items={items} tablistLabel={tt.tablist} />
+      </Reveal>
     </section>
   );
 }
 
-/* ------------------------------------------------- ARCHETYPE 1 · SYSTEM */
+/* ------------------------------------------------------- THE STATEMENT */
 
-/** A BENTO. The two lifecycle projects are halves of one system, so they
-    share a section rather than getting a band each: a tall feature plate
-    on the left carrying the animated orbit figure, the two real previews
-    stacked beside it. Different shape from every other section on the
-    page, which is the point - the brief was that the sections were
-    repeating themselves. */
-function SystemSection({ lang, projects }: { lang: Lang; projects: Project[] }) {
-  const tt = T[lang];
-  const [builder, library] = projects;
+/* The statement's parts, shared by every section and laid out
+   differently per section below. `dark` is only true on the dark
+   section; `center` only in the two centred ones. */
 
+function Mark({ project, dark, center }: { project: Project; dark: boolean; center?: boolean }) {
+  const accent = labAccent(project.slug);
   return (
-    <section id="system" className="relative isolate scroll-mt-24 overflow-hidden bg-paper-soft py-20 md:py-28">
+    <p className={clsx("flex items-center gap-2.5 text-[13px] font-medium", center && "justify-center", dark ? accent.darkInk : accent.ink)}>
+      <span className={clsx("grid size-8 shrink-0 place-items-center rounded-md", dark ? accent.darkTile : accent.tile)}>
+        <LabProjectIcon slug={project.slug} className="size-4" />
+      </span>
+      {project.short}
+    </p>
+  );
+}
+
+function Title({ project, dark }: { project: Project; dark: boolean }) {
+  return (
+    <h2
+      className={clsx(
+        "mt-5 text-[clamp(1.75rem,1.3rem+1.6vw,2.5rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance",
+        dark ? "text-white" : "text-ink-950",
+      )}
+    >
+      {project.name}
+    </h2>
+  );
+}
+
+function Tags({ project, dark, center }: { project: Project; dark: boolean; center?: boolean }) {
+  return (
+    <div className={clsx("mt-4 flex flex-wrap gap-1.5", center && "justify-center")}>
+      {project.tags.map((tag) => (
+        <TagPill key={tag} tag={tag} dark={dark} />
+      ))}
+    </div>
+  );
+}
+
+function Proof({ project, dark }: { project: Project; dark: boolean }) {
+  if (!project.proof) return null;
+  return (
+    <p className={clsx("mt-5 text-[15px] font-medium tabular-nums", dark ? "text-white" : "text-ink-950")}>
+      {withJourneyCount(project.proof)}
+    </p>
+  );
+}
+
+function Desc({ project, dark, center }: { project: Project; dark: boolean; center?: boolean }) {
+  return (
+    <p className={clsx("mt-3 max-w-[52ch] text-[15px] leading-relaxed", center && "mx-auto", dark ? "text-white/70" : "text-ink-600")}>
+      {withJourneyCount(project.desc)}
+    </p>
+  );
+}
+
+/** The stacked statement - the text side of a split, or, centred, the
+    opening of a section whose material runs full width below it. */
+function Statement({
+  project,
+  dark = false,
+  center = false,
+  stack = false,
+  extra,
+}: {
+  project: Project;
+  dark?: boolean;
+  center?: boolean;
+  stack?: boolean;
+  /** A real node between the text and the actions (the builder's steps). */
+  extra?: ReactNode;
+}) {
+  return (
+    <div className={center ? "mx-auto max-w-2xl text-center" : undefined}>
+      <Mark project={project} dark={dark} center={center} />
+      <Title project={project} dark={dark} />
+      <Tags project={project} dark={dark} center={center} />
+      <Proof project={project} dark={dark} />
+      <Desc project={project} dark={dark} center={center} />
+      {extra && <div className="mt-6">{extra}</div>}
+      <div className="mt-7">
+        <ProjectActions project={project} center={center} stack={stack} />
+      </div>
+    </div>
+  );
+}
+
+/** The headline rail: the statement laid across the section's top - name
+    and tags on the left, proof, text and actions on the right, bottoms
+    aligned - so a full-width object can take the rest of the section. */
+function Headline({ project, dark = false }: { project: Project; dark?: boolean }) {
+  return (
+    <div className="grid gap-6 md:grid-cols-12 md:items-end md:gap-10">
+      <div className="md:col-span-7">
+        <Mark project={project} dark={dark} />
+        <Title project={project} dark={dark} />
+        <Tags project={project} dark={dark} />
+      </div>
+      <div className="md:col-span-5">
+        <Proof project={project} dark={dark} />
+        <Desc project={project} dark={dark} />
+        <div className="mt-6">
+          <ProjectActions project={project} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------- THE SECTIONS */
+
+/** Each section's ground, by project. Neutral and alternating until the
+    dark block, then one tinted close - see the file comment. */
+const GROUND: Record<string, string> = {
+  "claude-lifecycle": "bg-paper",
+  "lifecycle-card-archive": "bg-paper-soft",
+  "ab-test-playbook": "bg-paper",
+  "dashboard-builder": "bg-paper-soft",
+  "google-ads-change-history-dashboard": "bg-ink-950 text-white",
+  numerspace: "bg-teal-50",
+};
+
+function Shell({
+  project,
+  dark = false,
+  className = "overflow-hidden py-20 md:py-28",
+  children,
+}: {
+  project: Project;
+  dark?: boolean;
+  /** Padding and overflow, when a section's structure needs its own. */
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      id={project.slug}
+      data-tone={dark ? "dark" : undefined}
+      className={clsx("relative isolate scroll-mt-24", className, GROUND[project.slug] ?? "bg-paper")}
+    >
+      {children}
+    </section>
+  );
+}
+
+/** THE FRAME: the project's plate. A grainy ground in the project's own
+    hue (`.lab-frame`, globals.css) holding one SCENE (ui/LabPanels.tsx):
+    two or three product components with real data, composed differently
+    in every frame and cut by the frame's edges - only the parts that tell
+    the story, never the whole page. The reference frames Hulusi sent
+    (2026-09-06) are this: a tinted, clouded plate with the library
+    browser cut by the right edge, the builder's canvas alone on another;
+    his follow-up: "arrange different components, no full screens". */
+function LabFrame({
+  project,
+  plate,
+  ground = "photo",
+  className,
+  children,
+}: {
+  project: Project;
+  /** Which photograph: defaults to the project's own plate; a section with
+      several frames names a different plate for each, since the same
+      photograph three times over read as a mistake. */
+  plate?: string;
+  /** `photo`: the plate carries the photograph. `glass`: the photograph is
+      behind the SECTION instead, and the plate is black glass over it -
+      thirty percent, blurred (Hulusi, 2026-09-06, tried first on the
+      Change History section). */
+  ground?: "photo" | "glass";
+  className?: string;
+  children: ReactNode;
+}) {
+  if (ground === "glass") {
+    return (
+      <div className={clsx("relative isolate overflow-hidden rounded-[28px] bg-black/30 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-2xl", className)}>
+        {children}
+      </div>
+    );
+  }
+  return (
+    <div data-hue={labAccent(project.slug).hue} className={clsx("lab-frame relative isolate overflow-hidden rounded-[28px]", className)}>
+      {/* THE GROUND IS A PHOTOGRAPH (Hulusi, 2026-09-06: "apply all in lab
+          page frames"). One generated plate per project, the same meadow
+          as the hero shot dreamy (soft focus, film grain, pastel) with one
+          thing on the horizon that says which project this is: a track,
+          a row of turbines, two turbines, poles at intervals, blue hour,
+          hay bales (public/lab/frames/<slug>.jpg, chosen from the served
+          gallery round of 2026-09-06). It depicts no interface and no
+          figure, so it stays ground. Anchored at the bottom and scaled up
+          a little from there, so a short or square frame crops the sky
+          rather than the field - the one note on the plates was too much
+          sky. Shown CLEAN, at full opacity: the tinted version (the hue
+          gradient showing through a 60% photograph) read as a colour overlay,
+          and Hulusi keeps the colour overlays for the product pages only
+          ("I don't want a colour overlay on this page, keep it in the
+          subpages; clean up the main lab page like before", 2026-09-06).
+          The grain in `.lab-frame::before` still sits over it. */}
       <Image
-        src="/lab/sky-mesh.jpg"
+        src={`/lab/frames/${plate ?? project.slug}.jpg`}
         alt=""
         aria-hidden
         fill
-        sizes="100vw"
-        /* Quiet: at full strength the cloud read as blotches of grey
-           behind the cards rather than as light. */
-        className="-z-10 object-cover opacity-25"
+        sizes="(min-width: 1280px) 1168px, 100vw"
+        className="-z-10 origin-bottom scale-[1.3] object-cover object-bottom"
       />
+      {children}
+    </div>
+  );
+}
 
-      <div className="altor-container relative">
-        <Reveal>
-          <p className="text-[13px] font-medium text-primary-600">{tt.sysLabel}</p>
-          <h2 className="mt-3 max-w-3xl text-[clamp(1.875rem,1.4rem+2vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance text-ink-950">
-            {tt.sysTitle}
-          </h2>
-          <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-pretty text-ink-600">{tt.sysBody}</p>
-        </Reveal>
-
-        <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          {/* The dark feature plate, with the orbit figure turning on it. */}
-          <Reveal>
-            <article className="relative isolate flex h-full flex-col overflow-hidden rounded-card bg-ink-950 p-8 sm:p-10">
-              <Image
-                src="/lab/sky-dark.jpg"
-                alt=""
-                aria-hidden
-                fill
-                sizes="(min-width: 1024px) 40vw, 100vw"
-                className="-z-10 object-cover opacity-60"
-              />
-              <DotMatrix tone="light" className="inset-0 opacity-40" />
-              <div className="relative grid flex-1 place-items-center py-6">
-                <OrbitRings />
-              </div>
-              <div className="relative mt-6">
-                <h3 className="text-xl font-semibold tracking-tight text-white">{builder.name}</h3>
-                {builder.proof && (
-                  <p className="mt-2 text-[15px] font-medium text-blue-200 tabular-nums">
-                    {withJourneyCount(builder.proof)}
-                  </p>
-                )}
-                <p className="mt-3 max-w-[46ch] text-[15px] leading-relaxed text-white/70">
-                  {withJourneyCount(builder.desc)}
-                </p>
-                <div className="mt-5">
-                  <ProjectActions project={builder} onDark />
-                </div>
-              </div>
-            </article>
-          </Reveal>
-
-          {/* The library: its real preview above, its depth stack below. */}
-          <div className="flex flex-col gap-5">
-            <Reveal delay={80}>
-              <article className="rounded-card bg-paper p-6 shadow-card sm:p-8">
-                <h3 className="text-xl font-semibold tracking-tight text-ink-950">{library.name}</h3>
-                {library.proof && (
-                  <p className="mt-2 text-[15px] font-medium text-primary-700 tabular-nums">
-                    {withJourneyCount(library.proof)}
-                  </p>
-                )}
-                <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-ink-600">
-                  {withJourneyCount(library.desc)}
-                </p>
-                <div className="mt-6 overflow-hidden rounded-xl">
-                  {LAB_PREVIEWS[library.slug]?.({ project: library, lang, layout: "wide" })}
-                </div>
-                <div className="mt-6">
-                  <ProjectActions project={library} />
-                </div>
-              </article>
-            </Reveal>
-
-            <Reveal delay={140}>
-              <div className="relative overflow-hidden rounded-card bg-paper-soft px-6 pt-8 pb-4">
-                <DotMatrix className="inset-0 opacity-50" />
-                <div className="relative">
-                  <DepthStack
-                    items={
-                      lang === "en"
-                        ? ["Activation", "Retention", "Risk", "Consent", "Subscription"]
-                        : ["Aktivasyon", "Elde tutma", "Risk", "İzin", "Abonelik"]
-                    }
-                  />
-                </div>
-              </div>
+/** Journey Builder - the sticky rail. */
+function BuilderSection({ project, lang }: { project: Project; lang: Lang }) {
+  const tt = T[lang];
+  const icons = [<Radio key="signals" aria-hidden />, <Workflow key="journey" aria-hidden />, <CircleCheck key="exits" aria-hidden />];
+  const spy = tt.builderViews.map((label, i) => ({ id: `builder-view-${i}`, label, icon: icons[i] }));
+  return (
+    /* No overflow-hidden here: an overflow-hidden ancestor turns
+       `position: sticky` off (it becomes the sticky element's scrollport),
+       and the fill image clips to its own box anyway. */
+    <Shell project={project} className="py-20 md:py-28">
+      {/* No image behind the section (Hulusi, 2026-09-06: "all section bg
+          remove that"): the photographs live inside the frames only, the
+          section ground is paper. */}
+      <div className="altor-container relative grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div className="lg:col-span-5">
+          <div className="lg:sticky lg:top-24">
+            <Reveal>
+              {/* The three views as an icon stepper inside the statement,
+                  before the actions - one column, one read, the lit step
+                  following the frames on the right. */}
+              <Statement project={project} stack extra={<SpyList items={spy} activeTile="bg-violet-600 text-white" />} />
             </Reveal>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------- ARCHETYPE 2 · TOOLS */
-
-/** ALTERNATING ROWS, and the only place on the page that uses them - two
-    projects, text and evidence swapping sides. The first row carries the
-    animated signal-flow figure instead of a screenshot, because what that
-    tool does is fan one input out into stages. */
-function ToolsSection({ lang, projects }: { lang: Lang; projects: Project[] }) {
-  const tt = T[lang];
-
-  return (
-    <section id="tools" className="scroll-mt-24 bg-paper py-20 md:py-28">
-      <div className="altor-container">
-        <Reveal>
-          <p className="text-[13px] font-medium text-primary-600">{tt.toolsLabel}</p>
-          <h2 className="mt-3 max-w-3xl text-[clamp(1.875rem,1.4rem+2vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance text-ink-950">
-            {tt.toolsTitle}
-          </h2>
-        </Reveal>
-
-        <div className="mt-14 flex flex-col gap-16 md:gap-24">
-          {projects.map((project, i) => {
-            const flip = i % 2 === 1;
-            return (
-              <Reveal key={project.slug} delay={60}>
-                <div
-                  id={project.slug}
-                  className="grid scroll-mt-24 grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-14"
-                >
-                  <div className={flip ? "md:col-start-2 md:row-start-1" : ""}>
-                    <h3 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance text-ink-950">
-                      {project.name}
-                    </h3>
-                    <div className="mt-4 flex flex-wrap gap-1.5">
-                      {project.tags.map((tag) => <TagPill key={tag} tag={tag} />)}
-                    </div>
-                    {project.proof && (
-                      <p className="mt-4 text-[15px] font-medium text-ink-950 tabular-nums">
-                        {withJourneyCount(project.proof)}
-                      </p>
-                    )}
-                    <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-ink-600">
-                      {withJourneyCount(project.desc)}
-                    </p>
-                    <div className="mt-6">
-                      <ProjectActions project={project} />
-                    </div>
-                  </div>
-
-                  <div className={flip ? "md:col-start-1 md:row-start-1" : ""}>
-                    {i === 0 ? (
-                      /* The one figure that is drawn rather than captured:
-                         this tool's whole job is fanning one signal out
-                         into stages, and the real stage names are the
-                         labels. */
-                      <div className="relative overflow-hidden rounded-card bg-paper-soft p-6 sm:p-8">
-                        <DotMatrix className="inset-0 opacity-60" />
-                        <div className="relative">
-                          <SignalFlow
-                            hub={lang === "en" ? "Test" : "Test"}
-                            nodes={
-                              lang === "en"
-                                ? [
-                                    { label: "Hypothesis" },
-                                    { label: "Metric", accent: true },
-                                    { label: "Guardrail" },
-                                    { label: "Result" },
-                                  ]
-                                : [
-                                    { label: "Hipotez" },
-                                    { label: "Metrik", accent: true },
-                                    { label: "Guardrail" },
-                                    { label: "Sonuç" },
-                                  ]
-                            }
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="rounded-card bg-paper p-4 shadow-card sm:p-6">
-                        <div className="overflow-hidden rounded-xl">
-                          {LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "wide" })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* --------------------------------------------------- ARCHETYPE 3 · REST */
-
-/** A COMPACT GRID to close on. The last projects are smaller in scope, so
-    they get proportionate space instead of another full band each - which
-    is what made the page feel repetitive in the first place. */
-function RestSection({ lang, projects }: { lang: Lang; projects: Project[] }) {
-  const tt = T[lang];
-  return (
-    <section id="more" className="scroll-mt-24 bg-paper-soft py-20 md:py-24">
-      <div className="altor-container">
-        <Reveal>
-          <p className="text-[13px] font-medium text-primary-600">{tt.restLabel}</p>
-        </Reveal>
-        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
-          {projects.map((project, i) => (
-            <Reveal key={project.slug} delay={i * 70}>
-              <article
-                id={project.slug}
-                className="flex h-full scroll-mt-24 flex-col rounded-card bg-paper p-6 transition-colors hover:bg-blue-50 sm:p-8"
-              >
-                <h3 className="text-lg font-semibold tracking-tight text-ink-950">{project.name}</h3>
-                {project.proof && (
-                  <p className="mt-2 text-sm font-medium text-primary-700 tabular-nums">
-                    {withJourneyCount(project.proof)}
-                  </p>
-                )}
-                <p className="mt-3 flex-1 text-[15px] leading-relaxed text-ink-600">
-                  {withJourneyCount(project.desc)}
-                </p>
-                <div className="mt-5 overflow-hidden rounded-xl bg-paper-soft p-3">
-                  {LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "stack", compact: true })}
-                </div>
-                <div className="mt-5">
-                  <ProjectActions project={project} />
-                </div>
-              </article>
+        <div className="flex flex-col gap-8 lg:col-span-7">
+          {tt.builderViews.map((label, i) => (
+            <Reveal key={label} delay={i === 0 ? 120 : 0}>
+              <div id={`builder-view-${i}`} className="scroll-mt-28">
+                {/* Three frames, three views of the same tool: signal to
+                    journey to channel as one diagram; one journey drawn;
+                    where journeys end and what they are made of. */}
+                <LabFrame project={project} plate={`claude-lifecycle-${i}`} className="aspect-[4/5] sm:aspect-[3/2]">
+                  <BuilderScene lang={lang} view={i} />
+                </LabFrame>
+              </div>
             </Reveal>
           ))}
         </div>
       </div>
-    </section>
+    </Shell>
   );
+}
+
+/** Journey Library - the headline rail, then three frames side by side. */
+function LibrarySection({ project, lang }: { project: Project; lang: Lang }) {
+  return (
+    <Shell project={project}>
+      <div className="altor-container">
+        <Reveal>
+          <Headline project={project} />
+        </Reveal>
+        {/* Three facets of the library, one frame each: a journey is a
+            graph; a library of them; find the one you need. */}
+        <div className="mt-10 grid grid-cols-1 gap-4 md:mt-12 md:grid-cols-3">
+          {[0, 1, 2].map((view) => (
+            <Reveal key={view} delay={120 + view * 90}>
+              <LabFrame project={project} className="h-[20rem] md:h-[22rem]">
+                <LibraryScene lang={lang} view={view} />
+              </LabFrame>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+/** A/B Test Playbook - centred, then one scenario as a picture. */
+function PlaybookSection({ project, lang }: { project: Project; lang: Lang }) {
+  return (
+    <Shell project={project}>
+      <div className="altor-container">
+        <Reveal>
+          <Statement project={project} center />
+        </Reveal>
+        <Reveal delay={120} className="mt-12 md:mt-14">
+          {/* The question at headline size, the two carts people were
+              shown with the tested element as the only difference, the
+              metric that decides it, and the library's scale in one strip.
+              The frame is as tall as the story (the scene lays itself out
+              in flow). */}
+          <LabFrame project={project}>
+            <PlaybookScene lang={lang} />
+          </LabFrame>
+        </Reveal>
+      </div>
+    </Shell>
+  );
+}
+
+/** Dashboard Builder - the mirrored split. */
+function DashboardSection({ project, lang }: { project: Project; lang: Lang }) {
+  return (
+    <Shell project={project}>
+      <div className="altor-container grid items-center gap-10 md:grid-cols-12 md:gap-12">
+        <Reveal delay={120} className="md:col-span-7 lg:col-span-8">
+          {/* The pipeline in three beats: exports in, the check that refuses
+              to sum them, the dashboard out. The frame is as tall as the
+              story (the scene lays itself out in flow). */}
+          <LabFrame project={project}>
+            <DashboardScene lang={lang} />
+          </LabFrame>
+        </Reveal>
+        <Reveal className="md:col-span-5 lg:col-span-4">
+          <Statement project={project} />
+        </Reveal>
+      </div>
+    </Shell>
+  );
+}
+
+/** Change History Explorer - the dark block that hands over. */
+function ExplorerSection({ project, lang }: { project: Project; lang: Lang }) {
+  return (
+    /* The frame stays inside the section: the overhang into the next
+       section was tried and dropped (Hulusi, 2026-09-06: "I don't want
+       frame overflow"). */
+    <Shell project={project} dark>
+      {/* The photograph behind the whole section (blue hour over the
+          meadow), and the frame as black glass over it - the variant
+          Hulusi asked to see (2026-09-06). */}
+      <Image
+        src="/lab/frames/google-ads-change-history-dashboard.jpg"
+        alt=""
+        aria-hidden
+        fill
+        sizes="100vw"
+        className="-z-10 object-cover object-bottom opacity-70"
+      />
+      <div className="altor-container">
+        <Reveal>
+          <Headline project={project} dark />
+        </Reveal>
+        <Reveal delay={120} className="mt-10 md:mt-12">
+          {/* One piece of UI on the glass: the dashboard the tool writes,
+              read as a timeline, cut by the frame's bottom edge. */}
+          <LabFrame project={project} ground="glass" className="h-[26rem] md:h-[30rem]">
+            <ExplorerScene lang={lang} />
+          </LabFrame>
+        </Reveal>
+      </div>
+    </Shell>
+  );
+}
+
+/** Numerspace - the split: statement on the left, the shelf on the right. */
+function NumerspaceSection({ project, lang }: { project: Project; lang: Lang }) {
+  return (
+    <Shell project={project}>
+      <div className="altor-container grid items-center gap-10 md:grid-cols-12 md:gap-12">
+        <Reveal className="md:col-span-5">
+          <Statement project={project} />
+        </Reveal>
+        <Reveal delay={120} className="md:col-span-7">
+          {/* Two shelves of the 13 categories, icons and counts, gliding in
+              opposite directions on their own - the whole catalogue, not
+              tied to the scroll. */}
+          <LabFrame project={project} className="h-[20rem] md:h-[26rem]">
+            <NumerspaceScene lang={lang} />
+          </LabFrame>
+        </Reveal>
+      </div>
+    </Shell>
+  );
+}
+
+/** Slug -> section. A project without one gets the wide band, which is
+    the least presumptuous shape - but give it its own. */
+function ProjectSection({ project, lang }: { project: Project; lang: Lang }) {
+  switch (project.slug) {
+    case "claude-lifecycle":
+      return <BuilderSection project={project} lang={lang} />;
+    case "lifecycle-card-archive":
+      return <LibrarySection project={project} lang={lang} />;
+    case "ab-test-playbook":
+      return <PlaybookSection project={project} lang={lang} />;
+    case "dashboard-builder":
+      return <DashboardSection project={project} lang={lang} />;
+    case "google-ads-change-history-dashboard":
+      return <ExplorerSection project={project} lang={lang} />;
+    case "numerspace":
+      return <NumerspaceSection project={project} lang={lang} />;
+    default:
+      return (
+        <Shell project={project}>
+          <div className="altor-container">
+            <Reveal>
+              <Headline project={project} />
+            </Reveal>
+          </div>
+        </Shell>
+      );
+  }
 }
 
 export default function LabIndexPage({ lang }: { lang: Lang }) {
@@ -518,21 +702,11 @@ export default function LabIndexPage({ lang }: { lang: Lang }) {
       <JsonLdScript data={breadcrumb} />
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
-        <ScrollSpy
-          sections={[
-            { id: "overview", label: T[lang].spyHero },
-            { id: "system", label: T[lang].spySystem },
-            { id: "tools", label: T[lang].spyTools },
-            { id: "more", label: T[lang].spyRest },
-          ]}
-        />
         <LabHero t={t} lang={lang} projects={projects} />
-        {/* Three different section shapes, not one shape six times: the
-            lifecycle pair as a bento, the two bigger tools as alternating
-            rows, the smaller ones as a compact grid. */}
-        <SystemSection lang={lang} projects={projects.slice(0, 2)} />
-        <ToolsSection lang={lang} projects={projects.slice(2, 4)} />
-        <RestSection lang={lang} projects={projects.slice(4)} />
+        {/* Six sections, one per project, in tab order - six structures. */}
+        {projects.map((project) => (
+          <ProjectSection key={project.slug} project={project} lang={lang} />
+        ))}
         <FinalCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />

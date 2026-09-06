@@ -818,53 +818,177 @@
     }
   }
 
-  /* ---- LAB ILLUSTRATIONS ------------------------------------------------
-     The Lab page's figures are drawn in code and animate on their own
-     clock, so the sections read as alive rather than as stills in slots.
-     Every one of these is transform or opacity only - composited, never
-     re-laying-out - and all of them stop under the global reduced-motion
-     rule above. */
+  /* ---- LAB MOTION ---------------------------------------------------------
+     The Lab page used to carry a set of drawn, self-animating figures here
+     (a breathing dot matrix, a pulse down a branch, floating plates -
+     ui/LabVisuals.tsx). They went with that file on 2026-09-05, when every
+     Lab witness became the tool's own real material; nothing was left
+     switched off. What remains is one state-change animation. */
 
-  /* The dot matrix breathing, the same grain the button's pixel dissolve
-     uses. Scale, not opacity alone, so the field reads as depth. */
-  .lab-matrix {
-    animation: lab-matrix 9s ease-in-out infinite;
+  /* A tab switch in the Lab hero window (LabShowcase.tsx): the incoming
+     panel settles in over one base duration instead of snapping. It
+     replays every time a panel leaves `hidden`, because an animation
+     starts when its element is first rendered. Opacity and a 4px
+     translate only - the reduced-motion reset above shortens it to
+     nothing, which is the right answer for a state change this small. */
+  /* THE FRAMES. Each project's visual on /lab is a plate (`LabFrame` in
+     LabIndexPage.tsx): a grainy, tinted ground in the project's own hue
+     with dark ink clouds, and on it ONE cropped fragment of the product -
+     the mechanism of the reference frames Hulusi sent (2026-09-06: "no
+     need full page, just important parts to tell the story"). The ground
+     is drawn, not an asset - three radial gradients and an SVG-noise
+     grain - so all six plates are the same picture in six tones and
+     nothing ships as an image. `data-hue` picks the tone: the identity's
+     hue two steps deeper than its -50 tiles (LabProjectIdentity.tsx). */
+  .lab-frame {
+    --frame-base: #e7e5e4;
+    --frame-deep: #a8a29e;
+    /* The clouds are a cool near-navy, not the site's warm ink: warm ink
+       mixed into teal or emerald goes muddy, navy stays clean on every hue. */
+    --frame-ink: #0b1220;
+    background:
+      radial-gradient(52% 60% at 10% 96%, color-mix(in oklab, var(--frame-ink) 92%, transparent) 0%, transparent 62%),
+      radial-gradient(34% 38% at 92% 2%, color-mix(in oklab, var(--frame-ink) 78%, transparent) 0%, transparent 60%),
+      radial-gradient(26% 30% at 78% 74%, color-mix(in oklab, var(--frame-ink) 45%, transparent) 0%, transparent 65%),
+      radial-gradient(72% 70% at 55% 50%, var(--frame-deep) 0%, transparent 70%),
+      var(--frame-base);
   }
 
-  @keyframes lab-matrix {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 0.85; transform: scale(1.06); }
+  .lab-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 220px 220px;
+    /* Over a photograph now (LabIndexPage.tsx's LabFrame): a light film
+       grain, not a texture - at 0.85 the overlay bleached the plates to
+       milk. */
+    opacity: 0.3;
+    mix-blend-mode: overlay;
   }
 
-  /* Concentric arcs turning at three different rates. */
-  .lab-spin { animation: lab-spin 26s linear infinite; }
-  .lab-spin-slow { animation: lab-spin 46s linear infinite; }
-  .lab-spin-reverse { animation: lab-spin 34s linear infinite reverse; }
-
-  @keyframes lab-spin {
-    to { rotate: 360deg; }
+  .lab-frame[data-hue="violet"] {
+    --frame-base: #ddd6fe;
+    --frame-deep: #a78bfa;
   }
 
-  /* A pulse travelling from the hub down a branch. The dash pattern is a
-     short lit segment on a long gap, so moving the offset sends one
-     packet along the path rather than marching ants. */
-  .lab-pulse {
-    animation: lab-pulse 3.2s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  .lab-frame[data-hue="primary"] {
+    --frame-base: var(--color-primary-200);
+    --frame-deep: var(--color-primary-400);
   }
 
-  @keyframes lab-pulse {
-    from { stroke-dashoffset: 200; }
-    to { stroke-dashoffset: -40; }
+  .lab-frame[data-hue="rose"] {
+    --frame-base: #fecdd3;
+    --frame-deep: #fb7185;
   }
 
-  /* Stacked plates drifting a hair out of phase with each other. */
-  .lab-float {
-    animation: lab-float 7s ease-in-out infinite;
+  .lab-frame[data-hue="emerald"] {
+    --frame-base: #a7f3d0;
+    --frame-deep: #34d399;
   }
 
-  @keyframes lab-float {
-    0%, 100% { translate: 0 0; }
-    50% { translate: 0 -6px; }
+  .lab-frame[data-hue="amber"] {
+    --frame-base: #fde68a;
+    --frame-deep: #fbbf24;
+  }
+
+  .lab-frame[data-hue="teal"] {
+    --frame-base: #99f6e4;
+    --frame-deep: #2dd4bf;
+  }
+
+  /* THE SCENES' ENTRANCE. Inside a frame that has revealed, each card of
+     the scene rises into place a beat after the one before - the picture
+     assembling as it arrives (Hulusi: "some appear effect"). Keyed off
+     Reveal's own data-revealed attribute on the frame's wrapper, so no
+     second observer; cards are ordered by DOM position, which is also
+     their stacking order. Nothing moves under reduced motion. */
+  .lab-scene-card {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  .altor-reveal[data-revealed="true"] .lab-scene-card {
+    animation: lab-scene-in 720ms var(--ease-out-soft) both;
+  }
+
+  .altor-reveal[data-revealed="true"] .lab-scene-card:nth-child(2) {
+    animation-delay: 170ms;
+  }
+
+  .altor-reveal[data-revealed="true"] .lab-scene-card:nth-child(3) {
+    animation-delay: 340ms;
+  }
+
+  @keyframes lab-scene-in {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.985);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lab-scene-card,
+    .altor-reveal[data-revealed="true"] .lab-scene-card {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+
+  /* THE SHELF. Numerspace's two rows of calculator categories glide on
+     their own, endlessly, one row each way - a carousel not tied to the
+     scroll (Hulusi, 2026-09-06: "auto slider, infinite, not attached to
+     the scroll"). The track holds its items twice and travels exactly half
+     its width, so the loop never jumps; items carry their own right margin
+     instead of a track gap for the same reason. Off under reduced motion. */
+  .lab-marquee {
+    display: flex;
+    width: max-content;
+    animation: lab-marquee var(--marquee-duration, 46s) linear infinite;
+  }
+
+  .lab-marquee[data-reverse] {
+    animation-direction: reverse;
+  }
+
+  @keyframes lab-marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lab-marquee {
+      animation: none;
+    }
+  }
+
+  /* A table row that reveals on scroll (the change explorer's console on
+     /lab): fade only - a translate on a table-row breaks its cell layout
+     in some engines. */
+  tr.altor-reveal {
+    transform: none;
+  }
+
+  .lab-panel-in {
+    animation: lab-panel-in var(--duration-base) var(--ease-out-soft) both;
+  }
+
+  @keyframes lab-panel-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
   }
 
   /* The mobile menu panel arriving: a short rise and fade, no blur - it is

@@ -6,8 +6,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 
+import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
+import { clsx } from "@/lib/clsx";
+
 type NavItem = { label: string; href: string };
-type LabProject = { name: string; href: string };
+type LabProject = { name: string; href: string; slug?: string };
 
 /* Below md, SiteHeader's own <nav> and CTA are both display:none with no
    replacement - this is that replacement.
@@ -129,10 +132,17 @@ export function MobileNav({
                             href={p.href}
                             onClick={close}
                             aria-current={isCurrent(p.href) ? "page" : undefined}
-                            className={`flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-[15px] transition-colors ${
+                            className={`flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[15px] transition-colors ${
                               isCurrent(p.href) ? "text-primary-700" : "text-ink-500 hover:text-ink-900"
                             }`}
                           >
+                            {/* The project's own glyph on its tint - the same
+                                mark the desktop dropdown and /lab carry. */}
+                            {p.slug && (
+                              <span className={clsx("grid size-6 shrink-0 place-items-center rounded-md", labAccent(p.slug).tile)}>
+                                <LabProjectIcon slug={p.slug} className="size-3.5" />
+                              </span>
+                            )}
                             {p.name}
                             {p.href.startsWith("http") && (
                               <ArrowUpRight aria-hidden className="size-3.5 shrink-0" />
