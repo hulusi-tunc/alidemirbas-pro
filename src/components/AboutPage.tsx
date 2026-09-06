@@ -1,4 +1,7 @@
 import Image from "next/image";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+
+import { ButtonLink } from "@/components/ui/Button";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { AboutTimeline, type TimelineJob } from "@/components/ui/AboutTimeline";
@@ -217,25 +220,18 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                   {t.introSuffix}
                 </p>
                 <p className="mt-5 text-lg leading-relaxed text-pretty text-ink-700">{t.outsideWork}</p>
-                <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-lg leading-relaxed text-ink-700">
-                  <a
-                    href={t.exploreHref}
-                    className="text-blue-700 underline underline-offset-2 hover:text-blue-800"
-                  >
+                {/* Real buttons, not underlined links - the site's rule since
+                    the Lab review (2026-09-06). */}
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <ButtonLink href={t.exploreHref} variant="primary" size="md">
                     {t.exploreLabel}
-                  </a>
-                  <span aria-hidden className="text-ink-400">
-                    ·
-                  </span>
-                  <a
-                    href="https://www.linkedin.com/in/ali-demirbas/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-700 underline underline-offset-2 hover:text-blue-800"
-                  >
+                    <ArrowRight aria-hidden className="size-4" />
+                  </ButtonLink>
+                  <ButtonLink href="https://www.linkedin.com/in/ali-demirbas/" variant="outline" size="md">
                     {t.linkedinLabel}
-                  </a>
-                </p>
+                    <ArrowUpRight aria-hidden className="size-4" />
+                  </ButtonLink>
+                </div>
               </div>
             </Reveal>
           </div>

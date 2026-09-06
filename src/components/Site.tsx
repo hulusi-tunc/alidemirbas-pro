@@ -2,9 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
+import { PixelFill } from "@/components/ui/PixelFill";
+import { CtaBurst } from "@/components/ui/CtaBurst";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
-import { LAB_PREVIEWS } from "@/components/ui/LabPreviews";
+import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { LabNavDropdown } from "@/components/ui/LabNavDropdown";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
@@ -53,10 +55,13 @@ export function SiteHeader({
   // Real Lab projects (same data LabIndexPage/SiteFooter already use),
   // resolved server-side - `withJourneyCount` is server-only, so the
   // Canonical Journey Library's real {count} token is already filled in
-  // before this reaches the client-only LabNavDropdown below.
+  // before this reaches the client-only LabNavDropdown below. The slug is
+  // what the dropdown and the phone menu look the project's glyph up by
+  // (LabProjectIdentity.tsx); the tagline replaces the two-line desc.
   const labProjects = t.lab.projects.map((p) => ({
+    slug: p.slug,
     name: p.name,
-    desc: withJourneyCount(p.desc),
+    tagline: withJourneyCount(p.tagline),
     href: p.links[0].href,
   }));
 
@@ -147,18 +152,14 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
                 <p className="mt-4 max-w-lg text-base leading-relaxed text-ink-600">{t.hero.sub}</p>
               </Reveal>
               <Reveal delay={170} className="mt-8">
-                <div className="flex flex-col gap-3 sm:flex-row sm:gap-0">
-                  <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="sm" className="btn-col-1 max-w-full">
-                    <span className="flex w-full items-center justify-between gap-4">
-                      {t.hero.ctaPrimary}
-                      <ArrowRight aria-hidden className="size-4" />
-                    </span>
+                <div className="flex flex-wrap gap-3">
+                  <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
+                    {t.hero.ctaPrimary}
+                    <ArrowRight aria-hidden className="size-4" />
                   </ButtonLink>
-                  <ButtonLink href={LINKEDIN} variant="outline" size="sm" className="btn-col-1 max-w-full">
-                    <span className="flex w-full items-center justify-between gap-4">
-                      {t.hero.ctaSecondary}
-                      <ArrowUpRight aria-hidden className="size-4" />
-                    </span>
+                  <ButtonLink href={LINKEDIN} variant="outline" size="md">
+                    {t.hero.ctaSecondary}
+                    <ArrowUpRight aria-hidden className="size-4" />
                   </ButtonLink>
                 </div>
               </Reveal>
@@ -175,7 +176,7 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
                       key={row.label}
                       className="grid grid-cols-[7rem_minmax(0,1fr)] gap-4 border-b border-line py-3"
                     >
-                      <dt className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase">
+                      <dt className="text-[13px] font-medium text-ink-400">
                         {row.label}
                       </dt>
                       <dd className="text-[0.9375rem] text-ink-900">{row.value}</dd>
@@ -239,7 +240,7 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
           <SectionHeading eyebrow={t.home.work.eyebrow} title={t.home.work.title} />
           <Reveal delay={60} className="lg:pt-10">
-            <p className="altor-eyebrow text-ink-400">{t.about.eyebrow}</p>
+            <p className="text-[13px] font-medium text-ink-400">{t.about.eyebrow}</p>
             <p className="mt-4 max-w-[46ch] text-[1.0625rem] leading-relaxed text-ink-600">
               {t.about.teaserLead}
             </p>
@@ -292,86 +293,80 @@ function Work({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-/** Lab, as bordered cards - frame on top, title, description, one action
-    pill below - reusing the exact illustrative preview LabIndexPage
-    already builds for that project (LabPreviews.tsx) instead of a fake
-    "product screenshot": real journey-canvas nodes, real category counts,
-    the real AB-004 record, honestly-labelled bar/row illustrations for the
-    two tools with no single number to show. A user-supplied reference for
-    this layout used AI-generated screenshot mockups with garbled,
-    meaningless UI text baked into the images - realistic-looking fabricated
-    evidence, which this project's own constitution (AGENTS.md, anti-
-    patterns.md #9) bans outright. Same card shape, same one-per-project
-    frame-then-text-then-button structure; every pixel inside the frame is
-    real.
+/* LAB TEASER (2026-09-06). Six plates in the language the Lab index now
+   speaks (LabIndexPage.tsx / ui/ProductFrame.tsx): the project's own
+   photograph - clean, no colour overlay here, like the index - with the
+   project's mark and its real proof line on it; under the plate the name,
+   the tagline and real buttons. The scenes that tell each project's story
+   stay on the index, where they have room; the homepage's job is to route
+   there. What it replaced: six bordered cards with deep editorial-dark
+   panels around illustrative previews and a green outline link in a
+   colour the button system does not have. */
 
-    One column, full-width cards on narrow viewports; two columns side by
-    side from `md` up. */
-// One distinct panel color per Lab project, keyed by slug so it stays
-// stable regardless of array order. Deliberately outside the site's
-// established token palette (site-owner direction, not a taste pick) -
-// each a deep, muted, editorial-dark hue so the set reads as one family
-// despite the range of hues.
-const LAB_PANEL_COLOR: Record<string, string> = {
-  "claude-lifecycle": "#152049", // navy
-  "lifecycle-card-archive": "#1c3829", // dark green
-  "ab-test-playbook": "#3a1930", // wine
-  "dashboard-builder": "#0f3336", // deep teal
-  "google-ads-change-history-dashboard": "#2a1f42", // plum
-  numerspace: "#3a2412", // rust brown
-};
+function LabPlate({ project }: { project: (typeof copy)[Lang]["lab"]["projects"][number] }) {
+  const accent = labAccent(project.slug);
+  const [primary, ...secondary] = project.links;
+  const github = secondary.find((l) => l.href.includes("github.com"));
+  return (
+    <article className="flex h-full flex-col">
+      <div data-hue={accent.hue} className="lab-frame relative isolate aspect-[4/3] overflow-hidden rounded-[28px]">
+        <Image
+          src={`/lab/frames/${project.slug}.jpg`}
+          alt=""
+          aria-hidden
+          fill
+          sizes="(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw"
+          className="-z-10 origin-bottom scale-[1.3] object-cover object-bottom"
+        />
+        <span className={`absolute top-5 left-5 grid size-11 place-items-center rounded-xl ${accent.tile} shadow-[0_12px_30px_-14px_rgb(10_16_32/0.5)]`}>
+          <LabProjectIcon slug={project.slug} className="size-5" />
+        </span>
+        {project.proof && (
+          <span className="absolute bottom-5 left-5 rounded-full bg-paper/90 px-3.5 py-2 text-[13px] font-medium text-ink-950 tabular-nums shadow-[0_12px_30px_-14px_rgb(10_16_32/0.4)] backdrop-blur">
+            {withJourneyCount(project.proof)}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col px-1 pt-5">
+        <h3 className="text-[19px] leading-snug font-semibold tracking-tight text-ink-950">{project.name}</h3>
+        <p className="mt-1.5 flex-1 text-[15px] leading-relaxed text-ink-600">{withJourneyCount(project.tagline)}</p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <ButtonLink href={primary.href} variant="primary" size="sm">
+            {primary.label}
+            <ArrowRight aria-hidden className="size-4" />
+          </ButtonLink>
+          {github && (
+            <a href={github.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
+              <PixelFill />
+              {github.label}
+              <ArrowUpRight aria-hidden className="size-4" />
+            </a>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
 
-function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+function Lab({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section id="lab" className="bg-paper-soft py-24 md:py-28">
       <div className="altor-container">
         <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
 
-        <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-2">
-          {t.lab.projects.map((project, i) => {
-            const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "stack" });
-            // Prefer the real GitHub link when one exists; five of six
-            // projects have one. The Canonical Journey Library doesn't (it
-            // lives at /lab/journeys, not a separate repo) - falling back to
-            // its own first link rather than fabricating a GitHub URL.
-            const action = project.links.find((l) => l.href.includes("github.com")) ?? project.links[0];
-            const external = action.href.startsWith("http");
-            return (
-              <Reveal key={project.slug} delay={i * 60}>
-                <article className="flex h-full flex-col overflow-hidden rounded-[28px] border border-line">
-                  <div
-                    className="overflow-hidden rounded-2xl p-5 sm:p-6 [&>div]:!shadow-none"
-                    style={{ backgroundColor: LAB_PANEL_COLOR[project.slug] ?? "#152049" }}
-                  >
-                    {preview}
-                  </div>
-                  <div className="flex flex-1 flex-col p-6 sm:p-7">
-                    <h3 className="text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
-                    <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-ink-600">
-                      {withJourneyCount(project.desc)}
-                    </p>
-                    <a
-                      href={action.href}
-                      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-                      className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-[#1f9d70] px-4 py-2 text-sm font-medium text-[#1f9d70] transition-colors hover:bg-[#1f9d70]/10"
-                    >
-                      {action.label}
-                    </a>
-                  </div>
-                </article>
-              </Reveal>
-            );
-          })}
+        <div className="mt-14 grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+          {t.lab.projects.map((project, i) => (
+            <Reveal key={project.slug} delay={i * 60}>
+              <LabPlate project={project} />
+            </Reveal>
+          ))}
         </div>
 
-        <Reveal delay={t.lab.projects.length * 60 + 40}>
-          <Link
-            href={t.nav.labHref}
-            className="mt-14 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
+        <Reveal delay={t.lab.projects.length * 60 + 40} className="mt-14">
+          <ButtonLink href={t.nav.labHref} variant="outline" size="md">
             {t.home.labMore}
-            <ArrowRight aria-hidden className="size-3.5" />
-          </Link>
+            <ArrowRight aria-hidden className="size-4" />
+          </ButtonLink>
         </Reveal>
       </div>
     </section>
@@ -398,7 +393,7 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           title={t.home.calc.title}
           intro={t.home.calc.intro}
         />
-        <p className="mt-6 font-mono text-sm text-ink-500">
+        <p className="mt-6 text-sm text-ink-500">
           <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
         </p>
 
@@ -424,27 +419,49 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   );
 }
 
+/* THE CLOSING PLATE. Every page ends on this, so it is a site-wide
+   surface (seven callers), changed on Hulusi's ask (2026-09-05: the global
+   CTA "does not have any bg and effect on it").
+
+   What it was: a flat ink-950 slab with white type - the retired dark
+   stage. Two answers were rendered and rejected the same day: a
+   photographic sky with a slow drift ("I really didn't like the cloud
+   background effect"), then a blue-50 band with the journey library on a
+   marquee. Hulusi picked this one from three rendered candidates.
+
+   The plate is the calculator's answer plate: the primary button's own
+   bg-primary-600 ground, rounded, inside the container, and it answers
+   the same way - the pixel wavefront (ui/PixelField.tsx) sweeps across it
+   once as it scrolls into view and again when the pointer enters it
+   (ui/CtaBurst.tsx). Clean at rest, like the answer plate: no ambient
+   texture ever, the pixel language fires only as an event. `data-tone`
+   dark flips the email button to its white plate and the LinkedIn ghost
+   to the dark-ground ring. */
 export function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   return (
-    <section id="contact" data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
-      <div className="altor-container text-center">
+    <section id="contact" className="bg-paper py-20 md:py-28">
+      <div className="altor-container">
         <Reveal>
-          <h2 className="mx-auto max-w-2xl text-[clamp(1.75rem,1.15rem+2.4vw,2.875rem)] leading-[1.08] text-white">
-            {t.finalCta.title}
-          </h2>
-          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-white/75">{t.finalCta.body}</p>
-        </Reveal>
-        <Reveal delay={120} className="mt-9">
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
-              {t.finalCta.button}
-            </ButtonLink>
-            <ButtonLink href={LINKEDIN} variant="ghost" size="md">
-              <span className="flex items-center gap-2">
-                {t.finalCta.linkedin}
-                <ArrowUpRight aria-hidden className="size-4" />
-              </span>
-            </ButtonLink>
+          <div
+            data-tone="dark"
+            className="relative isolate overflow-hidden rounded-[28px] bg-primary-600 px-6 py-16 text-center sm:px-12 md:py-24"
+          >
+            <CtaBurst />
+            <h2 className="mx-auto max-w-2xl text-[clamp(1.75rem,1.15rem+2.4vw,2.875rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance text-white">
+              {t.finalCta.title}
+            </h2>
+            <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-pretty text-white/75">{t.finalCta.body}</p>
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
+                {t.finalCta.button}
+              </ButtonLink>
+              <ButtonLink href={LINKEDIN} variant="outlineInverted" size="md">
+                <span className="flex items-center gap-2">
+                  {t.finalCta.linkedin}
+                  <ArrowUpRight aria-hidden className="size-4" />
+                </span>
+              </ButtonLink>
+            </div>
           </div>
         </Reveal>
       </div>
@@ -568,7 +585,7 @@ export default function Site({ lang }: { lang: Lang }) {
             now - components kept below, just not rendered. Re-add
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
-        <Lab t={t} lang={lang} />
+        <Lab t={t} />
         <Calculators t={t} lang={lang} />
         <StackShowcase lang={lang} />
         <FinalCta t={t} />
