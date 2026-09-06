@@ -76,7 +76,7 @@ import {
   Window,
 } from "@/components/ui/LabWindow";
 import { AB004_TEXT } from "@/components/ui/LabPreviews";
-import { PATTERNS, PatternFlowCard, type Pattern } from "@/components/ui/PatternFlow";
+import { PATTERNS, type Pattern } from "@/components/ui/PatternFlow";
 import { AB_SCALE, FEATURED, SURFACE_COUNTS, canvasRows } from "@/lib/ab-test-marketing";
 import { AB_CATEGORIES, AB_TEST_COUNT, surfaceLabel } from "@/lib/ab-test-view";
 import { JOURNEY_ROWS, type JourneyRow } from "@/lib/canonical-view";
@@ -164,45 +164,57 @@ const T = {
 
 /* ------------------------------------------------------ HERO PANELS */
 
-/** The builder: its three real pattern blueprints side by side, the way
-    the knowledge base holds them. One card below md, where three would
-    each be a sliver. */
+/** The builder tab: the canvas with its pattern rail and inspector - the
+    same surface as the deck's window, inside the showcase's own frame.
+    The hero section centres its type, so the panel sets text-left. */
 function PatternBoardPanel({ lang }: { lang: Lang }) {
-  const t = T[lang];
   return (
-    <div className="h-full bg-paper-soft/70 p-4 sm:p-5">
-      <div className="mb-3 flex items-center justify-between gap-3 text-[12px] text-ink-500">
-        <span>{t.patternSource}</span>
-        <span>{t.patternTable}</span>
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {PATTERNS.map((pattern, i) => (
-          <div key={pattern.trigger} className={i > 0 ? "hidden md:block" : ""}>
-            <PatternFlowCard pattern={pattern} lang={lang} />
-          </div>
-        ))}
-      </div>
+    <div className="h-full text-left">
+      <BuilderBody lang={lang} />
     </div>
   );
 }
 
-/** The library: its largest graph, under its own id, name, category and
-    node count - the detail page's facts, in a caption row. */
+/** The library tab: the browser with its largest journey open - the
+    page's real search field and goal select in the app bar, the goals
+    with their live counts in the rail, and the journey's own facts over
+    its graph, drawn by the same layout engine as the detail page. */
 function LibraryGraphPanel({ journey, lang }: { journey: HeroJourney; lang: Lang }) {
   const t = T[lang];
+  const w = WT[lang];
+  const p = copy[lang].lab.page;
+  const shown = GOAL_COUNTS.slice(0, 9);
+  const rest = GOAL_COUNTS.length - shown.length;
   return (
-    <div className="flex h-full flex-col px-4 pt-4 sm:px-6 sm:pt-5">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px]">
-        <span className="text-ink-400">{journey.id}</span>
-        <span className="font-medium text-ink-950">{journey.shortName ?? journey.name}</span>
-        <span className="rounded-pill bg-primary-50 px-2 py-0.5 text-[12px] font-medium text-primary-700">
-          {journey.categoryTitle}
+    <div className="flex h-full flex-col text-left">
+      <AppBar>
+        <SearchField placeholder={p.searchPlaceholder} className="flex-1" />
+        <SelectField value={p.allGoals} className="hidden sm:flex" />
+        <span className="hidden shrink-0 text-[12px] text-ink-500 tabular-nums sm:block">
+          {JOURNEY_ROWS.length} {p.results}
         </span>
-        <span className="text-ink-500 tabular-nums">{t.nodes(journey.nodeCount)}</span>
-      </div>
-      <div className="mt-4 min-h-0 flex-1">
-        <div className="aspect-[1000/440] w-full">
-          <JourneyTopologyPreview preview={journey.preview} />
+      </AppBar>
+      <div className="flex min-h-0 flex-1">
+        <Rail
+          title={p.goalLabel}
+          items={[
+            ...shown.map((g) => ({ label: GOAL_LABEL[g.goal][lang], count: g.count })),
+            ...(rest > 0 ? [{ label: w.more(rest), muted: true }] : []),
+          ]}
+          className="hidden w-52 md:block"
+        />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-line-soft px-4 py-2.5 text-[12px] sm:px-5">
+            <span className="text-ink-500 tabular-nums">{journey.id}</span>
+            <span className="text-[13px] font-semibold text-ink-950">{journey.shortName ?? journey.name}</span>
+            <Badge hue="primary">{journey.categoryTitle}</Badge>
+            <span className="ml-auto text-ink-500 tabular-nums">{t.nodes(journey.nodeCount)}</span>
+          </div>
+          <div className="min-h-0 flex-1 px-4 pt-4 sm:px-5">
+            <div className="aspect-[1000/440] w-full">
+              <JourneyTopologyPreview preview={journey.preview} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -283,30 +295,12 @@ function PlaybookPanel({ lang }: { lang: Lang }) {
   );
 }
 
-/** The dashboard builder: its 11 templates, each with the question it
-    answers - the README's own table, two columns. */
+/** The dashboard builder tab: the pipeline and its comparability check -
+    the same surface as the deck's window, inside the showcase's frame. */
 function TemplatesPanel({ lang }: { lang: Lang }) {
-  const t = T[lang];
-  const templates = DASHBOARD_REAL.templates;
   return (
-    <div className="h-full px-4 py-4 sm:px-6 sm:py-5">
-      <div className="flex items-center justify-between gap-3 text-[12px]">
-        <span className="font-medium text-ink-950">{t.templatesCaption}</span>
-        <span className="text-ink-500 tabular-nums">{t.templates(templates.length)}</span>
-      </div>
-      <div className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-        {templates.map((tpl) => (
-          <div key={tpl.id} className="flex items-start gap-2.5 rounded-lg bg-paper-soft px-3 py-2">
-            <span className="mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-ink-950 text-[12px] font-semibold text-white">
-              {tpl.id}
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-[12.5px] font-medium text-ink-900">{tpl[lang]}</p>
-              <p className="line-clamp-2 text-[12px] leading-snug text-ink-500">{tpl.q[lang]}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="h-full text-left">
+      <DashboardBody lang={lang} />
     </div>
   );
 }
@@ -436,30 +430,32 @@ export function ChangeTable({
   );
 }
 
-/** Numerspace: all 13 categories with their real counts and one real
-    tool each. The featured eight sit on tint, the rest on paper - the
-    same split the project page makes. */
+/** The Numerspace tab: the site's 13 categories with their real counts
+    in a rail, the Health & Fitness one open, and the calculator page
+    beside it - the same page the deck's window shows. */
 function CategoriesPanel({ lang }: { lang: Lang }) {
   const t = T[lang];
   const cats = NUMERSPACE_REAL.categories;
-  const total = cats.reduce((sum, c) => sum + c.count, 0);
   return (
-    <div className="h-full px-4 py-4 sm:px-6 sm:py-5">
-      <div className="flex items-center justify-between gap-3 text-[12px]">
-        <span className="font-medium text-ink-950">numerspace.com</span>
-        <span className="text-ink-500 tabular-nums">
-          {t.calculators(total)} · {cats.length} {t.categoriesWord}
-        </span>
+    <div className="flex h-full text-left">
+      <Rail
+        title={t.categories}
+        items={cats.map((c) => ({ label: c[lang], count: c.count, active: c.en === "Health & Fitness" }))}
+        className="hidden w-56 md:block"
+      />
+      <div className="min-w-0 flex-1">
+        <NumerspaceBody lang={lang} />
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-        {cats.map((c) => (
-          <div key={c.en} className={`rounded-lg px-3 py-2.5 ${c.featured ? "bg-paper-soft" : "bg-paper shadow-hairline"}`}>
-            <p className="truncate text-[12.5px] font-medium text-ink-900">{c[lang]}</p>
-            <p className="mt-0.5 text-[12px] text-ink-500 tabular-nums">{t.calculators(c.count)}</p>
-            <p className="mt-1 truncate text-[12px] text-ink-400">{c.ex[lang][0]}</p>
-          </div>
-        ))}
-      </div>
+    </div>
+  );
+}
+
+/** The explorer tab: the dashboard the tool writes, light, inside the
+    showcase's frame. */
+function ExplorerPanel({ lang }: { lang: Lang }) {
+  return (
+    <div className="h-full text-left">
+      <ExplorerBody lang={lang} tone="light" />
     </div>
   );
 }
@@ -476,7 +472,7 @@ export function LabHeroPanel({ slug, lang, journey }: { slug: string; lang: Lang
     case "dashboard-builder":
       return <TemplatesPanel lang={lang} />;
     case "google-ads-change-history-dashboard":
-      return <ChangeTable lang={lang} />;
+      return <ExplorerPanel lang={lang} />;
     case "numerspace":
       return <CategoriesPanel lang={lang} />;
     default:
@@ -713,52 +709,62 @@ function BuilderCanvas({ pattern, lang, selected, wide = false }: { pattern: Pat
   );
 }
 
-/** The builder as its canvas: the pattern rail on the left, the
+/** The builder's working surface: the pattern rail on the left, one
     blueprint drawn as nodes on a dotted canvas, and the inspector open
-    on step 1. Three panes above md, the canvas alone below it. */
-export function BuilderWindow({ lang, pattern: patternIndex = 0 }: { lang: Lang; pattern?: number }) {
+    on step 1. Three panes above md, the canvas alone below it. Shared
+    by the deck window and the hero panel. */
+function BuilderBody({ lang, pattern: patternIndex = 0 }: { lang: Lang; pattern?: number }) {
   const w = WT[lang];
   const pattern = PATTERNS[patternIndex] ?? PATTERNS[0];
   const selected = pattern.steps[0];
   const SelectedIcon = CHANNEL_ICON[selected.channel];
+  return (
+    <div className="flex">
+      <Rail
+        title={w.patterns}
+        icon={<Workflow aria-hidden />}
+        items={PATTERNS.map((p) => ({ label: p.name[lang], count: p.steps.length, active: p === pattern, icon: <GitBranch aria-hidden /> }))}
+        className="hidden w-48 sm:block"
+      />
+
+      <BuilderCanvas pattern={pattern} lang={lang} selected={selected} />
+
+      <aside className="hidden w-48 shrink-0 border-l border-line-soft md:block">
+        <RailTitle>
+          {w.step} 1
+        </RailTitle>
+        <div className="px-3.5 pb-3">
+          <span className={clsx("inline-flex h-6 items-center gap-1.5 rounded px-1.5 text-[12px] font-medium", CHANNEL_TILE[selected.channel])}>
+            <SelectedIcon aria-hidden className="size-3" />
+            {CHANNEL_NAME[selected.channel]}
+          </span>
+          <KeyValues
+            className="mt-2.5"
+            rows={[
+              [w.wait, <span key="w" className="font-mono text-[12.5px] tabular-nums">{selected.wait}</span>],
+              [w.intent, selected.intent],
+              [w.branch, selected.branch ?? w.none],
+            ]}
+          />
+        </div>
+        <RailTitle>{w.exit}</RailTitle>
+        <p className="px-3.5 pb-3 text-[12.5px] font-medium text-emerald-700">{pattern.exit[lang]}</p>
+      </aside>
+    </div>
+  );
+}
+
+/** The builder as its canvas, framed - the deck's window. */
+export function BuilderWindow({ lang, pattern: patternIndex = 0 }: { lang: Lang; pattern?: number }) {
+  const w = WT[lang];
+  const pattern = PATTERNS[patternIndex] ?? PATTERNS[0];
   return (
     <Window
       label={patternIndex === 0 ? w.labels.builder : w.labels.builderPattern(pattern.name[lang], pattern.steps.length)}
       address="claude-lifecycle · demo/journey-canvas.html"
       meta={w.steps(pattern.steps.length)}
     >
-      <div className="flex">
-        <Rail
-          title={w.patterns}
-          icon={<Workflow aria-hidden />}
-          items={PATTERNS.map((p) => ({ label: p.name[lang], count: p.steps.length, active: p === pattern, icon: <GitBranch aria-hidden /> }))}
-          className="hidden w-48 sm:block"
-        />
-
-        <BuilderCanvas pattern={pattern} lang={lang} selected={selected} />
-
-        <aside className="hidden w-48 shrink-0 border-l border-line-soft md:block">
-          <RailTitle>
-            {w.step} 1
-          </RailTitle>
-          <div className="px-3.5 pb-3">
-            <span className={clsx("inline-flex h-6 items-center gap-1.5 rounded px-1.5 text-[12px] font-medium", CHANNEL_TILE[selected.channel])}>
-              <SelectedIcon aria-hidden className="size-3" />
-              {CHANNEL_NAME[selected.channel]}
-            </span>
-            <KeyValues
-              className="mt-2.5"
-              rows={[
-                [w.wait, <span key="w" className="font-mono text-[12.5px] tabular-nums">{selected.wait}</span>],
-                [w.intent, selected.intent],
-                [w.branch, selected.branch ?? w.none],
-              ]}
-            />
-          </div>
-          <RailTitle>{w.exit}</RailTitle>
-          <p className="px-3.5 pb-3 text-[12.5px] font-medium text-emerald-700">{pattern.exit[lang]}</p>
-        </aside>
-      </div>
+      <BuilderBody lang={lang} pattern={patternIndex} />
     </Window>
   );
 }
@@ -931,8 +937,9 @@ const TONE_HUE: Record<string, BadgeTone> = { emerald: "emerald", sky: "sky", am
 /** The dashboard builder at work: its six-stage pipeline in the rail,
     stopped at the comparability engine, and that engine's check - the
     four classes with their rule and example, then the refusal it makes
-    in the README's own worked case. */
-export function DashboardWindow({ lang }: { lang: Lang }) {
+    in the README's own worked case. Shared by the deck window and the
+    hero panel. */
+function DashboardBody({ lang }: { lang: Lang }) {
   const w = WT[lang];
   const D = DASHBOARD_REAL;
   const activeStage = 3;
@@ -941,65 +948,73 @@ export function DashboardWindow({ lang }: { lang: Lang }) {
     state: (i < activeStage ? "done" : i === activeStage ? "active" : "todo") as StepState,
   }));
   return (
-    <Window label={w.labels.dashboard} address="dashboard-builder" meta={w.templates(D.templates.length)}>
-      <div className="flex">
-        <Rail title={w.pipeline} className="hidden w-48 md:block">
-          <div className="px-3.5 pb-3">
-            <Stepper steps={steps} />
-          </div>
-          <RailTitle>{w.outputs}</RailTitle>
-          <div className="flex flex-wrap gap-1 px-3.5 pb-3.5">
-            {D.pipelineOutputs.map((o) => (
-              <Chip key={o.en}>{o[lang]}</Chip>
+    <div className="flex">
+      <Rail title={w.pipeline} className="hidden w-48 md:block">
+        <div className="px-3.5 pb-3">
+          <Stepper steps={steps} />
+        </div>
+        <RailTitle>{w.outputs}</RailTitle>
+        <div className="flex flex-wrap gap-1 px-3.5 pb-3.5">
+          {D.pipelineOutputs.map((o) => (
+            <Chip key={o.en}>{o[lang]}</Chip>
+          ))}
+        </div>
+      </Rail>
+      <div className="min-w-0 flex-1">
+        <AppBar>
+          <span className="text-[12px] font-medium text-ink-950">{w.check}</span>
+          <Badge hue="emerald" dot>
+            {D.pipeline[activeStage][lang]}
+          </Badge>
+          <span className="ml-auto shrink-0 text-[12px] text-ink-500 tabular-nums">{w.classes(D.comparabilityStates.length)}</span>
+        </AppBar>
+        <Table>
+          <thead>
+            <tr>
+              <Th>{w.cls}</Th>
+              <Th>{w.rule}</Th>
+              <Th className="hidden w-[36%] lg:table-cell">{w.example}</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {D.comparabilityStates.map((s) => (
+              <Tr key={s.id}>
+                <Td className="align-top whitespace-nowrap">
+                  <Badge hue={TONE_HUE[s.tone] ?? "neutral"}>{codeLabel(s.id)}</Badge>
+                </Td>
+                <Td className="align-top text-[12px] leading-snug text-ink-800">{s[lang]}</Td>
+                <Td className="hidden max-w-[16rem] align-top text-[12px] leading-snug text-ink-500 lg:table-cell">{s.example[lang]}</Td>
+              </Tr>
             ))}
-          </div>
-        </Rail>
-        <div className="min-w-0 flex-1">
-          <AppBar>
-            <span className="text-[12px] font-medium text-ink-950">{w.check}</span>
-            <Badge hue="emerald" dot>
-              {D.pipeline[activeStage][lang]}
+          </tbody>
+        </Table>
+        <div className="border-t border-line-soft bg-rose-50/40 px-3 py-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge hue="rose" dot>
+              {w.refused}
             </Badge>
-            <span className="ml-auto shrink-0 text-[12px] text-ink-500 tabular-nums">{w.classes(D.comparabilityStates.length)}</span>
-          </AppBar>
-          <Table>
-            <thead>
-              <tr>
-                <Th>{w.cls}</Th>
-                <Th>{w.rule}</Th>
-                <Th className="hidden w-[36%] lg:table-cell">{w.example}</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {D.comparabilityStates.map((s) => (
-                <Tr key={s.id}>
-                  <Td className="align-top whitespace-nowrap">
-                    <Badge hue={TONE_HUE[s.tone] ?? "neutral"}>{codeLabel(s.id)}</Badge>
-                  </Td>
-                  <Td className="align-top text-[12px] leading-snug text-ink-800">{s[lang]}</Td>
-                  <Td className="hidden max-w-[16rem] align-top text-[12px] leading-snug text-ink-500 lg:table-cell">{s.example[lang]}</Td>
-                </Tr>
-              ))}
-            </tbody>
-          </Table>
-          <div className="lab-deck-trim border-t border-line-soft bg-rose-50/40 px-3 py-2.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge hue="rose" dot>
-                {w.refused}
-              </Badge>
-              <span className="text-[12px] font-medium text-ink-700">{D.refusalExample.rule[lang]}</span>
-            </div>
-            <p className="mt-1.5 text-[12px] leading-snug text-ink-600">
-              <span className="text-ink-400">{w.asked}: </span>
-              {D.refusalExample.asked[lang]}
-            </p>
-            <p className="mt-0.5 text-[12px] leading-snug text-ink-600">
-              <span className="text-ink-400">{w.fix}: </span>
-              {D.refusalExample.fix[lang]}
-            </p>
+            <span className="text-[12px] font-medium text-ink-700">{D.refusalExample.rule[lang]}</span>
           </div>
+          <p className="mt-1.5 text-[12px] leading-snug text-ink-600">
+            <span className="text-ink-400">{w.asked}: </span>
+            {D.refusalExample.asked[lang]}
+          </p>
+          <p className="mt-0.5 text-[12px] leading-snug text-ink-600">
+            <span className="text-ink-400">{w.fix}: </span>
+            {D.refusalExample.fix[lang]}
+          </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** The dashboard builder's check, framed - the deck's window. */
+export function DashboardWindow({ lang }: { lang: Lang }) {
+  const w = WT[lang];
+  return (
+    <Window label={w.labels.dashboard} address="dashboard-builder" meta={w.templates(DASHBOARD_REAL.templates.length)}>
+      <DashboardBody lang={lang} />
     </Window>
   );
 }
@@ -1019,46 +1034,49 @@ const EXPLORER_CATEGORIES = CHANGE_HISTORY_REAL.explorerRows.reduce<{ category: 
 /** The explorer as the dashboard the tool writes: its section tabs with
     the Change Explorer open, the Filters rail (both accounts checked,
     the category chips, Rule Matches off - the shipped default - over its
-    thresholds), and the change table. Dark, for the deck's dark card. */
-export function ExplorerWindow({ lang }: { lang: Lang }) {
+    thresholds), and the change table. Light in the hero window, dark on
+    the deck's dark card; every class string literal per tone. */
+function ExplorerBody({ lang, tone = "light" }: { lang: Lang; tone?: "light" | "dark" }) {
   const w = WT[lang];
   const R = CHANGE_HISTORY_REAL;
+  const dark = tone === "dark";
+  const label = dark ? "text-[12px] font-medium text-white/50" : "text-[12px] font-medium text-ink-500";
   return (
-    <Window label={w.labels.explorer} address="dashboard.html" tone="dark" meta={`${w.changes(R.totalChanges)} · ${R.period[lang]}`}>
-      <TabStrip tone="dark" items={EXPLORER_TABS} active="Change Explorer" />
+    <>
+      <TabStrip tone={tone} items={EXPLORER_TABS} active="Change Explorer" />
       <div className="flex">
-        <Rail tone="dark" title={w.filters} icon={<Filter aria-hidden />} className="hidden w-52 md:block">
+        <Rail tone={tone} title={w.filters} icon={<Filter aria-hidden />} className="hidden w-52 md:block">
           <div className="px-3.5 pb-3">
-            <p className="text-[12px] font-medium text-white/50">{w.account}</p>
+            <p className={label}>{w.account}</p>
             <ul className="mt-1 flex list-none flex-col p-0">
               {R.accountActivity.map((a) => (
-                <li key={a.account} className="flex items-center justify-between gap-2 py-1 text-[12px] text-white/75">
+                <li key={a.account} className={clsx("flex items-center justify-between gap-2 py-1 text-[12px]", dark ? "text-white/75" : "text-ink-700")}>
                   <span className="flex items-center gap-2">
                     <span aria-hidden className="grid size-3.5 place-items-center rounded-[3px] bg-primary-500 text-white">
                       <Check aria-hidden className="size-2.5" strokeWidth={3} />
                     </span>
                     {a.account}
                   </span>
-                  <Count tone="dark">{a.count}</Count>
+                  <Count tone={tone}>{a.count}</Count>
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-[12px] font-medium text-white/50">{w.category}</p>
+            <p className={clsx("mt-3", label)}>{w.category}</p>
             <div className="mt-1.5 flex flex-wrap gap-1">
               {EXPLORER_CATEGORIES.map((c) => (
-                <Chip key={c.category} tone="dark">
+                <Chip key={c.category} tone={tone}>
                   {c.category}
-                  <Count tone="dark">{c.count}</Count>
+                  <Count tone={tone}>{c.count}</Count>
                 </Chip>
               ))}
             </div>
-            <p className="mt-3 text-[12px] font-medium text-white/50">{w.ruleMatches}</p>
+            <p className={clsx("mt-3", label)}>{w.ruleMatches}</p>
             <div className="mt-1.5">
-              <Toggle tone="dark" on={false} label={w.thresholds} />
+              <Toggle tone={tone} on={false} label={w.thresholds} />
             </div>
             <ul className="mt-1.5 flex list-none flex-col gap-0.5 p-0">
               {R.magnitudeRules.map((r) => (
-                <li key={r.label.en} className="flex items-center justify-between gap-2 text-[12px] text-white/50">
+                <li key={r.label.en} className={clsx("flex items-center justify-between gap-2 text-[12px]", dark ? "text-white/50" : "text-ink-500")}>
                   <span className="truncate">{r.label[lang]}</span>
                   <span className="font-mono tabular-nums">±{r.value}%</span>
                 </li>
@@ -1067,25 +1085,37 @@ export function ExplorerWindow({ lang }: { lang: Lang }) {
           </div>
         </Rail>
         <div className="min-w-0 flex-1">
-          <ChangeTable lang={lang} tone="dark" trim trimFrom={4} bare />
+          <ChangeTable lang={lang} tone={tone} trim={dark} trimFrom={4} bare />
         </div>
       </div>
+    </>
+  );
+}
+
+/** The explorer's dashboard, framed and dark - the deck's window. */
+export function ExplorerWindow({ lang }: { lang: Lang }) {
+  const w = WT[lang];
+  const R = CHANGE_HISTORY_REAL;
+  return (
+    <Window label={w.labels.explorer} address="dashboard.html" tone="dark" meta={`${w.changes(R.totalChanges)} · ${R.period[lang]}`}>
+      <ExplorerBody lang={lang} tone="dark" />
     </Window>
   );
 }
 
-/** Numerspace as the calculator page itself, the way numerspace.com
-    lays it out: the site's nav row, the breadcrumb, the category badge
-    and title, the gender segments, the four inputs with the example's
-    values in them, the goal segments, then BMR and the result. */
-export function NumerspaceWindow({ lang }: { lang: Lang }) {
+/** Numerspace's calculator page, the way numerspace.com lays it out: the
+    site's nav row, the breadcrumb, the category badge and title, the
+    gender segments, the four inputs with the example's values in them,
+    the goal segments, then BMR and the result. Shared by the deck window
+    and the hero panel. */
+function NumerspaceBody({ lang }: { lang: Lang }) {
   const w = WT[lang];
   const c = NUMERSPACE_REAL.calorie;
   const category = NUMERSPACE_REAL.categories.find((x) => x.en === "Health & Fitness");
   const value = (input: (typeof c.inputs)[number]) => (typeof input.value === "string" ? input.value : input.value[lang]);
   const [gender, age, height, weight, activity] = c.inputs;
   return (
-    <Window label={w.labels.numerspace} address="www.numerspace.com" meta={category?.[lang]} className="mx-auto w-full max-w-[30rem]">
+    <>
       <div className="flex items-center gap-3 border-b border-line-soft px-3.5 py-2">
         <span className="text-[12px] font-bold tracking-tight text-ink-950">NumerSpace</span>
         <span className="flex items-center gap-1 text-[12px] text-ink-700">
@@ -1125,7 +1155,7 @@ export function NumerspaceWindow({ lang }: { lang: Lang }) {
           <Field label={activity.label[lang]} value={value(activity)} select />
         </div>
 
-        <div className="lab-deck-trim mt-3">
+        <div className="mt-3">
           <FormLabel>{w.goal}</FormLabel>
           <Segmented options={w.goals} active={w.goals[1]} className="mt-1.5" />
         </div>
@@ -1139,6 +1169,17 @@ export function NumerspaceWindow({ lang }: { lang: Lang }) {
           <p className="mt-0.5 text-[17px] font-semibold text-white tabular-nums">{c.result[lang]}</p>
         </div>
       </div>
+    </>
+  );
+}
+
+/** The calculator page, framed - the deck's window. */
+export function NumerspaceWindow({ lang }: { lang: Lang }) {
+  const w = WT[lang];
+  const category = NUMERSPACE_REAL.categories.find((x) => x.en === "Health & Fitness");
+  return (
+    <Window label={w.labels.numerspace} address="www.numerspace.com" meta={category?.[lang]} className="mx-auto w-full max-w-[30rem]">
+      <NumerspaceBody lang={lang} />
     </Window>
   );
 }
