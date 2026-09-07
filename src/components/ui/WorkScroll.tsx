@@ -14,8 +14,11 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
    reach the line, and the active row is the last one whose top has passed
    mid-viewport - so the final card is reachable and stays. Round three
    (Hulusi: "the first three images change in a very small scroll"): on
-   lg every row is at least 62vh tall with its text centred, so each card
-   holds for most of a screen of scrolling before the next one takes over.
+   lg every row is at least 48vh tall with its text centred, so each card
+   holds for about half a screen of scrolling before the next one takes
+   over (62vh was tried and read as rows too far apart). Round four: the
+   panel pins at the vertical centre of the viewport (top = 50vh minus half
+   its height), not near the header.
 
    The rows and cards are server-rendered nodes handed in as props - this
    component only decides which one is active. Nothing here depends on
@@ -62,7 +65,7 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
               refs.current[i] = el;
             }}
             data-active={i === active}
-            className="border-t border-line py-8 transition-opacity duration-[var(--duration-fast)] first:border-t-0 first:pt-0 last:pb-0 lg:flex lg:min-h-[62vh] lg:flex-col lg:justify-center lg:py-10 lg:data-[active=false]:opacity-45 motion-reduce:transition-none"
+            className="border-t border-line py-8 transition-opacity duration-[var(--duration-fast)] first:border-t-0 first:pt-0 last:pb-0 lg:flex lg:min-h-[48vh] lg:flex-col lg:justify-center lg:py-10 lg:data-[active=false]:opacity-45 motion-reduce:transition-none"
           >
             {row}
             {/* Below lg the card travels with its row. `group` + data-on
@@ -75,7 +78,7 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
         ))}
       </ol>
       <div className="hidden lg:block">
-        <div className="relative min-h-[28rem] lg:sticky lg:top-28">
+        <div className="relative min-h-[28rem] lg:sticky lg:top-[calc(50vh-14rem)]">
           {panels.map((panel, i) => (
             <div
               key={i}
