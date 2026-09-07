@@ -10,8 +10,15 @@ import { PixelBurst } from "@/components/ui/PixelField";
    the pointer enters it. Same grain, same neutral-900, same sweep; the
    burst's own throttle absorbs a pulse that lands mid-flight, so a jittery
    pointer at the edge reads as one sweep, not a strobe. Nothing runs
-   under reduced motion (PixelBurst returns before scheduling a frame). */
-export function CtaBurst() {
+   under reduced motion (PixelBurst returns before scheduling a frame).
+
+   Since 2026-09-07 (Hulusi: "apply that pixel effect on the other images
+   also") the same layer sits over every photographed plate on the site -
+   ProductFrame, the hero meadow, the Tools band, the closing section - so
+   a photograph arrives the way the plate does. `className` lets the
+   caller place it above an image inside a masked layer (`z-0`) instead of
+   the default `-z-10` under a plate's content. */
+export function CtaBurst({ className = "-z-10" }: { className?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [pulse, setPulse] = useState(0);
 
@@ -50,7 +57,7 @@ export function CtaBurst() {
   }, []);
 
   return (
-    <div ref={ref} aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+    <div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 ${className}`}>
       <PixelBurst pulse={pulse} />
     </div>
   );

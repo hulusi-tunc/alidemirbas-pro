@@ -101,7 +101,7 @@ function Node({ tint, icon, children, className = "" }: { tint: string; icon: Re
 
 /** A journey as the library defines one: trigger, a step with its wait, the
     condition, the two kinds of exit. Real node kinds, no words. */
-function JourneyCard({ proof }: { proof: string }) {
+export function JourneyCard({ proof }: { proof: string }) {
   return (
     <Card>
       <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ function ChangeLogCard({ lang }: { lang: Lang }) {
 
 /** The A/B pair: the same cart twice, the coupon field in A, the link in B,
     the tested element ringed. */
-function AbCard({ proof }: { proof: string }) {
+export function AbCard({ proof }: { proof: string }) {
   return (
     <Card>
       <div className="grid grid-cols-2 gap-3">

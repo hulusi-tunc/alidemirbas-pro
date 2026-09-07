@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 import { ButtonLink } from "./Button";
+import { CtaBurst } from "./CtaBurst";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./Section";
 import { copy, type Lang } from "@/lib/content";
@@ -43,6 +44,7 @@ export function StackShowcase({ lang }: { lang: Lang }) {
           the field, frosted the way the hero tiles are. */}
       <div aria-hidden className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_8%,black_55%)]">
         <Image src="/lab/frames/claude-lifecycle.jpg" alt="" fill sizes="100vw" className="object-cover object-bottom" />
+        <CtaBurst className="z-0" />
       </div>
       <div className="altor-container">
         <SectionHeading eyebrow={t.stack.eyebrow} title={t.stack.homeTitle} intro={t.stack.homeIntro} />

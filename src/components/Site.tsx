@@ -14,6 +14,7 @@ import { SectionHeading } from "@/components/ui/Section";
 import { BioTrack } from "@/components/ui/BioTrack";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
+import { HomeCta } from "@/components/HomeCta";
 import { Work } from "@/components/HomeWork";
 import { withJourneyCount } from "@/lib/archive";
 import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
@@ -244,6 +245,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           behind the statement as the same wash. */}
       <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-[44rem] [mask-image:linear-gradient(to_bottom,transparent_6%,black_58%)] md:inset-0 md:h-auto">
         <Image src="/lab/hero-meadow.jpg" alt="" fill sizes="100vw" priority className="object-cover object-bottom" />
+        <CtaBurst className="z-0" />
       </div>
       <div className="altor-container">
         <Reveal delay={60}>
@@ -649,7 +651,7 @@ export default function Site({ lang }: { lang: Lang }) {
             t={t} /> here to bring any of them back. */}
         <Calculators t={t} lang={lang} />
         <StackShowcase lang={lang} />
-        <FinalCta t={t} />
+        <HomeCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />
     </>
