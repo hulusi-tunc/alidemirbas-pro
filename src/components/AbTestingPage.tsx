@@ -97,7 +97,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             <h1 className="text-h1 text-ink-950">{c.title}</h1>
           </Reveal>
           <Reveal delay={90} className="mt-6">
-            <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
+            <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-muted">{c.sub}</p>
           </Reveal>
           <Reveal delay={140} className="mt-9 flex justify-center">
             <ButtonLink href={libraryHref(lang)} variant="primary" size="md">
@@ -260,7 +260,7 @@ function HowItWorks({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
         </div>
         {/* the third step's honest follow-through: run it on real numbers */}
         <Reveal delay={120} className="mt-12 flex flex-col items-center gap-4 text-center">
-          <p className="max-w-xl text-[15px] leading-relaxed text-ink-950/65">{h.step3.note}</p>
+          <p className="max-w-xl text-base leading-relaxed text-ink-muted">{h.step3.note}</p>
           <StatCalculatorLinks lang={lang} />
         </Reveal>
       </PortraitContainer>
@@ -286,7 +286,7 @@ function Rules({ t }: { t: (typeof copy)[Lang] }) {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="text-base font-medium tracking-tight text-ink-950">{r.title}</h3>
-                <p className="max-w-2xl text-[15px] leading-relaxed text-ink-950/65">{r.desc}</p>
+                <p className="max-w-2xl text-base leading-relaxed text-ink-muted">{r.desc}</p>
               </div>
             </Reveal>
           ))}

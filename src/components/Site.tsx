@@ -299,7 +299,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           </h1>
         </Reveal>
         <Reveal delay={120}>
-          <p className="mx-auto mt-6 max-w-3xl text-center text-xl leading-relaxed text-pretty text-ink-700">{t.hero.lead}</p>
+          <p className="mx-auto mt-6 max-w-3xl text-center text-lg leading-relaxed text-pretty text-ink-muted">{t.hero.lead}</p>
         </Reveal>
         <Reveal delay={180} className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
@@ -427,7 +427,7 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
             2026-09-07) and seven roles need the whole measure. */}
         <SectionHeading eyebrow={t.about.eyebrow} title={t.home.bio.title} />
         <Reveal className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
-          <p className="max-w-[48ch] text-lg leading-relaxed text-pretty text-ink-600">{t.about.teaserLead}</p>
+          <p className="max-w-[48ch] text-lg leading-relaxed text-pretty text-ink-muted">{t.about.teaserLead}</p>
           <div className="shrink-0">
             <ButtonLink href={t.nav.aboutHref} variant="outline" size="md">
               {t.about.moreLink}

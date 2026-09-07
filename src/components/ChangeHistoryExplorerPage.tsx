@@ -412,7 +412,7 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
           <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{t.title}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.sub}</p>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-muted">{t.sub}</p>
         </Reveal>
         {repo && (
           <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">

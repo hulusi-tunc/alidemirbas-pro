@@ -78,7 +78,11 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
   /* Pill radius for every SHORT, single-line control — a real, confirmed
      Portrait pattern (its own text-input example resolves to `rounded-full`
      in production, PORTRAIT-DESIGN-SOURCE-AUDIT.md §7). */
-  const fieldClass = `${fieldBase} rounded-full`;
+  /* ONE CONTROLS CORNER (2026-09-07): the pill was Portrait's; the site's
+     own scale puts every control - button, input, select - on `--radius-md`
+     (globals.css § Radii), and a form whose fields are pills beside a
+     squared submit was the one place the two shapes met. */
+  const fieldClass = `${fieldBase} rounded-md`;
 
   /* PROJECT ADAPTATION, not a blind copy: Portrait's own confirmed pill-
      input sample was a single-line hero widget. Forcing a 999px radius
@@ -90,7 +94,7 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
      project's already-shipped `--radius-card`), which is the more honest
      fit for a taller control than forcing the short-control geometry onto
      it. Flagged here as a deliberate adaptation, not silently deviated. */
-  const textareaClass = `${fieldBase} rounded-card min-h-40 resize-y`;
+  const textareaClass = `${fieldBase} rounded-md min-h-40 resize-y`;
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -183,12 +187,10 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
           (`--color-neutral-1000`), matching Portrait's own hover
           direction (fill darkens further, it doesn't change hue). */}
       <div>
-        <Button
-          type="submit"
-          variant="ink"
-          size="sm"
-          className="w-full rounded-full! px-6! sm:w-auto [--btn-fill:var(--color-neutral-1000)]!"
-        >
+        {/* The system's button as it is (2026-09-07): no pill override, no
+            padding override, no fill override - the `md` tier every other
+            CTA on the site uses, full width below `sm`. */}
+        <Button type="submit" variant="ink" size="md" className="w-full sm:w-auto">
           {t.formSubmit}
         </Button>
       </div>

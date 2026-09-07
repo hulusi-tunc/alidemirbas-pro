@@ -67,7 +67,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{c.title}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-muted">{c.sub}</p>
         </Reveal>
         <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-3">
           <a href={REPO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "primary", size: "md" })}>

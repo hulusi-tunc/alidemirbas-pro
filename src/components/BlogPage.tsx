@@ -121,7 +121,7 @@ export default function BlogPage({ lang }: { lang: Lang }) {
             {posts.length > 0 ? (
               <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.7fr)] lg:gap-16">
                 <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:max-w-none lg:text-left">
-                  <p className="mb-4 text-[13px] font-medium text-ink-400">{t.eyebrow}</p>
+                  <p className="altor-eyebrow mb-4 text-ink-subtle">{t.eyebrow}</p>
                   <h1 className="text-h1 text-ink-950">{t.title}</h1>
                 </div>
                 <HeroCoverCollage posts={posts} />
@@ -131,10 +131,9 @@ export default function BlogPage({ lang }: { lang: Lang }) {
               // so this keeps the plain centered heading rather than an
               // empty or placeholder pair of covers.
               <div className="mx-auto max-w-2xl text-center">
-                {/* Plain case, matching Stack, Contact and the calculator
-                    family - the mono-uppercase `.altor-eyebrow` rail was
-                    retired in the 2026-08-30 pass. */}
-                <p className="mb-4 text-[13px] font-medium text-ink-400">{t.eyebrow}</p>
+                {/* `.altor-eyebrow` is plain case now - see its note in
+                    globals.css. */}
+                <p className="altor-eyebrow mb-4 text-ink-subtle">{t.eyebrow}</p>
                 <h1 className="text-h1 text-ink-950">{t.title}</h1>
               </div>
             )}

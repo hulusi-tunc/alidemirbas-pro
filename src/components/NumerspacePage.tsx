@@ -166,7 +166,7 @@ function Hero({ c, t, lang, siteHref }: { c: SkillProductContent; t: (typeof T)[
           <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{t.heroTitle}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.heroSub}</p>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-muted">{t.heroSub}</p>
         </Reveal>
         {link && (
           <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">

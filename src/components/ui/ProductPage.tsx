@@ -86,7 +86,7 @@ export function ProductHeading({
   return (
     <Reveal className={clsx(align === "center" && "mx-auto text-center", className)}>
       {eyebrow && (
-        <p className={clsx("altor-eyebrow mb-4", tone === "light" ? "text-white/45" : "text-ink-400")}>
+        <p className={clsx("altor-eyebrow mb-4", tone === "light" ? "text-white/45" : "text-ink-subtle")}>
           {eyebrow}
         </p>
       )}
@@ -104,7 +104,7 @@ export function ProductHeading({
           className={clsx(
             "mt-4 text-lg leading-relaxed",
             align === "center" ? "mx-auto max-w-2xl" : "max-w-xl",
-            tone === "light" ? "text-white/70" : "text-ink-950/65",
+            tone === "light" ? "text-white/70" : "text-ink-muted",
           )}
         >
           {body}
@@ -199,8 +199,8 @@ export function ProductHowItWorks({
             </span>
             <span aria-hidden className="h-px flex-1 bg-line" />
           </div>
-          <h3 className="mt-4 text-lg font-medium tracking-tight text-ink-950">{s.title}</h3>
-          <p className="mt-2 text-[15px] leading-relaxed text-ink-950/65">{s.body}</p>
+          <h3 className="mt-4 text-lg font-semibold tracking-tight text-ink-950">{s.title}</h3>
+          <p className="mt-2 text-base leading-relaxed text-ink-muted">{s.body}</p>
           <div className="mt-6 flex-1">{s.visual}</div>
         </Reveal>
       ))}

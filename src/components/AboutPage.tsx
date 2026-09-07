@@ -181,7 +181,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
           <div className="altor-container">
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)] lg:gap-16">
               <Reveal>
-                <p className="text-[13px] font-medium text-ink-400">{c.nav.about}</p>
+                <p className="altor-eyebrow text-ink-subtle">{c.nav.about}</p>
                 <h1 className="mt-4 max-w-3xl text-h1 text-balance text-ink-950">
                   {t.heroText}
                 </h1>

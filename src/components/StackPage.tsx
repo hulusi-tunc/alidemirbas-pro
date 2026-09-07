@@ -67,19 +67,15 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
         {/* Centered per this round's site-wide request ("tüm başlıkları
             ortala") - was left-aligned (`max-w-md`, no `mx-auto`). */}
         <Reveal className="mx-auto max-w-2xl text-center">
-          {/* Plain case, not the mono-uppercase `.altor-eyebrow` rail. That
-              micro-label was retired from the calculator family in the
-              2026-08-30 pass ("uppercase + small" reads as a lock-up, not
-              as a label) and this page follows the same rule. */}
-          <p className="mb-4 text-[13px] font-medium text-ink-400">{t.stack.eyebrow}</p>
+          {/* `.altor-eyebrow` is plain case now (its own note in globals.css)
+              - the 13px Medium label this line used to spell out by hand. */}
+          <p className="altor-eyebrow mb-4 text-ink-subtle">{t.stack.eyebrow}</p>
           {/* text-h1: the site's one page-title step (THE HEADING RAMP in globals.css)
               - not a page-specific variant. */}
           <h1 className="text-h1 text-ink-950">{t.stack.title}</h1>
-          {/* ink-950/65: the same heading-color-at-opacity technique
-              locked in Contact round 3, reused verbatim for the same
-              reason — it ties heading and supporting copy into one
-              visual family instead of two different color steps. */}
-          <p className="mx-auto mt-3 max-w-xl text-lg leading-relaxed text-ink-950/65">{t.stack.sub}</p>
+          {/* Lead on `ink-muted`, the one supporting-text colour every
+              landing page's lead now shares (2026-09-07). */}
+          <p className="mx-auto mt-3 max-w-xl text-lg leading-relaxed text-ink-muted">{t.stack.sub}</p>
         </Reveal>
       </PortraitContainer>
     </Section>
@@ -107,15 +103,23 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
    class strings, so deriving the dot from the ground at runtime (a
    `.replace("-50", "-400")`) would compile to nothing - the utility never
    appears literally anywhere for the scanner to find. */
+/* CARDS ON THE ONE SOFT SURFACE (2026-09-07, Hulusi: every landing page on
+   one design system - "the titles, fonts and colors are not matching").
+   Eight full-card tints in eight Tailwind hues made /stack the only landing
+   page painted outside the system's palette (paper, paper-soft, the one
+   brand blue). The zoning job the tint did is kept by the group's DOT,
+   which stays in its hue the way the calculator tiles and the Lab glyph
+   tiles keep theirs - a small identity mark, not a ground - and the cards
+   sit on `paper-soft` like the calculator cards do. */
 const GROUP_TINT: Record<string, { card: string; dot: string }> = {
-  "Design & Build": { card: "bg-fuchsia-50", dot: "bg-fuchsia-400" },
-  "Web & Product Analytics": { card: "bg-blue-50", dot: "bg-blue-400" },
-  "Mobile / Attribution (MMP)": { card: "bg-violet-50", dot: "bg-violet-400" },
-  "BI / Data Visualization": { card: "bg-emerald-50", dot: "bg-emerald-400" },
-  "CRM & Engagement": { card: "bg-teal-50", dot: "bg-teal-400" },
-  "SEO & Content": { card: "bg-amber-50", dot: "bg-amber-400" },
-  "CRO / A-B Test / Experimentation": { card: "bg-rose-50", dot: "bg-rose-400" },
-  "Work Management": { card: "bg-slate-100", dot: "bg-slate-400" },
+  "Design & Build": { card: "bg-paper-soft", dot: "bg-fuchsia-400" },
+  "Web & Product Analytics": { card: "bg-paper-soft", dot: "bg-blue-400" },
+  "Mobile / Attribution (MMP)": { card: "bg-paper-soft", dot: "bg-violet-400" },
+  "BI / Data Visualization": { card: "bg-paper-soft", dot: "bg-emerald-400" },
+  "CRM & Engagement": { card: "bg-paper-soft", dot: "bg-teal-400" },
+  "SEO & Content": { card: "bg-paper-soft", dot: "bg-amber-400" },
+  "CRO / A-B Test / Experimentation": { card: "bg-paper-soft", dot: "bg-rose-400" },
+  "Work Management": { card: "bg-paper-soft", dot: "bg-slate-400" },
 };
 
 const FALLBACK_TINT = { card: "bg-paper-soft", dot: "bg-ink-300" };
@@ -138,7 +142,7 @@ function ToolCard({ name, tool, tag, tint }: { name: string; tool: Tool; tag: st
       </span>
       <div className="min-w-0">
         <p className="truncate text-base font-semibold tracking-tight text-ink-950">{name}</p>
-        <p className="mt-0.5 truncate text-sm text-ink-950/65">{tag}</p>
+        <p className="mt-0.5 truncate text-sm text-ink-muted">{tag}</p>
       </div>
     </div>
   );
