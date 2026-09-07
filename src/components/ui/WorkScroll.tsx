@@ -18,7 +18,10 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
    holds for about half a screen of scrolling before the next one takes
    over (62vh was tried and read as rows too far apart). Round four: the
    panel pins at the vertical centre of the viewport (top = 50vh minus half
-   its height), not near the header.
+   its height), not near the header. Round five: every row is exactly as
+   tall as the panel (24rem) with its text centred, so when the band's
+   scroll runs out the panel and the last row end aligned, centre to
+   centre; the hairlines between rows are gone and the rows sit closer.
 
    The rows and cards are server-rendered nodes handed in as props - this
    component only decides which one is active. Nothing here depends on
@@ -65,7 +68,7 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
               refs.current[i] = el;
             }}
             data-active={i === active}
-            className="border-t border-line py-8 transition-opacity duration-[var(--duration-fast)] first:border-t-0 first:pt-0 last:pb-0 lg:flex lg:min-h-[48vh] lg:flex-col lg:justify-center lg:py-10 lg:last:min-h-0 lg:data-[active=false]:opacity-45 motion-reduce:transition-none"
+            className="py-6 transition-opacity duration-[var(--duration-fast)] first:pt-0 last:pb-0 lg:flex lg:min-h-[24rem] lg:flex-col lg:justify-center lg:py-6 lg:data-[active=false]:opacity-45 motion-reduce:transition-none"
           >
             {row}
             {/* Below lg the card travels with its row. `group` + data-on
@@ -78,7 +81,7 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
         ))}
       </ol>
       <div className="hidden lg:block">
-        <div className="relative min-h-[28rem] lg:sticky lg:top-[calc(50vh-14rem)]">
+        <div className="relative min-h-[24rem] lg:sticky lg:top-[calc(50vh-12rem)]">
           {panels.map((panel, i) => (
             <div
               key={i}
