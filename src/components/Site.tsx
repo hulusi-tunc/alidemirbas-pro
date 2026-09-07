@@ -230,10 +230,17 @@ function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
 function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const projects = HERO_TILES.map((slug) => t.lab.projects.find((p) => p.slug === slug)).filter((p) => p !== undefined);
   return (
-    <section id="top" className="relative isolate overflow-hidden bg-paper-soft pt-14 pb-16 lg:pt-18 lg:pb-20">
-      {/* A brand-blue bloom behind the statement, fading out before the
-          tiles - the page opens light and warms, it does not open flat. */}
-      <div aria-hidden className="absolute inset-x-0 top-0 -z-10 h-[34rem] bg-[radial-gradient(55%_60%_at_50%_0%,var(--color-primary-100),transparent_70%)]" />
+    <section id="top" className="relative isolate flex min-h-[calc(100svh-4rem)] flex-col justify-center overflow-hidden bg-paper pt-14 pb-16 lg:pt-18 lg:pb-20">
+      {/* The /lab hero's meadow behind the bento, bottom-anchored and
+          dissolving upward so the statement stays on paper. It replaced a
+          brand-blue bloom (Hulusi, 2026-09-07: "I don't like the blue-grey
+          look"): blue on this site is brand and utility, never atmosphere,
+          and the meadow is material the page already owns. The section is
+          at least the first screen tall (viewport minus the 4rem header)
+          and centres what it holds. */}
+      <div aria-hidden className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_6%,black_58%)]">
+        <Image src="/lab/hero-meadow.jpg" alt="" fill sizes="100vw" priority className="object-cover object-bottom" />
+      </div>
       <div className="altor-container">
         <Reveal delay={60}>
           <h1 className="mx-auto max-w-4xl text-center text-h1 text-balance text-ink-950">
