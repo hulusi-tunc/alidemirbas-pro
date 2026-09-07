@@ -453,7 +453,7 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const entries = getFeaturedCalcEntries(lang, 6);
 
   return (
-    <section id="calculators" className="border-t border-line-soft bg-paper py-20 md:py-28">
+    <section id="calculators" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
         <SectionHeading
           eyebrow={t.home.calc.eyebrow}
