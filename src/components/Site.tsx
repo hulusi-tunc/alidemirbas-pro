@@ -642,7 +642,9 @@ export default function Site({ lang }: { lang: Lang }) {
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
         <Calculators t={t} lang={lang} />
-        <StackShowcase lang={lang} />
+        {/* The bales, not the track: the About page's Tools band already
+            stands on the track (Hulusi, 2026-09-07). */}
+        <StackShowcase lang={lang} plate="numerspace" />
         <FinalCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />

@@ -30,19 +30,24 @@ function ToolCard({ tool, tag }: { tool: Tool; tag: string }) {
   );
 }
 
-export function StackShowcase({ lang }: { lang: Lang }) {
+/** Which of the Lab's meadow plates (public/lab/frames) rises behind the
+    band. The About page keeps the journey builder's track; the homepage
+    takes another so the two pages do not repeat one photograph (Hulusi,
+    2026-09-07: "use different pictures we created already"). */
+type Plate = "claude-lifecycle" | "numerspace" | "dashboard-builder" | "lifecycle-card-archive" | "ab-test-playbook";
+
+export function StackShowcase({ lang, plate = "claude-lifecycle" }: { lang: Lang; plate?: Plate }) {
   const t = copy[lang];
   const tools = stackOnePerCategory();
 
   return (
     <section className="relative isolate overflow-hidden bg-paper-soft py-20 md:py-28">
       {/* THE GROUND (Hulusi, 2026-09-07: "put some background here and
-          make the cards glassy"): the journey builder's meadow plate - the
-          one frame the homepage had not used yet - rising from the bottom
+          make the cards glassy"): a meadow plate rising from the bottom
           under a mask so the heading stays on paper and the cards sit on
           the field, frosted the way the hero tiles are. */}
       <div aria-hidden className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_8%,black_55%)]">
-        <Image src="/lab/frames/claude-lifecycle.jpg" alt="" fill sizes="100vw" className="object-cover object-bottom" />
+        <Image src={`/lab/frames/${plate}.jpg`} alt="" fill sizes="100vw" className="object-cover object-bottom" />
       </div>
       <div className="altor-container">
         <SectionHeading eyebrow={t.stack.eyebrow} title={t.stack.homeTitle} intro={t.stack.homeIntro} />
