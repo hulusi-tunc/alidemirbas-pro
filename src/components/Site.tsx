@@ -340,11 +340,13 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
   return (
     <section id="bio" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+        {/* The statement takes the full measure (a 30ch column wrapped it to
+            three lines at 1440 - the heading rule); the paragraph and the
+            timeline share the row under it. */}
+        <SectionHeading eyebrow={t.about.eyebrow} title={t.home.bio.title} />
+        <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           <Reveal>
-            <p className="altor-eyebrow text-ink-400">{t.about.eyebrow}</p>
-            <h2 className="mt-5 max-w-[30ch] text-h2 text-balance text-ink-950">{t.home.bio.title}</h2>
-            <p className="mt-6 max-w-[48ch] text-lg leading-relaxed text-pretty text-ink-600">{t.about.teaserLead}</p>
+            <p className="max-w-[48ch] text-lg leading-relaxed text-pretty text-ink-600">{t.about.teaserLead}</p>
             <div className="mt-8">
               <ButtonLink href={t.nav.aboutHref} variant="outline" size="md">
                 {t.about.moreLink}
