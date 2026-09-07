@@ -38,8 +38,6 @@ const TESTS = rawTests as AbTestDetail[];
 
 export const AB_TEST_COUNT = TESTS.length;
 
-export type AbSurfaceFacet = { id: Surface; count: number };
-
 export const SURFACES: readonly Surface[] = [
   "pdp", "plp", "home", "cart", "checkout", "search", "filters", "form",
   "pricing", "saas", "mobile", "thankyou", "dashboard", "generic-ui",

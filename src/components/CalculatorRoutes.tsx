@@ -42,19 +42,19 @@ export const basePathFor = (lang: Lang) => (lang === "en" ? "/calculators" : "/t
 // `heroTitle` override vs. its own `seoTitle`).
 const T = {
   en: { title: "Free Marketing & Growth Calculators", intro: "Free marketing calculators for ROAS, CAC, CPC, CPM, retention, conversion rates, A/B testing and unit economics. No signup required." },
-  tr: { title: "Ücretsiz Pazarlama & Growth Hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, retention, dönüşüm oranı, A/B testleri ve birim ekonomisi için ücretsiz pazarlama ve growth hesaplama araçları." },
+  tr: { title: "Ücretsiz Pazarlama & Growth Hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, retention, dönüşüm oranı, A/B testleri ve birim ekonomisi için ücretsiz pazarlama ve growth hesaplama araçları. Üyelik gerekmez." },
 };
 
 const HERO = {
   en: {
     eyebrow: "Free Marketing & Growth Calculators",
     title: "Calculate what drives growth.",
-    sub: "Free calculators for growth, acquisition, retention, experimentation and unit economics. From ROAS and CAC to conversion rates and A/B testing - calculate the metrics that matter, with no signup or tracking.",
+    sub: "Free calculators for acquisition, retention, experimentation and unit economics: ROAS, CAC, conversion rates, A/B significance and more. No signup, no tracking.",
   },
   tr: {
     eyebrow: "Ücretsiz Pazarlama & Growth Hesaplayıcıları",
     title: "Büyümeyi etkileyen metrikleri hesaplayın.",
-    sub: "Growth, acquisition, retention, A/B testleri ve birim ekonomisi için ücretsiz hesaplama araçları. ROAS ve CAC'den dönüşüm oranlarına kadar ihtiyaç duyduğunuz metrikleri üyelik gerektirmeden kolayca hesaplayın.",
+    sub: "Reklam, edinim, elde tutma, deney ve birim ekonomisi için ücretsiz hesaplama araçları: ROAS, CAC, dönüşüm oranı, A/B testi ve daha fazlası. Üyelik yok, takip yok.",
   },
 };
 
@@ -88,7 +88,7 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
 
 /* PORTRAIT PILOT (this round). Reuses the exact server-computes-data /
    client-filters architecture already approved for Blog
-   (BlogPage.tsx -> BlogLibrary.tsx): the full 43-calculator catalog is
+   (BlogPage.tsx -> BlogLibrary.tsx): the full live calculator catalog is
    still rendered into the initial server HTML via `CalculatorLibrary`
    (real hrefs, real text, present before any client hydration — nothing
    about server-rendered discoverability changes), and category counts

@@ -71,4 +71,3 @@ export function parseEnumOptions(unit: string | null | undefined): string[] {
 
 export const isPercentUnit = (unit: string | null | undefined) => unit === "%";
 export const isEnumUnit = (unit: string | null | undefined) => (unit ?? "").startsWith("enum(");
-export const isArrayUnit = (unit: string | null | undefined) => (unit ?? "").startsWith("array");

@@ -54,7 +54,7 @@ check(4, "canonical is null for external docs, production-domain for internal do
 // concept, not a search-inclusion one - see headless-search-prototype.mjs's
 // own comment). What this checks instead: any indexable:false document that
 // is NOT external is unusual and worth a second look (currently none - all
-// 43 live calculators are index:true, so the only indexable:false docs today
+// 19 live calculators are index:true, so the only indexable:false docs today
 // are the 3 external Lab products, which is expected and correct).
 const unexpectedNonIndexable = index.filter((d) => !d.indexable && !d.external);
 check(5, "every indexable:false document is external (no unexplained non-indexable internal doc)", unexpectedNonIndexable.length === 0, unexpectedNonIndexable.map((d) => d.id).join(", "));
@@ -282,6 +282,7 @@ for (const f of fixturesDoc.fixtures) {
   const topIds = r.results.map((x) => x.id);
   let ok;
   if (f.expectedEntity) ok = topIds[0] === f.expectedEntity || topIds.slice(0, 3).includes(f.expectedEntity);
+  else if (f.expectedAbsent) ok = !topIds.includes(f.expectedAbsent); // archived corpus guard - see run-query-fixtures.mjs
   else if (f.expectedTopSet) {
     ok = f.expectedTopSet.includes("type-diversity-check")
       ? (new Set(r.results.map((x) => x.type)).size >= 2 || r.results.length === 0)

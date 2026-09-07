@@ -3,17 +3,17 @@
   "slug": "email-performance",
   "contentDepth": "standard",
   "heroTitle": "Email Performance Calculator",
-  "intro": "Eight campaign metrics from one set of send numbers. Enter what you have — sent, delivered, opens, clicks, bounces, unsubscribes, complaints, revenue — and each metric appears as soon as the two figures behind it are filled in. Nothing is required, and a metric you have no data for simply stays blank rather than showing a zero.",
+  "intro": "Eight campaign metrics from one set of send numbers. Enter what you have (sent, delivered, opens, clicks, bounces, unsubscribes, complaints, revenue) and each metric appears as soon as the two figures behind it are filled in. Nothing is required, and a metric you have no data for simply stays blank rather than showing a zero.",
   "page": {
     "tagline": "Eight campaign metrics from one set of send numbers.",
     "meaning": [
-      "The eight metrics fall into four groups. Deliverability — Delivery Rate and Bounce Rate — asks whether the email arrived. Engagement — Open Rate and Click-to-Open Rate — asks what happened once it did. List health — Unsubscribe, Complaint and List Growth Rate — asks what the send cost you in audience. Revenue per Recipient asks what one email was worth.",
+      "The eight metrics fall into four groups. Deliverability (Delivery Rate and Bounce Rate) asks whether the email arrived. Engagement (Open Rate and Click-to-Open Rate) asks what happened once it did. List health (Unsubscribe, Complaint and List Growth Rate) asks what the send cost you in audience. Revenue per Recipient asks what one email was worth.",
       "They share denominators, which is why they belong on one page: delivered feeds four of them, sent three. Entering the same campaign's numbers eight separate times is how you end up with metrics that don't reconcile.",
       "Seeing them together is what makes them readable. A low Open Rate beside a high Bounce Rate is a list problem, not a subject-line problem. A healthy Open Rate with a weak Click-to-Open Rate points at the offer. A strong Revenue per Recipient beside a rising Complaint Rate means the campaign is earning now and spending sender reputation to do it."
     ],
-    "takeaway": "No field here is required — a metric you have no data for stays blank rather than reporting a zero.",
+    "takeaway": "No field here is required. A metric you have no data for stays blank rather than reporting a zero.",
     "whenToUse": "After a send, to read one campaign whole rather than one metric at a time; and across sends, to see which of the four groups moved when a headline number changed.",
-    "misleads": "Apple Mail Privacy Protection pre-fetches images and registers opens nobody performed, so Open Rate is a trend against itself rather than an absolute. And Click-to-Open Rate is clicks over opens — reporting it as email CTR, which is clicks over delivered, answers a different question entirely.",
+    "misleads": "Apple Mail Privacy Protection pre-fetches images and registers opens nobody performed, so Open Rate is a trend against itself rather than an absolute. And Click-to-Open Rate is clicks over opens; reporting it as email CTR, which is clicks over delivered, answers a different question entirely.",
     "workedExample": "10,000 sent · 9,800 delivered · 2,450 opens → 98.00% delivery · 25.00% open rate"
   },
   "sections": [
@@ -27,7 +27,7 @@
       "id": "shared-inputs",
       "type": "formula",
       "heading": "Why one input set",
-      "body": "The eight formulas reuse each other's figures heavily. Delivered is the denominator of four of them, sent of three; opens is a numerator in one and a denominator in another, and unsubscribes appears in two. Asking for each metric separately meant entering the same campaign's numbers repeatedly, and every re-entry is a chance to type a different figure and end up with metrics that don't reconcile. One consequence is worth stating outright: Revenue per Recipient is revenue ÷ sent here. Measuring it against sent rather than delivered is the more conservative and more common reading — it charges the campaign for the emails that bounced too."
+      "body": "The eight formulas reuse each other's figures heavily. Delivered is the denominator of four of them, sent of three; opens is a numerator in one and a denominator in another, and unsubscribes appears in two. Asking for each metric separately meant entering the same campaign's numbers repeatedly, and every re-entry is a chance to type a different figure and end up with metrics that don't reconcile. One consequence is worth stating outright: Revenue per Recipient is revenue ÷ sent here. Measuring it against sent rather than delivered is the more conservative and more common reading: it charges the campaign for the emails that bounced too."
     },
     {
       "id": "worked-example",
@@ -92,14 +92,14 @@
       "id": "ctor-vs-ctr",
       "type": "comparison-note",
       "heading": "Click-to-Open Rate is not email CTR",
-      "body": "Click-to-Open Rate is clicks ÷ opens. Email CTR is clicks ÷ delivered. They are different questions, and reporting one as the other is a common way to misread a campaign. CTR blends two things — how many people opened, and how compelling the content was once they did. CTOR isolates the second by conditioning on the first, which makes it the right metric for judging creative and offer and the wrong one for judging overall campaign reach. Use CTOR to compare two versions of the same email; use reach metrics to compare campaigns. See the [Conversion Rate Calculator](/calculators/cr) for the equivalent question further down the funnel."
+      "body": "Click-to-Open Rate is clicks ÷ opens. Email CTR is clicks ÷ delivered. They are different questions, and reporting one as the other is a common way to misread a campaign. CTR blends two things: how many people opened, and how compelling the content was once they did. CTOR isolates the second by conditioning on the first, which makes it the right metric for judging creative and offer and the wrong one for judging overall campaign reach. Use CTOR to compare two versions of the same email; use reach metrics to compare campaigns. See the [Conversion Rate Calculator](/calculators/cr) for the equivalent question further down the funnel."
     },
     {
       "id": "common-mistakes",
       "type": "common-mistakes",
       "heading": "Common mistakes",
       "items": [
-        "Treating Open Rate as a reliable engagement number after Apple Mail Privacy Protection. MPP pre-fetches images, which registers as an open the recipient never performed. Rates near or above 100% are a measurement artefact, not an impossible value — and not something to clamp away.",
+        "Treating Open Rate as a reliable engagement number after Apple Mail Privacy Protection. MPP pre-fetches images, which registers as an open the recipient never performed. Rates near or above 100% are a measurement artefact, not an impossible value, and not something to clamp away.",
         "Measuring Open Rate against sent instead of delivered. An email that bounced was never opened by anyone, and including it in the denominator turns a deliverability problem into an apparent engagement problem.",
         "Reporting Click-to-Open Rate as CTR, or the reverse. The denominators differ (opens vs delivered), so the two numbers answer different questions and are not interchangeable.",
         "Ignoring Complaint Rate because it is a small number. Above roughly 0.1% it starts to affect sender reputation at the major mailbox providers, which shows up later as a falling Delivery Rate on sends that have nothing wrong with them.",
@@ -112,7 +112,7 @@
     {
       "slug": "cr",
       "name": "Conversion Rate Calculator",
-      "desc": "Where an email click goes next — the same click, measured against what it was supposed to produce rather than against the open."
+      "desc": "Where an email click goes next: the same click, measured against what it was supposed to produce rather than against the open."
     },
     {
       "slug": "roas",
@@ -129,7 +129,7 @@
     {
       "id": "why-blank",
       "q": "Why is one of the metrics blank?",
-      "a": "Because its own inputs aren't filled in yet, or its denominator is zero. Each metric is computed independently, so Open Rate appears as soon as you enter opens and delivered, whether or not you have revenue or complaint figures. A blank result means the question isn't answerable from what you've entered — it does not mean the value is zero."
+      "a": "Because its own inputs aren't filled in yet, or its denominator is zero. Each metric is computed independently, so Open Rate appears as soon as you enter opens and delivered, whether or not you have revenue or complaint figures. A blank result means the question isn't answerable from what you've entered; it does not mean the value is zero."
     },
     {
       "id": "open-rate-trustworthy",
@@ -139,17 +139,17 @@
     {
       "id": "rpr-sent-or-delivered",
       "q": "Should Revenue per Recipient use sent or delivered?",
-      "a": "This calculator uses sent. It is the more conservative reading: the campaign is charged for every address it attempted, including the ones that bounced. Dividing by delivered gives a higher number that answers a narrower question — what a reachable recipient was worth. Neither is wrong, but mixing the two across reports is."
+      "a": "This calculator uses sent. It is the more conservative reading: the campaign is charged for every address it attempted, including the ones that bounced. Dividing by delivered gives a higher number that answers a narrower question: what a reachable recipient was worth. Neither is wrong, but mixing the two across reports is."
     },
     {
       "id": "delivered-vs-sent",
       "q": "My delivered count is higher than my sent count. What went wrong?",
-      "a": "That is a data error rather than an unusual result — an email cannot be delivered without being sent. The usual causes are pulling the two figures from different date ranges, or from different segments of the same campaign. Check that both numbers describe the same send before reading anything else on the page."
+      "a": "That is a data error rather than an unusual result; an email cannot be delivered without being sent. The usual causes are pulling the two figures from different date ranges, or from different segments of the same campaign. Check that both numbers describe the same send before reading anything else on the page."
     },
     {
       "id": "good-complaint-rate",
       "q": "What counts as an acceptable Complaint Rate?",
-      "a": "The commonly cited threshold is 0.1% — above it, major mailbox providers start treating the sender as a reputation risk. It is a threshold to stay well under rather than a target to approach, and because the consequence arrives as degraded deliverability weeks later, a rising Complaint Rate is worth acting on before Delivery Rate reflects it."
+      "a": "The commonly cited threshold is 0.1%; above it, major mailbox providers start treating the sender as a reputation risk. It is a threshold to stay well under rather than a target to approach, and because the consequence arrives as degraded deliverability weeks later, a rising Complaint Rate is worth acting on before Delivery Rate reflects it."
     }
   ],
   "seo": {

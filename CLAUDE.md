@@ -45,6 +45,9 @@ node production/calculators/test-calculators.mjs
 - `node search/search-validator.mjs` fails checks 30 and 31, and `node search/run-query-fixtures.mjs`
   fails 9 fixtures. All of them expect calculator documents (MDE, CTOR, cart-abandonment, ...) that
   left the live catalog when it went from 43 to 19; the index is rebuilt from the 19 live files.
+  (Four fixtures — `CTL-239`, `CTL-240`, `RET-25`, `risk signal correlation` — are `expectedAbsent`
+  assertions since the Operational Workflows archive: the archived journey must NOT surface. They
+  pass; they are not among the 9.)
 - `production/build_seo_metadata.py` needs the A/B canon from another repository; it falls back to
   `src/data/ab-tests.json` for ids.
 
@@ -63,7 +66,7 @@ and fully prerenderable. Shipping a page in one locale only is the default failu
 
 Both page files are thin wrappers — a `metadata` export plus a shared component from
 `src/components/` taking a `lang: Lang` prop. All copy lives in one dictionary,
-`src/lib/content.ts` (1200 lines, `copy.en` / `copy.tr`); there is no i18n library and no
+`src/lib/content.ts` (~1650 lines, `copy.en` / `copy.tr`); there is no i18n library and no
 `dictionaries/` folder.
 
 Dynamic routes keep the two locales in lockstep through a shared `*Routes.tsx` module that
@@ -114,7 +117,7 @@ See `JOURNEY_VNEXT_ARCHITECTURE.md`, `ARCHITECTURE_PATCH_0_5.md` and `VNEXT_MIGR
 Data flows **`src/canonical/index.ts` → `src/lib/canonical-view.ts` → pages**. That adapter is the
 only bridge and it is **server-only**: `JOURNEY_ROWS` and the preview thumbnails are computed
 once at module load. Importing `@/canonical` or `@/lib/canonical-view` from a `"use client"`
-file ships 281 node graphs to the browser — client components take shaped props and import
+file ships all 284 journey graphs (3690 nodes) to the browser — client components take shaped props and import
 only *types*. `journey-preview.ts` deliberately reuses `layoutJourneyCanvas` from
 `journey-canvas-layout.ts` so a card thumbnail and its detail canvas can never disagree; do not
 add a second layout engine.
@@ -130,8 +133,36 @@ exit with `reEntry`, and `channels` that must be *backed* by an action carrying
 
 Merged ids are addressable but are not journeys: they get a slug, render the survivor's detail,
 are forced `noindex` with a canonical pointing at the survivor, and are excluded from the
-sitemap. `src/lib/journey-marketing.ts` hard-references 6 journey ids and **throws at module
-load** if any is removed.
+sitemap. `src/lib/journey-marketing.ts` hard-references 5 journey ids (the featured `ACQ-01` plus 4 showcase
+cards) and **throws at module load** if any is removed. Three of the five (`ACQ-01`, `CON-38`, `TIM-65`)
+are public but are silent lifecycle states, not library journeys.
+
+**The public site projects THREE of the four surfaces (since 2026-09-05).** The Operational
+Workflows surface (`/lab/operational-workflows`, 124 journeys) was removed from the public
+website and archived under `archive/operational-workflows/` — read its README before touching
+anything surface-related. The canonical graph is UNCHANGED (284 journeys; `validate:canonical`
+still reports `operational 124`) because 54 public journeys hand off into operational ones (78 handoff
+edges to 23 targets; 67 public journeys reference 41 of them once `distinctFrom` rows are counted) and
+the validator requires every handoff target to exist. The archive is enforced at the publishing
+boundary by one predicate, `src/lib/public-corpus.ts` (`isPublicJourney` = surface is not
+`operational`): `JOURNEY_ROWS`, `ALL_DETAIL_SLUGS`, `MERGED_REDIRECTS` (5 of 8 — the 3 whose
+survivor is archived are not public routes), the sitemap, and every cross-journey `href` the
+detail pages build all read it.
+
+**The library's stated size is the Customer Journeys surface: 71 journeys / 21 categories.**
+`LIBRARY_JOURNEYS` (`public-corpus.ts`, `isLibraryJourney` = public AND customer AND sends-or-routes-
+to-a-person) feeds `LIBRARY_COUNT`/`LIBRARY_CATEGORY_COUNT`/`LIBRARY_ROWS` in `canonical-view.ts`,
+`withLibraryCount()` (the only `{count}`/`{categories}` filler — it THROWS on a `{rules}` token; no
+public page states a rule count), and `journey-marketing.ts`'s `JOURNEY_SCALE`/category counts. The
+160 public journeys are still routed, and the two supporting surfaces state their own counts on their
+own pages (64 lifecycle states, 25 runtime mechanisms) — but a headline, project card, metadata
+description or stat strip that says "the library" means 71/21. Never type a corpus number into copy;
+`lab.page.intro` is a template shipped as a client prop and is not rendered by the gallery.
+A handoff into an archived journey renders as the target's name in text, never a link.
+`search/build-search-index.mjs` applies the same rule through `production/surface-assignment.json`.
+`surfaceKeyOf` throws if an operational row ever reaches a public listing. `archive/` is excluded
+from `tsconfig.json` and ESLint (same treatment as `reference/`) so its verbatim route snapshots
+stay byte-for-byte.
 
 The `/lab/journeys` routes use a parallel `@modal` slot with an intercepting `(.)[slug]` route:
 a client-side navigation from the list overlays a modal, while a hard load of the same URL falls
@@ -161,7 +192,7 @@ server-only view models. Lab/skill projects are authored **only** in `copy[lang]
 
 ### Design tokens
 
-`src/app/globals.css` is a ~1380-line design constitution — a Tailwind v4 `@theme` block holding
+`src/app/globals.css` is a ~1650-line design constitution — a Tailwind v4 `@theme` block holding
 the neutral/ink/primary ramps, the type ramp, the radius scale, and motion durations, each with
 the reasoning written inline. Read the comment before changing a token; several are guardrails
 (`--font-serif` is aliased to the sans so the `font-serif` utility cannot produce a serif).
@@ -182,9 +213,16 @@ working directory**; the six `search/search-index*.json` / `search-facets` / `se
 validators write.
 
 Hand-authored: everything in `src/`, every contract JSON in `seo/` and `search/`, and the
-validators themselves. Several validators and the search index generator **hardcode corpus
-counts** (`211` ab-tests, `284` journeys, `3674` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
-adding a record fails them until those constants are updated in lockstep. `build-search-index.mjs`
+validators themselves. `archive/` is preserved-but-retired repository content (currently the
+Operational Workflows corpus): a verbatim export plus the removed route shells, taxonomy and copy,
+with a README explaining structure and restoration. Nothing in the build imports from it. Several validators and the search index generator **hardcode corpus
+counts** (`211` ab-tests, `284` journeys, `3690` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
+adding a record fails them until those constants are updated in lockstep. Those `284`/`8` are the
+CANONICAL corpus and stay correct after the Operational Workflows archive; the PUBLIC corpus is
+160 routed journeys / 5 public merged redirects, the stated LIBRARY is 71 journeys / 21 categories,
+and none of those is hardcoded — all derived in `src/lib/public-corpus.ts` and
+`src/lib/canonical-view.ts`. `search/build-search-index.mjs` derives the same 71/21 for the library's
+lab-product card from `production/surface-assignment.json`. `build-search-index.mjs`
 also duplicates the goal taxonomy from `src/lib/journey-taxonomy.ts` by hand — plain Node cannot
 resolve the `@/` alias, and the copy must be kept in sync manually.
 

@@ -37,13 +37,13 @@ const T = {
     eyebrow: "Blog",
     title: "Writing on growth, CRM and lifecycle marketing.",
     emptyTitle: "Nothing published yet.",
-    emptyBody: "This section is reserved for writing on growth, CRM and lifecycle marketing. The first post will show up here.",
+    emptyBody: "Posts on growth, CRM and lifecycle marketing will be published here.",
   },
   tr: {
     eyebrow: "Blog",
     title: "Büyüme, CRM ve lifecycle pazarlama üzerine yazılar.",
     emptyTitle: "Henüz bir yazı yok.",
-    emptyBody: "Bu bölüm büyüme, CRM ve lifecycle pazarlama üzerine yazılar için ayrıldı. İlk yazı burada görünecek.",
+    emptyBody: "Büyüme, CRM ve lifecycle pazarlama üzerine yazılar burada yayımlanacak.",
   },
 };
 

@@ -12,7 +12,6 @@ import { CHANNELS, CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { useJourneyFilters } from "@/lib/useJourneyFilters";
 import { copy, type Lang } from "@/lib/content";
 import type { ChannelId } from "@/canonical/types";
-import { OPERATIONAL_WORK_TYPES, OPERATIONAL_WORK_TYPE_OF, type OperationalWorkType } from "@/lib/operational-work-type";
 
 /* The journey library as a browsable gallery: category sections, each with
    the category's own title and purpose, over a responsive grid of cards.
@@ -137,9 +136,9 @@ export default function JourneyGallery({
   basePath: string;
   categories: readonly CategoryMeta[];
   /** Which surface this page is. The surface "filter" is the page itself
-      rather than a dropdown - the four surfaces are separate routes with
+      rather than a dropdown - the public surfaces are separate routes with
       their own titles and metadata, so switching is a navigation, not a
-      state change. `surfaceLinks` are the four, this one marked. */
+      state change. `surfaceLinks` are those surfaces, this one marked. */
   surface: SurfaceKey;
   surfaceLinks: readonly { key: SurfaceKey; href: string; label: string }[];
   /** Practitioner presets, shown first on the customer surface: the
@@ -155,12 +154,9 @@ export default function JourneyGallery({
   const labels = copy[lang].lab.journeysSplit;
   const [category, setCategory] = useState<string>("");
   const [channel, setChannel] = useState<string>("");
-  const [workType, setWorkType] = useState<string>("");
-
-  // Operations has its own coarser, non-canonical Type filter (see
-  // operational-work-type.ts) in place of Goal, which was tuned for
-  // customer journeys and fragments into 23 near-flat values here.
-  const usesWorkType = surface === "operational-workflows";
+  /* The Operations surface used to swap Goal for its own coarser Type
+     filter here (archive/operational-workflows/taxonomy/). That surface is
+     archived, so every remaining surface filters by Goal. */
 
   // Only offer a filter value that some real row on this page actually has.
   const presentCategories = useMemo(() => {
@@ -171,25 +167,18 @@ export default function JourneyGallery({
     const present = new Set(allRows.flatMap((j) => j.channels));
     return CHANNELS.filter((c) => present.has(c));
   }, [allRows]);
-  const presentWorkTypes = useMemo(() => {
-    if (!usesWorkType) return [];
-    const present = new Set(allRows.map((j) => OPERATIONAL_WORK_TYPE_OF[j.category]).filter(Boolean));
-    return OPERATIONAL_WORK_TYPES.filter((wt) => present.has(wt));
-  }, [allRows, usesWorkType]);
-
   const localFiltered = useMemo(
     () =>
       rows.filter(
         (j) =>
           (!category || j.category === category) &&
-          (!channel || j.channels.includes(channel as ChannelId)) &&
-          (!workType || OPERATIONAL_WORK_TYPE_OF[j.category] === workType),
+          (!channel || j.channels.includes(channel as ChannelId)),
       ),
-    [rows, category, channel, workType],
+    [rows, category, channel],
   );
 
-  const isDefault = isDefaultView && !category && !channel && !workType;
-  const totalActive = activeCount + (category ? 1 : 0) + (channel ? 1 : 0) + (workType ? 1 : 0);
+  const isDefault = isDefaultView && !category && !channel;
+  const totalActive = activeCount + (category ? 1 : 0) + (channel ? 1 : 0);
 
   const sections = useMemo(() => {
     if (!isDefault) return [];
@@ -216,7 +205,6 @@ export default function JourneyGallery({
   const clearEverything = () => {
     setCategory("");
     setChannel("");
-    setWorkType("");
     clearAll();
   };
 
@@ -228,7 +216,7 @@ export default function JourneyGallery({
 
   return (
     <div>
-      {/* Surface: the four surfaces are routes, so this is a link row rather
+      {/* Surface: the public surfaces are routes, so this is a link row rather
           than a select - it changes the page, its title and its metadata,
           not just the rows. */}
       <div className="flex flex-wrap gap-2">
@@ -296,41 +284,23 @@ export default function JourneyGallery({
           </label>
         ) : null}
 
-        {usesWorkType ? (
-          <label className="block">
-            <span className="sr-only">{labels.workTypeFilterLabel}</span>
-            <select
-              value={workType}
-              onChange={(e) => setWorkType(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">{labels.allWorkTypes}</option>
-              {presentWorkTypes.map((wt) => (
-                <option key={wt} value={wt}>
-                  {labels.workTypeLabels[wt as OperationalWorkType]}
+        <label className="block">
+          <span className="sr-only">{t.goalLabel}</span>
+          <select
+            value={goal ?? ""}
+            onChange={(e) => setGoal(e.target.value ? (e.target.value as typeof goal) : null)}
+            className={selectClass}
+          >
+            <option value="">{t.allGoals}</option>
+            {[...new Set(allRows.map((j) => j.goal))]
+              .sort((a, b) => GOAL_LABEL[a][lang].localeCompare(GOAL_LABEL[b][lang], lang))
+              .map((g) => (
+                <option key={g} value={g}>
+                  {GOAL_LABEL[g][lang]}
                 </option>
               ))}
-            </select>
-          </label>
-        ) : (
-          <label className="block">
-            <span className="sr-only">{t.goalLabel}</span>
-            <select
-              value={goal ?? ""}
-              onChange={(e) => setGoal(e.target.value ? (e.target.value as typeof goal) : null)}
-              className={selectClass}
-            >
-              <option value="">{t.allGoals}</option>
-              {[...new Set(allRows.map((j) => j.goal))]
-                .sort((a, b) => GOAL_LABEL[a][lang].localeCompare(GOAL_LABEL[b][lang], lang))
-                .map((g) => (
-                  <option key={g} value={g}>
-                    {GOAL_LABEL[g][lang]}
-                  </option>
-                ))}
-            </select>
-          </label>
-        )}
+          </select>
+        </label>
       </div>
 
       {!isDefault ? (

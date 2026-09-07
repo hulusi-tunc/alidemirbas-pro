@@ -12,6 +12,7 @@ import { AppBar, AppMeta, AppTitle, Badge, FormLabel, Table, Td, Th, Tr, Window 
 import { PATTERNS, PatternFlowCard } from "@/components/ui/PatternFlow";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
+import { withLibraryCount } from "@/lib/canonical-view";
 import { copy, type Lang } from "@/lib/content";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, softwareApplication } from "@/lib/schema";
@@ -30,7 +31,7 @@ import { breadcrumbList, softwareApplication } from "@/lib/schema";
    floating around the hero and the final CTA, the three old feature
    images, the five old carousel slides) was either a Gemini/Veo-generated
    fake or a real screenshot of the wrong product (the Canonical Journey
-   Library at /lab/journeys - a different, generic 281-journey subsystem,
+   Library at /lab/journeys - a different, generic journey subsystem,
    NOT this product's own output; ACQ-01/CON-38 are that library's ids,
    not claude-lifecycle's). The AI-generated ones were confirmed, not
    assumed: every one of those files carries an identical Google C2PA
@@ -557,7 +558,10 @@ function Faq({ t }: { t: (typeof copy)[Lang] }) {
       <PortraitContainer>
         <ProductHeading eyebrow={c.eyebrow} title={c.title} align="center" />
         <Reveal delay={100} className="mx-auto mt-12 max-w-2xl">
-          <FaqAccordion items={c.items.map((item, i) => ({ id: `journey-faq-${i}`, ...item }))} />
+          {/* The answers carry the library's {count}/{categories} tokens; until
+              2026-09-05 they rendered raw ("contains {count} lifecycle
+              journeys…") because nothing filled them here. */}
+          <FaqAccordion items={c.items.map((item, i) => ({ id: `journey-faq-${i}`, q: withLibraryCount(item.q), a: withLibraryCount(item.a) }))} />
         </Reveal>
       </PortraitContainer>
     </ProductSection>

@@ -1,26 +1,33 @@
 import type { Metadata } from "next";
-import { Manrope, JetBrains_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "../globals.css";
 import { JsonLd } from "@/components/JsonLd";
 import { pageAlternates, SITE_URL } from "@/lib/seo";
 
-/* BRAND GUIDELINE (2026-09-04): Outfit/Fira Code/Merriweather (that same
-   day's earlier rebrand) -> Manrope/JetBrains Mono, per the guideline's
-   "Font: Manrope (sans) + JetBrains Mono (mono)" - a two-family system, so
-   Merriweather isn't replaced with anything; see globals.css's `--font-serif`
-   note for where it re-clamps. */
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin", "latin-ext"],
-});
+/* ONE FAMILY: INTER (2026-09-05, by explicit request - "Inter Display yapar
+   misin tum sitedeki fontlari"). This supersedes the 2026-09-04 brand
+   guideline's two-family "Manrope (sans) + JetBrains Mono (mono)" spec, and
+   the Outfit/Fira Code/Merriweather set before it. Both `--font-sans` and
+   `--font-mono` now resolve to this one load - see globals.css § Typography
+   for what that costs and what carries the load instead.
 
-/* The mono rail the detail pages and the home page's spec plate already use
-   was resolving to whatever monospace the OS happened to ship - `--font-mono`
-   was referenced but never defined. JetBrains Mono is the loaded mono cut
-   now. */
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+   "Inter Display" IS NOT A SEPARATE FAMILY on Google Fonts. Inter v4 ships an
+   optical-size axis (`opsz`, 14-32) and the Display drawing is its top end -
+   tighter apertures, tighter spacing, cut for large type. Requesting `opsz`
+   in `axes` is therefore what actually loads Display; without it the browser
+   only ever gets the 14 (Text) instance and no headline can reach the Display
+   cut at all.
+
+   `font-optical-sizing` is left at its `auto` default on purpose: the browser
+   then feeds each element's used font-size into `opsz`, so a 56px hero lands
+   on the Display drawing and 15px body copy stays on the Text drawing, which
+   is the axis's whole reason for existing. Pinning `opsz: 32` globally would
+   put Display's tight spacing on 14px body text and cost legibility for
+   nothing. `wght` is a default axis and is requested automatically. */
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin", "latin-ext"],
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
@@ -57,13 +64,13 @@ export default function EnRootLayout({
 }>) {
   return (
     /* THE FONT VARIABLE BELONGS ON <html>, NOT ON <body>. globals.css declares
-       `--font-sans: var(--font-manrope), …` inside `@theme`, which Tailwind
+       `--font-sans: var(--font-inter), …` inside `@theme`, which Tailwind
        emits on `:root` — i.e. on <html>. A var() that resolves to nothing
        makes the whole declaration invalid at computed-value time, so with
-       `--font-manrope` defined one level down on <body>, `--font-sans` would
+       `--font-inter` defined one level down on <body>, `--font-sans` would
        compute to empty everywhere and every `font-sans` utility would fall
        back to the browser's default sans. */
-    <html lang="en" className={`${manrope.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={inter.variable}>
       <body className="bg-paper font-sans text-ink-900 antialiased">
         <JsonLd />
         {children}

@@ -42,11 +42,11 @@ const BOUNDS = {
 
 const T = {
   en: {
-    exploreMore: "Explore more calculators",
+    exploreMore: "All calculators",
     noBreakEven: "At this price and cost, there's no break-even point - variable cost per unit must be lower than price per unit.",
   },
   tr: {
-    exploreMore: "Daha fazla hesaplayıcı keşfet",
+    exploreMore: "Tüm hesaplayıcılar",
     noBreakEven: "Bu fiyat ve maliyetle bir başabaş noktası yok - birim değişken maliyet, birim fiyattan düşük olmalı.",
   },
 } as const;
