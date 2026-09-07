@@ -144,7 +144,7 @@ const HERO_TILES = ["lifecycle-card-archive", "ab-test-playbook", "numerspace"] 
    2026-09-06: "the hero feels a little dead, needs more liveliness". */
 function MiniNode({ tint, icon, children }: { tint: string; icon: ReactNode; children: ReactNode }) {
   return (
-    <div className="flex-1 rounded-xl bg-paper-soft p-3">
+    <div className="flex-1 rounded-xl bg-paper p-3 ring-1 ring-ink-950/[0.06]">
       <div className="flex items-center gap-1.5">
         <span className={`grid size-5 shrink-0 place-items-center rounded-full ${tint}`}>{icon}</span>
         <span className="h-1.5 w-8 rounded-full bg-ink-950/10" />
@@ -177,11 +177,11 @@ function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
         </MiniNode>
         <span className="h-px w-2.5 shrink-0 bg-ink-300" />
         <div className="flex flex-1 flex-col gap-1.5">
-          <span className="flex items-center gap-1.5 rounded-xl bg-paper-soft px-2.5 py-2">
+          <span className="flex items-center gap-1.5 rounded-xl bg-paper px-2.5 py-2 ring-1 ring-ink-950/[0.06]">
             <CircleCheck className="size-3.5 shrink-0 text-emerald-600" />
             <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
           </span>
-          <span className="flex items-center gap-1.5 rounded-xl bg-paper-soft px-2.5 py-2">
+          <span className="flex items-center gap-1.5 rounded-xl bg-paper px-2.5 py-2 ring-1 ring-ink-950/[0.06]">
             <CircleX className="size-3.5 shrink-0 text-rose-600" />
             <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
           </span>
@@ -193,7 +193,7 @@ function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
     return (
       <div aria-hidden className="mt-5 -mx-2 grid grid-cols-2 gap-2">
         {(["A", "B"] as const).map((mark) => (
-          <div key={mark} className="rounded-xl bg-paper-soft p-3">
+          <div key={mark} className="rounded-xl bg-paper p-3 ring-1 ring-ink-950/[0.06]">
             <div className="flex items-center gap-1.5">
               <span className={`grid size-5 place-items-center rounded-full text-xs font-semibold ${mark === "A" ? "bg-ink-950 text-white" : "bg-rose-600 text-white"}`}>{mark}</span>
               <span className="h-1.5 w-10 rounded-full bg-ink-950/10" />
@@ -203,7 +203,7 @@ function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
             {mark === "A" ? (
               <span className="mt-3 block h-6 rounded-md bg-paper ring-2 ring-rose-300" />
             ) : (
-              <span className="mt-3 flex h-6 items-center"><span className="h-1.5 w-1/2 rounded-full bg-primary-500 ring-2 ring-rose-300 ring-offset-2 ring-offset-paper-soft" /></span>
+              <span className="mt-3 flex h-6 items-center"><span className="h-1.5 w-1/2 rounded-full bg-primary-500 ring-2 ring-rose-300 ring-offset-2 ring-offset-paper" /></span>
             )}
           </div>
         ))}
