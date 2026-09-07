@@ -292,7 +292,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
               <Reveal key={project.slug} delay={280 + i * 60} className="flex">
                 <Link
                   href={primary.href}
-                  className="group flex w-full flex-col overflow-hidden rounded-[28px] bg-paper/75 p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl transition-[box-shadow,transform] duration-[var(--duration-fast)] hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.45)]"
+                  className="group flex w-full flex-col overflow-hidden rounded-[28px] bg-gradient-to-b from-paper to-paper/50 p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl transition-[box-shadow,transform] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.45)]"
                 >
                   <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
                     <LabProjectIcon slug={project.slug} className="size-5" />
