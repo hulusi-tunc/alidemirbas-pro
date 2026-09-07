@@ -245,7 +245,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           behind the statement as the same wash. */}
       <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-[44rem] [mask-image:linear-gradient(to_bottom,transparent_6%,black_58%)] md:inset-0 md:h-auto">
         <Image src="/lab/hero-meadow.jpg" alt="" fill sizes="100vw" priority className="object-cover object-bottom" />
-        <CtaBurst className="z-0" color="#ffffff" opacity={0.45} direction="center" sweepMs={2600} lifeMs={900} rearm={false} />
+        <CtaBurst className="z-0" color="#ffffff" opacity={0.45} direction="center" sweepMs={1300} lifeMs={450} rearm={false} />
       </div>
       <div className="altor-container">
         <Reveal delay={60}>

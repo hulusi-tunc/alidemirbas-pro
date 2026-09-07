@@ -3,7 +3,6 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { AbCard, JourneyCard } from "@/components/HomeWork";
 import { ButtonLink } from "@/components/ui/Button";
-import { CtaBurst } from "@/components/ui/CtaBurst";
 import { Reveal } from "@/components/ui/Reveal";
 import { withJourneyCount } from "@/lib/archive";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
@@ -12,8 +11,7 @@ import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
    not match our style now; not a frame, a full-width section, not only
    blue, something enclosing Ali's photo and UI assets that support the
    CTA"). A full-bleed band on the night meadow - the blue-hour plate the
-   hero's dark tile carries - under a dark gradient, with the pixel sweep
-   on arrival. Left, the words and the two actions; right, the person and
+   hero's dark tile carries - under a dark gradient. Left, the words and the two actions; right, the person and
    his work as one picture: the portrait in colour as a card, the journey
    steps card over its upper right edge and the A/B pair over its lower
    edge, the same two drawings the "What I do" band shows, arriving with
@@ -27,7 +25,6 @@ export function HomeCta({ t }: { t: (typeof copy)[Lang] }) {
         <Image src="/lab/frames/google-ads-change-history-dashboard.jpg" alt="" fill sizes="100vw" className="object-cover object-bottom" />
         <span className="absolute inset-0 bg-gradient-to-r from-ink-950/85 via-ink-950/55 to-ink-950/35" />
         <span className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink-950/70 to-transparent" />
-        <CtaBurst className="z-0" color="#f4f6fa" opacity={0.4} direction="left" sweepMs={1700} lifeMs={700} rearm={false} />
       </div>
 
       <div className="altor-container">

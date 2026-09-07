@@ -7,6 +7,7 @@ import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { ProductFrame } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
+import { PixelHighlight } from "@/components/ui/PixelHighlight";
 import { WorkScroll } from "@/components/ui/WorkScroll";
 import { withJourneyCount } from "@/lib/archive";
 import { copy, type Lang } from "@/lib/content";
@@ -190,12 +191,14 @@ export function AbCard({ proof }: { proof: string }) {
             </div>
             <Bar className="mt-4" />
             <Bar className="mt-2" w="w-3/4" />
+            {/* The tested element, ringed - and the pixel pass confined to
+                the ring, so the highlight does the one job it is for. */}
             {mark === "A" ? (
-              <span className="mt-4 block h-8 rounded-lg bg-paper ring-2 ring-rose-300" />
+              <PixelHighlight className="mt-4 h-8 rounded-lg bg-paper ring-2 ring-rose-300" />
             ) : (
-              <span className="mt-4 flex h-8 items-center">
-                <span className="h-1.5 w-1/2 rounded-full bg-primary-500 ring-2 ring-rose-300 ring-offset-2 ring-offset-paper-soft" />
-              </span>
+              <PixelHighlight className="mt-4 flex h-8 items-center rounded-lg px-2 ring-2 ring-rose-300">
+                <span className="block h-1.5 w-1/2 rounded-full bg-primary-500" />
+              </PixelHighlight>
             )}
             <span className="mt-4 block h-8 rounded-lg bg-ink-950/90" />
           </div>
