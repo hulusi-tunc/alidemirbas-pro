@@ -1,129 +1,28 @@
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight, MapPin } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
-import { AboutTimeline, type TimelineJob } from "@/components/ui/AboutTimeline";
+import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { Reveal } from "@/components/ui/Reveal";
+import { SectionHeading } from "@/components/ui/Section";
+import { withJourneyCount } from "@/lib/archive";
 import { copy, type Lang } from "@/lib/content";
 
-/* About page — BROUGHT ONTO THE SITE (2026-08-31).
-
-   This was a deliberate one-off: a user-supplied "Portfolio" mockup with
-   its own fonts (Space Grotesk / IBM Plex Mono), its own teal-sage
-   palette, its own bare wordmark header and a footer carrying no site
-   navigation at all. It was reviewed as reading "yabancı gibi" - like a
-   different site - and the missing header was called out by name.
-
-   So the mockup's SKIN is gone and its SUBSTANCE is kept. The page now
-   uses SiteHeader/SiteFooter/FinalCta, the site's own Geist and its
-   paper/ink/primary tokens, and the section rhythm every other page
-   uses (tinted stage -> white -> tinted -> white). What survives is
-   what was real: the hero statement, the current-role paragraph with
-   its live company link, the eight-years line, and the timeline with
-   its Simple/Detailed toggle - whose dates, titles and companies match
-   `content.ts`'s own `about.timeline`, this site's source of truth for
-   those facts.
-
-   `AboutTimeline` was retoned in the same pass: its hardcoded teal
-   hexes are now the shared tokens, so it inherits future palette
-   changes instead of drifting away from them again. */
-
-const JOBS: Record<Lang, TimelineJob[]> = {
-  en: [
-    {
-      dates: "2026–Present",
-      title: "Mobile App Growth Lead",
-      company: "Aksigorta",
-      info: "Mobile app growth for one of Turkey's largest insurers — user acquisition, engagement, and an app-first growth strategy.",
-      bottom: "Owning the app growth roadmap end-to-end. And we're just getting started...",
-    },
-    {
-      dates: "2024–2026",
-      title: "Growth Marketing Lead",
-      company: "Vodafone",
-      info: "Growth marketing across digital channels for one of the world's largest telecom brands.",
-      bottom: "Data-driven acquisition and lifecycle programs working as one growth engine.",
-    },
-    {
-      dates: "2023–2024",
-      title: "Growth – CRM Analytics Executive",
-      company: "Getir",
-      info: "CRM analytics and growth initiatives for the pioneer of rapid commerce.",
-      bottom: "Retention and LTV, optimized at rapid-commerce speed.",
-    },
-    {
-      dates: "2021–2023",
-      title: "Lifecycle Marketing",
-      company: "Wingie Enuygun Group",
-      info: "Lifecycle and CRM programs for a leading online travel platform.",
-      bottom: "Owned lifecycle and CRM end-to-end across the group's travel brands.",
-      subs: [
-        { dates: "2023", title: "Experienced Lifecycle Marketing Specialist (Growth)" },
-        { dates: "2021–2023", title: "Lifecycle Marketing Specialist (Growth)" },
-      ],
-    },
-    {
-      dates: "2020–2021",
-      title: "Digital Marketing Specialist",
-      company: "Albayrak Grubu",
-      info: "Digital marketing campaigns across group companies.",
-    },
-    {
-      dates: "2019–2020",
-      title: "Jr. Digital Marketing Specialist",
-      company: "Doğuş Oto",
-      info: "Digital marketing execution for one of Turkey's leading automotive dealer groups.",
-    },
-  ],
-  tr: [
-    {
-      dates: "2026–Günümüz",
-      title: "Mobil Uygulama Büyüme Lideri",
-      company: "Aksigorta",
-      info: "Türkiye'nin en büyük sigorta şirketlerinden biri için mobil uygulama büyümesi — kullanıcı kazanımı, etkileşim ve app-first bir büyüme stratejisi.",
-      bottom: "Uçtan uca app growth roadmap'ini yönetiyorum. Ve daha yeni başlıyoruz...",
-    },
-    {
-      dates: "2024–2026",
-      title: "Büyüme Pazarlaması Lideri",
-      company: "Vodafone",
-      info: "Dünyanın en büyük telekom markalarından biri için dijital kanallarda büyüme pazarlaması.",
-      bottom: "Veriye dayalı kullanıcı kazanımı ve lifecycle programları, tek bir growth motoru gibi çalışıyor.",
-    },
-    {
-      dates: "2023–2024",
-      title: "Büyüme – CRM Analitiği Uzmanı",
-      company: "Getir",
-      info: "Hızlı ticaretin öncüsü için CRM analitiği ve büyüme girişimleri.",
-      bottom: "Hızlı ticaret temposunda elde tutma ve LTV optimizasyonu.",
-    },
-    {
-      dates: "2021–2023",
-      title: "Yaşam Döngüsü Pazarlama",
-      company: "Wingie Enuygun Group",
-      info: "Önde gelen bir çevrimiçi seyahat platformu için lifecycle ve CRM programları.",
-      bottom: "Grubun seyahat markaları genelinde lifecycle ve CRM'i uçtan uca yönettim.",
-      subs: [
-        { dates: "2023", title: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)" },
-        { dates: "2021–2023", title: "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)" },
-      ],
-    },
-    {
-      dates: "2020–2021",
-      title: "Dijital Pazarlama Uzmanı",
-      company: "Albayrak Grubu",
-      info: "Grup şirketleri genelinde dijital pazarlama kampanyaları.",
-    },
-    {
-      dates: "2019–2020",
-      title: "Jr. Dijital Pazarlama Uzmanı",
-      company: "Doğuş Oto",
-      info: "Türkiye'nin önde gelen otomotiv bayi gruplarından biri için dijital pazarlama uygulamaları.",
-    },
-  ],
-};
+/* About page - REBUILT IN THE HOMEPAGE'S LANGUAGE (2026-09-07, Hulusi: "now
+   update the About page"). Three moves, all on material the site already
+   owns: the opening puts the person and the words in one screen (the colour
+   portrait as a card with the one fact that matters as a pill, beside the
+   statement, the current-role paragraph and the two actions - no more
+   greyscale plate, no second band for the buttons); the record is the
+   timeline the homepage's bio approved (bare wordmarks, the rail that
+   draws itself, rows arriving in turn), here with each role's own line
+   from content.ts's `about.timeline` - the site's source of truth for those
+   facts - and no Simple/Detailed toggle; and the six things he builds as
+   the bento tiles the hero uses, from `lab.projects`. The three filler
+   pills ("8+ years building.") and the "Bottom Line" rows are gone. */
 
 const T = {
   en: {
@@ -138,8 +37,10 @@ const T = {
     exploreHref: "/lab",
     linkedinLabel: "Connect on LinkedIn",
     h2: "Over eight years bridging data and marketing into measurable growth.",
-    subLines: ["8+ years building.", "Growth, lifecycle, and analytics.", "From startups to enterprises."],
-    toggle: { simple: "Simple", detailed: "Detailed", at: "at", bottomLine: "Bottom Line" },
+    basedIn: "Based in Istanbul",
+    buildEyebrow: "Lab",
+    buildTitle: "What I build outside the day job",
+    buildIntro: "Open-source tools and small products around growth and lifecycle marketing. Each one started as a problem I kept running into.",
     footerEmailLabel: "Email",
     langLabel: "TR",
     langHref: "/tr/about",
@@ -156,73 +57,48 @@ const T = {
     exploreHref: "/tr/lab",
     linkedinLabel: "LinkedIn'de bağlantı kur",
     h2: "Sekiz yıldır veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
-    subLines: ["8+ yıldır inşa ediyorum.", "Büyüme, lifecycle ve analitik.", "Startup'lardan kurumsala."],
-    toggle: { simple: "Basit", detailed: "Detaylı", at: "@", bottomLine: "Özet" },
+    basedIn: "İstanbul'da",
+    buildEyebrow: "Lab",
+    buildTitle: "İş dışında ne yapıyorum",
+    buildIntro: "Growth ve lifecycle marketing etrafında açık kaynak araçlar ve küçük ürünler. Her biri, tekrar tekrar karşılaştığım bir problemle başladı.",
     footerEmailLabel: "E-posta",
     langLabel: "EN",
     langHref: "/about",
   },
 } as const;
 
+type Row = { key: string; co: string; logo: string; role: string; period: string; desc: string };
+
 export default function AboutPage({ lang }: { lang: Lang }) {
   const t = T[lang];
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
-  const jobs = JOBS[lang];
+  const rows = c.about.timeline.flatMap((e): Row[] =>
+    "roles" in e
+      ? e.roles.map((r) => ({ key: `${e.co}-${r.role}`, co: e.co, logo: e.logo, role: r.role, period: r.period, desc: r.desc }))
+      : [{ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period, desc: e.desc }],
+  );
 
   return (
     <>
       <SiteHeader t={c} anchorBase={home} langHref={t.langHref} />
       <main>
-        {/* THE OPENING. Portrait beside the statement, on the site's own
-            tinted stage - the same shape the other pages open with, so
-            arriving here from anywhere else is not a jump. */}
-        <section className="bg-paper-soft pt-16 pb-16 md:pt-20 md:pb-20">
+        {/* THE OPENING: person and words in one screen. */}
+        <section className="bg-paper-soft py-20 md:py-28">
           <div className="altor-container">
-            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)] lg:gap-16">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-16">
               <Reveal>
-                <p className="text-[13px] font-medium text-ink-400">{c.nav.about}</p>
-                <h1 className="mt-4 max-w-3xl text-h1 text-balance text-ink-950">
-                  {t.heroText}
-                </h1>
-              </Reveal>
-              <Reveal delay={100}>
-                <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-3xl bg-blue-600">
-                  <Image
-                    src="/portrait.jpg"
-                    alt="Ali Demirbaş"
-                    width={640}
-                    height={800}
-                    className="w-full object-cover opacity-95 grayscale"
-                  />
-                  <div aria-hidden className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </section>
-
-        {/* Where he is now, and how to reach him. */}
-        <section className="bg-paper py-16 md:py-20">
-          <div className="altor-container">
-            <Reveal>
-              <div className="max-w-[62ch]">
-                <p className="text-lg leading-relaxed text-pretty text-ink-700">
+                <p className="altor-eyebrow text-ink-subtle">{c.nav.about}</p>
+                <h1 className="mt-4 max-w-3xl text-h1 text-balance text-ink-950">{t.heroText}</h1>
+                <p className="mt-6 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">
                   {t.introPrefix}
-                  <a
-                    href={t.companyHref}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-700 underline underline-offset-2 hover:text-blue-800"
-                  >
+                  <a href={t.companyHref} target="_blank" rel="noreferrer" className="font-medium text-ink-950 underline decoration-ink-300 underline-offset-4 transition-colors duration-[var(--duration-fast)] hover:decoration-ink-950">
                     {t.company}
                   </a>
                   {t.introSuffix}
                 </p>
-                <p className="mt-5 text-lg leading-relaxed text-pretty text-ink-700">{t.outsideWork}</p>
-                {/* Real buttons, not underlined links - the site's rule since
-                    the Lab review (2026-09-06). */}
-                <div className="mt-7 flex flex-wrap gap-3">
+                <p className="mt-4 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{t.outsideWork}</p>
+                <div className="mt-8 flex flex-wrap gap-3">
                   <ButtonLink href={t.exploreHref} variant="primary" size="md">
                     {t.exploreLabel}
                     <ArrowRight aria-hidden className="size-4" />
@@ -232,40 +108,83 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                     <ArrowUpRight aria-hidden className="size-4" />
                   </ButtonLink>
                 </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* The statement, and the three lines that qualify it. */}
-        <section className="bg-paper-soft py-16 md:py-24">
-          <div className="altor-container">
-            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16">
-              <Reveal>
-                <h2 className="max-w-[30ch] text-h2 text-balance text-ink-950">
-                  {t.h2}
-                </h2>
               </Reveal>
-              <Reveal delay={80}>
-                <ul className="flex list-none flex-col gap-3 p-0 lg:pt-2">
-                  {t.subLines.map((line) => (
-                    <li
-                      key={line}
-                      className="rounded-xl bg-paper px-5 py-3.5 text-[17px] font-medium text-ink-900"
-                    >
-                      {line}
-                    </li>
-                  ))}
-                </ul>
+              <Reveal delay={100} className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[28px] bg-paper lg:max-w-none">
+                <Image src="/portrait.jpg" alt="Ali Demirbaş" fill sizes="(min-width: 1024px) 26rem, 24rem" priority className="object-cover" />
+                <p className="absolute bottom-5 left-5 flex items-center gap-1.5 rounded-full bg-paper/95 px-3.5 py-2 text-sm font-medium text-ink-950 ring-1 ring-ink-950/[0.06]">
+                  <MapPin aria-hidden className="size-4 text-primary-600" />
+                  {t.basedIn}
+                </p>
               </Reveal>
             </div>
           </div>
         </section>
 
-        {/* The record. Real dates, titles and companies. */}
-        <section className="bg-paper py-16 md:py-20">
+        {/* THE RECORD: the homepage bio's timeline, with each role's line. */}
+        <section className="bg-paper py-20 md:py-28">
           <div className="altor-container">
-            <AboutTimeline jobs={jobs} labels={t.toggle} />
+            <SectionHeading eyebrow={c.about.experience} title={t.h2} />
+            <Reveal delay={80} className="mt-12">
+              <ol className="relative flex list-none flex-col p-0 [--bio-rail:0.375rem] md:[--bio-rail:11rem]">
+                <span aria-hidden className="bio-rail absolute top-3 bottom-3 left-[var(--bio-rail)] w-px" />
+                {rows.map((r, i) => (
+                  <li
+                    key={r.key}
+                    className="bio-row relative grid grid-cols-[minmax(0,1fr)] gap-y-1.5 py-6 pl-8 md:grid-cols-[9.5rem_minmax(0,1fr)] md:gap-x-10 md:pl-0"
+                    style={{ "--i": i } as React.CSSProperties}
+                  >
+                    <span
+                      aria-hidden
+                      className={`absolute top-[1.9rem] left-[calc(var(--bio-rail)-0.3125rem)] size-2.5 rounded-full ring-4 ring-paper ${i === 0 ? "bio-node-live bg-primary-600" : "bg-ink-300"}`}
+                    />
+                    <span className="text-sm whitespace-nowrap text-ink-subtle tabular-nums md:pt-1 md:text-right">{r.period}</span>
+                    <div className="max-w-[60ch] min-w-0">
+                      <Image src={r.logo} alt={r.co} width={140} height={28} className="h-7 w-auto max-w-[9rem] object-contain object-left" />
+                      <h3 className="mt-2.5 text-h3 text-balance text-ink-950">{r.role}</h3>
+                      <p className="mt-0.5 text-sm text-ink-muted">{r.co}</p>
+                      <p className="mt-3 text-base leading-relaxed text-pretty text-ink-muted">{r.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* WHAT HE BUILDS: the six projects as the hero's tiles. */}
+        <section className="bg-paper-soft py-20 md:py-28">
+          <div className="altor-container">
+            <SectionHeading eyebrow={t.buildEyebrow} title={t.buildTitle} intro={t.buildIntro} />
+            <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {c.lab.projects.map((project, i) => {
+                const accent = labAccent(project.slug);
+                const [primary] = project.links;
+                return (
+                  <Reveal key={project.slug} delay={i * 60} className="flex">
+                    <Link
+                      href={primary.href}
+                      className="group flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
+                    >
+                      <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
+                        <LabProjectIcon slug={project.slug} className="size-5" />
+                      </span>
+                      <p className="mt-4 text-lg font-semibold text-ink-950">{project.short}</p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-muted">{withJourneyCount(project.tagline)}</p>
+                      <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium text-ink-950">
+                        <span className="tabular-nums">{withJourneyCount(project.proof ?? "")}</span>
+                        <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
+                      </p>
+                    </Link>
+                  </Reveal>
+                );
+              })}
+            </div>
+            <Reveal delay={420} className="mt-12">
+              <ButtonLink href={c.nav.labHref} variant="outline" size="md">
+                {c.home.labMore}
+                <ArrowRight aria-hidden className="size-4" />
+              </ButtonLink>
+            </Reveal>
           </div>
         </section>
 
