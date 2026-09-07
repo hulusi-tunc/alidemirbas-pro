@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, CircleCheck, CircleSlash, CircleX, Clock, Mail, MapPin, Radio } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CircleCheck, CircleX, Clock, Mail, MapPin, Radio } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { CtaBurst } from "@/components/ui/CtaBurst";
@@ -13,8 +13,8 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
+import { Work } from "@/components/HomeWork";
 import { withJourneyCount } from "@/lib/archive";
-import { DASHBOARD_REAL } from "@/lib/lab-material";
 import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 import {
   getFeaturedCalcEntries,
@@ -410,113 +410,6 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
             </ol>
           </Reveal>
         </div>
-      </div>
-    </section>
-  );
-}
-
-/* THE CHECK, drawn small: the Dashboard Builder's comparability rule on
-   the README's own example - four revenue figures that must not be added
-   up, the naive total struck through, the platform of record standing.
-   It is the one object under "Measurement that survives an audit", and
-   it is what "measurement problems in disguise" looks like. */
-function ComparabilityMini({ lang }: { lang: Lang }) {
-  const ex = DASHBOARD_REAL.revenueExample;
-  const max = Math.max(...ex.parts.map((x) => x.value));
-  return (
-    <div aria-hidden className="rounded-2xl bg-paper p-4 ring-1 ring-ink-950/[0.06]">
-      <ul className="flex flex-col gap-2">
-        {ex.parts.map((x) => (
-          <li key={x.source} className="grid grid-cols-[5.5rem_minmax(0,1fr)_3.5rem] items-center gap-3 text-xs">
-            <span className="truncate text-ink-600">{x.source}</span>
-            <span className="h-2 rounded-full bg-primary-100">
-              <span className="block h-2 rounded-full bg-primary-500" style={{ width: `${(x.value / max) * 100}%` }} />
-            </span>
-            <span className="text-right font-mono text-ink-950 tabular-nums">${x.value.toFixed(1)}M</span>
-          </li>
-        ))}
-      </ul>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-xs">
-        <span className="flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 font-medium text-rose-700">
-          <CircleSlash aria-hidden className="size-3.5" />
-          {lang === "en" ? "Not comparable" : "Karşılaştırılamaz"}
-        </span>
-        <span className="text-ink-500">
-          {lang === "en" ? "Added up" : "Toplanınca"}{" "}
-          <span className="font-mono text-ink-400 line-through tabular-nums">${ex.naiveSum.toFixed(1)}M</span>
-          {" · "}
-          {lang === "en" ? "Platform of record" : "Kayıt platformu"}{" "}
-          <span className="font-mono font-semibold text-ink-950 tabular-nums">${ex.trueTotal.toFixed(1)}M</span>
-        </span>
-      </div>
-    </div>
-  );
-}
-
-/** What I do: four services as rows, the first opened with its object. The
-    ranking the old "Primary + 02 03 04" list only labelled is now visible:
-    measurement gets the room and the evidence, the other three get one
-    line each, and every row links to the tool that came out of it -
-    services with proof, the way Phantom Studios lists its practice areas
-    beside a real piece of work. The About paragraph that used to sit in
-    this band is gone; the hero's dark tile already points to About. */
-function Work({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  return (
-    <section id="work" className="bg-paper py-20 md:py-28">
-      <div className="altor-container">
-        <SectionHeading eyebrow={t.home.work.eyebrow} title={t.home.work.title} intro={t.home.work.lede} />
-
-        <ul className="mt-14 flex list-none flex-col gap-3 p-0">
-          {t.home.work.services.map((service, i) => {
-            const project = t.lab.projects.find((p) => p.slug === service.tool);
-            const accent = labAccent(service.tool);
-            const opened = i === 0;
-            return (
-              <Reveal key={service.title} delay={60 + i * 60} as="li">
-                <div
-                  className={`grid gap-6 rounded-[28px] bg-paper-soft p-6 md:p-8 ${
-                    opened ? "lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-12" : "md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] md:gap-10"
-                  }`}
-                >
-                  <div className={opened ? "flex flex-col" : "flex items-start gap-4"}>
-                    <span aria-hidden className={`grid size-10 shrink-0 place-items-center rounded-xl ${accent.tile}`}>
-                      <LabProjectIcon slug={service.tool} className="size-5" />
-                    </span>
-                    <div className={opened ? "mt-5" : ""}>
-                      <h3 className="text-h3 text-ink-950">{service.title}</h3>
-                      {opened && <p className="mt-3 max-w-[52ch] leading-relaxed text-pretty text-ink-600">{service.body}</p>}
-                      {opened && project && (
-                        <Link href={project.links[0].href} className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-ink-950 transition-colors duration-[var(--duration-fast)] hover:text-primary-600">
-                          {t.home.work.builtFor}: {project.short}
-                          <ArrowRight aria-hidden className="size-4" />
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                  {opened ? (
-                    <ComparabilityMini lang={lang} />
-                  ) : (
-                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-8">
-                      <p className="max-w-[52ch] leading-relaxed text-pretty text-ink-600">{service.body}</p>
-                      {project && (
-                        <Link href={project.links[0].href} className="flex w-fit shrink-0 items-center gap-1.5 text-sm font-medium whitespace-nowrap text-ink-950 transition-colors duration-[var(--duration-fast)] hover:text-primary-600">
-                          {t.home.work.builtFor}: {project.short}
-                          <ArrowRight aria-hidden className="size-4" />
-                        </Link>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </Reveal>
-            );
-          })}
-        </ul>
-        <Reveal delay={360} className="mt-12">
-          <ButtonLink href={t.nav.labHref} variant="outline" size="md">
-            {t.home.labMore}
-            <ArrowRight aria-hidden className="size-4" />
-          </ButtonLink>
-        </Reveal>
       </div>
     </section>
   );
