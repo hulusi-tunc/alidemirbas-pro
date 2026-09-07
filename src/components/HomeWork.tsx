@@ -4,6 +4,7 @@ import { ArrowRight, Bot, CircleCheck, CircleSlash, CircleX, Clock, Gavel, Mail,
 
 import { ButtonLink } from "@/components/ui/Button";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
+import { ProductFrame } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { WorkScroll } from "@/components/ui/WorkScroll";
@@ -25,12 +26,20 @@ type T = (typeof copy)[Lang];
 
 /* --- the evidence ------------------------------------------------------ */
 
+/* Each card is a white sheet on the project's own plate (ui/ProductFrame:
+   the meadow photograph in the project's hue wash), so the four panels
+   read as four different pictures as they switch (Hulusi, 2026-09-07:
+   "use different background images for each one, with colour overlays"). */
 function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div aria-hidden className={`rounded-[28px] bg-paper-soft p-4 sm:p-6 ${className}`}>{children}</div>;
+  return (
+    <div aria-hidden className={`rounded-2xl bg-paper p-4 shadow-[0_28px_70px_-30px_rgb(10_16_32/0.55)] ring-1 ring-ink-950/[0.06] sm:p-5 ${className}`}>
+      {children}
+    </div>
+  );
 }
 
 function Sheet({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-2xl bg-paper p-4 ring-1 ring-ink-950/[0.06] ${className}`}>{children}</div>;
+  return <div className={className}>{children}</div>;
 }
 
 function Bar({ className = "", w = "w-full" }: { className?: string; w?: string }) {
@@ -80,7 +89,7 @@ function ComparabilityCard({ lang }: { lang: Lang }) {
 
 function Node({ tint, icon, children, className = "" }: { tint: string; icon: ReactNode; children?: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl bg-paper p-3.5 ring-1 ring-ink-950/[0.06] ${className}`}>
+    <div className={`rounded-2xl bg-paper-soft p-3.5 ${className}`}>
       <div className="flex items-center gap-2">
         <span className={`grid size-6 shrink-0 place-items-center rounded-full ${tint} [&>svg]:size-3.5`}>{icon}</span>
         <Bar w="w-12" />
@@ -110,11 +119,11 @@ function JourneyCard({ proof }: { proof: string }) {
         </Node>
         <span className="h-px w-3 shrink-0 bg-ink-300" />
         <div className="flex flex-1 flex-col gap-2">
-          <span className="flex items-center gap-2 rounded-2xl bg-paper px-3 py-2.5 ring-1 ring-ink-950/[0.06]">
+          <span className="flex items-center gap-2 rounded-2xl bg-paper-soft px-3 py-2.5">
             <CircleCheck aria-hidden className="size-4 shrink-0 text-emerald-600" />
             <Bar />
           </span>
-          <span className="flex items-center gap-2 rounded-2xl bg-paper px-3 py-2.5 ring-1 ring-ink-950/[0.06]">
+          <span className="flex items-center gap-2 rounded-2xl bg-paper-soft px-3 py-2.5">
             <CircleX aria-hidden className="size-4 shrink-0 text-rose-600" />
             <Bar />
           </span>
@@ -137,7 +146,7 @@ function ChangeLogCard({ lang }: { lang: Lang }) {
   const rows = CHANGE_HISTORY_REAL.explorerRows.slice(0, 3);
   return (
     <Card>
-      <Sheet className="p-2">
+      <Sheet>
         <ul className="flex flex-col">
           {rows.map((r, i) => {
             const kind = KIND[r.category] ?? KIND.Budget;
@@ -174,7 +183,7 @@ function AbCard({ proof }: { proof: string }) {
     <Card>
       <div className="grid grid-cols-2 gap-3">
         {(["A", "B"] as const).map((mark) => (
-          <div key={mark} className="rounded-2xl bg-paper p-4 ring-1 ring-ink-950/[0.06]">
+          <div key={mark} className="rounded-2xl bg-paper-soft p-4">
             <div className="flex items-center gap-2">
               <span className={`grid size-6 place-items-center rounded-full text-xs font-semibold text-white ${mark === "A" ? "bg-ink-950" : "bg-rose-600"}`}>{mark}</span>
               <Bar w="w-14" />
@@ -185,7 +194,7 @@ function AbCard({ proof }: { proof: string }) {
               <span className="mt-4 block h-8 rounded-lg bg-paper ring-2 ring-rose-300" />
             ) : (
               <span className="mt-4 flex h-8 items-center">
-                <span className="h-1.5 w-1/2 rounded-full bg-primary-500 ring-2 ring-rose-300 ring-offset-2 ring-offset-paper" />
+                <span className="h-1.5 w-1/2 rounded-full bg-primary-500 ring-2 ring-rose-300 ring-offset-2 ring-offset-paper-soft" />
               </span>
             )}
             <span className="mt-4 block h-8 rounded-lg bg-ink-950/90" />
@@ -204,18 +213,26 @@ export function Work({ t, lang }: { t: T; lang: Lang }) {
   const projectOf = (slug: string) => t.lab.projects.find((p) => p.slug === slug);
   const evidence = (slug: string): ReactNode => {
     const proof = withJourneyCount(projectOf(slug)?.proof ?? "");
+    let card: ReactNode = null;
     switch (slug) {
       case "dashboard-builder":
-        return <ComparabilityCard lang={lang} />;
+        card = <ComparabilityCard lang={lang} />;
+        break;
       case "lifecycle-card-archive":
-        return <JourneyCard proof={proof} />;
+        card = <JourneyCard proof={proof} />;
+        break;
       case "google-ads-change-history-dashboard":
-        return <ChangeLogCard lang={lang} />;
+        card = <ChangeLogCard lang={lang} />;
+        break;
       case "ab-test-playbook":
-        return <AbCard proof={proof} />;
-      default:
-        return null;
+        card = <AbCard proof={proof} />;
+        break;
     }
+    return (
+      <ProductFrame slug={slug} inset="sm" className="flex h-full flex-col justify-center">
+        {card}
+      </ProductFrame>
+    );
   };
 
   const rows = services.map((service) => {

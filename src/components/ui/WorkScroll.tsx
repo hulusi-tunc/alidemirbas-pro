@@ -9,6 +9,10 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
    evidence card that belongs to the lit row, the cards fading and rising
    into each other. The reference was Intercom's feature list beside one
    changing visual. Below lg nothing pins: every row carries its own card.
+   Round two (Hulusi): the pinned panel sits 7rem down so it clears the
+   header with room, the list carries bottom padding so the last row can
+   reach the line, and the active row is the last one whose top has passed
+   mid-viewport - so the final card is reachable and stays.
 
    The rows and cards are server-rendered nodes handed in as props - this
    component only decides which one is active. Nothing here depends on
@@ -21,18 +25,14 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
     let raf = 0;
     const update = () => {
       raf = 0;
-      // The reading line sits a little above the middle, where the eye rests.
-      const line = window.innerHeight * 0.42;
+      // The row whose top has crossed the reading line (mid-viewport) is
+      // the active one - the LAST such row, so the final row can take over
+      // as soon as it arrives and stays lit until the band scrolls away.
+      const line = window.innerHeight * 0.5;
       let best = 0;
-      let bestDistance = Number.POSITIVE_INFINITY;
       refs.current.forEach((el, i) => {
         if (!el) return;
-        const r = el.getBoundingClientRect();
-        const distance = Math.abs(r.top + r.height / 2 - line);
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          best = i;
-        }
+        if (el.getBoundingClientRect().top <= line) best = i;
       });
       setActive(best);
     };
@@ -51,7 +51,7 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
 
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
-      <ol className="flex list-none flex-col p-0">
+      <ol className="flex list-none flex-col p-0 lg:pb-24">
         {rows.map((row, i) => (
           <li
             key={i}
@@ -72,7 +72,7 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
         ))}
       </ol>
       <div className="hidden lg:block">
-        <div className="relative min-h-[27rem] lg:sticky lg:top-24">
+        <div className="relative min-h-[28rem] lg:sticky lg:top-28">
           {panels.map((panel, i) => (
             <div
               key={i}
