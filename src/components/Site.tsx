@@ -277,6 +277,14 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
               {t.hero.portraitPill}
             </p>
           </Reveal>
+          {/* The three tiles are frosted glass over the meadow (Hulusi,
+              2026-09-07: "can we add some effect on the cards"): paper at
+              75% with a heavy backdrop blur, so the plate's horizon warms
+              the lower tile and the sky keeps the upper ones near white;
+              a white hairline is the glass edge. The layering is real -
+              there is a photograph behind them - which is what separates
+              this from glass as decoration. Hover lifts by 2px. The
+              portrait and the dark tile stay opaque; both carry photos. */}
           {projects.map((project, i) => {
             const accent = labAccent(project.slug);
             const [primary] = project.links;
@@ -284,7 +292,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
               <Reveal key={project.slug} delay={280 + i * 60} className="flex">
                 <Link
                   href={primary.href}
-                  className="group flex w-full flex-col overflow-hidden rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
+                  className="group flex w-full flex-col overflow-hidden rounded-[28px] bg-paper/75 p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl transition-[box-shadow,transform] duration-[var(--duration-fast)] hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.45)]"
                 >
                   <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
                     <LabProjectIcon slug={project.slug} className="size-5" />
