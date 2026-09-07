@@ -96,7 +96,7 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
       <div className="hidden lg:block">
         <div className="relative min-h-[24rem] lg:sticky lg:top-[calc(50vh-12rem)]">
           <div aria-hidden className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[28px]">
-            <PixelBurst pulse={pulse} color="#ffffff" opacity={0.4} direction={SIDES[active % SIDES.length]} />
+            <PixelBurst pulse={pulse} color="#ffffff" opacity={0.35} direction={SIDES[active % SIDES.length]} sweepMs={1200} lifeMs={600} />
           </div>
           {panels.map((panel, i) => (
             <div

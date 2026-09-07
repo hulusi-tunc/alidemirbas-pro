@@ -44,7 +44,7 @@ export function StackShowcase({ lang }: { lang: Lang }) {
           the field, frosted the way the hero tiles are. */}
       <div aria-hidden className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_8%,black_55%)]">
         <Image src="/lab/frames/claude-lifecycle.jpg" alt="" fill sizes="100vw" className="object-cover object-bottom" />
-        <CtaBurst className="z-0" color="#ffffff" opacity={0.5} direction="up" />
+        <CtaBurst className="z-0" color="#ffffff" opacity={0.45} direction="up" sweepMs={1700} lifeMs={700} rearm={false} />
       </div>
       <div className="altor-container">
         <SectionHeading eyebrow={t.stack.eyebrow} title={t.stack.homeTitle} intro={t.stack.homeIntro} />

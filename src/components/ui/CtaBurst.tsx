@@ -23,6 +23,9 @@ export function CtaBurst({
   color,
   direction,
   opacity,
+  sweepMs,
+  lifeMs,
+  rearm = true,
 }: {
   className?: string;
   /** Grain colour; default is the button's neutral-900 on the blue plate. A
@@ -30,6 +33,11 @@ export function CtaBurst({
   color?: string;
   direction?: BurstDirection;
   opacity?: number;
+  sweepMs?: number;
+  lifeMs?: number;
+  /** Fire again when the pointer enters the plate. The blue plate does; a
+      photograph passes once, on arrival, and is then still. */
+  rearm?: boolean;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [pulse, setPulse] = useState(0);
@@ -60,17 +68,17 @@ export function CtaBurst({
       { threshold: 0.5 },
     );
     observer.observe(plate);
-    plate.addEventListener("pointerenter", bump);
+    if (rearm) plate.addEventListener("pointerenter", bump);
     return () => {
       observer.disconnect();
       window.clearTimeout(timer);
       plate.removeEventListener("pointerenter", bump);
     };
-  }, []);
+  }, [rearm]);
 
   return (
     <div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 ${className}`}>
-      <PixelBurst pulse={pulse} color={color} direction={direction} opacity={opacity} />
+      <PixelBurst pulse={pulse} color={color} direction={direction} opacity={opacity} sweepMs={sweepMs} lifeMs={lifeMs} />
     </div>
   );
 }
