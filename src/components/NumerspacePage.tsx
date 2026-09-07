@@ -101,7 +101,7 @@ const T = {
     relatedEyebrow: "Also in the Lab",
     relatedCta: "Explore",
 
-    ctaEyebrow: "FREE, NO SIGN-UP",
+    ctaEyebrow: "Free, no sign-up",
     ctaTitle: "Try a calculator you can check yourself.",
   },
   tr: {
@@ -141,7 +141,7 @@ const T = {
     relatedEyebrow: "Lab'de ayrıca",
     relatedCta: "Keşfet",
 
-    ctaEyebrow: "ÜCRETSİZ, ÜYELİK YOK",
+    ctaEyebrow: "Ücretsiz, üyelik yok",
     ctaTitle: "Kendiniz de kontrol edebileceğiniz bir hesaplayıcı deneyin.",
   },
 } as const;

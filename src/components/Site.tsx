@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, CircleCheck, CircleX, Clock, Mail, MapPin, Radio } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
+import { CtaBand } from "@/components/ui/CtaBand";
 import { CtaBurst } from "@/components/ui/CtaBurst";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
@@ -14,7 +15,6 @@ import { SectionHeading } from "@/components/ui/Section";
 import { BioTrack } from "@/components/ui/BioTrack";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
-import { HomeCta } from "@/components/HomeCta";
 import { Work } from "@/components/HomeWork";
 import { withJourneyCount } from "@/lib/archive";
 import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
@@ -502,33 +502,22 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
    to the dark-ground ring. */
 export function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   return (
-    <section id="contact" className="bg-paper py-16 md:py-20">
-      <div className="altor-container">
-        <Reveal>
-          <div
-            data-tone="dark"
-            className="relative isolate overflow-hidden rounded-[28px] bg-primary-600 px-6 py-16 text-center sm:px-12 md:py-24"
-          >
-            <CtaBurst />
-            <h2 className="mx-auto max-w-2xl text-h2 text-balance text-white">
-              {t.finalCta.title}
-            </h2>
-            <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-pretty text-white/75">{t.finalCta.body}</p>
-            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
-                {t.finalCta.button}
-              </ButtonLink>
-              <ButtonLink href={LINKEDIN} variant="outlineInverted" size="md">
-                <span className="flex items-center gap-2">
-                  {t.finalCta.linkedin}
-                  <ArrowUpRight aria-hidden className="size-4" />
-                </span>
-              </ButtonLink>
-            </div>
-          </div>
-        </Reveal>
-      </div>
-    </section>
+    <CtaBand
+      title={t.finalCta.title}
+      body={t.finalCta.body}
+      actions={
+        <>
+          <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
+            {t.finalCta.button}
+            <ArrowRight aria-hidden className="size-4" />
+          </ButtonLink>
+          <ButtonLink href={LINKEDIN} variant="outlineInverted" size="md">
+            {t.finalCta.linkedin}
+            <ArrowUpRight aria-hidden className="size-4" />
+          </ButtonLink>
+        </>
+      }
+    />
   );
 }
 
@@ -651,7 +640,7 @@ export default function Site({ lang }: { lang: Lang }) {
             t={t} /> here to bring any of them back. */}
         <Calculators t={t} lang={lang} />
         <StackShowcase lang={lang} />
-        <HomeCta t={t} />
+        <FinalCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />
     </>
