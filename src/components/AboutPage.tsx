@@ -8,6 +8,8 @@ import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
+import { StackShowcase } from "@/components/ui/StackShowcase";
+import { getAllBlogPosts } from "@/lib/blog";
 import { withJourneyCount } from "@/lib/archive";
 import { copy, type Lang } from "@/lib/content";
 
@@ -43,6 +45,12 @@ const T = {
     languages: "Works in English and Turkish",
     years: "8+ years",
     yearsLine: "in digital marketing and growth",
+    howEyebrow: "Approach",
+    howTitle: "How I work",
+    writingEyebrow: "Blog",
+    writingTitle: "Writing",
+    writingIntro: "Notes on growth, CRM and lifecycle marketing.",
+    allPosts: "All posts",
     buildEyebrow: "Lab",
     buildTitle: "What I build outside the day job",
     buildIntro: "Open-source tools and small products around growth and lifecycle marketing. Each one started as a problem I kept running into.",
@@ -68,6 +76,12 @@ const T = {
     languages: "İngilizce ve Türkçe çalışır",
     years: "8+ yıl",
     yearsLine: "dijital pazarlama ve growth",
+    howEyebrow: "Yaklaşım",
+    howTitle: "Nasıl çalışıyorum",
+    writingEyebrow: "Blog",
+    writingTitle: "Yazılar",
+    writingIntro: "Growth, CRM ve lifecycle pazarlama üzerine notlar.",
+    allPosts: "Tüm yazılar",
     buildEyebrow: "Lab",
     buildTitle: "İş dışında ne yapıyorum",
     buildIntro: "Growth ve lifecycle marketing etrafında açık kaynak araçlar ve küçük ürünler. Her biri, tekrar tekrar karşılaştığım bir problemle başladı.",
@@ -84,6 +98,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const logos = c.about.timeline.map((e) => ({ co: e.co, logo: e.logo }));
+  const posts = [...getAllBlogPosts(lang)].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
   const rows = c.about.timeline.flatMap((e): Row[] =>
     "roles" in e
       ? e.roles.map((r) => ({ key: `${e.co}-${r.role}`, co: e.co, logo: e.logo, role: r.role, period: r.period, desc: r.desc }))
@@ -188,8 +203,40 @@ export default function AboutPage({ lang }: { lang: Lang }) {
           </div>
         </section>
 
-        {/* THE RECORD: the homepage bio's timeline, with each role's line. */}
+        {/* HOW HE WORKS: his own two paragraphs (content.ts `about.lead` /
+            `about.body`), and the four services the homepage names, as
+            tiles - the same facts, in his voice, where a first-time reader
+            expects them on an About page. */}
         <section className="bg-paper py-20 md:py-28">
+          <div className="altor-container">
+            <SectionHeading eyebrow={t.howEyebrow} title={t.howTitle} />
+            <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+              <Reveal>
+                <p className="max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.lead}</p>
+                <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.body}</p>
+              </Reveal>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {c.home.work.services.map((service, i) => {
+                  const accent = labAccent(service.tool);
+                  return (
+                    <Reveal key={service.title} delay={80 + i * 60} className="flex">
+                      <div className="flex w-full flex-col rounded-[28px] bg-paper-soft p-6">
+                        <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
+                          <LabProjectIcon slug={service.tool} className="size-5" />
+                        </span>
+                        <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{service.title}</p>
+                        <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{service.body}</p>
+                      </div>
+                    </Reveal>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* THE RECORD: the homepage bio's timeline, with each role's line. */}
+        <section className="bg-paper-soft py-20 md:py-28">
           <div className="altor-container">
             <SectionHeading eyebrow={c.about.experience} title={t.h2} />
             <Reveal delay={80} className="mt-12">
@@ -218,6 +265,9 @@ export default function AboutPage({ lang }: { lang: Lang }) {
             </Reveal>
           </div>
         </section>
+
+        {/* THE TOOLKIT: the same band the homepage carries. */}
+        <StackShowcase lang={lang} />
 
         {/* WHAT HE BUILDS: the six projects as the hero's tiles. */}
         <section className="bg-paper-soft py-20 md:py-28">
@@ -255,6 +305,40 @@ export default function AboutPage({ lang }: { lang: Lang }) {
             </Reveal>
           </div>
         </section>
+
+        {/* WRITING: the three latest posts, real dates - EN only, the blog
+            has no Turkish posts, so the Turkish page skips the band. */}
+        {posts.length > 0 && (
+          <section className="bg-paper-soft py-20 md:py-28">
+            <div className="altor-container">
+              <SectionHeading eyebrow={t.writingEyebrow} title={t.writingTitle} intro={t.writingIntro} />
+              <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+                {posts.map((post, i) => (
+                  <Reveal key={post.slug} delay={i * 60} className="flex">
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="group flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
+                    >
+                      <p className="altor-eyebrow text-ink-subtle">{post.category}</p>
+                      <p className="mt-3 text-lg leading-snug font-semibold text-balance text-ink-950">{post.title}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{post.excerpt}</p>
+                      <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm text-ink-subtle tabular-nums">
+                        {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                        <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
+                      </p>
+                    </Link>
+                  </Reveal>
+                ))}
+              </div>
+              <Reveal delay={240} className="mt-12">
+                <ButtonLink href={c.nav.blogHref} variant="outline" size="md">
+                  {t.allPosts}
+                  <ArrowRight aria-hidden className="size-4" />
+                </ButtonLink>
+              </Reveal>
+            </div>
+          </section>
+        )}
 
         <FinalCta t={c} />
       </main>
