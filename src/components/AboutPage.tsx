@@ -8,6 +8,7 @@ import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
+import { CurveTimeline } from "@/components/ui/CurveTimeline";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { getAllBlogPosts } from "@/lib/blog";
 import { withJourneyCount } from "@/lib/archive";
@@ -235,34 +236,14 @@ export default function AboutPage({ lang }: { lang: Lang }) {
           </div>
         </section>
 
-        {/* THE RECORD: the homepage bio's timeline, with each role's line. */}
+        {/* THE RECORD: one curved path down the middle, the roles at its bends. */}
         <section className="bg-paper-soft py-20 md:py-28">
           <div className="altor-container">
-            <SectionHeading eyebrow={c.about.experience} title={t.h2} />
-            <Reveal delay={80} className="mt-12">
-              <ol className="relative flex list-none flex-col p-0 [--bio-rail:0.375rem] md:[--bio-rail:11rem]">
-                <span aria-hidden className="bio-rail absolute top-3 bottom-3 left-[var(--bio-rail)] w-px" />
-                {rows.map((r, i) => (
-                  <li
-                    key={r.key}
-                    className="bio-row relative grid grid-cols-[minmax(0,1fr)] gap-y-1.5 py-6 pl-8 md:grid-cols-[9.5rem_minmax(0,1fr)] md:gap-x-10 md:pl-0"
-                    style={{ "--i": i } as React.CSSProperties}
-                  >
-                    <span
-                      aria-hidden
-                      className={`absolute top-[1.9rem] left-[calc(var(--bio-rail)-0.3125rem)] size-2.5 rounded-full ring-4 ring-paper ${i === 0 ? "bio-node-live bg-primary-600" : "bg-ink-300"}`}
-                    />
-                    <span className="text-sm whitespace-nowrap text-ink-subtle tabular-nums md:pt-1 md:text-right">{r.period}</span>
-                    <div className="max-w-[60ch] min-w-0">
-                      <Image src={r.logo} alt={r.co} width={140} height={28} className="h-7 w-auto max-w-[9rem] object-contain object-left" />
-                      <h3 className="mt-2.5 text-h3 text-balance text-ink-950">{r.role}</h3>
-                      <p className="mt-0.5 text-sm text-ink-muted">{r.co}</p>
-                      <p className="mt-3 text-base leading-relaxed text-pretty text-ink-muted">{r.desc}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </Reveal>
+            <SectionHeading eyebrow={c.about.experience} title={t.h2} align="center" />
+            {/* The curved, scroll-driven record (ui/CurveTimeline.tsx). */}
+            <div className="mt-14">
+              <CurveTimeline items={rows} />
+            </div>
           </div>
         </section>
 
