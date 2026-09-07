@@ -237,8 +237,11 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           look"): blue on this site is brand and utility, never atmosphere,
           and the meadow is material the page already owns. The section is
           at least the first screen tall (viewport minus the 4rem header)
-          and centres what it holds. */}
-      <div aria-hidden className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_6%,black_58%)]">
+          and centres what it holds. Below md the bento stacks and the
+          section grows past two screens, so the plate is held to the bottom
+          band there - stretched over the whole height its sky came back
+          behind the statement as the same wash. */}
+      <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-[44rem] [mask-image:linear-gradient(to_bottom,transparent_6%,black_58%)] md:inset-0 md:h-auto">
         <Image src="/lab/hero-meadow.jpg" alt="" fill sizes="100vw" priority className="object-cover object-bottom" />
       </div>
       <div className="altor-container">
