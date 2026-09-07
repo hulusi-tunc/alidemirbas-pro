@@ -27,7 +27,7 @@ export function HomeCta({ t }: { t: (typeof copy)[Lang] }) {
         <Image src="/lab/frames/google-ads-change-history-dashboard.jpg" alt="" fill sizes="100vw" className="object-cover object-bottom" />
         <span className="absolute inset-0 bg-gradient-to-r from-ink-950/85 via-ink-950/55 to-ink-950/35" />
         <span className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink-950/70 to-transparent" />
-        <CtaBurst className="z-0" />
+        <CtaBurst className="z-0" color="#f4f6fa" />
       </div>
 
       <div className="altor-container">
@@ -54,13 +54,13 @@ export function HomeCta({ t }: { t: (typeof copy)[Lang] }) {
             {/* The overlaps cover only the portrait's right-hand padding, never
                 the face; no pill on the portrait here - the cards are the
                 caption. */}
-            <div className="lab-scene-card relative aspect-[4/5] w-full overflow-hidden rounded-[28px] shadow-[0_40px_90px_-40px_rgb(0_0_0/0.7)] ring-1 ring-white/15 lg:absolute lg:top-0 lg:left-0 lg:aspect-auto lg:h-full lg:w-[18rem]">
-              <Image src="/portrait.jpg" alt="Ali Demirbaş" fill sizes="(min-width: 1024px) 18rem, 28rem" className="object-cover" />
+            <div className="lab-scene-card relative aspect-[4/5] w-full overflow-hidden rounded-[28px] shadow-[0_40px_90px_-40px_rgb(0_0_0/0.7)] ring-1 ring-white/15 lg:absolute lg:top-0 lg:left-0 lg:aspect-auto lg:h-full lg:w-[16rem]">
+              <Image src="/portrait.jpg" alt="Ali Demirbaş" fill sizes="(min-width: 1024px) 16rem, 28rem" className="object-cover" />
             </div>
-            <div className="lab-scene-card hidden lg:absolute lg:top-2 lg:right-0 lg:block lg:w-[21rem]">
+            <div className="lab-scene-card hidden lg:absolute lg:top-2 lg:right-0 lg:block lg:w-[23rem]">
               <JourneyCard proof={withJourneyCount(library?.proof ?? "")} />
             </div>
-            <div className="lab-scene-card -mt-16 ml-auto w-[88%] lg:absolute lg:right-4 lg:bottom-0 lg:mt-0 lg:w-[20rem]">
+            <div className="lab-scene-card -mt-16 ml-auto w-[88%] lg:absolute lg:right-2 lg:bottom-0 lg:mt-0 lg:w-[21rem]">
               <AbCard proof={withJourneyCount(playbook?.proof ?? "")} />
             </div>
           </Reveal>

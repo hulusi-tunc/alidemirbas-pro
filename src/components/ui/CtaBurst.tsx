@@ -18,7 +18,7 @@ import { PixelBurst } from "@/components/ui/PixelField";
    a photograph arrives the way the plate does. `className` lets the
    caller place it above an image inside a masked layer (`z-0`) instead of
    the default `-z-10` under a plate's content. */
-export function CtaBurst({ className = "-z-10" }: { className?: string }) {
+export function CtaBurst({ className = "-z-10", color }: { className?: string; /** Grain colour; default is the button's neutral-900. Light plates want dark grain, the night band wants paper. */ color?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [pulse, setPulse] = useState(0);
 
@@ -58,7 +58,7 @@ export function CtaBurst({ className = "-z-10" }: { className?: string }) {
 
   return (
     <div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 ${className}`}>
-      <PixelBurst pulse={pulse} />
+      <PixelBurst pulse={pulse} color={color} />
     </div>
   );
 }
