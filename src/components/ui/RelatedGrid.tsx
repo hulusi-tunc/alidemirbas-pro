@@ -22,7 +22,7 @@ export function RelatedGrid({ title, items }: { title?: string; items: RelatedIt
   return (
     <div>
       {title && (
-        <h2 className="mb-3 text-sm font-medium tracking-wide text-neutral-500 uppercase">{title}</h2>
+        <h2 className="mb-3 text-h3 text-ink-950">{title}</h2>
       )}
       <div className="grid gap-3 sm:grid-cols-2">
         {items.map((item) => (

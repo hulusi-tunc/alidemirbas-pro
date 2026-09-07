@@ -109,7 +109,7 @@ export default function CalculatorDetailTemplate({
               <ArrowLeft aria-hidden className="size-3.5" />
               {t.back}
             </Link>
-            <h1 className="mt-5 text-[clamp(2rem,1.4rem+2.4vw,2.875rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance text-ink-950">
+            <h1 className="mt-5 text-h1 text-balance text-ink-950">
               {title}
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-pretty text-ink-500">
@@ -144,7 +144,7 @@ export default function CalculatorDetailTemplate({
       {/* The explanation, back on white at reading measure. */}
       <div className="mx-auto max-w-[760px] px-5 sm:px-6">
         <section className="mt-14">
-          <h2 className="text-[1.35rem] font-semibold tracking-[-0.015em] text-ink-950">{t.meaning}</h2>
+          <h2 className="text-h3 text-ink-950">{t.meaning}</h2>
           <div className="mt-4 flex flex-col gap-4">
             {page.meaning.map((para, i) => (
               <Prose key={i} text={para} className="text-[15px] leading-[1.65] text-pretty text-ink-700" />
@@ -178,7 +178,7 @@ export default function CalculatorDetailTemplate({
            own and a second ground behind it only made the cards fight their
            backdrop. */
         <section className="mx-auto mt-14 max-w-[760px] px-5 sm:px-6">
-          <h2 className="text-[1.35rem] font-semibold tracking-[-0.015em] text-ink-950">
+          <h2 className="text-h3 text-ink-950">
             {t.faq}
           </h2>
           <div className="mt-4">
@@ -217,7 +217,7 @@ export default function CalculatorDetailTemplate({
 function EditorialColumn({ label, body }: { label: string; body: string }) {
   return (
     <section>
-      <h2 className="text-[15px] font-semibold text-ink-950">{label}</h2>
+      <h2 className="text-base font-semibold text-ink-950">{label}</h2>
       <Prose text={body} className="mt-3 text-[14px] leading-[1.65] text-pretty text-ink-700" />
     </section>
   );

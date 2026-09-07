@@ -1,16 +1,24 @@
-import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Clock, Power, ShieldAlert, Users, Wallet } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
+import { buttonStyles } from "@/components/ui/Button";
+import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
+import { CodeBlock, InstallationStepper } from "@/components/ui/InstallationStepper";
+import { ProductCta } from "@/components/ui/ProductCta";
+import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { CodeTabs } from "@/components/ui/CodeTabs";
+import { ChangeCell, EXPLORER_TABS, ExplorerWindow, explorerDelta } from "@/components/ui/LabProductWindows";
+import { AppBar, AppMeta, AppTitle, Badge, CheckRow, Field, FormLabel, Rail, Table, TabStrip, Td, Th, Toggle, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, howTo, softwareApplication } from "@/lib/schema";
 import { copy, type Lang } from "@/lib/content";
+import { CHANGE_HISTORY_REAL } from "@/lib/lab-material";
 
 /* Google Ads Change History Explorer.
 
@@ -65,44 +73,7 @@ import { copy, type Lang } from "@/lib/content";
    +33%), so the worked "matched a rule" example states its own ±20%
    threshold explicitly rather than implying it's the tool's default. */
 
-const REAL = {
-  explorerRows: [
-    { campaign: "Campaign Alpha", account: "Account A", adGroup: "—", category: "Budget", en: { date: "Aug 1, 2026 · 9:12 AM", old: "150,000", new: "200,000" }, tr: { date: "1 Ağu 2026 · 09:12", old: "150.000", new: "200.000" } },
-    { campaign: "Campaign Alpha", account: "Account A", adGroup: "Ad Group 1", category: "Bidding", en: { date: "Aug 1, 2026 · 9:15 AM", old: "3.50", new: "4.20" }, tr: { date: "1 Ağu 2026 · 09:15", old: "3,50", new: "4,20" } },
-    { campaign: "Campaign Beta", account: "Account A", adGroup: "—", category: "Budget", en: { date: "Aug 3, 2026 · 2:22 PM", old: "80,000", new: "100,000" }, tr: { date: "3 Ağu 2026 · 14:22", old: "80.000", new: "100.000" } },
-    { campaign: "Campaign Alpha", account: "Account A", adGroup: "—", category: "Status", en: { date: "Aug 4, 2026 · 8:40 AM", old: "Enabled", new: "Paused" }, tr: { date: "4 Ağu 2026 · 08:40", old: "Etkin", new: "Duraklatıldı" } },
-    { campaign: "Campaign Gamma", account: "Account B", adGroup: "—", category: "Budget", en: { date: "Aug 6, 2026 · 10:00 AM", old: "50,000", new: "45,000" }, tr: { date: "6 Ağu 2026 · 10:00", old: "50.000", new: "45.000" } },
-    { campaign: "Campaign Alpha", account: "Account B", adGroup: "—", category: "Status", en: { date: "Aug 17, 2026 · 9:45 AM", old: "Enabled", new: "Paused" }, tr: { date: "17 Ağu 2026 · 09:45", old: "Etkin", new: "Duraklatıldı" } },
-  ],
-  // Each campaign's real days_since_last_change_at_generation, from the
-  // demo file's own "untouched" array - a fact the tool itself computes
-  // and states this way, not a relative "ago" claim about today.
-  lastChanges: [
-    { campaign: "Campaign Beta", account: "Account A", days: 14 },
-    { campaign: "Campaign Alpha", account: "Account A", days: 13 },
-    { campaign: "Campaign Gamma", account: "Account B", days: 11 },
-    { campaign: "Campaign Delta", account: "Account B", days: 10 },
-    { campaign: "Campaign Alpha", account: "Account B", days: 0 },
-  ],
-  accountActivity: [
-    { account: "Account A", count: 6 },
-    { account: "Account B", count: 4 },
-  ],
-  totalChanges: 10,
-  period: { en: "Aug 1 - 17, 2026", tr: "1 - 17 Ağustos 2026" },
-  magnitudeRules: [
-    { label: { en: "Budget change", tr: "Bütçe değişimi" }, value: 50 },
-    { label: { en: "Target CPA change", tr: "Target CPA değişimi" }, value: 30 },
-    { label: { en: "Target ROAS change", tr: "Target ROAS değişimi" }, value: 30 },
-    { label: { en: "Bid/CPC change", tr: "Teklif/TBM değişimi" }, value: 50 },
-  ],
-  structuralRules: [
-    { label: { en: "Campaign paused", tr: "Kampanya duraklatıldı" }, on: true },
-    { label: { en: "Campaign removed", tr: "Kampanya kaldırıldı" }, on: true },
-    { label: { en: "Ad group removed", tr: "Reklam grubu kaldırıldı" }, on: true },
-    { label: { en: "Campaign enabled", tr: "Kampanya etkinleştirildi" }, on: false },
-  ],
-};
+const REAL = CHANGE_HISTORY_REAL;
 
 const T = {
   en: {
@@ -153,6 +124,8 @@ const T = {
     installEyebrow: "Install",
     installTitle: "Install",
     installSub: "No account, no API key, no dependencies to install.",
+    stepInstall: "Install it, or just run the script",
+    stepTest: "Run the self-tests",
     claudeTab: "Claude Code",
     pythonTab: "Python",
     selfTestNote: "57 built-in checks pass on the current version.",
@@ -212,6 +185,8 @@ const T = {
     installEyebrow: "Kurulum",
     installTitle: "Kurulum",
     installSub: "Hesap yok, API anahtarı yok, kurulacak bağımlılık yok.",
+    stepInstall: "Kurun ya da betiği doğrudan çalıştırın",
+    stepTest: "Kendi testlerini çalıştırın",
     claudeTab: "Claude Code",
     pythonTab: "Python",
     selfTestNote: "Mevcut sürümde 57 yerleşik kontrol geçiyor.",
@@ -231,28 +206,6 @@ const SELF_TEST_CMD = `python3 ads_change_history.py self-test`;
 
 /* ---- Shared bits -------------------------------------------------- */
 
-/** A plain macOS-style browser chrome, purely decorative framing (three
-    dots, an address-bar-shaped strip) around a real data visual - never
-    a screenshot of an actual browser, just the "this is a page you'd
-    open" cue the hero needs. */
-function BrowserChrome({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="overflow-hidden rounded-card border border-line bg-paper shadow-[0_0_0_1px_rgb(0_0_0/0.06),0_24px_48px_-16px_rgb(10_16_32/0.18)]">
-      <div className="flex items-center gap-3 border-b border-line bg-paper-soft px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span aria-hidden className="size-2.5 rounded-full bg-[#ff5f57]" />
-          <span aria-hidden className="size-2.5 rounded-full bg-[#febc2e]" />
-          <span aria-hidden className="size-2.5 rounded-full bg-[#28c840]" />
-        </div>
-        <div className="flex-1 truncate rounded-md bg-paper px-3 py-1 text-center font-mono text-[11px] text-ink-400">
-          {title}
-        </div>
-      </div>
-      {children}
-    </div>
-  );
-}
-
 function CategoryBadge({ category }: { category: string }) {
   const styles: Record<string, string> = {
     Status: "bg-emerald-50 text-emerald-700",
@@ -267,81 +220,184 @@ function CategoryBadge({ category }: { category: string }) {
   );
 }
 
-/** One record, phone-width: the same fields the table shows, stacked
-    instead of spread across seven columns nothing under ~700px can fit
-    without clipping. Same visual language as BeforeAfterCard - this is
-    the same data, a narrower frame. */
-function ExplorerRecordCard({ row, lang }: { row: (typeof REAL.explorerRows)[number]; lang: Lang }) {
+/* ---- The product's surfaces, drawn --------------------------------
+   Hulusi (2026-09-06): the Lab's product visuals must "feel like real
+   product screenshots, not Claude design". The dashboard this tool
+   writes is one HTML file with named sections (README: Filters, Summary,
+   Activity Timeline, User Activity, Account/Campaign drill-down, Category
+   Distribution, Rule Matches, Campaign Last Changes, Change Explorer with
+   a before/after detail panel), so the page now shows THAT: the Change
+   Explorer with its tabs, filters and detail pane
+   (ui/LabProductWindows.tsx), and below, two more of its sections drawn
+   the same way - User Activity beside Campaign Last Changes, and Rule
+   Matches with the thresholds panel open and the rows it matches. Every
+   value is the demo dataset's own; the matches are computed from it. */
+
+const WIN = {
+  en: {
+    activity: { label: "Screenshot of the dashboard's activity sections: changes per account, and each campaign's days since its last change.", campaign: "Campaign", account: "Account", last: "Last change" },
+    rules: { label: "Screenshot of the dashboard's Rule Matches section: the thresholds panel with a budget rule set to ±20%, and the four rows it matches.", matches: (n: number) => `${n} matches`, campaign: "Campaign", rule: "Rule", change: "Change", budgetRule: (v: number) => `Budget ±${v}%` },
+  },
+  tr: {
+    activity: { label: "Panonun etkinlik bölümlerinin ekran görüntüsü: hesap başına değişiklik ve her kampanyanın son değişikliğinden bu yana geçen gün.", campaign: "Kampanya", account: "Hesap", last: "Son değişiklik" },
+    rules: { label: "Panonun Rule Matches bölümünün ekran görüntüsü: bütçe kuralı ±%20'ye ayarlanmış eşik paneli ve eşleştirdiği dört satır.", matches: (n: number) => `${n} eşleşme`, campaign: "Kampanya", rule: "Kural", change: "Değişim", budgetRule: (v: number) => `Bütçe ±%${v}` },
+  },
+} as const;
+
+/** User Activity beside Campaign Last Changes - the two sections of the
+    dashboard that answer "what changed, and what hasn't". */
+function ActivityWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const w = WIN[lang].activity;
+  const maxCount = Math.max(...REAL.accountActivity.map((a) => a.count));
   return (
-    <div className="border-b border-line px-4 py-3 last:border-0">
-      <div className="flex items-center justify-between gap-2">
-        <CategoryBadge category={row.category} />
-        <span className="font-mono text-[11px] text-ink-400">{row[lang].date}</span>
+    <Window label={w.label} address="dashboard.html" meta={t.actTotal(REAL.totalChanges, REAL.period[lang])}>
+      <TabStrip items={EXPLORER_TABS} active="User Activity" />
+      <div className="grid grid-cols-1 divide-y divide-line-soft md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:divide-x md:divide-y-0">
+        <div className="min-w-0">
+          <AppBar>
+            <AppTitle icon={<Users aria-hidden />}>{t.actActivityLabel}</AppTitle>
+          </AppBar>
+          <div className="flex flex-col gap-3.5 px-3.5 py-3.5">
+            {REAL.accountActivity.map((a) => (
+              <div key={a.account}>
+                <div className="flex items-baseline justify-between text-[13px]">
+                  <span className="font-medium text-ink-900">{a.account}</span>
+                  <span className="text-[12.5px] text-ink-500 tabular-nums">{a.count}</span>
+                </div>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-paper-soft">
+                  <div className="h-full rounded-full bg-primary-500" style={{ width: `${(a.count / maxCount) * 100}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="min-w-0">
+          <AppBar>
+            <AppTitle icon={<Clock aria-hidden />}>{t.actLastLabel}</AppTitle>
+            <AppMeta className="ml-auto">{REAL.lastChanges.length}</AppMeta>
+          </AppBar>
+          <Table>
+            <thead>
+              <tr>
+                <Th className="w-full">{w.campaign}</Th>
+                <Th className="hidden sm:table-cell">{w.account}</Th>
+                <Th className="text-right">{w.last}</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {REAL.lastChanges.map((row, i) => (
+                <Tr key={i}>
+                  <Td className="w-full max-w-0">
+                    <span className="block truncate font-semibold text-ink-950">{row.campaign}</span>
+                  </Td>
+                  <Td className="hidden whitespace-nowrap text-ink-700 sm:table-cell">{row.account}</Td>
+                  <Td className="text-right text-[12.5px] whitespace-nowrap text-ink-600 tabular-nums">{t.daysSince(row.days)}</Td>
+                </Tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
       </div>
-      <p className="mt-2 truncate text-[13px] font-medium text-ink-900">{row.campaign}</p>
-      <p className="truncate text-[11.5px] text-ink-500">
-        {row.account}
-        {row.adGroup !== "—" ? ` · ${row.adGroup}` : ""}
-      </p>
-      <div className="mt-2 flex items-center gap-2">
-        <span className="rounded-md bg-[#fdf3f0] px-2 py-1 font-mono text-[12px] text-[#c65d3f] line-through decoration-1">
-          {row[lang].old}
-        </span>
-        <ArrowRight aria-hidden className="size-3.5 shrink-0 text-ink-300" />
-        <span className="rounded-md bg-emerald-50 px-2 py-1 font-mono text-[12px] font-medium text-emerald-700">
-          {row[lang].new}
-        </span>
-      </div>
-    </div>
+    </Window>
   );
 }
 
-/** The real Change Explorer table, real rows - no USER column (see the
-    file header comment on why that was dropped). `compact` also drops
-    the Ad group column and shows fewer rows, for the hero's condensed
-    preview. Below ~640px the table gives way to ExplorerRecordCard: a
-    7-column table has no honest way to fit a phone width, and scrolling
-    it sideways inside a card reads as broken, not as a feature. */
-function ExplorerTable({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
-  const t = T[lang];
-  const rows = compact ? REAL.explorerRows.slice(0, 4) : REAL.explorerRows;
-  const cols = compact ? t.explorerCols.filter((_, i) => i !== 3) : t.explorerCols;
+/* The section's own worked threshold: the text above the example says
+   "with Budget change set to ±20%", so the panel shows that value in the
+   Budget field and the shipped defaults in the other three. No row in
+   the demo crosses the shipped ±50% (its budget changes are +25%, +33%
+   and -10%); at ±20% two do, and the two Enabled -> Paused rows match the
+   shipped "Campaign paused" structural rule. All computed from the rows. */
+const BUDGET_EXAMPLE_THRESHOLD = 20;
+
+/** Rule Matches: the thresholds panel open, the rules as the tool ships
+    them but for the one this section sets, and the rows they match. */
+function RuleMatchesWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const w = WIN[lang].rules;
+  const rules = REAL.magnitudeRules.map((r) => (r.label.en === "Budget change" ? { ...r, value: BUDGET_EXAMPLE_THRESHOLD } : r));
+  const paused = REAL.structuralRules.find((r) => r.label.en === "Campaign paused");
+  const matches = REAL.explorerRows.flatMap((row) => {
+    if (row.category === "Budget") {
+      const delta = explorerDelta(row);
+      const pct = delta ? Math.abs(Number(delta.replace(/[+%]/g, ""))) : 0;
+      return pct >= BUDGET_EXAMPLE_THRESHOLD ? [{ row, rule: w.budgetRule(BUDGET_EXAMPLE_THRESHOLD), delta, structural: false }] : [];
+    }
+    if (row.category === "Status" && row.en.new === "Paused" && paused?.on) {
+      return [{ row, rule: paused.label[lang], delta: null, structural: true }];
+    }
+    return [];
+  });
   return (
-    <>
-      <div className="sm:hidden">
-        {rows.map((r, i) => (
-          <ExplorerRecordCard key={i} row={r} lang={lang} />
-        ))}
-      </div>
-      <div className="hidden overflow-x-auto sm:block">
-        <table className="w-full min-w-[560px] border-collapse text-left text-[12.5px]">
-          <thead>
-            <tr className="border-b border-line text-[11px] tracking-wide text-ink-400 uppercase">
-              {cols.map((c) => (
-                <th key={c} className="px-3 py-2 font-medium whitespace-nowrap">
-                  {c}
-                </th>
+    <Window label={w.label} address="dashboard.html" meta={w.matches(matches.length)}>
+      <TabStrip items={EXPLORER_TABS} active="Rule Matches" />
+      <div className="flex">
+        <Rail className="hidden w-64 md:block">
+          <div className="px-3.5 py-3.5">
+            <Toggle on label={t.rulesEyebrow} />
+            <div className="mt-4">
+              <FormLabel>{t.rulesMagnitudeLabel}</FormLabel>
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-x-2.5 gap-y-2.5">
+              {rules.map((r) => (
+                <Field key={r.label.en} label={r.label[lang]} value={`±${r.value}%`} mono />
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, i) => (
-              <tr key={i} className="border-b border-line last:border-0">
-                <td className="px-3 py-2.5 font-mono text-[11.5px] whitespace-nowrap text-ink-500">{r[lang].date}</td>
-                <td className="px-3 py-2.5 whitespace-nowrap text-ink-600">{r.account}</td>
-                <td className="px-3 py-2.5 whitespace-nowrap font-medium text-ink-900">{r.campaign}</td>
-                {!compact && <td className="px-3 py-2.5 whitespace-nowrap text-ink-500">{r.adGroup}</td>}
-                <td className="px-3 py-2.5 whitespace-nowrap">
-                  <CategoryBadge category={r.category} />
-                </td>
-                <td className="px-3 py-2.5 font-mono whitespace-nowrap text-[#c65d3f]">{r[lang].old}</td>
-                <td className="px-3 py-2.5 font-mono whitespace-nowrap text-emerald-700">{r[lang].new}</td>
+            </div>
+            <div className="mt-4">
+              <FormLabel>{t.rulesStructuralLabel}</FormLabel>
+            </div>
+            <div className="mt-1">
+              {REAL.structuralRules.map((r) => (
+                <CheckRow key={r.label.en} on={r.on}>
+                  {r.label[lang]}
+                </CheckRow>
+              ))}
+            </div>
+          </div>
+        </Rail>
+        <div className="min-w-0 flex-1">
+          <AppBar>
+            <AppTitle icon={<ShieldAlert aria-hidden />}>{t.rulesExampleLabel}</AppTitle>
+          </AppBar>
+          <Table>
+            <thead>
+              <tr>
+                <Th className="w-full">{w.campaign}</Th>
+                <Th className="hidden sm:table-cell">{w.rule}</Th>
+                <Th>{w.change}</Th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {matches.map((m, i) => {
+                const badge = (
+                  <Badge hue={m.structural ? "emerald" : "primary"} icon={m.structural ? <Power aria-hidden /> : <Wallet aria-hidden />}>
+                    {m.rule}
+                  </Badge>
+                );
+                return (
+                  <Tr key={i}>
+                    <Td className="w-full max-w-0 min-w-[7rem]">
+                      <span className="block truncate font-semibold text-ink-950">{m.row.campaign}</span>
+                      <span className="hidden truncate text-[12px] text-ink-500 tabular-nums sm:block">
+                        {m.row.account} · {m.row[lang].date}
+                      </span>
+                      <span className="mt-1.5 block sm:hidden">{badge}</span>
+                    </Td>
+                    <Td className="hidden whitespace-nowrap sm:table-cell">{badge}</Td>
+                    <Td className="sm:whitespace-nowrap">
+                      <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                        <ChangeCell row={m.row} lang={lang} />
+                        {m.delta && <span className="font-mono text-[12.5px] font-semibold text-primary-700 tabular-nums">{m.delta}</span>}
+                      </span>
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </tbody>
+          </Table>
+          <p className="border-t border-line-soft px-3.5 py-2.5 text-[12.5px] text-ink-500">{t.rulesExampleNote}</p>
+        </div>
       </div>
-    </>
+    </Window>
   );
 }
 
@@ -352,20 +408,16 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
     <section className="relative isolate overflow-hidden bg-paper pt-16 pb-20 md:pt-20 md:pb-24">
       <PortraitContainer className="text-center">
         <Reveal>
-          <p className="altor-eyebrow mb-5 text-ink-400">{t.eyebrow}</p>
-          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{t.title}</h1>
+          <ProductMark slug="google-ads-change-history-dashboard" lang={lang} className="mb-5" />
+          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{t.title}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.sub}</p>
         </Reveal>
         {repo && (
           <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
-            <a
-              href={repo.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors hover:bg-primary-600"
-            >
+            <a href={repo.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "primary", size: "md" })}>
+              <PixelFill />
               {t.ctaGithub}
               <ArrowUpRight aria-hidden className="size-4" />
             </a>
@@ -383,10 +435,12 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
           </ul>
         </Reveal>
 
-        <Reveal delay={220} className="mx-auto mt-14 max-w-3xl text-left">
-          <BrowserChrome title="dashboard.html">
-            <ExplorerTable lang={lang} compact />
-          </BrowserChrome>
+        <Reveal delay={220} className="mx-auto mt-14 max-w-5xl text-left">
+          {/* On the project's plate, in its hue - the frame language of the
+              Lab index (ui/ProductFrame.tsx). */}
+          <ProductFrame slug="google-ads-change-history-dashboard">
+            <ExplorerWindow lang={lang} limit={4} />
+          </ProductFrame>
         </Reveal>
       </PortraitContainer>
     </section>
@@ -439,10 +493,10 @@ function ChangeExplorerSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang })
     <ProductSection tone="paper" space="xl">
       <PortraitContainer>
         <ProductHeading eyebrow={t.explorerEyebrow} title={t.explorerTitle} body={t.explorerSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 max-w-4xl text-left">
-          <BrowserChrome title="dashboard.html — Change Explorer">
-            <ExplorerTable lang={lang} />
-          </BrowserChrome>
+        <Reveal delay={100} className="mx-auto mt-12 max-w-5xl text-left">
+          <ProductFrame slug="google-ads-change-history-dashboard" inset="sm">
+            <ExplorerWindow lang={lang} detail />
+          </ProductFrame>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -500,43 +554,14 @@ function BeforeAfterSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
 
 /* ---- 05 · Activity + Campaign Last Changes ----------------------------- */
 function ActivitySection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
-  const maxCount = Math.max(...REAL.accountActivity.map((a) => a.count));
   return (
     <ProductSection tone="paper" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={t.actEyebrow} title={t.actTitle} body={t.actSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-6 text-left md:grid-cols-2">
-          <div className="rounded-card border border-line bg-paper p-5">
-            <p className="text-[13px] font-medium text-ink-950">{t.actActivityLabel}</p>
-            <p className="mt-0.5 text-[11.5px] text-ink-400">{t.actTotal(REAL.totalChanges, REAL.period[lang])}</p>
-            <div className="mt-4 flex flex-col gap-3">
-              {REAL.accountActivity.map((a) => (
-                <div key={a.account}>
-                  <div className="flex items-baseline justify-between text-[12.5px]">
-                    <span className="font-medium text-ink-800">{a.account}</span>
-                    <span className="font-mono text-ink-500">{a.count}</span>
-                  </div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-paper-soft">
-                    <div className="h-full rounded-full bg-primary-500" style={{ width: `${(a.count / maxCount) * 100}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-card border border-line bg-paper p-5">
-            <p className="text-[13px] font-medium text-ink-950">{t.actLastLabel}</p>
-            <ul className="mt-4 flex flex-col divide-y divide-line">
-              {REAL.lastChanges.map((row, i) => (
-                <li key={i} className="flex items-center justify-between gap-3 py-2.5 text-[12.5px]">
-                  <div className="min-w-0">
-                    <p className="truncate font-medium text-ink-900">{row.campaign}</p>
-                    <p className="truncate text-[11.5px] text-ink-500">{row.account}</p>
-                  </div>
-                  <span className="shrink-0 text-right text-[11.5px] text-ink-500">{t.daysSince(row.days)}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <Reveal delay={100} className="mx-auto mt-12 max-w-4xl text-left">
+          <ProductFrame slug="google-ads-change-history-dashboard" inset="sm">
+            <ActivityWindow t={t} lang={lang} />
+          </ProductFrame>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -545,52 +570,14 @@ function ActivitySection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
 
 /* ---- 06 · Rule Matches -------------------------------------------------- */
 function RuleMatchesSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
-  const exampleRow = REAL.explorerRows[2]; // Campaign Beta, 80,000 -> 100,000 (+25%)
   return (
     <ProductSection tone="soft" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={t.rulesEyebrow} title={t.rulesTitle} body={t.rulesSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 max-w-2xl text-left">
-          <div className="rounded-card border border-line bg-paper p-6">
-            <p className="altor-eyebrow text-ink-400">{t.rulesMagnitudeLabel}</p>
-            <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-              {REAL.magnitudeRules.map((r) => (
-                <div key={r.label.en} className="flex items-center justify-between gap-3 text-[13px]">
-                  <span className="text-ink-700">{r.label[lang]}</span>
-                  <span className="shrink-0 font-mono text-ink-950">±{r.value}%</span>
-                </div>
-              ))}
-            </div>
-            <p className="altor-eyebrow mt-6 text-ink-400">{t.rulesStructuralLabel}</p>
-            <div className="mt-3 flex flex-col gap-2">
-              {REAL.structuralRules.map((r) => (
-                <label key={r.label.en} className="flex items-center gap-2.5 text-[13px] text-ink-700">
-                  <span
-                    aria-hidden
-                    className={`flex size-4 shrink-0 items-center justify-center rounded border ${
-                      r.on ? "border-primary-600 bg-primary-600" : "border-line-strong bg-paper"
-                    }`}
-                  >
-                    {r.on && <Check aria-hidden className="size-3 text-white" />}
-                  </span>
-                  {r.label[lang]}
-                </label>
-              ))}
-            </div>
-
-            <div className="mt-6 border-t border-line pt-5">
-              <p className="text-[12px] font-medium text-ink-400">{t.rulesExampleLabel}</p>
-              <div className="mt-2 flex items-center justify-between gap-3 rounded-md bg-primary-50/70 px-3.5 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-[13px] font-medium text-ink-900">
-                    {exampleRow.campaign} · {exampleRow[lang].old} → {exampleRow[lang].new}
-                  </p>
-                  <p className="mt-0.5 text-[12px] text-primary-700">{t.rulesExampleNote}</p>
-                </div>
-                <span className="shrink-0 font-mono text-sm font-semibold text-primary-700">+25%</span>
-              </div>
-            </div>
-          </div>
+        <Reveal delay={100} className="mx-auto mt-12 max-w-4xl text-left">
+          <ProductFrame slug="google-ads-change-history-dashboard" inset="sm">
+            <RuleMatchesWindow t={t} lang={lang} />
+          </ProductFrame>
         </Reveal>
         <Reveal delay={140} className="mx-auto mt-8 max-w-2xl border-l-2 border-primary-600 py-1 pl-5 text-left">
           <p className="text-sm font-medium text-ink-950">{t.principleTitle}</p>
@@ -629,42 +616,52 @@ function OneFileSection({ t }: { t: (typeof T)[Lang] }) {
 /* ---- 08 · Install -------------------------------------------------------- */
 function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
+  const copyLabel = lang === "en" ? "Copy" : "Kopyala";
+  const copiedLabel = lang === "en" ? "Copied" : "Kopyalandı";
+  /* One numbered rail, three steps (Hulusi, 2026-09-06: install blocks
+     "more minimal and nice", a vertical stepper). The tool's own
+     behaviour note stays as the third step's line. */
   return (
     <ProductSection tone="soft" space="md">
       <PortraitContainer className="max-w-2xl">
-        <ProductHeading eyebrow={t.installEyebrow} title={t.installTitle} body={t.installSub} align="center" />
+        <ProductHeading title={t.installTitle} body={t.installSub} />
         <Reveal delay={100} className="mt-10">
-          <CodeTabs
-            tabs={[
-              { id: "claude", label: t.claudeTab, code: CLAUDE_CODE_CMD },
-              { id: "python", label: t.pythonTab, code: PYTHON_CMD },
+          <InstallationStepper
+            steps={[
+              {
+                n: 1,
+                title: t.stepInstall,
+                content: (
+                  <CodeTabs
+                    tabs={[
+                      { id: "claude", label: t.claudeTab, code: CLAUDE_CODE_CMD },
+                      { id: "python", label: t.pythonTab, code: PYTHON_CMD },
+                    ]}
+                    copyLabel={copyLabel}
+                    copiedLabel={copiedLabel}
+                  />
+                ),
+              },
+              { n: 2, title: t.stepTest, desc: t.selfTestNote, content: <CodeBlock code={SELF_TEST_CMD} copyLabel={copyLabel} copiedLabel={copiedLabel} /> },
+              ...(repo
+                ? [
+                    {
+                      n: 3,
+                      title: t.viewRepo,
+                      desc: `${t.reliabilityTitle} ${t.reliabilityBody}`,
+                      content: (
+                        <a href={repo.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
+                          <PixelFill />
+                          {t.ctaGithub}
+                          <ArrowUpRight aria-hidden className="size-4" />
+                        </a>
+                      ),
+                    },
+                  ]
+                : []),
             ]}
-            copyLabel={lang === "en" ? "Copy" : "Kopyala"}
-            copiedLabel={lang === "en" ? "Copied" : "Kopyalandı"}
           />
         </Reveal>
-        <Reveal delay={140} className="mt-6 flex flex-wrap items-center gap-2 text-[12.5px] text-ink-500">
-          <span className="rounded-md border border-line bg-paper px-2.5 py-1 font-mono text-[11.5px] text-ink-700">
-            {SELF_TEST_CMD}
-          </span>
-          <span>{t.selfTestNote}</span>
-        </Reveal>
-        <Reveal delay={170} className="mt-8 border-l-2 border-line-strong py-0.5 pl-4">
-          <p className="text-sm font-medium text-ink-950">{t.reliabilityTitle}</p>
-          <p className="mt-1 text-[13px] leading-relaxed text-ink-600">{t.reliabilityBody}</p>
-        </Reveal>
-        {repo && (
-          <Reveal delay={200} className="mt-6">
-            <a
-              href={repo.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-            >
-              {t.viewRepo} →
-            </a>
-          </Reveal>
-        )}
       </PortraitContainer>
     </ProductSection>
   );
@@ -697,29 +694,8 @@ function Related({ c }: { c: SkillProductContent }) {
 
 function PageCta({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
-  return (
-    <section className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
-      <PortraitContainer className="text-center">
-        <Reveal>
-          <p className="altor-eyebrow mb-5 text-white/45">{t.ctaEyebrow}</p>
-          <h2 className="mx-auto max-w-2xl text-h2-fluid font-medium text-white">{t.ctaTitle}</h2>
-        </Reveal>
-        {repo && (
-          <Reveal delay={90} className="mt-9 flex flex-wrap justify-center gap-3">
-            <a
-              href={repo.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-medium text-ink-950 transition-colors hover:bg-primary-50"
-            >
-              {t.ctaGithub}
-              <ArrowRight aria-hidden className="size-4" />
-            </a>
-          </Reveal>
-        )}
-      </PortraitContainer>
-    </section>
-  );
+  if (!repo) return null;
+  return <ProductCta eyebrow={t.ctaEyebrow} title={t.ctaTitle} primary={{ label: t.ctaGithub, href: repo.href }} />;
 }
 
 export default function ChangeHistoryExplorerPage({ lang, content }: { lang: Lang; content: SkillProductContent }) {

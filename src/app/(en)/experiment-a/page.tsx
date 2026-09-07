@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import JourneyTopologyPreview from "@/components/ui/JourneyTopologyPreview";
 import {
-  CANONICAL_COUNT,
-  CATEGORY_COUNT,
-  GLOBAL_RULE_COUNT,
+  LIBRARY_COUNT,
+  LIBRARY_CATEGORY_COUNT,
   JOURNEY_ROWS,
-  RULE_COUNT,
-  withCanonicalCount,
+  withLibraryCount,
 } from "@/lib/canonical-view";
 import {
   JOURNEY_CATEGORY_COUNTS,
@@ -21,8 +19,8 @@ import { GOALS, GOAL_LABEL } from "@/lib/journey-taxonomy";
    statically rendered, no site chrome — <main> only. Every figure on the
    page is imported from the live library exports; nothing is typed in. */
 
-const DEK = withCanonicalCount(
-  "A library of {count} reusable lifecycle journeys across {categories} categories, held together by {rules} orchestration rules — each entry is a graph, not a sequence.",
+const DEK = withLibraryCount(
+  "A library of {count} reusable lifecycle journeys across {categories} categories. Each entry is a graph, not a sequence.",
 );
 
 export const metadata: Metadata = {
@@ -45,7 +43,7 @@ const KIND_COUNT = new Map<NodeKind, number>(NODE_KIND_COUNTS.map((k) => [k.kind
 const KIND_META: readonly { kind: NodeKind; label: string; role: string }[] = [
   { kind: "trigger", label: "Trigger", role: "Starts the journey from a real signal." },
   { kind: "condition", label: "Condition", role: "Branches it." },
-  { kind: "wait", label: "Wait", role: "Holds it — resolving both ways, on event and on timeout." },
+  { kind: "wait", label: "Wait", role: "Holds it, resolving both ways: on event and on timeout." },
   { kind: "action", label: "Action", role: "Does the work." },
   { kind: "handoff", label: "Handoff", role: "Transfers the entity to another journey." },
   { kind: "outcome", label: "Outcome", role: "Ends it with a result." },
@@ -89,11 +87,10 @@ export default function ExperimentAPage() {
         </h1>
         <p className="mt-6 max-w-[52ch] text-xl text-ink-500">{DEK}</p>
 
-        <div className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 md:mt-16">
-          <Stat value={String(CANONICAL_COUNT)} label="Journeys" />
-          <Stat value={String(CATEGORY_COUNT)} label="Categories" />
+        <div className="mt-12 grid grid-cols-3 gap-x-6 gap-y-8 md:mt-16">
+          <Stat value={String(LIBRARY_COUNT)} label="Journeys" />
+          <Stat value={String(LIBRARY_CATEGORY_COUNT)} label="Categories" />
           <Stat value={nf.format(JOURNEY_SCALE.nodes)} label="Nodes" />
-          <Stat value={String(RULE_COUNT + GLOBAL_RULE_COUNT)} label="Rules" />
         </div>
 
         {/* One real figure from the corpus: the library's largest graph,
@@ -109,7 +106,7 @@ export default function ExperimentAPage() {
               {HERO_JOURNEY.id}
             </span>
             <span className="text-sm text-ink-600">
-              {HERO_JOURNEY.name} — the library&apos;s largest graph, {HERO_JOURNEY.nodeCount}{" "}
+              {HERO_JOURNEY.name}: the library&apos;s largest graph, {HERO_JOURNEY.nodeCount}{" "}
               nodes, drawn from its real topology.
             </span>
           </figcaption>
@@ -121,8 +118,8 @@ export default function ExperimentAPage() {
         <div className="max-w-[760px]">
           <SectionHeading index="01" title="What it is" />
           <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-ink-600">
-            Every journey in the library is an entity state machine: it describes how one thing —
-            a subscription, a consent record, an incident, a delivery — moves through its
+            Every journey in the library is an entity state machine: it describes how one thing (a
+            subscription, a consent record, an incident, a delivery) moves through its
             lifecycle. The library is domain-neutral by construction, so the same journey serves
             an e-commerce order and an insurance claim without rewriting.
           </p>
@@ -135,10 +132,10 @@ export default function ExperimentAPage() {
           <SectionHeading index="02" title="The anatomy of a journey" />
           <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-ink-600">
             Seven node kinds are the entire vocabulary. A trigger starts the journey from a real
-            signal. A condition branches it. A wait holds it — and every wait resolves both ways,
+            signal. A condition branches it. A wait holds it, and every wait resolves both ways,
             on event and on timeout. An action does the work. A handoff transfers the entity to
             another journey. An outcome ends it with a result; an exit ends it without one.
-            Nothing else exists, which is what keeps {CANONICAL_COUNT} graphs readable.
+            Nothing else exists, which is what keeps {LIBRARY_COUNT} graphs readable.
           </p>
         </div>
 
@@ -157,7 +154,7 @@ export default function ExperimentAPage() {
           {/* The count under each kind is its real total across the corpus. */}
           <li className="bg-paper-soft p-6">
             <p className="text-sm leading-relaxed text-ink-500">
-              <span className="font-mono text-ink-400">×n</span> — how many of each kind exist
+              <span className="font-mono text-ink-400">×n</span>: how many of each kind exist
               across all {nf.format(JOURNEY_SCALE.nodes)} nodes in the corpus.
             </p>
           </li>
@@ -174,7 +171,7 @@ export default function ExperimentAPage() {
               clusters where entities change state most often.
             </p>
             <p className="mt-6 font-mono text-xs uppercase tracking-[0.14em] text-ink-400">
-              Journeys per category · all {CATEGORY_COUNT}
+              Journeys per category · all {LIBRARY_CATEGORY_COUNT}
             </p>
           </div>
 
@@ -197,48 +194,16 @@ export default function ExperimentAPage() {
         </div>
       </section>
 
-      {/* ------------------------------------------------------ rules */}
-      <section className="altor-container py-16 md:py-24">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
-          <div className="max-w-[760px]">
-            <SectionHeading index="04" title="What holds it together" />
-            <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-ink-600">
-              Journeys do not run in isolation. Orchestration rules describe how they hand off,
-              suppress and wake each other; global rules apply to every journey at once. Retired
-              journey ids do not 404 — each one resolves into the journey that absorbed it.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-6 self-end">
-            <div className="border-t border-line-strong pt-4">
-              <p className="font-mono text-4xl font-medium tracking-tight text-ink-900">
-                {RULE_COUNT}
-              </p>
-              <p className="mt-1.5 text-xs uppercase tracking-[0.14em] text-ink-500">
-                Orchestration rules
-              </p>
-            </div>
-            <div className="border-t border-line-strong pt-4">
-              <p className="font-mono text-4xl font-medium tracking-tight text-ink-900">
-                {GLOBAL_RULE_COUNT}
-              </p>
-              <p className="mt-1.5 text-xs uppercase tracking-[0.14em] text-ink-500">
-                Global rules
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ------------------------------------------------- principles */}
       <section className="altor-container py-16 md:py-24">
-        <SectionHeading index="05" title="Three positions the corpus takes" />
+        <SectionHeading index="04" title="Three positions the corpus takes" />
         <ol className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
           <li>
             <p className="font-mono text-5xl font-medium text-ink-200">1</p>
             <p className="mt-4 text-base leading-relaxed text-ink-600">
               <strong className="font-semibold text-ink-900">Graphs, not sequences.</strong> A
               journey is where it forks, what each arm means, and what happens when a wait runs
-              out — not a numbered list of steps.
+              out, not a numbered list of steps.
             </p>
           </li>
           <li>
@@ -247,7 +212,7 @@ export default function ExperimentAPage() {
               <strong className="font-semibold text-ink-900">
                 Entity state machines, not one customer timeline.
               </strong>{" "}
-              {CANONICAL_COUNT} independent lifecycles beat one mythical funnel.
+              {LIBRARY_COUNT} independent lifecycles beat one mythical funnel.
             </p>
           </li>
           <li>
@@ -267,7 +232,7 @@ export default function ExperimentAPage() {
       <section className="bg-ink-950">
         <div className="altor-container py-20 md:py-28">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-400">06</p>
-          <h2 className="mt-3 text-h2-fluid font-semibold text-white">Explore it</h2>
+          <h2 className="mt-3 text-h2-fluid font-semibold text-white">Browse the library</h2>
           <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-300">
             The full library is searchable and filterable by goal.
           </p>

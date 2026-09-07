@@ -2,7 +2,7 @@
 
 /* ==========================================================================
    Altor — Design tokens
-   Brand: warm blue #2F6BFF on a warm-stone neutral. Manrope + JetBrains Mono.
+   Brand: warm blue #2F6BFF on a warm-stone neutral. Inter, one family.
 
    BRAND GUIDELINE ADOPTION (2026-09-04, same day as, and superseding, the
    terracotta rebrand above it in git history). By explicit request: "bu
@@ -48,25 +48,45 @@
 
 @theme {
   /* --- Typography ------------------------------------------------------- */
-  /* BRAND GUIDELINE (2026-09-04): Outfit -> Manrope, per the guideline's
-     "Font: Manrope (sans) + JetBrains Mono (mono)" - a two-family system.
-     Same role (one sans, weight/size does the work), loaded in both root
-     layouts. */
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  /* RE-CLAMPED to the sans. The guideline is explicitly two families, not
-     three, and specifies no serif at all - Merriweather (loaded for exactly
-     one same-day rebrand and never actually applied by any component, per
-     that rebrand's own note) is dropped from both root layouts along with
-     this. The `font-serif` utility still compiles; it now falls back to
-     the sans again, same guardrail this token carried before either
-     rebrand touched it. */
+  /* ONE FAMILY: INTER (2026-09-05, by explicit request). Supersedes the
+     2026-09-04 brand guideline's two-family "Manrope (sans) + JetBrains Mono
+     (mono)" spec, and Outfit/Fira Code/Merriweather before that. Every one of
+     the three font tokens below now resolves to the same load.
+
+     "Inter Display" is not a separate Google family - it is the top of Inter
+     v4's optical-size axis (`opsz` 14-32), requested in both root layouts via
+     `axes: ["opsz"]`. `font-optical-sizing` stays at its `auto` default, so
+     the browser picks the instance from each element's used font-size: hero
+     type gets the Display drawing, body copy stays on the Text drawing. That
+     is the axis working as designed - see either layout.tsx for why pinning
+     opsz 32 globally was rejected. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* RE-CLAMPED to the sans, and now trivially so - there is only one family.
+     The `font-serif` utility still compiles and still cannot produce a serif,
+     the same guardrail this token has carried through three type systems. */
   --font-serif: var(--font-sans);
 
-  /* Mono. BRAND GUIDELINE (2026-09-04): Fira Code -> JetBrains Mono, same
-     role - the hero spec plate, the Lab index numbers, the detail pages'
-     meta rails, the mono-rail eyebrow (`.altor-eyebrow`) all read through
-     this one variable. Loaded in both root layouts. */
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  /* MONO IS NO LONGER MONOSPACED - a deliberate, requested consequence of
+     going to one family, not an oversight. `font-mono` is still the right
+     class at every call site: it marks the *role* (the hero spec plate, the
+     Lab index numbers, the detail pages' meta rails, code blocks, install
+     commands), so when a monospaced cut is wanted back, restoring it is one
+     line here and nothing else moves.
+
+     WHAT CARRIES THE LOAD INSTEAD. Inter's proportional digits would let
+     numeric columns and tickers jitter, so the two places that actually
+     depended on the fixed advance width are pinned explicitly:
+       - `tabular-nums` is applied to `font-mono` in the base layer below,
+         via Inter's own `tnum` feature - so every meta rail, table figure
+         and count keeps its column.
+       - `pre`/`code` keep a real monospace stack (`--font-code`), because a
+         terminal block and an install command are read as a character grid;
+         proportional text there is a legibility regression, not a style. */
+  --font-mono: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* The one place a genuine fixed-advance cut survives is `--font-code`,
+     declared OUTSIDE this block - see the non-utility token block below for
+     why it cannot live here. */
 
   /* --- Neutral ramp: "stone" ---------------------------------------------
      BRAND GUIDELINE (2026-09-04): true grey -> warm stone, per the
@@ -409,7 +429,7 @@
   --text-display-xl: clamp(2.5rem, 6.4vw, 4rem); /* 40 → 64 */
   --text-display-xl--line-height: 1.05;
   --text-display-xl--letter-spacing: -0.032em;
-  --text-display-xl--font-weight: 600; /* the title tier is Semibold */
+  --text-display-xl--font-weight: 600; /* Semibold; the /lab hero only - see THE HEADING RAMP below */
 
   --text-xl: 1.25rem; /* 20 */
   --text-xl--line-height: 1.4; /* 28 */
@@ -440,31 +460,52 @@
   --text-label--letter-spacing: -0.01em;
   --text-label--font-weight: 500;
 
-  /* --- CONTACT PILOT ROUND 2: Portrait-derived fluid heading scale -------
-     (PORTRAIT-DESIGN-SOURCE-AUDIT.md §4/§7) — real, exact values read from
-     portrait.so's own served production CSS (`--text-h1-fluid` etc.), not
-     estimated from a screenshot. Named distinctly (`-fluid`, `h5`/`h6`) so
-     nothing here collides with this project's own `--text-display-xl` or
-     Tailwind's stock scale; both scales coexist. `h3`/`h4-fluid` etc. exist
-     in the real source too but aren't added here — only the steps this
-     pilot's Contact page actually uses. Confirmed real-DOM usage on
-     portrait.so: `<h1>`/`<h2>` there carry `font-medium` (500) with NO
-     separate font-family override — i.e. these headings use Portrait's
-     own default body sans at a bigger size/weight, not a distinct display
-     face. This project's Contact headings below follow the same
-     structural idea (one sans, weight/size does the work) using Geist. */
-  --text-h1-fluid: clamp(2.0273rem, 1.3279rem + 3.1085vw, 3.8147rem);
-  --text-h1-fluid--line-height: 1;
-  --text-h1-fluid--letter-spacing: -0.04em;
-  --text-h2-fluid: clamp(1.802rem, 1.313rem + 2.1734vw, 3.0518rem);
-  --text-h2-fluid--line-height: 1.04;
-  --text-h2-fluid--letter-spacing: -0.032em;
-  --text-h5: 1.5625rem;
-  --text-h5--line-height: 1.14;
-  --text-h5--letter-spacing: -0.0164em;
-  --text-h6: 1.25rem;
-  --text-h6--line-height: 1.2;
-  --text-h6--letter-spacing: -0.0131em;
+  /* --- THE HEADING RAMP (2026-09-06, Hulusi: "why the hell are headers
+     making three, four lines; all headers need to be checked and made
+     based on the DS; check h1 h2 h3 all") -------------------------------
+     Before this there were TWO title scales side by side - the reference
+     hero's `display-xl` above and a Portrait-derived `h1-fluid` /
+     `h2-fluid` / `h5` / `h6` set ported for the Contact pilot - plus
+     eleven hand-written `text-[clamp(...)]` headings that each picked
+     their own size, leading and tracking. `h1-fluid` ran to 61px at
+     line-height 1 inside a 768px measure, so a product hero of sixty
+     characters wrapped to three lines. That is the state this ramp
+     retires: one h1, one h2, one h3, each carrying its own leading,
+     tracking and weight so a call site writes `text-h2` and nothing else.
+
+     h1 - the page title. 32 → 56px: capped so a 60-character title holds
+       two lines in a 896px (`max-w-4xl`) centred measure at 1440 (the
+       previous 61px did not), floored at 32 so a 68-character Turkish
+       title holds three lines on a 390 phone, not four. Leading 1.06,
+       tracking -0.03em, Semibold.
+     h2 - the section title. 24 → 40px: the /lab sections' approved 40px
+       at desktop, with a 24px floor for the same phone reason, now the
+       one section step for the whole site (SectionHeading,
+       ProductHeading, the closing plates, About).
+     h3 - the sub-section and card title, 24/30, Semibold. Below it,
+       headings inside dense records and lists (a journey's sections, a
+       stack group, a calculator's editorial columns) sit on the body
+       steps `text-lg` / `text-base` at Semibold - still the ramp, just
+       not a display cut.
+     `display-xl` stays for the one centred front-door hero (/lab); the
+     homepage hero is a split beside the portrait, so it sits on h1.
+     Measure is the layout's job, not the token's: a centred h1 sits in
+     `max-w-4xl`, a split one in the column it is given, and a title that
+     still wraps past two lines at 1440 is a copy problem to fix in the
+     copy, never with a smaller local size. Weight, leading and tracking
+     ride on the token - never restate them at a call site. */
+  --text-h1: clamp(2rem, 1.25rem + 2.6vw, 3.5rem); /* 32 → 56 */
+  --text-h1--line-height: 1.06;
+  --text-h1--letter-spacing: -0.03em;
+  --text-h1--font-weight: 600;
+  --text-h2: clamp(1.5rem, 1.1rem + 1.7vw, 2.5rem); /* 24 → 40 */
+  --text-h2--line-height: 1.1;
+  --text-h2--letter-spacing: -0.025em;
+  --text-h2--font-weight: 600;
+  --text-h3: 1.5rem; /* 24 */
+  --text-h3--line-height: 1.25; /* 30 */
+  --text-h3--letter-spacing: -0.016em;
+  --text-h3--font-weight: 600;
 
   /* --- Hero port: colours ----------------------------------------------
      All new names, so nothing already written can shift under them.
@@ -499,6 +540,17 @@
    live here rather than in @theme — Tailwind has no `--duration-*` namespace,
    so declaring them there generates no utilities at all. */
 :root {
+  /* The one genuine fixed-advance cut left in the system, after the
+     2026-09-05 move to a single Inter family collapsed `--font-mono` onto a
+     proportional face. Applied BY ELEMENT in the base layer (`pre`, `code`,
+     `kbd`, `samp`), never as a utility: `--font-*` inside `@theme` would make
+     Tailwind emit a `font-code` class, and a class is exactly how a
+     monospaced face would leak back out across the UI one call site at a
+     time. A terminal block and an install command are read as a character
+     grid; that is a legibility requirement, not a style choice, so it is the
+     one carve-out. No webfont - the OS cut is correct here and free. */
+  --font-code: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
   /* BRAND GUIDELINE (2026-09-04): fast/base/slow updated to the guideline's
      own three durations ("`--ease-out` 250ms giriş, `--ease-in` 120ms
      çıkış" plus its 600ms overshoot-spring value). This LIFTS the previous
@@ -606,11 +658,28 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     /* Never let the browser fake a weight we didn't ship — a synthesised
-       oblique or bold would be the browser reinventing a cut neither
-       loaded family (Manrope, JetBrains Mono) actually ships at that
-       weight. */
+       oblique or bold would be the browser reinventing a cut Inter's own
+       variable `wght` axis already covers. */
     font-synthesis-weight: none;
   }
+
+  /* --- What the retired monospace was actually doing --------------------
+     Two jobs, and going to one proportional family only breaks one of them
+     by default. Both are restored here rather than at ~200 call sites. */
+
+  /* JOB 1 · COLUMNS. Every meta rail, count, date and table figure on this
+     site carries `font-mono` and relied on its fixed advance width to line
+     digits up. Inter's default figures are proportional, so a column of them
+     would jitter row to row. Inter ships `tnum`, so the guarantee is kept -
+     at the role, not per call site. `font-variant-numeric` is inherited, so
+     one rule covers nested spans too. Call sites that already write
+     `tabular-nums` are simply agreeing with this. */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* JOB 2 lives OUTSIDE this layer - see the end of this file for the code
+     grid and for why `@layer base` cannot hold it. */
 
   h1,
   h2,
@@ -851,53 +920,314 @@
     }
   }
 
-  /* ---- LAB ILLUSTRATIONS ------------------------------------------------
-     The Lab page's figures are drawn in code and animate on their own
-     clock, so the sections read as alive rather than as stills in slots.
-     Every one of these is transform or opacity only - composited, never
-     re-laying-out - and all of them stop under the global reduced-motion
-     rule above. */
+  /* ---- LAB MOTION ---------------------------------------------------------
+     The Lab page used to carry a set of drawn, self-animating figures here
+     (a breathing dot matrix, a pulse down a branch, floating plates -
+     ui/LabVisuals.tsx). They went with that file on 2026-09-05, when every
+     Lab witness became the tool's own real material; nothing was left
+     switched off. What remains is one state-change animation. */
 
-  /* The dot matrix breathing, the same grain the button's pixel dissolve
-     uses. Scale, not opacity alone, so the field reads as depth. */
-  .lab-matrix {
-    animation: lab-matrix 9s ease-in-out infinite;
+  /* A tab switch in the Lab hero window (LabShowcase.tsx): the incoming
+     panel settles in over one base duration instead of snapping. It
+     replays every time a panel leaves `hidden`, because an animation
+     starts when its element is first rendered. Opacity and a 4px
+     translate only - the reduced-motion reset above shortens it to
+     nothing, which is the right answer for a state change this small. */
+  /* THE FRAMES. Each project's visual on /lab is a plate (`LabFrame` in
+     LabIndexPage.tsx): a grainy, tinted ground in the project's own hue
+     with dark ink clouds, and on it ONE cropped fragment of the product -
+     the mechanism of the reference frames Hulusi sent (2026-09-06: "no
+     need full page, just important parts to tell the story"). The ground
+     is drawn, not an asset - three radial gradients and an SVG-noise
+     grain - so all six plates are the same picture in six tones and
+     nothing ships as an image. `data-hue` picks the tone: the identity's
+     hue two steps deeper than its -50 tiles (LabProjectIdentity.tsx). */
+  .lab-frame {
+    --frame-base: #e7e5e4;
+    --frame-deep: #a8a29e;
+    /* The clouds are a cool near-navy, not the site's warm ink: warm ink
+       mixed into teal or emerald goes muddy, navy stays clean on every hue. */
+    --frame-ink: #0b1220;
+    background:
+      radial-gradient(52% 60% at 10% 96%, color-mix(in oklab, var(--frame-ink) 92%, transparent) 0%, transparent 62%),
+      radial-gradient(34% 38% at 92% 2%, color-mix(in oklab, var(--frame-ink) 78%, transparent) 0%, transparent 60%),
+      radial-gradient(26% 30% at 78% 74%, color-mix(in oklab, var(--frame-ink) 45%, transparent) 0%, transparent 65%),
+      radial-gradient(72% 70% at 55% 50%, var(--frame-deep) 0%, transparent 70%),
+      var(--frame-base);
   }
 
-  @keyframes lab-matrix {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 0.85; transform: scale(1.06); }
+  .lab-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 220px 220px;
+    /* Over a photograph now (LabIndexPage.tsx's LabFrame): a light film
+       grain, not a texture - at 0.85 the overlay bleached the plates to
+       milk. */
+    opacity: 0.3;
+    mix-blend-mode: overlay;
   }
 
-  /* Concentric arcs turning at three different rates. */
-  .lab-spin { animation: lab-spin 26s linear infinite; }
-  .lab-spin-slow { animation: lab-spin 46s linear infinite; }
-  .lab-spin-reverse { animation: lab-spin 34s linear infinite reverse; }
-
-  @keyframes lab-spin {
-    to { rotate: 360deg; }
+  .lab-frame[data-hue="violet"] {
+    --frame-base: #ddd6fe;
+    --frame-deep: #a78bfa;
   }
 
-  /* A pulse travelling from the hub down a branch. The dash pattern is a
-     short lit segment on a long gap, so moving the offset sends one
-     packet along the path rather than marching ants. */
-  .lab-pulse {
-    animation: lab-pulse 3.2s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  .lab-frame[data-hue="primary"] {
+    --frame-base: var(--color-primary-200);
+    --frame-deep: var(--color-primary-400);
   }
 
-  @keyframes lab-pulse {
-    from { stroke-dashoffset: 200; }
-    to { stroke-dashoffset: -40; }
+  .lab-frame[data-hue="rose"] {
+    --frame-base: #fecdd3;
+    --frame-deep: #fb7185;
   }
 
-  /* Stacked plates drifting a hair out of phase with each other. */
-  .lab-float {
-    animation: lab-float 7s ease-in-out infinite;
+  .lab-frame[data-hue="emerald"] {
+    --frame-base: #a7f3d0;
+    --frame-deep: #34d399;
   }
 
-  @keyframes lab-float {
-    0%, 100% { translate: 0 0; }
-    50% { translate: 0 -6px; }
+  .lab-frame[data-hue="amber"] {
+    --frame-base: #fde68a;
+    --frame-deep: #fbbf24;
+  }
+
+  .lab-frame[data-hue="teal"] {
+    --frame-base: #99f6e4;
+    --frame-deep: #2dd4bf;
+  }
+
+  /* THE SCENES' ENTRANCE. Inside a frame that has revealed, each card of
+     the scene rises into place a beat after the one before - the picture
+     assembling as it arrives (Hulusi: "some appear effect"). Keyed off
+     Reveal's own data-revealed attribute on the frame's wrapper, so no
+     second observer; cards are ordered by DOM position, which is also
+     their stacking order. Nothing moves under reduced motion. */
+  .lab-scene-card {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  .altor-reveal[data-revealed="true"] .lab-scene-card {
+    animation: lab-scene-in 720ms var(--ease-out-soft) both;
+  }
+
+  .altor-reveal[data-revealed="true"] .lab-scene-card:nth-child(2) {
+    animation-delay: 170ms;
+  }
+
+  .altor-reveal[data-revealed="true"] .lab-scene-card:nth-child(3) {
+    animation-delay: 340ms;
+  }
+
+  @keyframes lab-scene-in {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.985);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lab-scene-card,
+    .altor-reveal[data-revealed="true"] .lab-scene-card {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+
+  /* THE SHELF. Numerspace's two rows of calculator categories glide on
+     their own, endlessly, one row each way - a carousel not tied to the
+     scroll (Hulusi, 2026-09-06: "auto slider, infinite, not attached to
+     the scroll"). The track holds its items twice and travels exactly half
+     its width, so the loop never jumps; items carry their own right margin
+     instead of a track gap for the same reason. Off under reduced motion. */
+  /* THE BIO TIMELINE (homepage Bio band, 2026-09-06). Keyed off the
+     Reveal wrapper like the scene cards above: the rail's blue overlay
+     draws top to bottom once the band is in view, each row rises in behind
+     it on its own index, and the node of the current role pulses. Nothing
+     moves under reduced motion. */
+  .bio-rail {
+    background: var(--color-line);
+  }
+
+  .bio-rail::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--color-primary-500);
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+
+  .altor-reveal[data-revealed="true"] .bio-rail::after {
+    animation: bio-rail-draw 1.6s var(--ease-out-soft) 240ms forwards;
+  }
+
+  @keyframes bio-rail-draw {
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  .bio-row {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .altor-reveal[data-revealed="true"] .bio-row {
+    animation: bio-row-in 620ms var(--ease-out-soft) forwards;
+    animation-delay: calc(260ms + var(--i, 0) * 150ms);
+  }
+
+  @keyframes bio-row-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .bio-node-live::before {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 9999px;
+    border: 2px solid var(--color-primary-400);
+    animation: bio-live 2.4s ease-out infinite;
+  }
+
+  @keyframes bio-live {
+    0% {
+      transform: scale(0.55);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.7);
+      opacity: 0;
+    }
+  }
+
+  /* THE PATH TRACKER (ui/BioTrack.tsx, from lg). The hairline under the
+     nodes carries a blue fill whose length is the band's scroll progress
+     (`--p`, 0 to 1, scaled by `--end` so it stops at the last node) and a
+     small head at its tip. A node the head has passed turns blue and its
+     role comes up to full ink; the ones ahead sit back, but only once JS
+     has mounted (`data-js`) so the server HTML is a finished list. */
+  .bio-track-rail {
+    background: var(--color-line);
+  }
+
+  .bio-track-fill {
+    width: calc(var(--p, 0) * 100%);
+    background: var(--color-primary-500);
+  }
+
+  .bio-track-head {
+    left: calc(var(--p, 0) * 100%);
+    background: var(--color-primary-500);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-primary-500) 22%, transparent);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out-soft);
+  }
+
+  /* The head shows only while the path is under way; at rest it would sit
+     on the first node, and once complete the last node's pulse takes over. */
+  .bio-track[data-state="moving"] .bio-track-head {
+    opacity: 1;
+  }
+
+  .bio-track-node {
+    background: var(--color-ink-300);
+    transition: background-color var(--duration-base) var(--ease-out-soft);
+  }
+
+  .bio-track li[data-passed] .bio-track-node {
+    background: var(--color-primary-600);
+  }
+
+  .bio-track[data-js] li {
+    opacity: 0.45;
+    transition: opacity var(--duration-slow) var(--ease-out-soft);
+  }
+
+  .bio-track[data-js] li[data-passed] {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bio-row,
+    .altor-reveal[data-revealed="true"] .bio-row {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+
+    .bio-rail::after,
+    .altor-reveal[data-revealed="true"] .bio-rail::after {
+      transform: none;
+      animation: none;
+    }
+
+    .bio-node-live::before {
+      animation: none;
+    }
+
+    .bio-track-head,
+    .bio-track-node,
+    .bio-track[data-js] li {
+      transition: none;
+    }
+  }
+
+  .lab-marquee {
+    display: flex;
+    width: max-content;
+    animation: lab-marquee var(--marquee-duration, 46s) linear infinite;
+  }
+
+  .lab-marquee[data-reverse] {
+    animation-direction: reverse;
+  }
+
+  @keyframes lab-marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lab-marquee {
+      animation: none;
+    }
+  }
+
+  /* A table row that reveals on scroll (the change explorer's console on
+     /lab): fade only - a translate on a table-row breaks its cell layout
+     in some engines. */
+  tr.altor-reveal {
+    transform: none;
+  }
+
+  .lab-panel-in {
+    animation: lab-panel-in var(--duration-base) var(--ease-out-soft) both;
+  }
+
+  @keyframes lab-panel-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
   }
 
   /* A navigation surface arriving - the phone menu panel and the desktop
@@ -1616,4 +1946,31 @@
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
+}
+
+/* --- THE CODE GRID · deliberately unlayered ------------------------------
+   A shell transcript, an install command and a code sample are read as
+   aligned columns of characters. Proportional type there is a legibility
+   regression, not a restyle, so these four elements keep a real
+   fixed-advance cut even though the 2026-09-05 single-family move made
+   `--font-mono` proportional everywhere else.
+
+   NOT IN `@layer base`, and that is the whole point. Every one of these
+   blocks is also tagged `font-mono` at its call site (CodeBlock, the Lab
+   pages' install tabs, the terminal enclaves), and a Tailwind utility lives
+   in a LATER layer than base - so layer order decides the winner before
+   specificity is even consulted and a base-layer `pre { }` loses to
+   `.font-mono` every time, at any specificity. Unlayered rules sort after
+   all layered ones, which is the documented escape hatch for exactly this:
+   a small, element-scoped override that has to outrank a utility.
+
+   Kept to four element selectors on purpose. There is no `font-code`
+   utility class (see `--font-code`'s own note), so this cannot spread back
+   across the UI one call site at a time. */
+pre,
+code,
+kbd,
+samp {
+  font-family: var(--font-code);
+  font-variant-numeric: tabular-nums;
 }

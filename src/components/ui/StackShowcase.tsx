@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { ButtonLink } from "./Button";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./Section";
 import { copy, type Lang } from "@/lib/content";
@@ -16,8 +16,8 @@ import { resolveLogo, stackOnePerCategory, type Tool } from "@/lib/stack";
    is this site's own real stack data (lib/stack.ts) - nothing invented. */
 function ToolCard({ tool, tag }: { tool: Tool; tag: string }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-line bg-paper p-5 transition-colors hover:border-neutral-400">
-      <span className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-paper-soft">
+    <div className="flex items-center gap-4 rounded-2xl bg-gradient-to-b from-paper to-paper/50 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl transition-[box-shadow,transform] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.45)] p-5">
+      <span className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-paper/80 ring-1 ring-ink-950/[0.04]">
         <span className="relative size-6">
           <Image src={resolveLogo(tool)} alt="" fill sizes="1.5rem" className="object-contain" />
         </span>
@@ -35,7 +35,15 @@ export function StackShowcase({ lang }: { lang: Lang }) {
   const tools = stackOnePerCategory();
 
   return (
-    <section className="bg-paper-soft py-24 md:py-32">
+    <section className="relative isolate overflow-hidden bg-paper-soft py-16 md:py-20">
+      {/* THE GROUND (Hulusi, 2026-09-07: "put some background here and
+          make the cards glassy"): the journey builder's meadow plate - the
+          one frame the homepage had not used yet - rising from the bottom
+          under a mask so the heading stays on paper and the cards sit on
+          the field, frosted the way the hero tiles are. */}
+      <div aria-hidden className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_8%,black_55%)]">
+        <Image src="/lab/frames/claude-lifecycle.jpg" alt="" fill sizes="100vw" className="object-cover object-bottom" />
+      </div>
       <div className="altor-container">
         <SectionHeading eyebrow={t.stack.eyebrow} title={t.stack.homeTitle} intro={t.stack.homeIntro} />
 
@@ -47,14 +55,11 @@ export function StackShowcase({ lang }: { lang: Lang }) {
           ))}
         </div>
 
-        <Reveal delay={tools.length * 50 + 40}>
-          <Link
-            href={t.nav.stackHref}
-            className="mt-10 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
+        <Reveal delay={tools.length * 50 + 40} className="mt-12">
+          <ButtonLink href={t.nav.stackHref} variant="outline" size="md">
             {t.stack.homeMore}
-            <ArrowRight aria-hidden className="size-3.5" />
-          </Link>
+            <ArrowRight aria-hidden className="size-4" />
+          </ButtonLink>
         </Reveal>
       </div>
     </section>

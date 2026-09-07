@@ -17,7 +17,7 @@ import type { copy, Lang } from "@/lib/content";
    only where the journey actually has them. A journey with `channels: []`
    renders nothing there rather than "no channels" or "internal": the empty
    array is a statement about execution, not a missing field, and labelling
-   it would turn 197 journeys into a page-wide apology. */
+   it would turn most journeys into a page-wide apology. */
 
 export default function JourneyDetailHeader({
   detail,
@@ -81,8 +81,8 @@ export default function JourneyDetailHeader({
         className={`${
           compact
             ? "mt-5 text-[clamp(1.375rem,1.05rem+1.4vw,1.875rem)]"
-            : "mt-7 text-[clamp(1.625rem,1.1rem+2.1vw,2.5rem)]"
-        } max-w-4xl leading-[1.14] font-semibold tracking-[-0.02em] text-balance text-ink-950`}
+            : "mt-7 text-h2"
+        } max-w-4xl text-balance text-ink-950`}
       >
         {detail.preset ? detail.preset.name : (detail.shortName ?? detail.name)}
       </Heading>
@@ -93,7 +93,7 @@ export default function JourneyDetailHeader({
           against, and it is what the slug was derived from. Only rendered
           where a shortName actually replaced it as the title. */}
       {detail.preset ? (
-        <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{t.practitioner.presetOf} {detail.id} {detail.shortName ?? detail.name} — {detail.name}</p>
+        <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{t.practitioner.presetOf} {detail.id} {detail.shortName ?? detail.name}: {detail.name}</p>
       ) : detail.shortName ? (
         <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{detail.name}</p>
       ) : null}

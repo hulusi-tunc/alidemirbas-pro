@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import JourneyTopologyPreview from "@/components/ui/JourneyTopologyPreview";
 import {
-  CANONICAL_COUNT,
-  CATEGORY_COUNT,
-  GLOBAL_RULE_COUNT,
-  JOURNEY_ROWS,
-  RULE_COUNT,
-  withCanonicalCount,
+  LIBRARY_COUNT,
+  LIBRARY_CATEGORY_COUNT,
+  LIBRARY_ROWS,
+  withLibraryCount,
   type JourneyRow,
 } from "@/lib/canonical-view";
 import {
@@ -30,8 +28,8 @@ import { GOALS, GOAL_LABEL } from "@/lib/journey-taxonomy";
    Server component; every figure on the page is imported live from the
    canonical read models. Nothing is typed by hand. */
 
-const DEK = withCanonicalCount(
-  "A library of {count} reusable lifecycle journeys across {categories} categories, held together by {rules} orchestration rules — each entry is a graph, not a sequence.",
+const DEK = withLibraryCount(
+  "A library of {count} reusable lifecycle journeys across {categories} categories. Each entry is a graph, not a sequence.",
 );
 
 export const metadata: Metadata = {
@@ -44,7 +42,7 @@ const fmt = (n: number) => n.toLocaleString("en-US");
 /* ---- Real objects picked deterministically from the corpus ------------- */
 
 /** Hero witness: the largest graph in the library. */
-const HERO_JOURNEY: JourneyRow = JOURNEY_ROWS.reduce((max, row) =>
+const HERO_JOURNEY: JourneyRow = LIBRARY_ROWS.reduce((max, row) =>
   row.nodeCount > max.nodeCount ? row : max,
 );
 
@@ -53,7 +51,7 @@ const HERO_JOURNEY: JourneyRow = JOURNEY_ROWS.reduce((max, row) =>
     and every card links to its live detail route. */
 const EXPLORE_ROWS: JourneyRow[] = JOURNEY_CATEGORY_COUNTS.slice(0, 12)
   .map((cat) =>
-    JOURNEY_ROWS.filter((row) => row.category === cat.id).reduce((max, row) =>
+    LIBRARY_ROWS.filter((row) => row.category === cat.id).reduce((max, row) =>
       row.nodeCount > max.nodeCount ? row : max,
     ),
   )
@@ -98,7 +96,7 @@ function NodeKindGlyph({ kind }: { kind: NodeKind }) {
 const KIND_ROLE: Record<NodeKind, string> = {
   trigger: "starts the journey from a real signal",
   condition: "branches it",
-  wait: "holds it — resolves on event and on timeout",
+  wait: "holds it; resolves on event and on timeout",
   action: "does the work",
   handoff: "transfers the entity to another journey",
   outcome: "ends it with a result",
@@ -160,23 +158,21 @@ export default function ExperimentBPage() {
       <section className="altor-container border-t border-line pt-12 pb-16 sm:pb-20">
         <div className="mx-auto grid max-w-[1120px] gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:gap-20">
           <div>
-            <Kicker>What it is</Kicker>
+            <Kicker>Definition</Kicker>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">What it is</h2>
             <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-ink-500 sm:text-lg">
               Every journey in the library is an entity state machine: it describes how one
-              thing — a subscription, a consent record, an incident, a delivery — moves
+              thing (a subscription, a consent record, an incident, a delivery) moves
               through its lifecycle. The library is domain-neutral by construction, so the
               same journey serves an e-commerce order and an insurance claim without
               rewriting.
             </p>
           </div>
           <dl className="self-end border-t border-line-strong">
-            <SpecRow label="Journeys" value={fmt(CANONICAL_COUNT)} />
-            <SpecRow label="Categories" value={fmt(CATEGORY_COUNT)} />
+            <SpecRow label="Journeys" value={fmt(LIBRARY_COUNT)} />
+            <SpecRow label="Categories" value={fmt(LIBRARY_CATEGORY_COUNT)} />
             <SpecRow label="Nodes" value={fmt(JOURNEY_SCALE.nodes)} />
             <SpecRow label="Node kinds" value={fmt(JOURNEY_SCALE.nodeKinds)} />
-            <SpecRow label="Orchestration rules" value={fmt(RULE_COUNT)} />
-            <SpecRow label="Global rules" value={fmt(GLOBAL_RULE_COUNT)} />
           </dl>
         </div>
       </section>
@@ -190,10 +186,10 @@ export default function ExperimentBPage() {
           </h2>
           <p className="mt-5 max-w-[62ch] text-base leading-relaxed text-ink-500 sm:text-lg">
             Seven node kinds are the entire vocabulary. A trigger starts the journey from a
-            real signal. A condition branches it. A wait holds it — and every wait resolves
+            real signal. A condition branches it. A wait holds it, and every wait resolves
             both ways, on event and on timeout. An action does the work. A handoff transfers
             the entity to another journey. An outcome ends it with a result; an exit ends it
-            without one. Nothing else exists, which is what keeps {CANONICAL_COUNT} graphs
+            without one. Nothing else exists, which is what keeps {LIBRARY_COUNT} graphs
             readable.
           </p>
 
@@ -261,7 +257,7 @@ export default function ExperimentBPage() {
               ))}
             </div>
             <p className="altor-eyebrow mt-8 text-ink-400">
-              {fmt(CANONICAL_COUNT)} journeys across {fmt(CATEGORY_COUNT)} categories — real
+              {fmt(LIBRARY_COUNT)} journeys across {fmt(LIBRARY_CATEGORY_COUNT)} categories. Real
               counts, largest first
             </p>
           </div>
@@ -269,41 +265,6 @@ export default function ExperimentBPage() {
       </section>
 
       {/* ========= S-RULES — the page's single interruption plate ======== */}
-      <section className="bg-ink-950 text-white">
-        <div className="altor-container py-16 sm:py-24">
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:gap-20">
-            <div>
-              <p className="altor-eyebrow text-ink-400">The system</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                What holds it together
-              </h2>
-              <p className="mt-6 max-w-[52ch] text-base leading-relaxed text-ink-300 sm:text-lg">
-                Journeys do not run in isolation. Orchestration rules describe how they hand
-                off, suppress and wake each other; global rules apply to every journey at
-                once. Retired journey ids do not 404 — each one resolves into the journey
-                that absorbed it.
-              </p>
-            </div>
-            <dl className="grid grid-cols-2 gap-10 self-end border-t border-line-inverse pt-8 lg:grid-cols-1 lg:gap-8">
-              <div>
-                <dd className="font-mono text-5xl font-semibold tabular-nums sm:text-6xl">
-                  {fmt(RULE_COUNT)}
-                </dd>
-                <dt className="altor-eyebrow mt-2 text-ink-400">Orchestration rules</dt>
-              </div>
-              <div>
-                <dd className="font-mono text-5xl font-semibold tabular-nums sm:text-6xl">
-                  {fmt(GLOBAL_RULE_COUNT)}
-                </dd>
-                <dt className="altor-eyebrow mt-2 text-ink-400">
-                  Global rules, on every journey
-                </dt>
-              </div>
-            </dl>
-          </div>
-        </div>
-      </section>
-
       {/* ============ S-PRINCIPLES — unforced triptych ==================== */}
       <section className="altor-container pt-16 pb-14 sm:pt-20">
         <Kicker>Positions</Kicker>
@@ -317,7 +278,7 @@ export default function ExperimentBPage() {
               <strong className="font-semibold">Graphs, not sequences.</strong>{" "}
               <span className="text-ink-500">
                 A journey is where it forks, what each arm means, and what happens when a
-                wait runs out — not a numbered list of steps.
+                wait runs out, not a numbered list of steps.
               </span>
             </p>
           </li>
@@ -328,7 +289,7 @@ export default function ExperimentBPage() {
                 Entity state machines, not one customer timeline.
               </strong>{" "}
               <span className="text-ink-500">
-                {CANONICAL_COUNT} independent lifecycles beat one mythical funnel.
+                {LIBRARY_COUNT} independent lifecycles beat one mythical funnel.
               </span>
             </p>
           </li>
@@ -350,13 +311,13 @@ export default function ExperimentBPage() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <Kicker>The library</Kicker>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight">Explore it</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight">Browse the library</h2>
             <p className="mt-4 max-w-[46ch] text-base leading-relaxed text-ink-500 sm:text-lg">
               The full library is searchable and filterable by goal.
             </p>
           </div>
           <p className="altor-eyebrow text-ink-400">
-            Showing {EXPLORE_ROWS.length} of {fmt(CANONICAL_COUNT)} journeys
+            Showing {EXPLORE_ROWS.length} of {fmt(LIBRARY_COUNT)} journeys
           </p>
         </div>
 

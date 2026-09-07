@@ -191,39 +191,6 @@ export function ForkArm({
   );
 }
 
-/* ---- The node-kind legend --------------------------------------------
-   Real counts, so the legend doubles as an honest weighting: `outcome`
-   shows its true 1, rather than being dressed as a peer of the other six. */
-export function NodeLegend({
-  counts,
-  lang,
-}: {
-  counts: readonly { kind: NodeKind; count: number }[];
-  lang: Lang;
-}) {
-  return (
-    <ul className="flex flex-wrap gap-2">
-      {counts.map((c) => {
-        const meta = NODE_KIND_META[c.kind];
-        const Icon = meta.icon;
-        return (
-          <li
-            key={c.kind}
-            className="inline-flex items-center gap-2 rounded-full border border-line-soft bg-paper py-1.5 pr-3 pl-2"
-          >
-            <span aria-hidden className={`h-4 w-[3px] rounded-full ${meta.rule}`} />
-            <Icon aria-hidden className="size-3.5 text-ink-400" />
-            <span className="text-[13px] text-ink-700">{meta[lang]}</span>
-            <span className="font-mono text-[11px] text-ink-400 tabular-nums">
-              {c.count.toLocaleString(lang === "en" ? "en-US" : "tr-TR")}
-            </span>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
 /* ---- A card's mini flow strip ----------------------------------------
    What makes a journey card read as a FLOW rather than an article: the
    journey's real node kinds, in graph order, as a chain of dots. This is

@@ -42,11 +42,11 @@ export default function NotFoundPage({ lang }: { lang: Lang }) {
                 smallest line on the page, not the largest - eyebrow, then
                 a meaningful H1, then supporting copy, then the two
                 recovery actions. Same grammar as every other Portrait
-                page's hero (text-h1-fluid/ink-950/65), not a special
+                page's hero (text-h1/ink-950/65), not a special
                 error-page treatment. */}
             <div className="mx-auto max-w-md text-center">
               <p className="altor-eyebrow mb-4 text-ink-400">{t.notFound.eyebrow}</p>
-              <h1 className="text-h1-fluid font-medium text-ink-950">{t.notFound.title}</h1>
+              <h1 className="text-h1 text-ink-950">{t.notFound.title}</h1>
               <p className="mt-3 text-lg leading-relaxed text-ink-950/65">{t.notFound.body}</p>
 
               {/* Two recovery actions, per instruction - a real button for

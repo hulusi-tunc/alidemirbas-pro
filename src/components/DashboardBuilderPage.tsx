@@ -1,16 +1,24 @@
-import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Ban, BookOpen, Check, CircleCheck, Info, Lightbulb, Scale, ShieldCheck, TriangleAlert } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
+import { buttonStyles } from "@/components/ui/Button";
+import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
+import { CodeBlock, InstallationStepper } from "@/components/ui/InstallationStepper";
+import { ProductCta } from "@/components/ui/ProductCta";
+import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { CodeTabs } from "@/components/ui/CodeTabs";
+import { DashboardHeroWindow } from "@/components/ui/LabProductWindows";
+import { AppBar, AppMeta, AppTitle, Badge, type BadgeTone, codeLabel, KeyValues, Table, Td, Th, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, howTo, softwareApplication } from "@/lib/schema";
 import { copy, type Lang } from "@/lib/content";
+import { DASHBOARD_REAL } from "@/lib/lab-material";
 
 /* Marketing Dashboard Builder's product page.
 
@@ -43,188 +51,12 @@ import { copy, type Lang } from "@/lib/content";
      `python3 -m unittest discover -s tests -v` inside the cloned repo
      (Ran 17 tests ... OK), not copied from the README badge unchecked. */
 
-const REAL = {
-  pipeline: [
-    { en: "Data", tr: "Veri" },
-    { en: "Quality gate", tr: "Kalite kapısı" },
-    { en: "Metric registry", tr: "Metrik kaydı" },
-    { en: "Comparability engine", tr: "Karşılaştırılabilirlik motoru" },
-    { en: "Analysis", tr: "Analiz" },
-    { en: "Insight engine", tr: "İçgörü motoru" },
-  ],
-  pipelineOutputs: [
-    { en: "Dashboard", tr: "Dashboard" },
-    { en: "Presentation", tr: "Sunum" },
-  ],
-
-  // comparability-rules.md §2.1, "Revenue summed across ad platforms and
-  // a platform-of-record" - exact figures from the file's own example.
-  revenueExample: {
-    parts: [
-      { source: "GA4", value: 1.0 },
-      { source: "Meta", value: 0.4 },
-      { source: "Google Ads", value: 0.5 },
-      { source: "Shopify", value: 1.0 },
-    ],
-    naiveSum: 2.9,
-    trueTotal: 1.0,
-  },
-
-  comparabilityStates: [
-    {
-      id: "DIRECT",
-      tone: "emerald",
-      en: "Same counting unit, denominator, attribution window/model, date basis.",
-      tr: "Aynı sayım birimi, payda, attribution penceresi/modeli, tarih tabanı.",
-      example: {
-        en: "Two exports from the same GA4 property, same date range.",
-        tr: "Aynı GA4 property'sinden, aynı tarih aralığından iki dışa aktarım.",
-      },
-    },
-    {
-      id: "NORMALIZABLE",
-      tone: "sky",
-      en: "A pure unit/scale conversion - nothing else differs.",
-      tr: "Sadece birim/ölçek dönüşümü - başka hiçbir şey farklı değil.",
-      example: {
-        en: "MER as spend÷revenue (Triple Whale) vs revenue÷spend (others) - a reciprocal.",
-        tr: "MER: spend÷revenue (Triple Whale) ile revenue÷spend (diğerleri) - birbirinin tersi.",
-      },
-    },
-    {
-      id: "CONDITIONAL",
-      tone: "amber",
-      en: "Both valid, answering different questions - state each, never rank them.",
-      tr: "İkisi de geçerli ama farklı soruları yanıtlıyor - her birini ayrı belirtin, sıralamayın.",
-      example: {
-        en: "Play Console ~70% D30 vs Firebase ~20% D30 - both correct.",
-        tr: "Play Console ~%70 D30 ile Firebase ~%20 D30 - ikisi de doğru.",
-      },
-    },
-    {
-      id: "NOT_COMPARABLE",
-      tone: "rose",
-      en: "The definitions themselves diverge. Refuse, and name the mechanic.",
-      tr: "Tanımların kendisi farklı. Reddedin ve mekanizmayı adlandırın.",
-      example: {
-        en: 'GA4 + Meta + Google Ads + Shopify revenue summed into one "Total Revenue."',
-        tr: 'GA4 + Meta + Google Ads + Shopify gelirinin tek bir "Toplam Gelir"de toplanması.',
-      },
-    },
-  ],
-
-  // comparability-rules.md §4's own worked example, verbatim.
-  refusalExample: {
-    rule: { en: "attribution window mismatch", tr: "attribution penceresi uyuşmazlığı" },
-    asked: { en: "rank Meta and LinkedIn by ROAS.", tr: "Meta ve LinkedIn'i ROAS'a göre sıralamak." },
-    why: {
-      en: "LinkedIn's account is on its recommended 90-day click / 90-day view window; Meta's default is 7-day click / 1-day view / 1-day engage. LinkedIn is crediting a 90× longer view window.",
-      tr: "LinkedIn hesabı önerilen 90 günlük tıklama / 90 günlük görüntüleme penceresinde; Meta'nın varsayılanı 7 günlük tıklama / 1 günlük görüntüleme / 1 günlük etkileşim. LinkedIn 90 kat daha uzun bir görüntüleme penceresine kredi veriyor.",
-    },
-    canSay: {
-      en: "each platform's ROAS trend against its own prior period is valid.",
-      tr: "her platformun ROAS trendi kendi önceki dönemine karşı geçerli.",
-    },
-    fix: {
-      en: "re-pull both at 7-day click / 1-day view, or settle it with a geo holdout - attributed ROAS will not answer this at any window.",
-      tr: "ikisini de 7 günlük tıklama / 1 günlük görüntüleme ile yeniden çekin ya da bir geo holdout ile çözün - attribution'lu ROAS bunu hiçbir pencerede yanıtlamaz.",
-    },
-  },
-
-  registryLevels: [
-    {
-      id: "EXACT",
-      tone: "emerald",
-      en: "A known, named field of an identified platform.",
-      tr: "Tanımlanmış bir platformun bilinen, adlandırılmış alanı.",
-      example: { en: "purchaseRevenue from a confirmed GA4 export.", tr: "Doğrulanmış bir GA4 dışa aktarımından purchaseRevenue." },
-    },
-    {
-      id: "INFERRED",
-      tone: "sky",
-      en: "Very likely, but rests on a stated assumption.",
-      tr: "Çok olası, ama belirtilmiş bir varsayıma dayanıyor.",
-      example: {
-        en: "A column called media_cost is almost certainly spend - which cost scope isn't established.",
-        tr: "media_cost adlı bir sütun neredeyse kesin harcamadır - hangi maliyet kapsamı olduğu belirsiz.",
-      },
-    },
-    {
-      id: "AMBIGUOUS",
-      tone: "amber",
-      en: "Multiple definitions fit, nothing settles it. Never picked silently.",
-      tr: "Birden çok tanım uyuyor, hiçbiri kesin değil. Asla sessizce seçilmez.",
-      example: {
-        en: 'A bare "revenue" column could be gross, net, purchase-only, or GMV.',
-        tr: 'Sade bir "revenue" sütunu brüt, net, sadece satın alma ya da GMV olabilir.',
-      },
-    },
-  ],
-
-  qualityLevels: [
-    {
-      id: "BLOCKER",
-      tone: "rose",
-      en: "Stops the analysis of the affected slice.",
-      tr: "Etkilenen dilimin analizini durdurur.",
-      example: { en: "Primary key has duplicates, or a declared grain is violated.", tr: "Primary key'de tekrar var ya da beyan edilen grain ihlal edilmiş." },
-    },
-    {
-      id: "WARNING",
-      tone: "amber",
-      en: "Computed, but labeled with the caveat inline.",
-      tr: "Hesaplanır, ama uyarı satır içinde belirtilir.",
-      example: { en: "5-50% nulls in an analysis column, or an unexplained 3σ spike.", tr: "Bir analiz sütununda %5-50 null ya da açıklanamayan 3σ sıçraması." },
-    },
-    {
-      id: "INFO",
-      tone: "neutral",
-      en: "Noted once in the ingestion summary, not repeated.",
-      tr: "Alım özetinde bir kez belirtilir, tekrarlanmaz.",
-      example: { en: "Minor naming variance, rounding differences.", tr: "Küçük adlandırma farkı, yuvarlama farkları." },
-    },
-  ],
-
-  // analysis-playbook.md's 8-question gate - 5 of the 8 shown, numbered
-  // as in the source file (skipping 4, 6, 7, which are about
-  // concentration / an open alternative explanation / evidence grading
-  // rather than a straightforward pass-or-suppress question).
-  insightQuestions: [
-    { n: 1, en: "Is the change real?", tr: "Değişiklik gerçek mi?", ifNo: { en: "SUPPRESS - a data finding, not a business finding.", tr: "SUPPRESS - bu bir veri bulgusu, iş bulgusu değil." } },
-    { n: 2, en: "Is it statistically supportable?", tr: "İstatistiksel olarak desteklenebilir mi?", ifNo: { en: "SUPPRESS - noise wearing a percentage sign.", tr: "SUPPRESS - yüzde işareti takmış gürültü." } },
-    { n: 3, en: "Is it material?", tr: "Önemli mi?", ifNo: { en: "LOW at most, usually SUPPRESS.", tr: "En fazla LOW, genelde SUPPRESS." } },
-    { n: 5, en: "Is it economically important?", tr: "Ekonomik olarak önemli mi?", ifNo: { en: "MEDIUM at most.", tr: "En fazla MEDIUM." } },
-    { n: 8, en: "Is it actionable?", tr: "Aksiyona dönüştürülebilir mi?", ifNo: { en: "MEDIUM/LOW - real but not urgent.", tr: "MEDIUM/LOW - gerçek ama acil değil." } },
-  ],
-
-  insightLabels: [
-    { id: "CRITICAL", tone: "rose", en: "Clears 1-3 and 5, actionable, no open alternative explanation.", tr: "1-3 ve 5'i geçer, aksiyona dönüştürülebilir, açık alternatif açıklama yok." },
-    { id: "HIGH", tone: "amber", en: "Clears 1-3, actionable, but one open question stated explicitly.", tr: "1-3'ü geçer, aksiyona dönüştürülebilir ama bir açık soru açıkça belirtilmiş." },
-    { id: "MEDIUM", tone: "sky", en: "Real and supported, not yet economically sized or actionable.", tr: "Gerçek ve destekli, ama henüz ekonomik olarak ölçeklendirilmemiş ya da aksiyona dönüştürülmemiş." },
-    { id: "LOW", tone: "neutral", en: "Real, small, or a context/guardrail metric.", tr: "Gerçek, küçük ya da bir bağlam/koruma metriği." },
-    { id: "SUPPRESS", tone: "ink", en: "Fails question 1, 2 or 3 - not shown as a business observation at all.", tr: "1, 2 ya da 3. soruyu geçemez - bir iş gözlemi olarak hiç gösterilmez." },
-  ],
-
-  // README's own 11-row table, condensed - name + the question it answers.
-  templates: [
-    { id: "A", en: "Executive Summary", tr: "Yönetici Özeti", q: { en: "Is growth healthy, efficient and profitable?", tr: "Büyüme sağlıklı, verimli ve kârlı mı?" } },
-    { id: "B", en: "Growth & Acquisition", tr: "Büyüme ve Edinim", q: { en: "Where are we acquiring users and how efficiently?", tr: "Kullanıcıları nereden ve ne kadar verimli ediniyoruz?" } },
-    { id: "C", en: "Lifecycle & CRM", tr: "Yaşam Döngüsü ve CRM", q: { en: "How effectively are we activating, retaining and monetizing existing users?", tr: "Mevcut kullanıcıları ne kadar etkili aktive ediyor, elde tutuyor ve gelire çeviriyoruz?" } },
-    { id: "D", en: "All-in-One Growth Tower", tr: "Hepsi Bir Arada Büyüme Kulesi", q: { en: "What is the complete growth system telling us?", tr: "Tüm büyüme sistemi bize ne söylüyor?" } },
-    { id: "E", en: "E-commerce & Revenue", tr: "E-ticaret ve Gelir", q: { en: "Are we selling well, and to whom?", tr: "İyi satıyor muyuz, kime satıyoruz?" } },
-    { id: "F", en: "SaaS / Subscription", tr: "SaaS / Abonelik", q: { en: "Is the subscription base healthy and growing sustainably?", tr: "Abonelik tabanı sağlıklı mı ve sürdürülebilir şekilde büyüyor mu?" } },
-    { id: "G", en: "Mobile App & Store", tr: "Mobil Uygulama ve Mağaza", q: { en: "How is the app performing in the stores, and are people sticking with it?", tr: "Uygulama mağazalarda nasıl performans gösteriyor, insanlar kalıyor mu?" } },
-    { id: "H", en: "Web Analytics", tr: "Web Analitiği", q: { en: "How are visitors behaving on the site, independent of what brought them there?", tr: "Ziyaretçiler sitede nasıl davranıyor, onları oraya ne getirdiğinden bağımsız olarak?" } },
-    { id: "I", en: "Single-Channel Deep Dive", tr: "Tek Kanal Derinlemesine İnceleme", q: { en: "How is this one channel actually performing, campaign by campaign?", tr: "Bu tek kanal kampanya kampanya gerçekte nasıl performans gösteriyor?" } },
-    { id: "J", en: "Cross-Source Reconciliation", tr: "Kaynaklar Arası Uzlaştırma", q: { en: "Why don't these two platforms agree, and which one should I trust for what?", tr: "Bu iki platform neden uyuşmuyor, hangisine ne için güvenmeliyim?" } },
-    { id: "K", en: "SEO & Organic Search", tr: "SEO ve Organik Arama", q: { en: "Is organic search actually bringing people in, and for what?", tr: "Organik arama gerçekten insan getiriyor mu, ne için?" } },
-  ],
-};
+const REAL = DASHBOARD_REAL;
 
 const T = {
   en: {
     eyebrow: "Lab / Data Analysis",
-    heroTitle: "The hardest part of a dashboard isn't the arithmetic. It's knowing which numbers you're allowed to compare.",
+    heroTitle: "Know which numbers you're allowed to compare.",
     heroSub:
       "A Claude Code skill for marketing and growth data. Most of its work happens before any chart is drawn - classifying which numbers are safe to place side by side, and refusing the ones that aren't.",
     proof: ["17 tests passing", "11 dashboard templates", "No real account data in the repo"],
@@ -265,6 +97,8 @@ const T = {
     installEyebrow: "Install",
     installTitle: "Install",
     installSub: "Three ways in, all from the repository's own README.",
+    stepAdd: "Add the plugin to Claude Code",
+    stepTest: "Run the tests",
     tabMarketplace: "Marketplace",
     tabLocal: "Local plugin",
     tabSkillsCli: "Skills CLI",
@@ -277,7 +111,7 @@ const T = {
   },
   tr: {
     eyebrow: "Lab / Veri Analizi",
-    heroTitle: "Bir dashboard'un en zor kısmı aritmetik değil. Hangi sayıları karşılaştırmaya hakkınız olduğunu bilmek.",
+    heroTitle: "Hangi sayıları karşılaştırabileceğinizi bilin.",
     heroSub:
       "Pazarlama ve büyüme verisi için bir Claude Code skill'i. İşinin çoğu herhangi bir grafik çizilmeden önce olur - hangi sayıların yan yana konulmasının güvenli olduğunu sınıflandırmak, olmayanları reddetmek.",
     proof: ["17 test geçiyor", "11 dashboard şablonu", "Repoda gerçek hesap verisi yok"],
@@ -318,6 +152,8 @@ const T = {
     installEyebrow: "Kurulum",
     installTitle: "Kurulum",
     installSub: "Reponun kendi README'sinden üç kurulum yolu.",
+    stepAdd: "Eklentiyi Claude Code'a ekleyin",
+    stepTest: "Testleri çalıştırın",
     tabMarketplace: "Marketplace",
     tabLocal: "Yerel eklenti",
     tabSkillsCli: "Skills CLI",
@@ -335,162 +171,212 @@ const LOCAL_CMD = `git clone https://github.com/ali-demirbas/dashboard-builder.g
 const SKILLS_CLI_CMD = `npx skills add ali-demirbas/dashboard-builder --all`;
 const TEST_CMD = `python3 -m unittest discover -s tests -v`;
 
-const TONE: Record<string, string> = {
-  emerald: "bg-emerald-50 text-emerald-700",
-  sky: "bg-sky-50 text-sky-700",
-  amber: "bg-amber-50 text-amber-700",
-  // Reuses the exact terracotta pair ChangeHistoryExplorerPage already
-  // established for a negative/old value, so NOT_COMPARABLE and BLOCKER
-  // read as this site's own existing "this is the bad one" color, not a
-  // new one introduced just for this page.
-  rose: "bg-[#fdf3f0] text-[#c65d3f]",
-  neutral: "bg-paper-soft text-ink-500",
-  ink: "bg-ink-900 text-white",
+/* The README's tone words as the window kit's badge hues. NOT_COMPARABLE
+   and BLOCKER take rose, the kit's "this is the bad one" hue - the same
+   hue the change explorer's window uses for an old value. */
+const TONE_HUE: Record<string, BadgeTone> = { emerald: "emerald", sky: "sky", amber: "amber", rose: "rose", neutral: "neutral", ink: "ink" };
+
+/* ---- The product's surfaces, drawn --------------------------------
+   Hulusi (2026-09-06): the Lab's product visuals must "feel like real
+   product screenshots, not Claude design". The three visuals below are
+   the skill's own reference files as the tables they define - the
+   comparability rules with the refusal template filled in, the mapping
+   and quality levels side by side, the eight-question gate with its
+   labels - drawn with the window parts in ui/LabWindow.tsx; the hero's
+   window is ui/LabProductWindows.tsx. Every value is the file's own. */
+
+const WIN = {
+  en: {
+    comp: { label: "Screenshot of the comparability rules: the four states with rule and example, and one refused comparison.", address: "references/comparability-rules.md", title: "Comparability classes", states: "4 states", cls: "Class", rule: "Rule", example: "Example" },
+    gate: { label: "Screenshot of the metric registry and the data-quality gate: three mapping levels and three severities, each with its example.", address: "references/kpi-framework.md · data-quality-gate.md", levels: "levels" },
+    insight: { label: "Screenshot of the insight gate: the numbered questions with what happens on a no, and the five labels a finding can get.", address: "references/analysis-playbook.md", title: "Insight gate", gate: "8 questions", question: "Question", ifNo: "If no", labels: "Labels" },
+  },
+  tr: {
+    comp: { label: "Karşılaştırılabilirlik kurallarının ekran görüntüsü: kural ve örnekleriyle dört durum ve reddedilen bir karşılaştırma.", address: "references/comparability-rules.md", title: "Karşılaştırılabilirlik sınıfları", states: "4 durum", cls: "Sınıf", rule: "Kural", example: "Örnek" },
+    gate: { label: "Metrik kaydı ve veri kalitesi kapısının ekran görüntüsü: üç eşleme seviyesi ve üç önem derecesi, her biri örneğiyle.", address: "references/kpi-framework.md · data-quality-gate.md", levels: "seviye" },
+    insight: { label: "İçgörü kapısının ekran görüntüsü: numaralı sorular, hayır cevabında olacaklar ve bir bulgunun alabileceği beş etiket.", address: "references/analysis-playbook.md", title: "İçgörü kapısı", gate: "8 soru", question: "Soru", ifNo: "Hayırsa", labels: "Etiketler" },
+  },
+} as const;
+
+/* Each enum id's icon, by the README's tone word: a check for the safe
+   level, an info mark for the conditional one, a warning for the one
+   that needs a caveat, a ban for the one that stops. */
+const TONE_ICON: Record<string, React.ReactNode> = {
+  emerald: <CircleCheck aria-hidden />,
+  sky: <Info aria-hidden />,
+  amber: <TriangleAlert aria-hidden />,
+  rose: <Ban aria-hidden />,
+  neutral: <Info aria-hidden />,
+  ink: <Ban aria-hidden />,
 };
 
-/* ---- Shared bits -------------------------------------------------- */
-
-/** Same purely-decorative macOS-style chrome ChangeHistoryExplorerPage
-    uses - not shared as a component yet, so redefined locally here, same
-    as that file does. */
-function BrowserChrome({ title, children }: { title: string; children: React.ReactNode }) {
+/** An enum id as the product's badge: its hue, its icon, in sentence case. */
+function IdBadge({ id, tone }: { id: string; tone: string }) {
   return (
-    <div className="overflow-hidden rounded-card border border-line bg-paper shadow-[0_0_0_1px_rgb(0_0_0/0.06),0_24px_48px_-16px_rgb(10_16_32/0.18)]">
-      <div className="flex items-center gap-3 border-b border-line bg-paper-soft px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span aria-hidden className="size-2.5 rounded-full bg-[#ff5f57]" />
-          <span aria-hidden className="size-2.5 rounded-full bg-[#febc2e]" />
-          <span aria-hidden className="size-2.5 rounded-full bg-[#28c840]" />
+    <Badge hue={TONE_HUE[tone] ?? "neutral"} icon={TONE_ICON[tone]} code>
+      {codeLabel(id)}
+    </Badge>
+  );
+}
+
+/** The comparability engine's own rule table, then the reporting template
+    it fills in when a rule fires - the README's worked refusal, all four
+    fields, as the console line it is. */
+function ComparabilityWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const w = WIN[lang].comp;
+  const ex = REAL.refusalExample;
+  return (
+    <Window label={w.label} address={w.address} meta={w.states}>
+      <AppBar>
+        <AppTitle icon={<Scale aria-hidden />}>{w.title}</AppTitle>
+      </AppBar>
+      <Table>
+        <thead>
+          <tr>
+            <Th>{w.cls}</Th>
+            <Th className="w-[42%]">{w.rule}</Th>
+            <Th className="hidden w-[36%] md:table-cell">{w.example}</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {REAL.comparabilityStates.map((s) => (
+            <Tr key={s.id}>
+              <Td className="align-top whitespace-nowrap">
+                <IdBadge id={s.id} tone={s.tone} />
+              </Td>
+              <Td className="align-top leading-snug text-ink-800">{s[lang]}</Td>
+              <Td className="hidden align-top text-[12.5px] leading-snug text-ink-600 md:table-cell">{s.example[lang]}</Td>
+            </Tr>
+          ))}
+        </tbody>
+      </Table>
+      <div className="border-t border-line-soft bg-rose-50/40 px-4 py-3.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Badge hue="rose" icon={<Ban aria-hidden />}>
+            {t.refusalNotComparable}
+          </Badge>
+          <span className="text-[13px] font-medium text-ink-800">{ex.rule[lang]}</span>
+          <span className="ml-auto hidden text-[12px] text-ink-500 sm:block">{t.compWorkedLabel}</span>
         </div>
-        <div className="flex-1 truncate rounded-md bg-paper px-3 py-1 text-center font-mono text-[11px] text-ink-400">
-          {title}
-        </div>
+        <KeyValues
+          wide
+          className="mt-2.5"
+          rows={[
+            [t.refusalAsked, ex.asked[lang]],
+            [t.refusalWhy, ex.why[lang]],
+            [t.refusalCanSay, ex.canSay[lang]],
+            [t.refusalFix, ex.fix[lang]],
+          ]}
+        />
       </div>
-      {children}
-    </div>
+    </Window>
   );
 }
 
-function StateChip({ tone, label }: { tone: string; label: string }) {
+/** The two checks that run before analysis, side by side: the metric
+    registry's mapping levels and the quality gate's severities, each
+    level with its own example from the reference file. */
+function RegistryGateWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const w = WIN[lang].gate;
+  const panes = [
+    { title: t.registryLabel, icon: <BookOpen aria-hidden />, levels: REAL.registryLevels },
+    { title: t.qualityLabel, icon: <ShieldCheck aria-hidden />, levels: REAL.qualityLevels },
+  ];
   return (
-    <span className={`inline-flex items-center rounded px-2 py-0.5 text-[11px] font-semibold tracking-wide ${TONE[tone]}`}>
-      {label}
-    </span>
-  );
-}
-
-function ComparabilityTable({ lang }: { lang: Lang }) {
-  return (
-    <div className="divide-y divide-line overflow-hidden rounded-card border border-line bg-paper">
-      {REAL.comparabilityStates.map((s) => (
-        <div key={s.id} className="flex flex-col gap-2 p-5 text-left sm:flex-row sm:items-start sm:gap-6">
-          <div className="shrink-0 sm:w-40">
-            <StateChip tone={s.tone} label={s.id} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[13.5px] leading-relaxed text-ink-700">{s[lang]}</p>
-            <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-400 italic">{s.example[lang]}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function RefusalCard({
-  t,
-  rule,
-  asked,
-  why,
-  canSay,
-  fix,
-}: {
-  t: (typeof T)[Lang];
-  rule: string;
-  asked: string;
-  why: string;
-  canSay: string;
-  fix: string;
-}) {
-  return (
-    <div className="rounded-card border border-[#f0d9d0] bg-[#fdf6f3] p-5">
-      <p className="flex items-center gap-2 text-[13px] font-semibold text-[#c65d3f]">
-        <span aria-hidden>⚠️</span> {t.refusalNotComparable} — {rule}
-      </p>
-      <dl className="mt-3.5 flex flex-col gap-2.5 text-[13px] leading-relaxed">
-        <div>
-          <dt className="font-medium text-ink-900">{t.refusalAsked}</dt>
-          <dd className="text-ink-600">{asked}</dd>
-        </div>
-        <div>
-          <dt className="font-medium text-ink-900">{t.refusalWhy}</dt>
-          <dd className="text-ink-600">{why}</dd>
-        </div>
-        <div>
-          <dt className="font-medium text-ink-900">{t.refusalCanSay}</dt>
-          <dd className="text-ink-600">{canSay}</dd>
-        </div>
-        <div>
-          <dt className="font-medium text-ink-900">{t.refusalFix}</dt>
-          <dd className="text-ink-600">{fix}</dd>
-        </div>
-      </dl>
-    </div>
-  );
-}
-
-function RevenueBarsCard({ t }: { t: (typeof T)[Lang] }) {
-  const { parts, naiveSum, trueTotal } = REAL.revenueExample;
-  const max = Math.max(...parts.map((p) => p.value), naiveSum);
-  return (
-    <div className="p-5">
-      <p className="text-[11px] font-medium tracking-wide text-ink-400 uppercase">{t.revenueLabel}</p>
-      <div className="mt-3 flex flex-col gap-2">
-        {parts.map((p) => (
-          <div key={p.source} className="flex items-center gap-3">
-            <span className="w-[70px] shrink-0 text-[12px] text-ink-600">{p.source}</span>
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-paper-soft">
-              <div className="h-full rounded-full bg-primary-400" style={{ width: `${(p.value / max) * 100}%` }} />
-            </div>
-            <span className="w-12 shrink-0 text-right font-mono text-[12px] text-ink-700">${p.value.toFixed(1)}M</span>
+    <Window label={w.label} address={w.address} meta={`${REAL.registryLevels.length + REAL.qualityLevels.length} ${w.levels}`}>
+      <div className="grid grid-cols-1 divide-y divide-line-soft md:grid-cols-2 md:divide-x md:divide-y-0">
+        {panes.map((pane) => (
+          <div key={pane.title} className="min-w-0">
+            <AppBar>
+              <AppTitle icon={pane.icon}>{pane.title}</AppTitle>
+              <AppMeta className="ml-auto">{pane.levels.length}</AppMeta>
+            </AppBar>
+            <ul className="m-0 list-none p-0">
+              {pane.levels.map((l) => (
+                <li key={l.id} className="flex gap-3 border-b border-line-soft px-3.5 py-3 last:border-0">
+                  <span className="w-28 shrink-0">
+                    <IdBadge id={l.id} tone={l.tone} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[13px] leading-snug text-ink-900">{l[lang]}</span>
+                    <span className="mt-1 block text-[12.5px] leading-snug text-ink-500">{l.example[lang]}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>
-      <div className="mt-4 flex items-center justify-between gap-3 rounded-md bg-[#fdf3f0] px-3.5 py-2.5">
-        <span className="text-[12.5px] font-medium text-[#c65d3f]">{t.naiveSumLabel}</span>
-        <span className="shrink-0 font-mono text-sm font-semibold text-[#c65d3f] line-through decoration-1">
-          ${naiveSum.toFixed(1)}M
-        </span>
+    </Window>
+  );
+}
+
+/** The insight candidate engine's gate: the playbook's numbered questions
+    with what a no does, then the five labels a finding can end up with. */
+function InsightGateWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const w = WIN[lang].insight;
+  return (
+    <Window label={w.label} address={w.address} meta={w.gate}>
+      <AppBar>
+        <AppTitle icon={<Lightbulb aria-hidden />}>{w.title}</AppTitle>
+      </AppBar>
+      <Table>
+        <thead>
+          <tr>
+            <Th>#</Th>
+            <Th className="w-[50%]">{w.question}</Th>
+            <Th className="hidden w-[42%] sm:table-cell">{w.ifNo}</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {REAL.insightQuestions.map((q) => (
+            <Tr key={q.n}>
+              <Td className="text-[12.5px] whitespace-nowrap text-ink-500 tabular-nums">{String(q.n).padStart(2, "0")}</Td>
+              <Td className="font-semibold text-ink-950">
+                {q[lang]}
+                <span className="mt-1 block text-[12.5px] font-normal text-ink-600 sm:hidden">
+                  {t.ifNoLabel} {q.ifNo[lang]}
+                </span>
+              </Td>
+              <Td className="hidden text-[12.5px] leading-snug text-ink-600 sm:table-cell">{q.ifNo[lang]}</Td>
+            </Tr>
+          ))}
+        </tbody>
+      </Table>
+      <div className="border-t border-line-soft bg-paper-soft/60">
+        <p className="px-3.5 pt-3 pb-1.5 text-[12px] font-semibold text-ink-600">{w.labels}</p>
+        <ul className="m-0 list-none p-0 pb-2">
+          {REAL.insightLabels.map((l) => (
+            <li key={l.id} className="flex items-start gap-3 px-3.5 py-1.5">
+              <span className="w-28 shrink-0">
+                <IdBadge id={l.id} tone={l.tone} />
+              </span>
+              <span className="text-[12.5px] leading-snug text-ink-800">{l[lang]}</span>
+            </li>
+          ))}
+        </ul>
       </div>
-      <div className="mt-2 flex items-center justify-between gap-3 rounded-md bg-emerald-50 px-3.5 py-2.5">
-        <span className="text-[12.5px] font-medium text-emerald-700">{t.trueTotalLabel}</span>
-        <span className="shrink-0 font-mono text-sm font-semibold text-emerald-700">~${trueTotal.toFixed(1)}M</span>
-      </div>
-    </div>
+    </Window>
   );
 }
 
 /* ---- 01 · Hero ------------------------------------------------------ */
-function Hero({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
+function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
   return (
     <section className="relative isolate overflow-hidden bg-paper pt-16 pb-24 md:pt-20 md:pb-32">
       <PortraitContainer className="text-center">
         <Reveal>
-          <p className="altor-eyebrow mb-5 text-ink-400">{t.eyebrow}</p>
-          <h1 className="mx-auto max-w-3xl text-h1-fluid font-medium text-ink-950">{t.heroTitle}</h1>
+          <ProductMark slug="dashboard-builder" lang={lang} className="mb-5" />
+          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{t.heroTitle}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.heroSub}</p>
         </Reveal>
         {repo && (
           <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
-            <a
-              href={repo.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-sm font-medium text-white transition-colors hover:bg-primary-600"
-            >
+            <a href={repo.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "primary", size: "md" })}>
+              <PixelFill />
               {repo.label}
               <ArrowUpRight aria-hidden className="size-4" />
             </a>
@@ -507,10 +393,12 @@ function Hero({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
           </ul>
         </Reveal>
 
-        <Reveal delay={220} className="mx-auto mt-14 max-w-md text-left">
-          <BrowserChrome title="dashboard-builder — comparability check">
-            <RevenueBarsCard t={t} />
-          </BrowserChrome>
+        <Reveal delay={220} className="mx-auto mt-14 max-w-4xl text-left">
+          {/* On the project's plate, in its hue - the frame language of the
+              Lab index (ui/ProductFrame.tsx). */}
+          <ProductFrame slug="dashboard-builder">
+            <DashboardHeroWindow lang={lang} labels={{ revenue: t.revenueLabel, naive: t.naiveSumLabel, actual: t.trueTotalLabel }} />
+          </ProductFrame>
         </Reveal>
       </PortraitContainer>
     </section>
@@ -552,24 +440,14 @@ function PipelineSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
 
 /* ---- 03 · Comparability Engine ---------------------------------------- */
 function ComparabilityEngineSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
-  const ex = REAL.refusalExample;
   return (
     <ProductSection tone="paper" space="xl">
       <PortraitContainer>
         <ProductHeading eyebrow={t.compEyebrow} title={t.compTitle} body={t.compSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 max-w-3xl">
-          <ComparabilityTable lang={lang} />
-        </Reveal>
-        <Reveal delay={140} className="mx-auto mt-10 max-w-2xl text-left">
-          <p className="mb-3 text-[12px] font-medium tracking-wide text-ink-400 uppercase">{t.compWorkedLabel}</p>
-          <RefusalCard
-            t={t}
-            rule={ex.rule[lang]}
-            asked={ex.asked[lang]}
-            why={ex.why[lang]}
-            canSay={ex.canSay[lang]}
-            fix={ex.fix[lang]}
-          />
+        <Reveal delay={100} className="mx-auto mt-12 max-w-4xl text-left">
+          <ProductFrame slug="dashboard-builder" inset="sm">
+            <ComparabilityWindow t={t} lang={lang} />
+          </ProductFrame>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -582,31 +460,10 @@ function RegistryAndGateSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }
     <ProductSection tone="soft" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={t.gateEyebrow} title={t.gateTitle} body={t.gateSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-6 text-left md:grid-cols-2">
-          <div className="rounded-card border border-line bg-paper p-5">
-            <p className="text-[13px] font-medium text-ink-950">{t.registryLabel}</p>
-            <div className="mt-4 flex flex-col gap-3.5">
-              {REAL.registryLevels.map((l) => (
-                <div key={l.id}>
-                  <StateChip tone={l.tone} label={l.id} />
-                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-600">{l[lang]}</p>
-                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-ink-400 italic">{l.example[lang]}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-card border border-line bg-paper p-5">
-            <p className="text-[13px] font-medium text-ink-950">{t.qualityLabel}</p>
-            <div className="mt-4 flex flex-col gap-3.5">
-              {REAL.qualityLevels.map((l) => (
-                <div key={l.id}>
-                  <StateChip tone={l.tone} label={l.id} />
-                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-600">{l[lang]}</p>
-                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-ink-400 italic">{l.example[lang]}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <Reveal delay={100} className="mx-auto mt-12 max-w-4xl text-left">
+          <ProductFrame slug="dashboard-builder" inset="sm">
+            <RegistryGateWindow t={t} lang={lang} />
+          </ProductFrame>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -619,28 +476,10 @@ function InsightEngineSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) 
     <ProductSection tone="paper" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={t.insightEyebrow} title={t.insightTitle} body={t.insightSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 max-w-2xl text-left">
-          <div className="flex flex-col divide-y divide-line rounded-card border border-line bg-paper">
-            {REAL.insightQuestions.map((q) => (
-              <div key={q.n} className="flex items-start gap-3 p-4">
-                <span className="mt-0.5 shrink-0 font-mono text-[11px] text-ink-400">{String(q.n).padStart(2, "0")}</span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium text-ink-900">{q[lang]}</p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-ink-500">
-                    {t.ifNoLabel} {q.ifNo[lang]}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-        <Reveal delay={140} className="mx-auto mt-8 grid max-w-2xl grid-cols-1 gap-2.5 text-left sm:grid-cols-2">
-          {REAL.insightLabels.map((l) => (
-            <div key={l.id} className="rounded-lg border border-line bg-paper p-3.5">
-              <StateChip tone={l.tone} label={l.id} />
-              <p className="mt-1.5 text-[12px] leading-relaxed text-ink-600">{l[lang]}</p>
-            </div>
-          ))}
+        <Reveal delay={100} className="mx-auto mt-10 max-w-3xl text-left">
+          <ProductFrame slug="dashboard-builder" inset="sm">
+            <InsightGateWindow t={t} lang={lang} />
+          </ProductFrame>
         </Reveal>
         <Reveal delay={180} className="mx-auto mt-8 max-w-2xl border-l-2 border-primary-600 py-1 pl-5 text-left">
           <p className="text-[13px] leading-relaxed text-ink-600 italic">{t.suppressQuote}</p>
@@ -680,39 +519,53 @@ function TemplatesSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
 /* ---- 07 · Install -------------------------------------------------------- */
 function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
+  const copyLabel = lang === "en" ? "Copy" : "Kopyala";
+  const copiedLabel = lang === "en" ? "Copied" : "Kopyalandı";
+  /* One numbered rail, three steps, nothing else (Hulusi, 2026-09-06: the
+     install blocks should be "more minimal and nice" - his reference is a
+     vertical stepper: number, title, one line, then the step's own
+     content). Same InstallationStepper the generic template uses. */
   return (
     <ProductSection tone="paper" space="lg">
       <PortraitContainer className="max-w-2xl">
-        <ProductHeading eyebrow={t.installEyebrow} title={t.installTitle} body={t.installSub} align="center" />
+        <ProductHeading title={t.installTitle} body={t.installSub} />
         <Reveal delay={100} className="mt-10">
-          <CodeTabs
-            tabs={[
-              { id: "marketplace", label: t.tabMarketplace, code: MARKETPLACE_CMD },
-              { id: "local", label: t.tabLocal, code: LOCAL_CMD },
-              { id: "skills", label: t.tabSkillsCli, code: SKILLS_CLI_CMD },
+          <InstallationStepper
+            steps={[
+              {
+                n: 1,
+                title: t.stepAdd,
+                content: (
+                  <CodeTabs
+                    tabs={[
+                      { id: "marketplace", label: t.tabMarketplace, code: MARKETPLACE_CMD },
+                      { id: "local", label: t.tabLocal, code: LOCAL_CMD },
+                      { id: "skills", label: t.tabSkillsCli, code: SKILLS_CLI_CMD },
+                    ]}
+                    copyLabel={copyLabel}
+                    copiedLabel={copiedLabel}
+                  />
+                ),
+              },
+              { n: 2, title: t.stepTest, desc: t.testNote, content: <CodeBlock code={TEST_CMD} copyLabel={copyLabel} copiedLabel={copiedLabel} /> },
+              ...(repo
+                ? [
+                    {
+                      n: 3,
+                      title: t.viewRepo,
+                      content: (
+                        <a href={repo.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
+                          <PixelFill />
+                          {repo.label}
+                          <ArrowUpRight aria-hidden className="size-4" />
+                        </a>
+                      ),
+                    },
+                  ]
+                : []),
             ]}
-            copyLabel={lang === "en" ? "Copy" : "Kopyala"}
-            copiedLabel={lang === "en" ? "Copied" : "Kopyalandı"}
           />
         </Reveal>
-        <Reveal delay={140} className="mt-6 flex flex-wrap items-center gap-2 text-[12.5px] text-ink-500">
-          <span className="rounded-md border border-line bg-paper px-2.5 py-1 font-mono text-[11.5px] text-ink-700">
-            {TEST_CMD}
-          </span>
-          <span>{t.testNote}</span>
-        </Reveal>
-        {repo && (
-          <Reveal delay={180} className="mt-6">
-            <a
-              href={repo.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-            >
-              {t.viewRepo} →
-            </a>
-          </Reveal>
-        )}
       </PortraitContainer>
     </ProductSection>
   );
@@ -745,29 +598,8 @@ function Related({ c }: { c: SkillProductContent }) {
 
 function PageCta({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
-  return (
-    <section className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
-      <PortraitContainer className="text-center">
-        <Reveal>
-          <p className="altor-eyebrow mb-5 text-white/45">{t.ctaEyebrow}</p>
-          <h2 className="mx-auto max-w-2xl text-h2-fluid font-medium text-white">{t.ctaTitle}</h2>
-        </Reveal>
-        {repo && (
-          <Reveal delay={90} className="mt-9 flex flex-wrap justify-center gap-3">
-            <a
-              href={repo.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-medium text-ink-950 transition-colors hover:bg-primary-50"
-            >
-              {repo.label}
-              <ArrowRight aria-hidden className="size-4" />
-            </a>
-          </Reveal>
-        )}
-      </PortraitContainer>
-    </section>
-  );
+  if (!repo) return null;
+  return <ProductCta eyebrow={t.ctaEyebrow} title={t.ctaTitle} primary={{ label: repo.label, href: repo.href }} />;
 }
 
 export default function DashboardBuilderPage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
@@ -815,7 +647,7 @@ export default function DashboardBuilderPage({ lang, content }: { lang: Lang; co
       <JsonLdScript data={jsonLd} />
       <SiteHeader t={copyT} anchorBase={home} langHref={langHref} />
       <main>
-        <Hero c={content} t={t} />
+        <Hero c={content} t={t} lang={lang} />
         <PipelineSection t={t} lang={lang} />
         <ComparabilityEngineSection t={t} lang={lang} />
         <RegistryAndGateSection t={t} lang={lang} />

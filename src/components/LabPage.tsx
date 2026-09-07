@@ -13,7 +13,7 @@ import {
   PRESET_ROWS,
   SURFACE_KEYS,
   SURFACE_PATH,
-  withCanonicalCount,
+  withLibraryCount,
   type JourneyRow,
   type SurfaceKey,
 } from "@/lib/canonical-view";
@@ -26,7 +26,7 @@ import { JsonLdScript } from "@/components/ui/JsonLdScript";
 /* JourneyBrowser reads filter state via useSearchParams, which forces its
    subtree to client-render during prerendering (Next's own documented
    behavior for that hook - see next/dist/docs/.../use-search-params.md).
-   Without a fallback, that would mean the 255-journey list is absent from
+   Without a fallback, that would mean the journey list is absent from
    the initial HTML until hydration. This fallback is the same list,
    unfiltered, rendered as a plain server component with an inert copy of the
    toolbar above it, so search engines and no-JS clients still see the full
@@ -195,7 +195,7 @@ export default function LabPage({
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   const pageTitle = title ?? t.lab.page.title;
   const pageIntro =
-    intro ?? withCanonicalCount(t.lab.page.intro);
+    intro ?? withLibraryCount(t.lab.page.intro);
   const crumbs: BreadcrumbItem[] = [
     { name: t.footer.home, url: lang === "en" ? "/" : "/tr" },
     { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
@@ -210,7 +210,7 @@ export default function LabPage({
       <div className="border-b border-line px-4 py-6 md:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-xl font-semibold tracking-tight text-ink-950">{pageTitle}</h1>
+            <h1 className="text-h3 text-ink-950">{pageTitle}</h1>
             <span className="border border-line bg-paper-soft px-2 py-0.5 text-xs font-medium text-neutral-600">
               {rows.length} {t.lab.page.results}
             </span>

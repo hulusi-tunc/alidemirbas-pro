@@ -1,4 +1,7 @@
 import Image from "next/image";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+
+import { ButtonLink } from "@/components/ui/Button";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { AboutTimeline, type TimelineJob } from "@/components/ui/AboutTimeline";
@@ -125,7 +128,7 @@ const JOBS: Record<Lang, TimelineJob[]> = {
 const T = {
   en: {
     wordmark: "Ali Demirbaş",
-    heroText: "I work at the intersection of growth, lifecycle, and product — turning data into better customer experiences.",
+    heroText: "I work where growth, lifecycle and product meet.",
     introPrefix: "Currently, I lead mobile growth at ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
@@ -143,7 +146,7 @@ const T = {
   },
   tr: {
     wordmark: "Ali Demirbaş",
-    heroText: "Growth, lifecycle ve ürünün kesişiminde çalışıyor, veriyi daha iyi müşteri deneyimlerine dönüştürüyorum.",
+    heroText: "Growth, lifecycle ve ürünün kesiştiği yerdeyim.",
     introPrefix: "Şu anda ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
@@ -152,7 +155,7 @@ const T = {
     exploreLabel: "Çalışmalarıma göz at",
     exploreHref: "/tr/lab",
     linkedinLabel: "LinkedIn'de bağlantı kur",
-    h2: "Sekiz yılı aşkın süredir veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
+    h2: "Sekiz yıldır veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
     subLines: ["8+ yıldır inşa ediyorum.", "Büyüme, lifecycle ve analitik.", "Startup'lardan kurumsala."],
     toggle: { simple: "Basit", detailed: "Detaylı", at: "@", bottomLine: "Özet" },
     footerEmailLabel: "E-posta",
@@ -176,10 +179,10 @@ export default function AboutPage({ lang }: { lang: Lang }) {
             arriving here from anywhere else is not a jump. */}
         <section className="bg-paper-soft pt-16 pb-16 md:pt-20 md:pb-20">
           <div className="altor-container">
-            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)] lg:gap-16">
               <Reveal>
                 <p className="text-[13px] font-medium text-ink-400">{c.nav.about}</p>
-                <h1 className="mt-4 max-w-3xl text-[clamp(2rem,1.4rem+2.6vw,3.25rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance text-ink-950">
+                <h1 className="mt-4 max-w-3xl text-h1 text-balance text-ink-950">
                   {t.heroText}
                 </h1>
               </Reveal>
@@ -217,25 +220,18 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                   {t.introSuffix}
                 </p>
                 <p className="mt-5 text-lg leading-relaxed text-pretty text-ink-700">{t.outsideWork}</p>
-                <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-lg leading-relaxed text-ink-700">
-                  <a
-                    href={t.exploreHref}
-                    className="text-blue-700 underline underline-offset-2 hover:text-blue-800"
-                  >
+                {/* Real buttons, not underlined links - the site's rule since
+                    the Lab review (2026-09-06). */}
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <ButtonLink href={t.exploreHref} variant="primary" size="md">
                     {t.exploreLabel}
-                  </a>
-                  <span aria-hidden className="text-ink-400">
-                    ·
-                  </span>
-                  <a
-                    href="https://www.linkedin.com/in/ali-demirbas/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-700 underline underline-offset-2 hover:text-blue-800"
-                  >
+                    <ArrowRight aria-hidden className="size-4" />
+                  </ButtonLink>
+                  <ButtonLink href="https://www.linkedin.com/in/ali-demirbas/" variant="outline" size="md">
                     {t.linkedinLabel}
-                  </a>
-                </p>
+                    <ArrowUpRight aria-hidden className="size-4" />
+                  </ButtonLink>
+                </div>
               </div>
             </Reveal>
           </div>
@@ -244,9 +240,9 @@ export default function AboutPage({ lang }: { lang: Lang }) {
         {/* The statement, and the three lines that qualify it. */}
         <section className="bg-paper-soft py-16 md:py-24">
           <div className="altor-container">
-            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16">
               <Reveal>
-                <h2 className="max-w-[20ch] text-[clamp(1.75rem,1.3rem+1.8vw,2.5rem)] leading-[1.15] font-semibold tracking-[-0.025em] text-balance text-ink-950">
+                <h2 className="max-w-[30ch] text-h2 text-balance text-ink-950">
                   {t.h2}
                 </h2>
               </Reveal>

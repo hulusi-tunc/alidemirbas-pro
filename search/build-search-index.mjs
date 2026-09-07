@@ -15,9 +15,19 @@ const rj = (p) => JSON.parse(rd(p));
 const SITE_URL = "https://alidemirbas.com.tr";
 
 /* ============================================================ Goal taxonomy
-   Ported VERBATIM from src/lib/journey-taxonomy.ts (same order, same
-   patterns) - see that file's own comment on why it can't be imported
-   here and must be kept in sync by hand. */
+   This is the RETIRED first-match regex table that src/lib/journey-taxonomy.ts
+   used to derive Goal from name+purpose text. That module no longer derives
+   anything: Goal is explicit canonical metadata (`goal` on every journey, 26
+   values, see src/canonical/types.ts) and journey-taxonomy.ts only declares
+   the vocabulary. The table survives here because search-taxonomy.json's
+   `businessObjectives` vocabulary (validated by search-validator checks 9 and
+   17) freezes THIS 21-value list - including `revocation-access-change` and the
+   `review-required` fallback, neither of which is a canonical goal - and
+   because the same rule is applied to ab-tests, calculators and blog posts,
+   which carry no canonical goal. Measured 2026-09-05: 97 of the 160 public
+   journey documents get a businessObjective different from their canonical
+   `goal`. Switching journeys to the canonical goal means re-deciding the
+   search-taxonomy.json vocabulary first; not done here. */
 const GOAL_RULES = [
   ["eligibility-qualification", /eligib|qualif/i],
   ["consent-permission", /consent|permission|preference|contactability|opt.?(in|out)/i],
@@ -108,7 +118,18 @@ for (const r of abTests) {
 }
 
 /* ==================================================================== JOURNEYS */
-const journeys = rj("production/journey-view-model.json");
+/* PUBLIC CORPUS ONLY (2026-09-05). The Operational Workflows surface was
+   removed from the public site and archived (archive/operational-workflows/),
+   so its 124 journeys must not be search documents: a hit would link to a
+   route that 404s. The filter reads production/surface-assignment.json, the
+   validator-written projection of the SAME rule src/lib/public-corpus.ts
+   applies at build time (src/canonical/surface.ts), so the index and the
+   site cannot disagree about what is public. Merged-id aliases whose
+   survivor is archived fall out on their own below (`if (!survivor)`). */
+const surfaceAssignment = rj("production/surface-assignment.json");
+const ARCHIVED_SURFACE = "operational";
+const publicJourneyIds = new Set(surfaceAssignment.journeys.filter((r) => r.surface !== ARCHIVED_SURFACE).map((r) => r.id));
+const journeys = rj("production/journey-view-model.json").filter((j) => publicJourneyIds.has(j.identity.id));
 /* vNext discovery lives on the canonical dump (aliases, use cases, presets)
    and is the practitioner's vocabulary: "cart abandonment", "dunning",
    "OTP". It is indexed alongside the journey's own words so a search by the
@@ -373,9 +394,15 @@ for (const slug of liveCalcSlugs) {
    this file's own header comment for the full quoted source). Not a
    generated-from-JSON step because the source is a `const ... as const`
    inside a .ts file, not JSON - transcribed verbatim, not paraphrased. */
+/* The library's public size is the Customer Journeys surface (2026-09-05, same
+   definition as src/lib/public-corpus.ts's LIBRARY_JOURNEYS): a public journey
+   that sends or routes to a person. surface-assignment.json carries exactly
+   those two booleans, so the count and its categories are derived, not typed. */
+const libraryRows = surfaceAssignment.journeys.filter((r) => r.surface === "customer" && (r.sends || r.routesToHuman));
+const libraryCategoryCount = new Set(libraryRows.map((r) => r.category)).size;
 const LAB_PROJECTS = [
   { slug: "claude-lifecycle", name: "Lifecycle Marketing Journey Builder", desc: "Looks at the customer data you already track and builds lifecycle journeys around what you can actually measure, segment and act on.", tags: ["Claude Code Plugin", "CRM", "Lifecycle Marketing", "26 journey patterns", "9 industries"], url: "https://github.com/ali-demirbas/claude-lifecycle", external: true, poweredCorpus: null },
-  { slug: "lifecycle-card-archive", name: "Canonical Journey Library", desc: `${journeys.length} domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.`, tags: ["CRM", "Lifecycle Marketing", `${journeys.length} journeys`, "26 categories"], url: "/lab/journeys", external: false, poweredCorpus: "journey" },
+  { slug: "lifecycle-card-archive", name: "Canonical Journey Library", desc: `${libraryRows.length} domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.`, tags: ["CRM", "Lifecycle Marketing", `${libraryRows.length} journeys`, `${libraryCategoryCount} categories`], url: "/lab/journeys", external: false, poweredCorpus: "journey" },
   { slug: "ab-test-playbook", name: "A/B Test Playbook", desc: "211 A/B test scenarios across real product journeys, with guidance on what to test, what to measure and what can invalidate the result.", tags: ["Claude Code Plugin", "A/B Testing", "CRO", "211 scenarios"], url: "/lab/ab-testing", external: false, poweredCorpus: "ab-test" },
   { slug: "dashboard-builder", name: "Marketing Dashboard Builder", desc: "Takes messy exports from different marketing platforms, checks what can actually be compared, and turns the data into a decision-ready dashboard.", tags: ["Claude Code Plugin", "Marketing Analytics", "11 dashboard templates", "17 tests"], url: "/lab/dashboard-builder", external: false, poweredCorpus: null },
   { slug: "google-ads-change-history-dashboard", name: "Google Ads Change History Explorer", desc: "Turns a Google Ads change-history export into a searchable dashboard - what changed, who changed it, when, and how significant it was.", tags: ["Python", "Google Ads", "Offline Dashboard", "57 self-tests"], url: "https://github.com/ali-demirbas/google-ads-change-history-dashboard", external: true, poweredCorpus: null },
@@ -614,6 +641,7 @@ writeFileSync(path.join(ROOT, "search/search-manifest.json"), JSON.stringify({
   sourceVersion: {
     abTestRecordCount: abTests.length,
     journeyRecordCount: journeys.length,
+    archivedJourneyRecordCount: surfaceAssignment.journeys.length - journeys.length, // Operational surface, archived 2026-09-05 - not indexed
     mergedJourneyCount: mergedContract.records.length,
     presetFoldedCount,
     liveCalculatorCount: liveCalcSlugs.length,

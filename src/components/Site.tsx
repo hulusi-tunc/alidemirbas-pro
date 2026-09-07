@@ -1,17 +1,23 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CircleCheck, CircleX, Clock, Mail, MapPin, Radio } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
+import { CtaBand } from "@/components/ui/CtaBand";
+import { CtaBurst } from "@/components/ui/CtaBurst";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
-import { LAB_PREVIEWS } from "@/components/ui/LabPreviews";
+import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { LabNavDropdown } from "@/components/ui/LabNavDropdown";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
+import { BioTrack } from "@/components/ui/BioTrack";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
+import { Work } from "@/components/HomeWork";
 import { withJourneyCount } from "@/lib/archive";
+import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 import {
   getFeaturedCalcEntries,
   LIVE_CALCULATOR_SLUGS,
@@ -159,98 +165,221 @@ export function SiteHeader({
   );
 }
 
-function Hero({ t }: { t: (typeof copy)[Lang] }) {
+const HERO_TILES = ["lifecycle-card-archive", "ab-test-playbook", "numerspace"] as const;
+
+/* THE HERO (Hulusi, 2026-09-06, "focused work on the hero", then "this is a
+   personal site, your examples are companies", then "a mix of both"): the
+   opening of a PERSON'S site, in two moves borrowed from personal-site
+   patterns rather than product landings. First the statement, a
+   first-person lead and the two actions, centred (the Contra-style
+   introduction above them - avatar, name, role line, chips - was cut by
+   Hulusi the same evening: "remove this part from the hero"). Then, still
+   in the hero, the bento Portrait
+   opens a profile with: the portrait in colour as one tall tile, and tiles
+   for the things he built, each with its icon, its name, one plain sentence
+   saying what it is and the real count from the data - so a first-time
+   visitor reads "a library of journeys", never "what is 284". The dark tile
+   carries the career line that used to be a five-row spec table. The
+   greyscale portrait under a blue multiply, the spec table and the photo
+   frame that came before it are gone. */
+/* The miniature inside each product tile - one real thing from the tool,
+   not an illustration: a journey drawn as its steps, the A/B pair drawn
+   as two carts with the tested element ringed, and the calculator
+   categories on the same endless marquee the Lab index uses. Hulusi,
+   2026-09-06: "the hero feels a little dead, needs more liveliness". */
+function MiniNode({ tint, icon, children }: { tint: string; icon: ReactNode; children: ReactNode }) {
   return (
-    <section
-      id="top"
-      // The last dark band on the site comes off. Every other page had
-      // already moved to a light composition (see SiteHeader's own note on
-      // why the transparent white-text bar had to go); the home page was
-      // the only thing still asking the reader to cross a tone boundary at
-      // the top of the site. Ink on paper, hairline rules, and the portrait
-      // plate left as the one place colour does any work.
-      // Tinted stage, no rule under it. The hero and the Work band below
-      // were both white, so a hairline was doing all the seam work; one
-      // step of ground does it without a stroke, and matches the stage on
-      // every calculator page. Deleting the line without the tint would
-      // leave a padding-only seam - this project's own known defect.
-      className="relative isolate flex flex-col overflow-hidden bg-paper-soft pt-16 pb-16 lg:pt-20 lg:pb-20"
-    >
+    <div className="flex-1 rounded-xl bg-paper p-3 ring-1 ring-ink-950/[0.06]">
+      <div className="flex items-center gap-1.5">
+        <span className={`grid size-5 shrink-0 place-items-center rounded-full ${tint}`}>{icon}</span>
+        <span className="h-1.5 w-8 rounded-full bg-ink-950/10" />
+      </div>
+      {children}
+    </div>
+  );
+}
 
-      <div className="relative flex flex-1 flex-col justify-center">
-        <div className="altor-container">
-          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
-            <div>
-              <Reveal>
-                <h1 className="max-w-3xl text-display-xl text-ink-950">
-                  {t.hero.line1}
-                  <br />
-                  {t.hero.line2}
-                </h1>
-              </Reveal>
-              <Reveal delay={90} className="mt-6">
-                <p className="max-w-lg text-xl leading-relaxed text-ink-900">{t.hero.lead}</p>
-                <p className="mt-4 max-w-lg text-base leading-relaxed text-ink-600">{t.hero.sub}</p>
-              </Reveal>
-              <Reveal delay={170} className="mt-8">
-                <div className="flex flex-col gap-3 sm:flex-row sm:gap-0">
-                  <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="sm" className="btn-col-1 max-w-full">
-                    <span className="flex w-full items-center justify-between gap-4">
-                      {t.hero.ctaPrimary}
-                      <ArrowRight aria-hidden className="size-4" />
-                    </span>
-                  </ButtonLink>
-                  <ButtonLink href={LINKEDIN} variant="outline" size="sm" className="btn-col-1 max-w-full">
-                    <span className="flex w-full items-center justify-between gap-4">
-                      {t.hero.ctaSecondary}
-                      <ArrowUpRight aria-hidden className="size-4" />
-                    </span>
-                  </ButtonLink>
-                </div>
-              </Reveal>
-              <Reveal delay={240} className="mt-10">
-                {/* The three chips that used to sit here carried the same
-                    facts, but a chip row reads as decoration and could hold
-                    only three. Set as a data sheet on the mono rail the
-                    detail pages already speak in, they read as a record, and
-                    the two facts that had nowhere to go (what I work on, and
-                    that the work happens in two languages) fit. */}
-                <dl className="max-w-xl border-t border-line">
-                  {t.home.spec.map((row) => (
-                    <div
-                      key={row.label}
-                      className="grid grid-cols-[7rem_minmax(0,1fr)] gap-4 border-b border-line py-3"
-                    >
-                      <dt className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase">
-                        {row.label}
-                      </dt>
-                      <dd className="text-[0.9375rem] text-ink-900">{row.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </Reveal>
+function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
+  if (slug === "lifecycle-card-archive") {
+    /* A journey the way the library defines one, in the same drawn idiom as
+       the A/B pair beside it (Hulusi, 2026-09-07: "the A/B image is amazing,
+       like how we want; the journey one is not good"): a trigger, an email
+       step with its wait, and the fork into the two kinds of exit. Real node
+       kinds, no words. */
+    return (
+      <div aria-hidden className="mt-5 -mx-2 flex items-center gap-1.5">
+        <MiniNode tint="bg-ink-950 text-white" icon={<Radio className="size-3" />}>
+          <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
+          <span className="mt-1.5 block h-1.5 w-2/3 rounded-full bg-ink-950/10" />
+        </MiniNode>
+        <span className="h-px w-2.5 shrink-0 bg-ink-300" />
+        <MiniNode tint="bg-primary-600 text-white" icon={<Mail className="size-3" />}>
+          <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
+          <span className="mt-2 inline-flex items-center gap-1 rounded-md bg-paper px-1.5 py-0.5 ring-1 ring-ink-950/[0.06]">
+            <Clock className="size-3 text-ink-500" />
+            <span className="h-1.5 w-5 rounded-full bg-ink-950/10" />
+          </span>
+        </MiniNode>
+        <span className="h-px w-2.5 shrink-0 bg-ink-300" />
+        <div className="flex flex-1 flex-col gap-1.5">
+          <span className="flex items-center gap-1.5 rounded-xl bg-paper px-2.5 py-2 ring-1 ring-ink-950/[0.06]">
+            <CircleCheck className="size-3.5 shrink-0 text-emerald-600" />
+            <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
+          </span>
+          <span className="flex items-center gap-1.5 rounded-xl bg-paper px-2.5 py-2 ring-1 ring-ink-950/[0.06]">
+            <CircleX className="size-3.5 shrink-0 text-rose-600" />
+            <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
+          </span>
+        </div>
+      </div>
+    );
+  }
+  if (slug === "ab-test-playbook") {
+    return (
+      <div aria-hidden className="mt-5 -mx-2 grid grid-cols-2 gap-2">
+        {(["A", "B"] as const).map((mark) => (
+          <div key={mark} className="rounded-xl bg-paper p-3 ring-1 ring-ink-950/[0.06]">
+            <div className="flex items-center gap-1.5">
+              <span className={`grid size-5 place-items-center rounded-full text-xs font-semibold ${mark === "A" ? "bg-ink-950 text-white" : "bg-rose-600 text-white"}`}>{mark}</span>
+              <span className="h-1.5 w-10 rounded-full bg-ink-950/10" />
             </div>
-
-            {/* portrait plate: the photograph on a blue field, framed by rules */}
-            <Reveal delay={120} className="hidden lg:block">
-              <div className="relative mx-auto w-full max-w-sm">
-                {/* The square double-frame this plate used to carry came off
-                    with the hard-technical direction: one soft rounded plate,
-                    no drawn frame around it. */}
-                <div className="relative aspect-4/5 overflow-hidden rounded-3xl bg-blue-600">
-                  <Image
-                    src="/portrait.jpg"
-                    alt="Ali Demirbaş"
-                    fill
-                    sizes="(min-width: 1024px) 24rem, 0px"
-                    priority
-                    className="object-cover opacity-95 grayscale"
-                  />
-                  <div aria-hidden className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
-                </div>
-              </div>
-            </Reveal>
+            <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
+            <span className="mt-1.5 block h-1.5 w-2/3 rounded-full bg-ink-950/10" />
+            {mark === "A" ? (
+              <span className="mt-3 block h-6 rounded-md bg-paper ring-2 ring-rose-300" />
+            ) : (
+              <span className="mt-3 flex h-6 items-center"><span className="h-1.5 w-1/2 rounded-full bg-primary-500 ring-2 ring-rose-300 ring-offset-2 ring-offset-paper" /></span>
+            )}
           </div>
+        ))}
+      </div>
+    );
+  }
+  if (slug === "numerspace") {
+    const names = NUMERSPACE_CATALOG[lang].map((c) => c.name.replace(/ (Calculators|Hesaplayıcıları|Hesaplayıcılar)$/u, ""));
+    return (
+      <div aria-hidden className="mt-5 -mx-6 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
+        <div className="lab-marquee" style={{ "--marquee-duration": "48s" } as React.CSSProperties}>
+          {[...names, ...names].map((name, i) => (
+            <span key={`${name}-${i}`} className="mr-2 shrink-0 rounded-full bg-teal-50 px-3 py-1.5 text-xs font-medium whitespace-nowrap text-teal-800">
+              {name}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
+function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+  const projects = HERO_TILES.map((slug) => t.lab.projects.find((p) => p.slug === slug)).filter((p) => p !== undefined);
+  return (
+    <section id="top" className="relative isolate flex min-h-[calc(100svh-4rem)] flex-col justify-center overflow-hidden bg-paper pt-14 pb-16 lg:pt-18 lg:pb-20">
+      {/* The /lab hero's meadow behind the bento, bottom-anchored and
+          dissolving upward so the statement stays on paper. It replaced a
+          brand-blue bloom (Hulusi, 2026-09-07: "I don't like the blue-grey
+          look"): blue on this site is brand and utility, never atmosphere,
+          and the meadow is material the page already owns. The section is
+          at least the first screen tall (viewport minus the 4rem header)
+          and centres what it holds. Below md the bento stacks and the
+          section grows past two screens, so the plate is held to the bottom
+          band there - stretched over the whole height its sky came back
+          behind the statement as the same wash. */}
+      <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-[44rem] [mask-image:linear-gradient(to_bottom,transparent_6%,black_58%)] md:inset-0 md:h-auto">
+        <Image src="/lab/hero-meadow.jpg" alt="" fill sizes="100vw" priority className="object-cover object-bottom" />
+        <CtaBurst className="z-0" color="#ffffff" opacity={0.45} direction="center" sweepMs={1300} lifeMs={450} rearm={false} />
+      </div>
+      <div className="altor-container">
+        <Reveal delay={60}>
+          <h1 className="mx-auto max-w-4xl text-center text-h1 text-balance text-ink-950">
+            {t.hero.line1}
+            <br className="hidden sm:block" />{" "}
+            {t.hero.line2}
+          </h1>
+        </Reveal>
+        <Reveal delay={120}>
+          <p className="mx-auto mt-6 max-w-3xl text-center text-xl leading-relaxed text-pretty text-ink-700">{t.hero.lead}</p>
+        </Reveal>
+        <Reveal delay={180} className="mt-8 flex flex-wrap justify-center gap-3">
+          <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
+            {t.hero.ctaPrimary}
+            <ArrowRight aria-hidden className="size-4" />
+          </ButtonLink>
+          <ButtonLink href={LINKEDIN} variant="outline" size="md">
+            {t.hero.ctaSecondary}
+            <ArrowUpRight aria-hidden className="size-4" />
+          </ButtonLink>
+        </Reveal>
+
+        {/* The bento: the person and the things he built as equals. On lg the
+            portrait takes the left third across both rows; the four tiles
+            fill the rest two by two. */}
+        <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Reveal delay={240} className="relative aspect-[4/5] overflow-hidden rounded-[28px] bg-paper md:row-span-2 md:aspect-auto md:min-h-[26rem]">
+            <Image src="/portrait.jpg" alt="Ali Demirbaş" fill sizes="(min-width: 1024px) 24rem, (min-width: 768px) 50vw, 100vw" priority className="object-cover" />
+            <p className="absolute bottom-5 left-5 flex items-center gap-1.5 rounded-full bg-paper/95 px-3.5 py-2 text-sm font-medium text-ink-950 ring-1 ring-ink-950/[0.06]">
+              <MapPin aria-hidden className="size-4 text-primary-600" />
+              {t.hero.portraitPill}
+            </p>
+          </Reveal>
+          {/* The three tiles are frosted glass over the meadow (Hulusi,
+              2026-09-07: "can we add some effect on the cards"): each tile
+              grades from opaque paper at its top to 50% at its bottom over
+              a heavy backdrop blur, so every tile dissolves the same way
+              into the plate instead of one tile picking up the horizon's
+              colour (his second note). A white hairline is the glass edge.
+              The layering is real - there is a photograph behind them -
+              which is what separates this from glass as decoration. Hover
+              lifts by 2px on the slow duration and the soft ease-out; the
+              fast duration read as a jolt. The portrait and the dark tile
+              stay opaque; both carry photos. */}
+          {projects.map((project, i) => {
+            const accent = labAccent(project.slug);
+            const [primary] = project.links;
+            return (
+              <Reveal key={project.slug} delay={280 + i * 60} className="flex">
+                <Link
+                  href={primary.href}
+                  className="group flex w-full flex-col overflow-hidden rounded-[28px] bg-gradient-to-b from-paper to-paper/50 p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl transition-[box-shadow,transform] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.45)]"
+                >
+                  <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
+                    <LabProjectIcon slug={project.slug} className="size-5" />
+                  </span>
+                  <p className="mt-4 text-lg font-semibold text-ink-950">{project.short}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-600">{t.hero.tiles[project.slug as (typeof HERO_TILES)[number]]}</p>
+                  <TileMini slug={project.slug} lang={lang} />
+                  <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium text-ink-950">
+                    <span className="tabular-nums">{withJourneyCount(project.proof ?? "")}</span>
+                    <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
+                  </p>
+                </Link>
+              </Reveal>
+            );
+          })}
+          <Reveal delay={460} className="flex">
+            {/* The night plate (Hulusi, 2026-09-07: "change the background to
+                something suitable from what we created, we have one dark
+                image, night"): the blue-hour meadow the Change History frame
+                uses, bottom-anchored like every plate, under a dark gradient
+                so the line stays readable. */}
+            <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-[28px] bg-ink-950 p-6 text-white">
+              <Image
+                src="/lab/frames/google-ads-change-history-dashboard.jpg"
+                alt=""
+                aria-hidden
+                fill
+                sizes="(min-width: 1024px) 24rem, (min-width: 768px) 50vw, 100vw"
+                className="-z-20 origin-bottom scale-[1.15] object-cover object-bottom"
+              />
+              <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/85 via-ink-950/45 to-ink-950/30" />
+              <p className="relative text-lg leading-snug font-semibold text-balance">{t.hero.statement}</p>
+              <Link href={t.nav.aboutHref} className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-white/80 transition-colors duration-[var(--duration-fast)] hover:text-white">
+                {t.hero.statementLink}
+                <ArrowRight aria-hidden className="size-4" />
+              </Link>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -272,153 +401,80 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
    moved verbatim - t.about.eyebrow / teaserLead / moreLink - not rewritten,
    and one dead band leaves the page. */
 
-/** What I do: one ranked item with room, then the rest as a numbered list.
-    A row of equal cards would claim the four are equally important; they are
-    not, and the first is what the other three are built on. */
-function Work({ t }: { t: (typeof copy)[Lang] }) {
-  return (
-    <section id="work" className="bg-paper py-20 md:py-28">
-      <div className="altor-container">
-        {/* Two columns, so the statement has something to sit against. The
-            heading alone left the right half of this band empty; the About
-            prose that used to occupy its own dead band now answers it. */}
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
-          <SectionHeading eyebrow={t.home.work.eyebrow} title={t.home.work.title} />
-          <Reveal delay={60} className="lg:pt-10">
-            <p className="altor-eyebrow text-ink-400">{t.about.eyebrow}</p>
-            <p className="mt-4 max-w-[46ch] text-[1.0625rem] leading-relaxed text-ink-600">
-              {t.about.teaserLead}
-            </p>
-            <Link
-              href={t.nav.aboutHref}
-              className="mt-5 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-            >
-              {t.about.moreLink}
-              <ArrowRight aria-hidden className="size-3.5" />
-            </Link>
-          </Reveal>
-        </div>
+/* THE BIO (Hulusi, 2026-09-06: "the second section should be a bio - do
+   not forget this is a personal website"). Right after the hero, the person:
+   the About page's own statement and its own lead paragraph on the left,
+   with the way to the full page; on the right the career as it is in
+   content.ts's `about.timeline` - the site's source of truth for those
+   facts - one row per role, the company's real logo, the period. Nothing
+   written for this band alone. It replaces the "More from the Lab" plates
+   that sat here for an hour and repeated the hero's tools. */
+type BioRow = { key: string; co: string; logo: string; role: string; period: string };
 
-        <Reveal delay={90}>
-          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-[9rem_minmax(0,1fr)] md:gap-8">
-            {/* Plain case, like every other label since the mono rail was
-                retired. */}
-            <p className="text-[13px] font-medium text-ink-400">
-              {t.home.work.primaryLabel}
-            </p>
-            <div>
-              <h3 className="text-2xl font-semibold text-ink-950">{t.home.work.primary.title}</h3>
-              <p className="mt-3 max-w-[62ch] leading-relaxed text-ink-600">{t.home.work.primary.body}</p>
-            </div>
+function Bio({ t }: { t: (typeof copy)[Lang] }) {
+  const rows = t.about.timeline.flatMap((e): BioRow[] =>
+    "roles" in e
+      ? e.roles.map((r) => ({ key: `${e.co}-${r.role}`, co: e.co, logo: e.logo, role: r.role, period: r.period }))
+      : [{ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period }],
+  );
+  return (
+    <section id="bio" className="bg-paper py-16 md:py-20">
+      <div className="altor-container">
+        {/* The statement takes the full measure (a 30ch column wrapped it to
+            three lines at 1440 - the heading rule). The paragraph and its
+            button share the next row; the timeline takes the full width
+            under them, because from lg it runs horizontally (Hulusi,
+            2026-09-07) and seven roles need the whole measure. */}
+        <SectionHeading eyebrow={t.about.eyebrow} title={t.home.bio.title} />
+        <Reveal className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+          <p className="max-w-[48ch] text-lg leading-relaxed text-pretty text-ink-600">{t.about.teaserLead}</p>
+          <div className="shrink-0">
+            <ButtonLink href={t.nav.aboutHref} variant="outline" size="md">
+              {t.about.moreLink}
+              <ArrowRight aria-hidden className="size-4" />
+            </ButtonLink>
           </div>
         </Reveal>
-
-        <Reveal delay={140}>
-          {/* Soft filled rows rather than a ruled table: three hairlines
-              stacked under three lines of prose was the stroke-heavy habit
-              the site has left, and the rows read as a list either way. */}
-          <ul className="mt-12 flex list-none flex-col gap-2.5 p-0 md:ml-[11rem]">
-            {t.home.work.rest.map((item, i) => (
-              <li
-                key={item.title}
-                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 rounded-xl bg-paper-soft px-5 py-4"
-              >
-                <span className="tnum pt-0.5 font-mono text-xs text-ink-400">
-                  {String(i + 2).padStart(2, "0")}
-                </span>
-                <span className="text-[0.9375rem] leading-relaxed text-ink-600">
-                  <b className="font-semibold text-ink-950">{item.title}.</b> {item.body}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/** Lab, as bordered cards - frame on top, title, description, one action
-    pill below - reusing the exact illustrative preview LabIndexPage
-    already builds for that project (LabPreviews.tsx) instead of a fake
-    "product screenshot": real journey-canvas nodes, real category counts,
-    the real AB-004 record, honestly-labelled bar/row illustrations for the
-    two tools with no single number to show. A user-supplied reference for
-    this layout used AI-generated screenshot mockups with garbled,
-    meaningless UI text baked into the images - realistic-looking fabricated
-    evidence, which this project's own constitution (AGENTS.md, anti-
-    patterns.md #9) bans outright. Same card shape, same one-per-project
-    frame-then-text-then-button structure; every pixel inside the frame is
-    real.
-
-    One column, full-width cards on narrow viewports; two columns side by
-    side from `md` up. */
-// One distinct panel color per Lab project, keyed by slug so it stays
-// stable regardless of array order. Deliberately outside the site's
-// established token palette (site-owner direction, not a taste pick) -
-// each a deep, muted, editorial-dark hue so the set reads as one family
-// despite the range of hues.
-const LAB_PANEL_COLOR: Record<string, string> = {
-  "claude-lifecycle": "#152049", // navy
-  "lifecycle-card-archive": "#1c3829", // dark green
-  "ab-test-playbook": "#3a1930", // wine
-  "dashboard-builder": "#0f3336", // deep teal
-  "google-ads-change-history-dashboard": "#2a1f42", // plum
-  numerspace: "#3a2412", // rust brown
-};
-
-function Lab({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  return (
-    <section id="lab" className="bg-paper-soft py-24 md:py-28">
-      <div className="altor-container">
-        <SectionHeading eyebrow={t.lab.label} title={t.lab.title} intro={t.lab.intro} />
-
-        <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-2">
-          {t.lab.projects.map((project, i) => {
-            const preview = LAB_PREVIEWS[project.slug]?.({ project, lang, layout: "stack" });
-            // Prefer the real GitHub link when one exists; five of six
-            // projects have one. The Canonical Journey Library doesn't (it
-            // lives at /lab/journeys, not a separate repo) - falling back to
-            // its own first link rather than fabricating a GitHub URL.
-            const action = project.links.find((l) => l.href.includes("github.com")) ?? project.links[0];
-            const external = action.href.startsWith("http");
-            return (
-              <Reveal key={project.slug} delay={i * 60}>
-                <article className="flex h-full flex-col overflow-hidden rounded-[28px] border border-line">
-                  <div
-                    className="overflow-hidden rounded-2xl p-5 sm:p-6 [&>div]:!shadow-none"
-                    style={{ backgroundColor: LAB_PANEL_COLOR[project.slug] ?? "#152049" }}
-                  >
-                    {preview}
+        {/* THE TIMELINE (Hulusi, 2026-09-06: "logos are so small, don't
+            put them in a box, some fancy animation here, maybe a
+            timeline"; 2026-09-07: horizontal, with a path tracker). From
+            lg it is the path in ui/BioTrack.tsx: the roles in a row, oldest
+            first, a hairline under their nodes that fills in brand blue as
+            the band scrolls, lighting each role as it passes. Below lg it
+            stays the vertical rail: the wordmarks bare at 28px, the rail
+            drawing itself once the band is in view, the rows arriving one
+            after another behind it, a pulse on the node of the role he
+            holds today (globals.css, THE BIO TIMELINE; off under reduced
+            motion). */}
+        <div className="mt-14">
+          <p className="text-sm font-medium text-ink-500">{t.about.experience}</p>
+          <div className="mt-6 hidden lg:block">
+            <BioTrack rows={[...rows].reverse()} />
+          </div>
+          <Reveal delay={80} className="lg:hidden">
+            <ol className="relative mt-4 flex list-none flex-col p-0 [--bio-rail:0.375rem] md:[--bio-rail:11rem]">
+              <span aria-hidden className="bio-rail absolute top-3 bottom-3 left-[var(--bio-rail)] w-px" />
+              {rows.map((r, i) => (
+                <li
+                  key={r.key}
+                  className="bio-row relative grid grid-cols-[minmax(0,1fr)] gap-y-1.5 py-5 pl-8 md:grid-cols-[9.5rem_minmax(0,1fr)] md:gap-x-10 md:pl-0"
+                  style={{ "--i": i } as React.CSSProperties}
+                >
+                  <span
+                    aria-hidden
+                    className={`absolute top-[1.65rem] left-[calc(var(--bio-rail)-0.3125rem)] size-2.5 rounded-full ring-4 ring-paper ${i === 0 ? "bio-node-live bg-primary-600" : "bg-ink-300"}`}
+                  />
+                  <span className="text-sm whitespace-nowrap text-ink-500 tabular-nums md:pt-1 md:text-right">{r.period}</span>
+                  <div className="min-w-0">
+                    <Image src={r.logo} alt={r.co} width={140} height={28} className="h-7 w-auto max-w-[9rem] object-contain object-left" />
+                    <span className="mt-2.5 block text-lg leading-snug font-semibold text-balance text-ink-950">{r.role}</span>
+                    <span className="mt-0.5 block text-sm text-ink-600">{r.co}</span>
                   </div>
-                  <div className="flex flex-1 flex-col p-6 sm:p-7">
-                    <h3 className="text-lg font-semibold text-ink-950 sm:text-xl">{project.name}</h3>
-                    <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-ink-600">
-                      {withJourneyCount(project.desc)}
-                    </p>
-                    <a
-                      href={action.href}
-                      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-                      className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-[#1f9d70] px-4 py-2 text-sm font-medium text-[#1f9d70] transition-colors hover:bg-[#1f9d70]/10"
-                    >
-                      {action.label}
-                    </a>
-                  </div>
-                </article>
-              </Reveal>
-            );
-          })}
+                </li>
+              ))}
+            </ol>
+          </Reveal>
         </div>
-
-        <Reveal delay={t.lab.projects.length * 60 + 40}>
-          <Link
-            href={t.nav.labHref}
-            className="mt-14 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
-            {t.home.labMore}
-            <ArrowRight aria-hidden className="size-3.5" />
-          </Link>
-        </Reveal>
       </div>
     </section>
   );
@@ -437,14 +493,14 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const entries = getFeaturedCalcEntries(lang, 6);
 
   return (
-    <section id="calculators" className="bg-paper py-20 md:py-28">
+    <section id="calculators" className="bg-paper py-16 md:py-20">
       <div className="altor-container">
         <SectionHeading
           eyebrow={t.home.calc.eyebrow}
           title={t.home.calc.title}
           intro={t.home.calc.intro}
         />
-        <p className="mt-6 font-mono text-sm text-ink-500">
+        <p className="mt-6 text-sm text-ink-500">
           <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
         </p>
 
@@ -457,44 +513,54 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
         </div>
 
         <Reveal delay={entries.length * 50 + 40}>
-          <Link
-            href={t.nav.calculatorsHref}
-            className="mt-10 flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
-            {t.home.calc.more}
-            <ArrowRight aria-hidden className="size-3.5" />
-          </Link>
+          <div className="mt-12">
+            <ButtonLink href={t.nav.calculatorsHref} variant="outline" size="md">
+              {t.home.calc.more}
+              <ArrowRight aria-hidden className="size-4" />
+            </ButtonLink>
+          </div>
         </Reveal>
       </div>
     </section>
   );
 }
 
+/* THE CLOSING PLATE. Every page ends on this, so it is a site-wide
+   surface (seven callers), changed on Hulusi's ask (2026-09-05: the global
+   CTA "does not have any bg and effect on it").
+
+   What it was: a flat ink-950 slab with white type - the retired dark
+   stage. Two answers were rendered and rejected the same day: a
+   photographic sky with a slow drift ("I really didn't like the cloud
+   background effect"), then a blue-50 band with the journey library on a
+   marquee. Hulusi picked this one from three rendered candidates.
+
+   The plate is the calculator's answer plate: the primary button's own
+   bg-primary-600 ground, rounded, inside the container, and it answers
+   the same way - the pixel wavefront (ui/PixelField.tsx) sweeps across it
+   once as it scrolls into view and again when the pointer enters it
+   (ui/CtaBurst.tsx). Clean at rest, like the answer plate: no ambient
+   texture ever, the pixel language fires only as an event. `data-tone`
+   dark flips the email button to its white plate and the LinkedIn ghost
+   to the dark-ground ring. */
 export function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   return (
-    <section id="contact" data-tone="dark" className="relative isolate overflow-hidden bg-ink-950 py-24 text-white md:py-32">
-      <div className="altor-container text-center">
-        <Reveal>
-          <h2 className="mx-auto max-w-2xl text-[clamp(1.75rem,1.15rem+2.4vw,2.875rem)] leading-[1.08] text-white">
-            {t.finalCta.title}
-          </h2>
-          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-white/75">{t.finalCta.body}</p>
-        </Reveal>
-        <Reveal delay={120} className="mt-9">
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
-              {t.finalCta.button}
-            </ButtonLink>
-            <ButtonLink href={LINKEDIN} variant="ghost" size="md">
-              <span className="flex items-center gap-2">
-                {t.finalCta.linkedin}
-                <ArrowUpRight aria-hidden className="size-4" />
-              </span>
-            </ButtonLink>
-          </div>
-        </Reveal>
-      </div>
-    </section>
+    <CtaBand
+      title={t.finalCta.title}
+      body={t.finalCta.body}
+      actions={
+        <>
+          <ButtonLink href={`mailto:${EMAIL}`} variant="primary" size="md">
+            {t.finalCta.button}
+            <ArrowRight aria-hidden className="size-4" />
+          </ButtonLink>
+          <ButtonLink href={LINKEDIN} variant="outlineInverted" size="md">
+            {t.finalCta.linkedin}
+            <ArrowUpRight aria-hidden className="size-4" />
+          </ButtonLink>
+        </>
+      }
+    />
   );
 }
 
@@ -608,13 +674,13 @@ export default function Site({ lang }: { lang: Lang }) {
     <>
       <SiteHeader t={t} />
       <main>
-        <Hero t={t} />
-        <Work t={t} />
+        <Hero t={t} lang={lang} />
+        <Bio t={t} />
+        <Work t={t} lang={lang} />
         {/* Expertise, StatsBand and Experience pulled off the home page for
             now - components kept below, just not rendered. Re-add
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
-        <Lab t={t} lang={lang} />
         <Calculators t={t} lang={lang} />
         <StackShowcase lang={lang} />
         <FinalCta t={t} />

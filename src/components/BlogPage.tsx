@@ -37,13 +37,13 @@ const T = {
     eyebrow: "Blog",
     title: "Writing on growth, CRM and lifecycle marketing.",
     emptyTitle: "Nothing published yet.",
-    emptyBody: "This section is reserved for writing on growth, CRM and lifecycle marketing. The first post will show up here.",
+    emptyBody: "Posts on growth, CRM and lifecycle marketing will be published here.",
   },
   tr: {
     eyebrow: "Blog",
     title: "Büyüme, CRM ve lifecycle pazarlama üzerine yazılar.",
     emptyTitle: "Henüz bir yazı yok.",
-    emptyBody: "Bu bölüm büyüme, CRM ve lifecycle pazarlama üzerine yazılar için ayrıldı. İlk yazı burada görünecek.",
+    emptyBody: "Büyüme, CRM ve lifecycle pazarlama üzerine yazılar burada yayımlanacak.",
   },
 };
 
@@ -122,7 +122,7 @@ export default function BlogPage({ lang }: { lang: Lang }) {
               <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.7fr)] lg:gap-16">
                 <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:max-w-none lg:text-left">
                   <p className="mb-4 text-[13px] font-medium text-ink-400">{t.eyebrow}</p>
-                  <h1 className="text-h1-fluid font-medium text-ink-950">{t.title}</h1>
+                  <h1 className="text-h1 text-ink-950">{t.title}</h1>
                 </div>
                 <HeroCoverCollage posts={posts} />
               </div>
@@ -135,7 +135,7 @@ export default function BlogPage({ lang }: { lang: Lang }) {
                     family - the mono-uppercase `.altor-eyebrow` rail was
                     retired in the 2026-08-30 pass. */}
                 <p className="mb-4 text-[13px] font-medium text-ink-400">{t.eyebrow}</p>
-                <h1 className="text-h1-fluid font-medium text-ink-950">{t.title}</h1>
+                <h1 className="text-h1 text-ink-950">{t.title}</h1>
               </div>
             )}
           </PortraitContainer>

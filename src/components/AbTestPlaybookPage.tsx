@@ -60,14 +60,14 @@ const T = {
     test: "TEST",
     controlVariant: "Kontrol / Varyant",
     testConcept: "Test fikri",
-    whatChanges: "Değişen ne",
+    whatChanges: "Ne değişiyor",
     control: "Kontrol",
     variant: "Varyant",
     changed: "Değişen",
     surface: "Yüzey",
     testedElement: "Test edilen öğe",
     conceptNote:
-      "Bu kayıt test edilecek öğeyi tanımlıyor; belirlenmiş bir kontrol ve varyant tanımlamıyor.",
+      "Bu kayıt test edilecek öğeyi tanımlar; hazır bir kontrol ve varyant önermez.",
     hypothesis: "Hipotez",
     howToRun: "Bu test nasıl yürütülür",
     primaryKpi: "Birincil KPI",
@@ -78,7 +78,7 @@ const T = {
   },
 } as const;
 
-const RAIL = "font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase";
+const RAIL = "altor-eyebrow text-ink-400";
 
 
 export default function AbTestPlaybookPage({
@@ -130,7 +130,7 @@ export default function AbTestPlaybookPage({
         <p className={RAIL}>
           {test.id} · {test.category} · {test.differenceBehavior}
         </p>
-        <h1 className="mt-5 max-w-[20ch] text-[clamp(1.75rem,1.25rem+1.8vw,2.125rem)] leading-[1.25] font-semibold tracking-[-0.015em] text-pretty text-ink-950 sm:max-w-[34ch]">
+        <h1 className="mt-5 max-w-3xl text-h2 text-pretty text-ink-950">
           {test.question}
         </h1>
         {lede && (
@@ -144,7 +144,7 @@ export default function AbTestPlaybookPage({
           variant are prescribed. Same type, same spacing, same metadata
           styling either way - only the claim differs. */}
       <section className="border-t border-line pt-9 pb-10">
-        <h2 className={RAIL}>{mode === "comparison" ? t.controlVariant : t.testConcept}</h2>
+        <h2 className="text-h3 text-ink-950">{mode === "comparison" ? t.controlVariant : t.testConcept}</h2>
 
         {mode === "comparison" ? (
           /* Same surface, same slot, twice - because the surface and the slot
@@ -240,7 +240,7 @@ export default function AbTestPlaybookPage({
           own guardrails - the five "never do" rules the mockup left with
           nowhere to go. */}
       <section className="pb-14">
-        <h2 className={RAIL}>{t.howToRun}</h2>
+        <h2 className="text-h3 text-ink-950">{t.howToRun}</h2>
         <div className="mt-6 grid border-t border-line-strong sm:grid-cols-2">
           <RunCell>
             <p className={RAIL}>{t.primaryKpi}</p>
@@ -298,7 +298,7 @@ export default function AbTestPlaybookPage({
       {takeaway && (
         <section>
           <div className="rounded-md bg-ink-950 px-8 py-11 sm:px-16 sm:py-14">
-            <p className="font-mono text-[11px] tracking-[0.12em] text-white/40 uppercase">
+            <p className="altor-eyebrow text-white/50">
               {t.reusableRule}
             </p>
             <p className="mt-6 max-w-[34ch] text-[clamp(1.35rem,1.05rem+1.3vw,1.8rem)] leading-[1.42] font-medium tracking-[-0.02em] text-pretty text-white sm:max-w-[42ch]">
@@ -337,7 +337,7 @@ function SidePanel({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between">
-        <span className="font-mono text-[12px] tracking-[0.12em] text-ink-800 uppercase">{label}</span>
+        <span className="altor-eyebrow text-ink-500">{label}</span>
         <span className="font-mono text-[11px] text-ink-400">{letter}</span>
       </div>
       <VariableDiagram kind={kind} testedSlot={testedSlot} label={testedElementLabel} lang={lang} presence={presence} />

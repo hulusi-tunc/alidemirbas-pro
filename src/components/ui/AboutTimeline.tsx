@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowRight } from "lucide-react";
+
 import { useState } from "react";
 
 export type TimelineJob = {
@@ -34,7 +36,7 @@ export function AboutTimeline({
         type="button"
         onClick={() => setDetailed((v) => !v)}
         aria-pressed={detailed}
-        className="flex items-center gap-2.5 [font-family:var(--font-mono-plex)]"
+        className="flex items-center gap-2.5 text-[13px] font-medium"
       >
         <span className={`text-[13px] ${detailed ? "text-ink-400" : "text-ink-900"}`}>
           {labels.simple}
@@ -72,7 +74,7 @@ export function AboutTimeline({
               />
             </div>
             <div className="max-w-[640px]">
-              <h3 className="text-[22px] leading-tight tracking-tight sm:text-[30px]">
+              <h3 className="text-h3">
                 <span className="font-bold">{job.title}</span>
                 {job.company && (
                   <>
@@ -99,7 +101,8 @@ export function AboutTimeline({
               {detailed && job.bottom && (
                 <p className="mt-4 text-base leading-relaxed text-ink-500 sm:text-lg">
                   <strong className="text-ink-900">{labels.bottomLine}</strong>{" "}
-                  <span className="[font-family:var(--font-mono-plex)]">→</span> {job.bottom}
+                  <ArrowRight aria-hidden className="mx-1 inline size-4 align-[-2px] text-ink-400" />
+                  {job.bottom}
                 </p>
               )}
             </div>

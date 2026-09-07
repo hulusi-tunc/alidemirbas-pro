@@ -148,8 +148,8 @@
       "isKnownGap": false,
       "top3": [
         "journey:ACC-71",
-        "journey:ACC-73",
-        "journey:ACC-74"
+        "journey:ACC-78",
+        "journey:ACC-261"
       ],
       "reason": "journey id is in keywords[]"
     },
@@ -311,15 +311,15 @@
     },
     {
       "query": "risk signal correlation",
-      "expectedType": "find-journey",
+      "expectedType": "archived-journey",
       "ok": true,
       "isKnownGap": false,
       "top3": [
-        "journey:RSK-192",
         "journey:FBK-48",
-        "journey:RSK-193"
+        "journey:RET-24",
+        "journey:FBK-50"
       ],
-      "reason": "exact title-token match - also the survivor of the RET-25 merge, see the alias fixture below"
+      "reason": "RSK-192 (the exact title-token match, and the RET-25 survivor) is on the Operational Workflows surface, archived from the public site 2026-09-05 (archive/operational-workflows/README.md): it has no public page and must not surface as a result. Was: 'exact title-token match - also the survivor of the RET-25 merge'."
     },
     {
       "query": "delivery failure retry",
@@ -693,39 +693,31 @@
     },
     {
       "query": "CTL-239",
-      "expectedType": "merged-journey-id",
+      "expectedType": "archived-merged-journey-id",
       "ok": true,
       "isKnownGap": false,
-      "top3": [
-        "journey:OWN-57",
-        "journey:CTL-232",
-        "journey:CTL-233"
-      ],
-      "reason": "merged id must resolve to survivor OWN-57"
+      "top3": [],
+      "reason": "merged id whose survivor OWN-57 is on the Operational Workflows surface, archived from the public site 2026-09-05 (archive/operational-workflows/README.md): the survivor has no public page, so it must not surface as a result and the id carries no alias. Was: 'merged id must resolve to survivor OWN-57'."
     },
     {
       "query": "CTL-240",
-      "expectedType": "merged-journey-id",
+      "expectedType": "archived-merged-journey-id",
       "ok": true,
       "isKnownGap": false,
-      "top3": [
-        "journey:OWN-54",
-        "journey:CTL-232",
-        "journey:CTL-233"
-      ],
-      "reason": "merged id must resolve to survivor OWN-54"
+      "top3": [],
+      "reason": "merged id whose survivor OWN-54 is on the Operational Workflows surface, archived from the public site 2026-09-05 (archive/operational-workflows/README.md): the survivor has no public page, so it must not surface as a result and the id carries no alias. Was: 'merged id must resolve to survivor OWN-54'."
     },
     {
       "query": "RET-25",
-      "expectedType": "merged-journey-id",
+      "expectedType": "archived-merged-journey-id",
       "ok": true,
       "isKnownGap": false,
       "top3": [
-        "journey:RSK-192",
         "journey:RET-21",
-        "journey:RET-22"
+        "journey:RET-22",
+        "journey:RET-23"
       ],
-      "reason": "merged id must resolve to survivor RSK-192 (risk-signal)"
+      "reason": "merged id whose survivor RSK-192 is on the Operational Workflows surface, archived from the public site 2026-09-05 (archive/operational-workflows/README.md): the survivor has no public page, so it must not surface as a result and the id carries no alias. Was: 'merged id must resolve to survivor RSK-192'."
     },
     {
       "query": "75+ calculator tools",

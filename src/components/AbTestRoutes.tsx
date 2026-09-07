@@ -48,7 +48,7 @@ export function AbLibraryIndexPage({ lang }: { lang: Lang }) {
       <div className="border-b border-line px-4 py-6 md:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-xl font-semibold tracking-tight text-ink-950">{t.title}</h1>
+            <h1 className="text-h3 text-ink-950">{t.title}</h1>
             <span className="border border-line bg-paper-soft px-2 py-0.5 text-xs font-medium text-neutral-600">
               {AB_TEST_COUNT}
             </span>

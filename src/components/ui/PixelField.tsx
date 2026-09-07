@@ -54,6 +54,8 @@ type Grain = {
   maxSize: number;
 };
 
+export type BurstDirection = "right" | "left" | "down" | "up" | "center";
+
 export function PixelBurst({
   /** Bump to request a burst. 0 (or an unchanged value) never fires; a bump
       during a running sweep is absorbed (see RE-FIRE THROTTLING above). */
@@ -62,10 +64,29 @@ export function PixelBurst({
   /** The primary button's hover fill (neutral-900) - dark pixels crossing
       the brand-blue plate, exactly the button's own dissolve pairing. */
   color = "#2a2a2a",
+  /** Where the front travels from (2026-09-07, Hulusi: "you applied the
+      same left-to-right everywhere; vary it, don't overuse it"). The plate
+      keeps `right`; a photograph picks the direction its subject suggests
+      - the sky coming down, the field rising, the person's side. */
+  direction = "right",
+  /** Multiplies the grain palette's alphas. 1 is the plate's full-density
+      answer; a photograph wants a softer pass (0.4-0.6) in a light colour. */
+  opacity = 1,
+  /** How long the front takes to cross the plate. The plate's answer is
+      quick (430ms); a photograph's pass is slow (1.5-2.5s) so it reads as
+      weather, not a flash (2026-09-07, Hulusi: "so sharp, fast,
+      distracting - smoother; in the hero slow, inside-out"). */
+  sweepMs = 430,
+  /** How long one grain lives (grow, hold, shrink). Scales with the sweep. */
+  lifeMs = 215,
 }: {
   pulse: number;
   gap?: number;
   color?: string;
+  direction?: BurstDirection;
+  opacity?: number;
+  sweepMs?: number;
+  lifeMs?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fireRef = useRef<() => void>(() => {});
@@ -79,7 +100,13 @@ export function PixelBurst({
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const cell = Math.max(1, Math.round(gap));
-    const LIFE = GROW_TICKS + HOLD_TICKS + SHRINK_TICKS;
+    const sweepTicks = Math.max(1, Math.round(sweepMs / FRAME_MS));
+    const lifeScale = Math.max(0.25, lifeMs / 215);
+    const growTicks = Math.max(1, Math.round(GROW_TICKS * lifeScale));
+    const holdTicks = Math.max(1, Math.round(HOLD_TICKS * lifeScale));
+    const shrinkTicks = Math.max(1, Math.round(SHRINK_TICKS * lifeScale));
+    const jitterTicks = Math.max(1, Math.round(JITTER_TICKS * Math.max(1, sweepTicks / SWEEP_TICKS)));
+    const LIFE = growTicks + holdTicks + shrinkTicks;
 
     let grains: Grain[] = [];
     let width = 0;
@@ -98,6 +125,20 @@ export function PixelBurst({
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+      const progress = (x: number, y: number) => {
+        switch (direction) {
+          case "left":
+            return 1 - x / width;
+          case "down":
+            return y / height;
+          case "up":
+            return 1 - y / height;
+          case "center":
+            return Math.hypot(x - width / 2, y - height / 2) / Math.hypot(width / 2, height / 2);
+          default:
+            return x / width;
+        }
+      };
       const next: Grain[] = [];
       for (let x = 0; x < width; x += cell) {
         for (let y = 0; y < height; y += cell) {
@@ -105,7 +146,7 @@ export function PixelBurst({
             x,
             y,
             alpha: PALETTE_ALPHAS[Math.floor(Math.random() * PALETTE_ALPHAS.length)],
-            delay: (x / width) * SWEEP_TICKS + random(0, JITTER_TICKS),
+            delay: progress(x, y) * sweepTicks + random(0, jitterTicks),
             age: 0,
             maxSize: random(cell * 0.4, cell),
           });
@@ -138,18 +179,20 @@ export function PixelBurst({
 
         let size: number;
         let alpha = g.alpha;
-        if (g.age <= GROW_TICKS) {
-          size = g.maxSize * (g.age / GROW_TICKS);
-        } else if (g.age <= GROW_TICKS + HOLD_TICKS) {
+        if (g.age <= growTicks) {
+          const t = g.age / growTicks;
+          size = g.maxSize * (t * (2 - t)); // ease-out: no hard pop
+        } else if (g.age <= growTicks + holdTicks) {
           size = g.maxSize;
         } else {
-          const t = (g.age - GROW_TICKS - HOLD_TICKS) / SHRINK_TICKS;
-          size = g.maxSize * (1 - t);
-          alpha = g.alpha * (1 - t);
+          const t = (g.age - growTicks - holdTicks) / shrinkTicks;
+          const e = t * t; // ease-in fade
+          size = g.maxSize * (1 - e);
+          alpha = g.alpha * (1 - e);
         }
         if (size <= 0) continue;
         const offset = (cell - size) / 2;
-        ctx.globalAlpha = alpha;
+        ctx.globalAlpha = alpha * opacity;
         ctx.fillRect(g.x + offset, g.y + offset, size, size);
       }
 
@@ -176,7 +219,7 @@ export function PixelBurst({
       cancelAnimationFrame(frame);
       ctx.clearRect(0, 0, width, height);
     };
-  }, [gap, color]);
+  }, [gap, color, direction, opacity, sweepMs, lifeMs]);
 
   useEffect(() => {
     if (pulse > 0) fireRef.current();

@@ -91,7 +91,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
             {/* max-w-xl -> max-w-md: Portrait's own real H1 caps at
                 `max-w-[10em]` (tight, editorial, forces controlled line
                 breaks) rather than running the full column width. */}
-            <h1 className="max-w-md text-h1-fluid font-medium text-ink-950">{c.title}</h1>
+            <h1 className="max-w-md text-h1 text-ink-950">{c.title}</h1>
             {/* Color: `text-ink-950/65` — Portrait's real technique for
                 supporting copy is the HEADING's own color at 65% opacity,
                 not a separately-stepped gray (`ink-600` before) — this is
@@ -181,7 +181,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
               used to wrap an entire multi-field form section. */}
           <Reveal delay={90}>
             <div className="rounded-card bg-paper-soft p-8 md:p-10">
-              <h2 className="text-h6 font-medium tracking-tight text-ink-950">{c.formTitle}</h2>
+              <h2 className="text-h3 text-ink-950">{c.formTitle}</h2>
               <div className="mt-6">
                 <ContactForm t={c} />
               </div>
@@ -200,7 +200,7 @@ function Schedule({ t }: { t: (typeof copy)[Lang] }) {
     <Section tone="soft" size="md">
       <PortraitContainer>
         <Reveal>
-          <h2 className="text-h2-fluid font-medium text-ink-900">{t.contact.scheduleTitle}</h2>
+          <h2 className="text-h2 text-ink-900">{t.contact.scheduleTitle}</h2>
           <p className="mt-2 text-base text-ink-500">{t.contact.scheduleSub}</p>
         </Reveal>
         {/* ROUND 3: the outer `ring`/box is gone (same reasoning as the

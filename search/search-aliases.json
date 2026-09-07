@@ -29,39 +29,6 @@
       "source": "production/journey-merged-id-contract.json"
     },
     {
-      "alias": "CTL-239",
-      "aliasSlugLowercased": "ctl-239",
-      "targetId": "journey:OWN-57",
-      "targetSlug": "multi-party-approval-aggregation",
-      "resultVisibility": "target-only",
-      "type": "merged-journey",
-      "provenance": "source-derived",
-      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
-      "source": "production/journey-merged-id-contract.json"
-    },
-    {
-      "alias": "CTL-240",
-      "aliasSlugLowercased": "ctl-240",
-      "targetId": "journey:OWN-54",
-      "targetSlug": "ownership-change-obligation-transfer",
-      "resultVisibility": "target-only",
-      "type": "merged-journey",
-      "provenance": "source-derived",
-      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
-      "source": "production/journey-merged-id-contract.json"
-    },
-    {
-      "alias": "RET-25",
-      "aliasSlugLowercased": "ret-25",
-      "targetId": "journey:RSK-192",
-      "targetSlug": "risk-signal",
-      "resultVisibility": "target-only",
-      "type": "merged-journey",
-      "provenance": "source-derived",
-      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
-      "source": "production/journey-merged-id-contract.json"
-    },
-    {
       "alias": "FBK-44",
       "aliasSlugLowercased": "fbk-44",
       "targetId": "journey:FBK-43",

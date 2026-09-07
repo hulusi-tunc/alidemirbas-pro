@@ -68,10 +68,10 @@ const T = {
     eyebrow: "Lab",
     installTitle: "Kurulum",
     step1Title: "Claude Code eklentisi olarak",
-    step1Desc: "Önce marketplace'i ekleyin, sonra eklentiyi kurun.",
-    step2Title: "Ya da yerel eklenti olarak klonlayın",
-    step2Desc: "Marketplace adımı yok - Claude Code'u doğrudan klasöre yönlendirin.",
-    step3Title: "Ya da skills CLI ile kurun",
+    step1Desc: "Önce marketplace'i ekle, sonra eklentiyi kur.",
+    step2Title: "Ya da yerel eklenti olarak klonla",
+    step2Desc: "Marketplace adımı yok; Claude Code'u doğrudan klasöre yönlendir.",
+    step3Title: "Ya da skills CLI ile kur",
     step3Desc: "skills.sh, repodaki her skill'i tek komutla kurar.",
     viewRepo: "Repoyu görüntüle",
     whatItDoesTitle: "Ne işe yarar",
@@ -88,7 +88,7 @@ const T = {
       {
         id: "which-templates",
         q: "11 dashboard şablonundan hangisini sunacağına nasıl karar veriyor?",
-        a: "Sırasıyla üç filtre: verinizin yapısının neyi destekleyebileceği, gerçekte hangi iş sorusunu sorduğunuz ve verinin savunulabilir bir güven düzeyinde neyi yanıtlayabileceği. Yalnızca üçünü de geçen şablonlar sunulur - verinin gerçekten desteklemediği elle seçilmiş bir \"vertical\" şablon asla.",
+        a: "Sırasıyla üç filtre: verinin yapısının neyi destekleyebileceği, gerçekte hangi iş sorusunu sorduğun ve verinin savunulabilir bir güven düzeyinde neyi yanıtlayabileceği. Yalnızca üçünü de geçen şablonlar sunulur - verinin gerçekten desteklemediği elle seçilmiş bir \"vertical\" şablon asla.",
       },
       {
         id: "why-not-more-observations",
