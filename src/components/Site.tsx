@@ -278,13 +278,16 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             </p>
           </Reveal>
           {/* The three tiles are frosted glass over the meadow (Hulusi,
-              2026-09-07: "can we add some effect on the cards"): paper at
-              75% with a heavy backdrop blur, so the plate's horizon warms
-              the lower tile and the sky keeps the upper ones near white;
-              a white hairline is the glass edge. The layering is real -
-              there is a photograph behind them - which is what separates
-              this from glass as decoration. Hover lifts by 2px. The
-              portrait and the dark tile stay opaque; both carry photos. */}
+              2026-09-07: "can we add some effect on the cards"): each tile
+              grades from opaque paper at its top to 50% at its bottom over
+              a heavy backdrop blur, so every tile dissolves the same way
+              into the plate instead of one tile picking up the horizon's
+              colour (his second note). A white hairline is the glass edge.
+              The layering is real - there is a photograph behind them -
+              which is what separates this from glass as decoration. Hover
+              lifts by 2px on the slow duration and the soft ease-out; the
+              fast duration read as a jolt. The portrait and the dark tile
+              stay opaque; both carry photos. */}
           {projects.map((project, i) => {
             const accent = labAccent(project.slug);
             const [primary] = project.links;
