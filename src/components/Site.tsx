@@ -369,7 +369,7 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
       : [{ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period }],
   );
   return (
-    <section id="bio" className="bg-paper py-20 md:py-28">
+    <section id="bio" className="bg-paper py-16 md:py-20">
       <div className="altor-container">
         {/* The statement takes the full measure (a 30ch column wrapped it to
             three lines at 1440 - the heading rule); the paragraph and the
@@ -436,7 +436,7 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const entries = getFeaturedCalcEntries(lang, 6);
 
   return (
-    <section id="calculators" className="bg-paper py-20 md:py-28">
+    <section id="calculators" className="bg-paper py-16 md:py-20">
       <div className="altor-container">
         <SectionHeading
           eyebrow={t.home.calc.eyebrow}
@@ -488,7 +488,7 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
    to the dark-ground ring. */
 export function FinalCta({ t }: { t: (typeof copy)[Lang] }) {
   return (
-    <section id="contact" className="bg-paper py-20 md:py-28">
+    <section id="contact" className="bg-paper py-16 md:py-20">
       <div className="altor-container">
         <Reveal>
           <div

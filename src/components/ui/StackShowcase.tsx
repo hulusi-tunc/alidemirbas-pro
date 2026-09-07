@@ -35,7 +35,7 @@ export function StackShowcase({ lang }: { lang: Lang }) {
   const tools = stackOnePerCategory();
 
   return (
-    <section className="bg-paper-soft py-24 md:py-32">
+    <section className="bg-paper-soft py-16 md:py-20">
       <div className="altor-container">
         <SectionHeading eyebrow={t.stack.eyebrow} title={t.stack.homeTitle} intro={t.stack.homeIntro} />
 

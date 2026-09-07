@@ -57,7 +57,7 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
 
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
-      <ol className="flex list-none flex-col p-0 lg:pb-12">
+      <ol className="flex list-none flex-col p-0">
         {rows.map((row, i) => (
           <li
             key={i}
@@ -65,7 +65,7 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
               refs.current[i] = el;
             }}
             data-active={i === active}
-            className="border-t border-line py-8 transition-opacity duration-[var(--duration-fast)] first:border-t-0 first:pt-0 last:pb-0 lg:flex lg:min-h-[48vh] lg:flex-col lg:justify-center lg:py-10 lg:data-[active=false]:opacity-45 motion-reduce:transition-none"
+            className="border-t border-line py-8 transition-opacity duration-[var(--duration-fast)] first:border-t-0 first:pt-0 last:pb-0 lg:flex lg:min-h-[48vh] lg:flex-col lg:justify-center lg:py-10 lg:last:min-h-0 lg:data-[active=false]:opacity-45 motion-reduce:transition-none"
           >
             {row}
             {/* Below lg the card travels with its row. `group` + data-on

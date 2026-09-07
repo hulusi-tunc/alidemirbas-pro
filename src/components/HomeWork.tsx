@@ -262,7 +262,7 @@ export function Work({ t, lang }: { t: T; lang: Lang }) {
   const panels = services.map((service) => <Fragment key={service.tool}>{evidence(service.tool)}</Fragment>);
 
   return (
-    <section id="work" className="bg-paper py-20 md:py-28">
+    <section id="work" className="bg-paper py-16 md:py-20">
       <div className="altor-container">
         <SectionHeading eyebrow={t.home.work.eyebrow} title={t.home.work.title} intro={t.home.work.lede} />
         <Reveal className="mt-14">
