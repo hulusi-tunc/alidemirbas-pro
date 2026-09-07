@@ -291,8 +291,21 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             );
           })}
           <Reveal delay={460} className="flex">
-            <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-[28px] bg-ink-950 p-6 text-white">
-              <span aria-hidden className="absolute -top-16 -right-16 size-56 rounded-full bg-primary-600/40 blur-3xl" />
+            {/* The night plate (Hulusi, 2026-09-07: "change the background to
+                something suitable from what we created, we have one dark
+                image, night"): the blue-hour meadow the Change History frame
+                uses, bottom-anchored like every plate, under a dark gradient
+                so the line stays readable. */}
+            <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-[28px] bg-ink-950 p-6 text-white">
+              <Image
+                src="/lab/frames/google-ads-change-history-dashboard.jpg"
+                alt=""
+                aria-hidden
+                fill
+                sizes="(min-width: 1024px) 24rem, (min-width: 768px) 50vw, 100vw"
+                className="-z-20 origin-bottom scale-[1.15] object-cover object-bottom"
+              />
+              <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/85 via-ink-950/45 to-ink-950/30" />
               <p className="relative text-lg leading-snug font-semibold text-balance">{t.hero.statement}</p>
               <Link href={t.nav.aboutHref} className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-white/80 transition-colors duration-[var(--duration-fast)] hover:text-white">
                 {t.hero.statementLink}
