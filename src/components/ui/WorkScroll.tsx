@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import { PixelBurst, type BurstDirection } from "@/components/ui/PixelField";
+
+const SIDES: BurstDirection[] = ["right", "down", "left", "up"];
+
 /* THE SCROLL SWITCH for the homepage's "What I do" band (Hulusi, 2026-09-07,
    picked from three scroll-driven directions: "1"). The four service rows
    scroll past on the left; the row nearest the reading line lights up and
@@ -28,6 +32,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
    reduced motion except the transitions, which the utilities switch off. */
 export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactNode[] }) {
   const [active, setActive] = useState(0);
+  const [pulse, setPulse] = useState(0);
+  const activeRef = useRef(0);
   const refs = useRef<(HTMLLIElement | null)[]>([]);
 
   useEffect(() => {
@@ -43,7 +49,14 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
         if (!el) return;
         if (el.getBoundingClientRect().top <= line) best = i;
       });
-      setActive(best);
+      if (best !== activeRef.current) {
+        activeRef.current = best;
+        setActive(best);
+        // The panel answers the switch with one soft pass, from a different
+        // side each time - the pixel language fires when something changes,
+        // never as wallpaper.
+        setPulse((n) => n + 1);
+      }
     };
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(update);
@@ -82,6 +95,9 @@ export function WorkScroll({ rows, panels }: { rows: ReactNode[]; panels: ReactN
       </ol>
       <div className="hidden lg:block">
         <div className="relative min-h-[24rem] lg:sticky lg:top-[calc(50vh-12rem)]">
+          <div aria-hidden className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[28px]">
+            <PixelBurst pulse={pulse} color="#ffffff" opacity={0.4} direction={SIDES[active % SIDES.length]} />
+          </div>
           {panels.map((panel, i) => (
             <div
               key={i}

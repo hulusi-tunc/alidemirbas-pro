@@ -54,6 +54,8 @@ type Grain = {
   maxSize: number;
 };
 
+export type BurstDirection = "right" | "left" | "down" | "up" | "center";
+
 export function PixelBurst({
   /** Bump to request a burst. 0 (or an unchanged value) never fires; a bump
       during a running sweep is absorbed (see RE-FIRE THROTTLING above). */
@@ -62,10 +64,20 @@ export function PixelBurst({
   /** The primary button's hover fill (neutral-900) - dark pixels crossing
       the brand-blue plate, exactly the button's own dissolve pairing. */
   color = "#2a2a2a",
+  /** Where the front travels from (2026-09-07, Hulusi: "you applied the
+      same left-to-right everywhere; vary it, don't overuse it"). The plate
+      keeps `right`; a photograph picks the direction its subject suggests
+      - the sky coming down, the field rising, the person's side. */
+  direction = "right",
+  /** Multiplies the grain palette's alphas. 1 is the plate's full-density
+      answer; a photograph wants a softer pass (0.4-0.6) in a light colour. */
+  opacity = 1,
 }: {
   pulse: number;
   gap?: number;
   color?: string;
+  direction?: BurstDirection;
+  opacity?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fireRef = useRef<() => void>(() => {});
@@ -98,6 +110,20 @@ export function PixelBurst({
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+      const progress = (x: number, y: number) => {
+        switch (direction) {
+          case "left":
+            return 1 - x / width;
+          case "down":
+            return y / height;
+          case "up":
+            return 1 - y / height;
+          case "center":
+            return Math.hypot(x - width / 2, y - height / 2) / Math.hypot(width / 2, height / 2);
+          default:
+            return x / width;
+        }
+      };
       const next: Grain[] = [];
       for (let x = 0; x < width; x += cell) {
         for (let y = 0; y < height; y += cell) {
@@ -105,7 +131,7 @@ export function PixelBurst({
             x,
             y,
             alpha: PALETTE_ALPHAS[Math.floor(Math.random() * PALETTE_ALPHAS.length)],
-            delay: (x / width) * SWEEP_TICKS + random(0, JITTER_TICKS),
+            delay: progress(x, y) * SWEEP_TICKS + random(0, JITTER_TICKS),
             age: 0,
             maxSize: random(cell * 0.4, cell),
           });
@@ -149,7 +175,7 @@ export function PixelBurst({
         }
         if (size <= 0) continue;
         const offset = (cell - size) / 2;
-        ctx.globalAlpha = alpha;
+        ctx.globalAlpha = alpha * opacity;
         ctx.fillRect(g.x + offset, g.y + offset, size, size);
       }
 
@@ -176,7 +202,7 @@ export function PixelBurst({
       cancelAnimationFrame(frame);
       ctx.clearRect(0, 0, width, height);
     };
-  }, [gap, color]);
+  }, [gap, color, direction, opacity]);
 
   useEffect(() => {
     if (pulse > 0) fireRef.current();

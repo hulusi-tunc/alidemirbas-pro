@@ -27,7 +27,7 @@ export function HomeCta({ t }: { t: (typeof copy)[Lang] }) {
         <Image src="/lab/frames/google-ads-change-history-dashboard.jpg" alt="" fill sizes="100vw" className="object-cover object-bottom" />
         <span className="absolute inset-0 bg-gradient-to-r from-ink-950/85 via-ink-950/55 to-ink-950/35" />
         <span className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink-950/70 to-transparent" />
-        <CtaBurst className="z-0" color="#f4f6fa" />
+        <CtaBurst className="z-0" color="#f4f6fa" opacity={0.45} direction="left" />
       </div>
 
       <div className="altor-container">

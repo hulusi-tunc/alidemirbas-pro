@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { PixelBurst } from "@/components/ui/PixelField";
+import { PixelBurst, type BurstDirection } from "@/components/ui/PixelField";
 
 /* The closing plate's answer. The calculator plate fires a pixel
    wavefront when its number changes; this plate has no number, so it
@@ -18,7 +18,19 @@ import { PixelBurst } from "@/components/ui/PixelField";
    a photograph arrives the way the plate does. `className` lets the
    caller place it above an image inside a masked layer (`z-0`) instead of
    the default `-z-10` under a plate's content. */
-export function CtaBurst({ className = "-z-10", color }: { className?: string; /** Grain colour; default is the button's neutral-900. Light plates want dark grain, the night band wants paper. */ color?: string }) {
+export function CtaBurst({
+  className = "-z-10",
+  color,
+  direction,
+  opacity,
+}: {
+  className?: string;
+  /** Grain colour; default is the button's neutral-900 on the blue plate. A
+      photograph takes white at a low opacity - dark grain read as dirt. */
+  color?: string;
+  direction?: BurstDirection;
+  opacity?: number;
+}) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [pulse, setPulse] = useState(0);
 
@@ -58,7 +70,7 @@ export function CtaBurst({ className = "-z-10", color }: { className?: string; /
 
   return (
     <div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 ${className}`}>
-      <PixelBurst pulse={pulse} color={color} />
+      <PixelBurst pulse={pulse} color={color} direction={direction} opacity={opacity} />
     </div>
   );
 }

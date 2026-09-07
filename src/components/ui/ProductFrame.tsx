@@ -1,7 +1,6 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 
-import { CtaBurst } from "@/components/ui/CtaBurst";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
@@ -60,8 +59,6 @@ export function ProductFrame({
           colour from the project. Later in DOM than the image, same
           negative layer, so it paints over the image and under the grain. */}
       <div aria-hidden className={clsx("absolute inset-0 -z-10 opacity-70 mix-blend-color", WASH[accent.hue] ?? WASH.neutral)} />
-      {/* The pixel sweep on arrival and on pointer enter - the plate answers like the closing plate does. */}
-      <CtaBurst />
       <div className={clsx("relative", inset === "md" ? "p-4 sm:p-8 md:p-10" : inset === "sm" ? "p-3 sm:p-5 md:p-6" : "")}>{children}</div>
     </div>
   );
