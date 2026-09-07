@@ -36,6 +36,19 @@ function ToolCard({ tool, tag }: { tool: Tool; tag: string }) {
     2026-09-07: "use different pictures we created already"). */
 type Plate = "claude-lifecycle" | "numerspace" | "dashboard-builder" | "lifecycle-card-archive" | "ab-test-playbook";
 
+/** How the plate dissolves out of the paper above it. The track's sky is
+    pale enough to arrive over half the band; the bales' field sits
+    higher and warmer, so it needs the whole band to come in without a
+    visible edge (Hulusi, 2026-09-07: "smooth transition the background
+    image from the white"). */
+const RAMP: Record<Plate, string> = {
+  "claude-lifecycle": "[mask-image:linear-gradient(to_bottom,transparent_8%,black_55%)]",
+  numerspace: "[mask-image:linear-gradient(to_bottom,transparent_0%,rgb(0_0_0/0.35)_45%,black_85%)]",
+  "dashboard-builder": "[mask-image:linear-gradient(to_bottom,transparent_0%,black_75%)]",
+  "lifecycle-card-archive": "[mask-image:linear-gradient(to_bottom,transparent_0%,black_75%)]",
+  "ab-test-playbook": "[mask-image:linear-gradient(to_bottom,transparent_0%,black_75%)]",
+};
+
 export function StackShowcase({ lang, plate = "claude-lifecycle" }: { lang: Lang; plate?: Plate }) {
   const t = copy[lang];
   const tools = stackOnePerCategory();
@@ -46,7 +59,7 @@ export function StackShowcase({ lang, plate = "claude-lifecycle" }: { lang: Lang
           make the cards glassy"): a meadow plate rising from the bottom
           under a mask so the heading stays on paper and the cards sit on
           the field, frosted the way the hero tiles are. */}
-      <div aria-hidden className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_8%,black_55%)]">
+      <div aria-hidden className={`absolute inset-0 -z-10 ${RAMP[plate]}`}>
         <Image src={`/lab/frames/${plate}.jpg`} alt="" fill sizes="100vw" className="object-cover object-bottom" />
       </div>
       <div className="altor-container">
