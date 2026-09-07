@@ -1,6 +1,7 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, CircleSlash, MapPin } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CircleCheck, CircleSlash, CircleX, Clock, Mail, MapPin, Radio } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { CtaBurst } from "@/components/ui/CtaBurst";
@@ -13,10 +14,8 @@ import { SectionHeading } from "@/components/ui/Section";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
 import { withJourneyCount } from "@/lib/archive";
-import { JOURNEY_ROWS } from "@/lib/canonical-view";
 import { DASHBOARD_REAL } from "@/lib/lab-material";
 import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
-import JourneyTopologyPreview from "@/components/ui/JourneyTopologyPreview";
 import {
   getFeaturedCalcEntries,
   LIVE_CALCULATOR_SLUGS,
@@ -139,19 +138,53 @@ const HERO_TILES = ["lifecycle-card-archive", "ab-test-playbook", "numerspace"] 
    greyscale portrait under a blue multiply, the spec table and the photo
    frame that came before it are gone. */
 /* The miniature inside each product tile - one real thing from the tool,
-   not an illustration: a journey's actual graph (the third-largest in the
-   library, so the Lab index's largest is not repeated), the A/B pair drawn
+   not an illustration: a journey drawn as its steps, the A/B pair drawn
    as two carts with the tested element ringed, and the calculator
    categories on the same endless marquee the Lab index uses. Hulusi,
    2026-09-06: "the hero feels a little dead, needs more liveliness". */
-const HERO_JOURNEY = [...JOURNEY_ROWS].sort((a, b) => b.nodeCount - a.nodeCount || a.id.localeCompare(b.id))[2];
+function MiniNode({ tint, icon, children }: { tint: string; icon: ReactNode; children: ReactNode }) {
+  return (
+    <div className="flex-1 rounded-xl bg-paper-soft p-3">
+      <div className="flex items-center gap-1.5">
+        <span className={`grid size-5 shrink-0 place-items-center rounded-full ${tint}`}>{icon}</span>
+        <span className="h-1.5 w-8 rounded-full bg-ink-950/10" />
+      </div>
+      {children}
+    </div>
+  );
+}
 
 function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
   if (slug === "lifecycle-card-archive") {
+    /* A journey the way the library defines one, in the same drawn idiom as
+       the A/B pair beside it (Hulusi, 2026-09-07: "the A/B image is amazing,
+       like how we want; the journey one is not good"): a trigger, an email
+       step with its wait, and the fork into the two kinds of exit. Real node
+       kinds, no words. */
     return (
-      <div aria-hidden className="mt-5 -mx-2 h-28 overflow-hidden rounded-xl bg-paper-soft">
-        <div className="mx-auto -mt-2 w-[150%] -translate-x-[16%]">
-          <JourneyTopologyPreview preview={HERO_JOURNEY.preview} />
+      <div aria-hidden className="mt-5 -mx-2 flex items-center gap-1.5">
+        <MiniNode tint="bg-ink-950 text-white" icon={<Radio className="size-3" />}>
+          <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
+          <span className="mt-1.5 block h-1.5 w-2/3 rounded-full bg-ink-950/10" />
+        </MiniNode>
+        <span className="h-px w-2.5 shrink-0 bg-ink-300" />
+        <MiniNode tint="bg-primary-600 text-white" icon={<Mail className="size-3" />}>
+          <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
+          <span className="mt-2 inline-flex items-center gap-1 rounded-md bg-paper px-1.5 py-0.5 ring-1 ring-ink-950/[0.06]">
+            <Clock className="size-3 text-ink-500" />
+            <span className="h-1.5 w-5 rounded-full bg-ink-950/10" />
+          </span>
+        </MiniNode>
+        <span className="h-px w-2.5 shrink-0 bg-ink-300" />
+        <div className="flex flex-1 flex-col gap-1.5">
+          <span className="flex items-center gap-1.5 rounded-xl bg-paper-soft px-2.5 py-2">
+            <CircleCheck className="size-3.5 shrink-0 text-emerald-600" />
+            <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
+          </span>
+          <span className="flex items-center gap-1.5 rounded-xl bg-paper-soft px-2.5 py-2">
+            <CircleX className="size-3.5 shrink-0 text-rose-600" />
+            <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
+          </span>
         </div>
       </div>
     );
