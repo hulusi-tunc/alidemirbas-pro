@@ -375,7 +375,7 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
       : [{ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period }],
   );
   return (
-    <section id="bio" className="bg-paper py-16 md:py-20">
+    <section id="bio" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
         {/* The statement takes the full measure (a 30ch column wrapped it to
             three lines at 1440 - the heading rule). The paragraph and its
@@ -402,36 +402,39 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
             drawing itself once the band is in view, the rows arriving one
             after another behind it, a pulse on the node of the role he
             holds today (globals.css, THE BIO TIMELINE; off under reduced
-            motion). */}
-        <div className="mt-14">
-          <p className="text-sm font-medium text-ink-500">{t.about.experience}</p>
-          <div className="mt-6 hidden lg:block">
-            <BioTrack rows={[...rows].reverse()} />
-          </div>
-          <Reveal delay={80} className="lg:hidden">
-            <ol className="relative mt-4 flex list-none flex-col p-0 [--bio-rail:0.375rem] md:[--bio-rail:11rem]">
-              <span aria-hidden className="bio-rail absolute top-3 bottom-3 left-[var(--bio-rail)] w-px" />
-              {rows.map((r, i) => (
-                <li
-                  key={r.key}
-                  className="bio-row relative grid grid-cols-[minmax(0,1fr)] gap-y-1.5 py-5 pl-8 md:grid-cols-[9.5rem_minmax(0,1fr)] md:gap-x-10 md:pl-0"
-                  style={{ "--i": i } as React.CSSProperties}
-                >
-                  <span
-                    aria-hidden
-                    className={`absolute top-[1.65rem] left-[calc(var(--bio-rail)-0.3125rem)] size-2.5 rounded-full ring-4 ring-paper ${i === 0 ? "bio-node-live bg-primary-600" : "bg-ink-300"}`}
-                  />
-                  <span className="text-sm whitespace-nowrap text-ink-500 tabular-nums md:pt-1 md:text-right">{r.period}</span>
-                  <div className="min-w-0">
-                    <Image src={r.logo} alt={r.co} width={140} height={28} className="h-7 w-auto max-w-[9rem] object-contain object-left" />
-                    <span className="mt-2.5 block text-lg leading-snug font-semibold text-balance text-ink-950">{r.role}</span>
-                    <span className="mt-0.5 block text-sm text-ink-600">{r.co}</span>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </Reveal>
+            motion). It sits in the wide container, not the page's: seven
+            roles side by side were cramped on the 78rem measure (Hulusi,
+            2026-09-07: "looks so compressed, it can be wider, break the max
+            width there"). */}
+      </div>
+      <div className="altor-container-wide mt-16">
+        <p className="text-sm font-medium text-ink-500">{t.about.experience}</p>
+        <div className="mt-6 hidden lg:block">
+          <BioTrack rows={[...rows].reverse()} />
         </div>
+        <Reveal delay={80} className="lg:hidden">
+          <ol className="relative mt-4 flex list-none flex-col p-0 [--bio-rail:0.375rem] md:[--bio-rail:11rem]">
+            <span aria-hidden className="bio-rail absolute top-3 bottom-3 left-[var(--bio-rail)] w-px" />
+            {rows.map((r, i) => (
+              <li
+                key={r.key}
+                className="bio-row relative grid grid-cols-[minmax(0,1fr)] gap-y-1.5 py-5 pl-8 md:grid-cols-[9.5rem_minmax(0,1fr)] md:gap-x-10 md:pl-0"
+                style={{ "--i": i } as React.CSSProperties}
+              >
+                <span
+                  aria-hidden
+                  className={`absolute top-[1.65rem] left-[calc(var(--bio-rail)-0.3125rem)] size-2.5 rounded-full ring-4 ring-paper ${i === 0 ? "bio-node-live bg-primary-600" : "bg-ink-300"}`}
+                />
+                <span className="text-sm whitespace-nowrap text-ink-500 tabular-nums md:pt-1 md:text-right">{r.period}</span>
+                <div className="min-w-0">
+                  <Image src={r.logo} alt={r.co} width={140} height={28} className="h-7 w-auto max-w-[9rem] object-contain object-left" />
+                  <span className="mt-2.5 block text-lg leading-snug font-semibold text-balance text-ink-950">{r.role}</span>
+                  <span className="mt-0.5 block text-sm text-ink-600">{r.co}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
       </div>
     </section>
   );
@@ -450,7 +453,7 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const entries = getFeaturedCalcEntries(lang, 6);
 
   return (
-    <section id="calculators" className="bg-paper py-16 md:py-20">
+    <section id="calculators" className="border-t border-line-soft bg-paper py-20 md:py-28">
       <div className="altor-container">
         <SectionHeading
           eyebrow={t.home.calc.eyebrow}

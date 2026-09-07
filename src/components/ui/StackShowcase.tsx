@@ -35,7 +35,7 @@ export function StackShowcase({ lang }: { lang: Lang }) {
   const tools = stackOnePerCategory();
 
   return (
-    <section className="relative isolate overflow-hidden bg-paper-soft py-16 md:py-20">
+    <section className="relative isolate overflow-hidden bg-paper-soft py-20 md:py-28">
       {/* THE GROUND (Hulusi, 2026-09-07: "put some background here and
           make the cards glassy"): the journey builder's meadow plate - the
           one frame the homepage had not used yet - rising from the bottom
