@@ -17,7 +17,7 @@ import {
   SURFACE_ROWS,
   isHumanRoutingRow,
   type SurfaceKey,
-  withCanonicalCount,
+  withLibraryCount,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
@@ -93,14 +93,13 @@ function Hero({ lang }: { lang: Lang }) {
       <PortraitContainer className="text-center">
         <Reveal>
           <ProductMark slug="lifecycle-card-archive" lang={lang} className="mb-5" />
-          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{withCanonicalCount(c.title)}</h1>
+          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{withLibraryCount(c.title)}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{withCanonicalCount(c.sub)}</p>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{withLibraryCount(c.sub)}</p>
         </Reveal>
         <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
           <Pill href={P(lang, SURFACE_PATH["customer-journeys"])} tone="dark">{c.ctaCommunication}</Pill>
-          <Pill href={P(lang, SURFACE_PATH["operational-workflows"])} tone="outline">{c.ctaInternal}</Pill>
         </Reveal>
         <Reveal delay={180} className="mt-7">
           <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 text-[13px] text-ink-500">
@@ -224,14 +223,15 @@ function Half({
   );
 }
 
-/* The two primary destinations - what a first-time visitor opens the
-   library looking for. The other two surfaces (below, in ReferenceStrip)
-   are real, live and just as searchable, but neither is a thing a
-   practitioner browses to on its own: one is silent state a communicating
-   journey depends on, the other is delivery/retry machinery every journey
-   runs on. Route unchanged, this is a presentation weight change only -
-   see research/journey-library-user-taxonomy-audit.md. */
-const PRIMARY_SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys", "operational-workflows"];
+/* The one primary destination - what a first-time visitor opens the
+   library into. The split used to carry two surfaces; the audit the library
+   runs on - see research/journey-library-user-taxonomy-audit.md.
+
+   Until 2026-09-05 this list had a second primary, "operational-workflows"
+   (Operations, 124 journeys). That surface was removed from the public site
+   and archived - archive/operational-workflows/README.md - so the split
+   below renders one primary card at full width. */
+const PRIMARY_SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys"];
 const SECONDARY_SURFACE_KEYS: readonly SurfaceKey[] = ["lifecycle-states", "runtime-mechanisms"];
 
 /* A secondary surface's own compact card - label, count, its own blurb,
@@ -281,9 +281,9 @@ function Split({ lang }: { lang: Lang }) {
     <ProductSection tone="paper" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={c.eyebrow} title={c.title} body={c.body} align="center" />
-        <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+        <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-6">
           {PRIMARY_SURFACE_KEYS.map((k, i) => (
-            <Half key={k} lang={lang} surfaceKey={k} tone={k === "customer-journeys" ? "dark" : "outline"} delay={80 + i * 60} />
+            <Half key={k} lang={lang} surfaceKey={k} tone="dark" delay={80 + i * 60} />
           ))}
         </div>
         <ReferenceStrip lang={lang} />
@@ -367,13 +367,12 @@ function Library({ lang }: { lang: Lang }) {
   return (
     <ProductSection tone="paper" space="xl" className="overflow-hidden">
       <PortraitContainer>
-        <ProductHeading eyebrow={c.eyebrow} title={withCanonicalCount(c.title)} body={c.body} align="center" />
+        <ProductHeading eyebrow={c.eyebrow} title={withLibraryCount(c.title)} body={c.body} align="center" />
         <Reveal delay={100} className="mt-14">
           <JourneyLibrarySpread lang={lang} />
         </Reveal>
         <Reveal delay={160} className="mt-12 flex flex-wrap justify-center gap-2.5">
           <Pill href={P(lang, SURFACE_PATH["customer-journeys"])} tone="dark">{h.ctaCommunication}</Pill>
-          <Pill href={P(lang, SURFACE_PATH["operational-workflows"])} tone="outline">{h.ctaInternal}</Pill>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -390,7 +389,6 @@ function Final({ lang }: { lang: Lang }) {
       title={c.title}
       body={c.body}
       primary={{ label: hub.ctaCommunication, href: P(lang, SURFACE_PATH["customer-journeys"]) }}
-      secondary={{ label: hub.ctaInternal, href: P(lang, SURFACE_PATH["operational-workflows"]) }}
     />
   );
 }
