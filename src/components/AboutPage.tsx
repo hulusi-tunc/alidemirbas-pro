@@ -38,6 +38,11 @@ const T = {
     linkedinLabel: "Connect on LinkedIn",
     h2: "Over eight years bridging data and marketing into measurable growth.",
     basedIn: "Based in Istanbul",
+    nowLabel: "Now",
+    city: "Istanbul",
+    languages: "Works in English and Turkish",
+    years: "8+ years",
+    yearsLine: "in digital marketing and growth",
     buildEyebrow: "Lab",
     buildTitle: "What I build outside the day job",
     buildIntro: "Open-source tools and small products around growth and lifecycle marketing. Each one started as a problem I kept running into.",
@@ -58,6 +63,11 @@ const T = {
     linkedinLabel: "LinkedIn'de bağlantı kur",
     h2: "Sekiz yıldır veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
     basedIn: "İstanbul'da",
+    nowLabel: "Şu an",
+    city: "İstanbul",
+    languages: "İngilizce ve Türkçe çalışır",
+    years: "8+ yıl",
+    yearsLine: "dijital pazarlama ve growth",
     buildEyebrow: "Lab",
     buildTitle: "İş dışında ne yapıyorum",
     buildIntro: "Growth ve lifecycle marketing etrafında açık kaynak araçlar ve küçük ürünler. Her biri, tekrar tekrar karşılaştığım bir problemle başladı.",
@@ -73,6 +83,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
   const t = T[lang];
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
+  const logos = c.about.timeline.map((e) => ({ co: e.co, logo: e.logo }));
   const rows = c.about.timeline.flatMap((e): Row[] =>
     "roles" in e
       ? e.roles.map((r) => ({ key: `${e.co}-${r.role}`, co: e.co, logo: e.logo, role: r.role, period: r.period, desc: r.desc }))
@@ -83,38 +94,95 @@ export default function AboutPage({ lang }: { lang: Lang }) {
     <>
       <SiteHeader t={c} anchorBase={home} langHref={t.langHref} />
       <main>
-        {/* THE OPENING: person and words in one screen. */}
-        <section className="bg-paper-soft py-20 md:py-28">
+        {/* THE OPENING, the homepage's way (Hulusi, 2026-09-07: "on a small
+            screen we have only a head photo - be smarter, like the home
+            page"): the statement, the lead and the two actions centred, then
+            a bento of the facts - the portrait as a tall tile (md and up only;
+            on a phone the homepage and the closing band already show him),
+            where he works now with the company's wordmark, where he is based
+            and in which languages he works, the years with the companies he
+            has worked for, and the dark tile with what he does outside the
+            day job. Every fact from content.ts's timeline or this page's own
+            copy; no filler pills. */}
+        <section className="bg-paper-soft py-16 md:py-20">
           <div className="altor-container">
-            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-16">
-              <Reveal>
-                <p className="altor-eyebrow text-ink-subtle">{c.nav.about}</p>
-                <h1 className="mt-4 max-w-3xl text-h1 text-balance text-ink-950">{t.heroText}</h1>
-                <p className="mt-6 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">
-                  {t.introPrefix}
-                  <a href={t.companyHref} target="_blank" rel="noreferrer" className="font-medium text-ink-950 underline decoration-ink-300 underline-offset-4 transition-colors duration-[var(--duration-fast)] hover:decoration-ink-950">
-                    {t.company}
-                  </a>
-                  {t.introSuffix}
-                </p>
-                <p className="mt-4 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{t.outsideWork}</p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <ButtonLink href={t.exploreHref} variant="primary" size="md">
-                    {t.exploreLabel}
-                    <ArrowRight aria-hidden className="size-4" />
-                  </ButtonLink>
-                  <ButtonLink href="https://www.linkedin.com/in/ali-demirbas/" variant="outline" size="md">
-                    {t.linkedinLabel}
-                    <ArrowUpRight aria-hidden className="size-4" />
-                  </ButtonLink>
-                </div>
-              </Reveal>
-              <Reveal delay={100} className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[28px] bg-paper lg:max-w-none">
-                <Image src="/portrait.jpg" alt="Ali Demirbaş" fill sizes="(min-width: 1024px) 26rem, 24rem" priority className="object-cover" />
+            <Reveal className="mx-auto max-w-3xl text-center">
+              <p className="altor-eyebrow text-ink-subtle">{c.nav.about}</p>
+              <h1 className="mx-auto mt-4 max-w-4xl text-h1 text-balance text-ink-950">{t.heroText}</h1>
+              <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-pretty text-ink-muted">
+                {t.introPrefix}
+                <a href={t.companyHref} target="_blank" rel="noreferrer" className="font-medium text-ink-950 underline decoration-ink-300 underline-offset-4 transition-colors duration-[var(--duration-fast)] hover:decoration-ink-950">
+                  {t.company}
+                </a>
+                {t.introSuffix}
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <ButtonLink href={t.exploreHref} variant="primary" size="md">
+                  {t.exploreLabel}
+                  <ArrowRight aria-hidden className="size-4" />
+                </ButtonLink>
+                <ButtonLink href="https://www.linkedin.com/in/ali-demirbas/" variant="outline" size="md">
+                  {t.linkedinLabel}
+                  <ArrowUpRight aria-hidden className="size-4" />
+                </ButtonLink>
+              </div>
+            </Reveal>
+
+            <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <Reveal delay={200} className="relative hidden overflow-hidden rounded-[28px] bg-paper md:row-span-2 md:block md:min-h-[26rem]">
+                <Image src="/portrait.jpg" alt="Ali Demirbaş" fill sizes="(min-width: 1024px) 24rem, 50vw" priority className="object-cover" />
                 <p className="absolute bottom-5 left-5 flex items-center gap-1.5 rounded-full bg-paper/95 px-3.5 py-2 text-sm font-medium text-ink-950 ring-1 ring-ink-950/[0.06]">
                   <MapPin aria-hidden className="size-4 text-primary-600" />
                   {t.basedIn}
                 </p>
+              </Reveal>
+
+              {/* Now: the first timeline entry, its wordmark bare. */}
+              <Reveal delay={260} className="flex">
+                <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                  <p className="altor-eyebrow text-ink-subtle">{t.nowLabel}</p>
+                  <Image src={rows[0].logo} alt={rows[0].co} width={140} height={28} className="mt-4 h-7 w-auto max-w-[9rem] object-contain object-left" />
+                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{rows[0].role}</p>
+                  <p className="mt-1 text-sm text-ink-muted">{rows[0].co}</p>
+                  <p className="mt-auto pt-5 text-sm text-ink-subtle tabular-nums">{rows[0].period}</p>
+                </div>
+              </Reveal>
+
+              {/* Where. */}
+              <Reveal delay={320} className="flex">
+                <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                  <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-primary-50 text-primary-700">
+                    <MapPin className="size-5" />
+                  </span>
+                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{t.city}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.languages}</p>
+                </div>
+              </Reveal>
+
+              {/* The years, and the companies they were spent at. */}
+              <Reveal delay={380} className="flex">
+                <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                  <p className="text-h2 text-ink-950 tabular-nums">{t.years}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.yearsLine}</p>
+                  <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
+                    {logos.map((l) => (
+                      <Image key={l.co} src={l.logo} alt={l.co} width={100} height={20} className="h-5 w-auto max-w-[6rem] object-contain opacity-80" />
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* Outside the day job, on the night plate. */}
+              <Reveal delay={440} className="flex">
+                <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-[28px] bg-ink-950 p-6 text-white">
+                  <Image src="/lab/frames/google-ads-change-history-dashboard.jpg" alt="" aria-hidden fill sizes="(min-width: 1024px) 24rem, 50vw" className="-z-20 origin-bottom scale-[1.15] object-cover object-bottom" />
+                  <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/85 via-ink-950/45 to-ink-950/30" />
+                  <p className="text-lg leading-snug font-semibold text-balance">{t.outsideWork}</p>
+                  <Link href={t.exploreHref} className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-white/80 transition-colors duration-[var(--duration-fast)] hover:text-white">
+                    {t.exploreLabel}
+                    <ArrowRight aria-hidden className="size-4" />
+                  </Link>
+                </div>
               </Reveal>
             </div>
           </div>
