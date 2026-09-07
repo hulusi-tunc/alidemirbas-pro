@@ -8,7 +8,7 @@ import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
-import { CurveTimeline } from "@/components/ui/CurveTimeline";
+import { ExperienceSpiral } from "@/components/ui/ExperienceSpiral";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { getAllBlogPosts } from "@/lib/blog";
 import { withJourneyCount } from "@/lib/archive";
@@ -236,13 +236,14 @@ export default function AboutPage({ lang }: { lang: Lang }) {
           </div>
         </section>
 
-        {/* THE RECORD: one curved path down the middle, the roles at its bends. */}
+        {/* THE RECORD: the roles on a slowly turning spiral. */}
         <section className="bg-paper-soft py-20 md:py-28">
           <div className="altor-container">
             <SectionHeading eyebrow={c.about.experience} title={t.h2} align="center" />
-            {/* The curved, scroll-driven record (ui/CurveTimeline.tsx). */}
-            <div className="mt-14">
-              <CurveTimeline items={rows} />
+            {/* The spiral record (ui/ExperienceSpiral.tsx): the roles on a
+                turning coil, the one in front spelled out beneath. */}
+            <div className="mt-12">
+              <ExperienceSpiral items={rows} label={c.about.experience} />
             </div>
           </div>
         </section>
