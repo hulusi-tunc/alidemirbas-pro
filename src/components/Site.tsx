@@ -11,6 +11,7 @@ import { LabNavDropdown } from "@/components/ui/LabNavDropdown";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
+import { BioTrack } from "@/components/ui/BioTrack";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
 import { Work } from "@/components/HomeWork";
@@ -375,29 +376,37 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
     <section id="bio" className="bg-paper py-16 md:py-20">
       <div className="altor-container">
         {/* The statement takes the full measure (a 30ch column wrapped it to
-            three lines at 1440 - the heading rule); the paragraph and the
-            timeline share the row under it. */}
+            three lines at 1440 - the heading rule). The paragraph and its
+            button share the next row; the timeline takes the full width
+            under them, because from lg it runs horizontally (Hulusi,
+            2026-09-07) and seven roles need the whole measure. */}
         <SectionHeading eyebrow={t.about.eyebrow} title={t.home.bio.title} />
-        <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
-          <Reveal>
-            <p className="max-w-[48ch] text-lg leading-relaxed text-pretty text-ink-600">{t.about.teaserLead}</p>
-            <div className="mt-8">
-              <ButtonLink href={t.nav.aboutHref} variant="outline" size="md">
-                {t.about.moreLink}
-                <ArrowRight aria-hidden className="size-4" />
-              </ButtonLink>
-            </div>
-          </Reveal>
-          {/* THE TIMELINE (Hulusi, 2026-09-06: "logos are so small, don't
-              put them in a box, some fancy animation here, maybe a
-              timeline"). The wordmarks bare at 28px, one rail that draws
-              itself in brand blue when the band scrolls into view, the rows
-              arriving one after another behind it, and a pulse on the node
-              of the role he holds today. All CSS (globals.css, THE BIO
-              TIMELINE), keyed off the Reveal wrapper; off under reduced
-              motion. */}
-          <Reveal delay={80}>
-            <p className="text-sm font-medium text-ink-500">{t.about.experience}</p>
+        <Reveal className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+          <p className="max-w-[48ch] text-lg leading-relaxed text-pretty text-ink-600">{t.about.teaserLead}</p>
+          <div className="shrink-0">
+            <ButtonLink href={t.nav.aboutHref} variant="outline" size="md">
+              {t.about.moreLink}
+              <ArrowRight aria-hidden className="size-4" />
+            </ButtonLink>
+          </div>
+        </Reveal>
+        {/* THE TIMELINE (Hulusi, 2026-09-06: "logos are so small, don't
+            put them in a box, some fancy animation here, maybe a
+            timeline"; 2026-09-07: horizontal, with a path tracker). From
+            lg it is the path in ui/BioTrack.tsx: the roles in a row, oldest
+            first, a hairline under their nodes that fills in brand blue as
+            the band scrolls, lighting each role as it passes. Below lg it
+            stays the vertical rail: the wordmarks bare at 28px, the rail
+            drawing itself once the band is in view, the rows arriving one
+            after another behind it, a pulse on the node of the role he
+            holds today (globals.css, THE BIO TIMELINE; off under reduced
+            motion). */}
+        <div className="mt-14">
+          <p className="text-sm font-medium text-ink-500">{t.about.experience}</p>
+          <div className="mt-6 hidden lg:block">
+            <BioTrack rows={[...rows].reverse()} />
+          </div>
+          <Reveal delay={80} className="lg:hidden">
             <ol className="relative mt-4 flex list-none flex-col p-0 [--bio-rail:0.375rem] md:[--bio-rail:11rem]">
               <span aria-hidden className="bio-rail absolute top-3 bottom-3 left-[var(--bio-rail)] w-px" />
               {rows.map((r, i) => (

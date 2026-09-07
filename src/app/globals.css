@@ -1035,6 +1035,53 @@
     }
   }
 
+  /* THE PATH TRACKER (ui/BioTrack.tsx, from lg). The hairline under the
+     nodes carries a blue fill whose length is the band's scroll progress
+     (`--p`, 0 to 1, scaled by `--end` so it stops at the last node) and a
+     small head at its tip. A node the head has passed turns blue and its
+     role comes up to full ink; the ones ahead sit back, but only once JS
+     has mounted (`data-js`) so the server HTML is a finished list. */
+  .bio-track-rail {
+    background: var(--color-line);
+  }
+
+  .bio-track-fill {
+    width: calc(var(--p, 0) * 100%);
+    background: var(--color-primary-500);
+  }
+
+  .bio-track-head {
+    left: calc(var(--p, 0) * 100%);
+    background: var(--color-primary-500);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-primary-500) 22%, transparent);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out-soft);
+  }
+
+  /* The head shows only while the path is under way; at rest it would sit
+     on the first node, and once complete the last node's pulse takes over. */
+  .bio-track[data-state="moving"] .bio-track-head {
+    opacity: 1;
+  }
+
+  .bio-track-node {
+    background: var(--color-ink-300);
+    transition: background-color var(--duration-base) var(--ease-out-soft);
+  }
+
+  .bio-track li[data-passed] .bio-track-node {
+    background: var(--color-primary-600);
+  }
+
+  .bio-track[data-js] li {
+    opacity: 0.45;
+    transition: opacity var(--duration-slow) var(--ease-out-soft);
+  }
+
+  .bio-track[data-js] li[data-passed] {
+    opacity: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .bio-row,
     .altor-reveal[data-revealed="true"] .bio-row {
@@ -1051,6 +1098,12 @@
 
     .bio-node-live::before {
       animation: none;
+    }
+
+    .bio-track-head,
+    .bio-track-node,
+    .bio-track[data-js] li {
+      transition: none;
     }
   }
 
