@@ -509,8 +509,8 @@ export const copy = {
       metaTitle: "Lifecycle Marketing Journey Builder - Ali Demirbaş",
       metaDesc: "A canonical library of lifecycle journeys as state machines: triggers, branches, waits, handoffs and exits - not campaign templates.",
       eyebrow: "Lab / Journey Builder",
-      title: "Lifecycle journeys as state machines, not campaign templates.",
-      sub: "Every journey here is a graph: what starts it and what deliberately doesn't, where it forks and what each arm means, how long it waits and what happens when that runs out, and which lifecycle owns the person next.",
+      title: "Journey design from start to finish.",
+      sub: "Each journey defines what starts it, where it branches, how long it waits, and what should happen next.",
       proof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
       canvas: {
         nodes: "nodes",
@@ -558,36 +558,37 @@ export const copy = {
         moreCategories: "more",
       },
       whyDifferent: {
-        eyebrow: "Why claude-lifecycle",
-        title: "Three decisions the engine makes before it writes a journey",
+        eyebrow: "Why Journey Architecture",
+        title: "Journey structure adapts to the available data.",
+        body: "The scope of each journey depends on the available events, parameters, and channel setup. When the data supports it, the journey can include more detailed logic. When it does not, the system keeps the structure simpler instead of assuming data exists.",
         feature1: {
-          title: "Data quality is scored, not assumed",
-          body: "A 0-100 Data Quality Score decides journey depth before a single journey is written: under 40 buys simple 3-5 step flows, 40-69 standard 4-7 step flows with one branch, 70+ unlocks branched 7-12 step behavioral journeys. The same portfolio never ships to a three-event startup and a mature e-commerce store.",
+          title: "More data allows for more detailed journeys.",
+          body: "The existing event and parameter structure is checked first. When enough data is available, more conditions and branches can be added. When it is limited, the journey stays simpler.",
         },
         feature2: {
-          title: "A portfolio, not a listicle",
-          body: "Eligibility is computed per pattern from required-event signatures across the engine's documented pattern library - abandoned cart, trial conversion, winback and more - each scaling its own depth and channels to what your data actually supports. What your data can't support yet becomes a tracking plan naming exactly which event unlocks it, not a locked feature.",
+          title: "Journeys are designed as part of a larger lifecycle.",
+          body: "Each journey is treated as part of the same lifecycle structure. The available events and channel setup determine which flows can be built.",
         },
         feature3: {
-          title: "Copy is an engineered artifact",
-          body: "Every channel carries hard limits, not house style guesses: email subject 20-50 characters, SMS 160 GSM-7 characters, push title 40 / body 120. A reviewer agent checks each message against its channel's rules before you see it.",
+          title: "Each channel has its own rules.",
+          body: "Email, SMS, and push each have different content requirements. Character limits, field structures, and channel constraints vary, so content is checked against the rules of the channel where it will be used.",
         },
       },
       carousel: {
         eyebrow: "The pattern engine",
-        title: "One engine, a different portfolio for every business",
-        body: "26 documented blueprints are the knowledge base, not a fixed catalog - each one scales its own depth (3 to 12 steps), branches and channels to what your data actually supports, so no two businesses get the same output. Three are worked out below exactly as the engine's own knowledge base defines them.",
+        title: "The same framework produces different results with different data.",
+        body: "The pattern library can stay the same, but every business has a different event structure, channel setup, and level of data quality. As a result, the journeys that can be used and the level of detail they support vary by dataset.",
       },
       faq: {
         eyebrow: "FAQ",
         title: "Frequently asked",
         items: [
           {
-            q: "What is claude-lifecycle?",
+            q: "What is Journey Architecture?",
             a: "An open-source library that structures customer journeys as explicit states, branches, waits, handoffs and exits, so lifecycle planning does not start from a blank canvas.",
           },
           {
-            q: "Is claude-lifecycle a journey builder or a journey library?",
+            q: "Is Journey Architecture a journey builder or a journey library?",
             a: "Primarily a library. The journeys define lifecycle logic and reusable patterns that you adapt to your own tools, channels and data model.",
           },
           {
@@ -611,7 +612,7 @@ export const copy = {
             a: "Validation checks the structural rules: entry states, condition branches, bounded waits, handoffs and explicit exits. It catches incomplete lifecycle logic before implementation.",
           },
           {
-            q: "How do I use claude-lifecycle?",
+            q: "How do I use Journey Architecture?",
             a: "Open the GitHub repository, read the journeys, and use the project with Claude Code to adapt and implement the patterns for your own product.",
           },
         ],
@@ -1254,8 +1255,8 @@ export const copy = {
       metaTitle: "Lifecycle Marketing Journey Builder - Ali Demirbaş",
       metaDesc: "Lifecycle journey'lerin state machine olarak kanonik kütüphanesi: tetikleyiciler, dallanmalar, beklemeler, devirler ve çıkışlar. Kampanya şablonu değil.",
       eyebrow: "Lab / Journey Builder",
-      title: "Kampanya şablonu değil, state machine olarak lifecycle journey'ler.",
-      sub: "Buradaki her journey bir graf: onu ne başlatır ve bilinçli olarak ne başlatmaz, nerede çatallanır ve her kolun anlamı nedir, ne kadar bekler ve o süre dolduğunda ne olur, kişinin sahipliği sonra hangi lifecycle'a geçer.",
+      title: "Baştan sona journey kurgusu.",
+      sub: "Her journey; neyle başladığını, hangi koşullarda dallandığını, ne kadar beklediğini ve sonrasında ne olması gerektiğini açıkça tanımlar.",
       proof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
       canvas: {
         nodes: "düğüm",
@@ -1303,36 +1304,37 @@ export const copy = {
         moreCategories: "kategori daha",
       },
       whyDifferent: {
-        eyebrow: "Neden claude-lifecycle",
-        title: "claude-lifecycle neden farklı",
+        eyebrow: "Neden Journey Architecture",
+        title: "Journey yapısını veriye göre kurar.",
+        body: "Journey'nin kapsamı, mevcut event'lere, parametrelere ve kanal altyapısına göre şekillenir. Veri yeterliyse daha detaylı akışlar kurulabilir; eksikse sistem bunu varsaymak yerine daha basit bir yapı oluşturur.",
         feature1: {
-          title: "Veri kalitesi ölçülür, varsayılmaz",
-          body: "0-100 arası bir Data Quality Score, tek bir journey yazılmadan önce derinliği belirler: 40'ın altı basit 3-5 adımlık akış, 40-69 arası tek dallanmalı standart 4-7 adım, 70 ve üzeri davranışsal dallanmalı 7-12 adımlık journey'lerin kapısını açar. Aynı portföy üç event'i olan bir startup'a da olgun bir e-ticaret sitesine de gitmez.",
+          title: "Veri yeterliyse journey daha detaylı kurulur.",
+          body: "Önce mevcut event ve parametre yapısı kontrol edilir. Yeterli veri varsa daha fazla koşul ve dal eklenir; eksikse journey daha sade tutulur.",
         },
         feature2: {
-          title: "Liste değil, portföy",
-          body: "Uygunluk, motorun dokümante edilmiş pattern kütüphanesindeki her pattern (terk edilmiş sepet, deneme dönüşümü, winback ve diğerleri) için gerekli event imzasından hesaplanır. Her pattern derinliğini ve kanallarını verinin gerçekten desteklediği kadar açar. Verinin henüz desteklemediği şey kilitli bir özellik değil, hangi event'in onu açacağını söyleyen bir tracking plan olur.",
+          title: "Journey'ler birbirinden bağımsız çalışmaz.",
+          body: "Her journey, aynı lifecycle yapısının bir parçası olarak ele alınır. Hangi akışların kurulabileceği, mevcut event'lere ve kanal altyapısına göre belirlenir.",
         },
         feature3: {
-          title: "Copy, mühendislik ürünüdür",
-          body: "Her kanalın kendi kesin kuralı vardır, tahmine dayalı üslup değil: e-posta konu başlığı 20-50 karakter, SMS 160 GSM-7 karakter, push başlık 40 / gövde 120 karakter. Bir reviewer agent, her mesajı sen görmeden önce kendi kanalının kurallarına göre denetler.",
+          title: "Her kanalın kendi kuralları var.",
+          body: "Email, SMS ve push için içerik gereksinimleri farklıdır. Karakter sınırları, alan yapısı ve kanal gereksinimleri değişir. Bu yüzden içerik, kullanılacağı kanala göre ayrı kurallarla kontrol edilir.",
         },
       },
       carousel: {
         eyebrow: "Pattern motoru",
-        title: "Tek motor, her işletme için farklı bir portföy",
-        body: "26 dokümante edilmiş blueprint sabit bir katalog değil, bilgi tabanı. Her biri derinliğini (3 ila 12 adım), dallanmasını ve kanallarını verinin desteklediği kadar açar; bu yüzden iki işletme aynı çıktıyı almaz. Üç örnek, motorun kendi bilgi tabanında tanımlandığı haliyle.",
+        title: "Aynı yapı, farklı veri setlerinde farklı sonuç verir.",
+        body: "Pattern kütüphanesi sabit olabilir ama her işletmenin event yapısı, kanalları ve veri kalitesi farklıdır. Bu nedenle kullanılabilir journey'ler ve detay seviyeleri veri setine göre değişir.",
       },
       faq: {
         eyebrow: "SSS",
         title: "Sık sorulanlar",
         items: [
           {
-            q: "claude-lifecycle nedir?",
-            a: "claude-lifecycle, müşteri journey'lerini açık durumlar, dallar, beklemeler, devirler ve çıkışlar olarak yapılandıran açık kaynaklı bir lifecycle mimarisi kütüphanesi. Her otomasyona boş sayfadan başlamak yerine hazır bir yapıdan başlarsın.",
+            q: "Journey Architecture nedir?",
+            a: "Journey Architecture, müşteri journey'lerini açık durumlar, dallar, beklemeler, devirler ve çıkışlar olarak yapılandıran açık kaynaklı bir lifecycle mimarisi kütüphanesi. Her otomasyona boş sayfadan başlamak yerine hazır bir yapıdan başlarsın.",
           },
           {
-            q: "claude-lifecycle bir journey builder mı, yoksa bir journey kütüphanesi mi?",
+            q: "Journey Architecture bir journey builder mı, yoksa bir journey kütüphanesi mi?",
             a: "Öncelikle yapılandırılmış bir journey kütüphanesi. Journey'ler, bir ürünün araçlarına, kanallarına ve veri modeline uyarlanabilecek lifecycle mantığını tanımlar.",
           },
           {
@@ -1356,7 +1358,7 @@ export const copy = {
             a: "Doğrulama, giriş durumları, koşul dalları, sınırlı beklemeler, devirler ve açık çıkışlar gibi yapısal kuralların tamamlanıp tamamlanmadığını kontrol eder. Eksik lifecycle mantığı uygulamadan önce ortaya çıkar.",
           },
           {
-            q: "claude-lifecycle'ı nasıl kullanırım?",
+            q: "Journey Architecture'ı nasıl kullanırım?",
             a: "GitHub deposunu aç, mevcut journey'leri incele ve Claude Code ile proje yapısını kullanarak kalıpları kendi ürününe uyarla.",
           },
         ],

@@ -456,7 +456,7 @@ function WhyDifferent({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
     <>
       <ProductSection tone="paper" space="md" className="pb-0! md:pb-0!">
         <PortraitContainer>
-          <ProductHeading eyebrow={c.eyebrow} title={c.title} align="center" />
+          <ProductHeading eyebrow={c.eyebrow} title={c.title} body={c.body} align="center" />
           <Reveal delay={100} className="mt-8 flex flex-wrap justify-center gap-2.5">
             <a href={REPO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
               <PixelFill />
