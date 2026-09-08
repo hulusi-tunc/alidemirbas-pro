@@ -25,7 +25,7 @@ export const copy = {
       work: {
         eyebrow: "What I do",
         title: "I approach growth through data, testing, and user behavior.",
-        lede: "I work across growth, from measurement infrastructure and user behavior to paid acquisition, testing, and optimization. Across GA4, GTM, Adjust, ad platforms, CRO, and lifecycle, the common thread is understanding what works through data and feeding those insights back into product and marketing.",
+        lede: "Some of the areas I work on and the tools I've built around them.",
         builtFor: "Built for this",
         services: [
           {
@@ -40,12 +40,12 @@ export const copy = {
           },
           {
             tool: "google-ads-change-history-dashboard",
-            title: "Paid acquisition",
-            body: "Mobile user acquisition read through the same measurement setup as everything else: Adjust MMP attribution, GA4 and GTM, so a channel's reported number and the number you can reconcile are the same number.",
+            title: "Google Ads Change History",
+            body: "I track changes made across Google Ads accounts alongside date, campaign, and performance data. The goal is to quickly see what changed before a result moved.",
           },
           {
             tool: "ab-test-playbook",
-            title: "Experimentation and CRO",
+            title: "Always Testing, Always Learning",
             body: "I bring together hundreds of A/B test scenarios across the funnel, from acquisition to retention, with a clear view of what each test changes and how success should be measured.",
           },
         ],
@@ -59,7 +59,7 @@ export const copy = {
         more: "Open all calculators",
       },
       labMore: "Open the full archive",
-      bio: { title: "Over eight years bridging data and marketing into measurable growth." },
+      bio: { title: "I approach growth through data, testing, and user behavior." },
     },
     lab: {
       label: "Lab",
@@ -148,7 +148,7 @@ export const copy = {
         {
           name: "Google Ads Change History",
           slug: "google-ads-change-history-dashboard",
-          short: "Change History",
+          short: "Google Ads Change History",
           tagline: "Every Google Ads change, searchable",
           desc: "I track changes made across Google Ads accounts alongside date, campaign, and performance data. The goal is to quickly see what changed before a result moved.",
           tags: ["Google Ads", "Analytics", "Python"],
@@ -857,7 +857,7 @@ export const copy = {
       work: {
         eyebrow: "Ne yapıyorum",
         title: "Büyümeyi veri, test ve kullanıcı davranışı üzerinden ele alıyorum.",
-        lede: "Büyüme üzerine çalışıyorum. Ölçüm altyapısından kullanıcı davranışına, paid acquisition'dan test ve optimizasyona kadar farklı alanlarla ilgileniyorum. GA4, GTM, Adjust, reklam platformları, CRO ve lifecycle tarafındaki çalışmalarımın ortak noktası, neyin işe yaradığını veriden okuyup bunu ürüne ve pazarlamaya geri taşımak.",
+        lede: "Çalıştığım alanlardan bazıları ve bunlar için geliştirdiğim araçlar.",
         builtFor: "Bunun için yaptım",
         services: [
           {
@@ -872,13 +872,13 @@ export const copy = {
           },
           {
             tool: "google-ads-change-history-dashboard",
-            title: "Ücretli edinim",
-            body: "Mobil kullanıcı edinimi, her şeyle aynı ölçümleme kurulumundan okunur: Adjust MMP attribution, GA4 ve GTM. Böylece kanalın raporladığı sayı ile mutabakatını yapabildiğin sayı aynı sayıdır.",
+            title: "Google Ads Change History",
+            body: "Google Ads hesaplarında yapılan değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip ediyorum. Amaç, sonuç değiştiğinde önce neyin değiştiğini hızlıca görebilmek.",
           },
           {
             tool: "ab-test-playbook",
-            title: "Deney ve CRO",
-            body: "Test başına tek değişken, önceden yazılmış durma kuralı ve sonucu geçersiz kılacak şeyin baştan not edilmesi.",
+            title: "Test et, öğren, geliştir",
+            body: "Acquisition'dan retention'a kadar farklı aşamalar için yüzlerce A/B test senaryosunu, neyi test ettiğini ve nasıl ölçüleceğini netleştirerek bir araya getiriyorum.",
           },
         ],
       },
@@ -891,7 +891,7 @@ export const copy = {
         more: "Tüm hesaplayıcıları aç",
       },
       labMore: "Arşivin tamamını aç",
-      bio: { title: "Sekiz yıldır veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum." },
+      bio: { title: "Büyümeyi veri, test ve kullanıcı davranışı üzerinden ele alıyorum." },
     },
     lab: {
       label: "Lab",
@@ -951,7 +951,7 @@ export const copy = {
         {
           name: "Google Ads Değişiklik Geçmişi",
           slug: "google-ads-change-history-dashboard",
-          short: "Değişiklik Geçmişi",
+          short: "Google Ads Change History",
           tagline: "Her Google Ads değişikliği, aranabilir",
           desc: "Google Ads hesaplarında yapılan değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip ediyorum. Amaç, sonuç değiştiğinde önce neyin değiştiğini hızlıca görebilmek.",
           tags: ["Google Ads", "Analitik", "Python"],
