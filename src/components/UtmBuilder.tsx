@@ -4,8 +4,8 @@ import { useState } from "react";
 
 const FIELDS = [
   { key: "url", en: "Destination URL", tr: "Hedef URL", param: null },
-  { key: "source", en: "Campaign Source", tr: "Kaynak (source)", param: "utm_source" },
-  { key: "medium", en: "Campaign Medium", tr: "Mecra (medium)", param: "utm_medium" },
+  { key: "source", en: "Campaign Source", tr: "Kaynak (utm_source)", param: "utm_source" },
+  { key: "medium", en: "Campaign Medium", tr: "Mecra (utm_medium)", param: "utm_medium" },
   { key: "campaign", en: "Campaign Name", tr: "Kampanya adı", param: "utm_campaign" },
   { key: "term", en: "Campaign Term (optional)", tr: "Terim (opsiyonel)", param: "utm_term" },
   { key: "content", en: "Campaign Content (optional)", tr: "İçerik (opsiyonel)", param: "utm_content" },
@@ -62,7 +62,7 @@ export default function UtmBuilder({ lang }: { lang: "en" | "tr" }) {
           </div>
         ) : (
           <p className="text-sm text-neutral-500">
-            {lang === "en" ? "Enter a valid URL and at least a source to build the link." : "Bağlantı oluşturmak için geçerli bir URL ve en az bir kaynak girin."}
+            {lang === "en" ? "Enter a valid URL and at least a source to build the link." : "Bağlantı için geçerli bir URL ve en az bir kaynak gerekir."}
           </p>
         )}
       </div>

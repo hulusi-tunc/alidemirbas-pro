@@ -206,7 +206,18 @@ const SELF_TEST_CMD = `python3 ads_change_history.py self-test`;
 
 /* ---- Shared bits -------------------------------------------------- */
 
-function CategoryBadge({ category }: { category: string }) {
+/* The row's own category is a fixed English id (also the key the demo's
+   filter and rule logic matches on, e.g. `row.category === "Budget"`) -
+   never changes. Only the text shown here is per-language, matching how
+   Google Ads' own Turkish interface names these same change types. */
+const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
+  Status: { en: "Status", tr: "Durum" },
+  Budget: { en: "Budget", tr: "Bütçe" },
+  Bidding: { en: "Bidding", tr: "Teklif verme" },
+  Keyword: { en: "Keyword", tr: "Anahtar kelime" },
+};
+
+function CategoryBadge({ category, lang }: { category: string; lang: Lang }) {
   const styles: Record<string, string> = {
     Status: "bg-emerald-50 text-emerald-700",
     Budget: "bg-primary-50 text-primary-700",
@@ -215,7 +226,7 @@ function CategoryBadge({ category }: { category: string }) {
   };
   return (
     <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${styles[category] ?? "bg-paper-soft text-ink-600"}`}>
-      {category}
+      {CATEGORY_LABEL[category]?.[lang] ?? category}
     </span>
   );
 }
@@ -460,7 +471,7 @@ function WorkedExampleSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) 
           <p className="mb-3 text-center text-[11px] font-medium tracking-wide text-ink-400 uppercase">{t.workedEyebrow}</p>
           <div className="rounded-card border border-line bg-paper p-5">
             <div className="flex items-center justify-between gap-3">
-              <CategoryBadge category={row.category} />
+              <CategoryBadge category={row.category} lang={lang} />
               <span className="font-mono text-[11px] text-ink-400">{row[lang].date}</span>
             </div>
             <div className="mt-3 flex items-center gap-2.5">
@@ -509,7 +520,7 @@ function BeforeAfterCard({ row, lang }: { row: (typeof REAL.explorerRows)[number
     <div className="rounded-card border border-line bg-paper p-4">
       <div className="flex items-center justify-between gap-2">
         <p className="truncate text-[13px] font-medium text-ink-900">{row.campaign}</p>
-        <CategoryBadge category={row.category} />
+        <CategoryBadge category={row.category} lang={lang} />
       </div>
       <p className="mt-0.5 text-[11.5px] leading-snug text-ink-500">
         {row.account} · {row[lang].date}

@@ -357,9 +357,23 @@ const TABLE_TONE = {
 
 type TableTone = keyof typeof TABLE_TONE;
 
-function CategoryBadge({ category, tone }: { category: string; tone: TableTone }) {
+/* The category is a fixed English id (also the demo's own filter/rule
+   key); only the shown label is per-language, matching how Google Ads'
+   own Turkish interface names these same change types. */
+const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
+  Status: { en: "Status", tr: "Durum" },
+  Budget: { en: "Budget", tr: "Bütçe" },
+  Bidding: { en: "Bidding", tr: "Teklif verme" },
+  Keyword: { en: "Keyword", tr: "Anahtar kelime" },
+};
+
+function CategoryBadge({ category, lang, tone }: { category: string; lang: Lang; tone: TableTone }) {
   const badge: Record<string, string> = TABLE_TONE[tone].badge;
-  return <span className={`rounded px-1.5 py-0.5 text-[12px] font-medium ${badge[category] ?? badge.other}`}>{category}</span>;
+  return (
+    <span className={`rounded px-1.5 py-0.5 text-[12px] font-medium ${badge[category] ?? badge.other}`}>
+      {CATEGORY_LABEL[category]?.[lang] ?? category}
+    </span>
+  );
 }
 
 /** The change-history explorer: its real table over its real demo rows.
@@ -412,7 +426,7 @@ export function ChangeTable({
               </td>
               <td className={`hidden px-3 py-2.5 sm:table-cell ${s.account}`}>{row.account}</td>
               <td className="px-3 py-2.5">
-                <CategoryBadge category={row.category} tone={tone} />
+                <CategoryBadge category={row.category} lang={lang} tone={tone} />
               </td>
               <td className="px-3 py-2.5">
                 <span className={`inline-flex items-center gap-1.5 ${/^[\d.,]+$/.test(row[lang].old) ? "font-mono text-[12.5px] tabular-nums" : "text-[12.5px]"}`}>
@@ -672,7 +686,7 @@ function BuilderCanvas({ pattern, lang, selected, wide = false }: { pattern: Pat
                   <>
                     <span className="flex items-center gap-1 rounded-md bg-paper px-2 py-0.5 text-[12px] text-ink-600 shadow-hairline">
                       <GitBranch aria-hidden className="size-3 text-ink-400" />
-                      {step.branch}
+                      {step.branch[lang]}
                     </span>
                     <span aria-hidden className="h-2.5 w-px bg-line-strong" />
                   </>
@@ -691,7 +705,7 @@ function BuilderCanvas({ pattern, lang, selected, wide = false }: { pattern: Pat
                       <span className="text-[12px] font-medium text-ink-950">{CHANNEL_NAME[step.channel]}</span>
                       <span className="font-mono text-[12px] text-ink-500 tabular-nums">{step.wait}</span>
                     </span>
-                    <span className="block truncate text-[12px] text-ink-600">{step.intent}</span>
+                    <span className="block truncate text-[12px] text-ink-600">{step.intent[lang]}</span>
                   </span>
                   <span className="shrink-0 pr-1 text-[12px] text-ink-400 tabular-nums">{i + 1}</span>
                 </div>
@@ -742,8 +756,8 @@ function BuilderBody({ lang, pattern: patternIndex = 0 }: { lang: Lang; pattern?
             className="mt-2.5"
             rows={[
               [w.wait, <span key="w" className="font-mono text-[12.5px] tabular-nums">{selected.wait}</span>],
-              [w.intent, selected.intent],
-              [w.branch, selected.branch ?? w.none],
+              [w.intent, selected.intent[lang]],
+              [w.branch, selected.branch?.[lang] ?? w.none],
             ]}
           />
         </div>

@@ -148,5 +148,50 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "No universal 'good payback period' number stated anywhere on the page - SaaS benchmark figures (9-14 months, 12 months as a target) surfaced repeatedly in research from vendor/benchmark-mill sites, deliberately excluded per instruction 12. The margin-adjustment point is the exact one flagged in the calculator's own validationRules, corroborated independently by the external source. External source: CFI's own 'months to recover CAC' methodology page. Related Calculators authored here, verified live: cac, ltv-cac-ratio, ltv."
+  "qaNotes": "No universal 'good payback period' number stated anywhere on the page - SaaS benchmark figures (9-14 months, 12 months as a target) surfaced repeatedly in research from vendor/benchmark-mill sites, deliberately excluded per instruction 12. The margin-adjustment point is the exact one flagged in the calculator's own validationRules, corroborated independently by the external source. External source: CFI's own 'months to recover CAC' methodology page. Related Calculators authored here, verified live: cac, ltv-cac-ratio, ltv.",
+  "tr": {
+    "page": {
+      "tagline": "Marj hesaba katıldığında bir müşterinin maliyetini geri kazanmanın kaç ay sürdüğünü gör.",
+      "meaning": [
+        "Geri ödeme bir değer sorusu değil, bir nakit sorusudur. Daha kısa bir süre, kazanımın kendini ödemeye başlamadan önce müşteri başına daha az nakit bağlandığı anlamına gelir; bu da büyümeyi kendi gelirinden finanse eden bir işletme için en çok önem taşır.",
+        "LTV:CAC'den farklı bir açıdır. Bir müşteri kağıt üzerinde mükemmel yaşam boyu ekonomiye sahip olabilir ve geri ödeme yeterince uzarsa yine de gerçek bir nakit akışı baskısı yaratabilir.",
+        "Bunu dört şey oynatır ve bunlar tam olarak formüldeki dört şeydir: daha düşük bir CAC, daha yüksek bir ARPU ve daha yüksek bir brüt marj hepsi süreyi kısaltır; marj orantısız bir etkiye sahiptir, çünkü gelirin sadece bir ayına değil tüm gelir akışına uygulanır."
+      ],
+      "takeaway": "İyi bir yaşam boyu ekonomi ile rahat bir nakit pozisyonu aynı şey değildir.",
+      "whenToUse": "Kazanım işletme nakitinden finanse edildiğinde, harcamayı ne kadar agresif ölçeklendireceğinize karar verirken, ya da sağlıklı bir LTV:CAC pratikte oranın önerdiğinden daha dar hissettirdiğinde kullanın.",
+      "misleads": "CAC'yi marj düzeltmesi olmadan ham ARPU'ya bölmek, hiçbir zaman kazanım maliyetini karşılamak için elde olmayan geliri sayar ve gerçekte olduğundan daha kısa bir geri ödeme raporlar. Şirket genelinde harmanlanmış bir marjı tek bir ürünün ARPU'suna uygulamak, süreyi her iki yönde de kaydırabilir.",
+      "workedExample": "CAC ÷ (ARPU × brüt marj) → $600 ÷ ($100 × %75) = 8,0 ay"
+    },
+    "faq": [
+      {
+        "id": "what-is-cac-payback",
+        "q": "CAC geri ödeme süresi nedir?",
+        "a": "CAC geri ödeme süresi, bir işletmenin bir müşteriyi kazanmak için harcadığını, ham gelir yerine o müşterinin marj ayarlı gelirini kullanarak geri kazanmasının kaç ay sürdüğüdür. 8 aylık bir geri ödeme süresi, kazanım maliyetini dengelemek için o müşterinin brüt marj ayarlı gelirinden yaklaşık sekiz ayına ihtiyaç duyulduğu anlamına gelir. Bu bir nakit akışı metriğidir. Müşterinin sonuçta kazanılmaya değip değmediğini sormaz; bunu LTV:CAC oranı ölçer. Bunun yerine işletmenin, bu belirli kazanım maliyeti net bir çıkış olmaktan çıkana kadar ne kadar zaman ve nakit taşıması gerektiğini sorar. Daha kısa bir geri ödeme süresi, genellikle daha az nakit rezervi baskısı anlamına gelir; çünkü kazanım harcaması daha uzun süre bekletilmek yerine daha erken geri kazanılır."
+      },
+      {
+        "id": "how-to-calculate-cac-payback",
+        "q": "CAC geri ödeme süresi nasıl hesaplanır?",
+        "a": "CAC'yi aylık ARPU çarpı brüt marja bölün: CAC Geri Ödemesi = CAC ÷ (Aylık ARPU × Brüt Marj). 600 dolarlık bir CAC, 100 dolarlık aylık ARPU ve %75 brüt marj, 600 ÷ (100 × 0,75) = 8,0 ay verir. Marj düzeltmesi isteğe bağlı değildir. CAC'yi önce brüt marjla çarpmadan yalnızca ARPU'ya bölmek, işletmenin her gelir dolarının %100'ünü kazanım maliyetini dengelemek için elde tutulan kâr olarak varsaydığı için, daha kısa, olduğundan düşük gösterilmiş bir sayı üretir. Üç girdi de aynı müşteri kohortunu ve temsili bir zaman dilimini tanımlamalı, aksi halde ortaya çıkan rakam gerçek, kıyaslanabilir bir geri ödeme süresini tanımlamaz."
+      },
+      {
+        "id": "why-margin-matters-payback",
+        "q": "CAC geri ödeme süresinde brüt marj neden önemlidir?",
+        "a": "Gelirin yalnızca brüt marj ayarlı kısmı, kazanım maliyetini dengelemek için elde vardır; geri kalan, ürünü veya hizmeti sunmanın maliyetine gider. Ayda 100 dolar ödeyen ve %75 brüt marjı olan bir müşteri, kazanım maliyetini geri kazanmaya ayda tam 100 dolar değil 75 dolar katkı sağlar; bu yüzden marj ayarlı ARPU yerine ham ARPU kullanmak, geri kazanmanın gerçekte ne kadar sürdüğünü olduğundan düşük gösterir. Bu düzeltmeyi atlamak, bu hesaplamadaki en yaygın hatadır ve sonucu her zaman aynı yönde çarpıtır: olduğundan daha kısa, dolayısıyla olduğundan daha sağlıklı görünen bir geri ödeme süresine doğru. Marjın uygulanıp uygulanmadığı belirtilmeden verilen herhangi bir CAC geri ödeme rakamı eksik sayılmalıdır."
+      },
+      {
+        "id": "good-cac-payback",
+        "q": "İyi bir CAC geri ödeme süresi kaçtır?",
+        "a": "Tek bir iyi sayı yoktur. İşletmenin marj yapısına, nasıl finanse edildiğine ve bu harcama geri kazanılana kadar her yeni müşteride ne kadar nakit bekletebileceğine bağlıdır. Kendi gelirinden büyümeyi finanse eden bir işletme, birim ekonomisi aynı olsa bile büyük bir dış sermaye rezervine sahip bir işletmeden daha kısa bir geri ödeme süresine ihtiyaç duyar. Evrensel SaaS hedefleri olarak sıkça tekrarlanan sayılar marj yapısını, finansman durumunu veya sektörü hesaba katmaz; marj düzeltmesi olmadan hesaplanmış bir rakamı, düzeltmeyle hesaplanmış bir rakamla kıyaslamak da hiç adil bir kıyaslama değildir. Daha güvenilir yaklaşım, bu işletmenin kendi geri ödeme süresini zaman içinde ve kendi finansman süresine karşı takip etmektir."
+      },
+      {
+        "id": "payback-vs-ltv-cac-faq",
+        "q": "CAC geri ödeme süresi, LTV:CAC oranından nasıl farklıdır?",
+        "a": "CAC geri ödeme süresi, kazanım maliyetini geri kazanmanın özellikle kaç ay sürdüğünü sorar. LTV:CAC oranı ise daha geniş bir soru sorar: müşteri, sadece ilk maliyetin ne kadar hızlı geri kazanıldığı değil, işletmeyle tüm ilişkisi boyunca maliyetinden daha değerli mi. Değerinin çoğu, kazanım maliyeti zaten geri kazanıldıktan çok sonra geliyorsa, bir müşteri kısa bir geri ödeme süresi ve mütevazı bir LTV:CAC oranına, ya da uzun bir geri ödeme süresi ve mükemmel bir orana sahip olabilir. Geri ödeme süresi daha hızlı tepki veren, nakit odaklı sayıdır; oran ise daha uzun ufuklu, kârlılık odaklı olandır. Nakit süresini yakından yöneten işletmeler geri ödeme süresine daha çok ağırlık verir; daha uzun vadeli oynayan işletmeler orana daha çok ağırlık verir."
+      }
+    ],
+    "seo": {
+      "seoTitle": "CAC Geri Ödeme Süresi Hesaplayıcısı",
+      "seoDescription": "Brüt marja göre ayarlanmış müşteri kazanım maliyetinin geri kazanılmasının kaç ay sürdüğünü hesaplayın."
+    }
+  }
 }

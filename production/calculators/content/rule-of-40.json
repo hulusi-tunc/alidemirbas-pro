@@ -118,5 +118,50 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "STANDARD depth (Batch 05). Formula/example independently verified: 30+15=45, matches calculator-catalog.json's exampleOutput exactly (and independently matches Bessemer's own worked example on their Rule of X page, confirming the addition-not-multiplication convention is correct per the calculator's own documented validationRule). Interpretation section (is-40-always-the-target) handles the 'no unsupported benchmark' requirement correctly: the 40 threshold is named factually since it is literally the metric's own name/origin (sourced to Bessemer, the popularizer), but immediately scoped with that same source's own explicit stage-dependency critique. Comparison-note (Rule of 40 vs SaaS Quick Ratio) via numerator/denominator/business-question framing. Negative-score edge case covered with an independently-computed example (-10 + -15 = -25). External source: Bessemer Venture Partners' own Rule of X page. Related Calculators verified live: saas-quick-ratio, mrr, profit-margin. 5 FAQs, 100-150 words each, independently word-counted.\n\nCORRECTION PASS (production audit): (1) Scoped 'Profit Margin' - catalog's own input (key: profitMargin, unit: %) names no specific margin definition, so the formula section now explicitly names GAAP/EBITDA/free-cash-flow margin as all valid under this label and warns against comparing scores computed with different definitions - this was already implicit in common-mistakes item 4, now stated directly where 'Profit Margin' is first introduced. (2) Removed normative 'healthy balance' framing from the intro ('trading growth for profitability in a healthy balance' -> 'a shorthand check on the trade-off between growth and profitability') - Rule of 40 is a heuristic, not a universal financial-health test; no new benchmark introduced."
+  "qaNotes": "STANDARD depth (Batch 05). Formula/example independently verified: 30+15=45, matches calculator-catalog.json's exampleOutput exactly (and independently matches Bessemer's own worked example on their Rule of X page, confirming the addition-not-multiplication convention is correct per the calculator's own documented validationRule). Interpretation section (is-40-always-the-target) handles the 'no unsupported benchmark' requirement correctly: the 40 threshold is named factually since it is literally the metric's own name/origin (sourced to Bessemer, the popularizer), but immediately scoped with that same source's own explicit stage-dependency critique. Comparison-note (Rule of 40 vs SaaS Quick Ratio) via numerator/denominator/business-question framing. Negative-score edge case covered with an independently-computed example (-10 + -15 = -25). External source: Bessemer Venture Partners' own Rule of X page. Related Calculators verified live: saas-quick-ratio, mrr, profit-margin. 5 FAQs, 100-150 words each, independently word-counted.\n\nCORRECTION PASS (production audit): (1) Scoped 'Profit Margin' - catalog's own input (key: profitMargin, unit: %) names no specific margin definition, so the formula section now explicitly names GAAP/EBITDA/free-cash-flow margin as all valid under this label and warns against comparing scores computed with different definitions - this was already implicit in common-mistakes item 4, now stated directly where 'Profit Margin' is first introduced. (2) Removed normative 'healthy balance' framing from the intro ('trading growth for profitability in a healthy balance' -> 'a shorthand check on the trade-off between growth and profitability') - Rule of 40 is a heuristic, not a universal financial-health test; no new benchmark introduced.",
+  "tr": {
+    "page": {
+      "tagline": "Büyüme oranı ile kâr marjını, ikisi arasındaki ödünleşim için tek bir puanda topla.",
+      "meaning": [
+        "Puan, iki şeyi tek bir sayıya sıkıştırır; kullanımı ve sınırı da budur. Büyüme ve kârlılığın birlikte bir eşiği aşıp aşmadığını söyler; hangi yarının diğerini taşıdığını söyleyemez ve aynı puana sahip iki şirket tamamen farklı konumlarda olabilir.",
+        "İki girdi de zaten kendi tabanının yüzdesi olduğu için, formül bunları bileşik büyütmek yerine yüzde puanı olarak toplar.",
+        "Negatif bir puan geçerli bir sonuçtur, bir hata değil; hem küçülen hem de kârsız bir şirket bunu üretir."
+      ],
+      "takeaway": "İki şeyi gizleyen tek bir sayı. Büyüme üzerine kurulu 40 puan ile marj üzerine kurulu 40 puan farklı şirketlerdir.",
+      "whenToUse": "İkisinin de anlamlı olduğu bir aşamadaki bir abonelik işi için hızlı, yönlendirici bir kontrol olarak ve tek bir çeyreği notlandırmak yerine ödünleşimi zaman içinde takip etmek için kullanın.",
+      "misleads": "40 sayısı bir kural değil, bir gelenektir. Metriğin kendi popülerleştiricileri, büyüme ve kârlılığa eşit ağırlık vermeyi nakit akışı pozitifliğine yaklaşan şirketler için kötü bir uyum, erken aşamada hâlâ nakit yakan şirketler için de daha az ilgili olarak nitelendirdi.",
+      "workedExample": "büyüme oranı + kâr marjı → %30 + %15 = 45 puan"
+    },
+    "faq": [
+      {
+        "id": "what-is-rule-of-40",
+        "q": "Rule of 40 nedir?",
+        "a": "Rule of 40, bir şirketin gelir büyüme oranı ile kâr marjını tek bir puanda toplayan bir SaaS sağlık kontrolüdür; büyüme ve kârlılığın makul bir dengede olup olmadığını kontrol etmenin bir yolu olarak Bessemer Venture Partners tarafından popülerleştirilmiştir. Yılda %30 büyüyen ve %15 kâr marjına sahip bir şirket 45 puan alır ve metriğin adını aldığı 40 puanlık çizgiyi aşar. Fikir şudur: hızlı büyüme daha ince bir kârlılığı haklı çıkarabilir, güçlü bir kârlılık da daha yavaş büyümeyi haklı çıkarabilir; yeter ki ikisi birlikte makul bir toplam eşiği aşsın. İkisinden hangisinin daha yüksek olması gerektiğini söylemez, yalnızca toplamlarının önemli olduğunu söyler."
+      },
+      {
+        "id": "how-to-calculate-rule-of-40",
+        "q": "Rule of 40 puanı nasıl hesaplanır?",
+        "a": "Gelir büyüme oranını ve kâr marjını doğrudan yüzde puanı olarak toplayın: Rule of 40 Puanı = Gelir Büyüme Oranı + Kâr Marjı. Yıldan yıla geliri %30 büyüyen ve %15 kâr marjına sahip bir şirket, 30 + 15 = 45 puan alır. İki girdi de zaten yüzde olarak gelir ve formül bunları toplar; birbiriyle çarpmaz veya bileşik büyütmez, aksi halde çok farklı ve yanlış bir sayı ortaya çıkar. İki girdi de negatif olabilir: küçülen veya kârsız bir şirket yine de geçerli, sadece daha düşük bir puan üretir; bu bir hesaplama hatasını değil, dengenin o tarafının negatif olduğunu yansıtır."
+      },
+      {
+        "id": "is-40-always-target-faq",
+        "q": "40 her zaman ulaşılması gereken doğru hedef midir?",
+        "a": "Her şirket için değil. 40 puanlık çizgi doğrudan metriğin adından ve Bessemer Venture Partners'daki kökeninden gelir; ama aynı firma, büyüme ve kârlılığa eşit ağırlık vermenin her aşamaya uymadığını daha sonra kendisi yazmıştır: hâlâ nakit yakan erken aşama şirketler için düz bir Rule of 40 hedefini 'daha az ilgili' olarak nitelendirir ve bunun yerine burn multiple gibi farklı bir metrik önerir; nakit akışı pozitifliğine yaklaşan şirketler için de eşit ağırlığın yeniden tartışmalı hale geldiğini belirtir. 40 puanlık çizgi, bir şirketin büyüklüğüne veya büyüme aşamasına bakılmaksızın aynı şekilde geçerli sert bir zorunluluktan çok, kullanışlı, adı konmuş bir referans noktasıdır."
+      },
+      {
+        "id": "rule-of-40-negative",
+        "q": "Rule of 40 puanı negatif olabilir mi?",
+        "a": "Gelir büyüme oranı ve kâr marjının ikisi de negatifse (küçülen ve kârsız bir şirket), ikisi negatif bir puana toplanır. Örneğin, %−10 büyüme ve %−15 kâr marjı, −25 puanlık bir Rule of 40 puanına birleşir. Bu geçerli bir sonuçtur, bir hata değil: metriğin ölçtüğü iki boyutta da aynı anda geri gitmekte olan bir şirketi yansıtır. Tek bir negatif girdi de yine pozitif bir puana yol açabilir: güçlü büyüme, negatif bir kâr marjıyla eşleştiğinde erken aşama şirketlerde yaygındır ve büyüme yeterince yüksekse yine de 40'ı aşabilir. Negatif veya düşük bir puan üzerine gidilmesi gereken gerçek bir sinyaldir, ama girdilerden biri veya ikisi yanlış yönü gösteriyor diye hesaplamanın kendisi başarısız olmuş değildir."
+      },
+      {
+        "id": "rule-of-40-vs-quick-ratio-faq",
+        "q": "Rule of 40, SaaS Quick Ratio'dan nasıl farklıdır?",
+        "a": "Farklı matematikle farklı şeyleri kontrol ederler. Rule of 40 iki yüzdeyi (gelir büyüme oranı ve kâr marjı) toplar ve büyüme ile kârlılığın birlikte bir eşiği aşıp aşmadığını sorar. SaaS Quick Ratio ise yeni artı genişleme MRR'sini kaybedilen MRR'ye böler ve hiç kârlılık bileşeni olmadan yalnızca eklenen gelirin kaybedilen geliri geçip geçmediğini sorar. Hızlı büyüyen ama kârsız bir şirket, Quick Ratio hiçbir zaman Rule of 40'ın açıkça içerdiği kâr marjı tarafını görmediği için Quick Ratio'da iyi puan alırken Rule of 40'ta yetersiz kalabilir. Tersi de olabilir: yavaşlayan büyümeye sahip ama güçlü marjlı bir şirket, Quick Ratio'su zayıf görünürken sağlıklı bir Rule of 40 puanı gösterebilir, çünkü Quick Ratio yalnızca büyüme-churn dengesini önemser, kârlılığı değil."
+      }
+    ],
+    "seo": {
+      "seoTitle": "Rule of 40 Hesaplayıcısı",
+      "seoDescription": "Gelir büyüme oranı ve kâr marjından Rule of 40 puanını hesaplayın, Bessemer'in kendi yazılarının bile 40'ı her aşama için sabit bir hedef saymadığını görün."
+    }
+  }
 }

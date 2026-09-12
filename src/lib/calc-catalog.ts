@@ -288,12 +288,41 @@ export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
   };
 }
 
+/* Hand-authored TR one-liners for the calculator-card blurb (the
+   /tr/calculators grid and the homepage calculator teaser both read this
+   through shortDescription). Deliberately not a translation of
+   formulaPlainEnglish - that sentence states the formula; this states in
+   plain Turkish what the tool is for, the same relationship the EN
+   correctedFormulaPlainEnglish() output has to its own card. Keyed by
+   slug rather than generated, since this is product copy, not derived
+   catalog data - the generator pipeline (_generate-catalog.mjs) and
+   calculator-catalog.json itself stay untouched. Covers LIVE_CALCULATOR_
+   SLUGS; a slug added here without ever being removed from that list
+   keeps shortDescription's own EN fallback below from firing. */
+const SHORT_DESCRIPTION_TR: Record<string, string> = {
+  roas: "Reklam harcamasının kaç kat gelire dönüştüğünü hesaplar.",
+  cpc: "Bir reklam tıklamasının ortalama maliyetini hesaplar.",
+  cpm: "Bin gösterim başına reklam maliyetini hesaplar.",
+  cac: "Bir müşteri kazanmanın ortalama maliyetini hesaplar.",
+  aov: "Bir siparişin ortalama ne kadar gelir getirdiğini hesaplar.",
+  "gross-margin": "Satılan malın maliyetinden sonra gelirin ne kadar kaldığını hesaplar.",
+  "break-even-point": "Kâra geçmeden önce kaç birim satılması gerektiğini hesaplar.",
+  ltv: "Bir müşterinin zaman içinde ne kadar değer ürettiğini tahmin eder.",
+  "ltv-cac-ratio": "Müşteri değerini kazanım maliyetiyle kıyaslar.",
+  "cac-payback-period": "Kazanım maliyetinin kaç ayda geri kazanıldığını hesaplar.",
+  "retention-rate": "Müşterilerin dönem boyunca ne kadarının kaldığını hesaplar.",
+  nrr: "Mevcut müşterilerden gelen gelirin dönem içinde nasıl değiştiğini hesaplar.",
+  "logo-churn": "Dönem içinde kaybedilen müşteri oranını hesaplar.",
+  "rule-of-40": "Büyüme oranı ile kâr marjını tek bir puanda toplar.",
+  cr: "Fırsatların ne kadarının hedeflenen eyleme dönüştüğünü hesaplar.",
+  "funnel-analysis-multistep": "Bir huniyi adımlara böler ve her adımdaki kaybı gösterir.",
+  "ab-test": "İki varyant arasındaki farkın istatistiksel olarak anlamlı olup olmadığını test eder.",
+  "sample-size-calculator": "Bir A/B testinin ihtiyaç duyduğu ziyaretçi sayısını hesaplar.",
+  "email-performance": "Tek bir gönderimden sekiz e-posta performans metriğini birden hesaplar.",
+};
+
 export function shortDescription(spec: CalcSpec, lang: Lang): string {
-  // formulaPlainEnglish is authored English prose (Phase 1 was English-only
-  // research). No TR translation exists yet for the new batch - fall back
-  // to the same English sentence for tr rather than inventing a translation
-  // here silently. Flagged in calculator-architecture.md open questions.
-  void lang;
+  if (lang === "tr") return SHORT_DESCRIPTION_TR[spec.slug] ?? correctedFormulaPlainEnglish(spec);
   return correctedFormulaPlainEnglish(spec);
 }
 

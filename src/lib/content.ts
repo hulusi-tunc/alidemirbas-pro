@@ -36,12 +36,12 @@ export const copy = {
           {
             tool: "lifecycle-card-archive",
             title: "Lifecycle and CRM programs",
-            body: "I design the journeys a user goes through from first step to win-back, by making clear what starts each one and what should happen next.",
+            body: "I design the journeys a user goes through from first step to win-back, and write down why each message actually gets sent.",
           },
           {
             tool: "google-ads-change-history-dashboard",
             title: "Google Ads Change History",
-            body: "I track changes made across Google Ads accounts alongside date, campaign and performance data. The goal is to see what changed before a result moved.",
+            body: "I track changes made across Google Ads accounts alongside date, campaign and performance data, so a shift in results doesn't turn into a guessing game.",
           },
           {
             tool: "ab-test-playbook",
@@ -400,7 +400,7 @@ export const copy = {
       lead:
         "I've worked on growth for different products since 2019. Measurement comes first. If the number isn't reliable, everything built on it is wasted.",
       body:
-        "Then I test what works and carry the result back into the product and the marketing. Setting up campaigns, measuring them and optimizing them is the day-to-day part.",
+        "Then I test what works before it goes anywhere near a bigger budget. Setting up campaigns, measuring them and optimizing them is the day-to-day part.",
       experience: "Experience",
       timeline: [
         {
@@ -868,12 +868,12 @@ export const copy = {
           {
             tool: "lifecycle-card-archive",
             title: "Yaşam döngüsü ve CRM programları",
-            body: "Kullanıcının ilk adımdan geri kazanıma kadar geçtiği yolculukları, neyin başlattığını ve sonrasında ne olması gerektiğini netleştirerek tasarlıyorum.",
+            body: "Kullanıcının ilk adımdan geri kazanıma kadar geçtiği yolculukları tasarlıyorum; her mesajın neden gittiğini de yazılı hâle getiriyorum.",
           },
           {
             tool: "google-ads-change-history-dashboard",
             title: "Google Ads Değişiklik Geçmişi",
-            body: "Google Ads hesaplarında yapılan değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip ediyorum. Amaç, sonuç değiştiğinde önce neyin değiştiğini hızlıca görebilmek.",
+            body: "Google Ads hesaplarında yapılan değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip ediyorum; sonuç değiştiğinde tahmine değil, kayda bakıyorum.",
           },
           {
             tool: "ab-test-playbook",
@@ -1150,7 +1150,7 @@ export const copy = {
       lead:
         "2019'dan beri farklı ürünlerde büyüme üzerine çalışıyorum. Önce ölçüme bakıyorum. Sayı güvenilir değilse gerisi boşa gidiyor.",
       body:
-        "Sonra neyin işe yaradığını test edip sonucu ürüne ve pazarlamaya geri taşıyorum. Kampanya kurmak, ölçmek ve optimize etmek bunun günlük tarafı.",
+        "Sonra neyin işe yaradığını, bütçeyi büyütmeden önce test ediyorum. Kampanya kurmak, ölçmek ve optimize etmek bunun günlük tarafı.",
       experience: "Deneyim",
       timeline: [
         {
@@ -1309,8 +1309,8 @@ export const copy = {
       },
       whyDifferent: {
         eyebrow: "Yaklaşım",
-        title: "Journey yapısını veriye göre kurar.",
-        body: "Journey'nin kapsamı eldeki event'lere, parametrelere ve kanallara göre belirlenir. Veri yeterliyse akış detaylanır. Eksikse sistem varsayım yapmak yerine daha basit bir yapı kurar.",
+        title: "Journey'nin derinliğini veri belirler.",
+        body: "Journey'nin kapsamı eldeki event'lere, parametrelere ve kanallara göre değişir. Veri yeterliyse akış detaylanır. Eksikse sistem varsayım yapmak yerine daha basit bir yapı kurar.",
         feature1: {
           title: "Veri kalitesi önce ölçülür.",
           body: "0-100 arası bir veri kalitesi skoru journey derinliğini belirler. 40'ın altı 3-5 adımlık basit akış, 40-69 arası tek dallı 4-7 adım, 70 ve üzeri davranışsal dallanmalı 7-12 adım.",

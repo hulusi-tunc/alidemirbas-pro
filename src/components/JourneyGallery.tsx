@@ -82,12 +82,12 @@ function CategorySection({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="text-base font-semibold tracking-tight text-ink-950">{meta.title}</h2>
+            <h2 className="text-base font-semibold tracking-tight text-ink-950">{lang === "en" ? meta.title : meta.titleTr}</h2>
             <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
               {items.length} {labels.journeysLabel[surface][items.length === 1 ? 0 : 1]}
             </span>
           </div>
-          <p className="mt-1 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ink-500">{meta.purpose}</p>
+          <p className="mt-1 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ink-500">{lang === "en" ? meta.purpose : meta.descriptionTr}</p>
         </div>
       </div>
 
@@ -269,7 +269,7 @@ export default function JourneyGallery({
             <option value="">{labels.allCategories}</option>
             {presentCategories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.title}
+                {lang === "en" ? c.title : c.titleTr}
               </option>
             ))}
           </select>

@@ -96,5 +96,44 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "LIGHT depth (Final Expansion round). Formula/example independently verified: (300/150000)*1000=2.00, matches calculator-catalog.json's exampleOutput exactly; independently re-verified against this round's own brief example (5000/1000000*1000=5) - both consistent with the same formula. Runtime already live (cpm compute function pre-existing in calc-registry.ts, unchanged) - only the content/SEO layer was missing. Mirrors cpc.json's LIGHT shape (formula, worked-example, interpretation, comparison-note, 4 FAQs despite 'faq' being formally prohibited for light depth - same accepted precedent as cpc/ctr/cpa). Comparison-note (CPM vs CPC vs CPA) written independently from cpc.json's own existing 'cpc-vs-cpm-cpa' comparison-note (different specific framing - this one centers on CPM's own reach-only scope, cpc.json's centers on CPC's click-cost scope; no shared sentences). No unsupported benchmark. External source: Airbridge's own CPM definition page (same cost/impressions*1000 formula this calculator implements). Related Calculators verified live: cpc, cpa, roas. 4 FAQs, 100-150 words each, independently word-counted."
+  "qaNotes": "LIGHT depth (Final Expansion round). Formula/example independently verified: (300/150000)*1000=2.00, matches calculator-catalog.json's exampleOutput exactly; independently re-verified against this round's own brief example (5000/1000000*1000=5) - both consistent with the same formula. Runtime already live (cpm compute function pre-existing in calc-registry.ts, unchanged) - only the content/SEO layer was missing. Mirrors cpc.json's LIGHT shape (formula, worked-example, interpretation, comparison-note, 4 FAQs despite 'faq' being formally prohibited for light depth - same accepted precedent as cpc/ctr/cpa). Comparison-note (CPM vs CPC vs CPA) written independently from cpc.json's own existing 'cpc-vs-cpm-cpa' comparison-note (different specific framing - this one centers on CPM's own reach-only scope, cpc.json's centers on CPC's click-cost scope; no shared sentences). No unsupported benchmark. External source: Airbridge's own CPM definition page (same cost/impressions*1000 formula this calculator implements). Related Calculators verified live: cpc, cpa, roas. 4 FAQs, 100-150 words each, independently word-counted.",
+  "tr": {
+    "page": {
+      "tagline": "Bir reklamı bin kişiye göstermenin maliyetini gör.",
+      "meaning": [
+        "CPM görünürlüğün maliyetini ölçer: herhangi bir tepkiden bağımsız olarak reklamı göstermenin ne tuttuğunu. Bu da onu erişim ve marka bilinirliği alımının doğal para birimi yapar; burada amaç görülmektir.",
+        "Gösterimin ötesinde görüşü yoktur. Bir kampanya düşük bir CPM taşıyıp yine de kötü performans gösterebilir, çünkü formülde gösterimlerin tıklamaya ya da müşteriye dönüşüp dönüşmediğini bilen hiçbir şey yoktur."
+      ],
+      "takeaway": "CPM dikkatin fiyatını verir, sonucun değil. Ucuz gösterimler yine de değersiz olabilir.",
+      "whenToUse": "Erişim satın alırken veya kıyaslarken: yerleşimler, kitleler ya da formatlar sadece gösterim maliyeti açısından değerlendirilirken kullanın. Satın alınan birimin gerçekten gösterim olduğu envanter pazarlığı için de doğru çerçevedir.",
+      "misleads": "Düşen bir CPM çoğu zaman reklamın aynı kitleye daha verimli değil, daha ucuz ve daha değersiz bir kitleye ulaştığı anlamına gelir. Bir performans metriği gibi ele alındığında, tam olarak bu kaymayı ödüllendirir.",
+      "workedExample": "(reklam harcaması ÷ gösterim) × 1.000 → ($300 ÷ 150.000) × 1.000 = $2,00"
+    },
+    "faq": [
+      {
+        "id": "what-is-cpm",
+        "q": "CPM nedir?",
+        "a": "CPM (bin gösterim başına maliyet), bir reklamverenin bir reklamın aldığı her 1.000 gösterim için ödediği fiyattır; reklam harcamasının gösterime bölünüp 1.000 ile çarpılmasıyla hesaplanır. 'Mille' Latincede bin demektir ve metrik adını buradan alır. CPM; görüntülü, video ve amacı tıklama veya anlık dönüşüm değil erişim olan bilinirlik kampanyalarında yaygın kullanılır. Saf bir gösterim maliyeti metriğidir: reklamı gören birinin ona tıklayıp tıklamadığı, onu hatırlayıp hatırlamadığı veya başka bir şey yapıp yapmadığı hakkında görüşü yoktur. ×1.000 çarpanını atlamak, CPM olarak raporlanmaması gereken farklı ve çok daha küçük bir gösterim başına ham maliyet rakamı üretir."
+      },
+      {
+        "id": "how-to-calculate-cpm",
+        "q": "CPM nasıl hesaplanır?",
+        "a": "Reklam harcamasını gösterime bölün, sonra 1.000 ile çarpın: CPM = (Reklam Harcaması ÷ Gösterim) × 1.000. 300 dolar harcayıp 150.000 gösterim üreten bir kampanyanın CPM'i (300 ÷ 150.000) × 1.000 = 2,00 dolardır. ×1.000 çarpanı isteğe bağlı bir adım değil, formülün kendisinin parçasıdır; atlanması aynı metrik olmayan, çok daha küçük ve kolayca yanlış yorumlanabilecek bir gösterim başına ham maliyet rakamı üretir. Çoğu reklam platformu CPM'i otomatik hesaplar ve raporlar, bu yüzden nadiren elle hesaplamak gerekir. Hem harcama hem de gösterim rakamları aynı kampanyadan ve aynı raporlama döneminden gelmeli; dönemleri karıştırmak, ikisini de doğru tanımlamayan bir CPM üretir."
+      },
+      {
+        "id": "cpm-vs-cpc-cpa-faq",
+        "q": "CPM, CPC ve CPA'dan nasıl farklıdır?",
+        "a": "Her biri huninin farklı bir aşamasında maliyeti ölçer. CPM bin gösterim başına maliyettir: etkileşimden bağımsız olarak gösterilmenin ne tuttuğu. CPC tıklama başına maliyettir: birisi tıkladığında ne tuttuğu. CPA tanımlı bir eylem başına maliyettir: kampanyanın ödemeyi hedeflediği belirli sonucun, örneğin bir kayıt veya satışın, ne tuttuğu. Erişim için optimize edilmiş bir kampanya, gösterimler hiçbir zaman tıklamaya, hele ki daha aşağıda dönüşüme yol açmadığında bile çok düşük bir CPM ile yüksek bir CPA taşıyabilir."
+      },
+      {
+        "id": "good-cpm",
+        "q": "İyi bir CPM kaçtır?",
+        "a": "Evrensel olarak iyi bir CPM yoktur. Platforma, reklam formatına, kitle hedeflemesine ve o anki açık artırmanın rekabet düzeyine bağlıdır; bunların hepsi kampanya kalitesi devreye girmeden önce bile sayıyı değiştirir. Bir platformda veya kitle segmentinde yüksek görünen bir CPM, daha rekabetçi teklif veya daha değerli bir kitlesi olan başka bir platformda tamamen normal olabilir. CPM'i aynı platform, format ve kitle için kendi hesabınızın geçmişine karşı takip edin; bu, açık artırma bağlamını kabaca sabit tutar. Mevsimsel talep de kampanya kalitesinden bağımsız olarak CPM'i oynatır: aynı hedefleme, Ekim-Aralık gibi yüksek rekabetli dönemlerde daha sakin bir aya göre belirgin ölçüde daha pahalıya mal olabilir."
+      }
+    ],
+    "seo": {
+      "seoTitle": "CPM Hesaplayıcısı",
+      "seoDescription": "Reklam harcaması ve gösterimden CPM'i (bin gösterim başına maliyet) hesaplayın, kapsam olarak CPC ve CPA'dan nasıl farklılaştığını görün."
+    }
+  }
 }

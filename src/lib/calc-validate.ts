@@ -155,8 +155,8 @@ export const errorMessage = (error: ValidationError, lang: "en" | "tr"): string 
     negative: { en: "Must be zero or more", tr: "Sıfır veya daha büyük olmalı" },
     not_an_option: { en: "Choose an option", tr: "Bir seçenek seçin" },
     exceeds_delivered: { en: "Can't exceed delivered", tr: "Teslim edilenden fazla olamaz" },
-    exceeds_mau: { en: "Can't exceed monthly active users", tr: "Aylık aktif kullanıcıyı geçemez" },
-    exceeds_carts_created: { en: "Can't exceed carts created", tr: "Oluşturulan sepeti geçemez" },
+    exceeds_mau: { en: "Can't exceed monthly active users", tr: "Aylık aktif kullanıcı sayısını geçemez" },
+    exceeds_carts_created: { en: "Can't exceed carts created", tr: "Oluşturulan sepet sayısını geçemez" },
     exceeds_sent: { en: "Can't exceed sent", tr: "Gönderilenden fazla olamaz" },
     must_be_positive: { en: "Must be greater than zero", tr: "Sıfırdan büyük olmalı" },
   };

@@ -1,11 +1,13 @@
 /* Server-side loader for the editorial content that sits under each
-   calculator (production/calculators/content/{slug}.json). EN only. One
-   file per live calculator, no more and no fewer - both directions are
-   enforced by production/calculators/validate-calculator-content.mjs, so a
-   calculator added without content, or content left behind after its
-   calculator was retired, fails validation rather than shipping. Not
-   imported by any "use client" file, same server/client boundary
-   discipline as calc-catalog.ts. */
+   calculator (production/calculators/content/{slug}.json). Each file's
+   top level is the EN content; a sibling `tr` key (see CalcContent's own
+   comment on that field) carries the Turkish page/faq/seo. One file per
+   live calculator, no more and no fewer - both directions are enforced by
+   production/calculators/validate-calculator-content.mjs, so a calculator
+   added without content, or content left behind after its calculator was
+   retired, fails validation rather than shipping. Not imported by any
+   "use client" file, same server/client boundary discipline as
+   calc-catalog.ts. */
 import roas from "../../production/calculators/content/roas.json";
 import cpc from "../../production/calculators/content/cpc.json";
 import cpm from "../../production/calculators/content/cpm.json";
@@ -102,6 +104,28 @@ export type CalcContent = {
   faq: { id: string; q: string; a: string }[];
   seo: { seoTitle: string; seoDescription: string; canonicalPath: string; index: boolean; follow: boolean };
   qaStatus: "ready" | "review" | "blocked";
+  /** Turkish editorial content for the same calculator, covering exactly
+      the fields CalculatorDetailTemplate/CalculatorRoutes actually render:
+      `page` (the hero tagline, meaning paragraphs, takeaway, when-to-use,
+      misleads and worked-example line), `faq`, and the two `seo` strings
+      used for TR metadata. `heroTitle` is included only for the two
+      calculators (funnel-analysis-multistep, email-performance) whose EN
+      heroTitle overrides the H1 - without a TR one the H1 would stay
+      English on the TR route. Everything else on this type (`intro`,
+      `sections`, `related[].desc`, `qaStatus`, `contentDepth`,
+      `calculatorId`, `slug`) is never rendered on the calculator detail
+      page (see CalculatorDetailTemplate.tsx and CalculatorRoutes.tsx),
+      so there is nothing for a `tr` variant of them to fix - a TR reader
+      never sees that English prose. Optional because not enforced by the
+      validator the way the top-level EN fields are; getContent falls back
+      to the EN object as a whole only when a calculator's `tr` is
+      entirely absent (there should be none of those in the live 19). */
+  tr?: {
+    heroTitle?: string;
+    page: CalcContent["page"];
+    faq: { id: string; q: string; a: string }[];
+    seo: { seoTitle: string; seoDescription: string };
+  };
 };
 
 const CONTENT_BY_SLUG: Record<string, CalcContent> = {
@@ -126,10 +150,28 @@ const CONTENT_BY_SLUG: Record<string, CalcContent> = {
   "email-performance": emailPerformance as CalcContent,
 };
 
-/* EN only, by design (instruction 46) - TR pages fall back to the
-   existing minimal behavior (spec.formulaPlainEnglish) rather than
-   showing untranslated English long-form content on a Turkish route. */
+/* Full TR editorial content now exists for all 19 live calculators (each
+   content JSON's own `tr` key - see CalcContent's own comment on that
+   field for exactly which parts of it are real, rendered TR copy). For
+   `lang === "tr"` this returns the EN record with `page`, `faq`, `seo.
+   seoTitle`/`seoDescription` and (where authored) `heroTitle` swapped for
+   their TR versions - everything else on the object (`intro`, `sections`,
+   `related[].desc`, `qaStatus`, `contentDepth`, `calculatorId`, `slug`,
+   `seo.canonicalPath`/`index`/`follow`) is never rendered on the
+   calculator detail page, so it stays the EN value with nothing to
+   localize. A calculator whose content file has no `tr` object yet falls
+   back to the EN object as a whole, the previous behavior, rather than
+   throwing - there should be none of those among the 19 live calculators. */
 export function getContent(slug: string, lang: "en" | "tr"): CalcContent | undefined {
-  if (lang !== "en") return undefined;
-  return CONTENT_BY_SLUG[slug];
+  const content = CONTENT_BY_SLUG[slug];
+  if (!content) return undefined;
+  if (lang !== "tr" || !content.tr) return content;
+  const tr = content.tr;
+  return {
+    ...content,
+    heroTitle: tr.heroTitle ?? content.heroTitle,
+    page: tr.page,
+    faq: tr.faq,
+    seo: { ...content.seo, seoTitle: tr.seo.seoTitle, seoDescription: tr.seo.seoDescription },
+  };
 }

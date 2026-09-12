@@ -155,6 +155,7 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
                   error={errors[input.key]}
                   placeholder={examplePlaceholder(spec, activeMode, input.key)}
                   onChange={(v) => setRaw((r) => ({ ...r, [input.key]: v }))}
+                  lang={lang}
                 />
               ))}
             </div>
@@ -193,7 +194,7 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
               <ResultHint>
                 {lang === "en"
                   ? "Enter your numbers and press Calculate."
-                  : "Sayıları gir, Hesapla'ya bas."}
+                  : "Sayılar girilip Hesapla'ya basıldığında sonuç burada görünür."}
               </ResultHint>
             </>
           ) : isFunnel ? (
@@ -207,7 +208,7 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
                 <ResultHint>
                   {lang === "en"
                     ? "Name at least two stages and give each a count."
-                    : "En az iki aşama adlandırın ve her birine bir sayı girin."}
+                    : "En az iki aşamaya ad ve sayı girilmesi gerekir."}
                 </ResultHint>
               )}
             </>
@@ -228,7 +229,7 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
               />
               {!results && (
                 <ResultHint>
-                  {lang === "en" ? "Fill in every field to see the result." : "Sonucu görmek için tüm alanları doldurun."}
+                  {lang === "en" ? "Fill in every field to see the result." : "Sonucu görmek için tüm alanların doldurulması gerekir."}
                 </ResultHint>
               )}
             </>
@@ -305,6 +306,7 @@ function ScalarInput({
   error,
   placeholder,
   onChange,
+  lang,
 }: {
   input: RuntimeCalcSpec["inputs"][number];
   value: string;
@@ -314,6 +316,7 @@ function ScalarInput({
       (and at what magnitude) instead of sitting blank. */
   placeholder?: string;
   onChange: (v: string) => void;
+  lang: Lang;
 }) {
   const id = useId();
   const errId = `${id}-err`;
@@ -330,8 +333,11 @@ function ScalarInput({
           aria-describedby={error ? errId : undefined}
           className="rounded-full bg-paper-soft px-4 py-2.5 text-ink-950 outline-none transition-shadow focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
         >
+          {/* A plain hyphen, not an em dash - a UI bookend, not punctuation
+              - and locale-aware: this used to render the English placeholder
+              on the TR route too, since ScalarInput never received `lang`. */}
           <option value="" disabled>
-            {"— select —"}
+            {lang === "en" ? "- Select -" : "- Seç -"}
           </option>
           {options.map((o) => (
             <option key={o} value={o}>

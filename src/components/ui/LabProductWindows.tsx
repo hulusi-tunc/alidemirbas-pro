@@ -256,7 +256,7 @@ export function BuilderCanvasWindow({
                       <>
                         <span className="flex items-center gap-1 rounded-md bg-paper px-2 py-0.5 text-[12px] text-ink-600 shadow-hairline">
                           <GitBranch aria-hidden className="size-3 text-ink-400" />
-                          {step.branch}
+                          {step.branch[lang]}
                         </span>
                         <span aria-hidden className="h-3 w-px bg-line-strong" />
                       </>
@@ -275,7 +275,7 @@ export function BuilderCanvasWindow({
                           <span className="text-[13px] font-semibold text-ink-950">{CHANNEL_NAME[step.channel]}</span>
                           <span className="font-mono text-[12px] text-ink-500 tabular-nums">{step.wait}</span>
                         </span>
-                        <span className="block truncate text-[12.5px] text-ink-600">{step.intent}</span>
+                        <span className="block truncate text-[12.5px] text-ink-600">{step.intent[lang]}</span>
                       </span>
                       <span className="shrink-0 text-[12px] text-ink-400 tabular-nums">{i + 1}</span>
                     </div>
@@ -303,8 +303,8 @@ export function BuilderCanvasWindow({
               className="mt-3"
               rows={[
                 [w.wait, <span key="w" className="font-mono text-[12.5px] tabular-nums">{selected.wait}</span>],
-                [w.intent, selected.intent],
-                [w.branch, selected.branch ?? w.none],
+                [w.intent, selected.intent[lang]],
+                [w.branch, selected.branch?.[lang] ?? w.none],
               ]}
             />
           </div>
@@ -366,12 +366,21 @@ const CATEGORY_ICON: Record<string, ReactNode> = {
   Bidding: <Gavel aria-hidden />,
   Keyword: <Tag aria-hidden />,
 };
+/* The category is a fixed English id (also the demo's own filter/rule
+   key); only the shown label is per-language, matching how Google Ads'
+   own Turkish interface names these same change types. */
+const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
+  Status: { en: "Status", tr: "Durum" },
+  Budget: { en: "Budget", tr: "Bütçe" },
+  Bidding: { en: "Bidding", tr: "Teklif verme" },
+  Keyword: { en: "Keyword", tr: "Anahtar kelime" },
+};
 
 /** A category badge, the explorer's own: hue and icon by category. */
-export function CategoryBadge({ category, tone = "light" }: { category: string; tone?: WindowTone }) {
+export function CategoryBadge({ category, lang, tone = "light" }: { category: string; lang: Lang; tone?: WindowTone }) {
   return (
     <Badge tone={tone} hue={CATEGORY_HUE[category] ?? "neutral"} icon={CATEGORY_ICON[category]}>
-      {category}
+      {CATEGORY_LABEL[category]?.[lang] ?? category}
     </Badge>
   );
 }
@@ -458,11 +467,11 @@ export function ExplorerTable({
               {row.adGroup !== "—" && <span className={clsx("block truncate text-[12px]", dark ? "text-white/50" : "text-ink-500")}>{row.adGroup}</span>}
               {/* On a phone the category sits under the name instead of in its own column. */}
               <span className="mt-1.5 block @sm:hidden">
-                <CategoryBadge category={row.category} tone={tone} />
+                <CategoryBadge category={row.category} lang={lang} tone={tone} />
               </span>
             </Td>
             <Td className="hidden whitespace-nowrap @sm:table-cell">
-              <CategoryBadge category={row.category} tone={tone} />
+              <CategoryBadge category={row.category} lang={lang} tone={tone} />
             </Td>
             <Td className="whitespace-nowrap">
               <ChangeCell row={row} lang={lang} tone={tone} />
@@ -518,7 +527,7 @@ export function ExplorerWindow({
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {EXPLORER_CATEGORIES.map((c) => (
                 <Chip key={c.category} tone={tone} icon={CATEGORY_ICON[c.category]}>
-                  {c.category}
+                  {CATEGORY_LABEL[c.category]?.[lang] ?? c.category}
                   <Count tone={tone}>{c.count}</Count>
                 </Chip>
               ))}
@@ -551,7 +560,7 @@ export function ExplorerWindow({
             <div className="px-3.5 pb-3.5">
               <p className={clsx("text-[14px] font-semibold", dark ? "text-white" : "text-ink-950")}>{open.campaign}</p>
               <div className="mt-2">
-                <CategoryBadge category={open.category} tone={tone} />
+                <CategoryBadge category={open.category} lang={lang} tone={tone} />
               </div>
               <KeyValues
                 tone={tone}

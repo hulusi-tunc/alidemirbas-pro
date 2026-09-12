@@ -46,7 +46,7 @@ const nf = (lang: Lang, n: number) => n.toLocaleString(lang === "en" ? "en-US" :
 /* Surfaces are stored as short slugs. These are display labels for the
    same 14 real values, not a re-categorisation - the set, the counts and
    the membership all still come straight from the dataset. */
-const SURFACE_LABEL: Record<string, { en: string; tr: string }> = {
+export const SURFACE_LABEL: Record<string, { en: string; tr: string }> = {
   pdp: { en: "Product page", tr: "Ürün sayfası" },
   home: { en: "Home & landing", tr: "Ana sayfa" },
   form: { en: "Forms & signup", tr: "Form ve kayıt" },
@@ -63,7 +63,7 @@ const SURFACE_LABEL: Record<string, { en: string; tr: string }> = {
   dashboard: { en: "Dashboard", tr: "Dashboard" },
 };
 
-const surfaceLabel = (s: string, lang: Lang) => SURFACE_LABEL[s]?.[lang] ?? s;
+export const surfaceLabel = (s: string, lang: Lang) => SURFACE_LABEL[s]?.[lang] ?? s;
 
 /* Categories are stored in the frozen dataset as English strings and are
    printed straight onto cards, facets and detail rails. Same treatment as

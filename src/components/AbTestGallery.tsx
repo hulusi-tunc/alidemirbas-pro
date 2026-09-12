@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import IdeaCard from "@/components/ui/IdeaCard";
-import { surfaceLabel, type AbCategory, type AbTestRow, type Surface } from "@/lib/ab-test-view";
+import type { AbCategory, AbTestRow, Surface } from "@/lib/ab-test-view";
 
 /* The A/B test library as a browsable gallery: category sections over a
    grid of cards, with search and two filters above the whole thing.
@@ -70,30 +70,33 @@ const T = {
 
 type Lang = keyof typeof T;
 
-/* The dataset's `category` values are stored in English and are never
-   rewritten. The display labels come from CATEGORY_LABEL in
-   ui/AbTestVisuals.tsx and are resolved on the server, then handed down as
-   a plain id -> label map: importing that module here would drag the whole
-   211-record marketing read model into the client bundle. */
-type CategoryLabels = Readonly<Record<string, string>>;
+/* The dataset's `category` and `surface` values are stored in English and
+   are never rewritten. The display labels come from CATEGORY_LABEL and
+   SURFACE_LABEL in ui/AbTestVisuals.tsx and are resolved on the server,
+   then handed down as plain id -> label maps: importing that module here
+   would drag the whole 211-record marketing read model into the client
+   bundle. */
+type LabelMap = Readonly<Record<string, string>>;
 
 function TestCard({
   row,
   basePath,
   t,
   categoryLabels,
+  surfaceLabels,
 }: {
   row: AbTestRow;
   basePath: string;
   t: (typeof T)[Lang];
-  categoryLabels: CategoryLabels;
+  categoryLabels: LabelMap;
+  surfaceLabels: LabelMap;
 }) {
   return (
     <IdeaCard
       href={`${basePath}/${row.slug}`}
       title={row.question}
       badges={[
-        { label: surfaceLabel(row.surface), tone: "accent" },
+        { label: surfaceLabels[row.surface] ?? row.surface, tone: "accent" },
         { label: row.primaryKpi, tone: "muted", title: `${t.primaryKpi}: ${row.primaryKpi}` },
       ]}
       body={row.hypothesis}
@@ -109,12 +112,14 @@ function CategorySection({
   basePath,
   t,
   categoryLabels,
+  surfaceLabels,
 }: {
   category: AbCategory;
   items: readonly AbTestRow[];
   basePath: string;
   t: (typeof T)[Lang];
-  categoryLabels: CategoryLabels;
+  categoryLabels: LabelMap;
+  surfaceLabels: LabelMap;
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, SECTION_PREVIEW_COUNT);
@@ -133,12 +138,12 @@ function CategorySection({
       {/* the category's real surfaces, in the mono rail this site labels
           things with - the closest honest thing to a purpose sentence */}
       <p className="mt-1 font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase">
-        {category.surfaces.map(surfaceLabel).join(" · ")}
+        {category.surfaces.map((s) => surfaceLabels[s] ?? s).join(" · ")}
       </p>
 
       <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {visible.map((r) => (
-          <TestCard key={r.id} row={r} basePath={basePath} t={t} categoryLabels={categoryLabels} />
+          <TestCard key={r.id} row={r} basePath={basePath} t={t} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
         ))}
       </div>
 
@@ -162,13 +167,15 @@ export default function AbTestGallery({
   surfaces,
   basePath,
   categoryLabels,
+  surfaceLabels,
 }: {
   lang: Lang;
   rows: readonly AbTestRow[];
   categories: readonly AbCategory[];
   surfaces: readonly Surface[];
   basePath: string;
-  categoryLabels: CategoryLabels;
+  categoryLabels: LabelMap;
+  surfaceLabels: LabelMap;
 }) {
   const t = T[lang];
   const [query, setQuery] = useState("");
@@ -185,12 +192,12 @@ export default function AbTestGallery({
           categoryLabels[r.category] ?? "",
           r.primaryKpi,
           r.surface,
-          surfaceLabel(r.surface),
+          surfaceLabels[r.surface] ?? "",
         ]
           .join(" ")
           .toLocaleLowerCase(lang),
       ),
-    [allRows, categoryLabels, lang],
+    [allRows, categoryLabels, surfaceLabels, lang],
   );
 
   const q = query.trim().toLocaleLowerCase(lang);
@@ -277,7 +284,7 @@ export default function AbTestGallery({
             <option value="">{t.allSurfaces}</option>
             {presentSurfaces.map((s) => (
               <option key={s} value={s}>
-                {surfaceLabel(s)}
+                {surfaceLabels[s] ?? s}
               </option>
             ))}
           </select>
@@ -312,6 +319,7 @@ export default function AbTestGallery({
               basePath={basePath}
               t={t}
               categoryLabels={categoryLabels}
+              surfaceLabels={surfaceLabels}
             />
           ))}
         </div>
@@ -335,7 +343,7 @@ export default function AbTestGallery({
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((r) => (
-            <TestCard key={r.id} row={r} basePath={basePath} t={t} categoryLabels={categoryLabels} />
+            <TestCard key={r.id} row={r} basePath={basePath} t={t} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
           ))}
         </div>
       )}

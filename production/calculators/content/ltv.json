@@ -164,5 +164,49 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "DEEP depth. No separate top-level Worked Example section - the existing per-mode examples inside the 'models' section already are the worked examples for each of the three real modes (examplesByMode values, unmodified), and a generic single worked-example block would misrepresent a genuinely multi-mode calculator. No universal 'good LTV' number stated anywhere, including FAQ. LTV vs CLV researched - found genuinely interchangeable in practice, stated plainly rather than inventing an artificial distinction. External source: CFI's lifetime value calculation methodology (revenue vs. profit-adjusted), same source cited on the LTV:CAC Ratio page for a related but distinct claim on that page. Related Calculators authored here, verified live: ltv-cac-ratio, cac, cac-payback-period, retention-rate."
+  "qaNotes": "DEEP depth. No separate top-level Worked Example section - the existing per-mode examples inside the 'models' section already are the worked examples for each of the three real modes (examplesByMode values, unmodified), and a generic single worked-example block would misrepresent a genuinely multi-mode calculator. No universal 'good LTV' number stated anywhere, including FAQ. LTV vs CLV researched - found genuinely interchangeable in practice, stated plainly rather than inventing an artificial distinction. External source: CFI's lifetime value calculation methodology (revenue vs. profit-adjusted), same source cited on the LTV:CAC Ratio page for a related but distinct claim on that page. Related Calculators authored here, verified live: ltv-cac-ratio, cac, cac-payback-period, retention-rate.",
+  "tr": {
+    "page": {
+      "tagline": "Bir müşterinin, müşteri kaldığı süre boyunca ne değer ürettiğini tahmin et.",
+      "meaning": [
+        "LTV tek bir denklem değil, bir denklem ailesidir; basitlik, veri gereksinimi ve sonucun ne kadar ileriye dönük olduğu arasında ödünleşim yapar. Doğru model, hangi formülün 'daha doğru' olduğuna değil, elinizdeki veriye ve sayının ne için kullanılacağına bağlıdır.",
+        "Daha karmaşık bir model otomatik olarak daha isabetli değildir. Farklı bir varsayım setini modeller; ve daha kaba bir girdi, daha ayrıntılı bir formüle girse bile yine kaba bir cevap verir.",
+        "Sayı en çok, oraya ulaşmanın maliyeti yanında anlam kazanır. Yükselen bir LTV, sabit veya yükselen bir CAC'nin yanında bile işletmenin daha az verimli hale geldiği bir durum olabilir; görünüşte sağlıklı olsa da."
+      ],
+      "takeaway": "Buradaki her LTV, varsayımlar üzerine kurulu bir ortalamadır. Hangi modelin ürettiği, ne anlama geldiğini değiştirir.",
+      "whenToUse": "Kazanıma ne kadar harcayabileceğinizi belirlerken, segment veya kohortların değerini kıyaslarken ya da LTV:CAC ve geri ödeme hesaplarına girdi sağlarken kullanın. Rakamın hangi modelden geldiğini her zaman belirtin.",
+      "misleads": "Üç model de geleceğin yakın geçmişe benzeyeceğini varsayar; bu yüzden churn'ü veya marjı hâlâ hareket eden bir işletmede tahmin gerçeği geriden takip eder. Hiçbiri paranın zaman değerini iskonto etmez; gelir bazlı bir LTV'yi bir harcama kararına doğrudan sokmak, elinizde olduğunu sandığınız alanı olduğundan fazla gösterir."
+    },
+    "faq": [
+      {
+        "id": "what-is-ltv",
+        "q": "LTV nedir?",
+        "a": "LTV (yaşam boyu değer), modele bağlı olarak bir müşterinin müşteri kaldığı süre boyunca ürettiği geliri, ya da marj ayarlı müşteri değerini tahmin eder. Tek bir işlem gibi doğrudan ölçülmez; ortalama sipariş değeri, satın alma sıklığı, müşteri ömrü veya churn oranı gibi verilerden modellenir; bu yüzden birden fazla geçerli formülü vardır. Sipariş geçmişinden kurulan basit bir LTV modeli gelir potansiyelini tanımlar; marj ayarlı bir model ise brüt marjdaki maliyetler düşüldükten sonra kalan geliri tanımlar. Hiçbir versiyon tek bir müşterinin ne değer üreteceğini öngörmez; ikisi de bir kohort genelinde bir ortalamayı anlatır ve ikisi de sadece kendilerini besleyen varsayımlar ve veri kadar güvenilirdir."
+      },
+      {
+        "id": "which-model-should-i-use",
+        "q": "Hangi LTV modelini kullanmalıyım?",
+        "a": "Sonuç bir kazanım harcaması kararını veya LTV:CAC oranını besleyecekse, marj ayarlı modeli kullanın; bu iş için tasarlanmıştır, çünkü ham gelir yerine brüt marjı hesaba katar. Sipariş geçmişinden hızlı, geriye dönük bir tahmin yeterliyse, basit model daha hızlıdır ve daha az girdi verisi gerektirir; ancak gerçek satılan mal maliyeti olan her işletme için değeri olduğundan yüksek gösterir. İşletme, ayrık siparişleri takip etmek yerine günlük aktif kullanıcı başına geliri ölçen bir mobil uygulamaysa, ARPDAU tabanlı model bu veri şekline, hiç ölçülmediği bir sipariş bazlı formüle zorlamadan uyar."
+      },
+      {
+        "id": "ltv-vs-clv-faq",
+        "q": "LTV ile CLV aynı şey mi?",
+        "a": "Pratikte ikisi aynı metriktir. LTV (yaşam boyu değer) ve CLV (müşteri yaşam boyu değeri), pazarlama, finans ve analitikte birbirinin yerine kullanılır; hiçbir etiket belirli bir formülü veya farklı bir hesaplama yöntemini ima etmez. Bazı kaynaklar yumuşak bir ayrım yapar: CLV'yi tek bir müşterinin değeri, LTV'yi bir müşteri tabanı genelinde ortalama için kullanır; ama bu, bunu belirten kaynaklar arasında bile tutarlı biçimde uygulanmayan bir kural, standart değil. Hangi etiketin kullanıldığından daha önemli olan, rakamın arkasındaki formülü ve girdileri kontrol etmektir: basit gelir modeliyle hesaplanmış bir 'CLV' ile marj ayarlı modelle hesaplanmış bir 'LTV', hangi terim kullanılırsa kullanılsın kıyaslanabilir değildir."
+      },
+      {
+        "id": "good-ltv",
+        "q": "İyi bir LTV kaçtır?",
+        "a": "Evrensel olarak iyi bir LTV yoktur. Sayı ancak bu müşteriyi kazanmanın maliyeti ve bu değerin ne kadar hızlı geldiği yanında anlam kazanır. 720 dolarlık bir LTV, 50 dolarlık bir CAC yanında mükemmelken, 700 dolarlık bir CAC yanında endişe vericidir; uzun ortalama müşteri ömrü olan bir işletme, yüksek churn'lü bir işletmeye göre dönem başına daha küçük görünen bir LTV'ye tahammül edebilir. LTV:CAC oranı olarak CAC ile eşleştirin veya değerin ne kadar hızlı geldiğini görmek için CAC geri ödeme süresine bakın. Evrensel kıyaslama olarak yayımlanan LTV rakamları, üç modelden hangisinin kullanıldığını nadiren belirtir; bu da onları kıyaslamak için güvenilmez kılar."
+      },
+      {
+        "id": "how-far-back-ltv",
+        "q": "LTV tahmin ederken ne kadar geriye bakmalıyım?",
+        "a": "Temsili bir kohortun tüm veya neredeyse tüm yaşam döngüsünü kapsayacak kadar geriye, ama işletme, fiyatlama veya ürün o zamandan beri anlamlı ölçüde değişmiş olmayacak kadar yakına. Basit model için bu genelde, çoğu üyesi zaten tipik ömrünün sonuna ulaşmış olacak kadar eskiden katılmış müşterilerin sipariş geçmişini kullanmak demektir; hâlâ aktif olan ve nihai ömrü bilinmeyen yeni bir kohort değil. Marj ayarlı model için churn oranı, normal ay-ay gürültüyü düzleştirecek kadar uzun ama büyük bir fiyat veya ürün değişikliğinden önceki churn davranışını değil güncel elde tutmayı yansıtacak kadar yakın bir dönemden gelmeli."
+      }
+    ],
+    "seo": {
+      "seoTitle": "LTV Hesaplayıcısı",
+      "seoDescription": "Müşteri yaşam boyu değerini üç modelle hesaplayın: basit, marj ayarlı ve mobil ARPDAU tabanlı; hangisinin verinize uyduğunu görün."
+    }
+  }
 }

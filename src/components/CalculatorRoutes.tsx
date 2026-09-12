@@ -69,7 +69,8 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
   if (!spec && !textTool) return {};
   const content = getContent(slug, lang);
   // Phase 4 content carries its own editorially-written seoTitle/
-  // seoDescription (EN only, 13 calculators) - prefer it over the
+  // seoDescription, in both languages for all 19 live calculators
+  // (getContent(slug, "tr") returns the TR versions) - prefer it over the
   // Phase 2 fallback (spec name + formulaPlainEnglish) when present.
   const title = content ? content.seo.seoTitle : spec ? spec.name : textTool!.title[lang];
   const description = content ? content.seo.seoDescription : spec ? correctedFormulaPlainEnglish(spec) : textTool!.desc[lang];
@@ -294,11 +295,12 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
   }
 
   const runtime = toRuntimeSpec(spec!);
-  /* EN-only editorial content, same as before. TR falls back to an
-     English-derived page rather than showing a half-translated one, which
-     is the existing convention (see getContent's own note); the template
-     itself is fully localised, so a TR page differs only in that its prose
-     is the same English the catalog holds. */
+  /* All 19 live calculators now carry full TR editorial content (see each
+     content JSON's own `tr` key and calc-content.ts's getContent), so this
+     returns a fully Turkish page/faq/seo for lang === "tr" - no English
+     prose falls through. The `?? getContent(slug, "en")!` is a defensive
+     fallback only, for a calculator whose content file has no `tr` object
+     yet; there should be none of those among the live 19. */
   const content = getContent(slug, lang) ?? getContent(slug, "en")!;
   const title = content.heroTitle ?? spec!.name;
 

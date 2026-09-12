@@ -144,5 +144,50 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "Content Standard pilot (STANDARD depth, 11-section structure). No universal 'good ROAS' number given anywhere on the page - interpretation and FAQ both frame it around margin/break-even instead, per Phase 4 claim policy. External source: Google Ads Help's own conversion-window documentation, used to support the attribution-window claim in Before You Trust This Result. Related Calculators authored here (not derived from the catalog's relatedCalculators field, which still lists a dead 'incremental-roas' slug) - verified against LIVE_CALCULATOR_SLUGS: marketing-roi, break-even-point, cac, ltv-cac-ratio."
+  "qaNotes": "Content Standard pilot (STANDARD depth, 11-section structure). No universal 'good ROAS' number given anywhere on the page - interpretation and FAQ both frame it around margin/break-even instead, per Phase 4 claim policy. External source: Google Ads Help's own conversion-window documentation, used to support the attribution-window claim in Before You Trust This Result. Related Calculators authored here (not derived from the catalog's relatedCalculators field, which still lists a dead 'incremental-roas' slug) - verified against LIVE_CALCULATOR_SLUGS: marketing-roi, break-even-point, cac, ltv-cac-ratio.",
+  "tr": {
+    "page": {
+      "tagline": "Harcanan her reklam biriminin ne kadar gelir getirdiğini gör.",
+      "meaning": [
+        "ROAS bir gelir verimliliği oranıdır: belirli bir kampanya veya kanal için harcanan reklam bütçesi karşılığında ne kadar gelir geldiğini gösterir. 5x, gelirin harcamanın beş katı olduğu anlamına gelir. Kampanyaları birbiriyle kıyaslamak veya tek bir kampanyayı zaman içinde takip etmek için net bir yoldur.",
+        "Kârlılık ölçüsü değildir. ROAS; satılan malın maliyetini, teslimat masraflarını, iadeleri veya medya harcaması dışında hiçbir kalemi görmez. Bu yüzden düşük marjlı bir üründe 5x, yüksek marjlı bir üründe 3x'ten daha az kâr bırakabilir.",
+        "Evrensel olarak 'iyi' bir ROAS yoktur, çünkü önemli olan sayı işletmenin kendi marj yapısının başa baş için gerektirdiği sayıdır. O eşik işinize aittir, bir kıyaslama değerine değil."
+      ],
+      "takeaway": "ROAS gelirin harcamaya bölümüdür. Zarar eden bir kampanyada bile yüksek çıkabilir.",
+      "whenToUse": "Kampanyaları, kanalları veya dönemleri sadece medya verimliliği açısından kıyaslarken; atıf penceresi ve harcama tanımı kıyaslanan her şeyde sabit tutulduğunda kullanın. Herhangi bir sayıyı iyi ya da kötü diye değerlendirmeden önce kendi başa baş ROAS'ınızla eşleştirin.",
+      "misleads": "Atıf ayarları ROAS'ı performans kadar değiştirir: 7 günlük ve 28 günlük tıklama pencereleri aynı harcamaya farklı gelir yazar. Platform bazlı raporlar bunu katmerleştirir: her platform aynı satışı kendi üzerine yazabilir, bu yüzden panolar arası ROAS'ları toplamak gerçek toplamı olduğundan yüksek gösterir.",
+      "workedExample": "gelir ÷ reklam harcaması → $5.000 ÷ $1.000 = 5,00x"
+    },
+    "faq": [
+      {
+        "id": "what-is-roas",
+        "q": "ROAS nedir?",
+        "a": "ROAS (reklam harcaması getirisi), bir kampanya veya kanalın harcanan her bir para birimi karşılığında ürettiği geliri gösterir; genelde bir çarpan olarak yazılır: 5x demek, harcanan her bir birim için beş birim atıflı gelir geldiği anlamına gelir. Sadece iki sayıyı kıyaslar: atıflı gelir ve reklam harcaması. Ürün maliyeti, teslimat ve iadeler bu hesabın dışındadır; bu yüzden sağlıklı bir ROAS ile sağlıklı bir işletme aynı şey değildir. Asıl kullanım alanı, kampanyaları, kanalları veya dönemleri birbiriyle kıyaslamaktır."
+      },
+      {
+        "id": "how-to-calculate-roas",
+        "q": "ROAS nasıl hesaplanır?",
+        "a": "Atıflı geliri reklam harcamasına bölün: ROAS = Gelir ÷ Reklam Harcaması. Bir kampanya 1.000 dolar harcamayla 5.000 dolar gelir ürettiyse, ROAS 5.000 ÷ 1.000 = 5,00x olur. İki sayı da aynı kampanyayı, aynı tarih aralığını ve aynı atıf kapsamını kapsamalı; aksi halde oran anlamlı olmaktan çıkar. Gelir, izleme sisteminizin o reklama atfettiği geliri temsil etmeli, dönemin toplam mağaza gelirini değil; harcama da her hesaplamada aynı tanımı kullanmalı. Bazı platformlar aynı oranı '%500' gibi yüzde olarak gösterir; bu, aynı sayının farklı yazılmış hali, bir yüzde değil, bir çarpandır."
+      },
+      {
+        "id": "roas-vs-roi-faq",
+        "q": "ROAS ile ROI aynı şey mi?",
+        "a": "ROAS geliri reklam harcamasına oranlar; Pazarlama ROI'si ise kârı maliyete oranlar, çünkü önce maliyeti düşer. ROAS ne kadar gelir geldiğini, ROI ise bunun buna değip değmediğini yanıtlar. Fark en çok marjlar dar olduğunda önemlidir. Bir kampanya güçlü bir ROAS, örneğin 5x, gösterirken satılan malın maliyeti sayıldığında zayıf hatta negatif bir ROI'ye sahip olabilir; çünkü ROAS bu maliyeti hiç görmez, sadece reklam harcamasını görür. Kampanyaları veya kanalları gelir verimliliği açısından kıyaslamak için ROAS'ı, harcamanın gerçekten karşılığını verip vermediğini görmek için Pazarlama ROI'sini kullanın. Biri diğerinin yerini tutmaz; aynı kampanya hakkında iki farklı soruyu yanıtlarlar."
+      },
+      {
+        "id": "good-roas-faq",
+        "q": "İyi bir ROAS kaçtır?",
+        "a": "Ne kadar sık tekrarlansa da evrensel bir sayı yok. 'İyi' bir ROAS, brüt marja, teslimat maliyetine ve reklam harcamasının kapsamadığı her masrafa bağlıdır. 3x bir ROAS, yüksek marjlı bir yazılım ürünü için çok kârlı olabilirken, düşük marjlı bir perakendeci için zar zor başa baş olabilir. Daha kullanışlı soru, işinizin başa baş için hangi ROAS'a ihtiyaç duyduğudur; bu da endüstri ortalaması değil, sizin kendi maliyetlerinizin bir fonksiyonudur. Başa Baş Noktası Hesaplayıcısı, bu ROAS eşiğini kendi fiyatınız, değişken maliyetiniz ve sabit maliyetlerinizden hesaplar. Marj varsayımlarını belirtmeyen düz bir 'X iyidir' sayısına şüpheyle yaklaşın."
+      },
+      {
+        "id": "roas-below-1",
+        "q": "ROAS 1x'in altına düşebilir mi?",
+        "a": "1x'in altında bir ROAS, kampanyanın çalıştırılma maliyetinden daha az gelir ürettiği anlamına gelir: 1.000 dolar harcamadan 800 dolar gelir gelmesi 0,8x ROAS'tır. Bu geçerli bir sonuçtur, bir hata değil. 1x'in altı, başka hiçbir maliyet devreye girmeden bile gelir bazında bir kayıp anlamına gelir; bu yüzden bir şeylerin değişmesi gerektiğine dair net bir sinyaldir. 1x'in üstü ise daha belirsizdir: 1,5x veya 2x bir ROAS, marja bağlı olarak ürün maliyeti ve teslimat sayıldığında yine de kârsız olabilir. ROAS hiçbir zaman bu formülde negatif çıkamaz, çünkü ne gelir ne de harcama negatif bir sayı olabilir. Okuyabileceği en düşük değer 0x'tir: kampanya para harcamış ama hiç atıflı gelir üretmemiştir."
+      }
+    ],
+    "seo": {
+      "seoTitle": "ROAS Hesaplayıcısı",
+      "seoDescription": "Gelir ve harcamadan reklam harcaması getirisini hesaplayın, ROAS'ın Pazarlama ROI'sinden nasıl farklılaştığını görün."
+    }
+  }
 }

@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-import { categoryLabel, setupLabel } from "@/components/ui/AbTestVisuals";
+import { categoryLabel, setupLabel, surfaceLabel } from "@/components/ui/AbTestVisuals";
 import { VariableDiagram } from "@/components/ui/VariableDiagram";
 import { abPlaybookText, abSetupMode, abVariableKind } from "@/lib/ab-test-playbook";
 import type { AbVariableKind } from "@/lib/ab-test-playbook";
-import { surfaceLabel, type AbTestDetail } from "@/lib/ab-test-view";
+import type { AbTestDetail } from "@/lib/ab-test-view";
 
 /* The A/B test detail page, built to the AB001_Detail_Page_v5 reference.
 
@@ -213,14 +213,14 @@ export default function AbTestPlaybookPage({
             </div>
             <div className="border-t border-line p-6 sm:border-t-0 sm:border-l sm:p-7">
               <p className={RAIL}>{t.surface}</p>
-              <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface)}</p>
+              <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface, lang)}</p>
             </div>
           </div>
         )}
         {mode === "concept" && (
           <div className="mt-10 border border-line-strong bg-paper p-6 sm:p-7">
             <p className={RAIL}>{t.surface}</p>
-            <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface)}</p>
+            <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface, lang)}</p>
           </div>
         )}
       </section>

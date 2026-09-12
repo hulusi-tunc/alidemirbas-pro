@@ -146,5 +146,51 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "Calculator Product Page Content Standard, second page after ROAS. Body content is CAC-specific throughout (Before You Trust This Result, What Should Be Included in CAC, Common Mistakes, FAQ) - not a reworded ROAS page; checked for accidental overlap before publishing. No universal 'good CAC' number given anywhere - interpretation and FAQ both route through LTV:CAC ratio and payback period instead. External source: Corporate Finance Institute's CAC breakdown, used for the cost-category claim in 'What should be included in CAC?' - chosen over SaaS vendor blogs/benchmark-mill sites surfaced in research, none of which qualified as authoritative. Related Calculators authored here (catalog's own relatedCalculators field lists a dead 'blended-cac' slug) - verified against LIVE_CALCULATOR_SLUGS: ltv, ltv-cac-ratio, cac-payback-period, cpa, marketing-roi."
+  "qaNotes": "Calculator Product Page Content Standard, second page after ROAS. Body content is CAC-specific throughout (Before You Trust This Result, What Should Be Included in CAC, Common Mistakes, FAQ) - not a reworded ROAS page; checked for accidental overlap before publishing. No universal 'good CAC' number given anywhere - interpretation and FAQ both route through LTV:CAC ratio and payback period instead. External source: Corporate Finance Institute's CAC breakdown, used for the cost-category claim in 'What should be included in CAC?' - chosen over SaaS vendor blogs/benchmark-mill sites surfaced in research, none of which qualified as authoritative. Related Calculators authored here (catalog's own relatedCalculators field lists a dead 'blended-cac' slug) - verified against LIVE_CALCULATOR_SLUGS: ltv, ltv-cac-ratio, cac-payback-period, cpa, marketing-roi.",
+  "tr": {
+    "heroTitle": "Müşteri Kazanım Maliyeti (CAC) Hesaplayıcısı",
+    "page": {
+      "tagline": "Bir yeni ödeme yapan müşteri kazanmanın ortalama maliyetini gör.",
+      "meaning": [
+        "CAC, harcamanın bir yeni ödeme yapan müşteriye dönüşmesinin ortalama maliyetidir. Tek başına kazanımın işleyip işlemediğini söylemez: 50 dolar, değeri 500 dolar olan bir müşteri için çok farklı, değeri 60 dolar olan bir müşteri için çok farklı bir şey ifade eder.",
+        "Bu bağlamı sağlayan iki sayı vardır: müşterinin tüm ilişki boyunca ne değer ürettiğiyle kıyaslayan LTV:CAC, ve bu maliyetin geri kazanılmasının ne kadar sürdüğünü soran CAC Geri Ödeme Süresi.",
+        "Paydaya neyin gireceğine dair geçerli bir standart yoktur. Tam yüklü CAC medyayı, satış komisyonlarını, maaşları ve genel giderleri içerir; sadece medya harcamasını içeren bir CAC de vardır. İkisi de meşrudur, farklı soruları yanıtlarlar; ikisini karıştırmak sorun yaratan şeydir."
+      ],
+      "takeaway": "Bir CAC, ancak müşterinin ne değer ürettiği ve bu maliyeti ne kadar hızlı geri ödediği yanında anlam kazanır.",
+      "whenToUse": "Kazanımın ekonomik olarak sürdürülebilir olup olmadığını değerlendirirken, bütçe büyüklüğü belirlerken veya kanalları kıyaslarken kullanın; her kanalın aynı maliyet ve aynı müşteri tanımıyla ölçülmesi koşuluyla.",
+      "misleads": "Kapsam uyuşmazlıkları: yalnızca ücretli harcamayı organik dahil tüm yeni müşterilere bölmek, ücretli kazanımın gerçek maliyetini olduğundan düşük gösterir. Dönemler arasında harcamaya neyin dahil edildiğini değiştirip bu değişimi verimlilik artışı gibi okumak da aynı hataya düşer.",
+      "workedExample": "kazanım harcaması ÷ yeni müşteriler → $10.000 ÷ 200 = $50,00"
+    },
+    "faq": [
+      {
+        "id": "what-is-cac",
+        "q": "Müşteri kazanım maliyeti nedir?",
+        "a": "Müşteri kazanım maliyeti (CAC), bir işletmenin bir yeni ödeme yapan müşteri kazanmak için ortalama harcadığı miktardır: aynı dönemde toplam kazanım harcamasının, bu harcamanın ürettiği yeni müşteri sayısına bölünmesiyle bulunur. 50 dolarlık bir CAC, o dönemde her yeni müşterinin ortalama 50 dolara kazanıldığı anlamına gelir; kohort genelinde bir ortalamadır, kişi başına bir rakam değil. CAC bir maliyettir, bir oran değil, ve bu müşterilerin o fiyata kazanılmaya değip değmediği hakkında tek başına hiçbir şey söylemez. Bu yüzden yaşam boyu değer veya geri ödeme süresiyle birlikte okunur, tek başına değil."
+      },
+      {
+        "id": "how-to-calculate-cac",
+        "q": "CAC nasıl hesaplanır?",
+        "a": "Toplam kazanım harcamasını yeni müşteri sayısına bölün: CAC = Harcama ÷ Yeni Müşteriler. 10.000 dolarlık harcama 200 yeni müşteri ürettiyse, CAC 10.000 ÷ 200 = 50 dolar olur. İki sayı da aynı dönemi ve aynı kazanım kapsamını kapsamalı: mart ayında yapılan bir kampanyanın harcaması, satış döngüsü gecikmesiyle nisanda kaydolan müşterilere bölünmemeli; ücretli kanal harcaması da organik kayıtları içeren bir müşteri sayısına bölünmemeli. Harcamaya neyin dahil edileceği de bir kapsam kararıdır: bazı ekipler yalnızca ücretli medyayı, bazıları da satış ve pazarlama maaşlarını ve araçları ekleyip tam yüklü bir rakama ulaşır. Her ikisi de geçerlidir, önemli olan sayı kıyaslandığı her seferinde aynı tanımın geçerli olmasıdır."
+      },
+      {
+        "id": "costs-in-cac",
+        "q": "CAC'ye hangi maliyetler dahil edilmeli?",
+        "a": "Gelir tanımlamasında olduğu gibi geçerli bir muhasebe standardı olmadığı için tek bir zorunlu liste yoktur. En yaygın 'tam yüklü' tanım; reklam ve pazarlama harcamasını, satış komisyon ve primlerini, pazarlama ve satış maaşlarını ve ilgili genel giderleri içerir. Daha dar bir 'ücretli CAC' ise yalnızca ücretli medya harcamasını içerir ve toplam pazara açılma maliyeti yerine özellikle ücretli kanal verimliliğini ölçer. Hiçbir tanım yanlış değildir. Önemli olan bir kapsam seçip onu tutarlı biçimde uygulamaktır. Bir çeyrek personel maliyetini sessizce ekleyip bir sonrakinde çıkaran bir CAC eğilimi, kazanım verimliliğinde gerçek bir değişimi değil, formülde bir değişimi ölçüyor demektir."
+      },
+      {
+        "id": "cac-vs-cpa-faq",
+        "q": "CAC ile CPA arasındaki fark nedir?",
+        "a": "CAC, bir yeni ödeme yapan müşteri kazanmanın maliyetini ölçer. CPA (edinme başına maliyet veya eylem başına maliyet) ise tanımlanmış bir kazanım veya dönüşüm olayının maliyetini ölçer; bu bir lead, bir kayıt, bir deneme başlangıcı, bir satın alma veya ekibin takip etmeye karar verdiği başka bir olay olabilir; paydanın mutlaka yeni ödeme yapan bir müşteri olması gerekmez. Aradaki fark büyük olabilir: aynı huniden 10 lead'in sadece 1'i ödeme yapan müşteriye dönüşüyorsa, 20 dolarlık bir lead başına maliyet ve 200 dolarlık bir CAC aynı anda doğru olabilir. Terminoloji platformlara ve kuruluşlara göre değişir, bazen bir CPA rakamı gevşek biçimde 'CAC' diye adlandırılır; bu yüzden güvenilir kontrol, sayıya iliştirilen etikete güvenmek yerine paydada gerçekte hangi olayın sayıldığını sormaktır."
+      },
+      {
+        "id": "good-cac",
+        "q": "İyi bir CAC kaçtır?",
+        "a": "Evrensel olarak iyi bir CAC yoktur. Müşterinin ne değer ürettiğine, işletmenin marj yapısına ve kazanım maliyetinin ne kadar hızlı geri kazanılması gerektiğine bağlıdır. 200 dolarlık bir CAC, 2.000 dolarlık bir yaşam boyu değer yanında çok farklı, 150 dolarlık bir yaşam boyu değer yanında çok farklı bir şey ifade eder; ikisinin de ekonomik olarak cazip olup olmadığı yalnızca CAC rakamına değil, müşteri değerinin nasıl tanımlandığına, marja ve geri ödeme hızına da bağlıdır. Daha kullanışlı sorular şunlardır: bu kazanım hangi LTV:CAC oranını üretiyor ve geri ödemesi kaç ay sürüyor. LTV:CAC Oranı Hesaplayıcısı ve CAC Geri Ödeme Süresi Hesaplayıcısı, sizin marjınızı veya müşteri değerinizi bilmeyen düz bir sayı yerine, bunu kendi rakamlarınızla yanıtlar."
+      }
+    ],
+    "seo": {
+      "seoTitle": "CAC Hesaplayıcısı",
+      "seoDescription": "Harcama ve yeni müşterilerden müşteri kazanım maliyetini hesaplayın, CAC'nin CPA'dan nasıl farklılaştığını görün."
+    }
+  }
 }

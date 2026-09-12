@@ -64,12 +64,17 @@ const CATEGORY_TITLE = new Map<CategoryId, string>(CATEGORIES.map((c) => [c.id, 
 
 /** Category identity for the gallery's section headers - the title and the
     category's OWN `purpose` from src/canonical/index.ts, not a sentence
-    written for the UI. Ordered as the canonical library orders them. */
-export type CategoryMeta = { id: CategoryId; title: string; purpose: string };
+    written for the UI. Ordered as the canonical library orders them.
+    `titleTr`/`descriptionTr` are that same file's TR name and one-sentence
+    description for the category (not a translation of `title`/`purpose`) -
+    what the TR routes render instead of the English fields. */
+export type CategoryMeta = { id: CategoryId; title: string; purpose: string; titleTr: string; descriptionTr: string };
 export const CATEGORY_META: readonly CategoryMeta[] = PUBLIC_CATEGORIES.map((c) => ({
   id: c.id,
   title: c.title,
   purpose: c.purpose,
+  titleTr: c.titleTr,
+  descriptionTr: c.descriptionTr,
 }));
 /* Public slugs only: an archived journey's slug resolves to nothing, so its
    route 404s through the tree's own not-found page (dynamicParams is false on
