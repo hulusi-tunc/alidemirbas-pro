@@ -71,6 +71,7 @@
   "qaStatus": "ready",
   "qaNotes": "No SaaS NRR benchmark stated (Phase 4 §16, §8 - no universal claim without sourcing). NRR-vs-GRR is explained within this one page's content, not spun out into a separate comparison page, per the Phase 3 decision that a comparison page would just re-explain the same calculator.",
   "tr": {
+    "heroTitle": "Net Gelir Elde Tutma (NRR) Hesaplayıcısı",
     "page": {
       "tagline": "Genişleme, daralma ve churn sayıldıktan sonra mevcut müşterilerinizin tekrarlayan gelirinin nasıl hareket ettiğini gör.",
       "meaning": [

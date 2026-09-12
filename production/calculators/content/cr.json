@@ -121,6 +121,7 @@
   "qaStatus": "ready",
   "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing 'one equation, many names' framing and both original common-mistakes items - genuinely good prior content. Added worked-example, metric-specific 'what counts as a conversion' section covering denominator/action flexibility per instruction, CR vs CTR comparison-note, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good CR' benchmark stated, including in the good-cr FAQ despite it being a listed SEO secondary keyword. External source: CFI's Customer Conversion Rate page, verified live. Related calculators verified live: ctr, activation-rate, funnel-analysis-multistep.",
   "tr": {
+    "heroTitle": "Dönüşüm Oranı Hesaplayıcısı",
     "page": {
       "tagline": "Fırsatların ne kadarının, saydığınız eylemi tamamladığını gör.",
       "meaning": [

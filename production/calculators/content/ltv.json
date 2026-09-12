@@ -166,6 +166,7 @@
   "qaStatus": "ready",
   "qaNotes": "DEEP depth. No separate top-level Worked Example section - the existing per-mode examples inside the 'models' section already are the worked examples for each of the three real modes (examplesByMode values, unmodified), and a generic single worked-example block would misrepresent a genuinely multi-mode calculator. No universal 'good LTV' number stated anywhere, including FAQ. LTV vs CLV researched - found genuinely interchangeable in practice, stated plainly rather than inventing an artificial distinction. External source: CFI's lifetime value calculation methodology (revenue vs. profit-adjusted), same source cited on the LTV:CAC Ratio page for a related but distinct claim on that page. Related Calculators authored here, verified live: ltv-cac-ratio, cac, cac-payback-period, retention-rate.",
   "tr": {
+    "heroTitle": "LTV Hesaplayıcısı",
     "page": {
       "tagline": "Bir müşterinin, müşteri kaldığı süre boyunca ne değer ürettiğini tahmin et.",
       "meaning": [

@@ -139,6 +139,7 @@
   "qaStatus": "ready",
   "qaNotes": "No universal 'good LTV:CAC ratio' number stated anywhere on the page, including the FAQ - the commonly-repeated 3:1 figure was found during research (even on otherwise-authoritative sources) but deliberately excluded per instruction 12's claim policy. The margin-adjusted-vs-simple LTV model warning comes from the calculator's own validationRules, not invented. External source: CFI's lifetime value calculation methodology (revenue-based vs. profit-adjusted), supporting the 'use margin-adjusted LTV here' claim. Related Calculators authored here, verified live: ltv, cac, cac-payback-period.",
   "tr": {
+    "heroTitle": "LTV:CAC Oranı Hesaplayıcısı",
     "page": {
       "tagline": "Bir müşterinin yaşam boyu ürettiği değeri, onu kazanmanın maliyetiyle kıyasla.",
       "meaning": [

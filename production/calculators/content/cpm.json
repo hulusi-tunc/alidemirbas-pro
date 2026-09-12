@@ -98,6 +98,7 @@
   "qaStatus": "ready",
   "qaNotes": "LIGHT depth (Final Expansion round). Formula/example independently verified: (300/150000)*1000=2.00, matches calculator-catalog.json's exampleOutput exactly; independently re-verified against this round's own brief example (5000/1000000*1000=5) - both consistent with the same formula. Runtime already live (cpm compute function pre-existing in calc-registry.ts, unchanged) - only the content/SEO layer was missing. Mirrors cpc.json's LIGHT shape (formula, worked-example, interpretation, comparison-note, 4 FAQs despite 'faq' being formally prohibited for light depth - same accepted precedent as cpc/ctr/cpa). Comparison-note (CPM vs CPC vs CPA) written independently from cpc.json's own existing 'cpc-vs-cpm-cpa' comparison-note (different specific framing - this one centers on CPM's own reach-only scope, cpc.json's centers on CPC's click-cost scope; no shared sentences). No unsupported benchmark. External source: Airbridge's own CPM definition page (same cost/impressions*1000 formula this calculator implements). Related Calculators verified live: cpc, cpa, roas. 4 FAQs, 100-150 words each, independently word-counted.",
   "tr": {
+    "heroTitle": "CPM Hesaplayıcısı",
     "page": {
       "tagline": "Bir reklamı bin kişiye göstermenin maliyetini gör.",
       "meaning": [

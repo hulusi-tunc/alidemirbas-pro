@@ -95,7 +95,7 @@ const T = {
     searchPlaceholder: "Yazılarda ara…",
     resultsCount: (n: number) => `${n} yazı`,
     emptyFilteredTitle: "Eşleşen yazı yok.",
-    emptyFilteredBody: "Başka bir arama deneyin ya da filtreyi kaldırın.",
+    emptyFilteredBody: "Başka bir arama ya da filtre temizleme gerekebilir.",
     clearFilters: "Filtreleri temizle",
     readArticle: "Yazıyı oku",
   },

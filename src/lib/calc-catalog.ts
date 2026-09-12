@@ -326,6 +326,53 @@ export function shortDescription(spec: CalcSpec, lang: Lang): string {
   return correctedFormulaPlainEnglish(spec);
 }
 
+/* Same pattern as SHORT_DESCRIPTION_TR just above: a small hand-authored
+   map, not a generator-pipeline change. `spec.name` (e.g. "ROAS
+   Calculator") is English-only research-set data; this gives the TR route
+   its own natural card/heading name instead of showing the English one
+   inside a Turkish shell. Values match each calculator's own `tr.heroTitle`/
+   `tr.seo.seoTitle` in production/calculators/content/{slug}.json, so the
+   name is identical whether it's read from the card grid, the detail page
+   H1, or a related-calculators link. Covers LIVE_CALCULATOR_SLUGS only. */
+const NAME_TR: Record<string, string> = {
+  roas: "ROAS Hesaplayıcısı",
+  cpc: "CPC Hesaplayıcısı",
+  cpm: "CPM Hesaplayıcısı",
+  cac: "Müşteri Kazanım Maliyeti (CAC) Hesaplayıcısı",
+  aov: "AOV Hesaplayıcısı",
+  "gross-margin": "Brüt Marj Hesaplayıcısı",
+  "break-even-point": "Başa Baş Noktası Hesaplayıcısı",
+  ltv: "LTV Hesaplayıcısı",
+  "ltv-cac-ratio": "LTV:CAC Oranı Hesaplayıcısı",
+  "cac-payback-period": "CAC Geri Ödeme Süresi Hesaplayıcısı",
+  "retention-rate": "Elde Tutma Oranı Hesaplayıcısı",
+  nrr: "Net Gelir Elde Tutma (NRR) Hesaplayıcısı",
+  "logo-churn": "Logo Churn Hesaplayıcısı",
+  "rule-of-40": "Rule of 40 Hesaplayıcısı",
+  cr: "Dönüşüm Oranı Hesaplayıcısı",
+  "funnel-analysis-multistep": "Çok Adımlı Huni Analizi Hesaplayıcısı",
+  "ab-test": "A/B Test Anlamlılık Hesaplayıcısı",
+  "sample-size-calculator": "Örneklem Büyüklüğü Hesaplayıcısı",
+  "email-performance": "E-posta Performansı Hesaplayıcısı",
+};
+
+/** The calculator's display name for `lang` - `spec.name` on `en`, the
+    natural Turkish name on `tr`. Use this anywhere a calculator's name
+    reaches the screen (card grids, related-calculator links); `spec.name`
+    itself stays English-only research-set data. */
+export function displayName(spec: CalcSpec, lang: Lang): string {
+  if (lang === "tr") return NAME_TR[spec.slug] ?? spec.name;
+  return spec.name;
+}
+
+/** Same lookup, keyed by slug only, for call sites that only have a slug
+    and an English name in hand (e.g. an authored `related[]` entry) rather
+    than a full `CalcSpec`. */
+export function displayNameForSlug(slug: string, fallbackName: string, lang: Lang): string {
+  if (lang === "tr") return NAME_TR[slug] ?? fallbackName;
+  return fallbackName;
+}
+
 /** Homepage teaser entry - the same shape CalculatorLibrary's own
     `CalcEntry` uses (kept structurally compatible, not imported, so this
     lib file stays free of component imports), minus `searchText` (that
@@ -351,8 +398,8 @@ export function getFeaturedCalcEntries(lang: Lang, count: number): FeaturedCalcE
       const group = groupOf(spec.slug);
       return {
         slug: spec.slug,
-        name: spec.name,
-        description: correctedFormulaPlainEnglish(spec),
+        name: displayName(spec, lang),
+        description: shortDescription(spec, lang),
         categoryLabel: GROUP_LABEL[group][lang],
         categoryKey: group,
         href: `${base}/${spec.slug}`,

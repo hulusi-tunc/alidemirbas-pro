@@ -146,6 +146,7 @@
   "qaStatus": "ready",
   "qaNotes": "Content Standard pilot (STANDARD depth, 11-section structure). No universal 'good ROAS' number given anywhere on the page - interpretation and FAQ both frame it around margin/break-even instead, per Phase 4 claim policy. External source: Google Ads Help's own conversion-window documentation, used to support the attribution-window claim in Before You Trust This Result. Related Calculators authored here (not derived from the catalog's relatedCalculators field, which still lists a dead 'incremental-roas' slug) - verified against LIVE_CALCULATOR_SLUGS: marketing-roi, break-even-point, cac, ltv-cac-ratio.",
   "tr": {
+    "heroTitle": "ROAS Hesaplayıcısı",
     "page": {
       "tagline": "Harcanan her reklam biriminin ne kadar gelir getirdiğini gör.",
       "meaning": [

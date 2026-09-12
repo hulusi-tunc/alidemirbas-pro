@@ -125,6 +125,7 @@
   "qaStatus": "ready",
   "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing definition and cohort-retention interpretation prose - genuinely good prior content. Split the original combined formula+example section into a formula section (explicit about why retention+churn=100% holds here specifically, not as a universal identity) and a separate worked-example. Added the required customer-retention-vs-revenue-retention boundary (logo churn != revenue churn), 2 more common mistakes, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good retention rate' benchmark stated, including in the good-retention-rate FAQ despite it being a listed SEO secondary keyword. External source: CFI's Customer Churn vs Revenue Churn page, verified live. Related calculators verified live: nrr, d1-retention, ltv.",
   "tr": {
+    "heroTitle": "Elde Tutma Oranı Hesaplayıcısı",
     "page": {
       "tagline": "Mevcut müşterilerinizin dönem sonunda ne kadarının hâlâ müşteri olduğunu gör.",
       "meaning": [

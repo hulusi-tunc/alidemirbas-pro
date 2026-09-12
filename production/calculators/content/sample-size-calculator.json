@@ -90,6 +90,7 @@
   "qaStatus": "ready",
   "qaNotes": "MDE convention (relative, e.g. 10 = 10% relative lift) matches exactly what Phase 2's calc-registry.ts implements - verified against the same test-calculators.mjs case (29,827) rather than re-deriving independently. Excluded 'what is a good sample size' - there is no universal good number, it's fully determined by the other three inputs, so the SEO map's auto-generated interpretation keyword for this page was intentionally not targeted (Phase 4 §21).",
   "tr": {
+    "heroTitle": "Örneklem Büyüklüğü Hesaplayıcısı",
     "page": {
       "tagline": "Bir testin önemsediğiniz artışı tespit edebilmesi için kaç ziyaretçiye ihtiyacı olduğunu hesapla.",
       "meaning": [

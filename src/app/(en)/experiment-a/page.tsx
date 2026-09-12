@@ -24,7 +24,7 @@ const DEK = withLibraryCount(
 );
 
 export const metadata: Metadata = {
-  title: "Inside the Canonical Journey Library - Ali Demirbaş",
+  title: "Inside the Journey Library - Ali Demirbaş",
   description: DEK,
 };
 
@@ -83,7 +83,7 @@ export default function ExperimentAPage() {
           Lab · Open source
         </p>
         <h1 className="mt-5 max-w-[15ch] text-display-xl text-ink-950">
-          Inside the Canonical Journey Library
+          Inside the Journey Library
         </h1>
         <p className="mt-6 max-w-[52ch] text-xl text-ink-500">{DEK}</p>
 

@@ -17,7 +17,7 @@ import {
   getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS,
   correctedFormulaPlainEnglish, LIBRARY_GROUP, LIBRARY_GROUP_ORDER, TEXT_TOOL_GROUP,
   type LibraryGroup,
-  GROUP_LABEL,
+  GROUP_LABEL, displayName, displayNameForSlug, shortDescription,
 } from "@/lib/calc-catalog";
 import { getContent, type CalcContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
@@ -72,7 +72,7 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
   // seoDescription, in both languages for all 19 live calculators
   // (getContent(slug, "tr") returns the TR versions) - prefer it over the
   // Phase 2 fallback (spec name + formulaPlainEnglish) when present.
-  const title = content ? content.seo.seoTitle : spec ? spec.name : textTool!.title[lang];
+  const title = content ? content.seo.seoTitle : spec ? displayName(spec, lang) : textTool!.title[lang];
   const description = content ? content.seo.seoDescription : spec ? correctedFormulaPlainEnglish(spec) : textTool!.desc[lang];
   return {
     title: `${title} - Ali Demirbaş`,
@@ -128,14 +128,15 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
   const calcEntries: CalcEntry[] = specs.map((spec) => {
     const group = groupOf(spec.slug);
     const categoryLabel = GROUP_LABEL[group][lang];
-    const description = correctedFormulaPlainEnglish(spec);
+    const name = displayName(spec, lang);
+    const description = shortDescription(spec, lang);
     return {
       slug: spec.slug,
-      name: spec.name,
+      name,
       description,
       categoryLabel,
       categoryKey: group,
-      searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
+      searchText: calcSearchText(name, description, categoryLabel, spec.aliases),
       href: `${base}/${spec.slug}`,
     };
   });
@@ -302,7 +303,7 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
      fallback only, for a calculator whose content file has no `tr` object
      yet; there should be none of those among the live 19. */
   const content = getContent(slug, lang) ?? getContent(slug, "en")!;
-  const title = content.heroTitle ?? spec!.name;
+  const title = content.heroTitle ?? displayName(spec!, lang);
 
   /* Authored related links first, catalog-derived as the fallback - both
      re-checked against the live library so a retired slug can never render
@@ -311,8 +312,8 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
   const authored = (content.related ?? []).filter((r) => LIVE_CALCULATOR_SLUGS.includes(r.slug));
   const relatedItems = (
     authored.length > 0
-      ? authored.map((r) => ({ href: `${base}/${r.slug}`, name: r.name }))
-      : runtime.related.map((r) => ({ href: `${base}/${r.slug}`, name: r.name }))
+      ? authored.map((r) => ({ href: `${base}/${r.slug}`, name: displayNameForSlug(r.slug, r.name, lang) }))
+      : runtime.related.map((r) => ({ href: `${base}/${r.slug}`, name: displayNameForSlug(r.slug, r.name, lang) }))
   ).slice(0, 4);
 
   const tool =

@@ -120,6 +120,7 @@
   "qaStatus": "ready",
   "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept existing definition/formula/interpretation prose and both original common-mistakes items. Added worked-example, 'what AOV actually tells you' metric-specific section (order-level vs customer-level, links to LTV), related calculators, and 5-question FAQ (all 100-150 words) including AOV vs LTV. No universal 'good AOV' benchmark stated. External source: CFI's Average Order Value page, verified live (revenue/orders formula confirmed verbatim). Related calculators verified live: revenue-per-visitor, ltv, gross-margin. No separate AOV-vs-LTV comparison-note added - the metric-specific section already covers that boundary, avoiding a redundant section.",
   "tr": {
+    "heroTitle": "AOV Hesaplayıcısı",
     "page": {
       "tagline": "Bir müşterinin tamamlanan bir sipariş başına ortalama harcadığı tutarı gör.",
       "meaning": [

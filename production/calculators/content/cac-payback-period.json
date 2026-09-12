@@ -150,6 +150,7 @@
   "qaStatus": "ready",
   "qaNotes": "No universal 'good payback period' number stated anywhere on the page - SaaS benchmark figures (9-14 months, 12 months as a target) surfaced repeatedly in research from vendor/benchmark-mill sites, deliberately excluded per instruction 12. The margin-adjustment point is the exact one flagged in the calculator's own validationRules, corroborated independently by the external source. External source: CFI's own 'months to recover CAC' methodology page. Related Calculators authored here, verified live: cac, ltv-cac-ratio, ltv.",
   "tr": {
+    "heroTitle": "CAC Geri Ödeme Süresi Hesaplayıcısı",
     "page": {
       "tagline": "Marj hesaba katıldığında bir müşterinin maliyetini geri kazanmanın kaç ay sürdüğünü gör.",
       "meaning": [

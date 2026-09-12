@@ -122,6 +122,7 @@
   "qaStatus": "ready",
   "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing definition/formula/margin-boundaries/interpretation prose and both original common-mistakes items - genuinely good prior content, addressing the cannibalization risk vs contribution-margin/profit-margin already noted in the SEO map. Added worked-example, a dedicated 'gross margin vs gross profit' section (dollar amount vs percentage) per instruction, markup-vs-margin and COGS-leakage common mistakes, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good gross margin' benchmark stated. External source: CFI's Gross Margin page, verified live (formula and margin-vs-profit-margin distinction confirmed). Related calculators verified live: contribution-margin, profit-margin, break-even-point.",
   "tr": {
+    "heroTitle": "Brüt Marj Hesaplayıcısı",
     "page": {
       "tagline": "Doğrudan satılan malın maliyeti düşüldükten sonra gelirin ne kadarının kaldığını gör.",
       "meaning": [
