@@ -80,11 +80,8 @@ const T = {
     catEyebrow: "Categories",
     catTitle: "97 calculators across 13 categories.",
     catSub: "From finance and health to work, travel and everyday calculations.",
-    catCount: (n: number) => `${n} calculator${n === 1 ? "" : "s"}`,
     catExploreAll: "Explore all 13 categories",
     catBrowse: "Browse by category",
-    catOpen: "Open on numerspace.com",
-    catTotal: (n: number, k: number) => `${n} calculators in ${k} categories, all on numerspace.com`,
     heroShotAlt: "numerspace.com's homepage: a search field over category sections of calculator cards.",
 
     privacyEyebrow: "Privacy by design",
@@ -120,11 +117,8 @@ const T = {
     catEyebrow: "Kategoriler",
     catTitle: "13 kategoride 97 hesaplayıcı.",
     catSub: "Finans ve sağlıktan işe, seyahate ve gündelik hesaplamalara.",
-    catCount: (n: number) => `${n} hesaplayıcı`,
     catExploreAll: "13 kategorinin tamamını keşfet",
     catBrowse: "Kategoriye göre göz at",
-    catOpen: "numerspace.com'da aç",
-    catTotal: (n: number, k: number) => `${k} kategoride ${n} hesaplayıcı, hepsi numerspace.com'da`,
     heroShotAlt: "numerspace.com'un ana sayfası: hesaplayıcı kartlarından oluşan kategori bölümlerinin üstünde bir arama alanı.",
 
     privacyEyebrow: "Tasarımdan gelen gizlilik",
@@ -270,13 +264,15 @@ function shortName(name: string) {
 
 function CatalogueSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   const cats = NUMERSPACE_CATALOG[lang];
-  const total = cats.reduce((n, c) => n + c.count, 0);
   return (
     <ProductSection tone="soft" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={t.catEyebrow} title={t.catTitle} body={t.catSub} align="center" />
 
-        {/* The chip row: one per category, with its count - in-page jumps. */}
+        {/* The chip row: one per category, with its count. Display only -
+            no per-calculator listing or outbound numerspace.com links
+            below it (Hulusi, 2026-09-12: no need to send someone to
+            numerspace.com from here for every single tool). */}
         <Reveal delay={80} className="mt-10">
           <p className="text-center text-[13px] text-ink-500">{t.catBrowse}</p>
           <ul className="mt-3 flex list-none flex-wrap justify-center gap-2 p-0">
@@ -284,77 +280,15 @@ function CatalogueSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
               const Icon = LOOK_BY_INDEX[i].icon;
               return (
                 <li key={c.slug}>
-                  <a
-                    href={`#ns-${c.slug}`}
-                    className="inline-flex h-9 items-center gap-2 rounded-full bg-paper px-3.5 text-[13px] font-medium text-ink-700 shadow-hairline transition-colors hover:bg-blue-50 hover:text-primary-700"
-                  >
+                  <span className="inline-flex h-9 items-center gap-2 rounded-full bg-paper px-3.5 text-[13px] font-medium text-ink-700 shadow-hairline">
                     <Icon aria-hidden className="size-4 text-ink-400" />
                     {shortName(c.name)}
                     <span className="text-ink-400 tabular-nums">{c.count}</span>
-                  </a>
+                  </span>
                 </li>
               );
             })}
           </ul>
-        </Reveal>
-
-        {/* The groups: a heading with the category's mark and count, then
-            its calculators as cards, three across. */}
-        <div className="mt-14 flex flex-col gap-14">
-          {cats.map((c, i) => {
-            const look = LOOK_BY_INDEX[i];
-            const Icon = look.icon;
-            return (
-              <section key={c.slug} id={`ns-${c.slug}`} className="scroll-mt-24">
-                <Reveal className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-                  <h3 className="flex items-center gap-3 text-h3 text-ink-950">
-                    <span aria-hidden className={clsx("grid size-9 shrink-0 place-items-center rounded-full", look.tint)}>
-                      <Icon className="size-4.5" />
-                    </span>
-                    {shortName(c.name)}
-                    <span className="text-[14px] font-normal text-ink-500 tabular-nums">{t.catCount(c.count)}</span>
-                  </h3>
-                  <a
-                    href={c.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary-600 transition-colors hover:text-primary-700"
-                  >
-                    {t.catOpen}
-                    <ArrowUpRight aria-hidden className="size-3.5" />
-                  </a>
-                </Reveal>
-                <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {c.items.map((item, j) => (
-                    <Reveal key={item.slug} delay={Math.min(j, 5) * 50}>
-                      <a
-                        href={item.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="group flex h-full gap-4 rounded-card bg-paper p-4 transition-colors hover:bg-blue-50 sm:flex-col sm:gap-2.5 sm:p-5"
-                      >
-                        <span aria-hidden className={clsx("grid size-10 shrink-0 place-items-center rounded-full sm:mb-1", look.tint)}>
-                          <Icon className="size-5" />
-                        </span>
-                        <span className="flex min-w-0 flex-1 flex-col sm:contents">
-                          <span className="text-[15px] font-semibold tracking-tight text-ink-950">{item.name}</span>
-                          <span className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-ink-600 sm:mt-0">{item.description}</span>
-                          <span className="mt-2 flex items-center justify-between gap-2 sm:mt-auto sm:pt-1.5">
-                            <span className="text-[12px] text-ink-400">numerspace.com</span>
-                            <ArrowUpRight aria-hidden className="size-3.5 shrink-0 text-ink-300 transition-colors group-hover:text-primary-600" />
-                          </span>
-                        </span>
-                      </a>
-                    </Reveal>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
-
-        <Reveal delay={60} className="mt-12 text-center text-[13px] text-ink-500 tabular-nums">
-          {t.catTotal(total, cats.length)}
         </Reveal>
       </PortraitContainer>
     </ProductSection>
