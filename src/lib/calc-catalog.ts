@@ -183,7 +183,7 @@ export const GROUP_LABEL: Record<LibraryGroup, { en: string; tr: string }> = {
   "revenue-unit-economics": { en: "Revenue & Unit Economics", tr: "Gelir ve Birim Ekonomisi" },
   "retention-saas": { en: "Retention & SaaS", tr: "Elde Tutma ve SaaS" },
   "conversion-funnel": { en: "Conversion & Funnel", tr: "Dönüşüm ve Huni" },
-  experimentation: { en: "Experimentation", tr: "Deneysel Test" },
+  experimentation: { en: "Experimentation", tr: "A/B Test" },
   "email-crm": { en: "Email & CRM", tr: "E-posta ve CRM" },
   "text-tools": { en: "Text Tools", tr: "Metin Araçları" },
 };

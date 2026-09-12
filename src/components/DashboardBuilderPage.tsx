@@ -55,44 +55,43 @@ const REAL = DASHBOARD_REAL;
 
 const T = {
   en: {
-    eyebrow: "Lab / Data Analysis",
-    heroTitle: "Know which numbers you're allowed to compare.",
+    eyebrow: "Lab / Dashboard Builder",
+    heroTitle: "Tells you which numbers can sit side by side.",
     heroSub:
-      "A Claude Code skill for marketing and growth data. Most of its work happens before any chart is drawn - classifying which numbers are safe to place side by side, and refusing the ones that aren't.",
+      "A Claude Code plugin for marketing and growth data. Most of the work happens before any chart is drawn. It classifies which numbers can be compared and refuses the ones that can't.",
     proof: ["17 tests passing", "11 dashboard templates", "No real account data in the repo"],
 
-    pipelineNote:
-      "Every stage runs once, on the same data - the dashboard and the presentation are two renderings of one analysis, never two separate passes that can quietly disagree with each other.",
+    pipelineNote: "Each stage runs once on the same data. The dashboard and the deck are two outputs of one analysis, not two separate calculations.",
 
-    compEyebrow: "Comparability Engine",
+    compEyebrow: "Comparability check",
     compTitle: "Every number is classified before it's shown.",
-    compSub: "Four states, not a binary blocked/fine flag.",
-    compWorkedLabel: "The reporting template when a rule fires - a real worked example",
+    compSub: "Numbers fall into four classes.",
+    compWorkedLabel: "The report template used when a rule fires. A real example.",
     refusalNotComparable: "Not comparable",
     refusalAsked: "What was asked",
     refusalWhy: "Why it fails",
-    refusalCanSay: "What I can say",
+    refusalCanSay: "What can still be said",
     refusalFix: "To make it comparable",
     revenueLabel: "Revenue by source",
     naiveSumLabel: 'Naive "Total Revenue"',
     trueTotalLabel: "Actual total (Shopify, system of record)",
 
     gateEyebrow: "Before any number is trusted",
-    gateTitle: "Every metric is tagged. Every dataset is gated.",
-    gateSub: "Two checks run before analysis starts: how confident the metric mapping is, and how severe any data-quality issue is.",
+    gateTitle: "Every metric is labeled, every dataset is checked.",
+    gateSub: "Two checks run before analysis starts. How reliable the metric mapping is, and how serious the data quality problem is.",
     registryLabel: "Metric mapping confidence",
     qualityLabel: "Data quality severity",
 
-    insightEyebrow: "Insight Candidate Engine",
-    insightTitle: "An 8-question gate decides what's worth showing.",
-    insightSub: "Not a numeric score - a rule-based gate. Failing the first three suppresses a finding outright.",
+    insightEyebrow: "Insight check",
+    insightTitle: "A finding passes eight questions before it's shown.",
+    insightSub: "No score, just rules. A finding that fails any of the first three is never shown.",
     ifNoLabel: "If no:",
-    suppressQuote: '"SUPPRESS is the point of this engine, not a side effect."',
+    suppressQuote: '"Suppressing is the point of this tool, not a side effect."',
 
     templatesEyebrow: "Dashboards & Presentations",
     templatesTitle: "11 templates. Only the ones your data actually supports.",
-    templatesSub: "Two tiers - a blended, multi-domain dataset or one specific data shape. The same analysis renders as either a dashboard or a presentation.",
-    templatesFilterNote: "Selection runs three filters in order: data shape → business question → available evidence - never a manually-declared vertical.",
+    templatesSub: "Two kinds of template: ones for mixed, multi-domain datasets and ones for a single specific data shape. The same analysis renders as a dashboard or a deck.",
+    templatesFilterNote: "Template selection passes three filters. Data shape, business question, available evidence. No hand-picked vertical template.",
 
     installEyebrow: "Install",
     installTitle: "Install",
@@ -103,66 +102,66 @@ const T = {
     tabLocal: "Local plugin",
     tabSkillsCli: "Skills CLI",
     testNote: "17 tests pass on the current clone.",
-    viewRepo: "Read the repository",
+    viewRepo: "Read the repo",
 
     faqEyebrow: "FAQ",
     ctaEyebrow: "OPEN SOURCE",
-    ctaTitle: "Read what your own marketing data is actually telling you.",
+    ctaTitle: "See what your own data actually says.",
   },
   tr: {
-    eyebrow: "Lab / Veri Analizi",
-    heroTitle: "Hangi sayıları karşılaştırabileceğinizi bilin.",
+    eyebrow: "Lab / Dashboard Oluşturucu",
+    heroTitle: "Hangi sayıların yan yana konabileceğini söyler.",
     heroSub:
-      "Pazarlama ve büyüme verisi için bir Claude Code skill'i. İşinin çoğu herhangi bir grafik çizilmeden önce olur - hangi sayıların yan yana konulmasının güvenli olduğunu sınıflandırmak, olmayanları reddetmek.",
+      "Pazarlama ve büyüme verisi için bir Claude Code eklentisi. İşin çoğu grafik çizilmeden önce olur. Hangi sayıların yan yana konabileceğini sınıflandırır, konamayanları reddeder.",
     proof: ["17 test geçiyor", "11 dashboard şablonu", "Repoda gerçek hesap verisi yok"],
 
-    pipelineNote:
-      "Her aşama aynı veri üzerinde bir kez çalışır - dashboard ve sunum, birbirinden habersiz kalabilecek iki ayrı geçiş değil, tek bir analizin iki farklı render'ıdır.",
+    pipelineNote: "Her aşama aynı veri üzerinde bir kez çalışır. Dashboard ve sunum aynı analizin iki farklı çıktısı, iki ayrı hesap değil.",
 
-    compEyebrow: "Comparability Engine",
+    compEyebrow: "Karşılaştırılabilirlik kontrolü",
     compTitle: "Her sayı gösterilmeden önce sınıflandırılır.",
-    compSub: "İkili engellendi/uygun bayrağı değil, dört durum.",
-    compWorkedLabel: "Bir kural tetiklendiğinde kullanılan raporlama şablonu - gerçek bir örnek",
+    compSub: "Sayılar dört sınıfa ayrılır.",
+    compWorkedLabel: "Bir kural tetiklendiğinde kullanılan rapor şablonu, gerçek bir örnek",
     refusalNotComparable: "Karşılaştırılamaz",
     refusalAsked: "Ne soruldu",
     refusalWhy: "Neden başarısız",
-    refusalCanSay: "Söyleyebileceğim",
+    refusalCanSay: "Yine de söylenebilen",
     refusalFix: "Karşılaştırılabilir yapmak için",
     revenueLabel: "Kaynağa göre gelir",
     naiveSumLabel: 'Saf "Toplam Gelir"',
     trueTotalLabel: "Gerçek toplam (Shopify, sistem kaydı)",
 
     gateEyebrow: "Bir sayıya güvenilmeden önce",
-    gateTitle: "Her metrik etiketlenir. Her veri seti kapıdan geçer.",
-    gateSub: "Analiz başlamadan önce iki kontrol çalışır: metrik eşlemesinin ne kadar güvenilir olduğu ve veri kalitesi sorununun ne kadar ciddi olduğu.",
+    gateTitle: "Her metrik etiketlenir, her veri seti kontrolden geçer.",
+    gateSub: "Analiz başlamadan önce iki kontrol çalışır. Metrik eşlemesi ne kadar güvenilir, veri kalitesi sorunu ne kadar ciddi.",
     registryLabel: "Metrik eşleme güveni",
     qualityLabel: "Veri kalitesi ciddiyeti",
 
-    insightEyebrow: "İçgörü Aday Motoru",
-    insightTitle: "8 soruluk bir kapı neyin gösterilmeye değer olduğuna karar verir.",
-    insightSub: "Sayısal bir skor değil - kural tabanlı bir kapı. İlk üçünü geçemeyen bir bulgu doğrudan bastırılır.",
+    insightEyebrow: "İçgörü kontrolü",
+    insightTitle: "Bir bulgu gösterilmeden önce sekiz sorudan geçer.",
+    insightSub: "Puan yok, kural var. İlk üç soruyu geçemeyen bulgu hiç gösterilmez.",
     ifNoLabel: "Hayırsa:",
-    suppressQuote: '"SUPPRESS bu motorun yan etkisi değil, amacıdır."',
+    suppressQuote: '"Bastırmak bu aracın yan etkisi değil, amacı."',
 
     templatesEyebrow: "Dashboard'lar ve Sunumlar",
-    templatesTitle: "11 şablon. Sadece verinizin gerçekten desteklediği olanlar.",
-    templatesSub: "İki katman - karma, çok alanlı bir veri seti ya da tek bir spesifik veri şekli. Aynı analiz ister dashboard ister sunum olarak render edilir.",
-    templatesFilterNote: "Seçim sırasıyla üç filtreden geçer: veri şekli → iş sorusu → mevcut kanıt - asla elle beyan edilmiş bir vertical değil.",
+    templatesTitle: "11 şablon. Yalnızca verinin desteklediği olanlar sunulur.",
+    templatesSub:
+      "İki tür şablon var. Karma, çok alanlı veri setleri için olanlar ve tek bir belirli veri şekli için olanlar. Aynı analiz dashboard ya da sunum olarak çıkar.",
+    templatesFilterNote: "Şablon seçimi üç filtreden geçer. Verinin şekli, iş sorusu, eldeki kanıt. Elle seçilen sektör şablonu yok.",
 
     installEyebrow: "Kurulum",
     installTitle: "Kurulum",
     installSub: "Reponun kendi README'sinden üç kurulum yolu.",
-    stepAdd: "Eklentiyi Claude Code'a ekleyin",
-    stepTest: "Testleri çalıştırın",
+    stepAdd: "Eklentiyi Claude Code'a ekle",
+    stepTest: "Testleri çalıştır",
     tabMarketplace: "Marketplace",
     tabLocal: "Yerel eklenti",
     tabSkillsCli: "Skills CLI",
     testNote: "Mevcut klonda 17 test geçiyor.",
-    viewRepo: "Repoyu okuyun",
+    viewRepo: "Repoyu oku",
 
     faqEyebrow: "SSS",
     ctaEyebrow: "AÇIK KAYNAK",
-    ctaTitle: "Kendi pazarlama verinizin gerçekte ne söylediğini okuyun.",
+    ctaTitle: "Kendi verinin gerçekte ne söylediğine bak.",
   },
 } as const;
 
@@ -187,14 +186,14 @@ const TONE_HUE: Record<string, BadgeTone> = { emerald: "emerald", sky: "sky", am
 
 const WIN = {
   en: {
-    comp: { label: "Screenshot of the comparability rules: the four states with rule and example, and one refused comparison.", address: "references/comparability-rules.md", title: "Comparability classes", states: "4 states", cls: "Class", rule: "Rule", example: "Example" },
+    comp: { label: "Screenshot of the comparability rules: the four states with rule and example, and one refused comparison.", address: "references/comparability-rules.md", title: "Comparability classes", states: "4 classes", cls: "Class", rule: "Rule", example: "Example" },
     gate: { label: "Screenshot of the metric registry and the data-quality gate: three mapping levels and three severities, each with its example.", address: "references/kpi-framework.md · data-quality-gate.md", levels: "levels" },
-    insight: { label: "Screenshot of the insight gate: the numbered questions with what happens on a no, and the five labels a finding can get.", address: "references/analysis-playbook.md", title: "Insight gate", gate: "8 questions", question: "Question", ifNo: "If no", labels: "Labels" },
+    insight: { label: "Screenshot of the insight gate: the numbered questions with what happens on a no, and the five labels a finding can get.", address: "references/analysis-playbook.md", title: "Insight check", gate: "5 of 8 questions", question: "Question", ifNo: "If no", labels: "Labels" },
   },
   tr: {
-    comp: { label: "Karşılaştırılabilirlik kurallarının ekran görüntüsü: kural ve örnekleriyle dört durum ve reddedilen bir karşılaştırma.", address: "references/comparability-rules.md", title: "Karşılaştırılabilirlik sınıfları", states: "4 durum", cls: "Sınıf", rule: "Kural", example: "Örnek" },
-    gate: { label: "Metrik kaydı ve veri kalitesi kapısının ekran görüntüsü: üç eşleme seviyesi ve üç önem derecesi, her biri örneğiyle.", address: "references/kpi-framework.md · data-quality-gate.md", levels: "seviye" },
-    insight: { label: "İçgörü kapısının ekran görüntüsü: numaralı sorular, hayır cevabında olacaklar ve bir bulgunun alabileceği beş etiket.", address: "references/analysis-playbook.md", title: "İçgörü kapısı", gate: "8 soru", question: "Soru", ifNo: "Hayırsa", labels: "Etiketler" },
+    comp: { label: "Karşılaştırılabilirlik kurallarının ekran görüntüsü: kural ve örnekleriyle dört durum ve reddedilen bir karşılaştırma.", address: "references/comparability-rules.md", title: "Karşılaştırılabilirlik sınıfları", states: "4 sınıf", cls: "Sınıf", rule: "Kural", example: "Örnek" },
+    gate: { label: "Metrik kaydı ve veri kalitesi kontrolünün ekran görüntüsü: üç eşleme seviyesi ve üç önem derecesi, her biri örneğiyle.", address: "references/kpi-framework.md · data-quality-gate.md", levels: "seviye" },
+    insight: { label: "İçgörü kapısının ekran görüntüsü: numaralı sorular, hayır cevabında olacaklar ve bir bulgunun alabileceği beş etiket.", address: "references/analysis-playbook.md", title: "İçgörü kontrolü", gate: "8 sorudan 5'i", question: "Soru", ifNo: "Hayırsa", labels: "Etiketler" },
   },
 } as const;
 
@@ -210,11 +209,14 @@ const TONE_ICON: Record<string, React.ReactNode> = {
   ink: <Ban aria-hidden />,
 };
 
-/** An enum id as the product's badge: its hue, its icon, in sentence case. */
-function IdBadge({ id, tone }: { id: string; tone: string }) {
+/** An enum id as the product's badge: its hue, its icon, and the label a
+    reader sees. The id is the skill's own enum and never changes - the
+    display layer is `label` on the lab-material entry, per language, with
+    `codeLabel` as the fallback for an entry that carries no label yet. */
+function IdBadge({ id, tone, label, lang }: { id: string; tone: string; label?: { en: string; tr: string }; lang: Lang }) {
   return (
     <Badge hue={TONE_HUE[tone] ?? "neutral"} icon={TONE_ICON[tone]} code>
-      {codeLabel(id)}
+      {label ? label[lang] : codeLabel(id)}
     </Badge>
   );
 }
@@ -242,7 +244,7 @@ function ComparabilityWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
           {REAL.comparabilityStates.map((s) => (
             <Tr key={s.id}>
               <Td className="align-top whitespace-nowrap">
-                <IdBadge id={s.id} tone={s.tone} />
+                <IdBadge id={s.id} tone={s.tone} label={s.label} lang={lang} />
               </Td>
               <Td className="align-top leading-snug text-ink-800">{s[lang]}</Td>
               <Td className="hidden align-top text-[12.5px] leading-snug text-ink-600 md:table-cell">{s.example[lang]}</Td>
@@ -295,7 +297,7 @@ function RegistryGateWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
               {pane.levels.map((l) => (
                 <li key={l.id} className="flex gap-3 border-b border-line-soft px-3.5 py-3 last:border-0">
                   <span className="w-28 shrink-0">
-                    <IdBadge id={l.id} tone={l.tone} />
+                    <IdBadge id={l.id} tone={l.tone} label={l.label} lang={lang} />
                   </span>
                   <span className="min-w-0">
                     <span className="block text-[13px] leading-snug text-ink-900">{l[lang]}</span>
@@ -349,7 +351,7 @@ function InsightGateWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
           {REAL.insightLabels.map((l) => (
             <li key={l.id} className="flex items-start gap-3 px-3.5 py-1.5">
               <span className="w-28 shrink-0">
-                <IdBadge id={l.id} tone={l.tone} />
+                <IdBadge id={l.id} tone={l.tone} label={l.label} lang={lang} />
               </span>
               <span className="text-[12.5px] leading-snug text-ink-800">{l[lang]}</span>
             </li>

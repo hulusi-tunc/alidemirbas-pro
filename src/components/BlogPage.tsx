@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { Section } from "@/components/ui/Section";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
@@ -36,14 +38,20 @@ const T = {
   en: {
     eyebrow: "Blog",
     title: "Writing on growth, CRM and lifecycle marketing.",
-    emptyTitle: "Nothing published yet.",
-    emptyBody: "Posts on growth, CRM and lifecycle marketing will be published here.",
+    emptyTitle: "No posts yet.",
+    /* The empty state's one sentence, split so the word "Lab" can carry the
+       real link to the Lab index instead of naming it as plain text. */
+    emptyBodyBefore: "In the meantime, have a look at the ",
+    emptyBodyLink: "Lab",
+    emptyBodyAfter: " projects.",
   },
   tr: {
     eyebrow: "Blog",
-    title: "Büyüme, CRM ve lifecycle pazarlama üzerine yazılar.",
+    title: "Büyüme, CRM ve yaşam döngüsü pazarlaması üzerine yazılar.",
     emptyTitle: "Henüz bir yazı yok.",
-    emptyBody: "Büyüme, CRM ve lifecycle pazarlama üzerine yazılar burada yayımlanacak.",
+    emptyBodyBefore: "Bu arada ",
+    emptyBodyLink: "Lab",
+    emptyBodyAfter: "'deki projelere göz atabilirsin.",
   },
 };
 
@@ -146,7 +154,15 @@ export default function BlogPage({ lang }: { lang: Lang }) {
           facets={facets}
           basePath={basePathFor(lang)}
           emptyTitle={t.emptyTitle}
-          emptyBody={t.emptyBody}
+          emptyBody={
+            <>
+              {t.emptyBodyBefore}
+              <Link href={c.nav.labHref} className="font-medium text-primary-600 transition-colors duration-[var(--duration-fast)] hover:text-primary-700">
+                {t.emptyBodyLink}
+              </Link>
+              {t.emptyBodyAfter}
+            </>
+          }
         />
       </main>
       <SiteFooter t={c} lang={lang} />

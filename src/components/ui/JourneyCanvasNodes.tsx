@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { FlowNode } from "@/lib/canonical-view";
+import type { Lang } from "@/lib/content";
 
 /* Node cards for the journey canvas - one visual system per the attached
    Journey Visual Grammar, distinct from JourneyVisuals.tsx's simpler
@@ -214,6 +215,31 @@ function StatePill({ children, onDark = false }: { children: ReactNode; onDark?:
   );
 }
 
+/* The card faces' own words. The kind names and the two schema-backed
+   secondary states are the only free text these cards write themselves -
+   everything else on a card is canonical prose, which stays English on
+   both locales (see JourneyVisualBody.tsx's own note). `lang` defaults to
+   English so a caller with nothing to localise (the QA sweep route) stays
+   a valid caller. */
+const CARD_TEXT = {
+  en: {
+    external: "External",
+    internal: "Internal",
+    message: "Message",
+    human: "Human",
+    internalAction: "Internal",
+    branches: (n: number) => `${n} branches`,
+  },
+  tr: {
+    external: "Dış",
+    internal: "İç",
+    message: "Mesaj",
+    human: "İnsan",
+    internalAction: "İç işlem",
+    branches: (n: number) => `${n} dal`,
+  },
+} as const;
+
 function EntryPin({ children }: { children: string }) {
   return (
     <span className="absolute -top-3 left-3 flex items-center rounded-full border border-paper bg-ink-950 px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-paper shadow-sm">
@@ -244,8 +270,9 @@ export function TriggerCard({ node, onOpen, entryLabel }: { node: FlowNode; onOp
   );
 }
 
-export function HandoffCard({ node, onOpen }: { node: FlowNode; onOpen: () => void }) {
+export function HandoffCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
   const accent = ACCENT.handoff;
+  const w = CARD_TEXT[lang];
   return (
     <CardShell
       onClick={onOpen}
@@ -257,7 +284,7 @@ export function HandoffCard({ node, onOpen }: { node: FlowNode; onOpen: () => vo
       </KindRow>
       <p className="mt-2 line-clamp-2 text-[14.5px] leading-snug text-ink-900">{node.headline}</p>
       <span className="mt-2 flex">
-        <StatePill>{node.external ? "External" : "Internal"}</StatePill>
+        <StatePill>{node.external ? w.external : w.internal}</StatePill>
       </span>
     </CardShell>
   );
@@ -308,10 +335,12 @@ export function ActionCard({
   onOpen,
   messageLabels,
   humanLabels,
+  lang = "en",
 }: {
   node: FlowNode;
   sequence: number;
   onOpen: () => void;
+  lang?: Lang;
   /** The journey's message-delivery surfaces, localised and ordered. Shown on
       a communication action only; an empty list renders nothing rather than a
       placeholder. */
@@ -321,6 +350,7 @@ export function ActionCard({
       "on SMS". */
   humanLabels: readonly string[];
 }) {
+  const w = CARD_TEXT[lang];
   const execution = node.execution ?? "system";
   const accent = execution === "communication" ? ACCENT.communication : execution === "human" ? ACCENT.human : ACCENT.internal;
   const borderL =
@@ -345,7 +375,7 @@ export function ActionCard({
         }
       >
         <span className={accent.ink}>
-          {execution === "communication" ? "Message" : execution === "human" ? "Human" : "Internal"} ·{" "}
+          {execution === "communication" ? w.message : execution === "human" ? w.human : w.internalAction} ·{" "}
           {String(sequence).padStart(2, "0")}
         </span>
       </KindRow>
@@ -366,8 +396,9 @@ export function ActionCard({
   );
 }
 
-export function ConditionCard({ node, onOpen }: { node: FlowNode; onOpen: () => void }) {
+export function ConditionCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
   const accent = ACCENT.condition;
+  const w = CARD_TEXT[lang];
   // Branch names already sit on the connectors leaving this card (§5 of the
   // grammar: "branch labels belong close to their corresponding edges") -
   // repeating them as pills inside the card too, on top of what the edges
@@ -390,7 +421,7 @@ export function ConditionCard({ node, onOpen }: { node: FlowNode; onOpen: () => 
       </span>
       {typeof node.branchCount === "number" ? (
         <span className="mt-2 flex justify-end">
-          <StatePill>{node.branchCount} branches</StatePill>
+          <StatePill>{w.branches(node.branchCount)}</StatePill>
         </span>
       ) : null}
     </CardShell>

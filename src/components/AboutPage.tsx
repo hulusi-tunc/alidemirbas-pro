@@ -5,11 +5,9 @@ import { ArrowRight, ArrowUpRight, MapPin } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
-import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { ExperienceSpiral } from "@/components/ui/ExperienceSpiral";
-import { StackShowcase } from "@/components/ui/StackShowcase";
 import { getAllBlogPosts } from "@/lib/blog";
 import { withJourneyCount } from "@/lib/archive";
 import { copy, type Lang } from "@/lib/content";
@@ -25,27 +23,34 @@ import { copy, type Lang } from "@/lib/content";
    from content.ts's `about.timeline` - the site's source of truth for those
    facts - and no Simple/Detailed toggle; and the six things he builds as
    the bento tiles the hero uses, from `lab.projects`. The three filler
-   pills ("8+ years building.") and the "Bottom Line" rows are gone. */
+   pills ("8+ years building.") and the "Bottom Line" rows are gone.
+
+   2026-09-12 COPY PASS: the four homepage service tiles and the toolkit
+   band (StackShowcase) were removed from this page, and the six projects
+   are now a plain name + one-line list rather than bento tiles. The page
+   reads hero -> How I work -> the record -> my own projects -> contact
+   (plus the EN-only writing band, which the Turkish page skips because
+   there are no Turkish posts). */
 
 const T = {
   en: {
     wordmark: "Ali Demirbaş",
-    heroText: "I work where growth, lifecycle and product meet.",
-    introPrefix: "Currently, I lead mobile growth at ",
+    heroText: "I work between growth, CRM and product.",
+    introPrefix: "Currently, at ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
-    introSuffix: ", focusing on acquisition, activation, engagement, and digital customer experiences.",
-    outsideWork: "Outside my day-to-day work, I build practical tools, frameworks, and open-source projects around growth and lifecycle marketing.",
-    exploreLabel: "Explore my work",
+    introSuffix: ", I'm responsible for mobile app growth. I work on user acquisition, activation, engagement and the digital customer experience.",
+    outsideWork: "Alongside that I build open-source tools for growth and CRM.",
+    exploreLabel: "See my projects",
     exploreHref: "/lab",
     linkedinLabel: "Connect on LinkedIn",
-    h2: "Over eight years bridging data and marketing into measurable growth.",
-    basedIn: "Based in Istanbul",
+    h2: "Where I've worked so far.",
+    basedIn: "Istanbul",
     nowLabel: "Now",
     city: "Istanbul",
-    languages: "Works in English and Turkish",
-    years: "8+ years",
-    yearsLine: "in digital marketing and growth",
+    languages: "Turkish and English",
+    years: "Since 2019",
+    yearsLine: "digital marketing and growth",
     howEyebrow: "Approach",
     howTitle: "How I work",
     writingEyebrow: "Blog",
@@ -53,39 +58,39 @@ const T = {
     writingIntro: "Notes on growth, CRM and lifecycle marketing.",
     allPosts: "All posts",
     buildEyebrow: "Lab",
-    buildTitle: "What I build outside the day job",
-    buildIntro: "Open-source tools and small products around growth and lifecycle marketing. Each one started as a problem I kept running into.",
+    buildTitle: "My own projects",
+    buildIntro: "Open-source tools and small products for growth and CRM. Each one started with a problem I kept running into.",
     footerEmailLabel: "Email",
     langLabel: "TR",
     langHref: "/tr/about",
   },
   tr: {
     wordmark: "Ali Demirbaş",
-    heroText: "Growth, lifecycle ve ürünün kesiştiği yerdeyim.",
+    heroText: "Büyüme, CRM ve ürün arasında çalışıyorum.",
     introPrefix: "Şu anda ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
-    introSuffix: "'da mobil büyüme çalışmalarına liderlik ediyor; kullanıcı kazanımı, aktivasyon, etkileşim ve dijital müşteri deneyimi üzerine çalışıyorum.",
-    outsideWork: "Bunun yanında growth ve lifecycle marketing alanlarında araçlar, framework'ler ve açık kaynak projeler geliştiriyorum.",
-    exploreLabel: "Çalışmalarıma göz at",
+    introSuffix: "'da mobil uygulamanın büyümesinden sorumluyum. Kullanıcı kazanımı, aktivasyon, etkileşim ve dijital müşteri deneyimi üzerine çalışıyorum.",
+    outsideWork: "Bunun yanında büyüme ve CRM için açık kaynak araçlar yapıyorum.",
+    exploreLabel: "Projelerime göz at",
     exploreHref: "/tr/lab",
     linkedinLabel: "LinkedIn'de bağlantı kur",
-    h2: "Sekiz yıldır veriyi ve pazarlamayı ölçülebilir büyümeye bağlıyorum.",
-    basedIn: "İstanbul'da",
+    h2: "Bugüne kadar çalıştığım yerler.",
+    basedIn: "İstanbul",
     nowLabel: "Şu an",
     city: "İstanbul",
-    languages: "İngilizce ve Türkçe çalışır",
-    years: "8+ yıl",
-    yearsLine: "dijital pazarlama ve growth",
+    languages: "Türkçe ve İngilizce",
+    years: "2019'dan beri",
+    yearsLine: "dijital pazarlama ve büyüme",
     howEyebrow: "Yaklaşım",
     howTitle: "Nasıl çalışıyorum",
     writingEyebrow: "Blog",
     writingTitle: "Yazılar",
-    writingIntro: "Growth, CRM ve lifecycle pazarlama üzerine notlar.",
+    writingIntro: "Büyüme, CRM ve yaşam döngüsü pazarlaması üzerine notlar.",
     allPosts: "Tüm yazılar",
     buildEyebrow: "Lab",
-    buildTitle: "İş dışında ne yapıyorum",
-    buildIntro: "Growth ve lifecycle marketing etrafında açık kaynak araçlar ve küçük ürünler. Her biri, tekrar tekrar karşılaştığım bir problemle başladı.",
+    buildTitle: "Kendi projelerim",
+    buildIntro: "Büyüme ve CRM için açık kaynak araçlar ve küçük ürünler. Her biri, tekrar tekrar karşılaştığım bir problemle başladı.",
     footerEmailLabel: "E-posta",
     langLabel: "EN",
     langHref: "/about",
@@ -205,34 +210,17 @@ export default function AboutPage({ lang }: { lang: Lang }) {
         </section>
 
         {/* HOW HE WORKS: his own two paragraphs (content.ts `about.lead` /
-            `about.body`), and the four services the homepage names, as
-            tiles - the same facts, in his voice, where a first-time reader
-            expects them on an About page. */}
+            `about.body`). The four homepage services used to sit beside them
+            as tiles; they were removed in the 2026-09-12 copy pass - they are
+            the homepage's own section, and repeating them here made the About
+            page a second homepage rather than a page about the person. */}
         <section className="bg-paper py-20 md:py-28">
           <div className="altor-container">
             <SectionHeading eyebrow={t.howEyebrow} title={t.howTitle} />
-            <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
-              <Reveal>
-                <p className="max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.lead}</p>
-                <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.body}</p>
-              </Reveal>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {c.home.work.services.map((service, i) => {
-                  const accent = labAccent(service.tool);
-                  return (
-                    <Reveal key={service.title} delay={80 + i * 60} className="flex">
-                      <div className="flex w-full flex-col rounded-[28px] bg-paper-soft p-6">
-                        <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
-                          <LabProjectIcon slug={service.tool} className="size-5" />
-                        </span>
-                        <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{service.title}</p>
-                        <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{service.body}</p>
-                      </div>
-                    </Reveal>
-                  );
-                })}
-              </div>
-            </div>
+            <Reveal className="mt-12">
+              <p className="max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.lead}</p>
+              <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.body}</p>
+            </Reveal>
           </div>
         </section>
 
@@ -248,32 +236,29 @@ export default function AboutPage({ lang }: { lang: Lang }) {
           </div>
         </section>
 
-        {/* THE TOOLKIT: the same band the homepage carries. */}
-        <StackShowcase lang={lang} />
-
-        {/* WHAT HE BUILDS: the six projects as the hero's tiles. */}
+        {/* WHAT HE BUILDS: the six projects as a plain list - name and one
+            line each. They were a grid of six cards (icon, tagline, proof
+            row) until the 2026-09-12 copy pass; the Lab index is where the
+            projects are presented, and on the About page they only need to
+            be named. The homepage's toolkit band (StackShowcase) went in the
+            same pass, for the same reason. */}
         <section className="bg-paper-soft py-20 md:py-28">
           <div className="altor-container">
             <SectionHeading eyebrow={t.buildEyebrow} title={t.buildTitle} intro={t.buildIntro} />
-            <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-12 overflow-hidden rounded-[28px] bg-paper ring-1 ring-ink-950/[0.06]">
               {c.lab.projects.map((project, i) => {
-                const accent = labAccent(project.slug);
                 const [primary] = project.links;
                 return (
-                  <Reveal key={project.slug} delay={i * 60} className="flex">
+                  <Reveal key={project.slug} delay={i * 60} className="border-t border-line first:border-t-0">
                     <Link
                       href={primary.href}
-                      className="group flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
+                      className="group flex items-center justify-between gap-6 px-6 py-5 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft"
                     >
-                      <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
-                        <LabProjectIcon slug={project.slug} className="size-5" />
+                      <span className="min-w-0">
+                        <span className="block text-lg leading-snug font-semibold text-ink-950">{project.short}</span>
+                        <span className="mt-1 block text-sm leading-relaxed text-pretty text-ink-muted">{withJourneyCount(project.tagline)}</span>
                       </span>
-                      <p className="mt-4 text-lg font-semibold text-ink-950">{project.short}</p>
-                      <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-muted">{withJourneyCount(project.tagline)}</p>
-                      <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium text-ink-950">
-                        <span className="tabular-nums">{withJourneyCount(project.proof ?? "")}</span>
-                        <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
-                      </p>
+                      <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
                     </Link>
                   </Reveal>
                 );

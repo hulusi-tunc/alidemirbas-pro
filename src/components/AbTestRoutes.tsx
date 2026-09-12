@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import AbTestGallery from "@/components/AbTestGallery";
 import AbTestPlaybookPage from "@/components/AbTestPlaybookPage";
 import LabShell from "@/components/LabShell";
+import { categoryLabel } from "@/components/ui/AbTestVisuals";
 import { AB_CATEGORIES, AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail } from "@/lib/ab-test-view";
 import { pageAlternates } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
@@ -15,9 +16,15 @@ type Lang = "en" | "tr";
 export const basePathFor = (lang: Lang) => (lang === "en" ? "/lab/ab-testing/library" : "/tr/lab/ab-testing/library");
 
 const T = {
-  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable A/B test scenarios: the variable under test, the primary KPI, and the guardrails for each.`, back: "A/B Test Library" },
-  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir A/B test senaryosu: test edilen değişken, birincil KPI ve her biri için guardrail'ler.`, back: "A/B Test Kütüphanesi" },
+  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable A/B test scenarios. The variable under test, the primary KPI and the guardrails for each.`, back: "A/B Test Library" },
+  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir A/B test senaryosu. Test edilen değişken, birincil KPI ve her biri için guardrail'ler.`, back: "A/B Test Kütüphanesi" },
 };
+
+/* The gallery is a client component, so the category display labels are
+   resolved here - on the server - and passed down as a plain map. See the
+   note beside CategoryLabels in AbTestGallery.tsx. */
+const categoryLabelsFor = (lang: Lang): Record<string, string> =>
+  Object.fromEntries(AB_CATEGORIES.map((c) => [c.id, categoryLabel(c.id, lang)]));
 
 export function abLibraryIndexMetadata(lang: Lang): Metadata {
   const t = T[lang];
@@ -58,7 +65,14 @@ export function AbLibraryIndexPage({ lang }: { lang: Lang }) {
       </div>
       <div className="px-4 py-6 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <AbTestGallery lang={lang} rows={AB_TEST_ROWS} categories={AB_CATEGORIES} surfaces={SURFACES} basePath={base} />
+          <AbTestGallery
+            lang={lang}
+            rows={AB_TEST_ROWS}
+            categories={AB_CATEGORIES}
+            surfaces={SURFACES}
+            basePath={base}
+            categoryLabels={categoryLabelsFor(lang)}
+          />
         </div>
       </div>
     </LabShell>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Search } from "lucide-react";
 
 import { BlogCard, fallbackCover } from "./BlogCard";
@@ -124,7 +124,9 @@ export function BlogLibrary({
       distinct from the "filtered to zero" empty state below, which needs
       different wording (clear the filter, not "nothing published yet"). */
   emptyTitle: string;
-  emptyBody: string;
+  /** A node, not a string: the empty state's sentence carries a real link
+      to the Lab index inside it (see BlogPage.tsx's own `T` block). */
+  emptyBody: ReactNode;
 }) {
   const t = T[lang];
   const [query, setQuery] = useState("");

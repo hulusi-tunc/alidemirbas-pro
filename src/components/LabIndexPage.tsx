@@ -99,13 +99,13 @@ const T = {
     heroPrefix: "Things I've been",
     heroHighlight: "building",
     tablist: "Lab projects",
-    builderViews: ["A signal becomes a journey", "A journey, as the builder draws it", "Where journeys end"],
+    builderViews: ["A signal becomes a journey", "A journey as the builder draws it", "Where journeys end"],
   },
   tr: {
     heroPrefix: "Üzerinde",
     heroHighlight: "çalıştıklarım",
     tablist: "Lab projeleri",
-    builderViews: ["Bir sinyal journey'e dönüşür", "Builder'ın çizdiği haliyle bir journey", "Journey'lerin bittiği yer"],
+    builderViews: ["Bir sinyal journey'e dönüşür", "Oluşturucunun çizdiği hâliyle bir journey", "Journey'lerin bittiği yer"],
   },
 } as const;
 

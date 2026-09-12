@@ -49,21 +49,56 @@ const nf = (lang: Lang, n: number) => n.toLocaleString(lang === "en" ? "en-US" :
 const SURFACE_LABEL: Record<string, { en: string; tr: string }> = {
   pdp: { en: "Product page", tr: "Ürün sayfası" },
   home: { en: "Home & landing", tr: "Ana sayfa" },
-  form: { en: "Forms & signup", tr: "Form & kayıt" },
+  form: { en: "Forms & signup", tr: "Form ve kayıt" },
   plp: { en: "Category listing", tr: "Kategori listesi" },
   "generic-ui": { en: "UI elements", tr: "Arayüz öğeleri" },
   checkout: { en: "Checkout", tr: "Ödeme" },
-  saas: { en: "SaaS & B2B", tr: "SaaS & B2B" },
+  saas: { en: "SaaS & B2B", tr: "SaaS ve B2B" },
   pricing: { en: "Pricing", tr: "Fiyatlandırma" },
   mobile: { en: "Mobile app", tr: "Mobil uygulama" },
   cart: { en: "Cart", tr: "Sepet" },
   filters: { en: "Filters", tr: "Filtreler" },
   search: { en: "Search", tr: "Arama" },
   thankyou: { en: "Thank you", tr: "Teşekkürler" },
-  dashboard: { en: "Dashboard", tr: "Panel" },
+  dashboard: { en: "Dashboard", tr: "Dashboard" },
 };
 
 const surfaceLabel = (s: string, lang: Lang) => SURFACE_LABEL[s]?.[lang] ?? s;
+
+/* Categories are stored in the frozen dataset as English strings and are
+   printed straight onto cards, facets and detail rails. Same treatment as
+   the surfaces above: display labels for the same 12 real values, so the
+   Turkish pages read Turkish without the data being rewritten. The `en`
+   column is the stored value verbatim. */
+export const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
+  "Product Detail Page": { en: "Product Detail Page", tr: "Ürün detay sayfası" },
+  "Home & Landing": { en: "Home & Landing", tr: "Ana sayfa ve landing" },
+  "Category & Listing": { en: "Category & Listing", tr: "Kategori ve listeleme" },
+  "Forms & Signup": { en: "Forms & Signup", tr: "Form ve kayıt" },
+  "Cart & Checkout": { en: "Cart & Checkout", tr: "Sepet ve ödeme" },
+  "UI Elements": { en: "UI Elements", tr: "Arayüz öğeleri" },
+  "SaaS & B2B": { en: "SaaS & B2B", tr: "SaaS ve B2B" },
+  "Search & Filtering": { en: "Search & Filtering", tr: "Arama ve filtreleme" },
+  "Mobile App": { en: "Mobile App", tr: "Mobil uygulama" },
+  Pricing: { en: "Pricing", tr: "Fiyatlandırma" },
+  "Thank You": { en: "Thank You", tr: "Teşekkür sayfası" },
+  Dashboard: { en: "Dashboard", tr: "Dashboard" },
+};
+
+export const categoryLabel = (c: string, lang: Lang) => CATEGORY_LABEL[c]?.[lang] ?? c;
+
+/* The record's structural enums - setupType, comparisonMode and the
+   difference behaviour - print as raw machine values. Only the values that
+   actually reach a page carry an approved Turkish label; anything else
+   falls through to the stored value rather than being invented here. */
+export const SETUP_LABEL: Record<string, { en: string; tr: string }> = {
+  "control-vs-treatment": { en: "control-vs-treatment", tr: "kontrol / varyant" },
+  "option-vs-option": { en: "option-vs-option", tr: "seçenek / seçenek" },
+  element: { en: "element", tr: "öğe" },
+  change: { en: "change", tr: "değişiklik" },
+};
+
+export const setupLabel = (v: string, lang: Lang) => SETUP_LABEL[v]?.[lang] ?? v;
 
 /* ====================================================================
    VISUAL-01 — Experiment Brief            (Section 01, hero, on dark)
@@ -78,7 +113,7 @@ export function ExperimentBrief({ lang }: { lang: Lang }) {
       {/* header: real id / category / surface straight off the record */}
       <div className="flex items-center justify-between gap-3 border-b border-line-soft px-5 py-3">
         <span className="font-mono text-[11px] tracking-wide text-ink-400 tabular-nums">
-          {FEATURED.id} · {FEATURED.category}
+          {FEATURED.id} · {categoryLabel(FEATURED.category, lang)}
         </span>
         <span className="rounded-xs bg-paper-soft px-2 py-0.5 font-mono text-[11px] text-ink-500">
           {FEATURED.surface}
@@ -289,7 +324,7 @@ function SpreadCardTile({
       <p className="mt-3 min-h-[3.25rem] text-[15px] leading-snug font-medium text-ink-950">
         {card.title}
       </p>
-      <p className="mt-3 text-xs text-ink-400">{card.category}</p>
+      <p className="mt-3 text-xs text-ink-400">{categoryLabel(card.category, lang)}</p>
       <div className="mt-4 flex items-center gap-2 border-t border-line-soft pt-3">
         <span
           aria-hidden
@@ -297,7 +332,9 @@ function SpreadCardTile({
             card.setupType === "control-vs-treatment" ? "bg-primary-600" : "bg-ink-300"
           }`}
         />
-        <span className="font-mono text-[10px] tracking-wide text-ink-400">{card.setupType}</span>
+        <span className="font-mono text-[10px] tracking-wide text-ink-400">
+          {setupLabel(card.setupType, lang)}
+        </span>
         <ArrowRight
           aria-hidden
           className="ml-auto size-3.5 text-ink-300 transition-colors group-hover:text-primary-600"
@@ -320,7 +357,7 @@ export function LibrarySpread({ lang }: { lang: Lang }) {
             key={c.category}
             className="rounded-full border border-line-soft bg-paper px-3 py-1.5 text-[13px] text-ink-600"
           >
-            {c.category}
+            {categoryLabel(c.category, lang)}
             <span className="ml-1.5 text-ink-400 tabular-nums">{c.count}</span>
           </span>
         ))}
@@ -403,7 +440,7 @@ export function HowStepDesign({ lang }: { lang: Lang }) {
         </div>
       </div>
       <p className="mt-auto pt-4 font-mono text-[11px] text-ink-400">
-        {FEATURED.setupType} · {FEATURED.comparisonMode}
+        {setupLabel(FEATURED.setupType, lang)} · {setupLabel(FEATURED.comparisonMode, lang)}
       </p>
     </div>
   );
@@ -618,7 +655,7 @@ export function HeroProductCanvas({ lang }: { lang: Lang }) {
                         {r.title}
                       </span>
                       <span className="mt-0.5 block truncate text-[11px] text-ink-400">
-                        {r.category}
+                        {categoryLabel(r.category, lang)}
                       </span>
                     </span>
                     <span className="hidden shrink-0 sm:block">

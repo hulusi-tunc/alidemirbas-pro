@@ -4,10 +4,10 @@ import { withLibraryCount } from "@/lib/canonical-view";
 import { pageAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Canonical Journey Kütüphanesi - Ali Demirbaş",
+  title: "Journey Kütüphanesi - Ali Demirbaş",
   /* Hesaplanır, elle yazılmaz - bkz. EN karşılığındaki not. */
   description: withLibraryCount(
-    "{categories} kategoriye yayılmış, sektörden bağımsız {count} müşteri journey'si - her biri neyin başlattığını, nerede çatallandığını, ne kadar beklediğini, neyin durdurduğunu ve kişinin sonra hangi lifecycle'a ait olduğunu açıkça söyleyen bir graf.",
+    "{categories} kategoride, sektörden bağımsız journey'ler. Her biri neyin başlattığını, nerede dallandığını, ne kadar beklediğini, neyin durdurduğunu ve kişinin sonra nereye geçtiğini söyler. Mesaj metni içermez. Kayıtlar İngilizce.",
   ),
   alternates: pageAlternates("/lab/journeys", "tr"),
 };

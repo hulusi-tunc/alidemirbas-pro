@@ -4,7 +4,7 @@ import { pageAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Blog - Ali Demirbaş",
-  description: "LTV:CAC, elde tutma eğrileri, ROAS attribution, lifecycle journey ile kampanya farkı ve guardrail metrikleri üzerine kısa yazılar. İçerik İngilizce.",
+  description: "Büyüme, CRM ve yaşam döngüsü pazarlaması üzerine kısa yazılar.",
   alternates: pageAlternates("/blog", "tr"),
 };
 

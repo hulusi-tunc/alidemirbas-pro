@@ -4,7 +4,7 @@ import { pageAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Blog - Ali Demirbaş",
-  description: "Short pieces on LTV:CAC, retention curves, ROAS attribution, lifecycle journeys versus campaigns, and guardrail metrics.",
+  description: "Short posts on growth, CRM and lifecycle marketing.",
   alternates: pageAlternates("/blog", "en"),
 };
 

@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 import type { FlowNode } from "@/lib/canonical-view";
+import type { Lang } from "@/lib/content";
 import { humanize } from "@/components/ui/JourneyCanvasNodes";
 import { springSnap } from "@/lib/motion";
 
@@ -16,20 +17,24 @@ import { springSnap } from "@/lib/motion";
    canonical field, no node-type-specific panel component. One panel renders
    any of the seven kinds because the data shape is already uniform. */
 
-const KIND_LABEL: Record<FlowNode["kind"], string> = {
-  trigger: "Trigger",
-  action: "Internal action",
-  condition: "Condition",
-  wait: "Wait",
-  outcome: "Outcome",
-  exit: "Exit",
-  handoff: "Handoff",
+const KIND_LABEL: Record<FlowNode["kind"], Record<Lang, string>> = {
+  trigger: { en: "Trigger", tr: "Tetikleyici" },
+  action: { en: "Internal action", tr: "İç işlem" },
+  condition: { en: "Condition", tr: "Koşul" },
+  wait: { en: "Wait", tr: "Bekleme" },
+  outcome: { en: "Outcome", tr: "Sonuç" },
+  exit: { en: "Exit", tr: "Çıkış" },
+  handoff: { en: "Handoff", tr: "Devir" },
 };
 
 export type PanelLabels = {
   close: string;
   entry: string;
   terminal: string;
+  /** The locale the kind names render in. Optional so a caller with
+      nothing but English to show (the QA sweep route) stays a valid
+      caller; every other label here is already resolved by the server. */
+  lang?: Lang;
 };
 
 export function NodeDetailPanel({
@@ -45,6 +50,7 @@ export function NodeDetailPanel({
 }) {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const kindLabel = (kind: FlowNode["kind"]) => KIND_LABEL[kind][labels.lang ?? "en"];
 
   /* Matches JourneyModal.tsx's own dialog convention (Escape closes,
      opening moves focus in, closing returns it to whatever opened it) -
@@ -89,7 +95,7 @@ export function NodeDetailPanel({
         <motion.aside
           key={node.id}
           role="dialog"
-          aria-label={KIND_LABEL[node.kind]}
+          aria-label={kindLabel(node.kind)}
           initial={{ x: 24, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 24, opacity: 0 }}
@@ -99,7 +105,7 @@ export function NodeDetailPanel({
           <div className="flex items-start justify-between gap-3 border-b border-line-soft px-5 py-4">
             <div className="min-w-0">
               <p className="flex flex-wrap items-center gap-2 font-mono text-[10px] font-semibold tracking-[0.1em] text-ink-400 uppercase">
-                {KIND_LABEL[node.kind]}
+                {kindLabel(node.kind)}
                 <span className="text-ink-300">·</span>
                 <span className="normal-case">{node.id}</span>
                 {node.isEntry ? (

@@ -19,8 +19,8 @@ import { Work } from "@/components/HomeWork";
 import { withJourneyCount } from "@/lib/archive";
 import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 import {
+  ALL_TOOL_SLUGS,
   getFeaturedCalcEntries,
-  LIVE_CALCULATOR_SLUGS,
 } from "@/lib/calc-catalog";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 
@@ -461,7 +461,7 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           intro={t.home.calc.intro}
         />
         <p className="mt-6 text-sm text-ink-500">
-          <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
+          <span className="tnum">{ALL_TOOL_SLUGS.length}</span> {t.home.calc.countSuffix}
         </p>
 
         <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

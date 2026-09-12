@@ -41,20 +41,20 @@ export const basePathFor = (lang: Lang) => (lang === "en" ? "/calculators" : "/t
 // this codebase already draws elsewhere (a calculator detail page's
 // `heroTitle` override vs. its own `seoTitle`).
 const T = {
-  en: { title: "Free Marketing & Growth Calculators", intro: "Free marketing calculators for ROAS, CAC, CPC, CPM, retention, conversion rates, A/B testing and unit economics. No signup required." },
-  tr: { title: "Ücretsiz Pazarlama & Growth Hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, retention, dönüşüm oranı, A/B testleri ve birim ekonomisi için ücretsiz pazarlama ve growth hesaplama araçları. Üyelik gerekmez." },
+  en: { title: "Marketing calculators", intro: "Free calculators for ROAS, CAC, CPC, CPM, retention, conversion rate, A/B tests and unit economics. No account needed." },
+  tr: { title: "Pazarlama hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, elde tutma, dönüşüm oranı, A/B test ve birim ekonomisi için ücretsiz hesaplayıcılar. Üyelik gerekmiyor." },
 };
 
 const HERO = {
   en: {
-    eyebrow: "Free Marketing & Growth Calculators",
-    title: "Calculate what drives growth.",
-    sub: "Free calculators for acquisition, retention, experimentation and unit economics: ROAS, CAC, conversion rates, A/B significance and more. No signup, no tracking.",
+    eyebrow: "Calculators",
+    title: "Calculators for the marketing metrics you use most.",
+    sub: "Free tools for advertising, user acquisition, retention, A/B testing and unit economics. No account, no tracking.",
   },
   tr: {
-    eyebrow: "Ücretsiz Pazarlama & Growth Hesaplayıcıları",
-    title: "Büyümeyi etkileyen metrikleri hesaplayın.",
-    sub: "Reklam, edinim, elde tutma, deney ve birim ekonomisi için ücretsiz hesaplama araçları: ROAS, CAC, dönüşüm oranı, A/B testi ve daha fazlası. Üyelik yok, takip yok.",
+    eyebrow: "Hesaplayıcılar",
+    title: "Sık kullanılan pazarlama metrikleri için hesaplayıcılar.",
+    sub: "Reklam, kullanıcı kazanımı, elde tutma, A/B test ve birim ekonomisi için ücretsiz araçlar. Üyelik gerekmiyor, veri toplanmıyor.",
   },
 };
 

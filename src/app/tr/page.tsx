@@ -3,9 +3,9 @@ import Site from "@/components/Site";
 import { pageAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Ali Demirbaş - Growth Marketer",
+  title: "Ali Demirbaş - Büyüme, CRM ve ölçümleme",
   description:
-    "Mobil ürünler için veriyle büyüme. Aksigorta'da Mobile App Growth Lead; öncesinde Vodafone, Getir ve Wingie Enuygun Group.",
+    "Aksigorta'da Mobil Uygulama Büyüme Lideri. Öncesinde Vodafone, Getir ve Wingie Enuygun Group. Büyüme, CRM ve ölçümleme üzerine çalışıyorum.",
   alternates: pageAlternates("", "tr"),
 };
 

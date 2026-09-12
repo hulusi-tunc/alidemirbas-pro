@@ -138,7 +138,7 @@ export const AB004_TEXT = {
       kpiLabel: "Takip edilecek KPI",
       kpi: "Ziyaretçi Başına Gelir (RPV) — birincil metrik",
       avoidLabel: "Ne yapılmamalı",
-      avoid: "Aynı testte hem konumu hem metni değiştirmeyin.",
+      avoid: "Aynı testte hem konumu hem metni değiştirme.",
     },
 } as const;
 

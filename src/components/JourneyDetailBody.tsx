@@ -190,6 +190,7 @@ export default function JourneyDetailBody({
           reset: t.canvas.reset,
           close: t.close,
           terminal: t.terminalLabel,
+          lang,
         }}
         caption={caption}
         messageLabels={messageLabels}

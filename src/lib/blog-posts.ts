@@ -140,7 +140,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
     ],
     related: [
-      { href: "/lab/journeys", label: "Canonical Journey Library" },
+      { href: "/lab/journeys", label: "Journey Library" },
       { href: "/calculators/funnel-analysis-multistep", label: "Multi-Step Funnel Analysis Calculator" },
       { href: "/calculators/cr", label: "Conversion Rate Calculator" },
     ],

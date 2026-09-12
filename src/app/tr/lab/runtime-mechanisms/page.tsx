@@ -12,7 +12,7 @@ const t = copy.tr.lab.journeysSplit.surfaces[KEY];
 const intro = t.intro.replace("{count}", String(SURFACE_ROWS[KEY].length)).replace("{presets}", String(PRESET_ROWS.length));
 
 export const metadata: Metadata = {
-  title: `${t.title} - Canonical Journey Kütüphanesi`,
+  title: `${t.title} - Journey Kütüphanesi`,
   description: intro,
   alternates: pageAlternates("/lab/runtime-mechanisms", "tr"),
 };

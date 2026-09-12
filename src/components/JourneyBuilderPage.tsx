@@ -206,10 +206,10 @@ const PANEL_T = {
   },
   tr: {
     dqs: {
-      label: "Builder'ın veri kalitesi raporunun ekran görüntüsü: 100 üzerinden 69, standart derinlik bandı.",
+      label: "Oluşturucunun veri kalitesi raporu: 100 üzerinden 69, standart derinlik bandı.",
       address: "docs/data-quality-score.md",
       scale: "0–100",
-      title: "Data Quality Score",
+      title: "Veri kalitesi skoru",
       worked: "Örnek hesap · e-ticaret, GA4",
       score: "Skor",
       depth: "Derinlik",
@@ -223,7 +223,7 @@ const PANEL_T = {
       ],
     },
     portfolio: {
-      label: "Builder'ın portföyünün ekran görüntüsü: derinlik ve kanallarıyla üç uygun desen, eksik bir event yüzünden kilitli bir tane.",
+      label: "Oluşturucunun portföyü: derinlik ve kanallarıyla üç uygun desen, eksik bir event yüzünden kilitli bir tane.",
       address: "claude-lifecycle · portfolio",
       eligible: "uygun",
       title: "Desen uygunluğu",
@@ -237,12 +237,12 @@ const PANEL_T = {
       rows: [
         { name: "Terk edilmiş sepet", steps: "3-8 adım", channels: ["Email", "Push"], blocked: false },
         { name: "Deneme dönüşümü", steps: "4-10 adım", channels: ["Email", "In-app", "Push"], blocked: false },
-        { name: "Winback", steps: "3-6 adım", channels: ["Email", "SMS"], blocked: false },
+        { name: "Geri kazanım", steps: "3-6 adım", channels: ["Email", "SMS"], blocked: false },
         { name: "Yeniden stoklama", steps: "ürün seviyesi parametre eksik", channels: [], blocked: true },
       ],
     },
     channels: {
-      label: "Builder'ın kanal kurallarının ekran görüntüsü: e-posta, SMS ve push için katı karakter sınırları.",
+      label: "Oluşturucunun kanal kuralları: e-posta, SMS ve push için karakter sınırları.",
       address: "knowledge/channels",
       validator: "doğrulayıcı kuralları",
       title: "Katı karakter sınırları",
@@ -273,6 +273,16 @@ const CHANNEL_ICON = {
 } as const;
 type ChannelName = keyof typeof CHANNEL_HUE;
 const isChannel = (c: string): c is ChannelName => c in CHANNEL_HUE;
+/* The hue/icon key stays the internal channel id; only the badge's visible
+   text is localised, so a TR reader sees "E-posta" on the same violet Mail
+   badge an EN reader sees "Email" on. */
+const CHANNEL_TEXT: Record<ChannelName, Record<Lang, string>> = {
+  Email: { en: "Email", tr: "E-posta" },
+  SMS: { en: "SMS", tr: "SMS" },
+  Push: { en: "Push", tr: "Push" },
+  "In-app": { en: "In-app", tr: "Uygulama içi" },
+};
+const channelText = (c: string, lang: Lang) => (isChannel(c) ? CHANNEL_TEXT[c][lang] : c);
 
 /** Feature 1 - "Data quality is scored, not assumed." The report the
     score comes from: the 0-100 meter with its three real bands, marked
@@ -372,7 +382,7 @@ function PortfolioWindow({ lang }: { lang: Lang }) {
               ) : (
                 r.channels.map((c) => (
                   <Badge key={c} hue={isChannel(c) ? CHANNEL_HUE[c] : "neutral"} icon={isChannel(c) ? CHANNEL_ICON[c] : undefined}>
-                    {c}
+                    {channelText(c, lang)}
                   </Badge>
                 ))
               );
@@ -434,7 +444,7 @@ function ChannelRulesWindow({ lang }: { lang: Lang }) {
                 <Td className="whitespace-nowrap">
                   {first && (
                     <Badge hue={isChannel(r.channel) ? CHANNEL_HUE[r.channel] : "neutral"} icon={isChannel(r.channel) ? CHANNEL_ICON[r.channel] : undefined}>
-                      {r.channel}
+                      {channelText(r.channel, lang)}
                     </Badge>
                   )}
                 </Td>

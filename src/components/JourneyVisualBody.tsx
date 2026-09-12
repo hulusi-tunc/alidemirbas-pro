@@ -33,8 +33,8 @@ import type { copy, Lang } from "@/lib/content";
    canonical free text stays English on the TR site everywhere else in this
    codebase (a journey's own `purpose`, a calculator's editorial content) -
    this component keeps that rule rather than machine-translating 60+
-   journeys' worth of technical prose at build time. Only the four section
-   labels below are real bilingual UI copy.
+   journeys' worth of technical prose at build time. Only the section
+   labels and the timing words below are real bilingual UI copy.
 
    SCOPE, decided by the caller (JourneyRoutes.tsx), not this file: a
    journey qualifies only if its touches form one straight chain (no two
@@ -57,11 +57,13 @@ const UI = {
     whatEyebrow: "Bu journey ne yapar",
     flowEyebrow: "Önerilen akış",
     stopsEyebrow: "Şu durumlarda durur",
-    onEntry: "On entry",
-    afterPreviousTouch: "after the previous touch",
-    afterEntry: "after entry",
+    onEntry: "Girişte",
+    afterPreviousTouch: "önceki temastan sonra",
+    afterEntry: "girişten sonra",
   },
 } as const;
+
+type Ui = (typeof UI)[Lang];
 
 function stageTitle(stage: string): string {
   const s = stage.replace(/[-_]/g, " ").trim();
@@ -70,16 +72,16 @@ function stageTitle(stage: string): string {
 
 /** The touch's own wait timing, but the applied preset's override when the
     current page is a preset that changes this exact wait's config key. */
-function effectiveTiming(step: TimelineStep, configure: readonly ConfigRow[]): string {
-  if (!step.gate) return UI.en.onEntry;
+function effectiveTiming(step: TimelineStep, configure: readonly ConfigRow[], ui: Ui): string {
+  if (!step.gate) return ui.onEntry;
   const row = configure.find((c) => c.usedBy.includes(`wait ${step.gate!.waitId}`));
   return row?.override ?? step.gate.timing;
 }
 
-function timingPhrase(step: TimelineStep, timing: string): string {
+function timingPhrase(step: TimelineStep, timing: string, ui: Ui): string {
   if (!step.gate) return timing;
-  if (step.gate.relativeTo === "previous-touch") return `${timing} ${UI.en.afterPreviousTouch}`;
-  if (step.gate.relativeTo === "trigger") return `${timing} ${UI.en.afterEntry}`;
+  if (step.gate.relativeTo === "previous-touch") return `${timing} ${ui.afterPreviousTouch}`;
+  if (step.gate.relativeTo === "trigger") return `${timing} ${ui.afterEntry}`;
   if (step.gate.relativeTo === "attribute" && step.gate.attribute) {
     // Attribute names are consistently "some_thing_at" (a timestamp field
     // name, e.g. "last_activity_at", "offer_closes_at") - the trailing "_at"
@@ -159,6 +161,7 @@ export default function JourneyVisualBody({
             reset: t.canvas.reset,
             close: t.close,
             terminal: t.terminalLabel,
+            lang,
           }}
           caption={caption}
           messageLabels={messageLabels}
@@ -181,7 +184,7 @@ export default function JourneyVisualBody({
                 <div>
                   <p className="text-[13.5px] font-medium text-ink-900">{stageTitle(step.stage)}</p>
                   <p className="mt-0.5 text-[12.5px] leading-snug text-ink-500">
-                    {timingPhrase(step, effectiveTiming(step, p.configure))}
+                    {timingPhrase(step, effectiveTiming(step, p.configure, ui), ui)}
                   </p>
                 </div>
               </li>

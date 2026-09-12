@@ -79,7 +79,7 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
   const resolved = resolveDetailSlug(slug);
   if (!resolved) return {};
   const { detail, merged, preset } = resolved;
-  const suffix = lang === "en" ? "Canonical Journey Library" : "Canonical Journey Kütüphanesi";
+  const suffix = lang === "en" ? "Journey Library" : "Journey Kütüphanesi";
 
   /* A preset is its own page: its own title, its own canonical, the parent's
      practitioner view with the preset applied. */

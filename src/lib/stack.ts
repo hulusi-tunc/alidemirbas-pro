@@ -22,9 +22,9 @@ export const stackGroups: ToolGroup[] = [
     tools: [
       { name: "Figma", domain: "figma.com", tag: { en: "Design & Prototyping", tr: "Tasarım ve Prototipleme" } },
       { name: "Framer", domain: "framer.com", tag: { en: "Web Design Platform", tr: "Web Tasarım Platformu" } },
-      { name: "ChatGPT", domain: "openai.com", tag: { en: "OpenAI", tr: "OpenAI" } },
+      { name: "ChatGPT", domain: "openai.com", tag: { en: "AI assistant", tr: "Yapay zeka asistanı" } },
       { name: "Canva", domain: "canva.com", tag: { en: "Design & Graphics", tr: "Tasarım ve Grafik" } },
-      { name: "Claude", domain: "claude.ai", tag: { en: "Anthropic AI", tr: "Anthropic AI" } },
+      { name: "Claude", domain: "claude.ai", tag: { en: "AI assistant", tr: "Yapay zeka asistanı" } },
       { name: "Midjourney", domain: "midjourney.com", tag: { en: "AI Image Generation", tr: "Yapay Zeka Görsel Üretimi" } },
     ],
   },
@@ -40,10 +40,10 @@ export const stackGroups: ToolGroup[] = [
     ],
   },
   {
-    title: { en: "Mobile / Attribution (MMP)", tr: "Mobil / Atıf (MMP)" },
+    title: { en: "Mobile measurement (MMP)", tr: "Mobil ölçümleme (MMP)" },
     tools: [
       { name: "Adjust", domain: "adjust.com", tag: { en: "Mobile App Analytics", tr: "Mobil Uygulama Analitiği" } },
-      { name: "AppsFlyer", domain: "appsflyer.com", tag: { en: "Mobile Attribution", tr: "Mobil Atıf" } },
+      { name: "AppsFlyer", domain: "appsflyer.com", tag: { en: "Mobile Attribution", tr: "Mobil attribution" } },
       { name: "Firebase", domain: "firebase.google.com", tag: { en: "App Platform & Analytics", tr: "Uygulama Platformu ve Analitik" } },
       { name: "RevenueCat", domain: "revenuecat.com", tag: { en: "In-App Subscriptions", tr: "Uygulama İçi Abonelikler" } },
     ],
@@ -54,7 +54,6 @@ export const stackGroups: ToolGroup[] = [
       { name: "Data Studio", domain: "datastudio.google.com", logo: "https://www.gstatic.com/analytics-lego/svg/favicon_data_studio.png", tag: { en: "Data Visualisation", tr: "Veri Görselleştirme" } },
       { name: "Tableau", domain: "tableau.com", tag: { en: "Data Visualisation", tr: "Veri Görselleştirme" } },
       { name: "Power BI", domain: "powerbi.microsoft.com", tag: { en: "Business Intelligence", tr: "İş Zekası" } },
-      { name: "Mixpanel", domain: "mixpanel.com", tag: { en: "Product Analytics", tr: "Ürün Analitiği" } },
       { name: "Qlik", domain: "qlik.com", tag: { en: "Business Intelligence", tr: "İş Zekası" } },
       { name: "Graylog", domain: "graylog.org", tag: { en: "Log Management", tr: "Log Yönetimi" } },
       { name: "Kibana", domain: "elastic.co", tag: { en: "Log & Data Analytics", tr: "Log ve Veri Analitiği" } },
@@ -63,7 +62,7 @@ export const stackGroups: ToolGroup[] = [
   {
     title: { en: "CRM & Engagement", tr: "CRM ve Etkileşim" },
     tools: [
-      { name: "Insider", domain: "useinsider.com", tag: { en: "Omnichannel Marketing", tr: "Omnichannel Pazarlama" } },
+      { name: "Insider", domain: "useinsider.com", tag: { en: "CRM & personalization", tr: "CRM ve kişiselleştirme" } },
       { name: "Braze", domain: "braze.com", tag: { en: "Customer Engagement", tr: "Müşteri Etkileşimi" } },
       { name: "Mailchimp", domain: "mailchimp.com", tag: { en: "Email Marketing", tr: "E-posta Pazarlaması" } },
       { name: "OneSignal", domain: "onesignal.com", tag: { en: "Push Notifications", tr: "Push Bildirimleri" } },
@@ -80,7 +79,7 @@ export const stackGroups: ToolGroup[] = [
     ],
   },
   {
-    title: { en: "CRO / A-B Test / Experimentation", tr: "CRO / A-B Test / Deneyler" },
+    title: { en: "CRO & A/B testing", tr: "CRO ve A/B test" },
     tools: [
       { name: "Insider", domain: "useinsider.com", tag: { en: "Web Personalization & A/B", tr: "Web Kişiselleştirme ve A/B" } },
     ],
@@ -89,7 +88,7 @@ export const stackGroups: ToolGroup[] = [
     title: { en: "Work Management", tr: "İş Yönetimi" },
     tools: [
       { name: "Jira", domain: "atlassian.com", tag: { en: "Project Management", tr: "Proje Yönetimi" } },
-      { name: "Notion", domain: "notion.so", tag: { en: "Work Management Tool", tr: "İş Yönetim Aracı" } },
+      { name: "Notion", domain: "notion.so", tag: { en: "Notes & docs", tr: "Notlar ve dokümantasyon" } },
       { name: "Trello", domain: "trello.com", tag: { en: "Task Boards", tr: "Görev Panoları" } },
     ],
   },

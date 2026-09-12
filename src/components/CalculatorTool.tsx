@@ -193,7 +193,7 @@ export default function CalculatorTool({ spec, lang }: { spec: RuntimeCalcSpec; 
               <ResultHint>
                 {lang === "en"
                   ? "Enter your numbers and press Calculate."
-                  : "Sayılarınızı girin ve Hesapla'ya basın."}
+                  : "Sayıları gir, Hesapla'ya bas."}
               </ResultHint>
             </>
           ) : isFunnel ? (

@@ -320,15 +320,33 @@ export function BuilderCanvasWindow({
 
 /* The dashboard's own sections, as its README lists them (six of the
    nine, so the strip fits one row; the open one is the Explorer), each
-   with an icon that says what the section is. */
-export const EXPLORER_TABS: readonly TabItem[] = [
-  { label: "Summary", icon: <LayoutDashboard aria-hidden /> },
-  { label: "Activity Timeline", icon: <Activity aria-hidden /> },
-  { label: "User Activity", icon: <Users aria-hidden /> },
-  { label: "Category Distribution", icon: <PieChart aria-hidden /> },
-  { label: "Rule Matches", icon: <ShieldAlert aria-hidden /> },
-  { label: "Change Explorer", icon: <Table2 aria-hidden /> },
-];
+   with an icon that says what the section is. The key on the left is the
+   product's own section name and never changes - it is what `active` is
+   addressed by; only the rendered label is localised. */
+const EXPLORER_TAB_TEXT = {
+  Summary: { en: "Summary", tr: "Özet" },
+  "Activity Timeline": { en: "Activity Timeline", tr: "Zaman çizelgesi" },
+  "User Activity": { en: "User Activity", tr: "Kullanıcı aktivitesi" },
+  "Category Distribution": { en: "Category Distribution", tr: "Kategori dağılımı" },
+  "Rule Matches": { en: "Rule Matches", tr: "Kural eşleşmeleri" },
+  "Change Explorer": { en: "Change Explorer", tr: "Değişiklik gezgini" },
+} as const;
+export type ExplorerTabKey = keyof typeof EXPLORER_TAB_TEXT;
+const EXPLORER_TAB_ICON: Record<ExplorerTabKey, ReactNode> = {
+  Summary: <LayoutDashboard aria-hidden />,
+  "Activity Timeline": <Activity aria-hidden />,
+  "User Activity": <Users aria-hidden />,
+  "Category Distribution": <PieChart aria-hidden />,
+  "Rule Matches": <ShieldAlert aria-hidden />,
+  "Change Explorer": <Table2 aria-hidden />,
+};
+const EXPLORER_TAB_ORDER = ["Summary", "Activity Timeline", "User Activity", "Category Distribution", "Rule Matches", "Change Explorer"] as const;
+export const explorerTabs = (lang: Lang): readonly TabItem[] =>
+  EXPLORER_TAB_ORDER.map((k) => ({ label: EXPLORER_TAB_TEXT[k][lang], icon: EXPLORER_TAB_ICON[k] }));
+/** The visible label for one section, for callers that address a tab by
+    its stable key when setting `active`. */
+export const explorerTabLabel = (key: ExplorerTabKey, lang: Lang) => EXPLORER_TAB_TEXT[key][lang];
+export const EXPLORER_TABS: readonly TabItem[] = explorerTabs("en");
 
 type ExplorerRow = (typeof CHANGE_HISTORY_REAL.explorerRows)[number];
 
@@ -485,7 +503,7 @@ export function ExplorerWindow({
   const section = clsx("text-[12px] font-semibold", dark ? "text-white/55" : "text-ink-600");
   return (
     <Window label={w.labels.explorer} address="dashboard.html" tone={tone} meta={`${w.changes(R.totalChanges)} · ${R.period[lang]}`} className={className}>
-      <TabStrip tone={tone} items={EXPLORER_TABS} active="Change Explorer" />
+      <TabStrip tone={tone} items={explorerTabs(lang)} active={explorerTabLabel("Change Explorer", lang)} />
       <div className="flex">
         <Rail tone={tone} title={w.filters} icon={<Filter aria-hidden />} className={clsx("hidden md:block", detail ? "w-52" : "w-56")}>
           <div className="px-3.5 pb-3.5">

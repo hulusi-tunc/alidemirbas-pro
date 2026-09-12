@@ -52,13 +52,13 @@ const T = {
     eyebrow: "Lab",
     whatItDoesTitle: "What it is",
     whatItDoesBody:
-      "A public calculator site: 97 tools across 13 categories - finance and investment, health and fitness, work and career, tax, time and date, marketing analytics, maths and unit conversion, home, travel, pets, clothing sizes, astrology and faith. Every tool exists in both Turkish and English, with the same 97 in each.",
+      "A public calculator site. 97 tools in 13 categories: finance and investing, health and fitness, work and career, tax, time and dates, marketing analytics, math and unit conversion, home, travel, pets, clothing sizes, astrology and faith. Every tool in both Turkish and English.",
     howItWorksTitle: "How it's built",
     howItWorksBody:
-      "The design constraint is friction: a calculator you have to sign up for is a calculator you use once. Nothing is behind an account, a paywall, or an email field, and nothing you type leaves your browser.",
+      "The design constraint is friction. A calculator that needs an account gets used once. Nothing sits behind an account, a paywall or an email field.",
     bullets: [
       "Free with no registration - no subscription, no credit card, no email. Every tool works as a guest.",
-      "Calculations run client-side. Salary, weight, birth date, loan amount - none of it is sent to a server, and it is gone when the tab closes.",
+      "Most calculations run in the browser. A salary, a weight, a birth date, a loan amount: none of it is stored on a server, and it's gone when you close the tab.",
       "Fully bilingual: 97 calculators in Turkish and the same 97 in English, interface and results included.",
       "Formulas are the recognised ones - Mifflin-St Jeor, Devine, Hamwi for health - alongside Turkish tax and labour regulation (SGK, GİB) for the tools that depend on it.",
       "Responsive rather than an app: same experience on phone, tablet and desktop, nothing to download.",
@@ -87,7 +87,7 @@ const T = {
       {
         id: "formulas",
         q: "Where do the formulas come from?",
-        a: "Established formulas and official sources - Mifflin-St Jeor, Devine and Hamwi for the health calculators, and official regional rules (SGK, GİB) for the ones tied to tax and labour regulation. They're a strong reference, not professional advice - check with someone qualified for a legal, financial or medical decision.",
+        a: "Established formulas and official sources. Mifflin-St Jeor, Devine and Hamwi for the health calculators; SGK and GİB for the tools tied to Turkish tax and labour rules. The results are for information. Talk to a professional before a legal, financial or medical decision.",
       },
       {
         id: "languages",
@@ -106,22 +106,22 @@ const T = {
     eyebrow: "Lab",
     whatItDoesTitle: "Nedir",
     whatItDoesBody:
-      "Herkese açık bir hesaplayıcı sitesi: 13 kategoride 97 araç - finans ve yatırım, sağlık ve fitness, iş ve kariyer, vergi, zaman ve tarih, pazarlama analitiği, matematik ve birim dönüşümü, ev, seyahat, evcil hayvan, kıyafet bedeni, astroloji ve inanç. Her araç hem Türkçe hem İngilizce var; ikisinde de aynı 97 araç.",
+      "Herkese açık bir hesaplayıcı sitesi. 13 kategoride 97 araç: finans ve yatırım, sağlık ve fitness, iş ve kariyer, vergi, zaman ve tarih, pazarlama analitiği, matematik ve birim dönüşümü, ev, seyahat, evcil hayvan, kıyafet bedeni, astroloji ve inanç. Her araç hem Türkçe hem İngilizce.",
     howItWorksTitle: "Nasıl kurgulandı",
     howItWorksBody:
-      "Tasarım kısıtı sürtünme: üye olman gereken bir hesaplayıcıyı bir kez kullanırsın. Hiçbir şey hesabın, ödeme duvarının ya da e-posta alanının arkasında değil; yazdığın hiçbir şey tarayıcından çıkmıyor.",
+      "Tasarım kısıtı sürtünme. Üye olman gereken bir hesaplayıcıyı bir kez kullanırsın. Hiçbir şey hesabın, ödeme duvarının ya da e-posta alanının arkasında değil.",
     bullets: [
-      "Kayıt gerektirmeyen ücretsiz kullanım: abonelik yok, kredi kartı yok, e-posta yok. Her araç misafir kullanıcıyla çalışıyor.",
-      "Hesaplamalar tarayıcıda çalışıyor. Maaş, kilo, doğum tarihi, kredi tutarı - hiçbiri sunucuya gitmiyor ve sekmeyi kapattığında siliniyor.",
-      "Tam iki dilli: Türkçe 97 hesaplayıcı, İngilizce aynı 97'si - arayüz ve sonuçlar dahil.",
-      "Formüller kabul görmüş olanlar - sağlık tarafında Mifflin-St Jeor, Devine, Hamwi - ve mevzuata bağlı araçlarda Türkiye mevzuatı (SGK, GİB).",
-      "Uygulama değil, duyarlı tasarım: telefonda, tablette ve masaüstünde aynı deneyim, indirilecek bir şey yok.",
-      "Girdileri değişen araçlar - vergi oranları, finansal veriler, birim değerleri - standartlar değiştikçe güncelleniyor.",
+      "Kayıt gerektirmeyen ücretsiz kullanım. Abonelik yok, kredi kartı yok, e-posta yok.",
+      "Hesaplamaların çoğu tarayıcıda çalışır. Maaş, kilo, doğum tarihi, kredi tutarı sunucuda saklanmaz ve sekmeyi kapattığında silinir.",
+      "Tam iki dilli. Türkçe 97 hesaplayıcı, İngilizce aynı 97'si; arayüz ve sonuçlar dahil.",
+      "Formüller kabul görmüş olanlar. Sağlıkta Mifflin-St Jeor, Devine, Hamwi; mevzuata bağlı araçlarda Türkiye mevzuatı (SGK, GİB).",
+      "Uygulama değil, duyarlı web. Telefonda, tablette ve masaüstünde aynı deneyim; indirilecek bir şey yok.",
+      "Girdisi değişen araçlar (vergi oranları, finansal veriler, birim değerleri) standartlar değiştikçe güncellenir.",
     ],
     useTitle: "Nasıl kullanılır",
     step1Title: "Siteyi aç",
     step1Desc: "Sağ üstteki değiştiriciyle Türkçe ya da İngilizce seç; ikisinde de katalogun tamamı var.",
-    step2Title: "Hesaplayıcıyı bulun",
+    step2Title: "Hesaplayıcıyı bul",
     step2Desc: "Ana sayfadan ara ya da bir kategoriden ilerle: Finans, Sağlık, Pazarlama ve diğerleri.",
     step3Title: "Sayıları gir",
     step3Desc: "Sonuç siz yazarken çıkıyor. Hesap yok, dışa aktarma adımı yok, sonrasında saklanan bir şey yok.",
@@ -141,12 +141,12 @@ const T = {
       {
         id: "formulas",
         q: "Formüller nereden geliyor?",
-        a: "Kabul görmüş formüller ve resmi kaynaklardan - sağlık hesaplayıcılarında Mifflin-St Jeor, Devine ve Hamwi; vergi ve iş mevzuatına bağlı araçlarda resmi kaynaklar (SGK, GİB). Bunlar güçlü bir referans, uzman görüşü değil - yasal, finansal ya da tıbbi bir kararda önce bir uzmana danışın.",
+        a: "Kabul görmüş formüller ve resmi kaynaklar. Sağlık hesaplayıcılarında Mifflin-St Jeor, Devine ve Hamwi; vergi ve iş mevzuatına bağlı araçlarda SGK ve GİB. Sonuçlar bilgi amaçlı. Hukuki, finansal ya da tıbbi bir karar vermeden önce bir uzmana danış.",
       },
       {
         id: "languages",
         q: "Her hesaplayıcı Türkçe ve İngilizce destekliyor mu?",
-        a: "Evet. Sitemap her iki dilde de 97 hesaplayıcı sayfası listeliyor - arayüz, girdiler ve sonuçlar araç araç birlikte yerelleştirilmiş.",
+        a: "Evet. Her iki dilde de 97 hesaplayıcı var; arayüz, girdiler ve sonuçlar araç araç birlikte yerelleştirilmiş.",
       },
       {
         id: "requests",

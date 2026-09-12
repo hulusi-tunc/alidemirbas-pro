@@ -17,11 +17,11 @@
 export const DASHBOARD_REAL = {
   pipeline: [
     { en: "Data", tr: "Veri" },
-    { en: "Quality gate", tr: "Kalite kapısı" },
+    { en: "Quality gate", tr: "Kalite kontrolü" },
     { en: "Metric registry", tr: "Metrik kaydı" },
-    { en: "Comparability engine", tr: "Karşılaştırılabilirlik motoru" },
+    { en: "Comparability engine", tr: "Karşılaştırılabilirlik kontrolü" },
     { en: "Analysis", tr: "Analiz" },
-    { en: "Insight engine", tr: "İçgörü motoru" },
+    { en: "Insight engine", tr: "İçgörü kontrolü" },
   ],
   pipelineOutputs: [
     { en: "Dashboard", tr: "Dashboard" },
@@ -41,9 +41,14 @@ export const DASHBOARD_REAL = {
     trueTotal: 1.0,
   },
 
+  /* Each class/level below keeps its source-file id verbatim - the ids are
+     the skill's own enum, not copy. `label` is the display layer the pages
+     render instead of the raw id, so a Turkish page can read Turkish
+     without the id itself ever changing. */
   comparabilityStates: [
     {
       id: "DIRECT",
+      label: { en: "Direct", tr: "Doğrudan" },
       tone: "emerald",
       en: "Same counting unit, denominator, attribution window/model, date basis.",
       tr: "Aynı sayım birimi, payda, attribution penceresi/modeli, tarih tabanı.",
@@ -54,29 +59,32 @@ export const DASHBOARD_REAL = {
     },
     {
       id: "NORMALIZABLE",
+      label: { en: "Normalizable", tr: "Dönüştürülebilir" },
       tone: "sky",
-      en: "A pure unit/scale conversion - nothing else differs.",
-      tr: "Sadece birim/ölçek dönüşümü - başka hiçbir şey farklı değil.",
+      en: "A pure unit or scale conversion. Nothing else differs.",
+      tr: "Sadece birim ya da ölçek dönüşümü. Başka hiçbir şey farklı değil.",
       example: {
         en: "MER as spend÷revenue (Triple Whale) vs revenue÷spend (others) - a reciprocal.",
-        tr: "MER: spend÷revenue (Triple Whale) ile revenue÷spend (diğerleri) - birbirinin tersi.",
+        tr: "MER, spend÷revenue (Triple Whale) ile revenue÷spend (diğerleri). Birbirinin tersi.",
       },
     },
     {
       id: "CONDITIONAL",
+      label: { en: "Conditional", tr: "Koşullu" },
       tone: "amber",
-      en: "Both valid, answering different questions - state each, never rank them.",
-      tr: "İkisi de geçerli ama farklı soruları yanıtlıyor - her birini ayrı belirtin, sıralamayın.",
+      en: "Both valid, answering different questions. State each, never rank them.",
+      tr: "İkisi de geçerli ama farklı soruları yanıtlıyor. Her birini ayrı belirt, sıralama.",
       example: {
         en: "Play Console ~70% D30 vs Firebase ~20% D30 - both correct.",
-        tr: "Play Console ~%70 D30 ile Firebase ~%20 D30 - ikisi de doğru.",
+        tr: "Play Console ~%70 D30 ile Firebase ~%20 D30. İkisi de doğru.",
       },
     },
     {
       id: "NOT_COMPARABLE",
+      label: { en: "Not comparable", tr: "Karşılaştırılamaz" },
       tone: "rose",
-      en: "The definitions themselves diverge. Refuse, and name the mechanic.",
-      tr: "Tanımların kendisi farklı. Reddedin ve mekanizmayı adlandırın.",
+      en: "The definitions themselves differ. Refuse, and name the mechanism.",
+      tr: "Tanımların kendisi farklı. Reddet ve farkın mekanizmasını adlandır.",
       example: {
         en: 'GA4 + Meta + Google Ads + Shopify revenue summed into one "Total Revenue."',
         tr: 'GA4 + Meta + Google Ads + Shopify gelirinin tek bir "Toplam Gelir"de toplanması.',
@@ -97,14 +105,15 @@ export const DASHBOARD_REAL = {
       tr: "her platformun ROAS trendi kendi önceki dönemine karşı geçerli.",
     },
     fix: {
-      en: "re-pull both at 7-day click / 1-day view, or settle it with a geo holdout - attributed ROAS will not answer this at any window.",
-      tr: "ikisini de 7 günlük tıklama / 1 günlük görüntüleme ile yeniden çekin ya da bir geo holdout ile çözün - attribution'lu ROAS bunu hiçbir pencerede yanıtlamaz.",
+      en: "Re-pull both at 7-day click / 1-day view, or settle it with a geo holdout. Attributed ROAS won't answer this at any window.",
+      tr: "İkisini de 7 günlük tıklama / 1 günlük görüntüleme ile yeniden çek ya da bir geo holdout ile çöz. Attribution'lu ROAS bunu hiçbir pencerede yanıtlamaz.",
     },
   },
 
   registryLevels: [
     {
       id: "EXACT",
+      label: { en: "Exact", tr: "Kesin" },
       tone: "emerald",
       en: "A known, named field of an identified platform.",
       tr: "Tanımlanmış bir platformun bilinen, adlandırılmış alanı.",
@@ -112,16 +121,18 @@ export const DASHBOARD_REAL = {
     },
     {
       id: "INFERRED",
+      label: { en: "Inferred", tr: "Çıkarım" },
       tone: "sky",
       en: "Very likely, but rests on a stated assumption.",
       tr: "Çok olası, ama belirtilmiş bir varsayıma dayanıyor.",
       example: {
         en: "A column called media_cost is almost certainly spend - which cost scope isn't established.",
-        tr: "media_cost adlı bir sütun neredeyse kesin harcamadır - hangi maliyet kapsamı olduğu belirsiz.",
+        tr: "media_cost adlı bir sütun neredeyse kesin harcamadır; hangi maliyet kapsamı olduğu belirsiz.",
       },
     },
     {
       id: "AMBIGUOUS",
+      label: { en: "Ambiguous", tr: "Belirsiz" },
       tone: "amber",
       en: "Multiple definitions fit, nothing settles it. Never picked silently.",
       tr: "Birden çok tanım uyuyor, hiçbiri kesin değil. Asla sessizce seçilmez.",
@@ -135,13 +146,15 @@ export const DASHBOARD_REAL = {
   qualityLevels: [
     {
       id: "BLOCKER",
+      label: { en: "Blocker", tr: "Engelleyici" },
       tone: "rose",
       en: "Stops the analysis of the affected slice.",
       tr: "Etkilenen dilimin analizini durdurur.",
-      example: { en: "Primary key has duplicates, or a declared grain is violated.", tr: "Primary key'de tekrar var ya da beyan edilen grain ihlal edilmiş." },
+      example: { en: "Primary key has duplicates, or a declared grain is violated.", tr: "Birincil anahtarda tekrar var ya da beyan edilen kırılım tutmuyor." },
     },
     {
       id: "WARNING",
+      label: { en: "Warning", tr: "Uyarı" },
       tone: "amber",
       en: "Computed, but labeled with the caveat inline.",
       tr: "Hesaplanır, ama uyarı satır içinde belirtilir.",
@@ -149,9 +162,10 @@ export const DASHBOARD_REAL = {
     },
     {
       id: "INFO",
+      label: { en: "Info", tr: "Bilgi" },
       tone: "neutral",
       en: "Noted once in the ingestion summary, not repeated.",
-      tr: "Alım özetinde bir kez belirtilir, tekrarlanmaz.",
+      tr: "Veri alma özetinde bir kez belirtilir, tekrarlanmaz.",
       example: { en: "Minor naming variance, rounding differences.", tr: "Küçük adlandırma farkı, yuvarlama farkları." },
     },
   ],
@@ -161,25 +175,25 @@ export const DASHBOARD_REAL = {
   // concentration / an open alternative explanation / evidence grading
   // rather than a straightforward pass-or-suppress question).
   insightQuestions: [
-    { n: 1, en: "Is the change real?", tr: "Değişiklik gerçek mi?", ifNo: { en: "SUPPRESS - a data finding, not a business finding.", tr: "SUPPRESS - bu bir veri bulgusu, iş bulgusu değil." } },
-    { n: 2, en: "Is it statistically supportable?", tr: "İstatistiksel olarak desteklenebilir mi?", ifNo: { en: "SUPPRESS - noise wearing a percentage sign.", tr: "SUPPRESS - yüzde işareti takmış gürültü." } },
-    { n: 3, en: "Is it material?", tr: "Önemli mi?", ifNo: { en: "LOW at most, usually SUPPRESS.", tr: "En fazla LOW, genelde SUPPRESS." } },
-    { n: 5, en: "Is it economically important?", tr: "Ekonomik olarak önemli mi?", ifNo: { en: "MEDIUM at most.", tr: "En fazla MEDIUM." } },
-    { n: 8, en: "Is it actionable?", tr: "Aksiyona dönüştürülebilir mi?", ifNo: { en: "MEDIUM/LOW - real but not urgent.", tr: "MEDIUM/LOW - gerçek ama acil değil." } },
+    { n: 1, en: "Is the change real?", tr: "Değişiklik gerçek mi?", ifNo: { en: "Suppressed. A data finding, not a business finding.", tr: "Gösterilmez. Bu bir veri bulgusu, iş bulgusu değil." } },
+    { n: 2, en: "Is it statistically supportable?", tr: "İstatistiksel olarak desteklenebilir mi?", ifNo: { en: "Suppressed. Noise wearing a percentage sign.", tr: "Gösterilmez. Yüzde işareti takmış gürültü." } },
+    { n: 3, en: "Is it material?", tr: "Önemli mi?", ifNo: { en: "Low at most, usually suppressed.", tr: "En fazla Düşük, genelde gösterilmez." } },
+    { n: 5, en: "Is it economically important?", tr: "Ekonomik olarak önemli mi?", ifNo: { en: "Medium at most.", tr: "En fazla Orta." } },
+    { n: 8, en: "Is it actionable?", tr: "Aksiyona dönüştürülebilir mi?", ifNo: { en: "Medium or low. Real but not urgent.", tr: "Orta ya da Düşük. Gerçek ama acil değil." } },
   ],
 
   insightLabels: [
-    { id: "CRITICAL", tone: "rose", en: "Clears 1-3 and 5, actionable, no open alternative explanation.", tr: "1-3 ve 5'i geçer, aksiyona dönüştürülebilir, açık alternatif açıklama yok." },
-    { id: "HIGH", tone: "amber", en: "Clears 1-3, actionable, but one open question stated explicitly.", tr: "1-3'ü geçer, aksiyona dönüştürülebilir ama bir açık soru açıkça belirtilmiş." },
-    { id: "MEDIUM", tone: "sky", en: "Real and supported, not yet economically sized or actionable.", tr: "Gerçek ve destekli, ama henüz ekonomik olarak ölçeklendirilmemiş ya da aksiyona dönüştürülmemiş." },
-    { id: "LOW", tone: "neutral", en: "Real, small, or a context/guardrail metric.", tr: "Gerçek, küçük ya da bir bağlam/koruma metriği." },
-    { id: "SUPPRESS", tone: "ink", en: "Fails question 1, 2 or 3 - not shown as a business observation at all.", tr: "1, 2 ya da 3. soruyu geçemez - bir iş gözlemi olarak hiç gösterilmez." },
+    { id: "CRITICAL", label: { en: "Critical", tr: "Kritik" }, tone: "rose", en: "Clears 1-3 and 5, actionable, no open alternative explanation.", tr: "1-3 ve 5'i geçer, aksiyona dönüştürülebilir, açık alternatif açıklama yok." },
+    { id: "HIGH", label: { en: "High", tr: "Yüksek" }, tone: "amber", en: "Clears 1-3, actionable, but one open question stated explicitly.", tr: "1-3'ü geçer, aksiyona dönüştürülebilir ama bir açık soru açıkça belirtilmiş." },
+    { id: "MEDIUM", label: { en: "Medium", tr: "Orta" }, tone: "sky", en: "Real and supported, not yet economically sized or actionable.", tr: "Gerçek ve destekli, ama henüz ekonomik olarak ölçeklendirilmemiş ya da aksiyona dönüştürülmemiş." },
+    { id: "LOW", label: { en: "Low", tr: "Düşük" }, tone: "neutral", en: "Real, small, or a context/guardrail metric.", tr: "Gerçek, küçük ya da bir bağlam/koruma metriği." },
+    { id: "SUPPRESS", label: { en: "Suppress", tr: "Gösterilmez" }, tone: "ink", en: "Fails question 1, 2 or 3 - not shown as a business observation at all.", tr: "1, 2 ya da 3. soruyu geçemez. Bir iş gözlemi olarak hiç gösterilmez." },
   ],
 
   // README's own 11-row table, condensed - name + the question it answers.
   templates: [
     { id: "A", en: "Executive Summary", tr: "Yönetici Özeti", q: { en: "Is growth healthy, efficient and profitable?", tr: "Büyüme sağlıklı, verimli ve kârlı mı?" } },
-    { id: "B", en: "Growth & Acquisition", tr: "Büyüme ve Edinim", q: { en: "Where are we acquiring users and how efficiently?", tr: "Kullanıcıları nereden ve ne kadar verimli ediniyoruz?" } },
+    { id: "B", en: "Growth & Acquisition", tr: "Büyüme ve Kullanıcı Kazanımı", q: { en: "Where are we acquiring users and how efficiently?", tr: "Kullanıcıları nereden ve ne kadar verimli kazanıyoruz?" } },
     { id: "C", en: "Lifecycle & CRM", tr: "Yaşam Döngüsü ve CRM", q: { en: "How effectively are we activating, retaining and monetizing existing users?", tr: "Mevcut kullanıcıları ne kadar etkili aktive ediyor, elde tutuyor ve gelire çeviriyoruz?" } },
     { id: "D", en: "All-in-One Growth Tower", tr: "Hepsi Bir Arada Büyüme Kulesi", q: { en: "What is the complete growth system telling us?", tr: "Tüm büyüme sistemi bize ne söylüyor?" } },
     { id: "E", en: "E-commerce & Revenue", tr: "E-ticaret ve Gelir", q: { en: "Are we selling well, and to whom?", tr: "İyi satıyor muyuz, kime satıyoruz?" } },
