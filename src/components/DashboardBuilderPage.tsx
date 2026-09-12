@@ -193,7 +193,7 @@ const WIN = {
   tr: {
     comp: { label: "Karşılaştırılabilirlik kurallarının ekran görüntüsü: kural ve örnekleriyle dört durum ve reddedilen bir karşılaştırma.", address: "references/comparability-rules.md", title: "Karşılaştırılabilirlik sınıfları", states: "4 sınıf", cls: "Sınıf", rule: "Kural", example: "Örnek" },
     gate: { label: "Metrik kaydı ve veri kalitesi kontrolünün ekran görüntüsü: üç eşleme seviyesi ve üç önem derecesi, her biri örneğiyle.", address: "references/kpi-framework.md · data-quality-gate.md", levels: "seviye" },
-    insight: { label: "İçgörü kapısının ekran görüntüsü: numaralı sorular, hayır cevabında olacaklar ve bir bulgunun alabileceği beş etiket.", address: "references/analysis-playbook.md", title: "İçgörü kontrolü", gate: "8 sorudan 5'i", question: "Soru", ifNo: "Hayırsa", labels: "Etiketler" },
+    insight: { label: "İçgörü kontrolünün ekran görüntüsü: numaralı sorular, hayır cevabında olacaklar ve bir bulgunun alabileceği beş etiket.", address: "references/analysis-playbook.md", title: "İçgörü kontrolü", gate: "8 sorudan 5'i", question: "Soru", ifNo: "Hayırsa", labels: "Etiketler" },
   },
 } as const;
 

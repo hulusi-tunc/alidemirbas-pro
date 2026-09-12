@@ -12,6 +12,16 @@ import { clsx } from "@/lib/clsx";
 type NavItem = { label: string; href: string };
 type LabProject = { name: string; href: string; slug?: string };
 
+/* Trigger button copy - the one pair of strings in this panel that never
+   came in as a prop (everything else - items, langLabel, ctaLabel, the
+   project names - arrives pre-translated from SiteHeader). Missed in an
+   earlier pass: the button rendered "Open menu"/"Close menu" on /tr too.
+   Derived from the URL rather than a new prop, since every `/tr/...` path
+   is the one and only tell a client component has for its own locale
+   without SiteHeader passing `lang` through (see LabNavDropdown's own note
+   on why translated strings, not `lang`, cross that boundary today). */
+const TRIGGER_LABEL = { en: { open: "Open menu", close: "Close menu" }, tr: { open: "Menüyü aç", close: "Menüyü kapat" } } as const;
+
 /* Below md, SiteHeader's own <nav> and CTA are both display:none with no
    replacement - this is that replacement.
 
@@ -53,6 +63,7 @@ export function MobileNav({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const pathname = usePathname();
+  const trigger = pathname?.startsWith("/tr") ? TRIGGER_LABEL.tr : TRIGGER_LABEL.en;
   const panelRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
@@ -89,7 +100,7 @@ export function MobileNav({
       <button
         ref={triggerRef}
         type="button"
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label={open ? trigger.close : trigger.open}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className="relative z-50 -mr-2 grid size-10 place-items-center text-ink-950"

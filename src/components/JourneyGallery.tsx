@@ -43,6 +43,7 @@ function CategorySection({
   t,
   basePath,
   labels,
+  surface,
   emptyChannelLabel,
   humanRoutingLabel,
 }: {
@@ -52,6 +53,10 @@ function CategorySection({
   t: (typeof copy)[Lang]["lab"]["page"];
   basePath: string;
   labels: (typeof copy)[Lang]["lab"]["journeysSplit"];
+  /** Which surface these cards belong to - picks the right noun
+      ("journey"/"journeys" vs "durum"/"mekanizma") out of
+      `labels.journeysLabel`, which is keyed per surface. */
+  surface: SurfaceKey;
   emptyChannelLabel: string;
   /** Customer Journeys surface only - the badge for the 3 journeys that
       reach a customer by routing to a person rather than by message
@@ -79,7 +84,7 @@ function CategorySection({
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="text-base font-semibold tracking-tight text-ink-950">{meta.title}</h2>
             <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
-              {items.length} {labels.journeysLabel[items.length === 1 ? 0 : 1]}
+              {items.length} {labels.journeysLabel[surface][items.length === 1 ? 0 : 1]}
             </span>
           </div>
           <p className="mt-1 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ink-500">{meta.purpose}</p>
@@ -361,6 +366,7 @@ export default function JourneyGallery({
               t={t}
               basePath={basePath}
               labels={labels}
+              surface={surface}
               emptyChannelLabel={emptyChannelLabel}
               humanRoutingLabel={humanRoutingLabel}
             />

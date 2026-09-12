@@ -160,10 +160,10 @@ const PW = {
     goals: ["Kilo ver", "Kilo koru", "Kilo al"] as const,
     bmr: "BMR",
     labels: {
-      builder: (name: string) => `Journey Builder'ın tuvali: ${name} deseni adımlardan oluşan bir akış olarak, desen rayı ve ilk adımın denetçisiyle.`,
-      explorer: "Change History Explorer'ın panosu: bölüm sekmeleri, filtreler ve demo veri seti üzerindeki değişiklik tablosu.",
+      builder: (name: string) => `Journey Oluşturucu'nun tuvali: ${name} deseni adımlardan oluşan bir akış olarak, desen rayı ve ilk adımın denetçisiyle.`,
+      explorer: "Google Ads Değişiklik Geçmişi'nin dashboard'u: bölüm sekmeleri, filtreler ve demo veri seti üzerindeki değişiklik tablosu.",
       numerspace: "Numerspace'in Günlük Kalori Hesaplayıcı sayfası, örnek değerler girilmiş ve sonucu görünür halde.",
-      dashboard: "Dashboard Builder'ın pipeline'ı karşılaştırılabilirlik motorunda durmuş; kaynağa göre gelir, reddettiği toplam ve gerçek toplam.",
+      dashboard: "Dashboard Oluşturucu'nun pipeline'ı karşılaştırılabilirlik kontrolünde durmuş: kaynağa göre gelir, reddettiği toplam ve gerçek toplam.",
     },
   },
 } as const;
@@ -346,7 +346,6 @@ export const explorerTabs = (lang: Lang): readonly TabItem[] =>
 /** The visible label for one section, for callers that address a tab by
     its stable key when setting `active`. */
 export const explorerTabLabel = (key: ExplorerTabKey, lang: Lang) => EXPLORER_TAB_TEXT[key][lang];
-export const EXPLORER_TABS: readonly TabItem[] = explorerTabs("en");
 
 type ExplorerRow = (typeof CHANGE_HISTORY_REAL.explorerRows)[number];
 

@@ -111,7 +111,7 @@ const T = {
     howItWorksBody:
       "Araç raporlar, not vermez. Bir kampanyanın 23 gündür değişmediğini söyler; bunun ihmal olduğunu söylemez. Bir değişikliğin iyi, riskli ya da gecikmiş olduğuna karar vermek bilinçli olarak kapsam dışı. Bu yüzden dashboard'da ne önem rengi ne de açıklamasız rozet var.",
     bullets: [
-      "Bu kampanyanın bütçesini geçen hafta kim değiştirmiş, öncesinde neydi: cevaplar.",
+      "Bu kampanyanın bütçesini geçen hafta kimin değiştirdiğini ve önceki değerin ne olduğunu gösterir.",
       "30+ gündür dokunulmamış kampanyaları ve şu an en sık görülen değişiklik kategorisini gösterir.",
       "Kural eşleşmeleri varsayılan olarak kapalı. Kendi büyüklük eşiklerini tarayıcıda ayarlarsın; bir eşleşme \"belirlediğin eşiği aştı\" demektir ve her zaman tam sayısıyla görünür.",
       "Tahmin etmek yerine durur. Tanınmayan bir sütun, 03/04/2026 gibi belirsiz bir tarih ya da kategorize edilemeyen bir değişiklik, hangi bayrakla yeniden çalıştıracağını söyleyen bir durum çıktısıyla sonlanır.",

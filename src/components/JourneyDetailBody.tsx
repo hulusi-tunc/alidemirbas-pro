@@ -6,6 +6,13 @@ import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-cha
 import type { JourneyDetail, MergedRedirect } from "@/lib/canonical-view";
 import type { copy, Lang } from "@/lib/content";
 
+/* Connector word for the Competes note's inline "on loss: <state>" clause.
+   Everything else in that line (exclusionGroup, scope, onLoss) is canonical
+   technical vocabulary and stays English on both locales, same as every
+   other note column here (entityScope, guardrails, ...) - only this one
+   word is UI-authored prose, so only it needs a TR counterpart. */
+const ON_LOSS_PREFIX: Record<Lang, string> = { en: "on loss:", tr: "kaybedince:" };
+
 /* The body of one journey, shared by the full page and the modal that
    intercepts it. A server component: it takes one journey's detail and hands
    the graph to a client island, so the browser receives this journey and no
@@ -263,7 +270,7 @@ export default function JourneyDetailBody({
         {detail.competition ? (
           <NoteColumn label={t.competesLabel}>
             <p className="font-mono text-[13px] leading-snug text-ink-900">
-              {detail.competition.exclusionGroup} · {detail.competition.scope} · on loss:{" "}
+              {detail.competition.exclusionGroup} · {detail.competition.scope} · {ON_LOSS_PREFIX[lang]}{" "}
               {detail.competition.onLoss}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-pretty text-ink-600">

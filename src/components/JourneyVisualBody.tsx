@@ -51,6 +51,7 @@ const UI = {
     onEntry: "On entry",
     afterPreviousTouch: "after the previous touch",
     afterEntry: "after entry",
+    afterAttribute: (attribute: string) => `after ${attribute}`,
   },
   tr: {
     flowHeading: "Journey akışı",
@@ -60,6 +61,7 @@ const UI = {
     onEntry: "Girişte",
     afterPreviousTouch: "önceki temastan sonra",
     afterEntry: "girişten sonra",
+    afterAttribute: (attribute: string) => `${attribute} sonrasında`,
   },
 } as const;
 
@@ -87,7 +89,7 @@ function timingPhrase(step: TimelineStep, timing: string, ui: Ui): string {
     // name, e.g. "last_activity_at", "offer_closes_at") - the trailing "_at"
     // is a naming convention, not part of what a reader should say aloud.
     const human = step.gate.attribute.replace(/_at$/, "").replace(/_/g, " ");
-    return `${timing} after ${human}`;
+    return `${timing} ${ui.afterAttribute(human)}`;
   }
   return timing;
 }

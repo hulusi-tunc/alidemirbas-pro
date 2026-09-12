@@ -358,11 +358,18 @@ export const copy = {
         browseAll: "Browse all {count}",
         showMore: "Show more ({count})",
         showLess: "Show less",
-        /* Singular/plural pair, same convention (and same reason) as
-           `page.decisionsLabel` above: grouping by Goal produces real
-           groups of exactly one - 5 of the 22 communication groups - and
-           "1 journeys" is wrong where "281 journeys" never was. */
-        journeysLabel: ["journey", "journeys"],
+        /* Per-surface singular/plural pair, same convention (and same
+           reason) as `page.decisionsLabel` above: grouping by Goal produces
+           real groups of exactly one - 5 of the 22 communication groups -
+           and "1 journeys" is wrong where "281 journeys" never was. Keyed
+           by SurfaceKey (canonical-view.ts) because the three surfaces
+           aren't all "journeys": lifecycle states and runtime mechanisms
+           need their own noun. */
+        journeysLabel: {
+          "customer-journeys": ["journey", "journeys"],
+          "lifecycle-states": ["state", "states"],
+          "runtime-mechanisms": ["mechanism", "mechanisms"],
+        },
         /* Gallery controls. `internalBadge` is the card marker for a journey
            with no channels - it has to read as a statement ("this one
            reaches nobody"), not as a missing value. */
@@ -1117,9 +1124,14 @@ export const copy = {
         browseAll: "{count} kaydın tamamına bak",
         showMore: "Daha fazla göster ({count})",
         showLess: "Daha az göster",
-        // Turkish takes no plural after a numeral, so both entries are
-        // deliberately identical - same as page.decisionsLabel above.
-        journeysLabel: ["journey", "journey"],
+        // Turkish takes no plural after a numeral, so both entries in each
+        // pair are deliberately identical - same as page.decisionsLabel
+        // above. Keyed by SurfaceKey - see the EN block's comment.
+        journeysLabel: {
+          "customer-journeys": ["journey", "journey"],
+          "lifecycle-states": ["durum", "durum"],
+          "runtime-mechanisms": ["mekanizma", "mekanizma"],
+        },
         internalBadge: "İç işlem",
         humanRoutingBadge: "İnsana yönlendirme",
         categoryFilterLabel: "Kategori",

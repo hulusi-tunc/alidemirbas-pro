@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Ali Demirbaş - Growth Marketer",
   description:
-    "Data-driven growth for mobile products. Mobile App Growth Lead at Aksigorta; previously Vodafone, Getir and Wingie Enuygun Group.",
+    "Mobile App Growth Lead at Aksigorta. Previously Vodafone, Getir and Wingie Enuygun Group. User acquisition, CRM and measurement for mobile products.",
   alternates: pageAlternates("", "en"),
   /* SITE-WIDE NOINDEX. This is a demo site and is deliberately kept out of
      search results; every page inherits this unless it sets its own

@@ -10,7 +10,7 @@ import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { CodeTabs } from "@/components/ui/CodeTabs";
-import { ChangeCell, EXPLORER_TABS, ExplorerWindow, explorerDelta } from "@/components/ui/LabProductWindows";
+import { ChangeCell, explorerTabLabel, explorerTabs, ExplorerWindow, explorerDelta } from "@/components/ui/LabProductWindows";
 import { AppBar, AppMeta, AppTitle, Badge, CheckRow, Field, FormLabel, Rail, Table, TabStrip, Td, Th, Toggle, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { RelatedGrid } from "@/components/ui/RelatedGrid";
@@ -251,7 +251,7 @@ function ActivityWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   const maxCount = Math.max(...REAL.accountActivity.map((a) => a.count));
   return (
     <Window label={w.label} address="dashboard.html" meta={t.actTotal(REAL.totalChanges, REAL.period[lang])}>
-      <TabStrip items={EXPLORER_TABS} active="User Activity" />
+      <TabStrip items={explorerTabs(lang)} active={explorerTabLabel("User Activity", lang)} />
       <div className="grid grid-cols-1 divide-y divide-line-soft md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:divide-x md:divide-y-0">
         <div className="min-w-0">
           <AppBar>
@@ -329,7 +329,7 @@ function RuleMatchesWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   });
   return (
     <Window label={w.label} address="dashboard.html" meta={w.matches(matches.length)}>
-      <TabStrip items={EXPLORER_TABS} active="Rule Matches" />
+      <TabStrip items={explorerTabs(lang)} active={explorerTabLabel("Rule Matches", lang)} />
       <div className="flex">
         <Rail className="hidden w-64 md:block">
           <div className="px-3.5 py-3.5">
