@@ -41,7 +41,6 @@ import {
   type BadgeTone,
   CheckRow,
   Chip,
-  codeLabel,
   Count,
   Field,
   FormLabel,
@@ -649,7 +648,7 @@ export function DashboardHeroWindow({
             </Badge>
             <span className="ml-auto">
               <Badge hue="rose" icon={<Ban aria-hidden />} code>
-                {codeLabel("NOT_COMPARABLE")}
+                {D.comparabilityStates.find((c) => c.id === "NOT_COMPARABLE")!.label[lang]}
               </Badge>
             </span>
           </AppBar>

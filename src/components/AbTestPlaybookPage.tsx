@@ -5,6 +5,7 @@ import { VariableDiagram } from "@/components/ui/VariableDiagram";
 import { abPlaybookText, abSetupMode, abVariableKind } from "@/lib/ab-test-playbook";
 import type { AbVariableKind } from "@/lib/ab-test-playbook";
 import type { AbTestDetail } from "@/lib/ab-test-view";
+import { primaryKpiLabel } from "@/lib/ab-test-view";
 
 /* The A/B test detail page, built to the AB001_Detail_Page_v5 reference.
 
@@ -246,7 +247,7 @@ export default function AbTestPlaybookPage({
           <RunCell>
             <p className={RAIL}>{t.primaryKpi}</p>
             <p className="mt-3.5 text-[clamp(1.5rem,1.2rem+1vw,2rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-ink-950">
-              {test.primaryKpi.label}
+              {primaryKpiLabel(test.primaryKpi.label, lang)}
             </p>
             <p className="mt-2 max-w-[40ch] text-sm leading-relaxed text-ink-600">
               {test.primaryKpi.explanation}

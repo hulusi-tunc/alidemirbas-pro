@@ -1,4 +1,5 @@
 import rawTests from "@/data/ab-tests.json";
+export { primaryKpiLabel } from "@/lib/ab-test-kpi-labels";
 
 /* The A/B test library read model. Source data is frozen (produced by the
    ab-test-playbook repo's authoring pipeline) and lives in src/data/ab-tests.json.

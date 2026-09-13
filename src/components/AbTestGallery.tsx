@@ -5,6 +5,7 @@ import { Search, X } from "lucide-react";
 
 import IdeaCard from "@/components/ui/IdeaCard";
 import type { AbCategory, AbTestRow, Surface } from "@/lib/ab-test-view";
+import { primaryKpiLabel } from "@/lib/ab-test-kpi-labels";
 
 /* The A/B test library as a browsable gallery: category sections over a
    grid of cards, with search and two filters above the whole thing.
@@ -82,12 +83,14 @@ function TestCard({
   row,
   basePath,
   t,
+  lang,
   categoryLabels,
   surfaceLabels,
 }: {
   row: AbTestRow;
   basePath: string;
   t: (typeof T)[Lang];
+  lang: Lang;
   categoryLabels: LabelMap;
   surfaceLabels: LabelMap;
 }) {
@@ -97,7 +100,7 @@ function TestCard({
       title={row.question}
       badges={[
         { label: surfaceLabels[row.surface] ?? row.surface, tone: "accent" },
-        { label: row.primaryKpi, tone: "muted", title: `${t.primaryKpi}: ${row.primaryKpi}` },
+        { label: primaryKpiLabel(row.primaryKpi, lang), tone: "muted", title: `${t.primaryKpi}: ${primaryKpiLabel(row.primaryKpi, lang)}` },
       ]}
       body={row.hypothesis}
       footLeft={categoryLabels[row.category] ?? row.category}
@@ -111,6 +114,7 @@ function CategorySection({
   items,
   basePath,
   t,
+  lang,
   categoryLabels,
   surfaceLabels,
 }: {
@@ -118,6 +122,7 @@ function CategorySection({
   items: readonly AbTestRow[];
   basePath: string;
   t: (typeof T)[Lang];
+  lang: Lang;
   categoryLabels: LabelMap;
   surfaceLabels: LabelMap;
 }) {
@@ -143,7 +148,7 @@ function CategorySection({
 
       <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {visible.map((r) => (
-          <TestCard key={r.id} row={r} basePath={basePath} t={t} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
+          <TestCard key={r.id} row={r} basePath={basePath} t={t} lang={lang} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
         ))}
       </div>
 
@@ -318,6 +323,7 @@ export default function AbTestGallery({
               items={s.items}
               basePath={basePath}
               t={t}
+              lang={lang}
               categoryLabels={categoryLabels}
               surfaceLabels={surfaceLabels}
             />
@@ -343,7 +349,7 @@ export default function AbTestGallery({
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((r) => (
-            <TestCard key={r.id} row={r} basePath={basePath} t={t} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
+            <TestCard key={r.id} row={r} basePath={basePath} t={t} lang={lang} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
           ))}
         </div>
       )}
