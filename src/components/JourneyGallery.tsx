@@ -6,7 +6,8 @@ import { Search, X } from "lucide-react";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import IdeaCard from "@/components/ui/IdeaCard";
 import { Button } from "@/components/ui/Button";
-import { CategoryHeader, CategoryIcon, SEARCH_SHELL, SELECT_CLASS, SelectShell, SurfaceTabs, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, CategoryIcon, ChannelIcon, GoalIcon, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { FilterMenu } from "@/components/ui/FilterMenu";
 import { clsx } from "@/lib/clsx";
 import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
@@ -197,33 +198,27 @@ export default function JourneyGallery({
     useJourneyFilters(allRows, merged, lang);
 
   const labels = copy[lang].lab.journeysSplit;
-  const [category, setCategory] = useState<string>("");
+  // No category filter here: the category rail is the way to a category,
+  // and a select over 23 long titles was a second, worse one (Hulusi,
+  // 2026-09-14).
   const [channel, setChannel] = useState<string>("");
   /* The Operations surface used to swap Goal for its own coarser Type
      filter here (archive/operational-workflows/taxonomy/). That surface is
      archived, so every remaining surface filters by Goal. */
 
   // Only offer a filter value that some real row on this page actually has.
-  const presentCategories = useMemo(() => {
-    const present = new Set(allRows.map((j) => j.category));
-    return categories.filter((c) => present.has(c.id));
-  }, [allRows, categories]);
   const presentChannels = useMemo(() => {
     const present = new Set(allRows.flatMap((j) => j.channels));
     return CHANNELS.filter((c) => present.has(c));
   }, [allRows]);
   const localFiltered = useMemo(
     () =>
-      rows.filter(
-        (j) =>
-          (!category || j.category === category) &&
-          (!channel || j.channels.includes(channel as ChannelId)),
-      ),
-    [rows, category, channel],
+      rows.filter((j) => !channel || j.channels.includes(channel as ChannelId)),
+    [rows, channel],
   );
 
-  const isDefault = isDefaultView && !category && !channel;
-  const totalActive = activeCount + (category ? 1 : 0) + (channel ? 1 : 0);
+  const isDefault = isDefaultView && !channel;
+  const totalActive = activeCount + (channel ? 1 : 0);
 
   const sections = useMemo(() => {
     if (!isDefault) return [];
@@ -241,14 +236,13 @@ export default function JourneyGallery({
   // Presets answer to their own names and aliases; a category or channel
   // filter does not apply to them (they are cards over a parent, not rows).
   const matchingPresets = useMemo(() => {
-    if (!presets.length || category || channel || goal) return isDefault ? presets : [];
+    if (!presets.length || channel || goal) return isDefault ? presets : [];
     const q = query.trim().toLowerCase();
     if (!q) return presets;
     return presets.filter((p) => [p.name, p.parentName, ...p.aliases].some((x) => x.toLowerCase().includes(q)));
-  }, [presets, query, category, channel, goal, isDefault]);
+  }, [presets, query, channel, goal, isDefault]);
 
   const clearEverything = () => {
-    setCategory("");
     setChannel("");
     clearAll();
   };
@@ -314,49 +308,26 @@ export default function JourneyGallery({
         ) : null}
       </div>
 
-        <SelectShell>
-          <span className="sr-only">{labels.categoryFilterLabel}</span>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className={SELECT_CLASS}>
-            <option value="">{labels.allCategories}</option>
-            {presentCategories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {lang === "en" ? c.title : c.titleTr}
-              </option>
-            ))}
-          </select>
-        </SelectShell>
-
         {presentChannels.length > 0 ? (
-          <SelectShell>
-            <span className="sr-only">{labels.channelFilterLabel}</span>
-            <select value={channel} onChange={(e) => setChannel(e.target.value)} className={SELECT_CLASS}>
-              <option value="">{labels.allChannels}</option>
-              {presentChannels.map((c) => (
-                <option key={c} value={c}>
-                  {CHANNEL_LABEL[c][lang]}
-                </option>
-              ))}
-            </select>
-          </SelectShell>
+          <FilterMenu
+            label={labels.channelFilterLabel}
+            all={{ label: labels.allChannels, icon: ALL_CHANNELS_ICON }}
+            options={presentChannels.map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang], icon: <ChannelIcon id={c} className="size-4" /> }))}
+            value={channel}
+            onChange={setChannel}
+            align="end"
+          />
         ) : null}
-
-        <SelectShell>
-          <span className="sr-only">{t.goalLabel}</span>
-          <select
-            value={goal ?? ""}
-            onChange={(e) => setGoal(e.target.value ? (e.target.value as typeof goal) : null)}
-            className={SELECT_CLASS}
-          >
-            <option value="">{t.allGoals}</option>
-            {[...new Set(allRows.map((j) => j.goal))]
-              .sort((a, b) => GOAL_LABEL[a][lang].localeCompare(GOAL_LABEL[b][lang], lang))
-              .map((g) => (
-                <option key={g} value={g}>
-                  {GOAL_LABEL[g][lang]}
-                </option>
-              ))}
-          </select>
-        </SelectShell>
+        <FilterMenu
+          label={t.goalLabel}
+          all={{ label: t.allGoals, icon: ALL_GOALS_ICON }}
+          options={[...new Set(allRows.map((j) => j.goal))]
+            .sort((a, b) => GOAL_LABEL[a][lang].localeCompare(GOAL_LABEL[b][lang], lang))
+            .map((g) => ({ id: g, label: GOAL_LABEL[g][lang], icon: <GoalIcon id={g} /> }))}
+          value={goal ?? ""}
+          onChange={(id) => setGoal(id ? (id as typeof goal) : null)}
+          align="end"
+        />
       </div>
 
       {!isDefault ? (

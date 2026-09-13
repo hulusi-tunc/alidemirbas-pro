@@ -6,7 +6,7 @@ import JourneyGallery from "@/components/JourneyGallery";
 import JourneyRowCard from "@/components/JourneyRowCard";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import LabShell from "@/components/LabShell";
-import { CategoryHeader, ChevronSelect, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW } from "@/components/ui/LibraryChrome";
+import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, ChevronSelect, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW } from "@/components/ui/LibraryChrome";
 import { ProductMark } from "@/components/ui/ProductFrame";
 import {
   CATEGORY_META,
@@ -107,9 +107,8 @@ function GalleryFallback({ lang, t, basePath, rows, surface }: {
           <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
           <span className="text-ink-500">{t.searchPlaceholder}</span>
         </div>
-        <ChevronSelect>{labels.allCategories}</ChevronSelect>
-        <ChevronSelect>{labels.allChannels}</ChevronSelect>
-        <ChevronSelect>{t.allGoals}</ChevronSelect>
+        <ChevronSelect icon={ALL_CHANNELS_ICON}>{labels.allChannels}</ChevronSelect>
+        <ChevronSelect icon={ALL_GOALS_ICON}>{t.allGoals}</ChevronSelect>
       </div>
       <div className="mt-10 flex flex-col gap-14">
         {sections.map(({ meta, items }) => (

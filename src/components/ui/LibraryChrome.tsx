@@ -1,7 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  Activity,
+  AlertTriangle,
   Archive,
+  ArrowLeftRight,
+  BadgeCheck,
+  Ban,
   BellRing,
   Bookmark,
   CalendarClock,
@@ -11,27 +16,41 @@ import {
   Cog,
   Cpu,
   CreditCard,
+  Database,
   FileText,
   Fingerprint,
+  Flag,
   GitBranch,
+  HeartHandshake,
   HeartPulse,
   KeyRound,
   Layers,
+  LifeBuoy,
   Mail,
   Megaphone,
+  Merge,
   MessageCircle,
   MessageSquare,
   MessagesSquare,
   Network,
   Package,
+  PackageCheck,
+  Pause,
   Plug,
+  Radio,
+  RefreshCw,
   Repeat,
   Rocket,
+  RotateCcw,
+  Route,
+  Scale,
   Send,
   ShieldAlert,
   ShieldCheck,
   Siren,
   Smartphone,
+  Stethoscope,
+  Target,
   Timer,
   Undo2,
   UserPlus,
@@ -151,6 +170,46 @@ export function ChannelIcon({ id, className = "size-3.5" }: { id: ChannelId; cla
   return <Icon aria-hidden className={className} />;
 }
 
+/** One glyph per goal, the audited primary discovery filter, so the goal
+    menu can be chosen from by eye (Hulusi, 2026-09-14). */
+const GOAL_ICON: Record<string, LucideIcon> = {
+  "access-entitlement-change": KeyRound,
+  "cancellation-termination": Ban,
+  "change-versioning": GitBranch,
+  "compensation-remedy": Undo2,
+  "consent-permission": ShieldCheck,
+  "data-integrity": Database,
+  "decision-approval": ClipboardCheck,
+  "delivery-confirmation": PackageCheck,
+  "eligibility-qualification": BadgeCheck,
+  "escalation-exception": AlertTriangle,
+  "expiry-renewal": RefreshCw,
+  "health-risk-signal-scoring": Activity,
+  "identity-verification": Fingerprint,
+  "merge-consolidation": Merge,
+  "ownership-transfer": ArrowLeftRight,
+  "progression-milestone": Flag,
+  "readiness-revalidation": RotateCcw,
+  "reconciliation-correction": Scale,
+  "recovery-retry": LifeBuoy,
+  "relationship-hierarchy-structure": Network,
+  "relationship-recovery-intervention": HeartHandshake,
+  "risk-compliance": ShieldAlert,
+  "root-cause-diagnostic-correlation": Stethoscope,
+  "routing-assignment": Route,
+  "scheduling-commitment": CalendarClock,
+  "suspension-restoration": Pause,
+};
+
+export function GoalIcon({ id, className = "size-4" }: { id: string; className?: string }) {
+  const Icon = GOAL_ICON[id] ?? Target;
+  return <Icon aria-hidden className={className} />;
+}
+
+/** The "any" glyphs the two filter menus open with. */
+export const ALL_CHANNELS_ICON = <Radio aria-hidden />;
+export const ALL_GOALS_ICON = <Target aria-hidden />;
+
 /** The taxonomy's titles are lists ("Acquisition, intent & qualification");
     in a rail only the first term fits, and with the icon and the count it
     is enough to navigate by. The full title still heads the section. */
@@ -210,7 +269,7 @@ export const TOOLBAR_ROW = "mt-4 flex flex-col gap-3 lg:flex-row lg:items-center
 export const SELECT_CLASS =
   "h-11 w-full appearance-none truncate rounded-xl bg-paper pr-10 pl-4 text-sm font-medium text-ink-800 ring-1 ring-ink-950/[0.08] outline-none transition-shadow duration-[var(--duration-fast)] focus:ring-2 focus:ring-primary-400";
 
-export const SELECT_WIDTH = "w-full lg:w-48";
+export const SELECT_WIDTH = "w-full lg:w-52";
 
 /** A native select with the site's chevron drawn over it. */
 export function SelectShell({ children, className }: { children: ReactNode; className?: string }) {
@@ -224,10 +283,13 @@ export function SelectShell({ children, className }: { children: ReactNode; clas
 
 /** The inert twin of a select for the prerender fallback: same shell,
     same width, no control. */
-export function ChevronSelect({ children }: { children: ReactNode }) {
+export function ChevronSelect({ icon, children }: { icon?: ReactNode; children: ReactNode }) {
   return (
     <span className={clsx("relative block shrink-0", SELECT_WIDTH)}>
-      <span className={clsx(SELECT_CLASS, "flex items-center")}>{children}</span>
+      <span className={clsx(SELECT_CLASS, "flex items-center gap-2.5 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-ink-500")}>
+        {icon}
+        {children}
+      </span>
       <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-ink-500" />
     </span>
   );
