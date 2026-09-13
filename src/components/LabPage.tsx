@@ -208,29 +208,28 @@ export default function LabPage({
   const breadcrumb = breadcrumbList(crumbs);
 
   return (
-    <LabShell lang={lang}>
+    <LabShell lang={lang} chrome="site" langHref={surface ? (lang === "en" ? "/tr" : "") + SURFACE_PATH[surface] : undefined}>
       <JsonLdScript data={breadcrumb} />
-      {/* The title band (2026-09-13): the Journey Library's own mark as the
-          eyebrow, the title on the h2 step with the count as a pill, the
-          intro on body size. Both blocks sit on the wide container - a
-          category rail plus three card columns need the 90rem measure. */}
-      <div className="border-b border-line-soft py-8 md:py-10">
-        <div className="altor-container-wide">
-          {surface ? (
-            <div className="flex">
-              <ProductMark slug="lifecycle-card-archive" lang={lang} />
-            </div>
-          ) : null}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <h1 className="text-h2 text-ink-950">{pageTitle}</h1>
-            <span className="rounded-full bg-paper-soft px-2.5 py-1 text-sm font-medium text-ink-700 tabular-nums">
-              {rows.length} {t.lab.page.results}
+      {/* The hero (2026-09-13, Hulusi: "the header and hero here do not
+          match the other Lab pages, and the divider is bad"): the same
+          opening the product pages have - the Journey Library's mark, the
+          title on the h1 step and the intro, centred, no rule under it -
+          then the count as a pill. The list below sits on the wide
+          container: a category rail plus three card columns need the
+          90rem measure. */}
+      <section className="bg-paper pt-14 pb-8 md:pt-16 md:pb-10">
+        <div className="altor-container text-center">
+          {surface ? <ProductMark slug="lifecycle-card-archive" lang={lang} className="mb-5" /> : null}
+          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{pageTitle}</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-950/65">{pageIntro}</p>
+          <p className="mt-6">
+            <span className="rounded-full bg-paper-soft px-3 py-1 text-sm font-medium text-ink-700 tabular-nums">
+              {rows.length} {surface ? t.lab.journeysSplit.journeysLabel[surface][rows.length === 1 ? 0 : 1] : t.lab.page.results}
             </span>
-          </div>
-          <p className="mt-3 max-w-3xl text-base leading-relaxed text-ink-600">{pageIntro}</p>
+          </p>
         </div>
-      </div>
-      <div className="py-8 md:py-10">
+      </section>
+      <div className="pt-4 pb-16 md:pb-24">
         <div className="altor-container-wide">
           {browser === "gallery" && surface ? (
             <Suspense fallback={<GalleryFallback lang={lang} t={t.lab.page} basePath={basePath} rows={rows} surface={surface} />}>

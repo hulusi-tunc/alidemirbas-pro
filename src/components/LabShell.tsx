@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, FlaskConical } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
+import { SiteFooter, SiteHeader } from "@/components/Site";
 import { copy, EMAIL, type Lang } from "@/lib/content";
 
 /* The lab workspace chrome: slim top bar, then whatever the route puts in it.
@@ -12,14 +13,35 @@ import { copy, EMAIL, type Lang } from "@/lib/content";
 
 export default function LabShell({
   lang,
+  chrome = "workspace",
+  langHref,
   children,
 }: {
   lang: Lang;
+  /** "workspace" is the slim bar the journey detail pages open in;
+      "site" is the marketing shell (SiteHeader/SiteFooter) the Lab
+      product pages use - the library list pages take it since 2026-09-13
+      so they read as one family with /lab and the product pages. Either
+      way this element stays `data-lab-root` for the modal. */
+  chrome?: "workspace" | "site";
+  /** The counterpart page in the other language, for the site header's
+      switch; defaults to the library hub. */
+  langHref?: string;
   children: React.ReactNode;
 }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
-  const otherLab = lang === "en" ? "/tr/lab/journeys" : "/lab/journeys";
+  const otherLab = langHref ?? (lang === "en" ? "/tr/lab/journeys" : "/lab/journeys");
+
+  if (chrome === "site") {
+    return (
+      <div data-lab-root className="flex min-h-svh flex-col bg-paper">
+        <SiteHeader t={t} anchorBase={home} langHref={otherLab} />
+        <main className="min-w-0 flex-1">{children}</main>
+        <SiteFooter t={t} lang={lang} />
+      </div>
+    );
+  }
 
   return (
     <div data-lab-root className="flex min-h-svh flex-col bg-paper">
