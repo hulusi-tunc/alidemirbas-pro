@@ -8,6 +8,7 @@ import { ArrowUpRight, Menu, X } from "lucide-react";
 
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { clsx } from "@/lib/clsx";
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 
 type NavItem = { label: string; href: string };
 type LabProject = { name: string; href: string; slug?: string };
@@ -174,17 +175,18 @@ export function MobileNav({
             <a
               href={ctaHref}
               onClick={close}
-              className="inline-flex h-12 flex-1 items-center justify-center rounded-full bg-ink-950 px-5 text-[15px] font-medium text-white transition-colors hover:bg-primary-600"
+              className={clsx(buttonStyles({ variant: "ink", size: "md" }), "flex-1")}
             >
               {ctaLabel}
             </a>
-            <Link
+            <ButtonLink
               href={langHref}
               onClick={close}
-              className="inline-flex h-12 items-center justify-center rounded-full bg-paper-soft px-5 text-[15px] font-medium text-ink-700 transition-colors hover:bg-blue-50 hover:text-primary-700"
+              variant="outline"
+              size="md"
             >
               {langLabel}
-            </Link>
+            </ButtonLink>
           </div>
         </div>,
         document.body,

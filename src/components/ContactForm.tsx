@@ -187,7 +187,7 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
           type="submit"
           variant="ink"
           size="sm"
-          className="w-full rounded-full! px-6! sm:w-auto [--btn-fill:var(--color-neutral-1000)]!"
+          className="w-full sm:w-auto [--btn-fill:var(--color-neutral-1000)]!"
         >
           {t.formSubmit}
         </Button>

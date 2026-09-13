@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, CircleCheck, CircleX, Clock, Mail, MapPin, Radio } from "lucide-react";
 
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
+import { clsx } from "@/lib/clsx";
 import { CtaBand } from "@/components/ui/CtaBand";
 import { CtaBurst } from "@/components/ui/CtaBurst";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
@@ -101,7 +102,7 @@ export function SiteHeader({
           </Link>
           <a
             href={`mailto:${EMAIL}`}
-            className="hidden h-10 items-center rounded-full bg-ink-950 px-4 text-sm font-medium text-white transition-colors hover:bg-primary-600 sm:inline-flex"
+            className={clsx(buttonStyles({ variant: "ink", size: "sm" }), "max-sm:hidden")}
           >
             {t.nav.cta}
           </a>
