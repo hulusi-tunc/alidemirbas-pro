@@ -6,6 +6,8 @@ import JourneyGallery from "@/components/JourneyGallery";
 import JourneyRowCard from "@/components/JourneyRowCard";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import LabShell from "@/components/LabShell";
+import { CategoryHeader, SEARCH_SHELL, SurfaceTabs } from "@/components/ui/LibraryChrome";
+import { ProductMark } from "@/components/ui/ProductFrame";
 import {
   CATEGORY_META,
   JOURNEY_ROWS,
@@ -93,34 +95,26 @@ function GalleryFallback({ lang, t, basePath, rows, surface }: {
     byCat.set(j.category, arr);
   }
   const sections = CATEGORY_META.filter((c) => byCat.has(c.id)).map((c) => ({ meta: c, items: byCat.get(c.id)! }));
+  const surfaceLinks = SURFACE_KEYS.map((k) => ({ key: k, href: (lang === "en" ? "" : "/tr") + SURFACE_PATH[k], label: labels.surfaceLabels[k] }));
 
   return (
     <div>
-      <div className="flex items-center gap-3 border border-line bg-paper px-4 py-2.5 opacity-60">
-        <Search aria-hidden className="size-4 shrink-0 text-neutral-500" />
-        <span className="text-sm text-neutral-500">{t.searchPlaceholder}</span>
+      <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
+      <div className={`${SEARCH_SHELL} mt-4 opacity-60`}>
+        <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
+        <span className="text-ink-500">{t.searchPlaceholder}</span>
       </div>
-      <div className="mt-8 flex flex-col gap-12">
+      <div className="mt-10 flex flex-col gap-14">
         {sections.map(({ meta, items }) => (
-          <section key={meta.id}>
-            <div className="flex items-start gap-3">
-              <span
-                aria-hidden
-                className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-md bg-paper-soft font-mono text-[10px] font-semibold tracking-tight text-ink-500"
-              >
-                {items[0]?.id.split("-")[0] ?? ""}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h2 className="text-base font-semibold tracking-tight text-ink-950">{lang === "en" ? meta.title : meta.titleTr}</h2>
-                  <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
-                    {items.length} {labels.journeysLabel[surface][items.length === 1 ? 0 : 1]}
-                  </span>
-                </div>
-                <p className="mt-1 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ink-500">{lang === "en" ? meta.purpose : meta.descriptionTr}</p>
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <section key={meta.id} id={`cat-${meta.id}`} className="scroll-mt-24">
+            <CategoryHeader
+              code={items[0]?.id.split("-")[0] ?? ""}
+              title={lang === "en" ? meta.title : meta.titleTr}
+              count={items.length}
+              countLabel={labels.journeysLabel[surface][items.length === 1 ? 0 : 1]}
+              purpose={lang === "en" ? meta.purpose : meta.descriptionTr}
+            />
+            <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {items.map((j) => (
                 <JourneyIdeaCard
                   key={j.id}
@@ -208,21 +202,28 @@ export default function LabPage({
   return (
     <LabShell lang={lang}>
       <JsonLdScript data={breadcrumb} />
-      <div className="border-b border-line px-4 py-6 md:px-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-h3 text-ink-950">{pageTitle}</h1>
-            <span className="border border-line bg-paper-soft px-2 py-0.5 text-xs font-medium text-neutral-600">
+      {/* The title band (2026-09-13): the Journey Library's own mark as the
+          eyebrow, the title on the h2 step with the count as a pill, the
+          intro on body size. Both blocks sit on the wide container - a
+          category rail plus three card columns need the 90rem measure. */}
+      <div className="border-b border-line-soft py-8 md:py-10">
+        <div className="altor-container-wide">
+          {surface ? (
+            <div className="flex">
+              <ProductMark slug="lifecycle-card-archive" lang={lang} />
+            </div>
+          ) : null}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <h1 className="text-h2 text-ink-950">{pageTitle}</h1>
+            <span className="rounded-full bg-paper-soft px-2.5 py-1 text-sm font-medium text-ink-700 tabular-nums">
               {rows.length} {t.lab.page.results}
             </span>
           </div>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-500">{pageIntro}</p>
+          <p className="mt-3 max-w-3xl text-base leading-relaxed text-ink-600">{pageIntro}</p>
         </div>
       </div>
-      <div className="px-4 py-6 md:px-8">
-        {/* Wider than the header block: three card columns need the room, and
-            the grid is the page - everything above it stays secondary. */}
-        <div className="mx-auto max-w-6xl">
+      <div className="py-8 md:py-10">
+        <div className="altor-container-wide">
           {browser === "gallery" && surface ? (
             <Suspense fallback={<GalleryFallback lang={lang} t={t.lab.page} basePath={basePath} rows={rows} surface={surface} />}>
               <JourneyGallery
