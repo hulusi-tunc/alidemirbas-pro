@@ -4,7 +4,7 @@ import { pageAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Blog - Ali Demirbaş",
-  description: "Büyüme, CRM ve yaşam döngüsü pazarlaması üzerine blog. Yazılar İngilizce.",
+  description: "Büyüme, CRM ve yaşam döngüsü pazarlaması üzerine kısa yazılar.",
   alternates: pageAlternates("/blog", "tr"),
 };
 

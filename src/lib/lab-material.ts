@@ -195,7 +195,7 @@ export const DASHBOARD_REAL = {
     { id: "A", en: "Executive Summary", tr: "Yönetici Özeti", q: { en: "Is growth healthy, efficient and profitable?", tr: "Büyüme sağlıklı, verimli ve kârlı mı?" } },
     { id: "B", en: "Growth & Acquisition", tr: "Büyüme ve Kullanıcı Kazanımı", q: { en: "Where are we acquiring users and how efficiently?", tr: "Kullanıcıları nereden ve ne kadar verimli kazanıyoruz?" } },
     { id: "C", en: "Lifecycle & CRM", tr: "Yaşam Döngüsü ve CRM", q: { en: "How effectively are we activating, retaining and monetizing existing users?", tr: "Mevcut kullanıcıları ne kadar etkili aktive ediyor, elde tutuyor ve gelire çeviriyoruz?" } },
-    { id: "D", en: "All-in-One Growth Tower", tr: "Hepsi Bir Arada Büyüme Kulesi", q: { en: "What is the complete growth system telling us?", tr: "Tüm büyüme sistemi bize ne söylüyor?" } },
+    { id: "D", en: "All-in-One Growth Tower", tr: "Kapsamlı Büyüme Görünümü", q: { en: "What is the complete growth system telling us?", tr: "Tüm büyüme sistemi bize ne söylüyor?" } },
     { id: "E", en: "E-commerce & Revenue", tr: "E-ticaret ve Gelir", q: { en: "Are we selling well, and to whom?", tr: "İyi satıyor muyuz, kime satıyoruz?" } },
     { id: "F", en: "SaaS / Subscription", tr: "SaaS / Abonelik", q: { en: "Is the subscription base healthy and growing sustainably?", tr: "Abonelik tabanı sağlıklı mı ve sürdürülebilir şekilde büyüyor mu?" } },
     { id: "G", en: "Mobile App & Store", tr: "Mobil Uygulama ve Mağaza", q: { en: "How is the app performing in the stores, and are people sticking with it?", tr: "Uygulama mağazalarda nasıl performans gösteriyor, insanlar kalıyor mu?" } },
