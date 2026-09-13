@@ -54,15 +54,13 @@ const JOBS: Record<Lang, TimelineJob[]> = {
       bottom: "Retention and LTV, optimized at rapid-commerce speed.",
     },
     {
+      // One title for the two Enuygun roles (Hulusi, 2026-09-14), the same
+      // merge the homepage timeline carries in content.ts.
       dates: "2021–2023",
-      title: "Lifecycle Marketing",
+      title: "Experienced Lifecycle Marketing Specialist (Growth)",
       company: "Wingie Enuygun Group",
       info: "Lifecycle and CRM programs for a leading online travel platform.",
       bottom: "Owned lifecycle and CRM end-to-end across the group's travel brands.",
-      subs: [
-        { dates: "2023", title: "Experienced Lifecycle Marketing Specialist (Growth)" },
-        { dates: "2021–2023", title: "Lifecycle Marketing Specialist (Growth)" },
-      ],
     },
     {
       dates: "2020–2021",
@@ -101,14 +99,10 @@ const JOBS: Record<Lang, TimelineJob[]> = {
     },
     {
       dates: "2021–2023",
-      title: "Yaşam Döngüsü Pazarlama",
+      title: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
       company: "Wingie Enuygun Group",
       info: "Önde gelen bir çevrimiçi seyahat platformu için lifecycle ve CRM programları.",
       bottom: "Grubun seyahat markaları genelinde lifecycle ve CRM'i uçtan uca yönettim.",
-      subs: [
-        { dates: "2023", title: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)" },
-        { dates: "2021–2023", title: "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)" },
-      ],
     },
     {
       dates: "2020–2021",
