@@ -1,4 +1,7 @@
+import { CircleStop, CircleX, Info, ListOrdered } from "lucide-react";
+
 import JourneyCanvas from "@/components/JourneyCanvas";
+import { InfoTile } from "@/components/ui/InfoTile";
 import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
 import type { JourneyDetail } from "@/lib/canonical-view";
 import type { ConfigRow, TimelineStep } from "@/lib/practitioner-view";
@@ -103,15 +106,6 @@ function firstClause(text: string): string {
   return clause.charAt(0).toUpperCase() + clause.slice(1);
 }
 
-function Card({ eyebrow, children }: { eyebrow: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-card border border-line bg-paper p-6">
-      <p className="font-mono text-[11px] font-medium tracking-[0.1em] text-ink-400 uppercase">{eyebrow}</p>
-      <div className="mt-3">{children}</div>
-    </div>
-  );
-}
-
 /** Everything the canvas needs from a journey, composed once so the figure
     inside the notes and the full-page canvas tab (JourneyRoutes) cannot
     disagree: the localised labels, the caption in counts, the channel names
@@ -181,38 +175,38 @@ export default function JourneyVisualBody({
       )}
 
       <div className={`${showCanvas ? "mt-10" : ""} grid grid-cols-1 gap-4 sm:grid-cols-3`}>
-        <Card eyebrow={ui.whatEyebrow}>
-          <p className="text-[14px] leading-relaxed text-pretty text-ink-700">{detail.purpose}</p>
-        </Card>
+        <InfoTile icon={<Info />} title={ui.whatEyebrow}>
+          <p className="text-sm leading-relaxed text-pretty text-ink-muted">{detail.purpose}</p>
+        </InfoTile>
 
-        <Card eyebrow={ui.flowEyebrow}>
-          <ol className="flex flex-col gap-3.5">
+        <InfoTile icon={<ListOrdered />} tint="bg-violet-50 text-violet-700" title={ui.flowEyebrow}>
+          <ol className="flex list-none flex-col gap-3.5 p-0">
             {p.timeline.map((step, i) => (
               <li key={step.id} className="flex gap-3">
-                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-ink-950 font-mono text-[10px] font-semibold text-white">
+                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-ink-950 text-xs font-semibold text-white tabular-nums">
                   {i + 1}
                 </span>
                 <div>
-                  <p className="text-[13.5px] font-medium text-ink-900">{stageTitle(step.stage)}</p>
-                  <p className="mt-0.5 text-[12.5px] leading-snug text-ink-500">
+                  <p className="text-sm font-medium text-ink-950">{stageTitle(step.stage)}</p>
+                  <p className="mt-0.5 text-sm leading-snug text-ink-muted">
                     {timingPhrase(step, effectiveTiming(step, p.configure, ui), ui)}
                   </p>
                 </div>
               </li>
             ))}
           </ol>
-        </Card>
+        </InfoTile>
 
-        <Card eyebrow={ui.stopsEyebrow}>
-          <ul className="flex flex-col gap-2">
+        <InfoTile icon={<CircleStop />} tint="bg-rose-50 text-rose-700" title={ui.stopsEyebrow}>
+          <ul className="flex list-none flex-col gap-2.5 p-0">
             {stops.map((s, i) => (
-              <li key={i} className="flex items-start gap-2 text-[13.5px] leading-snug text-ink-700">
-                <span aria-hidden className="mt-1.5 size-1 shrink-0 rounded-full bg-ink-400" />
+              <li key={i} className="flex items-start gap-2.5 text-sm leading-snug text-ink-700">
+                <CircleX aria-hidden className="mt-0.5 size-4 shrink-0 text-rose-500" />
                 {s}
               </li>
             ))}
           </ul>
-        </Card>
+        </InfoTile>
       </div>
     </div>
   );

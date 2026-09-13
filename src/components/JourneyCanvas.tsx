@@ -500,9 +500,10 @@ function FreeCanvas({
     const fitZ = Math.min((stage.clientWidth - 48) / layout.width, (stage.clientHeight - 48) / layout.height);
     const z = mobile ? MOBILE_ZOOM : clamp(fitZ, 0.6, 1);
     const entry = layout.nodes.find((l) => l.node.isEntry) ?? layout.nodes[0];
+    // 6rem down: clear of the floating bar the page shell lays over the top.
     camera.current = {
       x: stage.clientWidth / 2 - entry.x * z,
-      y: 40 - entry.y * z,
+      y: 96 - entry.y * z,
       z,
     };
     apply();

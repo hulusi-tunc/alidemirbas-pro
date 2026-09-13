@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 
 import JourneyDetailBody from "@/components/JourneyDetailBody";
 import JourneyDetailHeader from "@/components/JourneyDetailHeader";
 import JourneyVisualBody, { journeyCanvasProps } from "@/components/JourneyVisualBody";
 import JourneyCanvas from "@/components/JourneyCanvas";
-import { JourneyDetailTabs } from "@/components/JourneyDetailTabs";
+import { JourneyDetailShell } from "@/components/JourneyDetailShell";
+import JourneyInfo, { journeyTitle } from "@/components/JourneyInfo";
 import JourneyModal from "@/components/JourneyModal";
-import LabShell from "@/components/LabShell";
 import { resolveDetailSlug, type JourneyDetail } from "@/lib/canonical-view";
-import { copy, type Lang } from "@/lib/content";
+import { copy, EMAIL, type Lang } from "@/lib/content";
 import { pageAlternates, SITE_URL } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
@@ -136,45 +134,28 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
       ]);
 
   const canvas = journeyCanvasProps(detail, lang, t);
+  const c = copy[lang];
+  const langHref = lang === "en" ? `/tr/lab/journeys/${slug}` : `/lab/journeys/${slug}`;
 
   return (
-    <LabShell lang={lang}>
-      {breadcrumb && <JsonLdScript data={breadcrumb} />}
-      {/* Two tabs (Hulusi, 2026-09-13): the notes, and the graph on a free
-          canvas that fills the screen under the shell's bar and the tab
-          bar. The modal keeps its one scrolling document. */}
-      <JourneyDetailTabs
-        labels={t.tabs}
-        info={
-          <div className="px-4 py-7 md:px-8 md:py-10">
-            <div className={`mx-auto ${PAGE_MEASURE}`}>
-              <Link
-                href={basePath}
-                className="inline-flex items-center gap-1.5 text-sm text-neutral-600 transition-colors hover:text-ink-900"
-              >
-                <ArrowLeft aria-hidden className="size-3.5" />
-                {t.backToLibrary}
-              </Link>
-              <div className="mt-6">
-                <JourneyDetailHeader detail={detail} lang={lang} t={t} />
-              </div>
-              <div className="mt-9">
-                {canUseVisualBody(detail) ? (
-                  <JourneyVisualBody detail={detail} basePath={basePath} lang={lang} t={t} showCanvas={false} />
-                ) : (
-                  <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} showCanvas={false} />
-                )}
-              </div>
-            </div>
-          </div>
-        }
-        canvas={
-          <div className="h-[calc(100svh-6.5rem)]">
-            <JourneyCanvas {...canvas} basePath={basePath} mode="page" />
-          </div>
-        }
-      />
-    </LabShell>
+    <JourneyDetailShell
+      labels={{ back: t.backToLibrary, info: t.tabs.info, canvas: t.tabs.canvas, lang: c.nav.lang, cta: c.nav.cta, lab: "Lab" }}
+      hrefs={{ library: basePath, lab: c.nav.labHref, lang: langHref, cta: `mailto:${EMAIL}` }}
+      info={
+        <>
+          {breadcrumb && <JsonLdScript data={breadcrumb} />}
+          <JourneyInfo detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} visual={canUseVisualBody(detail)} />
+        </>
+      }
+      canvas={<JourneyCanvas {...canvas} basePath={basePath} mode="page" />}
+      titleCard={
+        <>
+          <p className="text-xs font-medium text-ink-subtle">{detail.categoryTitle}</p>
+          <p className="mt-1 text-lg leading-snug font-semibold text-balance text-ink-950">{journeyTitle(detail)}</p>
+          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink-muted">{detail.purpose}</p>
+        </>
+      }
+    />
   );
 }
 

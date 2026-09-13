@@ -1,7 +1,10 @@
 import Link from "next/link";
 import PractitionerView from "@/components/PractitionerView";
 
+import { Box, Quote, Scale, ShieldCheck, Split, Zap } from "lucide-react";
+
 import JourneyCanvas from "@/components/JourneyCanvas";
+import { InfoTile } from "@/components/ui/InfoTile";
 import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
 import type { JourneyDetail, MergedRedirect } from "@/lib/canonical-view";
 import type { copy, Lang } from "@/lib/content";
@@ -172,7 +175,7 @@ export default function JourneyDetailBody({
           anything else - the journey below is the survivor, not the id in
           the address bar. */}
       {merged ? (
-        <p className="mb-6 border border-line bg-paper-soft px-4 py-3 text-[13px] leading-snug text-ink-600">
+        <p className="mb-6 rounded-2xl bg-paper px-5 py-4 text-sm leading-snug text-ink-muted ring-1 ring-ink-950/[0.06]">
           {t.mergedNote.replace("{from}", merged.from).replace("{to}", merged.to)}
         </p>
       ) : null}
@@ -185,7 +188,7 @@ export default function JourneyDetailBody({
       {detail.practitioner ? (
         <>
           <PractitionerView view={detail.practitioner} lang={lang} t={t.practitioner} basePath={basePath} />
-          <h2 className="mt-12 mb-4 border-t border-ink-900 pt-6 text-base font-semibold tracking-tight text-ink-950">{t.practitioner.technical}</h2>
+          {showCanvas && <h2 className="mt-12 mb-4 text-h3 text-ink-950">{t.practitioner.technical}</h2>}
         </>
       ) : null}
 
@@ -209,109 +212,71 @@ export default function JourneyDetailBody({
         />
       )}
 
-      {/* The takeaway, stated at the size of a takeaway. Ruled top and bottom
-          so it reads as a pulled statement rather than another paragraph -
-          the heavier top rule ties it to the figure it belongs to, the
-          lighter bottom rule hands off to the notes. */}
-      <section className="mt-10 border-t border-ink-900 border-b border-b-line pt-6 pb-7">
-        <p className="font-mono text-[11px] tracking-[0.1em] text-ink-400 uppercase">{t.ruleLabel}</p>
-        <p className="mt-3 max-w-4xl text-[clamp(1.125rem,0.95rem+0.85vw,1.6rem)] leading-[1.32] font-medium tracking-[-0.01em] text-balance text-ink-950">
-          {detail.reusableRule}
-        </p>
-      </section>
+      {/* The takeaway, then the notes - as tiles with icons (Hulusi,
+          2026-09-14), the rule first and full width because it is the one
+          sentence to take away. */}
+      <div className={`${showCanvas ? "mt-10" : ""} grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3`}>
+        <InfoTile icon={<Quote />} title={t.ruleLabel} className="sm:col-span-2 lg:col-span-3">
+          <p className="max-w-4xl text-xl leading-snug font-medium text-balance text-ink-950">{detail.reusableRule}</p>
+        </InfoTile>
 
-      {/* The notes, as columns rather than one narrow stack. Each cell is
-          separated by a hairline on its leading edge and nothing else: no
-          card, no fill, no radius - the rules do the dividing and the type
-          does the ranking. Competes and Pre-empted by are rare (a handful of
-          journeys carry either) and flow into the same grid where they exist,
-          so they are separated the same way instead of getting a treatment of
-          their own. */}
-      <div className="mt-8 grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-10">
-        <NoteColumn label={t.entityLabel}>
-          <p className="font-mono text-[13px] leading-snug text-ink-900">{detail.entityScope}</p>
-          <p className="mt-3 text-sm leading-relaxed text-pretty text-ink-600">{detail.entityNote}</p>
-        </NoteColumn>
+        <InfoTile icon={<Box />} tint="bg-teal-50 text-teal-700" title={t.entityLabel}>
+          <p className="text-sm font-medium text-ink-950">{detail.entityScope}</p>
+          <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{detail.entityNote}</p>
+        </InfoTile>
+
+        <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailsLabel}>
+          <ol className="flex list-none flex-col gap-3 p-0">
+            {detail.guardrails.map((g, i) => (
+              <li key={g} className="flex gap-3">
+                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper-soft text-xs font-semibold text-ink-700 tabular-nums">{i + 1}</span>
+                <span className="text-sm leading-relaxed text-pretty text-ink-muted">{g}</span>
+              </li>
+            ))}
+          </ol>
+        </InfoTile>
 
         {detail.distinctFrom.length ? (
-          <NoteColumn label={t.distinctLabel}>
-            <ul className="space-y-3.5">
+          <InfoTile icon={<Split />} tint="bg-violet-50 text-violet-700" title={t.distinctLabel}>
+            <ul className="flex list-none flex-col gap-3.5 p-0">
               {detail.distinctFrom.map((d) => (
-                <li key={d.journey} className="text-sm leading-relaxed text-pretty text-ink-600">
+                <li key={d.journey} className="text-sm leading-relaxed text-pretty text-ink-muted">
                   {d.slug ? (
-                    <Link
-                      href={`${basePath}/${d.slug}`}
-                      className="font-mono text-[13px] text-blue-700 hover:underline"
-                    >
-                      {d.journey}
+                    <Link href={`${basePath}/${d.slug}`} className="font-medium text-ink-950 underline decoration-ink-300 underline-offset-4 hover:decoration-ink-950">
+                      {d.name ?? d.journey}
                     </Link>
                   ) : (
-                    <span className="font-mono text-[13px] text-ink-900">{d.journey}</span>
+                    <span className="font-medium text-ink-950">{d.name ?? d.journey}</span>
                   )}
-                  {d.name ? <span className="text-ink-800"> {d.name}</span> : null}
                   <span className="mt-1 block">{d.because}</span>
                 </li>
               ))}
             </ul>
-          </NoteColumn>
+          </InfoTile>
         ) : null}
-
-        {/* Numbered because guardrails are a checklist a reader works
-            through, not a paragraph - and the numbers give the longest
-            column in the grid something to scan by. */}
-        <NoteColumn label={t.guardrailsLabel}>
-          <ol className="space-y-3.5">
-            {detail.guardrails.map((g, i) => (
-              <li key={g} className="flex gap-3">
-                <span className="shrink-0 pt-0.5 font-mono text-[11px] text-ink-300 tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="text-sm leading-relaxed text-pretty text-ink-600">{g}</span>
-              </li>
-            ))}
-          </ol>
-        </NoteColumn>
 
         {detail.competition ? (
-          <NoteColumn label={t.competesLabel}>
-            <p className="font-mono text-[13px] leading-snug text-ink-900">
-              {detail.competition.exclusionGroup} · {detail.competition.scope} · {ON_LOSS_PREFIX[lang]}{" "}
-              {detail.competition.onLoss}
+          <InfoTile icon={<Scale />} tint="bg-amber-50 text-amber-700" title={t.competesLabel}>
+            <p className="text-sm font-medium text-ink-950">
+              {detail.competition.exclusionGroup} · {detail.competition.scope} · {ON_LOSS_PREFIX[lang]} {detail.competition.onLoss}
             </p>
-            <p className="mt-3 text-sm leading-relaxed text-pretty text-ink-600">
-              {detail.competition.precedence}
-            </p>
-          </NoteColumn>
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{detail.competition.precedence}</p>
+          </InfoTile>
         ) : null}
 
-        {/* Two journeys in the library carry this. It is rendered where it
-            exists and shipped nowhere else. */}
         {detail.preemptedBy.length ? (
-          <NoteColumn label={t.preemptedLabel}>
-            <ul className="space-y-3.5">
+          <InfoTile icon={<Zap />} tint="bg-amber-50 text-amber-700" title={t.preemptedLabel}>
+            <ul className="flex list-none flex-col gap-3.5 p-0">
               {detail.preemptedBy.map((p) => (
-                <li key={p.event} className="text-sm leading-relaxed text-pretty text-ink-600">
-                  <span className="font-mono text-[13px] text-ink-900">{p.event}</span>
+                <li key={p.event} className="text-sm leading-relaxed text-pretty text-ink-muted">
+                  <span className="font-medium text-ink-950">{p.event}</span>
                   <span className="mt-1 block">{p.then}</span>
                 </li>
               ))}
             </ul>
-          </NoteColumn>
+          </InfoTile>
         ) : null}
       </div>
     </div>
-  );
-}
-
-/* One cell of the notes grid. The hairline sits on the leading edge at every
-   breakpoint including mobile, where the grid is a single column - a rule
-   above each stacked note would read as a section divider and re-introduce
-   exactly the undifferentiated vertical list this layout replaces. */
-function NoteColumn({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <section className="border-l border-line pl-5">
-      <p className="mb-3 font-mono text-[11px] tracking-[0.1em] text-ink-400 uppercase">{label}</p>
-      {children}
-    </section>
   );
 }

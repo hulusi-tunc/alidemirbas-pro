@@ -276,6 +276,8 @@ export const copy = {
           reset: "Reset zoom",
         },
         tabs: { info: "Info", canvas: "Canvas" },
+        openCanvas: "Open the canvas",
+        shapeLabel: "Shape",
       },
       /* Two dedicated child list pages under /lab/journeys, splitting the
          same JOURNEY_ROWS by whether a journey's own work ever reaches a
@@ -1071,6 +1073,8 @@ export const copy = {
           reset: "Yakınlaştırmayı sıfırla",
         },
         tabs: { info: "Bilgi", canvas: "Kanvas" },
+        openCanvas: "Kanvası aç",
+        shapeLabel: "Yapı",
       },
       journeysHub: {
         eyebrow: "Lab / Journey Kütüphanesi",
