@@ -24,7 +24,6 @@ import { JOURNEY_SCALE } from "@/lib/journey-marketing";
 import { sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
-import { clsx } from "@/lib/clsx";
 
 /* The Canonical Journey Library's HUB - /lab/journeys.
 
@@ -67,8 +66,10 @@ function Pill({
   tone: "dark" | "outline" | "light" | "ghost";
   children: ReactNode;
 }) {
-  // The four tones this page names, on the site's one button family.
-  const variant = tone === "dark" ? "ink" : tone === "light" ? "inverted" : tone === "ghost" ? "outlineInverted" : "outline";
+  // The four tones this page names, on the site's one button family. The
+  // page's main action is the brand blue (Hulusi, 2026-09-14: "they have to
+  // be blue"); black is the header's, not a page's.
+  const variant = tone === "dark" ? "primary" : tone === "light" ? "inverted" : tone === "ghost" ? "outlineInverted" : "outline";
   return (
     <ButtonLink href={href} variant={variant} size="md">
       {children}

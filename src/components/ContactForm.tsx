@@ -163,31 +163,17 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
           up, where the Coda reference's "compact" instruction actually
           applies.
 
-          `rounded-full!`/`px-6!` (round 2): Portrait's real buttons are
-          true pills. The `rounded-full!` half is now redundant - the
-          2026-08-30 style pass made the pill Button.tsx's own default
-          site-wide - and is kept only so `px-6!` reads as one intact
-          override rather than a mystery half.
-
-          `variant="ink"` + the `--btn-fill` override (ROUND 3 correction):
-          round 2 used `variant="primary"`, whose resting fill is brand
-          blue (`bg-primary`) — guessed, not sourced. Portrait's real
-          primary CTA fill is a dark NEUTRAL (`bg-gray-700`, hovering to
-          `bg-gray-1000`) — PORTRAIT-DESIGN-SOURCE-AUDIT.md's round-3
-          addendum. `Button`'s own `ink` variant already rests at
-          `bg-neutral-900` (~`#2a2a2a`, close to Portrait's real
-          `gray-700` `#2c2c2c`) with NO override needed for the resting
-          color — its own hover-dissolve fill is brand blue by default
-          (`--btn-fill: var(--color-primary)`), which is the one part
-          overridden here, to an even darker neutral
-          (`--color-neutral-1000`), matching Portrait's own hover
-          direction (fill darkens further, it doesn't change hue). */}
+          The submit is the site's one button family on its `primary`
+          variant (2026-09-14, Hulusi: a page's main action is the brand
+          blue; black is the header's). Earlier rounds argued a dark
+          neutral from a Portrait audit and carried `rounded-full!`/`px-6!`
+          overrides; the family is a pill now, so nothing is overridden. */}
       <div>
         <Button
           type="submit"
-          variant="ink"
-          size="sm"
-          className="w-full sm:w-auto [--btn-fill:var(--color-neutral-1000)]!"
+          variant="primary"
+          size="md"
+          className="w-full sm:w-auto"
         >
           {t.formSubmit}
         </Button>
