@@ -246,7 +246,7 @@ export default function JourneyCanvas({
       >
         <defs>
           <marker id="journey-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-            <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-300" />
+            <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-400" />
           </marker>
         </defs>
         {layout.edges.map((e) => (
@@ -266,7 +266,7 @@ export default function JourneyCanvas({
             className="absolute"
           >
             {n.kind === "trigger" ? (
-              <TriggerCard node={n} onOpen={onOpen} entryLabel={labels.entry} />
+              <TriggerCard node={n} onOpen={onOpen} entryLabel={labels.entry} lang={labels.lang} />
             ) : n.kind === "action" ? (
               <ActionCard
                 node={n}
@@ -276,15 +276,15 @@ export default function JourneyCanvas({
                 humanLabels={humanLabels}
               />
             ) : n.kind === "condition" ? (
-              <ConditionCard node={n} onOpen={onOpen} />
+              <ConditionCard node={n} onOpen={onOpen} lang={labels.lang} />
             ) : n.kind === "wait" ? (
               <WaitCard node={n} onOpen={onOpen} />
             ) : n.kind === "handoff" ? (
-              <HandoffCard node={n} onOpen={onOpen} />
+              <HandoffCard node={n} onOpen={onOpen} lang={labels.lang} />
             ) : n.kind === "outcome" ? (
-              <OutcomeCard node={n} onOpen={onOpen} />
+              <OutcomeCard node={n} onOpen={onOpen} lang={labels.lang} />
             ) : (
-              <ExitCard node={n} onOpen={onOpen} terminalLabel={labels.terminal} />
+              <ExitCard node={n} onOpen={onOpen} terminalLabel={labels.terminal} lang={labels.lang} />
             )}
           </div>
         );
@@ -406,7 +406,7 @@ function EdgeShape({ edge }: { edge: LaidOutEdge }) {
   const d = elbowPath(edge.x1, edge.y1, edge.x2, edge.y2, edge.labelY, edge.detourX);
   return (
     <g data-canvas-edge-from={edge.from} data-canvas-edge-to={edge.to} data-canvas-edge-label={edge.label ?? ""}>
-      <path d={d} fill="none" className="stroke-ink-200" strokeWidth={1.4} markerEnd="url(#journey-arrow)" />
+      <path d={d} fill="none" className="stroke-ink-300" strokeWidth={1.5} markerEnd="url(#journey-arrow)" />
       {edge.label ? (
         <foreignObject
           x={edge.labelX - 100}
@@ -416,7 +416,7 @@ function EdgeShape({ edge }: { edge: LaidOutEdge }) {
           className="overflow-visible"
         >
           <div className="flex justify-center">
-            <span className="rounded-full border border-badge-border bg-paper px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap text-badge-ink">
+            <span className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-medium whitespace-nowrap text-ink-700 ring-1 ring-ink-950/[0.08]">
               {edge.label}
             </span>
           </div>

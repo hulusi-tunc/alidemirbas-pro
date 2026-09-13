@@ -110,21 +110,22 @@ export type CanvasLayout = {
    JourneyCanvasNodes.tsx; the padding, the badges and the line-clamps all
    feed these. */
 const SIZE: Record<CanvasNodeKind, { width: number; height: number }> = {
-  trigger: { width: 245, height: 129 },
-  action: { width: 288, height: 183 },
-  condition: { width: 264, height: 139 },
-  wait: { width: 260, height: 57 },
-  handoff: { width: 245, height: 131 },
-  outcome: { width: 245, height: 104 },
-  exit: { width: 208, height: 89 },
+  trigger: { width: 240, height: 124 },
+  action: { width: 264, height: 168 },
+  condition: { width: 240, height: 128 },
+  wait: { width: 240, height: 56 },
+  handoff: { width: 240, height: 124 },
+  outcome: { width: 232, height: 100 },
+  exit: { width: 208, height: 88 },
 };
 
-/* Column spacing must clear the widest card (288px) with real room either
-   side for the edge that runs between two adjacent columns - otherwise two
-   branches of a fork sit close enough to visually collide, which is the
-   opposite of what a fork is supposed to communicate. */
-const COL_UNIT = 312;
-const ROW_GAP = 104;
+/* Column spacing clears the widest card (264px) with room for the edge that
+   runs between two adjacent columns. Both this and the row gap came down on
+   2026-09-14 (312 → 288, 104 → 64; the cards themselves narrowed with the
+   redrawn kit in JourneyCanvasNodes.tsx) - Hulusi: "lines are so far from
+   each other" - so a journey reads as one drawing, not islands. */
+const COL_UNIT = 288;
+const ROW_GAP = 64;
 const PAD_X = 70;
 const PAD_Y = 48;
 /** How far below its source an edge's label sits - a fixed offset rather

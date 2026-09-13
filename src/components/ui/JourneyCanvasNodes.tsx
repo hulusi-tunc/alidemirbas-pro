@@ -1,165 +1,76 @@
 import type { ReactNode } from "react";
+import { ArrowRightLeft, Clock, Cog, Flag, LogOut, Mail, Split, UserRound, Zap } from "lucide-react";
 
 import type { FlowNode } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
 
-/* Node cards for the journey canvas - one visual system per the attached
-   Journey Visual Grammar, distinct from JourneyVisuals.tsx's simpler
-   seven-kind grammar used on the /lab/claude-lifecycle product page. That
-   page draws a marketing diagram; this one draws a real canonical journey's
-   full graph, so it carries the grammar's richer hierarchy: Action at Level
-   A (strongest), Trigger/Handoff/Outcome/Exit at Level B (structural, one
-   filled, three quiet), Condition/Wait at Level C (compact, deliberately
-   smaller than an Action).
+/* THE CANVAS NODE KIT, on the site's own system (Hulusi, 2026-09-14: "each
+   canvas element needs to be redesigned and restructured; we need a design
+   system for that - we already started it on the Lab page"). The cards
+   now speak the Lab's drawn idiom: paper cards with a hairline ring and a
+   soft shadow, a tinted icon tile per kind carrying a Lucide icon (the
+   site's one icon set), plain-case labels on the 12px step, secondary
+   states as quiet pills. Hierarchy stays as the grammar sets it: Action
+   is the strongest (widest, four lines of its sentence), Trigger is the
+   one filled card - brand blue, with the Entry pin standing on its top
+   edge so the start of a journey is the first thing the eye finds
+   ("Entry is so hard to see") - Condition and Wait are compact, Exit sits
+   at rest on a dashed edge. Every word on a card is canonical prose or one
+   of the kind names below; nothing is invented.
 
-   ACTION EXECUTION (was the ACTION SUBTYPE GAP, now closed): the grammar's
-   Action level distinguishes customer-facing execution from internal work,
-   and for a long time nothing in canonical could express that - `ActionNode`
-   carried `{ does; writes?; next }` and no execution field, so every Action
-   on every journey then in the library rendered as INTERNAL by default.
+   Sizes are reserved by journey-canvas-layout.ts's SIZE table; keep the
+   two in step when changing padding, type or clamps here. */
 
-   `ActionNode.execution` now carries it explicitly: `communication` on the
-   150 actions whose effect is a message reaching a recipient, `human` on the
-   34 that put work in front of a person, and omitted on the remaining 1,048
-   internal operations - which keeps INTERNAL as the honest default rather
-   than the only option. A communication card names the journey's own
-   declared channels (CanonicalJourney.channels) rather than inventing one
-   per node: the canonical send path picks the actual channel at stage 9,
-   from the permitted set, so the set is what a node can truthfully show.
-
-   PER-KIND ACCENT + REAL SECONDARY BADGES (2026-09 pass): adapted from the
-   "Journey Node System" design exploration (a Claude Design artifact, not a
-   third-party library) - its icon-badge chip and its "secondary states are
-   badges, never a new shape" rule. Per reference-analysis.md's SURFACE vs
-   MECHANISM split, only the mechanism crossed over: the exploration's own
-   raw hex values are explicitly placeholder ("palette and icons are
-   placeholders for the concept, not final brand values") and its 11-channel
-   per-Action-node coloring is flagged inside the exploration itself as
-   "Future communication example - not part of current canonical corpus" (a
-   single Action node has no single channel in the real schema - only the
-   journey declares a permitted set, and the send path picks at runtime; see
-   ActionNode's own comment above). Building that part would be a fabricated
-   distinction the data can't back, so it was left out.
-
-   What DID cross over, using only fields the schema actually carries and
-   this site's own tokens (never the exploration's hex):
-    - an icon-badge chip (tinted square) per kind, replacing a bare inline
-      icon
-    - a distinct accent hue for Condition (violet), Wait (teal) and Handoff
-      (indigo) - the three kinds that previously had no color identity at
-      all, hence indistinguishable from each other by anything but shape
-    - three real, previously-uncarded schema fields, now shown as pills:
-      TriggerNode.evidence.source (already computed into `meta`'s free-text
-      list; now also on the card face), ConditionNode.branches.length, and
-      HandoffNode's internal/external split (`to.startsWith("external:")`)
-   Trigger keeps its solid dark fill and Exit keeps its quiet dashed/muted
-   treatment rather than gaining a new hue - both already match the
-   exploration's own stated semantics ("Trigger reads as commanding", "Exit
-   sits visually at rest"), so a new accent there would fight the reference
-   rather than follow it. Action keeps its existing 3-way border-l accent
-   (blue/amber/neutral) - a real, already-correct distinction predating this
-   pass - now paired with a matching icon-badge instead of standing alone. */
-
-const ICON_PROPS = { width: 14, height: 14, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor" } as const;
-
-function TriggerIcon() {
-  return (
-    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinejoin="round">
-      <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" />
-    </svg>
-  );
-}
-function HandoffIcon() {
-  return (
-    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  );
-}
-function OutcomeIcon() {
-  return (
-    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 12l5 5 11-11" />
-    </svg>
-  );
-}
-function ConditionIcon() {
-  return (
-    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinejoin="round">
-      <path d="M12 3l9 9-9 9-9-9 9-9z" />
-    </svg>
-  );
-}
-function WaitIcon() {
-  return (
-    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinecap="round">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" />
-    </svg>
-  );
-}
-function CommunicationIcon() {
-  return (
-    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 7l9 6 9-6" />
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-    </svg>
-  );
-}
-function HumanActionIcon() {
-  return (
-    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M5 20a7 7 0 0 1 14 0" />
-    </svg>
-  );
-}
-function InternalActionIcon() {
-  return (
-    <svg {...ICON_PROPS} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 4v8a4 4 0 0 0 4 4h6" />
-      <path d="M14 13l3 3-3 3" />
-    </svg>
-  );
-}
-
-/** Snake_case/dot.case event and state ids read as engine internals, not as
-    the sentence a reader needs first - the same cleanup canonical-view.ts's
-    own `humanEvent` does for triggers, applied here to wait/exit headlines
-    too since those flow through this renderer only, not the shared list
-    view every other journey still uses. */
 export function humanize(text: string): string {
   const words = text.replace(/[_.]+/g, " ").trim();
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-/** One accent per kind: an icon-badge tint/ink pair, reused for any matching
-    secondary pill on the same card. This site's own Tailwind tokens - the
-    same `violet-50/700`, `teal-50/700`, `blue-50/700`, `amber-50/700` family
-    JourneyBuilderPage.tsx's CHANNEL_STYLE already uses elsewhere in this
-    codebase - not the design exploration's placeholder hex. Condition,
-    Wait and Handoff are the three kinds getting a hue for the first time;
-    Action's three execution accents already existed and are kept as-is. */
-const ACCENT = {
-  internal: { tint: "bg-neutral-100", ink: "text-neutral-600", ring: "border-neutral-200" },
-  communication: { tint: "bg-blue-50", ink: "text-blue-700", ring: "border-blue-200" },
-  human: { tint: "bg-amber-50", ink: "text-amber-700", ring: "border-amber-200" },
-  condition: { tint: "bg-violet-50", ink: "text-violet-700", ring: "border-violet-200" },
-  wait: { tint: "bg-teal-50", ink: "text-teal-700", ring: "border-teal-200" },
-  handoff: { tint: "bg-indigo-50", ink: "text-indigo-700", ring: "border-indigo-200" },
-  outcome: { tint: "bg-success-subtle", ink: "text-success", ring: "border-success-subtle" },
-  quiet: { tint: "bg-neutral-100", ink: "text-ink-400", ring: "border-line-soft" },
+const KIND = {
+  message: { tile: "bg-primary-50 text-primary-700", ink: "text-primary-700" },
+  human: { tile: "bg-amber-50 text-amber-700", ink: "text-amber-700" },
+  internal: { tile: "bg-paper-soft text-ink-600", ink: "text-ink-600" },
+  condition: { tile: "bg-violet-50 text-violet-700", ink: "text-violet-700" },
+  wait: { tile: "bg-teal-50 text-teal-700", ink: "text-teal-700" },
+  handoff: { tile: "bg-indigo-50 text-indigo-700", ink: "text-indigo-700" },
+  outcome: { tile: "bg-emerald-50 text-emerald-700", ink: "text-emerald-700" },
+  exit: { tile: "bg-paper-soft text-ink-500", ink: "text-ink-500" },
 } as const;
 
-function IconBadge({ accent, children }: { accent: (typeof ACCENT)[keyof typeof ACCENT]; children: ReactNode }) {
-  return (
-    <span className={`grid size-[22px] shrink-0 place-items-center rounded-md ${accent.tint} ${accent.ink}`}>
-      {children}
-    </span>
-  );
-}
+type Kind = (typeof KIND)[keyof typeof KIND];
 
-function CardShell({
+const CARD_TEXT = {
+  en: {
+    trigger: "Trigger",
+    decision: "Decision",
+    wait: "Wait",
+    handoff: "Handoff",
+    outcome: "Outcome",
+    exit: "Exit",
+    external: "External",
+    internal: "Internal",
+    message: "Message",
+    human: "Human",
+    internalAction: "Internal",
+    branches: (n: number) => `${n} branches`,
+  },
+  tr: {
+    trigger: "Tetikleyici",
+    decision: "Karar",
+    wait: "Bekleme",
+    handoff: "Devir",
+    outcome: "Sonuç",
+    exit: "Çıkış",
+    external: "Dış",
+    internal: "İç",
+    message: "Mesaj",
+    human: "İnsan",
+    internalAction: "İç işlem",
+    branches: (n: number) => `${n} dal`,
+  },
+} as const;
+
+function Shell({
   children,
   className = "",
   onClick,
@@ -170,11 +81,7 @@ function CardShell({
   className?: string;
   onClick?: () => void;
   ariaLabel: string;
-  /** Wait's card is the one true pill/capsule (§4 LEVEL C) - it shrinks to
-      its own content instead of stretching to fill its column slot, which
-      is what keeps it reading as visibly smaller than an Action even when
-      its reserved layout width is generous. Every other kind still fills
-      its slot. */
+  /** Wait is the one capsule: it shrinks to its own content. */
   fit?: boolean;
 }) {
   return (
@@ -182,7 +89,7 @@ function CardShell({
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
-      className={`block h-full cursor-pointer text-left transition-shadow duration-150 hover:shadow-[0_1px_0_0_rgba(0,0,0,0.03),0_4px_14px_-6px_rgba(15,23,42,0.18)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${
+      className={`block h-full cursor-pointer text-left transition-[box-shadow,transform] duration-[var(--duration-fast)] hover:-translate-y-px hover:shadow-[0_10px_24px_-12px_rgb(10_16_32/0.3)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${
         fit ? "mx-auto w-fit" : "w-full"
       } ${className}`}
     >
@@ -191,23 +98,30 @@ function CardShell({
   );
 }
 
-function KindRow({ accent, icon, children }: { accent: (typeof ACCENT)[keyof typeof ACCENT]; icon: ReactNode; children: ReactNode }) {
+const CARD = "rounded-2xl bg-paper px-3.5 py-3 ring-1 ring-ink-950/[0.08] shadow-[0_1px_2px_rgb(10_16_32/0.04)]";
+
+function Tile({ kind, children, className = "" }: { kind: Kind | { tile: string; ink: string }; children: ReactNode; className?: string }) {
   return (
-    <span className="flex items-center gap-2">
-      <IconBadge accent={accent}>{icon}</IconBadge>
-      <span className="font-mono text-[11px] font-semibold tracking-[0.08em] uppercase">{children}</span>
+    <span aria-hidden className={`grid size-6 shrink-0 place-items-center rounded-lg ${kind.tile} [&>svg]:size-3.5 ${className}`}>
+      {children}
     </span>
   );
 }
 
-/** A real, schema-backed secondary state - never decoration. Same neutral
-    pill shape as ExitCard's pre-existing terminal badge, generalised so
-    every kind that now carries one of these renders it identically. */
-function StatePill({ children, onDark = false }: { children: ReactNode; onDark?: boolean }) {
+function KindRow({ kind, icon, children }: { kind: Kind; icon: ReactNode; children: ReactNode }) {
+  return (
+    <span className="flex items-center gap-2">
+      <Tile kind={kind}>{icon}</Tile>
+      <span className={`text-xs font-medium ${kind.ink}`}>{children}</span>
+    </span>
+  );
+}
+
+function Pill({ children, onDark = false }: { children: ReactNode; onDark?: boolean }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-1.5 py-px text-[10px] font-medium normal-case ${
-        onDark ? "border-white/20 bg-white/10 text-white/70" : "border-line-soft bg-paper-soft text-ink-500"
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
+        onDark ? "bg-white/15 text-white/85" : "bg-paper-soft text-ink-600"
       }`}
     >
       {children}
@@ -215,117 +129,79 @@ function StatePill({ children, onDark = false }: { children: ReactNode; onDark?:
   );
 }
 
-/* The card faces' own words. The kind names and the two schema-backed
-   secondary states are the only free text these cards write themselves -
-   everything else on a card is canonical prose, which stays English on
-   both locales (see JourneyVisualBody.tsx's own note). `lang` defaults to
-   English so a caller with nothing to localise (the QA sweep route) stays
-   a valid caller. */
-const CARD_TEXT = {
-  en: {
-    external: "External",
-    internal: "Internal",
-    message: "Message",
-    human: "Human",
-    internalAction: "Internal",
-    branches: (n: number) => `${n} branches`,
-  },
-  tr: {
-    external: "Dış",
-    internal: "İç",
-    message: "Mesaj",
-    human: "İnsan",
-    internalAction: "İç işlem",
-    branches: (n: number) => `${n} dal`,
-  },
-} as const;
-
-function EntryPin({ children }: { children: string }) {
-  return (
-    <span className="absolute -top-3 left-3 flex items-center rounded-full border border-paper bg-ink-950 px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-paper shadow-sm">
-      {children}
-    </span>
-  );
-}
-
-export function TriggerCard({ node, onOpen, entryLabel }: { node: FlowNode; onOpen: () => void; entryLabel: string }) {
+/* Trigger: the one filled card, brand blue. The Entry pin stands on its
+   top edge in ink, so the start reads before anything else. */
+export function TriggerCard({ node, onOpen, entryLabel, lang = "en" }: { node: FlowNode; onOpen: () => void; entryLabel: string; lang?: Lang }) {
+  const w = CARD_TEXT[lang];
   return (
     <div className="relative h-full w-full">
-      {node.isEntry ? <EntryPin>{entryLabel}</EntryPin> : null}
-      <CardShell onClick={onOpen} ariaLabel={node.headline} className="rounded-lg bg-ink-950 px-4 py-4">
-        <span className="flex items-center gap-2">
-          <span className="grid size-[22px] shrink-0 place-items-center rounded-md bg-white/10 text-neutral-300">
-            <TriggerIcon />
-          </span>
-          <span className="font-mono text-[11px] font-semibold tracking-[0.08em] text-neutral-300 uppercase">Trigger</span>
+      {node.isEntry ? (
+        <span className="absolute -top-3.5 left-3 z-10 flex items-center gap-1 rounded-full bg-ink-950 px-2.5 py-1 text-xs font-semibold text-white shadow-[0_6px_16px_-8px_rgb(10_16_32/0.6)] ring-2 ring-paper">
+          <Zap aria-hidden className="size-3" />
+          {entryLabel}
         </span>
-        <p className="mt-2 line-clamp-2 text-[14.5px] leading-snug text-paper">{humanize(node.headline)}</p>
+      ) : null}
+      <Shell onClick={onOpen} ariaLabel={node.headline} className="rounded-2xl bg-primary-600 px-3.5 py-3 text-white ring-1 ring-primary-700/40 shadow-[0_10px_24px_-14px_rgb(46_92_255/0.6)]">
+        <span className="flex items-center gap-2">
+          <Tile kind={{ tile: "bg-white/15 text-white", ink: "" }}>
+            <Zap aria-hidden />
+          </Tile>
+          <span className="text-xs font-medium text-white/85">{w.trigger}</span>
+        </span>
+        <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium">{humanize(node.headline)}</p>
         {node.evidenceSource ? (
           <span className="mt-2 flex">
-            <StatePill onDark>{humanize(node.evidenceSource)}</StatePill>
+            <Pill onDark>{humanize(node.evidenceSource)}</Pill>
           </span>
         ) : null}
-      </CardShell>
+      </Shell>
     </div>
   );
 }
 
 export function HandoffCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
-  const accent = ACCENT.handoff;
   const w = CARD_TEXT[lang];
   return (
-    <CardShell
-      onClick={onOpen}
-      ariaLabel={node.headline}
-      className="rounded-lg border border-line-soft border-l-[3px] border-l-indigo-600 bg-paper px-4 py-4"
-    >
-      <KindRow accent={accent} icon={<HandoffIcon />}>
-        <span className="text-indigo-700">Handoff</span>
+    <Shell onClick={onOpen} ariaLabel={node.headline} className={CARD}>
+      <KindRow kind={KIND.handoff} icon={<ArrowRightLeft aria-hidden />}>
+        {w.handoff}
       </KindRow>
-      <p className="mt-2 line-clamp-2 text-[14.5px] leading-snug text-ink-900">{node.headline}</p>
+      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950">{node.headline}</p>
       <span className="mt-2 flex">
-        <StatePill>{node.external ? w.external : w.internal}</StatePill>
+        <Pill>{node.external ? w.external : w.internal}</Pill>
       </span>
-    </CardShell>
+    </Shell>
   );
 }
 
-export function OutcomeCard({ node, onOpen }: { node: FlowNode; onOpen: () => void }) {
-  const accent = ACCENT.outcome;
+export function OutcomeCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
+  const w = CARD_TEXT[lang];
   return (
-    <CardShell
-      onClick={onOpen}
-      ariaLabel={node.headline}
-      className="rounded-lg border border-line-soft border-l-[3px] border-l-[color:var(--color-success)] bg-paper px-4 py-4"
-    >
-      <KindRow accent={accent} icon={<OutcomeIcon />}>
-        <span className="text-ink-700">Outcome</span>
+    <Shell onClick={onOpen} ariaLabel={node.headline} className={CARD}>
+      <KindRow kind={KIND.outcome} icon={<Flag aria-hidden />}>
+        {w.outcome}
       </KindRow>
-      <p className="mt-2 line-clamp-2 text-[14.5px] leading-snug text-ink-900">{node.headline}</p>
-    </CardShell>
+      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950">{node.headline}</p>
+    </Shell>
   );
 }
 
-export function ExitCard({ node, onOpen, terminalLabel }: { node: FlowNode; onOpen: () => void; terminalLabel: string }) {
+/* Exit: at rest - a dashed edge, no fill, quieter ink. */
+export function ExitCard({ node, onOpen, terminalLabel, lang = "en" }: { node: FlowNode; onOpen: () => void; terminalLabel: string; lang?: Lang }) {
+  const w = CARD_TEXT[lang];
   return (
-    <CardShell
-      onClick={onOpen}
-      ariaLabel={node.headline}
-      className="rounded-md border border-dashed border-ink-200 bg-transparent px-4 py-3"
-    >
+    <Shell onClick={onOpen} ariaLabel={node.headline} className="rounded-2xl border border-dashed border-ink-300 bg-paper/70 px-3.5 py-2.5">
       <span className="flex items-center gap-2">
-        <IconBadge accent={ACCENT.quiet}>
-          <svg {...ICON_PROPS} strokeWidth={1.7}>
-            <rect x="5" y="5" width="14" height="14" rx="3" />
-          </svg>
-        </IconBadge>
-        <span className="flex items-center gap-1.5 font-mono text-[10px] font-semibold tracking-[0.08em] text-ink-500 uppercase">
-          Exit
-          {node.terminal ? <StatePill>{terminalLabel}</StatePill> : null}
+        <Tile kind={KIND.exit}>
+          <LogOut aria-hidden />
+        </Tile>
+        <span className="flex items-center gap-1.5 text-xs font-medium text-ink-500">
+          {w.exit}
+          {node.terminal ? <Pill>{terminalLabel}</Pill> : null}
         </span>
       </span>
-      <p className="mt-1 line-clamp-2 text-[13.5px] leading-snug text-ink-500">{node.headline}</p>
-    </CardShell>
+      <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-600">{node.headline}</p>
+    </Shell>
   );
 }
 
@@ -341,111 +217,67 @@ export function ActionCard({
   sequence: number;
   onOpen: () => void;
   lang?: Lang;
-  /** The journey's message-delivery surfaces, localised and ordered. Shown on
-      a communication action only; an empty list renders nothing rather than a
-      placeholder. */
+  /** The journey's message-delivery surfaces, localised and ordered. Shown
+      on a communication action only. */
   messageLabels: readonly string[];
-  /** The journey's human routes (sales, task). Shown on a human action only -
-      a Message node does not send "on Task", and a Human node is not reached
-      "on SMS". */
+  /** The journey's human routes (sales, task). Shown on a human action only. */
   humanLabels: readonly string[];
 }) {
   const w = CARD_TEXT[lang];
   const execution = node.execution ?? "system";
-  const accent = execution === "communication" ? ACCENT.communication : execution === "human" ? ACCENT.human : ACCENT.internal;
-  const borderL =
-    execution === "communication" ? "border-l-blue-700" : execution === "human" ? "border-l-amber-700" : "border-l-neutral-600";
-
+  const kind = execution === "communication" ? KIND.message : execution === "human" ? KIND.human : KIND.internal;
+  const icon = execution === "communication" ? <Mail aria-hidden /> : execution === "human" ? <UserRound aria-hidden /> : <Cog aria-hidden />;
+  const label = execution === "communication" ? w.message : execution === "human" ? w.human : w.internalAction;
+  const routes = execution === "communication" ? messageLabels : execution === "human" ? humanLabels : [];
   return (
-    <CardShell
-      onClick={onOpen}
-      ariaLabel={node.headline}
-      className={`rounded-lg border border-line-soft border-l-[3px] ${borderL} bg-paper px-4 py-4`}
-    >
-      <KindRow
-        accent={accent}
-        icon={
-          execution === "communication" ? (
-            <CommunicationIcon />
-          ) : execution === "human" ? (
-            <HumanActionIcon />
-          ) : (
-            <InternalActionIcon />
-          )
-        }
-      >
-        <span className={accent.ink}>
-          {execution === "communication" ? w.message : execution === "human" ? w.human : w.internalAction} ·{" "}
-          {String(sequence).padStart(2, "0")}
-        </span>
+    <Shell onClick={onOpen} ariaLabel={node.headline} className={CARD}>
+      <KindRow kind={kind} icon={icon}>
+        {label} · {String(sequence).padStart(2, "0")}
       </KindRow>
-      {/* No separate short title exists in canonical data (ActionNode has
-          one `does` sentence, not a title + a purpose line) - see the file
-          comment. The full sentence renders here, clamped to 4 lines rather
-          than the 3 the first pass used (the card grew to fit it), with a
-          shortened paraphrase never substituted for the canonical wording;
-          the untruncated text is always available in the detail panel. */}
-      <p className="mt-2 line-clamp-4 text-[14.5px] leading-snug text-ink-900">{node.headline}</p>
-      {(() => {
-        const routes = execution === "communication" ? messageLabels : execution === "human" ? humanLabels : [];
-        return routes.length > 0 ? (
-          <p className="mt-2 font-mono text-[10.5px] tracking-[0.06em] text-ink-500 uppercase">{routes.join(" · ")}</p>
-        ) : null;
-      })()}
-    </CardShell>
+      {/* The canonical sentence itself, clamped - the full text is in the
+          detail panel; never a paraphrase. */}
+      <p className="mt-2 line-clamp-4 text-[13.5px] leading-snug text-ink-950">{node.headline}</p>
+      {routes.length > 0 ? (
+        <span className="mt-2 flex flex-wrap gap-1">
+          {routes.map((r) => (
+            <Pill key={r}>{r}</Pill>
+          ))}
+        </span>
+      ) : null}
+    </Shell>
   );
 }
 
 export function ConditionCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
-  const accent = ACCENT.condition;
   const w = CARD_TEXT[lang];
-  // Branch names already sit on the connectors leaving this card (§5 of the
-  // grammar: "branch labels belong close to their corresponding edges") -
-  // repeating them as pills inside the card too, on top of what the edges
-  // already say, is the one thing the grammar's own anatomy demo shows in
-  // isolation but never actually does in an assembled journey (§4/§6). The
-  // branch COUNT is different information (a real layout signal, not a
-  // repeat of the edge labels), which is why it gets a pill and the branch
-  // names don't.
   return (
-    <CardShell
-      onClick={onOpen}
-      ariaLabel={node.headline}
-      className="rounded-2xl border border-line-soft border-t-[3px] border-t-violet-600 bg-paper px-4 py-3.5"
-    >
-      <span className="flex items-start gap-2">
-        <IconBadge accent={accent}>
-          <ConditionIcon />
-        </IconBadge>
-        <span className="flex-1 text-[14.5px] leading-snug font-medium text-ink-900">{node.headline}</span>
-      </span>
+    <Shell onClick={onOpen} ariaLabel={node.headline} className={CARD}>
+      <KindRow kind={KIND.condition} icon={<Split aria-hidden />}>
+        {w.decision}
+      </KindRow>
+      <p className="mt-2 line-clamp-3 text-[13.5px] leading-snug font-medium text-ink-950">{node.headline}</p>
       {typeof node.branchCount === "number" ? (
-        <span className="mt-2 flex justify-end">
-          <StatePill>{w.branches(node.branchCount)}</StatePill>
+        <span className="mt-2 flex">
+          <Pill>{w.branches(node.branchCount)}</Pill>
         </span>
       ) : null}
-    </CardShell>
+    </Shell>
   );
 }
 
+/* Wait: the capsule, compact, its own width. */
 export function WaitCard({ node, onOpen }: { node: FlowNode; onOpen: () => void }) {
-  const accent = ACCENT.wait;
-  // A pill, per the grammar - but "sensible two-line labels where
-  // necessary" (no ellipsis on an essential label) wins over forcing a
-  // single line: `line-clamp-2` wraps instead of truncating, and the
-  // reserved width (SIZE.wait in journey-canvas-layout.ts) is generous
-  // enough that ACQ-01's own wait headline fits on one line in practice.
   return (
-    <CardShell
+    <Shell
       onClick={onOpen}
       ariaLabel={node.headline}
       fit
-      className={`flex max-w-[280px] items-center gap-2 rounded-full border ${accent.ring} bg-paper px-3 py-2`}
+      className="flex max-w-[240px] items-center gap-2 rounded-full bg-paper py-1.5 pr-3.5 pl-1.5 ring-1 ring-teal-200 shadow-[0_1px_2px_rgb(10_16_32/0.04)]"
     >
-      <IconBadge accent={accent}>
-        <WaitIcon />
-      </IconBadge>
-      <span className="line-clamp-2 text-[14px] leading-snug font-medium text-ink-700">{humanize(node.headline)}</span>
-    </CardShell>
+      <Tile kind={KIND.wait}>
+        <Clock aria-hidden />
+      </Tile>
+      <span className="line-clamp-2 text-[13px] leading-snug font-medium text-ink-800">{humanize(node.headline)}</span>
+    </Shell>
   );
 }
