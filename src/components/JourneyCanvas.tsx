@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Maximize2, Minus, Plus, RotateCcw } from "lucide-react";
 
 import type { FlowNode } from "@/lib/canonical-view";
@@ -85,10 +85,17 @@ export default function JourneyCanvas({
   caption,
   messageLabels = [],
   humanLabels = [],
+  mode = "figure",
 }: {
   nodes: readonly FlowNode[];
   basePath: string;
   labels: CanvasLabels;
+  /** `figure` (default): the framed, scrolling plate inside a document.
+      `page`: the free canvas - fills whatever box it is given, pans by
+      dragging or wheel, zooms about the cursor with ctrl/pinch, the dot grid
+      moving with the world (Hulusi, 2026-09-13: "a full-page free canvas
+      like FigJam"). Same nodes, same edges, same detail panel. */
+  mode?: "figure" | "page";
   /** The figure's caption - the journey's own shape in counts, composed and
       localised by the server. Optional so a caller with nothing to say (the
       QA sweep route) gets a bare control bar rather than an empty line. */
@@ -227,6 +234,78 @@ export default function JourneyCanvas({
     });
   };
 
+  /* The world: edges and node cards in layout coordinates. Both modes scale
+     this same block; only the camera around it differs. */
+  const world: ReactNode = (
+    <>
+      <svg
+        width={layout.width}
+        height={layout.height}
+        className="pointer-events-none absolute inset-0"
+        aria-hidden
+      >
+        <defs>
+          <marker id="journey-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-300" />
+          </marker>
+        </defs>
+        {layout.edges.map((e) => (
+          <EdgeShape key={e.id} edge={e} />
+        ))}
+      </svg>
+
+      {layout.nodes.map((l) => {
+        const n = l.node;
+        const onOpen = () => setSelectedId(n.id);
+        return (
+          <div
+            key={n.id}
+            data-canvas-node-id={n.id}
+            data-canvas-node-kind={n.kind}
+            style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
+            className="absolute"
+          >
+            {n.kind === "trigger" ? (
+              <TriggerCard node={n} onOpen={onOpen} entryLabel={labels.entry} />
+            ) : n.kind === "action" ? (
+              <ActionCard
+                node={n}
+                sequence={actionSequence.get(n.id) ?? 1}
+                onOpen={onOpen}
+                messageLabels={messageLabels}
+                humanLabels={humanLabels}
+              />
+            ) : n.kind === "condition" ? (
+              <ConditionCard node={n} onOpen={onOpen} />
+            ) : n.kind === "wait" ? (
+              <WaitCard node={n} onOpen={onOpen} />
+            ) : n.kind === "handoff" ? (
+              <HandoffCard node={n} onOpen={onOpen} />
+            ) : n.kind === "outcome" ? (
+              <OutcomeCard node={n} onOpen={onOpen} />
+            ) : (
+              <ExitCard node={n} onOpen={onOpen} terminalLabel={labels.terminal} />
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+
+  if (mode === "page") {
+    return (
+      <FreeCanvas
+        layout={layout}
+        world={world}
+        labels={labels}
+        caption={caption}
+        basePath={basePath}
+        selectedNode={selectedNode}
+        onClose={() => setSelectedId(null)}
+      />
+    );
+  }
+
   return (
     /* The figure: one framed plate carrying the graph, with a caption bar
        ruled off underneath it. The stage below is its own positioning
@@ -256,57 +335,7 @@ export default function JourneyCanvas({
               style={{ width: layout.width, height: layout.height, transform: `scale(${zoom})`, transformOrigin: "top left" }}
               className="relative"
             >
-              <svg
-                width={layout.width}
-                height={layout.height}
-                className="pointer-events-none absolute inset-0"
-                aria-hidden
-              >
-                <defs>
-                  <marker id="journey-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-                    <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-300" />
-                  </marker>
-                </defs>
-                {layout.edges.map((e) => (
-                  <EdgeShape key={e.id} edge={e} />
-                ))}
-              </svg>
-
-              {layout.nodes.map((l) => {
-                const n = l.node;
-                const onOpen = () => setSelectedId(n.id);
-                return (
-                  <div
-                    key={n.id}
-                    data-canvas-node-id={n.id}
-                    data-canvas-node-kind={n.kind}
-                    style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
-                    className="absolute"
-                  >
-                    {n.kind === "trigger" ? (
-                      <TriggerCard node={n} onOpen={onOpen} entryLabel={labels.entry} />
-                    ) : n.kind === "action" ? (
-                      <ActionCard
-                        node={n}
-                        sequence={actionSequence.get(n.id) ?? 1}
-                        onOpen={onOpen}
-                        messageLabels={messageLabels}
-                        humanLabels={humanLabels}
-                      />
-                    ) : n.kind === "condition" ? (
-                      <ConditionCard node={n} onOpen={onOpen} />
-                    ) : n.kind === "wait" ? (
-                      <WaitCard node={n} onOpen={onOpen} />
-                    ) : n.kind === "handoff" ? (
-                      <HandoffCard node={n} onOpen={onOpen} />
-                    ) : n.kind === "outcome" ? (
-                      <OutcomeCard node={n} onOpen={onOpen} />
-                    ) : (
-                      <ExitCard node={n} onOpen={onOpen} terminalLabel={labels.terminal} />
-                    )}
-                  </div>
-                );
-              })}
+              {world}
             </div>
           </div>
         </div>
@@ -394,5 +423,222 @@ function EdgeShape({ edge }: { edge: LaidOutEdge }) {
         </foreignObject>
       ) : null}
     </g>
+  );
+}
+
+
+/* THE FREE CANVAS. The world layer carries one transform - translate then
+   scale - and the camera lives in a ref, written straight to the DOM on
+   every move; React state changes only for the zoom readout. The dot grid
+   sits on the stage's own background but moves and scales with the world,
+   which is what makes it read as an endless sheet rather than a framed
+   plate. Drag anywhere to pan (a drag over a card pans too, and swallows
+   the click that would have opened it); the wheel pans, ctrl/meta + wheel
+   - which is how a trackpad pinch arrives - zooms about the cursor. Fit is
+   the default view: the whole graph, centred, with breathing room. */
+const PAGE_MIN_ZOOM = 0.2;
+const PAGE_MAX_ZOOM = 2;
+const GRID = 22;
+
+function FreeCanvas({
+  layout,
+  world,
+  labels,
+  caption,
+  basePath,
+  selectedNode,
+  onClose,
+}: {
+  layout: ReturnType<typeof layoutJourneyCanvas>;
+  world: ReactNode;
+  labels: CanvasLabels;
+  caption?: string;
+  basePath: string;
+  selectedNode: FlowNode | null;
+  onClose: () => void;
+}) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const worldRef = useRef<HTMLDivElement>(null);
+  const camera = useRef({ x: 0, y: 0, z: 1 });
+  const [zoomPct, setZoomPct] = useState(100);
+
+  const apply = () => {
+    const stage = stageRef.current;
+    const w = worldRef.current;
+    const { x, y, z } = camera.current;
+    if (w) w.style.transform = `translate(${x}px, ${y}px) scale(${z})`;
+    if (stage) {
+      stage.style.backgroundSize = `${GRID * z}px ${GRID * z}px`;
+      stage.style.backgroundPosition = `${x}px ${y}px`;
+    }
+    setZoomPct(Math.round(z * 100));
+  };
+
+  /* Fit: the whole graph, centred, with breathing room - the "show me
+     everything" press. */
+  const fit = () => {
+    const stage = stageRef.current;
+    if (!stage || !stage.clientWidth) return;
+    const pad = 64;
+    const z = clamp(Math.min((stage.clientWidth - pad * 2) / layout.width, (stage.clientHeight - pad * 2) / layout.height, 1), PAGE_MIN_ZOOM, PAGE_MAX_ZOOM);
+    camera.current = {
+      x: (stage.clientWidth - layout.width * z) / 2,
+      y: Math.max(pad, (stage.clientHeight - layout.height * z) / 2),
+      z,
+    };
+    apply();
+  };
+
+  /* The default view, and Reset: a READABLE zoom with the entry card at the
+     top centre, the rest reachable by panning - a fit-to-contain of a tall
+     graph lands at 20% and reads as confetti. Phones get the figure mode's
+     own fixed zoom; desktops a fit floored well above unreadable. */
+  const home = () => {
+    const stage = stageRef.current;
+    if (!stage || !stage.clientWidth) return;
+    const mobile = stage.clientWidth < MOBILE_BREAKPOINT;
+    const fitZ = Math.min((stage.clientWidth - 48) / layout.width, (stage.clientHeight - 48) / layout.height);
+    const z = mobile ? MOBILE_ZOOM : clamp(fitZ, 0.6, 1);
+    const entry = layout.nodes.find((l) => l.node.isEntry) ?? layout.nodes[0];
+    camera.current = {
+      x: stage.clientWidth / 2 - entry.x * z,
+      y: 40 - entry.y * z,
+      z,
+    };
+    apply();
+  };
+
+  const zoomAt = (factor: number, px: number, py: number) => {
+    const { x, y, z } = camera.current;
+    const next = clamp(z * factor, PAGE_MIN_ZOOM, PAGE_MAX_ZOOM);
+    const k = next / z;
+    camera.current = { x: px - (px - x) * k, y: py - (py - y) * k, z: next };
+    apply();
+  };
+
+  const zoomCentre = (factor: number) => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    zoomAt(factor, stage.clientWidth / 2, stage.clientHeight / 2);
+  };
+
+  useLayoutEffect(() => {
+    const raf = requestAnimationFrame(home);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layout]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    /* The canvas lives on a tab: at mount it may be `hidden` (zero size),
+       so the first real size it gets is when the tab opens - home then. */
+    let hadSize = stage.clientWidth > 0;
+    const ro = new ResizeObserver(() => {
+      const has = stage.clientWidth > 0;
+      if (has && !hadSize) home();
+      hadSize = has;
+    });
+    ro.observe(stage);
+    let dragging = false;
+    let moved = false;
+    let lastX = 0;
+    let lastY = 0;
+    const onDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      moved = false;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add("cursor-grabbing");
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      camera.current = { ...camera.current, x: camera.current.x + dx, y: camera.current.y + dy };
+      apply();
+    };
+    const onUp = () => {
+      dragging = false;
+      stage.classList.remove("cursor-grabbing");
+    };
+    // A drag that ends over a card must not open it.
+    const onClick = (e: MouseEvent) => {
+      if (moved) {
+        e.stopPropagation();
+        e.preventDefault();
+        moved = false;
+      }
+    };
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      if (e.ctrlKey || e.metaKey) {
+        zoomAt(Math.exp(-e.deltaY * 0.01), e.clientX - rect.left, e.clientY - rect.top);
+      } else {
+        camera.current = { ...camera.current, x: camera.current.x - e.deltaX, y: camera.current.y - e.deltaY };
+        apply();
+      }
+    };
+    const onResize = () => home();
+    stage.addEventListener("pointerdown", onDown);
+    stage.addEventListener("pointermove", onMove);
+    stage.addEventListener("pointerup", onUp);
+    stage.addEventListener("pointercancel", onUp);
+    stage.addEventListener("click", onClick, true);
+    stage.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("resize", onResize);
+    return () => {
+      ro.disconnect();
+      stage.removeEventListener("pointerdown", onDown);
+      stage.removeEventListener("pointermove", onMove);
+      stage.removeEventListener("pointerup", onUp);
+      stage.removeEventListener("pointercancel", onUp);
+      stage.removeEventListener("click", onClick, true);
+      stage.removeEventListener("wheel", onWheel);
+      window.removeEventListener("resize", onResize);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layout]);
+
+  const control = "grid size-9 place-items-center rounded-full text-ink-600 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft hover:text-ink-950";
+
+  return (
+    <div className="relative h-full w-full">
+      <div
+        ref={stageRef}
+        className="altor-dot-grid absolute inset-0 cursor-grab touch-none overflow-hidden bg-paper-soft select-none"
+        aria-label={caption}
+      >
+        <div ref={worldRef} style={{ width: layout.width, height: layout.height, transformOrigin: "0 0" }} className="absolute top-0 left-0 will-change-transform">
+          {world}
+        </div>
+      </div>
+      <NodeDetailPanel node={selectedNode} basePath={basePath} labels={labels} onClose={onClose} />
+      {caption && (
+        <p className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-paper/95 px-3.5 py-2 text-sm text-ink-600 tabular-nums ring-1 ring-ink-950/[0.06]">{caption}</p>
+      )}
+      <div className="absolute right-4 bottom-4 flex items-center gap-0.5 rounded-full bg-paper/95 p-1 ring-1 ring-ink-950/[0.06] shadow-[0_12px_30px_-16px_rgb(10_16_32/0.35)]">
+        <button type="button" onClick={() => zoomCentre(1 / 1.25)} aria-label={labels.zoomOut} className={control}>
+          <Minus aria-hidden className="size-4" />
+        </button>
+        <span className="min-w-[3.25rem] text-center text-sm text-ink-600 tabular-nums">{zoomPct}%</span>
+        <button type="button" onClick={() => zoomCentre(1.25)} aria-label={labels.zoomIn} className={control}>
+          <Plus aria-hidden className="size-4" />
+        </button>
+        <span aria-hidden className="mx-1 h-5 w-px bg-line" />
+        <button type="button" onClick={fit} aria-label={labels.fitToView} className={control}>
+          <Maximize2 aria-hidden className="size-4" />
+        </button>
+        <button type="button" onClick={home} aria-label={labels.reset} className={control}>
+          <RotateCcw aria-hidden className="size-4" />
+        </button>
+      </div>
+    </div>
   );
 }

@@ -132,12 +132,15 @@ export default function JourneyDetailBody({
   basePath,
   lang,
   t,
+  showCanvas = true,
 }: {
   detail: JourneyDetail;
   merged: MergedRedirect | null;
   basePath: string;
   lang: Lang;
   t: (typeof copy)[Lang]["lab"]["page"];
+  /** The full page shows the graph on its own tab; the modal keeps it here. */
+  showCanvas?: boolean;
 }) {
   /* Localised once here rather than inside the canvas, which is a client
      island: the labels are static copy, so resolving them on the server
@@ -186,23 +189,25 @@ export default function JourneyDetailBody({
         </>
       ) : null}
 
-      <JourneyCanvas
-        nodes={detail.nodes}
-        basePath={basePath}
-        labels={{
-          entry: t.canvas.entry,
-          zoomIn: t.canvas.zoomIn,
-          zoomOut: t.canvas.zoomOut,
-          fitToView: t.canvas.fitToView,
-          reset: t.canvas.reset,
-          close: t.close,
-          terminal: t.terminalLabel,
-          lang,
-        }}
-        caption={caption}
-        messageLabels={messageLabels}
-        humanLabels={humanLabels}
-      />
+      {showCanvas && (
+        <JourneyCanvas
+          nodes={detail.nodes}
+          basePath={basePath}
+          labels={{
+            entry: t.canvas.entry,
+            zoomIn: t.canvas.zoomIn,
+            zoomOut: t.canvas.zoomOut,
+            fitToView: t.canvas.fitToView,
+            reset: t.canvas.reset,
+            close: t.close,
+            terminal: t.terminalLabel,
+            lang,
+          }}
+          caption={caption}
+          messageLabels={messageLabels}
+          humanLabels={humanLabels}
+        />
+      )}
 
       {/* The takeaway, stated at the size of a takeaway. Ruled top and bottom
           so it reads as a pulled statement rather than another paragraph -

@@ -5,7 +5,9 @@ import { ArrowLeft } from "lucide-react";
 
 import JourneyDetailBody from "@/components/JourneyDetailBody";
 import JourneyDetailHeader from "@/components/JourneyDetailHeader";
-import JourneyVisualBody from "@/components/JourneyVisualBody";
+import JourneyVisualBody, { journeyCanvasProps } from "@/components/JourneyVisualBody";
+import JourneyCanvas from "@/components/JourneyCanvas";
+import { JourneyDetailTabs } from "@/components/JourneyDetailTabs";
 import JourneyModal from "@/components/JourneyModal";
 import LabShell from "@/components/LabShell";
 import { resolveDetailSlug, type JourneyDetail } from "@/lib/canonical-view";
@@ -133,30 +135,45 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
           : [{ name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` }]),
       ]);
 
+  const canvas = journeyCanvasProps(detail, lang, t);
+
   return (
     <LabShell lang={lang}>
       {breadcrumb && <JsonLdScript data={breadcrumb} />}
-      <div className="px-4 py-7 md:px-8 md:py-10">
-        <div className={`mx-auto ${PAGE_MEASURE}`}>
-          <Link
-            href={basePath}
-            className="inline-flex items-center gap-1.5 text-sm text-neutral-600 transition-colors hover:text-ink-900"
-          >
-            <ArrowLeft aria-hidden className="size-3.5" />
-            {t.backToLibrary}
-          </Link>
-          <div className="mt-6">
-            <JourneyDetailHeader detail={detail} lang={lang} t={t} />
+      {/* Two tabs (Hulusi, 2026-09-13): the notes, and the graph on a free
+          canvas that fills the screen under the shell's bar and the tab
+          bar. The modal keeps its one scrolling document. */}
+      <JourneyDetailTabs
+        labels={t.tabs}
+        info={
+          <div className="px-4 py-7 md:px-8 md:py-10">
+            <div className={`mx-auto ${PAGE_MEASURE}`}>
+              <Link
+                href={basePath}
+                className="inline-flex items-center gap-1.5 text-sm text-neutral-600 transition-colors hover:text-ink-900"
+              >
+                <ArrowLeft aria-hidden className="size-3.5" />
+                {t.backToLibrary}
+              </Link>
+              <div className="mt-6">
+                <JourneyDetailHeader detail={detail} lang={lang} t={t} />
+              </div>
+              <div className="mt-9">
+                {canUseVisualBody(detail) ? (
+                  <JourneyVisualBody detail={detail} basePath={basePath} lang={lang} t={t} showCanvas={false} />
+                ) : (
+                  <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} showCanvas={false} />
+                )}
+              </div>
+            </div>
           </div>
-          <div className="mt-9">
-            {canUseVisualBody(detail) ? (
-              <JourneyVisualBody detail={detail} basePath={basePath} lang={lang} t={t} />
-            ) : (
-              <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
-            )}
+        }
+        canvas={
+          <div className="h-[calc(100svh-6.5rem)]">
+            <JourneyCanvas {...canvas} basePath={basePath} mode="page" />
           </div>
-        </div>
-      </div>
+        }
+      />
     </LabShell>
   );
 }

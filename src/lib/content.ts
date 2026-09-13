@@ -275,6 +275,7 @@ export const copy = {
           fitToView: "Fit to view",
           reset: "Reset zoom",
         },
+        tabs: { info: "Info", canvas: "Canvas" },
       },
       /* Two dedicated child list pages under /lab/journeys, splitting the
          same JOURNEY_ROWS by whether a journey's own work ever reaches a
@@ -1069,6 +1070,7 @@ export const copy = {
           fitToView: "Sığdır",
           reset: "Yakınlaştırmayı sıfırla",
         },
+        tabs: { info: "Bilgi", canvas: "Kanvas" },
       },
       journeysHub: {
         eyebrow: "Lab / Journey Kütüphanesi",

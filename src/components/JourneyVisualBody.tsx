@@ -112,22 +112,13 @@ function Card({ eyebrow, children }: { eyebrow: string; children: React.ReactNod
   );
 }
 
-export default function JourneyVisualBody({
-  detail,
-  basePath,
-  lang,
-  t,
-}: {
-  detail: JourneyDetail;
-  basePath: string;
-  lang: Lang;
-  t: (typeof copy)[Lang]["lab"]["page"];
-}) {
-  const ui = UI[lang];
-  const p = detail.practitioner!; // caller only routes here when this is non-null (see canUseVisualBody)
+/** Everything the canvas needs from a journey, composed once so the figure
+    inside the notes and the full-page canvas tab (JourneyRoutes) cannot
+    disagree: the localised labels, the caption in counts, the channel names
+    per node kind. */
+export function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof copy)[Lang]["lab"]["page"]) {
   const messageLabels = messageChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
   const humanLabels = humanChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
-
   const count = (kind: JourneyDetail["nodes"][number]["kind"]) => detail.nodes.filter((n) => n.kind === kind).length;
   const plural = (n: number, forms: readonly [string, string]) => `${n} ${forms[n === 1 ? 0 : 1]}`;
   const caption = [
@@ -138,6 +129,36 @@ export default function JourneyVisualBody({
   ]
     .filter(Boolean)
     .join(" · ");
+  const labels = {
+    entry: t.canvas.entry,
+    zoomIn: t.canvas.zoomIn,
+    zoomOut: t.canvas.zoomOut,
+    fitToView: t.canvas.fitToView,
+    reset: t.canvas.reset,
+    close: t.close,
+    terminal: t.terminalLabel,
+    lang,
+  };
+  return { nodes: detail.nodes, labels, caption, messageLabels, humanLabels };
+}
+
+export default function JourneyVisualBody({
+  detail,
+  basePath,
+  lang,
+  t,
+  showCanvas = true,
+}: {
+  detail: JourneyDetail;
+  basePath: string;
+  lang: Lang;
+  t: (typeof copy)[Lang]["lab"]["page"];
+  /** The full page shows the graph on its own tab; the modal keeps it here. */
+  showCanvas?: boolean;
+}) {
+  const ui = UI[lang];
+  const p = detail.practitioner!; // caller only routes here when this is non-null (see canUseVisualBody)
+  const canvas = journeyCanvasProps(detail, lang, t);
 
   const stops = [
     ...p.stopsWhen.exits.map((e) => firstClause(e.state)),
@@ -150,28 +171,16 @@ export default function JourneyVisualBody({
           and same interaction (pan, zoom, node detail) as every other
           journey's canvas, only moved above the notes instead of below
           them and given a plain-language heading. */}
-      <h2 className="text-base font-semibold tracking-tight text-ink-950">{ui.flowHeading}</h2>
-      <div className="mt-4">
-        <JourneyCanvas
-          nodes={detail.nodes}
-          basePath={basePath}
-          labels={{
-            entry: t.canvas.entry,
-            zoomIn: t.canvas.zoomIn,
-            zoomOut: t.canvas.zoomOut,
-            fitToView: t.canvas.fitToView,
-            reset: t.canvas.reset,
-            close: t.close,
-            terminal: t.terminalLabel,
-            lang,
-          }}
-          caption={caption}
-          messageLabels={messageLabels}
-          humanLabels={humanLabels}
-        />
-      </div>
+      {showCanvas && (
+        <>
+          <h2 className="text-base font-semibold tracking-tight text-ink-950">{ui.flowHeading}</h2>
+          <div className="mt-4">
+            <JourneyCanvas {...canvas} basePath={basePath} />
+          </div>
+        </>
+      )}
 
-      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className={`${showCanvas ? "mt-10" : ""} grid grid-cols-1 gap-4 sm:grid-cols-3`}>
         <Card eyebrow={ui.whatEyebrow}>
           <p className="text-[14px] leading-relaxed text-pretty text-ink-700">{detail.purpose}</p>
         </Card>
