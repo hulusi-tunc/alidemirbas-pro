@@ -19,11 +19,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { SiteFooter, SiteHeader } from "@/components/Site";
+import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
@@ -488,12 +487,6 @@ function OtherProjects({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }
   );
 }
 
-function PageCta({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
-  const link = c.primaryLinks[0];
-  if (!link) return null;
-  return <ProductCta eyebrow={t.ctaEyebrow} title={t.ctaTitle} primary={{ label: t.ctaVisit, href: link.href }} />;
-}
-
 export default function NumerspacePage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
   const copyT = copy[lang];
   const t = T[lang];
@@ -535,7 +528,7 @@ export default function NumerspacePage({ lang, content }: { lang: Lang; content:
         <PrivacySection t={t} />
         <Faq c={content} t={t} />
         <OtherProjects c={content} t={t} />
-        <PageCta c={content} t={t} />
+        <FinalCta t={copyT} />
       </main>
       <SiteFooter t={copyT} lang={lang} />
     </>

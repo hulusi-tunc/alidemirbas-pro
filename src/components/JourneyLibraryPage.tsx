@@ -2,9 +2,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 
-import { SiteFooter, SiteHeader } from "@/components/Site";
+import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductMetricStrip, ProductSection } from "@/components/ui/ProductPage";
@@ -379,20 +378,6 @@ function Library({ lang }: { lang: Lang }) {
   );
 }
 
-/* ---- 06 · Final plate - the page's one dark block ---------------------- */
-function Final({ lang }: { lang: Lang }) {
-  const c = copy[lang].lab.journeysHub.final;
-  const hub = copy[lang].lab.journeysHub;
-  return (
-    <ProductCta
-      eyebrow={c.eyebrow}
-      title={c.title}
-      body={c.body}
-      primary={{ label: hub.ctaCommunication, href: P(lang, SURFACE_PATH["customer-journeys"]) }}
-    />
-  );
-}
-
 export default function JourneyLibraryPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
@@ -411,7 +396,7 @@ export default function JourneyLibraryPage({ lang }: { lang: Lang }) {
         <Split lang={lang} />
         <Stories lang={lang} />
         <Library lang={lang} />
-        <Final lang={lang} />
+        <FinalCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />
     </div>

@@ -1,11 +1,10 @@
 import Image from "next/image";
 import { ArrowUpRight, BellRing, Check, CircleCheck, Gauge, LayoutList, Lock, Mail, MessageSquare, Ruler, Smartphone } from "lucide-react";
 
-import { SiteFooter, SiteHeader } from "@/components/Site";
+import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { AppBar, AppMeta, AppTitle, Badge, FormLabel, Table, Td, Th, Tr, Window } from "@/components/ui/LabWindow";
@@ -568,16 +567,6 @@ function Faq({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-/* ---- 13 · Final CTA — page-local, not the shared contact CTA ----------
-   The shared <FinalCta> (Site.tsx) points at the contact form, which is
-   the wrong destination for an open-source repo. Same dark band language
-   (bg-ink-950), this page's own two CTAs, three floating fragment images
-   as decoration (desktop only, matching the brief). */
-function PageCta({ t }: { t: (typeof copy)[Lang] }) {
-  const c = t.journeyBuilder.pageCta;
-  return <ProductCta eyebrow={c.eyebrow} title={c.title} primary={{ label: c.primary, href: REPO }} secondary={{ label: c.secondary, href: DEMO }} />;
-}
-
 export default function JourneyBuilderPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
@@ -609,7 +598,7 @@ export default function JourneyBuilderPage({ lang }: { lang: Lang }) {
         <WhyDifferent t={t} lang={lang} />
         <CarouselSection t={t} lang={lang} />
         <Faq t={t} />
-        <PageCta t={t} />
+        <FinalCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />
     </>

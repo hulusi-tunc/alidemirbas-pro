@@ -1,11 +1,10 @@
 import { ArrowRight, ArrowUpRight, Ban, BookOpen, Check, CircleCheck, Info, Lightbulb, Scale, ShieldCheck, TriangleAlert } from "lucide-react";
 
-import { SiteFooter, SiteHeader } from "@/components/Site";
+import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { CodeBlock, InstallationStepper } from "@/components/ui/InstallationStepper";
-import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
@@ -596,12 +595,6 @@ function Related({ c }: { c: SkillProductContent }) {
   );
 }
 
-function PageCta({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
-  const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
-  if (!repo) return null;
-  return <ProductCta eyebrow={t.ctaEyebrow} title={t.ctaTitle} primary={{ label: repo.label, href: repo.href }} />;
-}
-
 export default function DashboardBuilderPage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
   const copyT = copy[lang];
   const t = T[lang];
@@ -656,7 +649,7 @@ export default function DashboardBuilderPage({ lang, content }: { lang: Lang; co
         <Install c={content} t={t} lang={lang} />
         <Faq c={content} t={t} />
         <Related c={content} />
-        <PageCta c={content} t={t} />
+        <FinalCta t={copy[lang]} />
       </main>
       <SiteFooter t={copyT} lang={lang} />
     </>
