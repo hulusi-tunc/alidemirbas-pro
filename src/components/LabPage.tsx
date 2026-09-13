@@ -108,6 +108,7 @@ function GalleryFallback({ lang, t, basePath, rows, surface }: {
         {sections.map(({ meta, items }) => (
           <section key={meta.id} id={`cat-${meta.id}`} className="scroll-mt-24">
             <CategoryHeader
+              id={meta.id}
               code={items[0]?.id.split("-")[0] ?? ""}
               title={lang === "en" ? meta.title : meta.titleTr}
               count={items.length}
@@ -120,12 +121,14 @@ function GalleryFallback({ lang, t, basePath, rows, surface }: {
                   key={j.id}
                   href={`${basePath}/${j.slug}`}
                   id={j.id}
+                  lang={lang}
                   title={j.shortName ?? j.name}
+                  category={j.category}
                   categoryTitle={j.categoryTitle}
                   purpose={j.purpose}
                   nodeCount={j.nodeCount}
                   nodesLabel={t.nodesLabel}
-                  channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+                  channels={sortChannels(j.channels)}
                   internalLabel={labels.internalBadge}
                 />
               ))}

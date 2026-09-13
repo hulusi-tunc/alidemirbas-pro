@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 
 /* One entry in a library gallery grid - the card both the journey library
@@ -25,10 +26,14 @@ export type IdeaCardBadge = {
   tone: "accent" | "muted";
   /** Optional hover/assistive expansion of a terse label. */
   title?: string;
+  /** A glyph before the label (a channel's, a state's), so the badge can
+      be read at a glance. */
+  icon?: ReactNode;
 };
 
 export default function IdeaCard({
   href,
+  icon,
   title,
   badges,
   body,
@@ -36,6 +41,9 @@ export default function IdeaCard({
   footRight,
 }: {
   href: string;
+  /** A glyph for what the entry belongs to (its category), in a tile
+      before the title - the card's visual anchor. */
+  icon?: ReactNode;
   title: string;
   badges: readonly IdeaCardBadge[];
   body: string;
@@ -47,8 +55,11 @@ export default function IdeaCard({
       href={href}
       className="group flex h-full flex-col rounded-2xl bg-paper ring-1 ring-ink-950/[0.06] transition-[box-shadow,transform] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
     >
-      <div className="flex items-start justify-between gap-3 px-5 pt-5">
-        <div className="min-w-0">
+      <div className="flex items-start gap-3.5 px-5 pt-5">
+        {icon ? (
+          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-paper-soft text-ink-700 [&>svg]:size-4">{icon}</span>
+        ) : null}
+        <div className="min-w-0 flex-1">
           <p className="text-base leading-snug font-semibold text-ink-950">{title}</p>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {badges.map((b) => (
@@ -57,10 +68,11 @@ export default function IdeaCard({
                 title={b.title}
                 className={
                   b.tone === "accent"
-                    ? "rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700"
-                    : "rounded-full bg-paper-soft px-2 py-0.5 text-xs font-medium text-ink-600"
+                    ? "inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700 [&>svg]:size-3.5"
+                    : "inline-flex items-center gap-1 rounded-full bg-paper-soft px-2 py-0.5 text-xs font-medium text-ink-600 [&>svg]:size-3.5"
                 }
               >
+                {b.icon}
                 {b.label}
               </span>
             ))}
@@ -73,7 +85,7 @@ export default function IdeaCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-4 px-5 pt-3 pb-5">
-        <p className="line-clamp-3 text-sm leading-relaxed text-ink-600">{body}</p>
+        <p className="line-clamp-2 text-sm leading-relaxed text-ink-600">{body}</p>
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-line-soft pt-3">
           <span className="truncate text-xs text-ink-500">{footLeft}</span>
           <span className="shrink-0 text-xs text-ink-500 tabular-nums">{footRight}</span>

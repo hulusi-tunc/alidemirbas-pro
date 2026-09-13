@@ -6,7 +6,7 @@ import { Search, X } from "lucide-react";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import IdeaCard from "@/components/ui/IdeaCard";
 import { Button } from "@/components/ui/Button";
-import { CategoryHeader, SEARCH_SHELL, SELECT_CLASS, SelectShell, SurfaceTabs } from "@/components/ui/LibraryChrome";
+import { CategoryHeader, CategoryIcon, SEARCH_SHELL, SELECT_CLASS, SelectShell, SurfaceTabs, shortCategoryTitle } from "@/components/ui/LibraryChrome";
 import { clsx } from "@/lib/clsx";
 import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
@@ -76,6 +76,7 @@ function CategorySection({
           rather than an icon invented for 26 categories nobody could
           verify the meaning of. */}
       <CategoryHeader
+        id={meta.id}
         code={items[0]?.id.split("-")[0] ?? ""}
         title={lang === "en" ? meta.title : meta.titleTr}
         count={items.length}
@@ -89,12 +90,14 @@ function CategorySection({
             key={j.id}
             href={`${basePath}/${j.slug}`}
             id={j.id}
+            lang={lang}
             title={j.shortName ?? j.name}
+            category={j.category}
             categoryTitle={j.categoryTitle}
             purpose={j.purpose}
             nodeCount={j.nodeCount}
             nodesLabel={t.nodesLabel}
-            channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+            channels={sortChannels(j.channels)}
             internalLabel={emptyChannelLabel}
             typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
           />
@@ -138,7 +141,10 @@ function CategoryRail({
           active === id ? "bg-paper-soft font-medium text-ink-950" : "text-ink-600 hover:bg-paper-soft hover:text-ink-950",
         )}
       >
-        <span className="truncate">{label}</span>
+        <span className="flex min-w-0 items-center gap-2.5">
+          <CategoryIcon id={id} className="size-4 shrink-0 text-ink-500" />
+          <span className="truncate">{label}</span>
+        </span>
         <span className="shrink-0 text-xs text-ink-500 tabular-nums">{count}</span>
       </a>
     </li>
@@ -380,7 +386,7 @@ export default function JourneyGallery({
         <CategoryRail
           title={labels.railTitle}
           presets={matchingPresets.length ? { label: labels.presetsTitle, count: matchingPresets.length } : undefined}
-          sections={sections.map((s) => ({ id: s.meta.id, title: lang === "en" ? s.meta.title : s.meta.titleTr, count: s.items.length }))}
+          sections={sections.map((s) => ({ id: s.meta.id, title: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr), count: s.items.length }))}
           active={activeCat}
         />
       ) : null}
@@ -397,6 +403,7 @@ export default function JourneyGallery({
               <IdeaCard
                 key={p.id}
                 href={`${basePath}/${p.slug}`}
+                icon={<CategoryIcon id="presets" />}
                 title={p.name}
                 badges={[{ label: labels.presetBadge, tone: "accent" }]}
                 body={p.applicableWhen}
@@ -441,12 +448,14 @@ export default function JourneyGallery({
               key={j.id}
               href={`${basePath}/${j.slug}`}
               id={j.id}
+              lang={lang}
               title={j.shortName ?? j.name}
+              category={j.category}
               categoryTitle={j.categoryTitle}
               purpose={j.purpose}
               nodeCount={j.nodeCount}
               nodesLabel={t.nodesLabel}
-              channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+              channels={sortChannels(j.channels)}
               internalLabel={emptyChannelLabel}
               typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
             />

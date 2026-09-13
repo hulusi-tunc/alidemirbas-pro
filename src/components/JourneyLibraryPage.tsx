@@ -20,7 +20,7 @@ import {
   withLibraryCount,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
-import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
+import { sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
 import { clsx } from "@/lib/clsx";
@@ -203,12 +203,14 @@ function Half({
             key={j.id}
             href={`${basePath}/${j.slug}`}
             id={j.id}
+            lang={lang}
+            category={j.category}
             title={j.shortName ?? j.name}
             categoryTitle={j.categoryTitle}
             purpose={j.purpose}
             nodeCount={j.nodeCount}
             nodesLabel={t.lab.page.nodesLabel}
-            channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+            channels={sortChannels(j.channels)}
             internalLabel={emptyChannelLabel}
             typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
           />
