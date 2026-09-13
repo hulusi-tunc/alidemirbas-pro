@@ -1,7 +1,7 @@
 import { Cog, UserRound } from "lucide-react";
 
 import IdeaCard, { type IdeaCardBadge } from "@/components/ui/IdeaCard";
-import { CategoryIcon, ChannelIcon } from "@/components/ui/LibraryChrome";
+import { CategoryIcon, ChannelIcon, categoryAccent } from "@/components/ui/LibraryChrome";
 import { CHANNEL_LABEL } from "@/lib/journey-channels";
 import type { Lang } from "@/lib/content";
 import type { ChannelId } from "@/canonical/types";
@@ -79,6 +79,7 @@ export default function JourneyIdeaCard({
     <IdeaCard
       href={href}
       icon={<CategoryIcon id={category} />}
+      iconTone={categoryAccent(category).tile}
       title={title}
       badges={badges}
       body={purpose}

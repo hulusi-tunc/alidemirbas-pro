@@ -6,7 +6,7 @@ import { Search, X } from "lucide-react";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import IdeaCard from "@/components/ui/IdeaCard";
 import { Button } from "@/components/ui/Button";
-import { CategoryHeader, CategoryIcon, SEARCH_SHELL, SELECT_CLASS, SelectShell, SurfaceTabs, TOOLBAR_ROW, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { CategoryHeader, CategoryIcon, SEARCH_SHELL, SELECT_CLASS, SelectShell, SurfaceTabs, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
 import { clsx } from "@/lib/clsx";
 import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
@@ -142,7 +142,7 @@ function CategoryRail({
         )}
       >
         <span className="flex min-w-0 items-center gap-2.5">
-          <CategoryIcon id={id} className="size-4 shrink-0 text-ink-500" />
+          <CategoryIcon id={id} className={clsx("size-4 shrink-0", categoryAccent(id).ink)} />
           <span className="truncate">{label}</span>
         </span>
         <span className="shrink-0 text-xs text-ink-500 tabular-nums">{count}</span>
@@ -404,6 +404,7 @@ export default function JourneyGallery({
                 key={p.id}
                 href={`${basePath}/${p.slug}`}
                 icon={<CategoryIcon id="presets" />}
+                iconTone={categoryAccent("presets").tile}
                 title={p.name}
                 badges={[{ label: labels.presetBadge, tone: "accent" }]}
                 body={p.applicableWhen}

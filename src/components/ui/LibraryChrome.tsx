@@ -92,6 +92,45 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
   presets: Bookmark,
 };
 
+/* HUES (Hulusi, 2026-09-13: "her bir kategori için farklı renk kullanır
+   mısın"). Each category owns a tint, in the Lab identity's own form - a
+   -50 ground under a -700 glyph - so a section, its cards and its rail
+   entry share one colour and the eye can find a category before reading
+   it. Neighbours in the list never share a hue; a hue that repeats does
+   so far apart. Presets sit on the brand blue, the one non-category. */
+type Accent = { tile: string; ink: string };
+const CATEGORY_ACCENT: Record<string, Accent> = {
+  acquisition: { tile: "bg-sky-50 text-sky-700", ink: "text-sky-700" },
+  activation: { tile: "bg-violet-50 text-violet-700", ink: "text-violet-700" },
+  retention: { tile: "bg-rose-50 text-rose-700", ink: "text-rose-700" },
+  consent: { tile: "bg-emerald-50 text-emerald-700", ink: "text-emerald-700" },
+  feedback: { tile: "bg-amber-50 text-amber-700", ink: "text-amber-700" },
+  time: { tile: "bg-orange-50 text-orange-700", ink: "text-orange-700" },
+  access: { tile: "bg-teal-50 text-teal-700", ink: "text-teal-700" },
+  identity: { tile: "bg-indigo-50 text-indigo-700", ink: "text-indigo-700" },
+  structure: { tile: "bg-cyan-50 text-cyan-700", ink: "text-cyan-700" },
+  terminal: { tile: "bg-stone-100 text-stone-700", ink: "text-stone-700" },
+  integration: { tile: "bg-fuchsia-50 text-fuchsia-700", ink: "text-fuchsia-700" },
+  processing: { tile: "bg-slate-100 text-slate-700", ink: "text-slate-700" },
+  financial: { tile: "bg-lime-50 text-lime-700", ink: "text-lime-700" },
+  fulfillment: { tile: "bg-purple-50 text-purple-700", ink: "text-purple-700" },
+  remedy: { tile: "bg-pink-50 text-pink-700", ink: "text-pink-700" },
+  subscription: { tile: "bg-green-50 text-green-700", ink: "text-green-700" },
+  scheduling: { tile: "bg-yellow-50 text-yellow-700", ink: "text-yellow-700" },
+  decision: { tile: "bg-indigo-50 text-indigo-700", ink: "text-indigo-700" },
+  risk: { tile: "bg-red-50 text-red-700", ink: "text-red-700" },
+  communication: { tile: "bg-sky-50 text-sky-700", ink: "text-sky-700" },
+  document: { tile: "bg-stone-100 text-stone-700", ink: "text-stone-700" },
+  rollout: { tile: "bg-teal-50 text-teal-700", ink: "text-teal-700" },
+  incident: { tile: "bg-rose-50 text-rose-700", ink: "text-rose-700" },
+  presets: { tile: "bg-primary-50 text-primary-700", ink: "text-primary-700" },
+};
+const NEUTRAL_ACCENT: Accent = { tile: "bg-paper-soft text-ink-700", ink: "text-ink-500" };
+
+export function categoryAccent(id: string): Accent {
+  return CATEGORY_ACCENT[id] ?? NEUTRAL_ACCENT;
+}
+
 export function CategoryIcon({ id, className = "size-4" }: { id: string; className?: string }) {
   const Icon = CATEGORY_ICON[id] ?? Layers;
   return <Icon aria-hidden className={className} />;
@@ -215,7 +254,7 @@ export function CategoryHeader({
 }) {
   return (
     <div className="flex items-start gap-4">
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-paper-soft text-ink-700">
+      <span className={clsx("grid size-10 shrink-0 place-items-center rounded-xl", categoryAccent(id).tile)}>
         <CategoryIcon id={id} className="size-5" />
       </span>
       <div className="min-w-0 flex-1">

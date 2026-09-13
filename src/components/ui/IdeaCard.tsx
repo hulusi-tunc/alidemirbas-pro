@@ -34,6 +34,7 @@ export type IdeaCardBadge = {
 export default function IdeaCard({
   href,
   icon,
+  iconTone = "bg-paper-soft text-ink-700",
   title,
   badges,
   body,
@@ -44,6 +45,9 @@ export default function IdeaCard({
   /** A glyph for what the entry belongs to (its category), in a tile
       before the title - the card's visual anchor. */
   icon?: ReactNode;
+  /** The tile's ground and glyph colour - a category's own tint, or the
+      neutral default. */
+  iconTone?: string;
   title: string;
   badges: readonly IdeaCardBadge[];
   body: string;
@@ -57,7 +61,7 @@ export default function IdeaCard({
     >
       <div className="flex items-start gap-3.5 px-5 pt-5">
         {icon ? (
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-paper-soft text-ink-700 [&>svg]:size-4">{icon}</span>
+          <span className={`grid size-9 shrink-0 place-items-center rounded-lg [&>svg]:size-4 ${iconTone}`}>{icon}</span>
         ) : null}
         <div className="min-w-0 flex-1">
           <p className="text-base leading-snug font-semibold text-ink-950">{title}</p>
