@@ -289,7 +289,9 @@ export default function JourneyGallery({
       {/* Surface: the public surfaces are routes, so this is navigation
           rather than a select - it changes the page, its title and its
           metadata, not just the rows. */}
-      <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
+      <div className="flex justify-center">
+        <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
+      </div>
 
       <div className={TOOLBAR_ROW}>
       <div className={`${SEARCH_SHELL} min-w-0 lg:flex-1`}>

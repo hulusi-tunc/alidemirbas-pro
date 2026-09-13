@@ -99,7 +99,9 @@ function GalleryFallback({ lang, t, basePath, rows, surface }: {
 
   return (
     <div>
-      <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
+      <div className="flex justify-center">
+        <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
+      </div>
       <div className={`${TOOLBAR_ROW} opacity-60`}>
         <div className={`${SEARCH_SHELL} min-w-0 lg:flex-1`}>
           <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
