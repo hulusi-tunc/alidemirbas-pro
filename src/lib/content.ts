@@ -423,24 +423,17 @@ export const copy = {
           period: "Sep 2023 – Aug 2024",
           desc: "Managed CRM analytics and growth initiatives for rapid commerce, optimizing retention and LTV.",
         },
+        // One entry for the two Enuygun titles (Hulusi, 2026-09-14: "merge
+        // these two experiences into one" on the homepage timeline), under
+        // the later, senior title and the full span.
         {
-          kind: "group",
+          kind: "single",
           year: "2021",
           co: "Wingie Enuygun Group",
           logo: "/logos/enuygun.png",
-          span: "Full-time · 2 yrs",
-          roles: [
-            {
-              role: "Experienced Lifecycle Marketing Specialist (Growth)",
-              period: "Jan 2023 – Aug 2023",
-              desc: "Owned lifecycle and CRM programs end-to-end across the group's travel brands.",
-            },
-            {
-              role: "Lifecycle Marketing Specialist (Growth)",
-              period: "Sep 2021 – Jan 2023",
-              desc: "Built and ran lifecycle marketing programs for a leading online travel platform.",
-            },
-          ],
+          role: "Experienced Lifecycle Marketing Specialist (Growth)",
+          period: "Sep 2021 – Aug 2023",
+          desc: "Built and ran lifecycle and CRM programs end-to-end across the group's travel brands.",
         },
         {
           kind: "single",
@@ -1175,24 +1168,16 @@ export const copy = {
           period: "Eyl 2023 – Ağu 2024",
           desc: "Hızlı ticaret için CRM analitiği ve büyüme girişimlerini yönettim; elde tutma ve yaşam boyu değeri optimize ettim.",
         },
+        // İki Enuygun unvanı tek kayıt (2026-09-14): sonraki, kıdemli unvan
+        // ve tüm süre.
         {
-          kind: "group",
+          kind: "single",
           year: "2021",
           co: "Wingie Enuygun Group",
           logo: "/logos/enuygun.png",
-          span: "Tam zamanlı · 2 yıl",
-          roles: [
-            {
-              role: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
-              period: "Oca 2023 – Ağu 2023",
-              desc: "Grubun seyahat markaları genelinde yaşam döngüsü ve CRM programlarını uçtan uca yürüttüm.",
-            },
-            {
-              role: "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
-              period: "Eyl 2021 – Oca 2023",
-              desc: "Önde gelen bir çevrimiçi seyahat platformu için yaşam döngüsü pazarlama programları kurdum ve yürüttüm.",
-            },
-          ],
+          role: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
+          period: "Eyl 2021 – Ağu 2023",
+          desc: "Grubun seyahat markaları genelinde yaşam döngüsü ve CRM programlarını uçtan uca kurdum ve yürüttüm.",
         },
         {
           kind: "single",

@@ -26,7 +26,7 @@ export function BioTrack({ rows }: { rows: BioTrackRow[] }) {
 
   // Progress is written straight to the DOM (a custom property and data
   // attributes), not to React state: a scroll frame must not re-render
-  // seven rows, and the JSX below is the same at every progress value.
+  // the rows, and the JSX below is the same at every progress value.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;

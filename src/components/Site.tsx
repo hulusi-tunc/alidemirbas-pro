@@ -412,10 +412,11 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
 type BioRow = { key: string; co: string; logo: string; role: string; period: string };
 
 function Bio({ t }: { t: (typeof copy)[Lang] }) {
-  const rows = t.about.timeline.flatMap((e): BioRow[] =>
-    "roles" in e
-      ? e.roles.map((r) => ({ key: `${e.co}-${r.role}`, co: e.co, logo: e.logo, role: r.role, period: r.period }))
-      : [{ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period }],
+  // One row per entry. The timeline used to carry a two-title "group" for
+  // Enuygun that was flattened here; since 2026-09-14 every entry is a
+  // single role, so the flatten is gone and a group would fail to compile.
+  const rows = t.about.timeline.map(
+    (e): BioRow => ({ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period }),
   );
   return (
     <section id="bio" className="bg-paper py-16 md:py-20">
@@ -424,7 +425,7 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
             three lines at 1440 - the heading rule). The paragraph and its
             button share the next row; the timeline takes the full width
             under them, because from lg it runs horizontally (Hulusi,
-            2026-09-07) and seven roles need the whole measure. */}
+            2026-09-07) and six roles need the whole measure. */}
         <SectionHeading eyebrow={t.about.eyebrow} title={t.home.bio.title} />
         <Reveal className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
           <p className="max-w-[48ch] text-lg leading-relaxed text-pretty text-ink-muted">{t.about.teaserLead}</p>
