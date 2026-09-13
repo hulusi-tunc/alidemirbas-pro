@@ -6,7 +6,7 @@ import { Search, X } from "lucide-react";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import IdeaCard from "@/components/ui/IdeaCard";
 import { Button } from "@/components/ui/Button";
-import { CategoryHeader, CategoryIcon, SEARCH_SHELL, SELECT_CLASS, SelectShell, SurfaceTabs, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { CategoryHeader, CategoryIcon, SEARCH_SHELL, SELECT_CLASS, SelectShell, SurfaceTabs, TOOLBAR_ROW, shortCategoryTitle } from "@/components/ui/LibraryChrome";
 import { clsx } from "@/lib/clsx";
 import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
@@ -291,7 +291,8 @@ export default function JourneyGallery({
           metadata, not just the rows. */}
       <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
 
-      <div className={`${SEARCH_SHELL} mt-4`}>
+      <div className={TOOLBAR_ROW}>
+      <div className={`${SEARCH_SHELL} min-w-0 lg:flex-1`}>
         <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
         <input
           value={query}
@@ -311,7 +312,6 @@ export default function JourneyGallery({
         ) : null}
       </div>
 
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <SelectShell>
           <span className="sr-only">{labels.categoryFilterLabel}</span>
           <select value={category} onChange={(e) => setCategory(e.target.value)} className={SELECT_CLASS}>

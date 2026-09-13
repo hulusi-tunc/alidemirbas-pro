@@ -6,7 +6,7 @@ import JourneyGallery from "@/components/JourneyGallery";
 import JourneyRowCard from "@/components/JourneyRowCard";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import LabShell from "@/components/LabShell";
-import { CategoryHeader, SEARCH_SHELL, SurfaceTabs } from "@/components/ui/LibraryChrome";
+import { CategoryHeader, ChevronSelect, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW } from "@/components/ui/LibraryChrome";
 import { ProductMark } from "@/components/ui/ProductFrame";
 import {
   CATEGORY_META,
@@ -100,9 +100,14 @@ function GalleryFallback({ lang, t, basePath, rows, surface }: {
   return (
     <div>
       <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
-      <div className={`${SEARCH_SHELL} mt-4 opacity-60`}>
-        <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
-        <span className="text-ink-500">{t.searchPlaceholder}</span>
+      <div className={`${TOOLBAR_ROW} opacity-60`}>
+        <div className={`${SEARCH_SHELL} min-w-0 lg:flex-1`}>
+          <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
+          <span className="text-ink-500">{t.searchPlaceholder}</span>
+        </div>
+        <ChevronSelect>{labels.allCategories}</ChevronSelect>
+        <ChevronSelect>{labels.allChannels}</ChevronSelect>
+        <ChevronSelect>{t.allGoals}</ChevronSelect>
       </div>
       <div className="mt-10 flex flex-col gap-14">
         {sections.map(({ meta, items }) => (

@@ -162,16 +162,35 @@ export function SurfaceTabs({
 export const SEARCH_SHELL =
   "flex h-11 items-center gap-2.5 rounded-xl bg-paper px-4 text-sm text-ink-900 ring-1 ring-ink-950/[0.08] transition-shadow duration-[var(--duration-fast)] focus-within:ring-2 focus-within:ring-primary-400";
 
+/* One toolbar row from lg: the search takes the room, the three filters
+   are one fixed width each. Left to the browser, a native select is as
+   wide as its longest option, and the category titles made that three
+   mismatched boxes (Hulusi, 2026-09-13: "this part looks to me a problem"). */
+export const TOOLBAR_ROW = "mt-4 flex flex-col gap-3 lg:flex-row lg:items-center";
+
 export const SELECT_CLASS =
-  "h-11 w-full appearance-none rounded-xl bg-paper pr-10 pl-4 text-sm font-medium text-ink-800 ring-1 ring-ink-950/[0.08] outline-none transition-shadow duration-[var(--duration-fast)] focus:ring-2 focus:ring-primary-400 sm:w-auto";
+  "h-11 w-full appearance-none truncate rounded-xl bg-paper pr-10 pl-4 text-sm font-medium text-ink-800 ring-1 ring-ink-950/[0.08] outline-none transition-shadow duration-[var(--duration-fast)] focus:ring-2 focus:ring-primary-400";
+
+export const SELECT_WIDTH = "w-full lg:w-48";
 
 /** A native select with the site's chevron drawn over it. */
 export function SelectShell({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <label className={clsx("relative block", className)}>
+    <label className={clsx("relative block shrink-0", SELECT_WIDTH, className)}>
       {children}
       <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-ink-500" />
     </label>
+  );
+}
+
+/** The inert twin of a select for the prerender fallback: same shell,
+    same width, no control. */
+export function ChevronSelect({ children }: { children: ReactNode }) {
+  return (
+    <span className={clsx("relative block shrink-0", SELECT_WIDTH)}>
+      <span className={clsx(SELECT_CLASS, "flex items-center")}>{children}</span>
+      <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-ink-500" />
+    </span>
   );
 }
 
