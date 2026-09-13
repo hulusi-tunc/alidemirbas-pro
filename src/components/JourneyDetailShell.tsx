@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useState, type ReactNode } from "react";
-import { ArrowLeft, FlaskConical, Info, Workflow } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, FlaskConical, Info, Workflow } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -22,13 +22,14 @@ export function JourneyDetailShell({
   canvas,
   titleCard,
 }: {
-  labels: { back: string; info: string; canvas: string; lang: string; cta: string; lab: string };
+  labels: { back: string; info: string; canvas: string; lang: string; cta: string; lab: string; minimize: string; expand: string };
   hrefs: { library: string; lab: string; lang: string; cta: string };
   info: ReactNode;
   canvas: ReactNode;
   titleCard: ReactNode;
 }) {
   const [tab, setTab] = useState<"info" | "canvas">("info");
+  const [cardOpen, setCardOpen] = useState(true);
   const base = useId();
 
   useEffect(() => {
@@ -129,10 +130,25 @@ export function JourneyDetailShell({
         </div>
         <div role="tabpanel" id={`${base}-panel-canvas`} aria-labelledby={`${base}-tab-canvas`} hidden={!floating} className="relative h-svh">
           {canvas}
-          {/* The title card: what this canvas is, always in view. */}
-          <div className="pointer-events-none absolute top-[4.75rem] left-4 z-30 hidden max-w-sm sm:block">
-            <div className="pointer-events-auto rounded-[24px] bg-paper/95 p-5 shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] backdrop-blur-sm">
-              {titleCard}
+          {/* The title card: what this canvas is, always in view - and
+              collapsible to its title alone (Hulusi, 2026-09-14). Sits on
+              the bar's own grid so its edge lines up with the pills. */}
+          <div className="pointer-events-none absolute inset-x-0 top-[4.5rem] z-30 hidden sm:block">
+            <div className="altor-container-wide">
+              <div className={`pointer-events-auto rounded-[24px] bg-paper/95 shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] backdrop-blur-sm ${cardOpen ? "w-full max-w-sm p-5" : "inline-flex items-center gap-2 py-2 pr-2 pl-4"}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className={`min-w-0 ${cardOpen ? "" : "[&_p:not(:nth-child(2))]:hidden [&_p]:mt-0 [&_p]:text-sm"}`}>{titleCard}</div>
+                  <button
+                    type="button"
+                    onClick={() => setCardOpen((v) => !v)}
+                    aria-expanded={cardOpen}
+                    aria-label={cardOpen ? labels.minimize : labels.expand}
+                    className="grid size-8 shrink-0 place-items-center rounded-full text-ink-500 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft hover:text-ink-950"
+                  >
+                    {cardOpen ? <ChevronUp aria-hidden className="size-4" /> : <ChevronDown aria-hidden className="size-4" />}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

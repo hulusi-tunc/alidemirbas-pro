@@ -4,8 +4,8 @@ import PractitionerView from "@/components/PractitionerView";
 import { Box, Quote, Scale, ShieldCheck, Split, Zap } from "lucide-react";
 
 import JourneyCanvas from "@/components/JourneyCanvas";
+import { journeyCanvasProps } from "@/components/JourneyVisualBody";
 import { InfoTile } from "@/components/ui/InfoTile";
-import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
 import type { JourneyDetail, MergedRedirect } from "@/lib/canonical-view";
 import type { copy, Lang } from "@/lib/content";
 
@@ -148,27 +148,6 @@ export default function JourneyDetailBody({
   /* Localised once here rather than inside the canvas, which is a client
      island: the labels are static copy, so resolving them on the server
      keeps the channel vocabulary out of the browser bundle. */
-  const messageLabels = messageChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
-  const humanLabels = humanChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
-
-  /* The caption: the journey's shape stated in counts. Only the parts that
-     exist are named - a journey with no handoff says nothing about handoffs
-     rather than "0 handoffs", which would be four words spent on an absence.
-     Composed here rather than in the canvas for the same reason as the
-     channel labels above: it is static copy, and the client island should
-     not be carrying two locales' count words. */
-  const count = (kind: JourneyDetail["nodes"][number]["kind"]) =>
-    detail.nodes.filter((n) => n.kind === kind).length;
-  const plural = (n: number, forms: readonly [string, string]) => `${n} ${forms[n === 1 ? 0 : 1]}`;
-  const caption = [
-    `${detail.nodes.length} ${t.nodesLabel}`,
-    count("condition") ? plural(count("condition"), t.decisionsLabel) : null,
-    count("exit") ? plural(count("exit"), t.exitsLabel) : null,
-    count("handoff") ? plural(count("handoff"), t.handoffsLabel) : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
   return (
     <div>
       {/* A retired id resolves here rather than 404ing, and says so before
@@ -192,25 +171,7 @@ export default function JourneyDetailBody({
         </>
       ) : null}
 
-      {showCanvas && (
-        <JourneyCanvas
-          nodes={detail.nodes}
-          basePath={basePath}
-          labels={{
-            entry: t.canvas.entry,
-            zoomIn: t.canvas.zoomIn,
-            zoomOut: t.canvas.zoomOut,
-            fitToView: t.canvas.fitToView,
-            reset: t.canvas.reset,
-            close: t.close,
-            terminal: t.terminalLabel,
-            lang,
-          }}
-          caption={caption}
-          messageLabels={messageLabels}
-          humanLabels={humanLabels}
-        />
-      )}
+      {showCanvas && <JourneyCanvas {...journeyCanvasProps(detail, lang, t)} basePath={basePath} />}
 
       {/* The takeaway, then the notes - as tiles with icons (Hulusi,
           2026-09-14), the rule first and full width because it is the one

@@ -111,18 +111,15 @@ function firstClause(text: string): string {
     disagree: the localised labels, the caption in counts, the channel names
     per node kind. */
 export function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof copy)[Lang]["lab"]["page"]) {
-  const messageLabels = messageChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
-  const humanLabels = humanChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
+  const messageLabels = messageChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
+  const humanLabels = humanChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
   const count = (kind: JourneyDetail["nodes"][number]["kind"]) => detail.nodes.filter((n) => n.kind === kind).length;
   const plural = (n: number, forms: readonly [string, string]) => `${n} ${forms[n === 1 ? 0 : 1]}`;
-  const caption = [
-    `${detail.nodes.length} ${t.nodesLabel}`,
-    count("condition") ? plural(count("condition"), t.decisionsLabel) : null,
-    count("exit") ? plural(count("exit"), t.exitsLabel) : null,
-    count("handoff") ? plural(count("handoff"), t.handoffsLabel) : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const shape: { kind: "nodes" | "decisions" | "exits" | "handoffs"; label: string }[] = [{ kind: "nodes", label: `${detail.nodes.length} ${t.nodesLabel}` }];
+  if (count("condition")) shape.push({ kind: "decisions", label: plural(count("condition"), t.decisionsLabel) });
+  if (count("exit")) shape.push({ kind: "exits", label: plural(count("exit"), t.exitsLabel) });
+  if (count("handoff")) shape.push({ kind: "handoffs", label: plural(count("handoff"), t.handoffsLabel) });
+  const caption = shape.map((x) => x.label).join(" · ");
   const labels = {
     entry: t.canvas.entry,
     zoomIn: t.canvas.zoomIn,
@@ -133,7 +130,7 @@ export function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof
     terminal: t.terminalLabel,
     lang,
   };
-  return { nodes: detail.nodes, labels, caption, messageLabels, humanLabels };
+  return { nodes: detail.nodes, labels, caption, shape, messageLabels, humanLabels };
 }
 
 export default function JourneyVisualBody({

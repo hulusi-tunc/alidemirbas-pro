@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Maximize2, Minus, Plus, RotateCcw } from "lucide-react";
+import { ArrowRightLeft, LogOut, Maximize2, Minus, Plus, RotateCcw, Split, Workflow } from "lucide-react";
 
 import type { FlowNode } from "@/lib/canonical-view";
+import type { ChannelId } from "@/canonical/types";
 import { elbowPath, layoutJourneyCanvas, type LaidOutEdge } from "@/lib/journey-canvas-layout";
 import {
   ActionCard,
@@ -86,10 +87,14 @@ export default function JourneyCanvas({
   messageLabels = [],
   humanLabels = [],
   mode = "figure",
+  shape = [],
 }: {
   nodes: readonly FlowNode[];
   basePath: string;
   labels: CanvasLabels;
+  /** The journey's shape in counts, one entry per kind present, for the
+      page canvas's legend. */
+  shape?: readonly { kind: "nodes" | "decisions" | "exits" | "handoffs"; label: string }[];
   /** `figure` (default): the framed, scrolling plate inside a document.
       `page`: the free canvas - fills whatever box it is given, pans by
       dragging or wheel, zooms about the cursor with ctrl/pinch, the dot grid
@@ -104,8 +109,8 @@ export default function JourneyCanvas({
       and ordered by the server. Each is named only on the node kind it
       applies to; both default to none, so a caller with no channels to pass
       is a valid caller rather than a type error. */
-  messageLabels?: readonly string[];
-  humanLabels?: readonly string[];
+  messageLabels?: readonly { id: ChannelId; label: string }[];
+  humanLabels?: readonly { id: ChannelId; label: string }[];
 }) {
   const layout = useMemo(() => layoutJourneyCanvas(nodes), [nodes]);
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
@@ -299,6 +304,7 @@ export default function JourneyCanvas({
         world={world}
         labels={labels}
         caption={caption}
+        shape={shape}
         basePath={basePath}
         selectedNode={selectedNode}
         onClose={() => setSelectedId(null)}
@@ -316,7 +322,7 @@ export default function JourneyCanvas({
         <div
           ref={containerRef}
           style={{ height: frameHeight }}
-          className="altor-dot-grid relative max-h-[78vh] min-h-[380px] w-full overflow-auto bg-paper-soft"
+          className="relative max-h-[78vh] min-h-[380px] w-full overflow-auto bg-paper-soft"
         >
           {/* The scroll spacer, sized to the graph's own scaled bounds so the
               scrollable area always matches what is actually drawn. Centred
@@ -406,7 +412,7 @@ function EdgeShape({ edge }: { edge: LaidOutEdge }) {
   const d = elbowPath(edge.x1, edge.y1, edge.x2, edge.y2, edge.labelY, edge.detourX);
   return (
     <g data-canvas-edge-from={edge.from} data-canvas-edge-to={edge.to} data-canvas-edge-label={edge.label ?? ""}>
-      <path d={d} fill="none" className="stroke-ink-300" strokeWidth={1.5} markerEnd="url(#journey-arrow)" />
+      <path d={d} fill="none" className="stroke-ink-300" strokeWidth={1.5} vectorEffect="non-scaling-stroke" markerEnd="url(#journey-arrow)" />
       {edge.label ? (
         <foreignObject
           x={edge.labelX - 100}
@@ -415,7 +421,7 @@ function EdgeShape({ edge }: { edge: LaidOutEdge }) {
           height={24}
           className="overflow-visible"
         >
-          <div className="flex justify-center">
+          <div className="flex justify-center [[data-lod=far]_&]:hidden">
             <span className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-medium whitespace-nowrap text-ink-700 ring-1 ring-ink-950/[0.08]">
               {edge.label}
             </span>
@@ -436,15 +442,22 @@ function EdgeShape({ edge }: { edge: LaidOutEdge }) {
    the click that would have opened it); the wheel pans, ctrl/meta + wheel
    - which is how a trackpad pinch arrives - zooms about the cursor. Fit is
    the default view: the whole graph, centred, with breathing room. */
+const LEGEND = {
+  nodes: { icon: <Workflow aria-hidden />, tint: "bg-paper-soft text-ink-700" },
+  decisions: { icon: <Split aria-hidden />, tint: "bg-violet-50 text-violet-700" },
+  exits: { icon: <LogOut aria-hidden />, tint: "bg-paper-soft text-ink-500" },
+  handoffs: { icon: <ArrowRightLeft aria-hidden />, tint: "bg-indigo-50 text-indigo-700" },
+} as const;
+
 const PAGE_MIN_ZOOM = 0.2;
 const PAGE_MAX_ZOOM = 2;
-const GRID = 22;
 
 function FreeCanvas({
   layout,
   world,
   labels,
   caption,
+  shape,
   basePath,
   selectedNode,
   onClose,
@@ -453,6 +466,7 @@ function FreeCanvas({
   world: ReactNode;
   labels: CanvasLabels;
   caption?: string;
+  shape: readonly { kind: "nodes" | "decisions" | "exits" | "handoffs"; label: string }[];
   basePath: string;
   selectedNode: FlowNode | null;
   onClose: () => void;
@@ -463,13 +477,11 @@ function FreeCanvas({
   const [zoomPct, setZoomPct] = useState(100);
 
   const apply = () => {
-    const stage = stageRef.current;
     const w = worldRef.current;
     const { x, y, z } = camera.current;
-    if (w) w.style.transform = `translate(${x}px, ${y}px) scale(${z})`;
-    if (stage) {
-      stage.style.backgroundSize = `${GRID * z}px ${GRID * z}px`;
-      stage.style.backgroundPosition = `${x}px ${y}px`;
+    if (w) {
+      w.style.transform = `translate(${x}px, ${y}px) scale(${z})`;
+      w.dataset.lod = z < 0.45 ? "far" : "near";
     }
     setZoomPct(Math.round(z * 100));
   };
@@ -613,7 +625,7 @@ function FreeCanvas({
     <div className="relative h-full w-full">
       <div
         ref={stageRef}
-        className="altor-dot-grid absolute inset-0 cursor-grab touch-none overflow-hidden bg-paper-soft select-none"
+        className="absolute inset-0 cursor-grab touch-none overflow-hidden bg-paper-soft select-none"
         aria-label={caption}
       >
         <div ref={worldRef} style={{ width: layout.width, height: layout.height, transformOrigin: "0 0" }} className="absolute top-0 left-0 will-change-transform">
@@ -621,8 +633,18 @@ function FreeCanvas({
         </div>
       </div>
       <NodeDetailPanel node={selectedNode} basePath={basePath} labels={labels} onClose={onClose} />
-      {caption && (
-        <p className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-paper/95 px-3.5 py-2 text-sm text-ink-600 tabular-nums ring-1 ring-ink-950/[0.06]">{caption}</p>
+      {/* The legend: the journey's shape as icon tiles with counts, in the
+          kinds' own colours - a key to the drawing, centred at the bottom
+          where a map keeps its key. */}
+      {shape.length > 0 && (
+        <ul className="pointer-events-none absolute bottom-4 left-1/2 flex -translate-x-1/2 list-none items-center gap-1 rounded-full bg-paper/95 p-1 pr-3 shadow-[0_12px_30px_-16px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06]">
+          {shape.map((item) => (
+            <li key={item.kind} className="flex items-center gap-1.5 pl-1 text-sm text-ink-700 tabular-nums">
+              <span aria-hidden className={`grid size-7 place-items-center rounded-full ${LEGEND[item.kind].tint} [&>svg]:size-3.5`}>{LEGEND[item.kind].icon}</span>
+              {item.label}
+            </li>
+          ))}
+        </ul>
       )}
       <div className="absolute right-4 bottom-4 flex items-center gap-0.5 rounded-full bg-paper/95 p-1 ring-1 ring-ink-950/[0.06] shadow-[0_12px_30px_-16px_rgb(10_16_32/0.35)]">
         <button type="button" onClick={() => zoomCentre(1 / 1.25)} aria-label={labels.zoomOut} className={control}>

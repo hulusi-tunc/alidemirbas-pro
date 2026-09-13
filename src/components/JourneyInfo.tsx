@@ -1,14 +1,14 @@
-import { ArrowRight, ArrowRightLeft, BellRing, ClipboardList, GitFork, LogOut, Mail, MessageCircle, MessageSquare, Smartphone, Tag, Target, UserRound, Workflow } from "lucide-react";
+import { ArrowRight, ArrowRightLeft, GitFork, LogOut, Workflow } from "lucide-react";
 import type { ReactNode } from "react";
 
 import JourneyDetailBody from "@/components/JourneyDetailBody";
 import JourneyVisualBody from "@/components/JourneyVisualBody";
-import JourneyTopologyPreview from "@/components/ui/JourneyTopologyPreview";
+import { JourneyMiniMap } from "@/components/ui/JourneyMiniMap";
+import { CategoryIcon, ChannelIcon, GoalIcon, categoryAccent } from "@/components/ui/LibraryChrome";
 import { ButtonLink } from "@/components/ui/Button";
 import { InfoTile } from "@/components/ui/InfoTile";
-import type { JourneyDetail, MergedRedirect } from "@/lib/canonical-view";
-import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
-import { buildJourneyPreview } from "@/lib/journey-preview";
+import { CATEGORY_META, type JourneyDetail, type MergedRedirect } from "@/lib/canonical-view";
+import { CHANNEL_HUE, CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import type { copy, Lang } from "@/lib/content";
 
@@ -23,22 +23,12 @@ import type { copy, Lang } from "@/lib/content";
    reader has no use for them (the id stays on the h1 as a data attribute
    for the QA harnesses). */
 
-type Channel = keyof typeof CHANNEL_LABEL;
-
-const CHANNEL_ICON: Record<Channel, ReactNode> = {
-  email: <Mail aria-hidden />,
-  push: <BellRing aria-hidden />,
-  sms: <MessageSquare aria-hidden />,
-  "in-app": <Smartphone aria-hidden />,
-  whatsapp: <MessageCircle aria-hidden />,
-  sales: <UserRound aria-hidden />,
-  task: <ClipboardList aria-hidden />,
-};
-
-function Chip({ icon, children }: { icon: ReactNode; children: ReactNode }) {
+/** A chip with its own tinted icon tile - the goal on the brand tint, each
+    channel on the tint the whole site gives it (CHANNEL_HUE). */
+function Chip({ icon, tint, children }: { icon: ReactNode; tint: string; children: ReactNode }) {
   return (
-    <li className="flex items-center gap-2 rounded-full bg-paper px-3 py-1.5 text-sm font-medium text-ink-950 ring-1 ring-ink-950/[0.06] [&>svg]:size-4 [&>svg]:text-ink-500">
-      {icon}
+    <li className="flex items-center gap-2 rounded-full bg-paper py-1 pr-3.5 pl-1 text-sm font-medium text-ink-950 ring-1 ring-ink-950/[0.06]">
+      <span aria-hidden className={`grid size-7 place-items-center rounded-full ${tint} [&>svg]:size-3.5`}>{icon}</span>
       {children}
     </li>
   );
@@ -72,15 +62,16 @@ export default function JourneyInfo({
   if (count("condition")) shape.push({ icon: <GitFork aria-hidden />, label: plural(count("condition"), t.decisionsLabel) });
   if (count("exit")) shape.push({ icon: <LogOut aria-hidden />, label: plural(count("exit"), t.exitsLabel) });
   if (count("handoff")) shape.push({ icon: <ArrowRightLeft aria-hidden />, label: plural(count("handoff"), t.handoffsLabel) });
-  const preview = buildJourneyPreview(detail.nodes);
+  const categoryId = CATEGORY_META.find((c) => c.title === detail.categoryTitle)?.id ?? "";
+  const category = categoryAccent(categoryId);
 
   return (
     <div className="bg-paper-soft px-4 py-10 md:px-8 md:py-14">
       <div className={`mx-auto ${PAGE_MEASURE}`}>
         <header>
-          <p className="flex items-center gap-2 text-sm font-medium text-ink-600">
-            <span aria-hidden className="grid size-7 place-items-center rounded-lg bg-paper ring-1 ring-ink-950/[0.06]">
-              <Tag className="size-3.5 text-ink-500" />
+          <p className={`flex items-center gap-2 text-sm font-medium ${category.ink}`}>
+            <span aria-hidden className={`grid size-7 place-items-center rounded-lg ${category.tile}`}>
+              <CategoryIcon id={categoryId} className="size-3.5" />
             </span>
             {detail.categoryTitle}
           </p>
@@ -96,9 +87,11 @@ export default function JourneyInfo({
           ) : null}
           <p className="mt-5 max-w-3xl text-lg leading-relaxed text-pretty text-ink-muted">{detail.purpose}</p>
           <ul className="mt-6 flex list-none flex-wrap gap-2 p-0">
-            <Chip icon={<Target aria-hidden />}>{GOAL_LABEL[detail.goal][lang]}</Chip>
+            <Chip icon={<GoalIcon id={detail.goal} className="size-3.5" />} tint="bg-primary-50 text-primary-700">
+              {GOAL_LABEL[detail.goal][lang]}
+            </Chip>
             {sortChannels(detail.channels).map((c) => (
-              <Chip key={c} icon={CHANNEL_ICON[c]}>
+              <Chip key={c} icon={<ChannelIcon id={c} className="size-3.5" />} tint={CHANNEL_HUE[c].tile}>
                 {CHANNEL_LABEL[c][lang]}
               </Chip>
             ))}
@@ -108,8 +101,8 @@ export default function JourneyInfo({
         {/* The graph, small, and the shape in numbers. */}
         <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <section className="relative overflow-hidden rounded-[28px] bg-paper ring-1 ring-ink-950/[0.06]">
-            <div className="altor-dot-grid h-56 w-full p-6 sm:h-64">
-              <JourneyTopologyPreview preview={preview} />
+            <div className="relative h-64 w-full bg-paper-soft sm:h-72 [mask-image:linear-gradient(to_bottom,black_70%,transparent)]">
+              <JourneyMiniMap nodes={detail.nodes} />
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-6 py-4">
               <p className="text-sm text-ink-muted">{shape.map((s) => s.label).join(" · ")}</p>

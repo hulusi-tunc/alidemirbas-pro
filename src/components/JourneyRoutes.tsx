@@ -139,7 +139,7 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
 
   return (
     <JourneyDetailShell
-      labels={{ back: t.backToLibrary, info: t.tabs.info, canvas: t.tabs.canvas, lang: c.nav.lang, cta: c.nav.cta, lab: "Lab" }}
+      labels={{ back: t.backToLibrary, info: t.tabs.info, canvas: t.tabs.canvas, lang: c.nav.lang, cta: c.nav.cta, lab: "Lab", minimize: t.card.minimize, expand: t.card.expand }}
       hrefs={{ library: basePath, lab: c.nav.labHref, lang: langHref, cta: `mailto:${EMAIL}` }}
       info={
         <>

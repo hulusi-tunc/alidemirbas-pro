@@ -278,6 +278,7 @@ export const copy = {
         tabs: { info: "Info", canvas: "Canvas" },
         openCanvas: "Open the canvas",
         shapeLabel: "Shape",
+        card: { minimize: "Minimize", expand: "Expand" },
       },
       /* Two dedicated child list pages under /lab/journeys, splitting the
          same JOURNEY_ROWS by whether a journey's own work ever reaches a
@@ -1075,6 +1076,7 @@ export const copy = {
         tabs: { info: "Bilgi", canvas: "Kanvas" },
         openCanvas: "Kanvası aç",
         shapeLabel: "Yapı",
+        card: { minimize: "Küçült", expand: "Genişlet" },
       },
       journeysHub: {
         eyebrow: "Lab / Journey Kütüphanesi",
