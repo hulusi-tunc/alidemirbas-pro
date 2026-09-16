@@ -5,7 +5,7 @@ import { ArrowRightLeft, LogOut, Maximize2, Minus, Plus, RotateCcw, Split, Workf
 
 import type { FlowNode } from "@/lib/canonical-view";
 import type { ChannelId } from "@/canonical/types";
-import { elbowPath, layoutJourneyCanvas, type LaidOutEdge } from "@/lib/journey-canvas-layout";
+import { edgePath, type CanvasLayout, type LaidOutEdge } from "@/lib/journey-canvas-layout";
 import {
   ActionCard,
   ConditionCard,
@@ -81,6 +81,7 @@ function clamp(v: number, min: number, max: number) {
 
 export default function JourneyCanvas({
   nodes,
+  layout,
   basePath,
   labels,
   caption,
@@ -90,6 +91,12 @@ export default function JourneyCanvas({
   shape = [],
 }: {
   nodes: readonly FlowNode[];
+  /** The graph as laid out by the server (`layoutJourneyCanvas`, ELK) -
+      the layout engine is asynchronous and server-only, so the client
+      island receives coordinates, never computes them. A laid-out node is
+      keyed by its `layoutId` (a shared exit is drawn once per parent) and
+      opens the detail panel by its `canonicalNodeId`. */
+  layout: CanvasLayout;
   basePath: string;
   labels: CanvasLabels;
   /** The journey's shape in counts, one entry per kind present, for the
@@ -112,7 +119,6 @@ export default function JourneyCanvas({
   messageLabels?: readonly { id: ChannelId; label: string }[];
   humanLabels?: readonly { id: ChannelId; label: string }[];
 }) {
-  const layout = useMemo(() => layoutJourneyCanvas(nodes), [nodes]);
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
   const actionSequence = useMemo(() => {
     const map = new Map<string, number>();
@@ -261,11 +267,12 @@ export default function JourneyCanvas({
 
       {layout.nodes.map((l) => {
         const n = l.node;
-        const onOpen = () => setSelectedId(n.id);
+        const onOpen = () => setSelectedId(l.canonicalNodeId);
         return (
           <div
-            key={n.id}
+            key={l.layoutId}
             data-canvas-node-id={n.id}
+            data-canvas-layout-id={l.layoutId}
             data-canvas-node-kind={n.kind}
             style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
             className="absolute"
@@ -410,9 +417,9 @@ export default function JourneyCanvas({
 }
 
 function EdgeShape({ edge }: { edge: LaidOutEdge }) {
-  const d = elbowPath(edge.x1, edge.y1, edge.x2, edge.y2, edge.labelY, edge.detourX);
+  const d = edgePath(edge.points);
   return (
-    <g data-canvas-edge-from={edge.from} data-canvas-edge-to={edge.to} data-canvas-edge-label={edge.label ?? ""}>
+    <g data-canvas-edge-from={edge.canonicalFrom} data-canvas-edge-to={edge.canonicalTo} data-canvas-edge-label={edge.label ?? ""}>
       <path d={d} fill="none" className="stroke-ink-300" strokeWidth={1.5} vectorEffect="non-scaling-stroke" markerEnd="url(#journey-arrow)" />
       {edge.label ? (
         <foreignObject
@@ -463,7 +470,7 @@ function FreeCanvas({
   selectedNode,
   onClose,
 }: {
-  layout: ReturnType<typeof layoutJourneyCanvas>;
+  layout: CanvasLayout;
   world: ReactNode;
   labels: CanvasLabels;
   caption?: string;

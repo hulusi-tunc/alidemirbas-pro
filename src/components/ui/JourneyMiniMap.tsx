@@ -1,5 +1,5 @@
 import type { FlowNode } from "@/lib/canonical-view";
-import { elbowPath, layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
+import { edgePath, layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 
 /* THE MINI MAP - the canvas, drawn small (Hulusi, 2026-09-14: "the preview
    of the canvas looks disgusting"). The real layout the canvas uses, the
@@ -25,8 +25,8 @@ const ACTION_TILE: Record<string, string> = {
   human: "fill-amber-300",
 };
 
-export function JourneyMiniMap({ nodes, className = "" }: { nodes: readonly FlowNode[]; className?: string }) {
-  const layout = layoutJourneyCanvas(nodes);
+export async function JourneyMiniMap({ nodes, className = "" }: { nodes: readonly FlowNode[]; className?: string }) {
+  const layout = await layoutJourneyCanvas(nodes);
   const entry = layout.nodes.find((l) => l.node.isEntry) ?? layout.nodes[0];
   const W = Math.min(layout.width, 1440);
   const H = Math.round(W * 0.34);
@@ -42,7 +42,7 @@ export function JourneyMiniMap({ nodes, className = "" }: { nodes: readonly Flow
       {layout.edges.map((e) => (
         <path
           key={e.id}
-          d={elbowPath(e.x1, e.y1, e.x2, e.y2, e.labelY, e.detourX)}
+          d={edgePath(e.points)}
           fill="none"
           className="stroke-ink-300"
           strokeWidth={2}
@@ -62,7 +62,7 @@ export function JourneyMiniMap({ nodes, className = "" }: { nodes: readonly Flow
         const textX = kind === "wait" ? x + pad + tileSize + 10 : x + pad;
         const textY0 = kind === "wait" ? l.y + l.height / 2 - 4 : y + pad + tileSize + 14;
         return (
-          <g key={l.node.id}>
+          <g key={l.layoutId}>
             <rect x={x} y={y} width={l.width} height={l.height} rx={r} className={`${look.plate} ${look.stroke}`} strokeWidth={kind === "exit" ? 2 : 1.5} strokeDasharray={kind === "exit" ? "6 5" : undefined} />
             <rect x={x + pad} y={kind === "wait" ? l.y + (l.height - tileSize) / 2 : y + pad} width={tileSize} height={tileSize} rx={8} className={tile} />
             {Array.from({ length: bars }).map((_, i) => (

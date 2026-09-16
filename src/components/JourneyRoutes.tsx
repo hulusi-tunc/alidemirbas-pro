@@ -109,7 +109,7 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
   };
 }
 
-export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
+export async function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
   const resolved = resolveDetailSlug(slug);
   if (!resolved) notFound();
 
@@ -135,7 +135,7 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
           : [{ name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` }]),
       ]);
 
-  const canvas = journeyCanvasProps(detail, lang, t);
+  const canvas = await journeyCanvasProps(detail, lang, t);
   const c = copy[lang];
   const langHref = lang === "en" ? `/tr/lab/journeys/${slug}` : `/lab/journeys/${slug}`;
 

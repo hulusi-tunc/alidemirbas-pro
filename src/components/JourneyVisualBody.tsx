@@ -4,6 +4,7 @@ import JourneyCanvas from "@/components/JourneyCanvas";
 import { InfoTile } from "@/components/ui/InfoTile";
 import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
 import type { JourneyDetail } from "@/lib/canonical-view";
+import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import type { ConfigRow, TimelineStep } from "@/lib/practitioner-view";
 import type { copy, Lang } from "@/lib/content";
 
@@ -108,9 +109,12 @@ function firstClause(text: string): string {
 
 /** Everything the canvas needs from a journey, composed once so the figure
     inside the notes and the full-page canvas tab (JourneyRoutes) cannot
-    disagree: the localised labels, the caption in counts, the channel names
-    per node kind. */
-export function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof copy)[Lang]["lab"]["page"]) {
+    disagree: the laid-out graph, the localised labels, the caption in
+    counts, the channel names per node kind. Async because the layout is
+    (ELK) - computed here on the server, shipped to the client island as a
+    prop. */
+export async function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof copy)[Lang]["lab"]["page"]) {
+  const layout = await layoutJourneyCanvas(detail.nodes);
   const messageLabels = messageChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
   const humanLabels = humanChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
   const count = (kind: JourneyDetail["nodes"][number]["kind"]) => detail.nodes.filter((n) => n.kind === kind).length;
@@ -130,10 +134,10 @@ export function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof
     terminal: t.terminalLabel,
     lang,
   };
-  return { nodes: detail.nodes, labels, caption, shape, messageLabels, humanLabels };
+  return { nodes: detail.nodes, layout, labels, caption, shape, messageLabels, humanLabels };
 }
 
-export default function JourneyVisualBody({
+export default async function JourneyVisualBody({
   detail,
   basePath,
   lang,
@@ -149,7 +153,7 @@ export default function JourneyVisualBody({
 }) {
   const ui = UI[lang];
   const p = detail.practitioner!; // caller only routes here when this is non-null (see canUseVisualBody)
-  const canvas = journeyCanvasProps(detail, lang, t);
+  const canvas = showCanvas ? await journeyCanvasProps(detail, lang, t) : null;
 
   const stops = [
     ...p.stopsWhen.exits.map((e) => firstClause(e.state)),
@@ -162,7 +166,7 @@ export default function JourneyVisualBody({
           and same interaction (pan, zoom, node detail) as every other
           journey's canvas, only moved above the notes instead of below
           them and given a plain-language heading. */}
-      {showCanvas && (
+      {canvas && (
         <>
           <h2 className="text-base font-semibold tracking-tight text-ink-950">{ui.flowHeading}</h2>
           <div className="mt-4">
