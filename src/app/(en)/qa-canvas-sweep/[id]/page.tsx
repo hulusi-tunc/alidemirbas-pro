@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import JourneyCanvas from "@/components/JourneyCanvas";
 import { journeyDetail } from "@/lib/canonical-view";
+import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 
 /* TEST-ONLY route, kept for `qa/journey-canvas/full-sweep-255.mjs` (see the
    validation reports in production/journey-canvas-validation/ and that
@@ -26,11 +27,13 @@ export default async function QaCanvasSweepPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const detail = journeyDetail(decodeURIComponent(id));
   if (!detail) notFound();
+  const layout = await layoutJourneyCanvas(detail.nodes);
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-6">
       <JourneyCanvas
         nodes={detail.nodes}
+        layout={layout}
         basePath="/qa-canvas-sweep"
         labels={{
           entry: "Entry",

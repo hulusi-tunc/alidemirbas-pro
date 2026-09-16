@@ -84,15 +84,6 @@ const T = {
     catBrowse: "Browse by category",
     heroShotAlt: "numerspace.com's homepage: a search field over category sections of calculator cards.",
 
-    privacyEyebrow: "Privacy",
-    privacyTitle: "Your numbers stay in your browser.",
-    privacySub: "Most calculations run on your device. Inputs aren't sent to Numerspace or stored in an account.",
-    privacyInput: "Input",
-    privacyBrowser: "Your browser",
-    privacyResult: "Result",
-    privacyStays: "Stays on your device",
-    privacyPoints: ["No account", "No calculation database", "Computed on your device"],
-
     faqEyebrow: "FAQ",
 
     relatedEyebrow: "Also in the Lab",
@@ -120,15 +111,6 @@ const T = {
     catExploreAll: "13 kategorinin tamamını gör",
     catBrowse: "Kategoriye göre göz at",
     heroShotAlt: "numerspace.com'un ana sayfası: hesaplayıcı kartlarından oluşan kategori bölümlerinin üstünde bir arama alanı.",
-
-    privacyEyebrow: "Gizlilik",
-    privacyTitle: "Sayıların tarayıcında kalır.",
-    privacySub: "Hesaplamaların çoğu cihazında çalışır. Girdiler Numerspace'e gönderilmez, bir hesapta saklanmaz.",
-    privacyInput: "Girdi",
-    privacyBrowser: "Tarayıcın",
-    privacyResult: "Sonuç",
-    privacyStays: "Cihazında kalır",
-    privacyPoints: ["Hesap yok", "Hesaplama veritabanı yok", "Cihazında hesaplanır"],
 
     faqEyebrow: "SSS",
 
@@ -295,56 +277,6 @@ function CatalogueSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   );
 }
 
-/* ---- 04 · Privacy - horizontal product explanation ---------------------
-   One real flow (input -> your browser -> result), drawn as part of the
-   product rather than a slide: a single bordered panel instead of loose
-   pills over the page background, with the crossed-out "sent to a server"
-   pill from the prior pass gone - the honest claim is what stays local,
-   not a struck-through claim about what doesn't happen. */
-function PrivacySection({ t }: { t: (typeof T)[Lang] }) {
-  return (
-    // soft, not paper: keeps the paper/soft rhythm varied now that Faq
-    // (right after this one) needs to be paper for its own cards to read -
-    // the flow panel below is a bordered bg-paper card either way, the
-    // same "card on a tinted ground" pattern Categories already uses.
-    <ProductSection tone="soft" space="md">
-      <PortraitContainer>
-        <ProductHeading eyebrow={t.privacyEyebrow} title={t.privacyTitle} body={t.privacySub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 max-w-xl overflow-hidden rounded-card border border-line bg-paper">
-          <div className="flex flex-col items-stretch sm:flex-row">
-            {[t.privacyInput, t.privacyBrowser, t.privacyResult].map((step, i) => (
-              <div key={step} className="relative flex flex-1 items-center justify-center gap-3 px-5 py-6">
-                {i === 1 ? (
-                  <span className="absolute inset-x-2 top-2 rounded-full bg-emerald-50 px-2 py-0.5 text-center font-mono text-[9.5px] font-medium tracking-wide text-emerald-700 uppercase sm:inset-x-3">
-                    {t.privacyStays}
-                  </span>
-                ) : null}
-                <span className={clsx("mt-3 text-[13.5px] font-medium", i === 1 ? "text-emerald-700" : "text-ink-800")}>
-                  {step}
-                </span>
-                {i < 2 && (
-                  <ArrowRight
-                    aria-hidden
-                    className="absolute top-1/2 right-0 hidden size-4 -translate-y-1/2 translate-x-1/2 text-ink-300 sm:block"
-                  />
-                )}
-                {i < 2 && (
-                  <span aria-hidden className="mt-2 block h-px w-8 bg-line sm:hidden" />
-                )}
-              </div>
-            ))}
-          </div>
-        </Reveal>
-        <Reveal delay={150} className="mx-auto mt-5 flex max-w-xl flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[12.5px] text-ink-500">
-          {t.privacyPoints.map((p) => (
-            <span key={p}>{p}</span>
-          ))}
-        </Reveal>
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
-
 function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   if (!c.faq || c.faq.length === 0) return null;
   return (
@@ -466,7 +398,6 @@ export default function NumerspacePage({ lang, content }: { lang: Lang; content:
         <Hero c={content} t={t} lang={lang} siteHref={siteHref} />
         <WhySection t={t} />
         <CatalogueSection t={t} lang={lang} />
-        <PrivacySection t={t} />
         <Faq c={content} t={t} />
         <OtherProjects c={content} t={t} />
         <PageCta c={content} t={t} />

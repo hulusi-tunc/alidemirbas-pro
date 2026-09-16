@@ -120,9 +120,14 @@ Data flows **`src/canonical/index.ts` → `src/lib/canonical-view.ts` → pages*
 only bridge and it is **server-only**: `JOURNEY_ROWS` and the preview thumbnails are computed
 once at module load. Importing `@/canonical` or `@/lib/canonical-view` from a `"use client"`
 file ships all 284 journey graphs (3690 nodes) to the browser — client components take shaped props and import
-only *types*. `journey-preview.ts` deliberately reuses `layoutJourneyCanvas` from
-`journey-canvas-layout.ts` so a card thumbnail and its detail canvas can never disagree; do not
-add a second layout engine.
+only *types*. The canvas layout engine is ELK (`elkjs`, `src/lib/journey-canvas-layout.ts`):
+asynchronous and server-only - `layoutJourneyCanvas()` runs in async server components and
+the client `JourneyCanvas` takes the finished `layout` as a prop; `canonical-view.ts` awaits
+it at module load for the thumbnails (top-level await, so a plain `tsx` run of that module
+needs an ESM bundle). It lays out a DISPLAY graph in which a shared exit/handoff is drawn once
+per parent (`x.converted@c.state`, keyed by `layoutId`, opened by `canonicalNodeId`); the
+canonical graph is untouched. `journey-preview.ts` consumes the same `CanvasLayout` so a card
+thumbnail and its detail canvas can never disagree; do not add a second layout engine.
 
 `npm run validate:canonical` parses those `.ts` files **as text** and evals the literals — it
 never sees your types. So keep `export const <DOMAIN>_JOURNEYS = [...]` at top level, and

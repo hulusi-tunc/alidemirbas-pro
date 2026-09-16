@@ -129,7 +129,7 @@ export const JOURNEY_CANVAS_REGRESSION_FIXTURE: ReadonlySet<string> = new Set([
   "ACC-73",
 ]);
 
-export default function JourneyDetailBody({
+export default async function JourneyDetailBody({
   detail,
   merged,
   basePath,
@@ -147,7 +147,9 @@ export default function JourneyDetailBody({
 }) {
   /* Localised once here rather than inside the canvas, which is a client
      island: the labels are static copy, so resolving them on the server
-     keeps the channel vocabulary out of the browser bundle. */
+     keeps the channel vocabulary out of the browser bundle. The layout
+     comes with them - laid out here, on the server, for the same reason. */
+  const canvas = showCanvas ? await journeyCanvasProps(detail, lang, t) : null;
   return (
     <div>
       {/* A retired id resolves here rather than 404ing, and says so before
@@ -171,7 +173,7 @@ export default function JourneyDetailBody({
         </>
       ) : null}
 
-      {showCanvas && <JourneyCanvas {...journeyCanvasProps(detail, lang, t)} basePath={basePath} />}
+      {canvas && <JourneyCanvas {...canvas} basePath={basePath} />}
 
       {/* The takeaway, then the notes - as tiles with icons (Hulusi,
           2026-09-14), the rule first and full width because it is the one

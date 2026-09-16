@@ -11,6 +11,7 @@ import { surfaceOf } from "@/canonical/surface";
 import { LIBRARY_JOURNEYS, PUBLIC_JOURNEYS, isPublicJourneyId } from "@/lib/public-corpus";
 import type { Preset } from "@/canonical/types";
 import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, GoalId, SignalSource } from "@/canonical/types";
+import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 
 /* The read model the archive renders from.
@@ -434,8 +435,13 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
 /* Declared here rather than beside the JourneyRow type because building each
    row's topology thumbnail needs `flowNodesOf` above - and `nodeView`, which
    it calls, is a const rather than a hoisted declaration, so evaluating this
-   any earlier in the module would hit its temporal dead zone. */
-export const JOURNEY_ROWS: readonly JourneyRow[] = PUBLIC_JOURNEYS.map((j) => ({
+   any earlier in the module would hit its temporal dead zone.
+
+   Awaited at module load: the layout engine behind each thumbnail (ELK, see
+   journey-canvas-layout.ts) is asynchronous, and the rows are consumed
+   synchronously everywhere else - so the module's own evaluation waits for
+   every public journey's layout once, and nothing downstream changes. */
+export const JOURNEY_ROWS: readonly JourneyRow[] = await Promise.all(PUBLIC_JOURNEYS.map(async (j) => ({
   id: j.id,
   ...(() => { const sf = surfaceOf(j); return { surface: sf.surface as SurfaceName, communicating: sf.sends, routesToHuman: sf.routesToHuman }; })(),
   aliases: j.discovery?.aliases ?? [],
@@ -449,8 +455,8 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = PUBLIC_JOURNEYS.map((j) => ({
   nodeCount: j.nodes.length,
   goal: j.goal,
   channels: j.channels,
-  preview: buildJourneyPreview(flowNodesOf(j)),
-}));
+  preview: buildJourneyPreview(await layoutJourneyCanvas(flowNodesOf(j))),
+})));
 
 /* The product surfaces (three public since 2026-09-05; the operational
    surface is archived, see public-corpus.ts). The rule is src/canonical/surface.ts's, read
