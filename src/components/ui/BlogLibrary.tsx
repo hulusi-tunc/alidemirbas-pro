@@ -10,6 +10,7 @@ import { PortraitContainer } from "./PortraitContainer";
 import { Section } from "./Section";
 import type { BlogFacetCount, BlogPost } from "@/lib/blog";
 import type { Lang } from "@/lib/content";
+import { CATEGORY_TAB_LABEL } from "@/lib/blog-category-labels";
 
 function formatDate(iso: string, lang: Lang) {
   const d = new Date(iso);
@@ -41,7 +42,7 @@ function BlogCompactRow({ post, href, lang }: { post: BlogPost; href: string; la
       <span className="flex min-w-0 flex-col gap-1.5">
         <span className="flex items-center gap-1.5 text-xs text-ink-500">
           <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${dotClass}`} />
-          {post.category}
+          {CATEGORY_TAB_LABEL[post.category]?.[lang] ?? post.category}
           <span aria-hidden className="text-ink-300">
             &middot;
           </span>
@@ -101,17 +102,9 @@ const T = {
   },
 } as const;
 
-/** Short editorial label per real category — the tab row's own text, not
-    a rename of the underlying filter value. "Experimentation" already
-    reads fine as a tab in English; Turkish reuses the CRO calculator
-    category's own established translation for the same real concept
-    (CalculatorRoutes.tsx's CATEGORY_LABEL, "Deneysel Test") rather than
-    inventing a second one here. */
-const CATEGORY_TAB_LABEL: Record<string, { en: string; tr: string }> = {
-  "Growth Metrics": { en: "Growth", tr: "Growth" },
-  "Lifecycle & CRM": { en: "Lifecycle", tr: "Lifecycle" },
-  Experimentation: { en: "Experimentation", tr: "Deneysel Test" },
-};
+// CATEGORY_TAB_LABEL moved to lib/blog-category-labels.ts (see its own
+// comment) so BlogPostPage.tsx, a server component, doesn't import a
+// plain data value across a "use client" boundary.
 
 export function BlogLibrary({
   lang, posts, facets, basePath, emptyTitle, emptyBody,

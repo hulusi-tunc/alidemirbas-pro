@@ -77,8 +77,10 @@ exports both a metadata factory and a page component — `CalculatorRoutes.tsx`,
 `copy` → both route files with `alternates: pageAlternates("/<path>", lang)` → add the path to
 the hand-maintained `routes` array in `src/app/sitemap.ts`.
 
-Four routes are EN-only by design: `blog/[slug]`, `experiment-a`, `experiment-b`,
-`qa-canvas-sweep/[id]`. `src/lib/blog.ts` returns `[]` for any non-`en` lang.
+Three routes are EN-only by design: `experiment-a`, `experiment-b`, `qa-canvas-sweep/[id]`.
+`blog/[slug]` used to be a fourth (`src/lib/blog.ts`'s `getAllBlogPosts` returned `[]` for any
+non-`en` lang) until every post got a real `tr` translation (`blog-posts.ts`'s per-post `tr`
+field) and its own `src/app/tr/blog/[slug]/page.tsx` route.
 
 ### Invariants that look like bugs and are not
 

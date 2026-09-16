@@ -6,14 +6,15 @@ import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import { BlogCover, COVERS, categoryAccent } from "@/components/ui/BlogCover";
 import { fallbackCover } from "@/components/ui/BlogCard";
 import { basePathFor } from "@/components/BlogPage";
+import { CATEGORY_TAB_LABEL } from "@/lib/blog-category-labels";
 import { copy, type Lang } from "@/lib/content";
 import { getAllBlogPosts, BLOG_AUTHOR, type BlogPost } from "@/lib/blog";
 import { breadcrumbList } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { SITE_URL } from "@/lib/seo";
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+function formatDate(iso: string, lang: Lang) {
+  return new Date(iso).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
 /** Real, derived from the post's own word count (title + excerpt + every
@@ -61,7 +62,33 @@ function estimateReadTime(post: BlogPost): number {
    - Prev/next and "What to read next" are real other posts from
      blog-posts.ts - never invented titles; "next to read" picks
      same-category posts first, then whatever's left, newest first. */
+const T = {
+  en: {
+    backToBlog: "Blog",
+    minRead: "min read",
+    shareX: "Share on X",
+    shareLinkedIn: "Share on LinkedIn",
+    relatedTools: "Related tools",
+    whatToReadNext: "What to read next",
+    onThisPage: "On this page",
+    previous: "Previous",
+    next: "Next",
+  },
+  tr: {
+    backToBlog: "Blog",
+    minRead: "dk okuma",
+    shareX: "X'te paylaş",
+    shareLinkedIn: "LinkedIn'de paylaş",
+    relatedTools: "İlgili araçlar",
+    whatToReadNext: "Sırada okunacaklar",
+    onThisPage: "Bu sayfada",
+    previous: "Önceki",
+    next: "Sonraki",
+  },
+} as const;
+
 export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPost }) {
+  const t = T[lang];
   const c = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const base = basePathFor(lang);
@@ -117,12 +144,12 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
           <div className="altor-container max-w-2xl">
             <Link href={base} className="inline-flex items-center gap-1.5 text-sm text-ink-500 transition-colors hover:text-ink-900">
               <ArrowLeft aria-hidden className="size-3.5" />
-              Blog
+              {t.backToBlog}
             </Link>
             <div className="mt-8 text-center">
               <p className="text-xs text-ink-400">
-                {formatDate(post.date)}
-                {post.category && <> · {post.category}</>}
+                {formatDate(post.date, lang)}
+                {post.category && <> · {CATEGORY_TAB_LABEL[post.category]?.[lang] ?? post.category}</>}
               </p>
               <h1 className="mt-2 text-h1 text-ink-950">{post.title}</h1>
               <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-ink-600">{post.excerpt}</p>
@@ -133,7 +160,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
         {/* Cover / image area */}
         <div className="altor-container max-w-3xl">
           <span className="block aspect-[16/8] overflow-hidden rounded-card">
-            <BlogCover spec={cover} size="featured" />
+            <BlogCover spec={cover} size="featured" lang={lang} />
           </span>
         </div>
 
@@ -151,7 +178,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
               <span>
                 <span className="block text-sm font-medium text-ink-950">{BLOG_AUTHOR.name}</span>
                 <span className="block text-xs text-ink-400">
-                  {formatDate(post.date)} · {readTime} min read
+                  {formatDate(post.date, lang)} · {readTime} {t.minRead}
                 </span>
               </span>
             </div>
@@ -160,7 +187,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
                 href={shareX}
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Share on X"
+                aria-label={t.shareX}
                 className="flex size-8 items-center justify-center rounded-full bg-paper-soft text-ink-600 transition-colors hover:bg-blue-50 hover:text-primary-700"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -171,7 +198,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
                 href={shareLinkedIn}
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Share on LinkedIn"
+                aria-label={t.shareLinkedIn}
                 className="flex size-8 items-center justify-center rounded-full bg-paper-soft text-ink-600 transition-colors hover:bg-blue-50 hover:text-primary-700"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -205,7 +232,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
 
             {/* Tags */}
             <div className="mt-10 flex flex-wrap gap-2">
-              {[post.category, post.topic].filter(Boolean).map((tag) => (
+              {[post.category && (CATEGORY_TAB_LABEL[post.category]?.[lang] ?? post.category), post.topic].filter(Boolean).map((tag) => (
                 <span key={tag} className="rounded-full border border-line bg-paper-soft px-3 py-1 text-xs text-ink-600">
                   {tag}
                 </span>
@@ -231,7 +258,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
             {post.related && post.related.length > 0 && (
               <div className="mt-10 border-t border-line pt-10">
                 <RelatedGrid
-                  title="Related tools"
+                  title={t.relatedTools}
                   items={post.related.map((r) => ({ href: r.href, name: r.label }))}
                 />
               </div>
@@ -239,7 +266,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
 
             {relatedPosts.length > 0 && (
               <div className="mt-10 border-t border-line pt-10">
-                <p className="mb-4 text-sm font-medium tracking-wide text-neutral-500 uppercase">What to read next</p>
+                <p className="mb-4 text-sm font-medium tracking-wide text-neutral-500 uppercase">{t.whatToReadNext}</p>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   {relatedPosts.map((p) => {
                     const spec = COVERS[p.slug] ?? fallbackCover(p.category);
@@ -248,11 +275,11 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
                     return (
                       <Link key={p.slug} href={`${base}/${p.slug}`} className="group flex flex-col gap-2.5">
                         <span className="block aspect-[16/10] overflow-hidden rounded-lg">
-                          <BlogCover spec={spec} size="grid" />
+                          <BlogCover spec={spec} size="grid" lang={lang} />
                         </span>
                         <span className="flex items-center gap-1.5 text-xs text-ink-500">
                           <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${dotClass}`} />
-                          {p.category}
+                          {CATEGORY_TAB_LABEL[p.category]?.[lang] ?? p.category}
                         </span>
                         <span className="text-[15px] leading-[1.3] font-semibold text-ink-950 transition-colors duration-[var(--duration-fast)] group-hover:text-primary-700">
                           {p.title}
@@ -270,7 +297,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
           {post.sections.length > 1 && (
             <div className="hidden lg:block">
               <div className="sticky top-24">
-                <p className="text-xs font-semibold tracking-wide text-ink-400 uppercase">On this page</p>
+                <p className="text-xs font-semibold tracking-wide text-ink-400 uppercase">{t.onThisPage}</p>
                 <div className="mt-3 flex flex-col gap-1 border-l-2 border-line pl-4">
                   {post.sections.map((s, i) => (
                     <a
@@ -295,7 +322,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
                 <Link href={`${base}/${prev.slug}`} className="group bg-paper p-6 transition-colors hover:bg-paper-soft">
                   <p className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-ink-400 uppercase">
                     <ArrowLeft aria-hidden className="size-3" />
-                    Previous
+                    {t.previous}
                   </p>
                   <p className="mt-2 text-base font-semibold text-ink-950 group-hover:text-primary-700">{prev.title}</p>
                 </Link>
@@ -305,7 +332,7 @@ export default function BlogPostPage({ lang, post }: { lang: Lang; post: BlogPos
               {next ? (
                 <Link href={`${base}/${next.slug}`} className="group bg-paper p-6 text-right transition-colors hover:bg-paper-soft">
                   <p className="flex items-center justify-end gap-1.5 text-xs font-semibold tracking-wide text-ink-400 uppercase">
-                    Next
+                    {t.next}
                     <ArrowRight aria-hidden className="size-3" />
                   </p>
                   <p className="mt-2 text-base font-semibold text-ink-950 group-hover:text-primary-700">{next.title}</p>

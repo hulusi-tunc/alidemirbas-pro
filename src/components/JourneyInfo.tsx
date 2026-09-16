@@ -5,7 +5,7 @@ import JourneyDetailBody from "@/components/JourneyDetailBody";
 import JourneyVisualBody from "@/components/JourneyVisualBody";
 import { JourneyMiniMap } from "@/components/ui/JourneyMiniMap";
 import { CategoryIcon, ChannelIcon, GoalIcon, categoryAccent } from "@/components/ui/LibraryChrome";
-import { ButtonLink } from "@/components/ui/Button";
+import { buttonStyles } from "@/components/ui/Button";
 import { InfoTile } from "@/components/ui/InfoTile";
 import { CATEGORY_META, type JourneyDetail, type MergedRedirect } from "@/lib/canonical-view";
 import { CHANNEL_HUE, CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
@@ -106,10 +106,17 @@ export default function JourneyInfo({
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-6 py-4">
               <p className="text-sm text-ink-muted">{shape.map((s) => s.label).join(" · ")}</p>
-              <ButtonLink href="#canvas" variant="primary" size="sm">
+              {/* Plain anchor, not ButtonLink/next/link: this is a same-page
+                  hash jump to the Canvas tab, whose switch (JourneyDetailShell)
+                  listens for the browser's native "hashchange" event. Next's
+                  <Link> always calls preventDefault() and routes through its
+                  own client-router history API instead of the browser's, so
+                  it never fires that event - the button would update the URL
+                  but the tab would never actually switch. */}
+              <a href="#canvas" className={buttonStyles({ variant: "primary", size: "sm" })}>
                 {t.openCanvas}
                 <ArrowRight aria-hidden className="size-4" />
-              </ButtonLink>
+              </a>
             </div>
           </section>
           <InfoTile icon={<Workflow />} title={t.shapeLabel}>

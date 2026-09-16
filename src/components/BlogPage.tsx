@@ -15,14 +15,14 @@ import { JsonLdScript } from "@/components/ui/JsonLdScript";
    round's source of truth; the Contact-approved tokens/patterns below are
    LOCKED and reused, not reinvented — see each comment for which).
 
-   STALE-COMMENT CORRECTION: this file used to say "No posts yet -
-   getAllBlogPosts returns [] for real." That was true when written but
-   is no longer accurate for EN - `src/lib/blog-posts.ts` now holds 5 real,
-   authored posts, and `getAllBlogPosts("en")` returns them. `[]` is still
-   correct for TR specifically (blog is EN-only by design, see
-   `src/lib/blog.ts`'s own comment) - so `/blog` has 5 real posts and a
-   real, non-empty facet set, while `/tr/blog` correctly still hits the
-   honest empty state. Both are exercised in this round's screenshots.
+   STALE-COMMENT CORRECTION (second correction): this file used to say
+   `/tr/blog` "correctly still hits the honest empty state" because blog
+   was EN-only by design. That's no longer true either - every post in
+   `src/lib/blog-posts.ts` now carries a real `tr` translation, so
+   `getAllBlogPosts("tr")` returns the same 5 real posts EN gets, and
+   `/tr/blog` has a real, non-empty facet set too. `emptyTitle`/
+   `emptyBody*` below stay in `T` as the honest fallback for the day a
+   post genuinely has no `tr` field yet, not as TR's normal state.
 
    EDITORIAL REFINEMENT ROUND: the filter-sidebar/grid-list-toggle/sort-
    control IA from the earlier Portrait pass was itself the thing this
@@ -69,7 +69,7 @@ export function basePathFor(lang: Lang) {
    makes that claim, correctly, further down the page). */
 const HERO_COVER_SLUGS = ["the-guardrail-metric-most-ab-tests-forget", "ltv-cac-ratio-doesnt-tell-you-when-to-scale"];
 
-function HeroCoverCollage({ posts }: { posts: ReturnType<typeof getAllBlogPosts> }) {
+function HeroCoverCollage({ posts, lang }: { posts: ReturnType<typeof getAllBlogPosts>; lang: Lang }) {
   const covers = HERO_COVER_SLUGS.map((slug) => posts.find((p) => p.slug === slug)).filter((p): p is NonNullable<typeof p> => !!p);
   if (covers.length < 2) return null;
   return (
@@ -86,7 +86,7 @@ function HeroCoverCollage({ posts }: { posts: ReturnType<typeof getAllBlogPosts>
           key={post.slug}
           className={`block aspect-[3/4] overflow-hidden rounded-card ${i === 0 ? "mt-10" : ""}`}
         >
-          <BlogCover spec={COVERS[post.slug] ?? fallbackCover(post.category)} size="grid" />
+          <BlogCover spec={COVERS[post.slug] ?? fallbackCover(post.category)} size="grid" lang={lang} />
         </span>
       ))}
     </div>
@@ -132,7 +132,7 @@ export default function BlogPage({ lang }: { lang: Lang }) {
                   <p className="mb-4 text-[13px] font-medium text-ink-400">{t.eyebrow}</p>
                   <h1 className="text-h1 text-ink-950">{t.title}</h1>
                 </div>
-                <HeroCoverCollage posts={posts} />
+                <HeroCoverCollage posts={posts} lang={lang} />
               </div>
             ) : (
               // No posts (TR today) - the collage has nothing real to show,

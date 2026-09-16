@@ -14,6 +14,9 @@ export type BlogPost = {
   excerpt: string;
   /** ISO date (YYYY-MM-DD). */
   date: string;
+  /** Stays the English category id even on a `tr`-resolved post: it's the
+      key BlogLibrary.tsx's tab filter and CATEGORY_TAB_LABEL match on, not
+      display text. Display text is resolved from this id at render time. */
   category: string;
   topic?: string;
   contentType?: string;
@@ -27,6 +30,20 @@ export type BlogPost = {
   /** Internal links relevant to the post - the calculator or Lab tool it
       references, so the post actually connects to the rest of the site. */
   related?: { href: string; label: string }[];
+  /** Present only on the authored (English) record in blog-posts.ts - the
+      Turkish variant of every field above that's actually rendered
+      (title/excerpt/pullQuote/sections/related/topic). `category` and the
+      post's identity (slug/date/contentType) don't need a `tr` override:
+      the id stays the same, only its label changes at display time. See
+      getAllBlogPosts()'s "tr" branch for how this gets merged in. */
+  tr?: {
+    title: string;
+    excerpt: string;
+    pullQuote?: string;
+    sections: BlogSection[];
+    related?: { href: string; label: string }[];
+    topic?: string;
+  };
 };
 
 /** Single real byline - this is a one-author blog (see AboutPage.tsx's own
@@ -40,15 +57,18 @@ export const BLOG_AUTHOR = {
   bio: "Ali Demirbaş is the Mobile App Growth Lead at Aksigorta. He writes about growth, lifecycle marketing and the metrics behind them.",
 };
 
-// EN only for now, matching the same precedent already established for
-// calculator Phase 4 content (calc-content.ts): real long-form writing is
-// authored once, in English, and TR falls back rather than shipping a
-// half-translated page. lang is kept in the signature so callers don't
-// need special-casing and TR posts can be added later without a call-site
-// change.
+/** Every post, in `lang`. On `en` this is the authored record itself. On
+    `tr` each post's `tr` override is merged over it - same shape, real
+    Turkish writing (not a translation-layer stub) - falling back to the
+    English field only for a post that genuinely has no `tr` yet, so a
+    future post added without one degrades instead of breaking the page. */
 export function getAllBlogPosts(lang: Lang): BlogPost[] {
-  if (lang !== "en") return [];
-  return BLOG_POSTS;
+  if (lang !== "tr") return BLOG_POSTS;
+  return BLOG_POSTS.map((p) => {
+    if (!p.tr) return p;
+    const { title, excerpt, pullQuote, sections, related, topic } = p.tr;
+    return { ...p, title, excerpt, pullQuote: pullQuote ?? p.pullQuote, sections, related: related ?? p.related, topic: topic ?? p.topic };
+  });
 }
 
 export function getBlogPost(lang: Lang, slug: string): BlogPost | undefined {

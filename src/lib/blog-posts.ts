@@ -40,6 +40,37 @@ export const BLOG_POSTS: BlogPost[] = [
       { href: "/calculators/cac-payback-period", label: "CAC Payback Period Calculator" },
       { href: "/calculators/ltv", label: "LTV Calculator" },
     ],
+    tr: {
+      title: "LTV:CAC oranı tek başına ne zaman büyüyeceğini söylemez",
+      excerpt:
+        "3:1 oranı sektörde \"sağlıklı\" için kısayol haline geldi. Tek başına iyi bir kontrol ama kötü bir büyüme sinyali. Yanında nelere bakman gerektiği burada.",
+      pullQuote:
+        "Bir kanal düşük hacimde harika bir oran gösterip bütçeyi artırdığın anda dağılabilir.",
+      sections: [
+        {
+          heading: "Oran, kendi paydasını gizler",
+          body: "3:1'lik LTV:CAC bir geç/kal çizgisi gibi ele alınıyor ama oran, buna ulaşmak için ne kadar hızlı harcayabileceğini söylemiyor. Bir kanal düşük hacimde harika bir oran gösterip bütçeyi artırdığın anda dağılabilir. Sebep birim ekonominin değişmesi değil, marjinal müşterinin CAC'inin ortalama müşterininkiyle nadiren aynı olması. Oran, zaten olmuş bitmiş bir şeyin fotoğrafıdır, bundan sonra ne olacağının tahmini değil.",
+        },
+        {
+          heading: "Ortalama değil, marjinal CAC",
+          body: "Bir kanalı büyütmeden önce harmanlanmış ortalamaya değil, harcamanın son yüzde 10-20'sinin gerçekte neye mal olduğuna bak. Ortalama CAC 40 dolarsa ama en yeni harcama kohortu 65 dolara yaklaşıyorsa, marjindeki gerçek oranın dashboard'daki sayıdan daha kötü demektir. Bir sonraki bütçe dolarının hâlâ kârlı olup olmadığına karar veren sayı budur.",
+        },
+        {
+          heading: "Geri ödeme süresi daha hızlı bir uyarı ışığıdır",
+          body: "LTV'nin tam olarak gerçekleşmesi aylar, hatta yıllar sürer; bu da kötü bir LTV:CAC oranını gecikmeli bir gösterge yapar: fazla harcadığını para gittikten çok sonra fark edersin. CAC geri ödeme süresi (kazanım maliyetini geri kazanmak için kaç ay brüt marj gerektiği) çok daha hızlı tepki verir, çünkü bir kohortun bir öncekinden daha yavaş geri ödediğini görmek için LTV eğrisinin tamamına ihtiyacın yok.",
+        },
+        {
+          heading: "Harcamayı artırmadan önce neye bakılır",
+          body: "Sırasıyla üç şey: son harcama artışındaki marjinal CAC, son 3 kohorttaki geri ödeme süresi trendi ve yeni kohortların elde tutmasının eski kohortlarla eşleşip eşleşmediği. Üçü de yerindeyse oran muhtemelen doğruyu söylüyordur. CAC sabit kalırken elde tutma sessizce düşüyorsa, oran bozulana kadar iyi görünmeye devam eder.",
+        },
+      ],
+      related: [
+        { href: "/tr/calculators/ltv-cac-ratio", label: "LTV:CAC Oranı Hesaplayıcısı" },
+        { href: "/tr/calculators/cac-payback-period", label: "CAC Geri Ödeme Süresi Hesaplayıcısı" },
+        { href: "/tr/calculators/ltv", label: "LTV Hesaplayıcısı" },
+      ],
+      topic: "Birim Ekonomisi",
+    },
   },
   {
     slug: "reading-d1-d7-d30-retention-without-fooling-yourself",
@@ -75,6 +106,37 @@ export const BLOG_POSTS: BlogPost[] = [
       { href: "/calculators/logo-churn", label: "Logo Churn Calculator" },
       { href: "/calculators/nrr", label: "Net Revenue Retention (NRR) Calculator" },
     ],
+    tr: {
+      title: "D1/D7/D30 elde tutmayı kendini kandırmadan okumak",
+      excerpt:
+        "Elde tutma raporlamasındaki en yaygın hata kötü bir sayı değil. Baştan beri karşılaştırılamaz kohortları karşılaştırmak.",
+      pullQuote:
+        "D30'da hâlâ düşmeye devam eden bir eğri, D7'de istediğinden daha düşük bir seviyede düzleşen eğriden farklı bir soruna işaret eder.",
+      sections: [
+        {
+          heading: "Tek bir sayı değil, bir eğri",
+          body: "D1/D7/D30 elde tutma üç ayrı sayı olarak raporlanır ama bir anlam ifade etmeleri için bir eğri olarak okunmaları gerekir. D1'de sert bir düşüş yaşayıp D7'den sonra düzleşen bir ürünle, D30'a kadar yavaş ve istikrarlı düşen bir ürün, D30 sayısı aynı yere denk gelse bile çok farklı bir elde tutma hikayesi anlatır. Sadece uç noktaları değil, şekli raporla.",
+        },
+        {
+          heading: "Kohort kirlenmesi genelde asıl suçludur",
+          body: "Klasik hata: bu ayki kazanım karması daha düşük niyetli kullanıcı getiren bir kanala kaydığında, bu ayın D7 elde tutmasını geçen ayla karşılaştırmak. Elde tutma sayısı değişti ama hikaye \"elde tutma kötüleşti\" değil, \"nüfus değişti\"dir. Üründeki bir değişiklik hakkında herhangi bir sonuca varmadan önce elde tutmayı her zaman kazanım kaynağına göre segmentlere ayır.",
+        },
+        {
+          heading: "Haftanın günü ve mevsimsellik kısa pencereleri bozar",
+          body: "Cuma günü kazanılan bir kohorttan ölçülen D1 elde tutma, Salı günü kazanılandan, ürünle hiçbir ilgisi olmayan sebeplerle farklı görünür. Kısa pencereler buna uzun pencerelerden daha duyarlıdır. D1'i haftalık takip ediyorsan gürültü bekle; kohortu hangi günün oluşturduğuna bakmadan tek bir haftalık düşüşe tepki verme.",
+        },
+        {
+          heading: "Sağlıklı bir eğri neye benzer",
+          body: "Erken dönemde sert düşüş normaldir. Çoğu ürün D7'ye kadar kullanıcılarının yüzde 60-80'ini kaybeder ve bu otomatik olarak bir kriz değildir. Önemli olan eğrinin nerede düzleştiğidir. D30'da hâlâ düşmeye devam eden bir eğri, D7'de istediğinden daha düşük bir seviyede düzleşen eğriden farklı bir soruna işaret eder. Birincisi bir elde tutma sorunu; ikincisi bir kazanım kalitesi sorunu olabilir.",
+        },
+      ],
+      related: [
+        { href: "/tr/calculators/retention-rate", label: "Elde Tutma Oranı Hesaplayıcısı" },
+        { href: "/tr/calculators/logo-churn", label: "Logo Churn Hesaplayıcısı" },
+        { href: "/tr/calculators/nrr", label: "Net Gelir Elde Tutma (NRR) Hesaplayıcısı" },
+      ],
+      topic: "Elde Tutma",
+    },
   },
   {
     slug: "why-your-roas-looks-different-on-every-ad-platform",
@@ -109,6 +171,36 @@ export const BLOG_POSTS: BlogPost[] = [
       { href: "/calculators/cac", label: "CAC Calculator" },
       { href: "/calculators/cpc", label: "CPC Calculator" },
     ],
+    tr: {
+      title: "ROAS'ın her reklam platformunda neden farklı göründüğü",
+      excerpt:
+        "Aynı kampanya, aynı harcama, hangi platformun panosuna baktığına göre üç farklı ROAS sayısı. Sorun formül değil. Atıf penceresi.",
+      pullQuote: "İki sayı da yanlış değil; farklı sorulara cevap veriyorlar.",
+      sections: [
+        {
+          heading: "ROAS basit; atıf değil",
+          body: "Formül tek satır: reklamdan gelen gelirin reklam harcamasına bölümü. Platformlar arasında değişen şey, \"reklamdan gelen gelir\"in aslında ne sayıldığı; bu da tamamen her platformun varsayılan atıf penceresine bağlı ve bu pencere kendi analitik aracının kullandığı pencereyle nadiren aynı.",
+        },
+        {
+          heading: "Tıklama pencereleri ve görüntülenme pencereleri",
+          body: "7 günlük tıklama / 1 günlük görüntülenme penceresi kullanan bir platform, aynı harcama ve aynı satın almalar için 28 günlük tıklama / 7 günlük görüntülenme penceresi kullanan bir platformdan farklı bir ROAS raporlar, çünkü ikinci pencere daha fazla dönüşümü yakalayıp reklama mal eder. İki sayı da yanlış değil; farklı sorulara cevap veriyorlar.",
+        },
+        {
+          heading: "Son tıklama ve çoklu temas",
+          body: "Bir kullanıcı A platformunda bir reklam görüp B platformunda arama yaptıktan sonra dönüşüm gerçekleştirirse, iki platform da kendi son-temas modeline göre tüm krediyi kendine yazabilir. Her platformun kendi panosundaki ROAS'ları toplarsan, iddia edilen toplam gelir gerçekte kazandığının yüzde 100'ünü aşabilir. Bu hile değil; her platformun kendi kurallarına göre kendini kredilendirmesi.",
+        },
+        {
+          heading: "Kanallar arası karşılaştırma için tek bir doğru kaynak seç",
+          body: "Bir platform içinde optimizasyon yaparken o platformun kendi ROAS'ını kullan; bu amaç için içsel olarak tutarlıdır. Ama kanalları birbiriyle karşılaştırırken, her platformun kendi bildirdiği sayıya güvenmek yerine geliri tek bir atıf kaynağından (tercihen tutarlı bir pencereyle kendi analitiğinden) çek. Aksi halde kanalları değil, atıf modellerini karşılaştırıyorsundur.",
+        },
+      ],
+      related: [
+        { href: "/tr/calculators/roas", label: "ROAS Hesaplayıcısı" },
+        { href: "/tr/calculators/cac", label: "Müşteri Kazanım Maliyeti (CAC) Hesaplayıcısı" },
+        { href: "/tr/calculators/cpc", label: "CPC Hesaplayıcısı" },
+      ],
+      topic: "Reklamcılık",
+    },
   },
   {
     slug: "what-belongs-in-a-lifecycle-journey-vs-a-campaign",
@@ -144,6 +236,37 @@ export const BLOG_POSTS: BlogPost[] = [
       { href: "/calculators/funnel-analysis-multistep", label: "Multi-Step Funnel Analysis Calculator" },
       { href: "/calculators/cr", label: "Conversion Rate Calculator" },
     ],
+    tr: {
+      title: "Bir yaşam döngüsü journey'sine mi, tek seferlik bir kampanyaya mı ait",
+      excerpt:
+        "Her tekrarlanan mesajın arkasında bir journey olması gerekmez, her journey de bir kampanya gibi kurulmamalı. Aradaki fark, birinin ne zaman gireceğini belirleyen şey.",
+      pullQuote:
+        "Journey'in sadece bir kez, belirli bir tarihte, sabit bir liste için çalışıyorsa, journey adını taşıyan bir kampanyadır.",
+      sections: [
+        {
+          heading: "Giriş koşulu tüm farkı yaratır",
+          body: "Bir kampanya sabit bir kitleye sabit bir zamanda girer: bu tarihte, bir segmente uyan herkes. Bir journey ise insanları bir koşulu karşıladıkları anda, sürekli olarak içine alır: ne zaman olursa olsun, sepetini terk eden herkes. Journey'in sadece bir kez, belirli bir tarihte, sabit bir liste için çalışıyorsa, journey adını taşıyan bir kampanyadır.",
+        },
+        {
+          heading: "Journey'ler tekrarlanan koşullar için, kampanyalar anlar için",
+          body: "İstek listesindeki bir üründe fiyat düşüşü belirsiz aralıklarla, sonsuza kadar tekrarlanır: bu bir journey'dir. Black Friday indirimi yılda bir kez, bilinen bir tarihte olur: aynı araçtan gönderilse bile bu bir kampanyadır. \"Tarih 28 Kasım'a eşit\" giriş koşuluyla bir Black Friday journey'i kurmak, planlanmış bir gönderimin ihtiyaç duymadığı bir orkestrasyon yükü ekler.",
+        },
+        {
+          heading: "Tuzak: kimseyi hiç çıkarmayan journey'ler",
+          body: "Bir journey'in giriş koşulu kadar bir çıkış koşuluna da ihtiyacı var. Sepet terk kurtarma, biri satın alma yaptığı anda durmalı. Durmuyorsa, insanlara zaten verdikleri bir karar hakkında mesaj göndermeye devam eden bir journey kurmuşsundur demektir. Çıkış koşulu genelde, kampanya versiyonunun bir sonraki gönderimini anlamsız kılacak olan olayın kendisidir.",
+        },
+        {
+          heading: "Kurmadan önce hızlı bir test",
+          body: "Şunu sor: bu, bir koşulu sürekli mi kontrol etmeli, yoksa belirli bir günde bir listeye mi ulaşmalı? Cevap \"sürekli\" ise bu bir journey'dir: önce giriş ve çıkış koşullarını, sonra içeriği kur. Cevap \"belirli bir gün\" ise orkestrasyon karmaşasından kaçın ve bunu bir kampanya olarak gönder.",
+        },
+      ],
+      related: [
+        { href: "/tr/lab/journeys", label: "Journey Kütüphanesi" },
+        { href: "/tr/calculators/funnel-analysis-multistep", label: "Çok Adımlı Huni Analizi Hesaplayıcısı" },
+        { href: "/tr/calculators/cr", label: "Dönüşüm Oranı Hesaplayıcısı" },
+      ],
+      topic: "Yaşam Döngüsü Pazarlaması",
+    },
   },
   {
     slug: "the-guardrail-metric-most-ab-tests-forget",
@@ -179,5 +302,36 @@ export const BLOG_POSTS: BlogPost[] = [
       { href: "/calculators/ab-test", label: "A/B Test Significance Calculator" },
       { href: "/calculators/sample-size-calculator", label: "Sample Size Calculator" },
     ],
+    tr: {
+      title: "Çoğu A/B testinin unuttuğu guardrail metriği",
+      excerpt:
+        "Bir test birincil metriğinde kazanabilir ve yine de işletme için net bir kayıp olabilir. Guardrail'ler tam olarak bunu yakalamak için var ve aceleye getirilmiş bir test kurulumunun ilk atladığı şey onlar.",
+      pullQuote:
+        "Birincil metrik kazananı belirler; guardrail ise bu kazancın sayılıp sayılmayacağına karar verir.",
+      sections: [
+        {
+          heading: "İzlediğin metriği kazanmak, kazanmakla aynı şey değil",
+          body: "Kupon kodu alanını kaldırarak dönüşüm oranını artıran bir ödeme sayfası yenilemesi, iade oranı yükselene kadar net bir kazanç gibi görünebilir; çünkü geçerli bir kod kullanacak müşteriler artık fazla ödediklerini hissediyordur. Birincil metrik doğru yönde hareket etti ama işletme mutlaka kârlı çıkmadı.",
+        },
+        {
+          heading: "Guardrail, kötüleşmemesi gereken bir metriktir",
+          body: "İkinci bir hedef değil, bir kısıtlama. Birincil metrik kazananı belirler; guardrail ise bu kazancın sayılıp sayılmayacağına karar verir. Yaygın guardrail'ler: marj (indirim ağırlıklı bir varyant dönüşümü kazanıp kârı kaybedebilir), iade/destek talebi oranı, sayfa hızı ve erişilebilirlik ya da yasal onayla ilgili her şey.",
+        },
+        {
+          heading: "Guardrail'i sonuçları görmeden önce seç, sonra değil",
+          body: "Bir guardrail metriğini sadece birincil metrik kazandıktan sonra ararsan, onu görmezden gelmek için bir sebep bulursun; doğrulama yanlılığı tam olarak bu kadar etkili çalışır. Guardrail'lerin, tek bir sonuç gelmeden önce, \"önemli ölçüde kötüleşme\" sayılacak eşik üzerinde önceden anlaşılmış olarak test planında baştan belirlenmesi gerekir.",
+        },
+        {
+          heading: "\"Erken bakma\" kuralının tek istisnası",
+          body: "Standart kural, örneklem büyüklüğüne veya süreye baştan karar verip tekrar tekrar kontrol etmenin yanlış pozitifleri şişirmesini önlemek için bir kez bakmaktır. Tek istisna: test ortasında bir guardrail metriğinin görünür şekilde bozulması, erken durmak için bir sebeptir. Birincil metrik iyi göründüğü için durmuyorsun. Kısıtlama başarısız olduğu için duruyorsun ve bu, arkasında farklı istatistikler olan farklı bir karar.",
+        },
+      ],
+      related: [
+        { href: "/tr/lab/ab-testing", label: "A/B Test Playbook" },
+        { href: "/tr/calculators/ab-test", label: "A/B Test Anlamlılık Hesaplayıcısı" },
+        { href: "/tr/calculators/sample-size-calculator", label: "Örneklem Büyüklüğü Hesaplayıcısı" },
+      ],
+      topic: "A/B Test",
+    },
   },
 ];

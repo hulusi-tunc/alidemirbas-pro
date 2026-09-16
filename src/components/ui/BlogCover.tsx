@@ -1,4 +1,5 @@
 import { Calendar, Repeat, TrendingDown, TrendingUp } from "lucide-react";
+import type { Lang } from "@/lib/content";
 
 /* Reusable editorial cover system, replacing the old pastel gradient
    placeholder rectangles (which read as missing images, not a design
@@ -190,7 +191,8 @@ function RatioBar() {
 export type CoverSpec = {
   lines: string[];
   rule?: boolean;
-  tag: string;
+  /** The small accent label - a real topic string, both languages. */
+  tag: { en: string; tr: string };
   accent: CoverAccent;
   diagram: "updown" | "condition" | "platforms" | "curve" | "ratio";
 };
@@ -210,7 +212,7 @@ function Diagram({ kind, spec }: { kind: CoverSpec["diagram"]; spec: CoverSpec }
   }
 }
 
-export function BlogCover({ spec, size = "grid" }: { spec: CoverSpec; size?: "grid" | "featured" | "compact" }) {
+export function BlogCover({ spec, size = "grid", lang = "en" }: { spec: CoverSpec; size?: "grid" | "featured" | "compact"; lang?: Lang }) {
   const a = ACCENT[spec.accent];
   const featured = size === "featured";
 
@@ -243,7 +245,7 @@ export function BlogCover({ spec, size = "grid" }: { spec: CoverSpec; size?: "gr
       <p
         className={`font-mono text-[10px] tracking-[0.14em] uppercase ${a.text}`}
       >
-        {spec.tag}
+        {spec.tag[lang]}
       </p>
       <div className={featured ? "my-2" : "my-1"}>
         {spec.lines.map((line, i) => (
@@ -275,32 +277,32 @@ export function BlogCover({ spec, size = "grid" }: { spec: CoverSpec; size?: "gr
 export const COVERS: Record<string, CoverSpec> = {
   "the-guardrail-metric-most-ab-tests-forget": {
     lines: ["GUARDRAIL"],
-    tag: "A/B Testing",
+    tag: { en: "A/B Testing", tr: "A/B Test" },
     accent: "experimentation",
     diagram: "updown",
   },
   "what-belongs-in-a-lifecycle-journey-vs-a-campaign": {
     lines: ["JOURNEY", "≠ CAMPAIGN"],
-    tag: "Lifecycle Marketing",
+    tag: { en: "Lifecycle Marketing", tr: "Yaşam Döngüsü Pazarlaması" },
     accent: "lifecycle",
     diagram: "condition",
   },
   "why-your-roas-looks-different-on-every-ad-platform": {
     lines: ["ROAS", "≠ ROAS"],
-    tag: "Advertising",
+    tag: { en: "Advertising", tr: "Reklamcılık" },
     accent: "growth",
     diagram: "platforms",
   },
   "reading-d1-d7-d30-retention-without-fooling-yourself": {
     lines: ["D1 · D7", "D30"],
-    tag: "Retention",
+    tag: { en: "Retention", tr: "Elde Tutma" },
     accent: "growth",
     diagram: "curve",
   },
   "ltv-cac-ratio-doesnt-tell-you-when-to-scale": {
     lines: ["LTV", "CAC"],
     rule: true,
-    tag: "Unit Economics",
+    tag: { en: "Unit Economics", tr: "Birim Ekonomisi" },
     accent: "growth",
     diagram: "ratio",
   },
