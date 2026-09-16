@@ -279,6 +279,7 @@ export default function JourneyCanvas({
                 onOpen={onOpen}
                 messageLabels={messageLabels}
                 humanLabels={humanLabels}
+                lang={labels.lang}
               />
             ) : n.kind === "condition" ? (
               <ConditionCard node={n} onOpen={onOpen} lang={labels.lang} />
