@@ -124,10 +124,18 @@ const SIZE: Record<CanvasNodeKind, { width: number; height: number }> = {
    2026-09-14 (312 → 288, 104 → 64; the cards themselves narrowed with the
    redrawn kit in JourneyCanvasNodes.tsx) - Hulusi: "lines are so far from
    each other" - so a journey reads as one drawing, not islands. */
-const COL_UNIT = 288;
-const ROW_GAP = 64;
-const PAD_X = 70;
-const PAD_Y = 48;
+/* TIGHTENED 2026-09-16 (site-owner review: "node'lar birbirinden çok uzak,
+   oklar gereksiz uzun, boşlukları azalt"). Same relative relationships as
+   before (COL_UNIT still clears the widest 264px card, ROW_GAP still a
+   real visual gap not a collision), just smaller numbers - a second turn
+   of the same 312->288/104->64 pass already noted below. Re-verified
+   against the same stress-test journeys the original comments name
+   (SCH-178, REL-97, OWN-54, DOC-216, INC-255, TIM-61, RLT-250) plus
+   ACQ-01, for label/card collisions before shipping. */
+const COL_UNIT = 256;
+const ROW_GAP = 44;
+const PAD_X = 56;
+const PAD_Y = 40;
 /** How far below its source an edge's label sits - a fixed offset rather
     than the edge's true geometric midpoint, so a long edge (the merge into
     `a.reconcile` skips a whole row) still labels itself right at the fork
@@ -191,7 +199,7 @@ function estimatedLabelWidth(label: string | null): number {
     gap from each pair's own estimated width is the general fix - it scales
     with what is actually on screen instead of the single longest label
     the constant was tuned against. */
-const LABEL_GAP_MARGIN = 22;
+const LABEL_GAP_MARGIN = 16;
 
 function edgeKindFor(node: FlowNode, edge: FlowEdge): CanvasEdgeKind {
   if (node.kind === "wait") return edge.label === "on timeout" ? "wait-timeout" : "wait-event";
@@ -420,7 +428,7 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
     if (!nodesByRow.has(l.row)) nodesByRow.set(l.row, []);
     nodesByRow.get(l.row)!.push(l);
   }
-  const DETOUR_MARGIN = 56;
+  const DETOUR_MARGIN = 32;
   let maxDetourX = 0;
 
   const edges: LaidOutEdge[] = [];
