@@ -461,15 +461,18 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
       /* An edge whose target sits two or more rows away from its source -
          a merge or wide fork that skips a row, or a genuine back-edge
          (SCH-178's `a.resume->w.service`, TIM-61's two converging
-         back-edges) - cannot be drawn as a single straight vertical run:
-         that run passes directly through whatever rows sit between the two,
-         cutting through any node unlucky enough to share that x-coordinate
-         (confirmed on 6 of the 14 fixture journeys once the QA gate started
-         checking for it). This is not a case-by-case fix - detouring the
-         long vertical run out to a lane clear of every row it would
-         otherwise cross is what any such edge needs, forward or backward,
-         merge or cycle alike. The lane sits to the right of the widest
-         node across every row the edge's own vertical span touches
+         back-edges) - CAN still be drawn as a single straight vertical run
+         at the target's own column, same as any other edge, as long as
+         that run does not actually pass through a node in one of the rows
+         it skips. Only when it would (confirmed on 6 of the 14 fixture
+         journeys once the QA gate started checking for it) does the edge
+         need detouring out to a lane clear of every row it crosses - this
+         is what makes ACQ-01's own "Deterministic identity" edge, whose
+         target column sits clear to the LEFT of everything in between,
+         collapse back to a plain elbow instead of touring out to the
+         right of the widest node in the rows it never actually touches.
+         The lane, when one is needed, still sits to the right of the
+         widest node across every row the edge's own vertical span touches
          (inclusive of its own source/target rows, for safety), so nothing
          in between is ever crossed. */
       const rowFrom = row.get(n.id)!;
@@ -478,14 +481,31 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
       if (Math.abs(rowTo - rowFrom) >= 2) {
         const lo = Math.min(rowFrom, rowTo);
         const hi = Math.max(rowFrom, rowTo);
-        let corridorRight = Math.max(x1, x2);
-        for (let r = lo; r <= hi; r++) {
+        // The plain elbow's long vertical run sits at x2 (the target's own
+        // column) between the source and target rows - check only the ROWS
+        // STRICTLY BETWEEN the two (lo/hi themselves are cleared by
+        // construction: the jog starts below the source row's tallest node,
+        // and the run stops exactly at the target's own top edge).
+        const CLEARANCE = 24;
+        let collides = false;
+        for (let r = lo + 1; r < hi && !collides; r++) {
           for (const l of nodesByRow.get(r) ?? []) {
-            corridorRight = Math.max(corridorRight, l.x + l.width / 2);
+            if (Math.abs(l.x - x2) < l.width / 2 + CLEARANCE) {
+              collides = true;
+              break;
+            }
           }
         }
-        detourX = corridorRight + DETOUR_MARGIN;
-        maxDetourX = Math.max(maxDetourX, detourX);
+        if (collides) {
+          let corridorRight = Math.max(x1, x2);
+          for (let r = lo; r <= hi; r++) {
+            for (const l of nodesByRow.get(r) ?? []) {
+              corridorRight = Math.max(corridorRight, l.x + l.width / 2);
+            }
+          }
+          detourX = corridorRight + DETOUR_MARGIN;
+          maxDetourX = Math.max(maxDetourX, detourX);
+        }
       }
       // The jog clears the source's own row - direction decides which SIDE
       // of that row is clear. A forward edge's target is always at least a
