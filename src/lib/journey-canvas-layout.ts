@@ -267,6 +267,23 @@ const ROOT_OPTIONS: Record<string, string> = {
   "elk.layered.nodePlacement.strategy": "NETWORK_SIMPLEX",
   "elk.layered.crossingMinimization.strategy": "LAYER_SWEEP",
   "elk.layered.thoroughness": "10",
+  /* LAYER ASSIGNMENT (which row a node lands in) is NETWORK_SIMPLEX too
+     (ELK's own default, left unset here) - it minimises total edge length
+     across the WHOLE graph, which is what keeps almost every single-parent
+     node at exactly parent-row+1. On a journey with two independent
+     branches of unequal depth running in parallel (e.g. a wait's "on
+     event"/"on timeout" splitting into a 4-hop chain and a 2-hop chain) it
+     can land the short chain's terminal nodes a row or two later than
+     ASAP-from-parent would, when that reduces the graph's total edge
+     length - pure vertical padding, no overlap, no crossing, no horizontal
+     growth (measured: see the session that tuned this - about 7% of
+     corpus edges, only ever 2-3 rows). Both alternatives tried and
+     rejected: LONGEST_PATH (as-LATE-as-possible layering) drags every leaf
+     with no further children toward the graph's LAST layer regardless of
+     its own parent's depth, turning this into double-digit-row gaps
+     corpus-wide; node promotion (NIKOLOV and NO_BOUNDARY strategies, both
+     tried) measured byte-identical to the default, so it is not carried
+     here as dead configuration. */
   /* The canonical order of nodes and of a condition's branches is a
      statement, not an accident: ties in crossing minimisation resolve to
      it rather than to whatever the sweep happened to try first. */
