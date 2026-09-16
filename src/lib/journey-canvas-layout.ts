@@ -335,8 +335,6 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
     if (children.length <= 1) continue;
     const dilution = children.map((c) => Math.max(1, incoming.get(c.edge.to)?.length ?? 1));
     const widths = children.map((c) => estimatedLabelWidth(c.edge.label));
-    const parentRow = row.get(parentId) ?? 0;
-    const isClose = children.map((c) => (row.get(c.edge.to) ?? 0) - parentRow === 1);
     const raw = [0];
     for (let i = 1; i < widths.length; i++) {
       // A label sits at the edge's midpoint (source column to child column),
@@ -345,26 +343,14 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
       // pixel gap the labels actually need, or two adjacent branch pills
       // end up touching even though the columns "look" separated enough.
       const gapPx = widths[i - 1] / 2 + widths[i] / 2 + LABEL_GAP_MARGIN;
-      // Dilution compensation is for a branch that stays visually adjacent
-      // to its sibling permanently (a CLOSE, row-skip-1 pair, sitting right
-      // under the parent) - a pair where NEITHER side is close is already
-      // routed via the detour lane regardless of its column (see the
-      // edge-building loop below), and any label collision that survives
-      // once its real, merge-averaged column is known gets caught
-      // separately by the sibling-label pass further down, on the REAL
-      // rendered positions. Skipping dilution for a far+far pair keeps
-      // that pair's fork-point spread to plain label width, which is what
-      // stops a condition with several far, heavily-shared branches
-      // (ACQ-11's `c.state`: 4 of 5 land on exits shared by three OTHER
-      // conditions) from ballooning canvas width pre-clearing labels a
-      // later pass re-clears anyway. A pair with at least one close side
-      // keeps the full compensation - ACQ-01's own close+far pair is
-      // exactly that mix, and stays tuned as before.
-      const bothFar = !isClose[i - 1] && !isClose[i];
-      const compensated = bothFar ? gapPx : gapPx * Math.max(dilution[i - 1], dilution[i]);
+      const compensated = gapPx * Math.max(dilution[i - 1], dilution[i]);
       raw.push(raw[i - 1] + (compensated * 2) / COL_UNIT);
     }
-    const closeIdx = children.map((_, i) => i).filter((i) => isClose[i]);
+    const parentRow = row.get(parentId) ?? 0;
+    const closeIdx = children
+      .map((c, i) => ({ i, rowSkip: (row.get(c.edge.to) ?? 0) - parentRow }))
+      .filter((c) => c.rowSkip === 1)
+      .map((c) => c.i);
     const center =
       closeIdx.length > 0
         ? closeIdx.reduce((a, i) => a + raw[i], 0) / closeIdx.length
@@ -567,6 +553,22 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
       // detoured one alike.
       const rowTopOfSource = rowTop.get(rowFrom)!;
       const jogY = rowTo <= rowFrom ? rowTopOfSource - EDGE_LABEL_OFFSET : rowBottom + EDGE_LABEL_OFFSET;
+      // A fork's CLOSE sibling (its target one row down - the plain
+      // continuation, never detoured) shares its far siblings' jogY by
+      // default, same as every other child of the same source. Their
+      // horizontal runs cross straight through wherever the close sibling's
+      // own line or label sits (ACQ-11's `c.state`: "Still resumable" is
+      // the sole close branch among four far ones landing on distant,
+      // heavily-shared exits; `c.state3`'s own close branch is pulled off
+      // its own column by an UNRELATED merge two rows down, so it is not
+      // even a straight line, but the same crossing happens regardless).
+      // Bending a close sibling's own elbow higher - clear of the source
+      // card, above where its far siblings jog - moves both its line and
+      // its label out of that shared band entirely. Only a close sibling
+      // moves: a far/detoured edge's own jogY, which the detour lane's own
+      // corridor math depends on, is untouched. */
+      const rowSkip = rowTo - rowFrom;
+      const closeJogY = branchCount > 1 && rowSkip === 1 && detourX === undefined ? rowBottom + EDGE_LABEL_OFFSET * 0.5 : jogY;
 
       edges.push({
         // Branch index breaks the tie when two branches from the same
@@ -589,7 +591,7 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
         x2,
         y2,
         labelX: detourX !== undefined ? (x1 + detourX) / 2 : x1 === x2 ? x1 : (x1 + x2) / 2,
-        labelY: jogY,
+        labelY: closeJogY,
         detourX,
       });
     }
@@ -636,21 +638,53 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
     if (!byLabelRow.has(key)) byLabelRow.set(key, []);
     byLabelRow.get(key)!.push(e);
   }
+  // A slot in the spacing walk below - a real, movable label, or a
+  // zero-width FIXED phantom marking where a fork's own bundled vertical
+  // run passes (see the walk's own comment). Only a real slot has `edge`
+  // set and gets its position written back; a fixed slot's `pos` never
+  // moves, which is what lets a real label be pushed clear of it from
+  // EITHER side.
+  type LabelSlot = { width: number; edge: LaidOutEdge | null; pos: number; fixed: boolean };
   for (const siblings of byLabelRow.values()) {
-    if (siblings.length <= 1) continue;
-    const ordered = [...siblings].sort((a, b) => a.labelX - b.labelX);
-    let last: number | null = null;
-    let lastOriginal = 0;
-    let prevWidth = 0;
-    for (const e of ordered) {
-      const width = estimatedLabelWidth(e.label);
-      const minGap = prevWidth / 2 + width / 2 + LABEL_GAP_MARGIN;
-      const v: number = last === null ? e.labelX : last + Math.max(minGap, e.labelX - lastOriginal);
-      lastOriginal = e.labelX;
-      prevWidth = width;
-      e.labelX = v;
-      last = v;
+    // A fork's children all start their jog at the same x (the source's
+    // own column) before elbowing off to their own target - one bundled
+    // run splitting only at the jog. A label whose plain (x1+x2)/2
+    // midpoint happens to land close to that shared x (ACQ-11's
+    // `c.state2`: "Resumed, still open" targets a column only slightly
+    // left of the parent's own, so its label sits almost on top of the
+    // OTHER five children's bundled run past that same point) reads as
+    // sitting on the connector rather than beside it. A fixed phantom slot
+    // at each distinct hub, in the SAME sort-and-space walk as the real
+    // labels, keeps every real label clear of it too.
+    const hubXs = [...new Set(siblings.filter((e) => e.isFork).map((e) => e.x1))];
+    if (siblings.length <= 1 && hubXs.length === 0) continue;
+    const slots: LabelSlot[] = siblings.map((e) => ({ width: estimatedLabelWidth(e.label), edge: e, pos: e.labelX, fixed: false }));
+    for (const hx of hubXs) slots.push({ width: 0, edge: null, pos: hx, fixed: true });
+    slots.sort((a, b) => a.pos - b.pos);
+    const gap = (i: number, j: number) => slots[i].width / 2 + slots[j].width / 2 + LABEL_GAP_MARGIN;
+    // A single one-directional walk (as this used to be) only guarantees
+    // each slot clears the neighbor BEHIND it - fine when every slot can
+    // move, but a fixed hub can sit anywhere in the middle of the sorted
+    // order, and the real label just ahead of it never gets pushed off of
+    // it since nothing downstream asks it to move back. Alternating
+    // forward and backward passes a few times - each pass only ever
+    // widening a gap, never closing one already won - converges on a
+    // layout clear of every neighbor on both sides; four passes is ample
+    // for a row this small (every fixture journey's widest fork is under
+    // ten branches). */
+    for (let pass = 0; pass < 4; pass++) {
+      for (let i = 1; i < slots.length; i++) {
+        if (slots[i].fixed) continue;
+        const need = slots[i - 1].pos + gap(i - 1, i);
+        if (slots[i].pos < need) slots[i].pos = need;
+      }
+      for (let i = slots.length - 2; i >= 0; i--) {
+        if (slots[i].fixed) continue;
+        const need = slots[i + 1].pos - gap(i, i + 1);
+        if (slots[i].pos > need) slots[i].pos = need;
+      }
     }
+    for (const s of slots) if (s.edge) s.edge.labelX = s.pos;
   }
 
   return { nodes: laidOut, edges, width: totalWidth, height: totalHeight };
