@@ -335,6 +335,8 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
     if (children.length <= 1) continue;
     const dilution = children.map((c) => Math.max(1, incoming.get(c.edge.to)?.length ?? 1));
     const widths = children.map((c) => estimatedLabelWidth(c.edge.label));
+    const parentRow = row.get(parentId) ?? 0;
+    const isClose = children.map((c) => (row.get(c.edge.to) ?? 0) - parentRow === 1);
     const raw = [0];
     for (let i = 1; i < widths.length; i++) {
       // A label sits at the edge's midpoint (source column to child column),
@@ -343,14 +345,26 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
       // pixel gap the labels actually need, or two adjacent branch pills
       // end up touching even though the columns "look" separated enough.
       const gapPx = widths[i - 1] / 2 + widths[i] / 2 + LABEL_GAP_MARGIN;
-      const compensated = gapPx * Math.max(dilution[i - 1], dilution[i]);
+      // Dilution compensation is for a branch that stays visually adjacent
+      // to its sibling permanently (a CLOSE, row-skip-1 pair, sitting right
+      // under the parent) - a pair where NEITHER side is close is already
+      // routed via the detour lane regardless of its column (see the
+      // edge-building loop below), and any label collision that survives
+      // once its real, merge-averaged column is known gets caught
+      // separately by the sibling-label pass further down, on the REAL
+      // rendered positions. Skipping dilution for a far+far pair keeps
+      // that pair's fork-point spread to plain label width, which is what
+      // stops a condition with several far, heavily-shared branches
+      // (ACQ-11's `c.state`: 4 of 5 land on exits shared by three OTHER
+      // conditions) from ballooning canvas width pre-clearing labels a
+      // later pass re-clears anyway. A pair with at least one close side
+      // keeps the full compensation - ACQ-01's own close+far pair is
+      // exactly that mix, and stays tuned as before.
+      const bothFar = !isClose[i - 1] && !isClose[i];
+      const compensated = bothFar ? gapPx : gapPx * Math.max(dilution[i - 1], dilution[i]);
       raw.push(raw[i - 1] + (compensated * 2) / COL_UNIT);
     }
-    const parentRow = row.get(parentId) ?? 0;
-    const closeIdx = children
-      .map((c, i) => ({ i, rowSkip: (row.get(c.edge.to) ?? 0) - parentRow }))
-      .filter((c) => c.rowSkip === 1)
-      .map((c) => c.i);
+    const closeIdx = children.map((_, i) => i).filter((i) => isClose[i]);
     const center =
       closeIdx.length > 0
         ? closeIdx.reduce((a, i) => a + raw[i], 0) / closeIdx.length
