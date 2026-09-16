@@ -229,44 +229,6 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
     }
   }
 
-  /* Per-parent branch offsets, in column units, derived from each branch's
-     own label width rather than a flat spacing constant (see
-     estimatedLabelWidth's comment). Computed once here, keyed by
-     "parentId:branchIndex", so the column pass below stays a lookup.
-
-     DILUTION: a branch that lands on a merge target (ACQ-01's own
-     `a.reconcile`, reached both directly from `c.identity` and via
-     `w.identity`'s own branch) does not get its full offset - the column
-     pass below AVERAGES every parent's contribution, so a merge target
-     only keeps roughly 1/(incoming count) of whatever offset is requested
-     here. Requesting the plain undiluted gap for a branch that will be
-     averaged away produces exactly the collision this was built to
-     prevent (measured directly: ACQ-01's two top branch labels landed
-     ~30% short of clearing each other once `a.reconcile`'s second parent
-     was accounted for). `incoming` already exists at this point, so each
-     branch's own dilution is knowable up front rather than guessed - the
-     gap this branch needs is scaled up by how many parents will end up
-     splitting its pull. */
-  const branchOffset = new Map<string, number>();
-  for (const [parentId, children] of outgoing) {
-    if (children.length <= 1) continue;
-    const dilution = children.map((c) => Math.max(1, incoming.get(c.edge.to)?.length ?? 1));
-    const widths = children.map((c) => estimatedLabelWidth(c.edge.label));
-    const raw = [0];
-    for (let i = 1; i < widths.length; i++) {
-      // A label sits at the edge's midpoint (source column to child column),
-      // so the on-screen gap between two sibling labels is only HALF of the
-      // gap between their node offsets - the offsets have to be twice the
-      // pixel gap the labels actually need, or two adjacent branch pills
-      // end up touching even though the columns "look" separated enough.
-      const gapPx = widths[i - 1] / 2 + widths[i] / 2 + LABEL_GAP_MARGIN;
-      const compensated = gapPx * Math.max(dilution[i - 1], dilution[i]);
-      raw.push(raw[i - 1] + (compensated * 2) / COL_UNIT);
-    }
-    const mean = raw.reduce((a, b) => a + b, 0) / raw.length;
-    children.forEach((_, i) => branchOffset.set(`${parentId}:${i}`, raw[i] - mean));
-  }
-
   /* ---- rows: longest path from entry, via DFS with back-edge detection --
      Kahn's algorithm (the first pass's approach) never terminates cleanly
      on a real cycle: a node inside the loop never reaches indegree 0, so
@@ -329,6 +291,71 @@ export function layoutJourneyCanvas(nodes: readonly FlowNode[]): CanvasLayout {
       to,
       list.filter((rec) => `${rec.from}->${rec.edge.to}` !== key),
     );
+  }
+
+  /* Per-parent branch offsets, in column units, derived from each branch's
+     own label width rather than a flat spacing constant (see
+     estimatedLabelWidth's comment). Computed here (rows already known),
+     keyed by "parentId:branchIndex", so the column pass below stays a
+     lookup.
+
+     DILUTION: a branch that lands on a merge target (ACQ-01's own
+     `a.reconcile`, reached both directly from `c.identity` and via
+     `w.identity`'s own branch) does not get its full offset - the column
+     pass below AVERAGES every parent's contribution, so a merge target
+     only keeps roughly 1/(incoming count) of whatever offset is requested
+     here. Requesting the plain undiluted gap for a branch that will be
+     averaged away produces exactly the collision this was built to
+     prevent (measured directly: ACQ-01's two top branch labels landed
+     ~30% short of clearing each other once `a.reconcile`'s second parent
+     was accounted for). `incoming` already exists at this point, so each
+     branch's own dilution is knowable up front rather than guessed - the
+     gap this branch needs is scaled up by how many parents will end up
+     splitting its pull.
+
+     CENTERING ON THE CONTINUING BRANCH(ES), not the plain mean of every
+     sibling (2026-09-16, ACQ-11 review): a branch whose target sits 2+
+     rows below (case in point, `c.state`'s "Completed"/"Superseded"/
+     "Payment failed" branches, each landing on a heavily-diluted exit or
+     handoff many rows down) is ALREADY going to be routed through the
+     detour lane elsewhere regardless of where its column lands - so
+     letting it into the mean that centers the whole fan does nothing but
+     drag a same-row CONTINUING sibling (`c.state`'s "Still resumable", a
+     plain one-row step to `c.sendable`) sideways for no visual benefit.
+     Measured on ACQ-11: averaging across all 5 branches pulled "Still
+     resumable" ~9 columns off `c.state`'s own column; centering on just
+     the one-row-away sibling(s) removes that drag entirely, and every
+     branch still keeps its own computed spacing for label clearance -
+     only what they are centered AROUND changes. Falls back to the plain
+     mean when no branch is one row away (every branch is itself a
+     multi-row skip), so a condition with no ordinary continuation is
+     unaffected. */
+  const branchOffset = new Map<string, number>();
+  for (const [parentId, children] of outgoing) {
+    if (children.length <= 1) continue;
+    const dilution = children.map((c) => Math.max(1, incoming.get(c.edge.to)?.length ?? 1));
+    const widths = children.map((c) => estimatedLabelWidth(c.edge.label));
+    const raw = [0];
+    for (let i = 1; i < widths.length; i++) {
+      // A label sits at the edge's midpoint (source column to child column),
+      // so the on-screen gap between two sibling labels is only HALF of the
+      // gap between their node offsets - the offsets have to be twice the
+      // pixel gap the labels actually need, or two adjacent branch pills
+      // end up touching even though the columns "look" separated enough.
+      const gapPx = widths[i - 1] / 2 + widths[i] / 2 + LABEL_GAP_MARGIN;
+      const compensated = gapPx * Math.max(dilution[i - 1], dilution[i]);
+      raw.push(raw[i - 1] + (compensated * 2) / COL_UNIT);
+    }
+    const parentRow = row.get(parentId) ?? 0;
+    const closeIdx = children
+      .map((c, i) => ({ i, rowSkip: (row.get(c.edge.to) ?? 0) - parentRow }))
+      .filter((c) => c.rowSkip === 1)
+      .map((c) => c.i);
+    const center =
+      closeIdx.length > 0
+        ? closeIdx.reduce((a, i) => a + raw[i], 0) / closeIdx.length
+        : raw.reduce((a, b) => a + b, 0) / raw.length;
+    children.forEach((_, i) => branchOffset.set(`${parentId}:${i}`, raw[i] - center));
   }
 
   /* ---- columns: fan out from parents, centered on branch order -------- */
