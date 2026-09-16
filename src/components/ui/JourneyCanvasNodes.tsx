@@ -3,7 +3,7 @@ import { ArrowRightLeft, Clock, Cog, Flag, LogOut, Mail, Split, UserRound, Zap }
 
 import type { FlowNode } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
-import type { ChannelId } from "@/canonical/types";
+import type { ChannelId, SignalSource } from "@/canonical/types";
 import { CHANNEL_HUE } from "@/lib/journey-channels";
 
 /* THE CANVAS NODE KIT, on the site's own system (Hulusi, 2026-09-14: "each
@@ -40,6 +40,14 @@ const KIND = {
 } as const;
 
 type Kind = (typeof KIND)[keyof typeof KIND];
+
+/** The trigger's evidence-source pill (SignalSource is a closed 4-value
+    enum, not canonical free prose) - a small bilingual lookup, same shape
+    as CARD_TEXT below, not per-journey content. */
+const SIGNAL_SOURCE_LABEL: Record<Lang, Record<SignalSource, string>> = {
+  en: { authoritative: "Authoritative", declared: "Declared", behavioral: "Behavioral", inferred: "Inferred" },
+  tr: { authoritative: "Yetkili kaynak", declared: "Beyan edilen", behavioral: "Davranışsal", inferred: "Çıkarımsal" },
+};
 
 const CARD_TEXT = {
   en: {
@@ -165,7 +173,7 @@ export function TriggerCard({ node, onOpen, entryLabel, lang = "en" }: { node: F
         <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium [[data-lod=far]_&]:hidden">{humanize(node.headline)}</p>
         {node.evidenceSource ? (
           <span className="mt-2 flex [[data-lod=far]_&]:hidden">
-            <Pill onDark>{humanize(node.evidenceSource)}</Pill>
+            <Pill onDark>{SIGNAL_SOURCE_LABEL[lang][node.evidenceSource]}</Pill>
           </span>
         ) : null}
       </Shell>

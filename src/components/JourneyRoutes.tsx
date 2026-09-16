@@ -9,6 +9,7 @@ import { JourneyDetailShell } from "@/components/JourneyDetailShell";
 import JourneyInfo, { journeyTitle } from "@/components/JourneyInfo";
 import JourneyModal from "@/components/JourneyModal";
 import { resolveDetailSlug, type JourneyDetail } from "@/lib/canonical-view";
+import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
 import { copy, EMAIL, type Lang } from "@/lib/content";
 import { pageAlternates, SITE_URL } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
@@ -112,7 +113,8 @@ export function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string }) {
   const resolved = resolveDetailSlug(slug);
   if (!resolved) notFound();
 
-  const { detail, merged, preset } = resolved;
+  const { detail: rawDetail, merged, preset } = resolved;
+  const detail = localizedJourneyDetail(rawDetail, lang);
   const t = copy[lang].lab.page;
   const basePath = basePathFor(lang);
   // Skipped for a merged id: it's noindex with its canonical pointing at
@@ -163,7 +165,8 @@ export function JourneyModalPage({ lang, slug }: { lang: Lang; slug: string }) {
   const resolved = resolveDetailSlug(slug);
   if (!resolved) notFound();
 
-  const { detail, merged } = resolved;
+  const { detail: rawDetail, merged } = resolved;
+  const detail = localizedJourneyDetail(rawDetail, lang);
   const t = copy[lang].lab.page;
   const basePath = basePathFor(lang);
 
