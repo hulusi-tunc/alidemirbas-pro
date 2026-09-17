@@ -445,13 +445,8 @@ export const copy = {
           roles: [
             {
               role: "Experienced Lifecycle Marketing Specialist (Growth)",
-              period: "Jan 2023 – Aug 2023",
-              desc: "Built and ran lifecycle and CRM programs across the group's travel brands.",
-            },
-            {
-              role: "Lifecycle Marketing Specialist (Growth)",
-              period: "Sep 2021 – Jan 2023",
-              desc: "Built and ran lifecycle marketing programs.",
+              period: "Sep 2021 – Aug 2023",
+              desc: "Built and ran lifecycle marketing and CRM programs across the group's travel brands.",
             },
           ],
         },
@@ -1201,13 +1196,8 @@ export const copy = {
           roles: [
             {
               role: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
-              period: "Oca 2023 – Ağu 2023",
-              desc: "Grubun seyahat markalarında yaşam döngüsü ve CRM programlarını kurdum ve yürüttüm.",
-            },
-            {
-              role: "Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
-              period: "Eyl 2021 – Oca 2023",
-              desc: "Yaşam döngüsü pazarlama programlarını kurdum ve yürüttüm.",
+              period: "Eyl 2021 – Ağu 2023",
+              desc: "Grubun seyahat markalarında yaşam döngüsü pazarlaması ve CRM programlarını kurdum ve yürüttüm.",
             },
           ],
         },
