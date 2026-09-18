@@ -11,7 +11,7 @@
       },
       {
         "value": "journey",
-        "documentCount": 161,
+        "documentCount": 162,
         "lowUtility": false
       },
       {
@@ -37,7 +37,7 @@
     "values": [
       {
         "value": "acquisition-and-onboarding",
-        "documentCount": 78,
+        "documentCount": 79,
         "lowUtility": false
       },
       {
@@ -179,7 +179,7 @@
       },
       {
         "value": "acquisition-qualification",
-        "documentCount": 68,
+        "documentCount": 69,
         "lowUtility": false
       },
       {
@@ -220,7 +220,7 @@
       },
       {
         "value": "recovery-retry",
-        "documentCount": 22,
+        "documentCount": 23,
         "lowUtility": false
       },
       {
@@ -2689,22 +2689,22 @@
     "values": [
       {
         "value": "cross-journey-handoff",
-        "documentCount": 125,
+        "documentCount": 126,
         "lowUtility": false
       },
       {
         "value": "wait-timeout",
-        "documentCount": 113,
+        "documentCount": 114,
         "lowUtility": false
       },
       {
         "value": "multi-exit",
-        "documentCount": 100,
+        "documentCount": 101,
         "lowUtility": false
       },
       {
         "value": "backward-edge",
-        "documentCount": 90,
+        "documentCount": 91,
         "lowUtility": false
       },
       {

@@ -574,6 +574,28 @@
     "productionReady": true
   },
   {
+    "id": "ACQ-288",
+    "slug": "cart-abandonment",
+    "category": "acquisition",
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "complexityTier": "extreme",
+    "complexityScore": 96,
+    "nodeCount": 22,
+    "edgeCount": 30,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
     "id": "ACT-11",
     "slug": "onboarding-route-selection",
     "category": "activation",

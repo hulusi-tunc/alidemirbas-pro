@@ -1,9 +1,9 @@
 {
   "totals": {
     "abPages": 211,
-    "journeyPages": 285,
-    "total": 496,
-    "expected": 496
+    "journeyPages": 286,
+    "total": 497,
+    "expected": 497
   },
   "counts": {
     "errors": 0,
@@ -112,6 +112,10 @@
     },
     {
       "id": "ACQ-287",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "ACQ-288",
       "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
     },
     {
