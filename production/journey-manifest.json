@@ -553,6 +553,27 @@
     "productionReady": true
   },
   {
+    "id": "ACQ-287",
+    "slug": "checkout-abandonment",
+    "category": "acquisition",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "complexityTier": "complex",
+    "complexityScore": 63,
+    "nodeCount": 16,
+    "edgeCount": 21,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
     "id": "ACT-11",
     "slug": "onboarding-route-selection",
     "category": "activation",

@@ -3,7 +3,7 @@
     {
       "risk": "high-branch-count",
       "description": "A condition node's arm count varies 2 to 6+; a layout that assumes 2-3 arms per fork will overflow.",
-      "affectedCount": 83,
+      "affectedCount": 84,
       "threshold": ">=4 branch nodes in one journey",
       "worst": [
         [
@@ -32,7 +32,7 @@
     {
       "risk": "long-forward-chain",
       "description": "Depth from entry to the furthest node along non-backward edges. A layout that assumes a short chain will need vertical scroll or compression.",
-      "affectedCount": 30,
+      "affectedCount": 31,
       "threshold": ">=10 levels deep",
       "worst": [
         [
@@ -44,15 +44,15 @@
           14
         ],
         [
+          "ACQ-287",
+          12
+        ],
+        [
           "RET-31",
           12
         ],
         [
           "OWN-54",
-          11
-        ],
-        [
-          "OWN-58",
           11
         ]
       ],
@@ -61,7 +61,7 @@
     {
       "risk": "backward-edges",
       "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
-      "affectedCount": 152,
+      "affectedCount": 153,
       "threshold": ">=1 backward edge",
       "worst": [
         [
@@ -167,7 +167,7 @@
     {
       "risk": "node-convergence (fan-in)",
       "description": "Multiple distinct nodes pointing at the same target node. A tree-shaped layout algorithm cannot represent convergence without either duplicating the node or drawing a shared-target edge.",
-      "affectedCount": 56,
+      "affectedCount": 57,
       "threshold": ">=3 incoming edges to one node",
       "worst": [
         [
@@ -238,6 +238,7 @@
     "ACQ-11",
     "ACQ-12",
     "ACQ-13",
+    "ACQ-287",
     "ACT-12",
     "ACT-14",
     "ACT-17",
@@ -252,7 +253,6 @@
     "OWN-54",
     "OWN-55",
     "OWN-57",
-    "OWN-58",
     "RET-23",
     "RET-31",
     "TIM-61"

@@ -15512,7 +15512,7 @@
     "external": false,
     "title": "ACQ-11 Process started → abandonment confirmed → recovered, superseded or lapsed",
     "summary": "Return a person to a resumable process they started and did not complete - a checkout, an application, a quote, a registration - while it is still resumable, without ever asserting a state the system does not hold.",
-    "searchText": "Process started → abandonment confirmed → recovered, superseded or lapsed. Return a person to a resumable process they started and did not complete - a checkout, an application, a quote, a registration - while it is still resumable, without ever asserting a state the system does not hold.. Also known as checkout abandonment, abandoned checkout, checkout recovery, begin checkout recovery, abandoned application, abandoned quote, incomplete registration. Presets: Checkout Abandonment (cart recovery (checkout stage), abandoned cart checkout, checkout abandonment, begin checkout recovery); Quote Abandonment (quote abandonment, abandoned quote, quote follow-up, unaccepted proposal); Application Abandonment (application abandonment, incomplete application, abandoned form, application follow-up); Incomplete Registration (incomplete registration, abandoned sign-up, registration follow-up, unfinished account setup). a started checkout with items that has gone quiet. an application, quote or registration left part-way through with state the person can return to. Process started. Acquisition, intent & qualification. Hands off to FIN-134. completed; the process reached its end. closed unfinished - cancelled, expired or emptied; nothing further is sent. superseded by a newer process for the same person. no touch sent; the gate that stopped it is recorded. recovery lifetime passed with the process still open; nothing further is sent",
+    "searchText": "Process started → abandonment confirmed → recovered, superseded or lapsed. Return a person to a resumable process they started and did not complete - a checkout, an application, a quote, a registration - while it is still resumable, without ever asserting a state the system does not hold.. Also known as checkout abandonment, abandoned checkout, checkout recovery, begin checkout recovery, abandoned application, abandoned quote, incomplete registration. Presets: Quote Abandonment (quote abandonment, abandoned quote, quote follow-up, unaccepted proposal); Application Abandonment (application abandonment, incomplete application, abandoned form, application follow-up); Incomplete Registration (incomplete registration, abandoned sign-up, registration follow-up, unfinished account setup). a started checkout with items that has gone quiet. an application, quote or registration left part-way through with state the person can return to. Process started. Acquisition, intent & qualification. Hands off to FIN-134. completed; the process reached its end. closed unfinished - cancelled, expired or emptied; nothing further is sent. superseded by a newer process for the same person. no touch sent; the gate that stopped it is recorded. recovery lifetime passed with the process still open; nothing further is sent",
     "keywords": [
       "ACQ-11",
       "checkout abandonment",
@@ -15522,11 +15522,6 @@
       "abandoned application",
       "abandoned quote",
       "incomplete registration",
-      "Checkout Abandonment",
-      "cart recovery (checkout stage)",
-      "abandoned cart checkout",
-      "checkout abandonment",
-      "begin checkout recovery",
       "Quote Abandonment",
       "quote abandonment",
       "abandoned quote",
@@ -15849,6 +15844,70 @@
         {
           "targetId": "journey:ACQ-02",
           "because": "ACQ-02 decides which destination a capture justifies and records that decision with its own state. This journey is what the person receives once that decision exists, and it invents no destination of its own."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:ACQ-287",
+    "type": "journey",
+    "slug": "checkout-abandonment",
+    "url": "/lab/journeys/checkout-abandonment",
+    "urlTr": "/tr/lab/journeys/checkout-abandonment",
+    "external": false,
+    "title": "ACQ-287 Checkout started → not completed → recovered or abandoned",
+    "summary": "Return a person who started checkout but did not finish it, with a reminder cascade that reaches for the highest-value checkouts on a more direct channel and never sends once the purchase is already there.",
+    "searchText": "Checkout started → not completed → recovered or abandoned. Return a person who started checkout but did not finish it, with a reminder cascade that reaches for the highest-value checkouts on a more direct channel and never sends once the purchase is already there.. Checkout started. Acquisition, intent & qualification. purchased; the checkout the reminders pointed at is complete. checkout abandoned; the reminder cascade ran to its end with no completion",
+    "keywords": [
+      "ACQ-287"
+    ],
+    "category": [
+      "acquisition"
+    ],
+    "normalizedCategory": [
+      "acquisition-and-onboarding"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "acquisition-qualification"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "recovery-retry"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/checkout-abandonment",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-11",
+          "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed three-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover."
         }
       ]
     }
@@ -26823,12 +26882,12 @@
     "urlTr": "/tr/lab/journeys",
     "external": false,
     "title": "Canonical Journey Library",
-    "summary": "71 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
-    "searchText": "Canonical Journey Library. 71 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 71 journeys, 21 categories",
+    "summary": "72 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
+    "searchText": "Canonical Journey Library. 72 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 72 journeys, 21 categories",
     "keywords": [
       "CRM",
       "Lifecycle Marketing",
-      "71 journeys",
+      "72 journeys",
       "21 categories"
     ],
     "category": [],
@@ -26844,7 +26903,7 @@
     "tags": [
       "CRM",
       "Lifecycle Marketing",
-      "71 journeys",
+      "72 journeys",
       "21 categories"
     ],
     "language": "en+tr",

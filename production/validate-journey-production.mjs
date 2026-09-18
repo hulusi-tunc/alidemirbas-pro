@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 284", journeys.length === 284);
+check(1, "active journey count = 285", journeys.length === 285);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -248,8 +248,8 @@ const requiredGraphFixtures = ["SUB-166", "DOC-216", "RSK-194", "ACQ-10", "RET-2
 const missingGraphFixtures = requiredGraphFixtures.filter((i) => !fixtureIds.has(i));
 check(28, "extreme graph fixtures included", missingGraphFixtures.length === 0);
 
-// 29 — production manifest covers all 284
-check(29, "production manifest covers all 284", manifest.length === 284);
+// 29 — production manifest covers all 285
+check(29, "production manifest covers all 285", manifest.length === 285);
 
 // 30 — canonical source mutation = 0 (checked via node/edge/rule counts matching the last known validate:canonical baseline)
 // Baseline moved from 3674 to 3682 nodes in the operational-workflow production-readiness repair
@@ -263,11 +263,17 @@ check(29, "production manifest covers all 284", manifest.length === 284);
 // a.reconcile-terms), TRM-101/TRM-102 (+1 net: c.origin added, x.resolved removed and replaced
 // by h.resume), OPS-130 (+1 net: x.reconciliation removed and replaced by a.reconcile + h.escalate).
 // See research/cross-library-integration-readiness/INTEGRATION-CANONICAL-CHANGES.md.
+// Baseline moved again from 284/3690 to 285/3706 journeys/nodes (2026-09-18): ACQ-287 "Checkout
+// Abandonment Recovery" added as its own standalone journey (16 nodes) with slug
+// "checkout-abandonment", freed from ACQ-11's discovery.presets (which carried that slug as a
+// zero-override preset - name and destination only, no distinct business logic of its own) so the
+// journey's real channel-router/high-value-branch flow could be authored without disturbing ACQ-11
+// (still used by the quote-abandonment, application-abandonment and incomplete-registration presets).
 check(
   30,
-  "canonical source mutation = 0 (284 journeys / 3690 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 284 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3690 &&
+  "canonical source mutation = 0 (285 journeys / 3706 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 285 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3706 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

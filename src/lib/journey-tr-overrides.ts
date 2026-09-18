@@ -164,6 +164,80 @@ type JourneyOverride = {
 };
 
 const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
+  "ACQ-287": {
+  shortName: "Checkout Tamamlama Kurtarma",
+  name: "Ödeme süreci başladı → tamamlanmadı → satın alma veya çıkış",
+  purpose: "Checkout'u başlatıp tamamlamayan kişiyi geri getiren bir hatırlatma dizisi kurmak; en yüksek değerli checkout'larda daha doğrudan bir kanala geçmek ve satın alma zaten gerçekleştiyse bir daha mesaj göndermemek.",
+  nodes: {
+    "t.started": { headline: "Ödeme süreci başladı" },
+    "w.first": {
+      headline: "checkout tamamlanana kadar",
+      detail: "Zaman aşımı: kişiye kendi başına tamamlaması için süre tanı. (örnek: 45 dakika; ayarla: checkout_abandonment.first_check)",
+    },
+    "c.completed1": {
+      headline: "Satın alma tamamlandı mı?",
+      edges: [
+        { label: "Tamamlandı", detail: "bu checkout örneği için yetkili bir satın alma veya sipariş kaydı mevcut" },
+        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı yok" },
+      ],
+    },
+    "x.purchased": {
+      headline: "Satın Alma Tamamlandı",
+      detail: "kişi için yeni bir checkout kendi örneğini açar; bu örnekle ilgili hiçbir şey yeniden açılmaz",
+    },
+    "a.router1": {
+      headline: "En uygun kullanılabilir kanalı seç: önce push (iletişim izni verilmiş ve geçerli, güncel bir push token kayıtlı), olmuyorsa e-posta (iletişim izni verilmiş ve geçerli, ulaşılabilir bir e-posta adresi kayıtlı). İzin ve ulaşılabilirlik iki ayrı kontroldür ve ikisi de sağlanmalıdır - izin verilmiş ama geçerli bir token ya da adres yoksa kanal yine de kullanılamaz. Hiçbir kanal iki kontrolü de geçemezse hiçbir kanal kullanılamadığı kaydedilir ve mesaj gönderilmeden doğrudan sonraki bekleme adımına geçilir.",
+    },
+    "a.reminder1": {
+      headline: "Az önce seçilen kanal üzerinden ilk checkout hatırlatmasını gönder; kişiyi başladığı checkout'a, o anki durumuyla geri yönlendir.",
+    },
+    "w.second": {
+      headline: "checkout tamamlanana kadar",
+      detail: "Zaman aşımı: ilk hatırlatmanın gerçekten işe yarayıp yaramadığını görmek için yeterli süre tanı, ikinci ve daha doğrudan bir temasın gerekip gerekmediğine ondan sonra karar ver. (örnek: 6 saat; ayarla: checkout_abandonment.second_check)",
+    },
+    "c.completed2": {
+      headline: "Satın alma tamamlandı mı?",
+      edges: [
+        { label: "Tamamlandı", detail: "bu checkout örneği için yetkili bir satın alma veya sipariş kaydı mevcut" },
+        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı yok" },
+      ],
+    },
+    "c.highvalue": {
+      headline: "Yüksek değerli bir checkout mu?",
+      edges: [
+        { label: "Yüksek değerli", detail: "checkout değeri, uygulayan şirketin yapılandırdığı yüksek-değer eşiğinin üzerinde veya eşitidir - burada hiçbir değer belirtilmez" },
+        { label: "Standart", detail: "checkout değeri yapılandırılan eşiğin altındadır" },
+      ],
+    },
+    "a.router2-hv": {
+      headline: "En öncelikli doğrudan kanalı seç: önce WhatsApp (iletişim izni verilmiş, geçerli bir telefon numarası kayıtlı ve numara WhatsApp üzerinden ulaşılabilir), olmuyorsa SMS (iletişim izni verilmiş ve geçerli bir telefon numarası kayıtlı). Yüksek değerli bir checkout ilk temasın bir tekrarını değil, daha doğrudan bir kanal alır. Hiçbiri iki kontrolü de geçemezse hiçbir kanal kullanılamadığı kaydedilir ve mesaj gönderilmeden doğrudan sonraki bekleme adımına geçilir.",
+    },
+    "a.router2-std": {
+      headline: "En uygun kullanılabilir kanalı seç: önce push (iletişim izni verilmiş ve geçerli, güncel bir push token kayıtlı), olmuyorsa e-posta (iletişim izni verilmiş ve geçerli, ulaşılabilir bir e-posta adresi kayıtlı). Öncelik sırası ilk temasla aynıdır. Hiçbiri iki kontrolü de geçemezse hiçbir kanal kullanılamadığı kaydedilir ve mesaj gönderilmeden doğrudan sonraki bekleme adımına geçilir.",
+    },
+    "a.reminder2-hv": {
+      headline: "Az önce seçilen kanal üzerinden ikinci checkout hatırlatmasını gönder; yüksek değerli bir checkout'un gerektirdiği daha doğrudan üslubu kullan.",
+    },
+    "a.reminder2-std": {
+      headline: "Az önce seçilen kanal üzerinden ikinci checkout hatırlatmasını gönder; kişiyi başladığı checkout'a, o anki durumuyla geri yönlendir.",
+    },
+    "w.third": {
+      headline: "checkout tamamlanana kadar",
+      detail: "Zaman aşımı: son hatırlatmaya tam bir gün tanı; bu sürenin sonunda checkout tamamlanmadıysa tamamlanmamış sayılır. (örnek: 24 saat; ayarla: checkout_abandonment.final_check)",
+    },
+    "c.completed3": {
+      headline: "Satın alma tamamlandı mı?",
+      edges: [
+        { label: "Tamamlandı", detail: "bu checkout örneği için yetkili bir satın alma veya sipariş kaydı mevcut" },
+        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı yok" },
+      ],
+    },
+    "x.abandoned": {
+      headline: "Checkout Tamamlanmadı",
+      detail: "kişi için yeni bir checkout başlangıcı kendi saatiyle yeni bir örnek açar; bu örnek yeniden açılmaz",
+    },
+  },
+  },
   "ACC-261": {
   shortName: "Erişim Kısıtlama Bildirimi",
   name: "Erişim kısıtlandı veya sona eriyor → belirtilen geri dönüş yolu → geri yüklendi veya sona erdi",

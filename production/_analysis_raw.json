@@ -2463,6 +2463,225 @@
   ]
  },
  {
+  "id": "ACQ-287",
+  "category": "acquisition",
+  "nodeCount": 16,
+  "edgeCount": 21,
+  "branchNodeCount": 4,
+  "branchEdgeCount": 8,
+  "waitCount": 3,
+  "exitCount": 2,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 2,
+  "maxFanIn": 3,
+  "maxFanOut": 2,
+  "maxDepth": 12,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": false,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.started",
+    "to": "w.first",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.first",
+    "to": "c.completed1",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.first",
+    "to": "c.completed1",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.completed1",
+    "to": "x.purchased",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.completed1",
+    "to": "a.router1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.router1",
+    "to": "a.reminder1",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reminder1",
+    "to": "w.second",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.second",
+    "to": "c.completed2",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.second",
+    "to": "c.completed2",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.completed2",
+    "to": "x.purchased",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.completed2",
+    "to": "c.highvalue",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.highvalue",
+    "to": "a.router2-hv",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.highvalue",
+    "to": "a.router2-std",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.router2-hv",
+    "to": "a.reminder2-hv",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reminder2-hv",
+    "to": "w.third",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.router2-std",
+    "to": "a.reminder2-std",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reminder2-std",
+    "to": "w.third",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.third",
+    "to": "c.completed3",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.third",
+    "to": "c.completed3",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.completed3",
+    "to": "x.purchased",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.completed3",
+    "to": "x.abandoned",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
   "id": "ACT-11",
   "category": "activation",
   "nodeCount": 8,
