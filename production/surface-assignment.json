@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 284,
-    "customer": 135,
+    "journeys": 285,
+    "customer": 136,
     "customer-silent": 67,
-    "customer-communicating": 68,
+    "customer-communicating": 69,
     "mechanism": 25,
     "operational": 124
   },
@@ -149,6 +149,16 @@
       "routesToHuman": false,
       "silent": false,
       "reason": "declares a message channel (email, push, in-app)"
+    },
+    {
+      "id": "ACQ-287",
+      "shortName": "Checkout Abandonment Recovery",
+      "category": "acquisition",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "reason": "declares a message channel (push, email, whatsapp, sms)"
     },
     {
       "id": "ACT-11",

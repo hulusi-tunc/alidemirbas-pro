@@ -1,13 +1,13 @@
 {
   "totals": {
     "abPages": 211,
-    "journeyPages": 284,
-    "total": 495,
-    "expected": 495
+    "journeyPages": 285,
+    "total": 496,
+    "expected": 496
   },
   "counts": {
     "errors": 0,
-    "warnings": 67
+    "warnings": 66
   },
   "needsSeoReview": [
     {
@@ -108,6 +108,10 @@
     },
     {
       "id": "ACQ-285",
+      "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+    },
+    {
+      "id": "ACQ-287",
       "reason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
     },
     {
@@ -297,14 +301,6 @@
       "aTitle": "Category Ordering A/B Test on Listing Pages",
       "bTitle": "Menu Category Order A/B Test on Listing Pages",
       "flagged": true
-    },
-    {
-      "a": "ACC-261",
-      "b": "TIM-281",
-      "similarity": 0.833,
-      "aTitle": "Access Recovery Lifecycle Journey Example",
-      "bTitle": "Expired Access Recovery Lifecycle Journey Example",
-      "flagged": true
     }
   ],
   "nearDuplicateDescriptions": [],
@@ -374,12 +370,6 @@
       "code": "near_duplicate_title",
       "id": "AB-024/AB-031",
       "message": "title similarity 0.80 (flagged)"
-    },
-    {
-      "severity": "warning",
-      "code": "near_duplicate_title",
-      "id": "ACC-261/TIM-281",
-      "message": "title similarity 0.83 (flagged)"
     },
     {
       "severity": "warning",

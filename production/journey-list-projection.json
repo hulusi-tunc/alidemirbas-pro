@@ -312,6 +312,18 @@
     ]
   },
   {
+    "id": "ACQ-287",
+    "slug": "checkout-abandonment",
+    "title": "Checkout started → not completed → recovered or abandoned",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Checkout started",
+    "searchableAliases": [
+      "ACQ-287",
+      "checkout-abandonment"
+    ]
+  },
+  {
     "id": "ACT-11",
     "slug": "onboarding-route-selection",
     "title": "New entry → onboarding route → appropriate path",
