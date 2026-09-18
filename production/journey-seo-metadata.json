@@ -557,6 +557,26 @@
     "reviewReason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
   },
   {
+    "id": "ACQ-288",
+    "slug": "cart-abandonment",
+    "seoTitle": "Cart Abandonment Recovery Lifecycle Journey Example",
+    "seoDescription": "Return a person who added an item to their cart but did not start checkout, with a reminder cascade that reaches for the highest-value carts on a...",
+    "titleCharacterCount": 51,
+    "descriptionCharacterCount": 148,
+    "primaryIntent": "customer journey examples",
+    "secondaryIntent": "cart abandonment recovery journey",
+    "canonicalPath": "/lab/journeys/cart-abandonment",
+    "index": true,
+    "follow": true,
+    "sitemap": true,
+    "sourceBasis": [
+      "name",
+      "purpose"
+    ],
+    "needsSeoReview": true,
+    "reviewReason": "record derived from the canonical journey at merge time (vNext migration); title and description wording not yet reviewed"
+  },
+  {
     "id": "ACT-11",
     "slug": "onboarding-route-selection",
     "seoTitle": "Onboarding Route Selection: Customer Journey Example",

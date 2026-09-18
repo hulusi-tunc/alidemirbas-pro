@@ -15608,7 +15608,7 @@
     "external": false,
     "title": "ACQ-12 Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed",
     "summary": "Return a person to items they selected - a cart, a basket, a saved list - and did not carry into a process, while the selection still stands and the items are still available, without asserting a state the system does not hold.",
-    "searchText": "Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed. Return a person to items they selected - a cart, a basket, a saved list - and did not carry into a process, while the selection still stands and the items are still available, without asserting a state the system does not hold.. Also known as cart abandonment, abandoned cart, add-to-cart abandonment, basket reminder, saved item reminder, wishlist reminder, abandoned basket. Presets: Cart Abandonment (cart abandonment, abandoned cart, abandoned basket, add-to-cart abandonment); Saved Item Reminder (saved item reminder, wishlist reminder, saved for later, favourites reminder). items placed in a cart and left without starting checkout. a saved list or wishlist the person has not returned to. Selection recorded. Acquisition, intent & qualification. Hands off to ACQ-11. converted; an order including a selected item is recorded. cleared by the person; nothing further is sent. every selected item unavailable; nothing is sent about items that cannot be acted on. no touch sent; the gate that stopped it is recorded. recovery lifetime passed with the selection still held; nothing further is sent",
+    "searchText": "Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed. Return a person to items they selected - a cart, a basket, a saved list - and did not carry into a process, while the selection still stands and the items are still available, without asserting a state the system does not hold.. Also known as cart abandonment, abandoned cart, add-to-cart abandonment, basket reminder, saved item reminder, wishlist reminder, abandoned basket. Presets: Saved Item Reminder (saved item reminder, wishlist reminder, saved for later, favourites reminder). items placed in a cart and left without starting checkout. a saved list or wishlist the person has not returned to. Selection recorded. Acquisition, intent & qualification. Hands off to ACQ-11. converted; an order including a selected item is recorded. cleared by the person; nothing further is sent. every selected item unavailable; nothing is sent about items that cannot be acted on. no touch sent; the gate that stopped it is recorded. recovery lifetime passed with the selection still held; nothing further is sent",
     "keywords": [
       "ACQ-12",
       "cart abandonment",
@@ -15618,11 +15618,6 @@
       "saved item reminder",
       "wishlist reminder",
       "abandoned basket",
-      "Cart Abandonment",
-      "cart abandonment",
-      "abandoned cart",
-      "abandoned basket",
-      "add-to-cart abandonment",
       "Saved Item Reminder",
       "saved item reminder",
       "wishlist reminder",
@@ -15908,6 +15903,79 @@
         {
           "targetId": "journey:ACQ-11",
           "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed three-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:ACQ-288",
+    "type": "journey",
+    "slug": "cart-abandonment",
+    "url": "/lab/journeys/cart-abandonment",
+    "urlTr": "/tr/lab/journeys/cart-abandonment",
+    "external": false,
+    "title": "ACQ-288 Item added to cart → checkout not started → recovered, handed to checkout, or abandoned",
+    "summary": "Return a person who added an item to their cart but did not start checkout, with a reminder cascade that reaches for the highest-value carts on a more direct channel, hands off to Checkout Abandonment the instant checkout starts, and never sends once the purchase is already there.",
+    "searchText": "Item added to cart → checkout not started → recovered, handed to checkout, or abandoned. Return a person who added an item to their cart but did not start checkout, with a reminder cascade that reaches for the highest-value carts on a more direct channel, hands off to Checkout Abandonment the instant checkout starts, and never sends once the purchase is already there.. Item added to cart. Acquisition, intent & qualification. Hands off to ACQ-287. purchased; an order including at least one item from this cart is recorded. the cart is no longer active - cleared, emptied, or its hold or session expired. cart abandoned; the reminder cascade ran to its end with the cart still active and no completion",
+    "keywords": [
+      "ACQ-288"
+    ],
+    "category": [
+      "acquisition"
+    ],
+    "normalizedCategory": [
+      "acquisition-and-onboarding"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "acquisition-qualification"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "recovery-retry"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/cart-abandonment",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:ACQ-287"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-12",
+          "because": "ACQ-12 is the general-purpose pattern for any held selection (a cart, a saved list) and stays deliberately generic - one first-check window, two generic touches, no channel priority stated, no high-value branch. This journey is the concrete cart implementation: a fixed three-touch cascade with an explicit channel priority and fallback per touch, a high-value branch that reaches for a more direct channel, and an explicit handoff into Checkout Abandonment (ACQ-287) the moment checkout starts - none of which the generic pattern states, because none of it is true for every held selection it also has to cover."
+        },
+        {
+          "targetId": "journey:ACQ-287",
+          "because": "ACQ-287 recovers a checkout that has already started; this journey recovers a cart before checkout starts. The two never run in parallel on the same person - this journey hands off to ACQ-287 the moment checkout starts, and every queued cart reminder is suppressed from that point."
         }
       ]
     }
@@ -26882,12 +26950,12 @@
     "urlTr": "/tr/lab/journeys",
     "external": false,
     "title": "Canonical Journey Library",
-    "summary": "72 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
-    "searchText": "Canonical Journey Library. 72 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 72 journeys, 21 categories",
+    "summary": "73 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
+    "searchText": "Canonical Journey Library. 73 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 73 journeys, 21 categories",
     "keywords": [
       "CRM",
       "Lifecycle Marketing",
-      "72 journeys",
+      "73 journeys",
       "21 categories"
     ],
     "category": [],
@@ -26903,7 +26971,7 @@
     "tags": [
       "CRM",
       "Lifecycle Marketing",
-      "72 journeys",
+      "73 journeys",
       "21 categories"
     ],
     "language": "en+tr",
