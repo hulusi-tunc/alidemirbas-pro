@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import JourneyDetailBody from "@/components/JourneyDetailBody";
+import JourneyDetailBody, { journeyCanvasProps } from "@/components/JourneyDetailBody";
 import JourneyDetailHeader from "@/components/JourneyDetailHeader";
-import JourneyVisualBody, { journeyCanvasProps } from "@/components/JourneyVisualBody";
 import JourneyCanvas from "@/components/JourneyCanvas";
 import { JourneyDetailShell } from "@/components/JourneyDetailShell";
 import JourneyInfo, { journeyTitle } from "@/components/JourneyInfo";
 import JourneyModal from "@/components/JourneyModal";
-import { resolveDetailSlug, type JourneyDetail } from "@/lib/canonical-view";
+import { resolveDetailSlug } from "@/lib/canonical-view";
 import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
 import { copy, EMAIL, type Lang } from "@/lib/content";
 import { pageAlternates, SITE_URL } from "@/lib/seo";
@@ -35,46 +34,6 @@ export const basePathFor = (lang: Lang) => (lang === "en" ? "/lab/journeys" : "/
    75% while still leaving the widest journeys the horizontal pan they have
    always needed. Individual prose blocks re-narrow themselves inside it. */
 const PAGE_MEASURE = "max-w-[1180px]";
-
-/** GENERALIZED (2026-09-04) from a single-slug pilot (quote-abandonment) into
-    a data-driven rule, applied here - the one place both page shapes (full
-    page and modal) already share, so this changes exactly the journeys it
-    qualifies and nothing else.
-
-    A journey qualifies when it has a practitioner view with at least one
-    orchestration touch, those touches form one straight chain - no two
-    touches sharing an `after` - AND at least one touch is actually gated by
-    a wait (has real timing to show). Both conditions were found empirically,
-    not assumed:
-
-    - THE CHAIN REQUIREMENT. A flat numbered "1, 2, 3" card is an honest
-      rendering of a straight sequence, but 8 of the 71 communicating
-      journeys have real alternate branches (e.g. FIN-134's payment-failure
-      journey offers a corrective request OR an alternate path, not
-      one-then-the-other) - forcing those into the same numbered list would
-      misrepresent the journey.
-    - THE GATED-TOUCH REQUIREMENT. Of the 63 that ARE a straight chain, 35
-      have NO gated touch at all - their "touches" are synchronous internal
-      routing steps (classify, store, route), not timed customer contact.
-      Rendered through the same card those come out as N stages all reading
-      "On entry", sometimes with the same stage name repeated (confirmed on
-      FBK-43's feedback-routing journey) - technically accurate, but not what
-      "Recommended flow" is for, so those keep the technical page too.
-
-    That leaves 28: 8 fully time-gated (identical in shape to the
-    quote-abandonment pilot) plus 20 where some touches are immediate and
-    others wait - both render honestly, since "On entry" is simply true for
-    the immediate ones. The other 256 keep JourneyDetailBody. See
-    JourneyVisualBody.tsx's own comment for what each card is built from. */
-function canUseVisualBody(detail: JourneyDetail): boolean {
-  const timeline = detail.practitioner?.timeline;
-  if (!timeline || timeline.length === 0) return false;
-  const afterCounts = new Map<string, number>();
-  for (const step of timeline) if (step.after) afterCounts.set(step.after, (afterCounts.get(step.after) ?? 0) + 1);
-  const isLinearChain = ![...afterCounts.values()].some((n) => n > 1);
-  const hasRealTiming = timeline.some((step) => step.gate !== null);
-  return isLinearChain && hasRealTiming;
-}
 
 export function journeyMetadata(lang: Lang, slug: string): Metadata {
   const resolved = resolveDetailSlug(slug);
@@ -146,7 +105,7 @@ export async function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string
       info={
         <>
           {breadcrumb && <JsonLdScript data={breadcrumb} />}
-          <JourneyInfo detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} visual={canUseVisualBody(detail)} />
+          <JourneyInfo detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
         </>
       }
       canvas={<JourneyCanvas {...canvas} basePath={basePath} mode="page" />}
@@ -190,11 +149,7 @@ export function JourneyModalPage({ lang, slug }: { lang: Lang; slug: string }) {
             />
           </div>
           <div className="mt-8">
-            {canUseVisualBody(detail) ? (
-              <JourneyVisualBody detail={detail} basePath={basePath} lang={lang} t={t} />
-            ) : (
-              <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
-            )}
+            <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
           </div>
         </div>
       </div>

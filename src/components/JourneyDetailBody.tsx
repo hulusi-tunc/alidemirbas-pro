@@ -1,13 +1,48 @@
 import Link from "next/link";
 import PractitionerView from "@/components/PractitionerView";
 
-import { Box, Quote, Scale, ShieldCheck, Split, Zap } from "lucide-react";
+import { Box, Plus, Quote, Scale, ShieldCheck, Split, Zap } from "lucide-react";
 
 import JourneyCanvas from "@/components/JourneyCanvas";
-import { journeyCanvasProps } from "@/components/JourneyVisualBody";
 import { InfoTile } from "@/components/ui/InfoTile";
 import type { JourneyDetail, MergedRedirect } from "@/lib/canonical-view";
+import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
+import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
 import type { copy, Lang } from "@/lib/content";
+
+/** Everything the canvas needs from a journey, composed once so the figure
+    inside the notes and the full-page canvas tab (JourneyRoutes) cannot
+    disagree: the laid-out graph, the localised labels, the caption in
+    counts, the channel names per node kind. Async because the layout is
+    (ELK) - computed here on the server, shipped to the client island as a
+    prop. Moved here from the now-retired JourneyVisualBody.tsx, whose only
+    other content (a linear-chain-only "Recommended flow" card list) was a
+    partial, duplicate rendering of the same `practitioner.timeline`/
+    `.stopsWhen` data PractitionerView already covers in full - see
+    JourneyDetailBody's own comment on the technical-details disclosure. */
+export async function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof copy)[Lang]["lab"]["page"]) {
+  const layout = await layoutJourneyCanvas(detail.nodes);
+  const messageLabels = messageChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
+  const humanLabels = humanChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
+  const count = (kind: JourneyDetail["nodes"][number]["kind"]) => detail.nodes.filter((n) => n.kind === kind).length;
+  const plural = (n: number, forms: readonly [string, string]) => `${n} ${forms[n === 1 ? 0 : 1]}`;
+  const shape: { kind: "nodes" | "decisions" | "exits" | "handoffs"; label: string }[] = [{ kind: "nodes", label: `${detail.nodes.length} ${t.nodesLabel}` }];
+  if (count("condition")) shape.push({ kind: "decisions", label: plural(count("condition"), t.decisionsLabel) });
+  if (count("exit")) shape.push({ kind: "exits", label: plural(count("exit"), t.exitsLabel) });
+  if (count("handoff")) shape.push({ kind: "handoffs", label: plural(count("handoff"), t.handoffsLabel) });
+  const caption = shape.map((x) => x.label).join(" · ");
+  const labels = {
+    entry: t.canvas.entry,
+    zoomIn: t.canvas.zoomIn,
+    zoomOut: t.canvas.zoomOut,
+    fitToView: t.canvas.fitToView,
+    reset: t.canvas.reset,
+    close: t.close,
+    terminal: t.terminalLabel,
+    lang,
+  };
+  return { nodes: detail.nodes, layout, labels, caption, shape, messageLabels, humanLabels };
+}
 
 /* Connector word for the Competes note's inline "on loss: <state>" clause.
    Everything else in that line (exclusionGroup, scope, onLoss) is canonical
@@ -22,12 +57,29 @@ const ON_LOSS_PREFIX: Record<Lang, string> = { en: "on loss:", tr: "kaybedince:"
    other.
 
    Composition, top to bottom: the canvas as a captioned figure, the reusable
-   rule as the figure's stated takeaway, then the supporting notes in columns.
-   The rule sits directly under the graph rather than last because it is what
+   rule as the figure's stated takeaway, then the supporting notes in tiles
+   (Reusable rule / Entity / Guardrails / Distinct from / Competes /
+   Pre-empted by - every field here is base schema, present on any journey
+   whether or not it has migrated to vNext, so this is the ONE default body
+   every journey gets, not a fallback for journeys lacking richer data). The
+   rule sits directly under the graph rather than last because it is what
    the graph is FOR - the one sentence a reader should leave with - and at the
-   bottom of a long single column it read as a footnote. The notes below it
-   are reference material and are laid out as such: hairline-separated
-   columns, not cards. */
+   bottom of a long single column it read as a footnote.
+
+   A migrated (vNext) journey ALSO carries `detail.practitioner`: the full
+   trigger/eligibility/suppression/touch-plan/measurement write-up
+   PractitionerView renders. That used to lead the page, open, above the
+   graph - correct as documentation but wrong as a first screen: a reader
+   met a wall of ruled technical sections (Trigger, Who enters, Suppressed
+   when, Configure, Required data, Recommended flow, Channel roles, Stops
+   when, Collision & priority, Measurement...) before ever seeing the one
+   paragraph and three cards every other journey leads with, and the
+   two-thirds of journeys that qualified for the old JourneyVisualBody
+   shortcut (a partial, duplicate rendering of the same timeline/stopsWhen
+   data, retired along with it - see journeyCanvasProps's comment above)
+   got a DIFFERENT default layout again. Nothing in that write-up is lost:
+   it now sits under one native <details> disclosure, closed by default,
+   after the notes tiles - reachable by every reader, imposed on none. */
 
 /* Journey Canvas is now the single journey-detail renderer for every
    canonical journey - CanonicalFlow's old vertical-list rendering is gone
@@ -161,18 +213,6 @@ export default async function JourneyDetailBody({
         </p>
       ) : null}
 
-      {/* vNext: the practitioner's view leads on a migrated journey - what
-          triggers it, who enters, the touch plan with its timing and roles,
-          what stops it, what to configure, what to measure. The graph
-          follows as the technical logic behind it. Nothing in the view is
-          hand-written; it is projected from the journey's own fields. */}
-      {detail.practitioner ? (
-        <>
-          <PractitionerView view={detail.practitioner} lang={lang} t={t.practitioner} basePath={basePath} />
-          {showCanvas && <h2 className="mt-12 mb-4 text-h3 text-ink-950">{t.practitioner.technical}</h2>}
-        </>
-      ) : null}
-
       {canvas && <JourneyCanvas {...canvas} basePath={basePath} />}
 
       {/* The takeaway, then the notes - as tiles with icons (Hulusi,
@@ -240,6 +280,25 @@ export default async function JourneyDetailBody({
           </InfoTile>
         ) : null}
       </div>
+
+      {/* vNext only: the practitioner's full write-up - trigger, eligibility,
+          suppressions, touch plan, measurement - closed by default. Native
+          <details>, same zero-client-JS disclosure FaqAccordion already
+          uses elsewhere on the site, so opening it costs nothing on every
+          other journey's page weight. */}
+      {detail.practitioner ? (
+        <details className="group mt-10 rounded-2xl bg-paper ring-1 ring-ink-950/[0.06]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 text-sm font-medium text-ink-950 marker:content-none">
+            {t.practitioner.technical}
+            <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-paper-soft text-ink-500 transition-transform duration-200 group-open:rotate-45">
+              <Plus className="size-4" />
+            </span>
+          </summary>
+          <div className="border-t border-line-soft px-6 pb-6">
+            <PractitionerView view={detail.practitioner} lang={lang} t={t.practitioner} basePath={basePath} />
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }

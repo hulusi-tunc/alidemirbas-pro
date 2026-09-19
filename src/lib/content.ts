@@ -192,7 +192,8 @@ export const copy = {
         empty: "Nothing matches those filters.",
         nodesLabel: "nodes",
         /* vNext practitioner view labels - the section names of the touch
-           plan a migrated Customer Journey renders above its graph. */
+           plan a migrated Customer Journey renders inside its collapsed
+           "Technical details" disclosure (JourneyDetailBody.tsx). */
         practitioner: {
           trigger: "Trigger",
           notEnough: "Not enough on its own",
@@ -240,7 +241,7 @@ export const copy = {
           holdout: "holdout",
           guardrails: "guardrails",
           presets: "Presets",
-          technical: "Technical logic",
+          technical: "Technical details",
           preset: "Preset",
           presetOf: "preset of",
           presetOverrides: "sets",
@@ -1038,7 +1039,7 @@ export const copy = {
           holdout: "holdout",
           guardrails: "guardrail'ler",
           presets: "Ön ayarlar",
-          technical: "Teknik mantık",
+          technical: "Teknik detaylar",
           preset: "Ön ayar",
           presetOf: "ön ayarı:",
           presetOverrides: "ayarlar",
@@ -1054,7 +1055,7 @@ export const copy = {
         competesLabel: "Rekabet",
         distinctLabel: "Şundan farklı",
         preemptedLabel: "Şu olursa biter",
-        guardrailsLabel: "Guardrail",
+        guardrailsLabel: "Koruma kuralları",
         ruleLabel: "Yeniden kullanılabilir kural",
         terminalLabel: "Terminal",
         close: "Kapat",

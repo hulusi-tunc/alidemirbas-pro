@@ -2,7 +2,6 @@ import { ArrowRight, ArrowRightLeft, GitFork, LogOut, Workflow } from "lucide-re
 import type { ReactNode } from "react";
 
 import JourneyDetailBody from "@/components/JourneyDetailBody";
-import JourneyVisualBody from "@/components/JourneyVisualBody";
 import { JourneyMiniMap } from "@/components/ui/JourneyMiniMap";
 import { CategoryIcon, ChannelIcon, GoalIcon, categoryAccent } from "@/components/ui/LibraryChrome";
 import { buttonStyles } from "@/components/ui/Button";
@@ -46,15 +45,12 @@ export default function JourneyInfo({
   basePath,
   lang,
   t,
-  visual,
 }: {
   detail: JourneyDetail;
   merged: MergedRedirect | null;
   basePath: string;
   lang: Lang;
   t: (typeof copy)[Lang]["lab"]["page"];
-  /** Whether the journey qualifies for the visual body (see JourneyRoutes). */
-  visual: boolean;
 }) {
   const count = (kind: JourneyDetail["nodes"][number]["kind"]) => detail.nodes.filter((n) => n.kind === kind).length;
   const plural = (n: number, forms: readonly [string, string]) => `${n} ${forms[n === 1 ? 0 : 1]}`;
@@ -132,11 +128,7 @@ export default function JourneyInfo({
         </div>
 
         <div className="mt-4">
-          {visual ? (
-            <JourneyVisualBody detail={detail} basePath={basePath} lang={lang} t={t} showCanvas={false} />
-          ) : (
-            <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} showCanvas={false} />
-          )}
+          <JourneyDetailBody detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} showCanvas={false} />
         </div>
       </div>
     </div>
