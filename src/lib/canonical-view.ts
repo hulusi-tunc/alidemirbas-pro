@@ -6,11 +6,12 @@ import {
 } from "@/canonical";
 import { configText } from "@/canonical/config-text";
 import { eventText } from "@/canonical/events";
+import { CHANNEL_LABEL } from "@/lib/journey-channels";
 import { practitionerView, type PractitionerView } from "@/lib/practitioner-view";
 import { surfaceOf } from "@/canonical/surface";
 import { LIBRARY_JOURNEYS, PUBLIC_JOURNEYS, isPublicJourneyId } from "@/lib/public-corpus";
 import type { Preset } from "@/canonical/types";
-import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, GoalId, SignalSource } from "@/canonical/types";
+import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, ExitClass, GoalId, SignalSource } from "@/canonical/types";
 import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 
@@ -249,12 +250,75 @@ export type FlowNode = {
       journey. Already computed once for the headline text below; exposed
       here too so the card can badge it without re-deriving it. */
   external?: boolean;
+  /** Exit nodes only - `ExitNode.class` (vNext, optional), already-authored
+      data never previously surfaced past its own validator check. Lets the
+      card tell a successful ending from every other kind of ending without
+      guessing anything from the (already short) headline text; absent on a
+      non-vNext exit, which keeps its prior, undifferentiated styling. */
+  exitClass?: ExitClass;
+  /** Action nodes only. Channel ids literally named in this action's own
+      canonical prose, in the order they appear, when two or more distinct
+      channels are mentioned - or, for a communication/human action with
+      none of its own, inherited from the channel-selecting action that
+      leads directly into it. Mechanical, not authored: `ActionNode`'s own
+      doc says which channel a communication action takes is deliberately
+      NOT recorded on the node, so this is read off the words already
+      there rather than a new per-action field asserting one. Absent means
+      no such mention was found - the card falls back to the journey's
+      full channel roster, exactly as before this field existed. */
+  channelPriority?: readonly ChannelId[];
+  /** Communication/human action nodes only, on a vNext journey with an
+      orchestration touch plan. `Touch.stage` ("initial-recovery",
+      "follow-up", "final-notice", ...) is the practitioner's own name for
+      this step in the send cascade, authored data, found by the
+      `Touch.action` reference back to this node's own id - not derived
+      from prose, so it works corpus-wide regardless of how a journey's
+      `does` sentences happen to be phrased. Absent on a non-vNext journey
+      or an action no touch references; the card falls back further, to
+      the generic kind label, in that case. */
+  touchStage?: string;
 };
 
 const humanEvent = (event: string): string => {
   const words = event.replace(/[_.]+/g, " ").trim();
   return words.charAt(0).toUpperCase() + words.slice(1);
 };
+
+/** An exit's `state` is written corpus-wide as "<short clause>; <what that
+    implies>" (occasionally "<short clause> - <...>", or, for a minority
+    with neither, one comma-joined run-on - "risk recorded, nothing
+    proportionate to do, or a higher-precedence contender already owns
+    this account"). Splitting on the EARLIEST of these separators (not a
+    fixed semicolon-then-dash-then-comma priority) matters on the TR route:
+    several TR states use " - " early for the lead clause and only reach
+    "; " much later in the sentence, so a fixed tier order would find the
+    late semicolon first and return the whole overlong lead-plus-elaboration
+    span instead of the short lead clause (confirmed against the corpus:
+    exits like RET-24's x.monitor). The comma tier stays capped at 60 chars
+    so a comma deep in an otherwise short-lead sentence (rare, not observed,
+    but not provably impossible) does not get mistaken for one near the
+    start. The remainder is not surfaced elsewhere: `meta` is one of the
+    few fields journey-tr-overrides.ts's structural layer does not
+    translate (only fixed prefixes like "evidence: " are), so parking free
+    prose there would leak English onto the TR canvas for most exits; the
+    remainder was never independently useful on its own outside that one
+    run-on sentence, and `reEntry` (kept as `detail`, already covered by the
+    TR overrides table) is the field that carries the operationally load-
+    bearing half of an exit's meaning. A state with no separator (already
+    one short clause) returns itself unchanged. */
+export function splitExitState(state: string): string {
+  const cuts: number[] = [];
+  const semi = state.indexOf("; ");
+  if (semi !== -1) cuts.push(semi);
+  const dash = state.indexOf(" - ");
+  if (dash !== -1) cuts.push(dash);
+  const comma = state.indexOf(", ");
+  if (comma !== -1 && comma <= 60) cuts.push(comma);
+  if (cuts.length === 0) return state;
+  return state.slice(0, Math.min(...cuts));
+}
+
+const capitalize = (s: string): string => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 const edge = (
   to: string,
@@ -310,7 +374,15 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
         edges: n.branches.map((b) => edge(b.to, b.label, b.when)),
         branchCount: n.branches.length,
       };
-    case "wait":
+    case "wait": {
+      // A wait whose event arm and timeout arm land on the SAME next node
+      // recheck the same thing either way - the "on event"/"on timeout"
+      // distinction is real in the data but tells a canvas reader nothing
+      // ("both paths lead to the same next check"), so the edges carry no
+      // label in that case. Still two edges - the connector routing an
+      // edge label sits on is unchanged - just unlabeled, generic to any
+      // journey with this shape, not specific to one.
+      const sameArm = n.onEvent === n.onTimeout;
       return {
         ...base,
         headline: `until ${n.until.map(eventText).join(", or ")}`,
@@ -321,8 +393,11 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
             ? "the window extends on engagement"
             : "engagement does not extend the window",
         ],
-        edges: [edge(n.onEvent, "on event"), edge(n.onTimeout, "on timeout")],
+        edges: sameArm
+          ? [edge(n.onEvent), edge(n.onTimeout)]
+          : [edge(n.onEvent, "on event"), edge(n.onTimeout, "on timeout")],
       };
+    }
     case "outcome":
       return {
         ...base,
@@ -334,11 +409,12 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
     case "exit":
       return {
         ...base,
-        headline: n.state,
+        headline: capitalize(splitExitState(n.state)),
         detail: n.reEntry,
         meta: [],
         edges: [],
         terminal: n.terminal,
+        exitClass: n.class,
       };
     case "handoff":
       return {
@@ -415,6 +491,68 @@ function orderedNodes(j: CanonicalJourney): CanonicalNode[] {
   return out;
 }
 
+/* Message channels only (excludes `sales`/`task`, the human routes) - a
+   closed, small set worth naming explicitly here rather than importing
+   journey-channels.ts's private split: "sales" and "task" are ordinary
+   English words an unrelated action's prose could easily contain ("queue
+   the task", "assign to sales"), where a channel name like "WhatsApp" or
+   "push token" essentially cannot occur by accident. Scanning is
+   deliberately restricted to the channels where a false hit is implausible. */
+const SCANNED_CHANNELS: readonly ChannelId[] = (Object.keys(CHANNEL_LABEL) as ChannelId[]).filter(
+  (id) => id !== "sales" && id !== "task",
+);
+
+/** Channel ids literally named in `text` (the action's own canonical `does`
+    prose), in the order they first appear. Word-boundary, case-insensitive,
+    against each channel's own EN display label - the canonical text is
+    always English regardless of the reading locale, so this runs once
+    against the source rather than per-language. See `FlowNode.channelPriority`. */
+function channelsMentionedIn(text: string): ChannelId[] {
+  const hits: { id: ChannelId; at: number }[] = [];
+  for (const id of SCANNED_CHANNELS) {
+    const label = CHANNEL_LABEL[id].en.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const m = new RegExp(`\\b${label}\\b`, "i").exec(text);
+    if (m) hits.push({ id, at: m.index });
+  }
+  return hits.sort((a, b) => a.at - b.at).map((h) => h.id);
+}
+
+/** One journey's action nodes, keyed to the channels their own prose names
+    (two or more distinct hits) - the channel-selecting action itself - or,
+    failing that, inherited from the channel-selecting action that leads
+    directly into them. Covers the corpus's own idiom: one internal action
+    picks a channel and writes it to state, the action right after it sends
+    "on the channel just selected" without naming one itself. A node absent
+    from the returned map had no channel mention to find, self or inherited -
+    the card falls back to the journey's full channel roster, unchanged from
+    before this existed. */
+function actionChannelHints(j: CanonicalJourney): ReadonlyMap<string, readonly ChannelId[]> {
+  const hints = new Map<string, readonly ChannelId[]>();
+  for (const n of j.nodes) {
+    if (n.kind !== "action") continue;
+    const found = channelsMentionedIn(n.does);
+    if (found.length >= 2) hints.set(n.id, found);
+  }
+  const nodeById = new Map(j.nodes.map((n) => [n.id, n]));
+  for (const n of j.nodes) {
+    if (n.kind !== "action" || !hints.has(n.id)) continue;
+    const next = nodeById.get(n.next);
+    if (next?.kind === "action" && next.execution && !hints.has(next.id)) {
+      hints.set(next.id, hints.get(n.id)!);
+    }
+  }
+  return hints;
+}
+
+/** Action node id -> its own touch's `stage` (see `FlowNode.touchStage`).
+    Absent on a journey with no orchestration touch plan (every non-vNext
+    journey, and any vNext one whose actions the plan doesn't reference). */
+function touchStages(j: CanonicalJourney): ReadonlyMap<string, string> {
+  const stages = new Map<string, string>();
+  for (const t of j.orchestration?.touches ?? []) stages.set(t.action, t.stage);
+  return stages;
+}
+
 /** The FlowNode projection of one journey - the exact input both the detail
     page's Canvas and the library card's topology thumbnail lay out, so the
     two can never drift into being different graphs. */
@@ -424,11 +562,15 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
   // target is above it. Done here rather than in nodeView because a node on
   // its own has no idea where it sits.
   const position = new Map(nodes.map((n, i) => [n.id, i]));
+  const channelHints = actionChannelHints(j);
+  const stages = touchStages(j);
   return nodes.map((n, i) => ({
     ...n,
     edges: n.edges.map((e) =>
       e.kind === "node" && (position.get(e.to) ?? i) < i ? { ...e, back: true } : e,
     ),
+    ...(n.kind === "action" && channelHints.has(n.id) ? { channelPriority: channelHints.get(n.id) } : {}),
+    ...(n.kind === "action" && stages.has(n.id) ? { touchStage: stages.get(n.id) } : {}),
   }));
 }
 

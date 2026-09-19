@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import { ArrowRightLeft, Clock, Cog, Flag, LogOut, Mail, Split, UserRound, Zap } from "lucide-react";
+import { ArrowRightLeft, CheckCircle2, Clock, Cog, Flag, LogOut, Mail, Route, Split, UserRound, Zap } from "lucide-react";
 
 import type { FlowNode } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
 import type { ChannelId, SignalSource } from "@/canonical/types";
-import { CHANNEL_HUE } from "@/lib/journey-channels";
+import { CHANNEL_HUE, CHANNEL_LABEL } from "@/lib/journey-channels";
 
 /* THE CANVAS NODE KIT, on the site's own system (Hulusi, 2026-09-14: "each
    canvas element needs to be redesigned and restructured; we need a design
@@ -13,11 +13,13 @@ import { CHANNEL_HUE } from "@/lib/journey-channels";
    soft shadow, a tinted icon tile per kind carrying a Lucide icon (the
    site's one icon set), plain-case labels on the 12px step, secondary
    states as quiet pills. Hierarchy stays as the grammar sets it: Action
-   is the strongest (widest, four lines of its sentence), Trigger is the
-   one filled card - brand blue, with the Entry pin standing on its top
-   edge so the start of a journey is the first thing the eye finds
+   is the widest card, its own sentence clamped to a glance rather than a
+   read (the full sentence is one click away, in the detail panel), Trigger
+   is the one filled card - brand blue, with the Entry pin standing on its
+   top edge so the start of a journey is the first thing the eye finds
    ("Entry is so hard to see") - Condition and Wait are compact, Exit sits
-   at rest on a dashed edge. Every word on a card is canonical prose or one
+   at rest on a dashed edge. Every word on a card is canonical prose,
+   mechanically derived from it (a short title, a short duration), or one
    of the kind names below; nothing is invented.
 
    Sizes are reserved by journey-canvas-layout.ts's SIZE table; keep the
@@ -28,10 +30,184 @@ export function humanize(text: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+/* A wait's `detail` (`timeout after ...`) already carries the timeout's own
+   value inside a parenthetical - "(example: 45 minutes; configure ...)" on
+   the EN route, "(örnek: 45 dakika; ayarla: ...)" on the TR route, both
+   composed by config-text.ts and journey-tr-overrides.ts before this
+   component ever sees the string (see canonical-view.ts / journey-tr-
+   overrides.ts - this file receives `node.detail` already localized, in
+   whichever language the page is). Pulling the value back out of that
+   wrapper - rather than adding a second, raw-English field bypassing that
+   localization - is what keeps a Turkish reader from ever seeing an English
+   duration on the one route where this card's main text has to be short.
+
+   A REQUIRED wait with no configured default (vNext, `Config.required:
+   true`) has no value to pull out - config-text.ts's own wrapper is
+   "<rule sentence> (configure <key>)", mechanically translated by
+   journey-tr-overrides.ts's regex layer to "(<key> ayarlanmalı)" wherever
+   no hand-authored override exists for that node. Where an override DOES
+   exist (most nodes, corpus-wide - the free-prose TR translation effort),
+   the translator re-wrote the whole sentence by hand and the trailing
+   wrapper varies in wording per node ("... ayarlanmalı", "... üzerinden
+   yapılandırılır", and a few left as the untranslated English "(configure
+   ...)" - confirmed by sampling journey-tr-overrides.ts directly, not
+   assumed). Matching each wording is a losing game against future
+   variants; instead this pulls the dotted key out of whichever trailing
+   parenthetical is present, ignoring the wrapper words around it - which
+   also quietly fixes the untranslated-English-leftover case, since only
+   the key (already language-neutral) ever reaches the card. Falling all
+   the way back to the full "until <event meaning>, or <event meaning>,
+   ..." headline in the no-parenthetical case is what left multi-clause
+   corpus sentences (confirmed corpus-wide, not a guess) sitting on a wait
+   pill meant to say "45 minutes"; past a length worth worrying about, the
+   headline's own first clause (up to its first comma/"or"/"veya"/"ya da")
+   stands in for the whole thing - the full multi-condition sentence stays
+   reachable in the detail panel, this card is a summary. The config key
+   alone is shorter and, left unhumanized rather than turned into a
+   natural-looking phrase, reads honestly as the technical reference it
+   is - the same "don't translate canonical keys" rule this corpus already
+   applies to node ids and event ids, not a new exception. */
+const WAIT_VALUE_RE = /\((?:example|recommended|örnek|önerilen): ([^;)]+)[;)]/i;
+const TRAILING_PAREN_RE = /\(([^()]*)\)\s*$/;
+const DOTTED_KEY_RE = /\b([a-z][\w]*(?:\.[a-z][\w]*)+)\b/i;
+const CLAUSE_SEP_RE = /, | veya | ya da | or |; /;
+
+function firstClause(text: string): string {
+  if (text.length <= 70) return text;
+  const m = CLAUSE_SEP_RE.exec(text);
+  return m && m.index <= 90 ? text.slice(0, m.index) : text;
+}
+
+function waitLabel(node: FlowNode): string {
+  const detail = node.detail;
+  const value = detail ? WAIT_VALUE_RE.exec(detail) : null;
+  if (value) return value[1].trim();
+  const paren = detail ? TRAILING_PAREN_RE.exec(detail) : null;
+  const key = paren ? DOTTED_KEY_RE.exec(paren[1]) : null;
+  if (key) return key[1];
+  return humanize(firstClause(node.headline));
+}
+
+/* A communication action's own real name, when its prose follows the
+   corpus's own "Send the first/second <noun> reminder on the channel just
+   selected, ..." idiom (EN) or "... ilk/ikinci <noun> hatırlatmasını
+   gönder, ..." (TR, already-localized text - see WAIT_VALUE_RE's own
+   comment on why this reads `node.headline` post-localization rather than
+   adding a second raw field). Pattern-matched against the sentence
+   structure, not any one journey's node id, so it applies to every future
+   action authored the same way and falls back to the generic kind label +
+   sequence, unchanged, wherever the pattern does not match. */
+const ACTION_TITLE_EN_RE = /^Send (?:the )?(?:first|second|third|fourth|next)?\s*(.+?)\s+on the channel\b/i;
+const ACTION_TITLE_TR_RE = /(?:ilk|ikinci|üçüncü|dördüncü)\s+(\S+)\s+hatırlatmasını\s+gönder/i;
+
+/* Fallback tier 2: most of the corpus does not phrase a send action as
+   "Send the X reminder..." (that idiom is this session's own, used only on
+   the two journeys it authored) - it describes what the message SAYS or
+   SHOWS in free prose with no consistent extractable noun. `Touch.stage`
+   (orchestration.touches, vNext) is authored, structured data instead:
+   the practitioner's own short name for this step in the send cascade
+   ("initial-recovery", "follow-up", "final-notice"), found by the touch's
+   own `action` reference back to this node - not a guess from sentence
+   shape. EN humanizes the key directly (a hyphenated English identifier
+   reads fine split into words); TR needs real translation, since the key
+   itself is always English - this table is that translation, covering
+   every stage value the customer-library surface actually uses (closed,
+   generated by inspecting the corpus, not invented). A stage outside this
+   table (only possible on a non-library public journey) falls through to
+   the generic kind label, same as a journey with no orchestration at all. */
+const TOUCH_STAGE_TR: Readonly<Record<string, string>> = {
+  "accept-request": "Talebi kabul et", "acknowledge": "Bilgilendirme", "acknowledge-review": "İnceleme bildirimi",
+  "acknowledgement": "Onay bildirimi", "action-prompt": "Aksiyon hatırlatması", "active": "Aktif bildirim",
+  "alert": "Uyarı", "alternative-offer": "Alternatif teklif", "approve": "Onay",
+  "arrived": "Varış bildirimi", "ask": "Soru", "ask-heavy": "Detaylı soru",
+  "ask-light": "Kısa soru", "assign": "Atama bildirimi", "assisted": "Destekli yönlendirme",
+  "at-risk-notice": "Risk bildirimi", "at-the-wall": "Son aşama bildirimi", "attempt": "Deneme bildirimi",
+  "behaviour-nudge": "Davranış hatırlatması", "brief": "Özet bilgilendirme", "challenge": "Doğrulama isteği",
+  "cleared": "Temizlendi bildirimi", "closed-full": "Tam kapanış bildirimi", "closed-partial": "Kısmi kapanış bildirimi",
+  "communicate": "Bilgilendirme", "communicate-outcome": "Sonuç bildirimi", "confirm": "Onay",
+  "confirm-accept": "Kabul onayı", "confirm-closure": "Kapanış onayı", "confirm-decline": "Red onayı",
+  "confirmation": "Onay", "confirmation-ask": "Onay isteği", "confirmation-request": "Onay talebi",
+  "correct": "Düzeltme", "correct-distribution": "Dağıtım düzeltmesi", "correctable": "Düzeltilebilir bildirim",
+  "corrective-request": "Düzeltme talebi", "decision-request": "Karar talebi", "decline": "Red bildirimi",
+  "delay-update": "Gecikme güncellemesi", "deliver": "Teslimat bildirimi", "dispatch": "Sevkiyat bildirimi",
+  "distribute": "Dağıtım bildirimi", "educate": "Bilgilendirme", "ending": "Sonlanma bildirimi",
+  "expired": "Süresi doldu bildirimi", "explain": "Açıklama", "explain-terminal": "Sonlanma açıklaması",
+  "final": "Son bildirim", "final-notice": "Son uyarı", "first-touch": "İlk temas",
+  "fix-auth": "Yetkilendirme düzeltmesi", "fix-capability": "Yetenek düzeltmesi", "fix-scope": "Kapsam düzeltmesi",
+  "follow-up": "Takip bildirimi", "followup": "Takip bildirimi", "generic": "Bildirim",
+  "in-force-actionable": "Yürürlükte, aksiyon gerekli", "in-force-standing": "Yürürlükte bildirim", "inform": "Bilgilendirme",
+  "inform-hold": "Bekletme bilgilendirmesi", "inform-only": "Yalnızca bilgilendirme", "informational-notice": "Bilgilendirme notu",
+  "initial-recovery": "İlk kurtarma hatırlatması", "invitation": "Davet", "invite-known": "Bilinen kişiye davet",
+  "invite-new": "Yeni davet", "issue": "Sorun bildirimi", "lapse": "Sona erme bildirimi",
+  "last-call": "Son çağrı", "lead-prompt": "Potansiyel müşteri hatırlatması", "lost": "Kayıp bildirimi",
+  "name-blocker": "Engel bildirimi", "next-action": "Sıradaki aksiyon", "next-step": "Sıradaki adım",
+  "no-arrival": "Varış olmadı bildirimi", "no-choice-update": "Seçim yapılmadı güncellemesi", "no-remedy": "Çözüm yok bildirimi",
+  "no-route": "Yönlendirme yok bildirimi", "notify": "Bildirim", "notify-authorization": "Yetkilendirme bildirimi",
+  "notify-blocked-party": "Engellenen taraf bildirimi", "notify-cannot-close": "Kapatılamıyor bildirimi", "notify-provider-cancel": "Sağlayıcı iptali bildirimi",
+  "notify-quiet": "Sessiz bildirim", "notify-rejection": "Red bildirimi", "notify-restricted": "Kısıtlama bildirimi",
+  "notify-unauthorized": "Yetkisiz erişim bildirimi", "nurture": "Besleme mesajı", "offer": "Teklif",
+  "offer-alternate": "Alternatif teklif", "offer-holder": "Hak sahibine teklif", "offer-route": "Yönlendirme teklifi",
+  "offer-self": "Kendi kendine teklif", "overdue": "Gecikme bildirimi", "owner-task": "Sahip görevi",
+  "partial": "Kısmi bildirim", "prerequisite-prompt": "Ön koşul hatırlatması", "present": "Sunum",
+  "prompt-alt": "Alternatif hatırlatma", "prompt-in-app": "Uygulama içi hatırlatma", "ready": "Hazır bildirimi",
+  "reapply": "Yeniden başvuru", "reason-ask": "Neden sorgusu", "rebooking-offer": "Yeniden rezervasyon teklifi",
+  "received": "Alındı bildirimi", "recognition": "Takdir bildirimi", "recovery": "Kurtarma hatırlatması",
+  "reject": "Red", "reject-scope": "Kapsam reddi", "remind": "Hatırlatma",
+  "reminder": "Hatırlatma", "renew": "Yenileme", "reoffer": "Yeniden teklif",
+  "replace": "Değiştirme", "replacement-notice": "Değişiklik bildirimi", "requalify": "Yeniden yeterlilik",
+  "request": "Talep", "request-internal": "İç talep", "request-more": "Ek bilgi talebi",
+  "request-more-info": "Ek bilgi talebi", "required-notice": "Zorunlu bildirim", "reset": "Sıfırlama bildirimi",
+  "resolution": "Çözüm bildirimi", "restored": "Geri yüklendi bildirimi", "review": "İnceleme",
+  "route-dependency": "Yönlendirme bağımlılığı", "routing": "Yönlendirme", "signature-request": "İmza talebi",
+  "specific-action": "Özel aksiyon", "surface": "Görünür kılma", "total": "Toplam bildirim",
+  "unverified": "Doğrulanmadı bildirimi", "verify": "Doğrulama", "waitlist": "Bekleme listesi",
+};
+
+function stageTitle(stage: string, lang: Lang): string | null {
+  if (lang === "tr") return TOUCH_STAGE_TR[stage] ?? null;
+  return humanize(stage.replace(/-/g, " "));
+}
+
+function actionTitle(node: FlowNode, lang: Lang): string | null {
+  if (lang === "tr") {
+    const m = ACTION_TITLE_TR_RE.exec(node.headline);
+    if (m) return `${humanize(m[1])} hatırlatması`;
+  } else {
+    const m = ACTION_TITLE_EN_RE.exec(node.headline);
+    if (m) return humanize(m[1]);
+  }
+  return node.touchStage ? stageTitle(node.touchStage, lang) : null;
+}
+
+/** The channel-priority rows: a labelled "Primary"/"Fallback" pair (or
+    longer chain), never a bare arrow - "Push → Email" alone read as two
+    channels a message goes out on in sequence, not as "try Push, and only
+    if it fails, Email" (2026-09-19 feedback: the arrow-only chip was
+    genuinely ambiguous). Shared by a channel-selecting action and, when it
+    inherited that action's own priority, the message/human action right
+    after it (see `FlowNode.channelPriority`) - one presentation for every
+    router+message pairing on the canvas, not a per-journey choice. */
+function ChannelPriorityRow({ ids, lang }: { ids: readonly ChannelId[]; lang: Lang }) {
+  const w = CARD_TEXT[lang];
+  return (
+    <div className="mt-2.5 flex flex-col gap-1 [[data-lod=far]_&]:hidden">
+      {ids.map((id, i) => (
+        <span key={id} className="flex items-center gap-2">
+          <span className="w-[62px] shrink-0 text-[11px] text-ink-400">{i === 0 ? w.primary : w.fallback}</span>
+          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[id].pill}`}>
+            {CHANNEL_LABEL[id][lang]}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 const KIND = {
   message: { tile: "bg-primary-50 text-primary-700", ink: "text-primary-700" },
   human: { tile: "bg-amber-50 text-amber-700", ink: "text-amber-700" },
   internal: { tile: "bg-paper-soft text-ink-600", ink: "text-ink-600" },
+  router: { tile: "bg-cyan-50 text-cyan-700", ink: "text-cyan-700" },
   condition: { tile: "bg-violet-50 text-violet-700", ink: "text-violet-700" },
   wait: { tile: "bg-teal-50 text-teal-700", ink: "text-teal-700" },
   handoff: { tile: "bg-indigo-50 text-indigo-700", ink: "text-indigo-700" },
@@ -62,7 +238,9 @@ const CARD_TEXT = {
     message: "Message",
     human: "Human",
     internalAction: "Internal",
-    branches: (n: number) => `${n} branches`,
+    channelSelection: "Channel selection",
+    primary: "Primary",
+    fallback: "Fallback",
   },
   tr: {
     trigger: "Tetikleyici",
@@ -76,7 +254,9 @@ const CARD_TEXT = {
     message: "Mesaj",
     human: "İnsan",
     internalAction: "İç işlem",
-    branches: (n: number) => `${n} dal`,
+    channelSelection: "Kanal seçimi",
+    primary: "Öncelikli",
+    fallback: "Yedek",
   },
 } as const;
 
@@ -113,6 +293,7 @@ const FAR = {
   message: "[[data-lod=far]_&]:bg-primary-200 [[data-lod=far]_&]:ring-primary-300",
   human: "[[data-lod=far]_&]:bg-amber-200 [[data-lod=far]_&]:ring-amber-300",
   internal: "[[data-lod=far]_&]:bg-neutral-200 [[data-lod=far]_&]:ring-neutral-300",
+  router: "[[data-lod=far]_&]:bg-cyan-200 [[data-lod=far]_&]:ring-cyan-300",
   condition: "[[data-lod=far]_&]:bg-violet-200 [[data-lod=far]_&]:ring-violet-300",
   handoff: "[[data-lod=far]_&]:bg-indigo-200 [[data-lod=far]_&]:ring-indigo-300",
   outcome: "[[data-lod=far]_&]:bg-emerald-200 [[data-lod=far]_&]:ring-emerald-300",
@@ -208,60 +389,103 @@ export function OutcomeCard({ node, onOpen, lang = "en" }: { node: FlowNode; onO
   );
 }
 
-/* Exit: at rest - a dashed edge, no fill, quieter ink. */
-export function ExitCard({ node, onOpen, terminalLabel, lang = "en" }: { node: FlowNode; onOpen: () => void; terminalLabel: string; lang?: Lang }) {
-  const w = CARD_TEXT[lang];
+/* Exit: a small terminal capsule, the same "fit" sizing Wait already uses
+   (Shell's `fit` prop) rather than a card sized like an action - a journey
+   ends in a word, not a paragraph, and `splitExitState` (canonical-view.ts)
+   already keeps that word short. Dashed, at rest, for every ending except
+   a successful one, which reads instead of just stops: a filled check tile
+   in the same emerald the Outcome card already uses elsewhere in this file
+   (no new color introduced). Driven by the exit's own authored `class`
+   (see FlowNode.exitClass) - never a guess from its headline text - and
+   every other class (timeout, invalid-state, no-action, ...) keeps
+   exactly the prior, undifferentiated capsule. */
+export function ExitCard({ node, onOpen, terminalLabel }: { node: FlowNode; onOpen: () => void; terminalLabel: string; lang?: Lang }) {
+  const success = node.exitClass === "success";
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className="rounded-2xl border border-dashed border-ink-300 bg-paper/70 px-3.5 py-2.5 [[data-lod=far]_&]:bg-neutral-100">
-      <span className="flex items-center gap-2">
-        <Tile kind={KIND.exit}>
-          <LogOut aria-hidden />
-        </Tile>
-        <span className="flex items-center gap-1.5 text-xs font-medium text-ink-500 [[data-lod=far]_&]:hidden">
-          {w.exit}
-          {node.terminal ? <Pill>{terminalLabel}</Pill> : null}
-        </span>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className={`flex max-w-[220px] items-center gap-1.5 rounded-full border border-dashed py-1.5 pr-3 pl-1.5 ${
+        success ? "border-emerald-200 bg-emerald-50/40 [[data-lod=far]_&]:bg-emerald-100" : "border-ink-300 bg-paper/70 [[data-lod=far]_&]:bg-neutral-100"
+      }`}
+    >
+      <Tile kind={success ? KIND.outcome : KIND.exit} className="size-5">
+        {success ? <CheckCircle2 aria-hidden /> : <LogOut aria-hidden />}
+      </Tile>
+      {/* No line-clamp here on purpose: `line-clamp` establishes a
+          `-webkit-box` that does not size predictably inside a `w-fit`
+          flex shell (verified - it truncated a longer TR exit headline to
+          "Checkout..." well before the pill's own max-width). Exit
+          headlines are already short by construction (`splitExitState`,
+          canonical-view.ts), so plain wrapping inside `max-w-[220px]`
+          costs at most one extra line on the rare longer one, never a
+          silently broken truncation. */}
+      <span className={`text-[13px] leading-snug font-medium [[data-lod=far]_&]:hidden ${success ? "text-emerald-700" : "text-ink-600"}`}>
+        {node.headline}
       </span>
-      <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-600 [[data-lod=far]_&]:hidden">{node.headline}</p>
+      {node.terminal ? <Pill>{terminalLabel}</Pill> : null}
     </Shell>
   );
 }
 
-export function ActionCard({
-  node,
-  sequence,
-  onOpen,
-  messageLabels,
-  humanLabels,
-  lang = "en",
-}: {
+/* A channel-selecting action with no matching successor to collapse into
+   (journey-canvas-layout.ts's display graph absorbs the ordinary case -
+   see its own comment - so this is the rare/defensive path: some other
+   corpus shape where a router isn't immediately followed by the send it
+   selects for). Reads as a routing step, not a paragraph of permission
+   rules - the priority-with-fallback IS the card; the full prose stays
+   one click away in the detail panel, unchanged there. */
+function RouterCard({ node, onOpen, priority, lang }: { node: FlowNode; onOpen: () => void; priority: readonly ChannelId[]; lang: Lang }) {
+  const w = CARD_TEXT[lang];
+  return (
+    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.router} py-2.5`}>
+      <KindRow kind={KIND.router} icon={<Route aria-hidden />}>
+        {w.channelSelection}
+      </KindRow>
+      <ChannelPriorityRow ids={priority} lang={lang} />
+    </Shell>
+  );
+}
+
+/* Communication and human actions - a journey builder's own action card:
+   an icon, the action's real name, the channel(s) it goes out on. No
+   paragraph, ever (the full canonical sentence is one click away, in the
+   detail panel - never lost, never paraphrased there) and no sequence
+   number (nothing left on the card that needs one to stay distinct; the
+   node's own id already does that job in the detail panel). `priority`
+   is usually inherited from a channel-selecting action the display graph
+   collapsed into this same card (journey-canvas-layout.ts) - the router's
+   own full logic is still one click away too, surfaced in the panel under
+   its own "Routing logic" section (NodeDetailPanel's `collapsedRouter`). */
+export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, lang = "en" }: {
   node: FlowNode;
-  sequence: number;
   onOpen: () => void;
   lang?: Lang;
-  /** The journey's message-delivery surfaces, localised and ordered, with
-      the channel id for its tint. Shown on a communication action only. */
+  /** The journey's message-delivery surfaces, localised and ordered - the
+      fallback shown only when nothing more specific (`channelPriority`)
+      is known for this exact action. */
   messageLabels: readonly { id: ChannelId; label: string }[];
-  /** The journey's human routes (sales, task). Shown on a human action only. */
+  /** The journey's human routes (sales, task), same fallback role. */
   humanLabels: readonly { id: ChannelId; label: string }[];
 }) {
   const w = CARD_TEXT[lang];
-  const execution = node.execution ?? "system";
-  const kind = execution === "communication" ? KIND.message : execution === "human" ? KIND.human : KIND.internal;
-  const icon = execution === "communication" ? <Mail aria-hidden /> : execution === "human" ? <UserRound aria-hidden /> : <Cog aria-hidden />;
-  const label = execution === "communication" ? w.message : execution === "human" ? w.human : w.internalAction;
-  const routes = execution === "communication" ? messageLabels : execution === "human" ? humanLabels : [];
-  const far = execution === "communication" ? FAR.message : execution === "human" ? FAR.human : FAR.internal;
+  const isHuman = node.execution === "human";
+  const kind = isHuman ? KIND.human : KIND.message;
+  const far = isHuman ? FAR.human : FAR.message;
+  const routes = isHuman ? humanLabels : messageLabels;
+  const priority = node.channelPriority;
+  const title = actionTitle(node, lang) ?? (isHuman ? w.human : w.message);
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${far}`}>
-      <KindRow kind={kind} icon={icon}>
-        {label} · {String(sequence).padStart(2, "0")}
-      </KindRow>
-      {/* The canonical sentence itself, clamped - the full text is in the
-          detail panel; never a paraphrase. */}
-      <p className="mt-2 line-clamp-4 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
-      {routes.length > 0 ? (
-        <span className="mt-2 flex flex-wrap gap-1 [[data-lod=far]_&]:hidden">
+    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${far} py-2.5`}>
+      <span className="flex items-center gap-2">
+        <Tile kind={kind}>{isHuman ? <UserRound aria-hidden /> : <Mail aria-hidden />}</Tile>
+        <span className="text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{title}</span>
+      </span>
+      {priority && priority.length >= 2 ? (
+        <ChannelPriorityRow ids={priority} lang={lang} />
+      ) : routes.length > 0 ? (
+        <span className="mt-2.5 flex flex-wrap gap-1 [[data-lod=far]_&]:hidden">
           {routes.map((r) => (
             <span key={r.id} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[r.id].pill}`}>
               {r.label}
@@ -273,19 +497,55 @@ export function ActionCard({
   );
 }
 
+/* A plain internal action - state or data work with no outward effect
+   (`ActionNode.execution` unset) that isn't a channel-selecting router
+   either. Unchanged in shape from before this round: a kind label plus
+   sequence (still the only same-kind cards on a canvas without a name of
+   their own) and its own sentence clamped short. */
+export function ActionCard({ node, sequence, onOpen, messageLabels, humanLabels, lang = "en" }: {
+  node: FlowNode;
+  sequence: number;
+  onOpen: () => void;
+  lang?: Lang;
+  messageLabels: readonly { id: ChannelId; label: string }[];
+  humanLabels: readonly { id: ChannelId; label: string }[];
+}) {
+  const w = CARD_TEXT[lang];
+  // Execution decides the card FIRST: a communication/human action also
+  // carries `channelPriority` once it inherits one from a collapsed router
+  // (canonical-view.ts), so checking priority before execution would catch
+  // the message too and mislabel it a router. Only a plain action (no
+  // execution) with a self-detected priority is an actual, undrawn router -
+  // the rare case journey-canvas-layout.ts's collapse did not absorb.
+  if (node.execution === "communication" || node.execution === "human") {
+    return <CommunicationCard node={node} onOpen={onOpen} messageLabels={messageLabels} humanLabels={humanLabels} lang={lang} />;
+  }
+  const priority = node.channelPriority;
+  if (priority && priority.length >= 2) return <RouterCard node={node} onOpen={onOpen} priority={priority} lang={lang} />;
+  return (
+    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.internal}`}>
+      <KindRow kind={KIND.internal} icon={<Cog aria-hidden />}>
+        {w.internalAction} · {String(sequence).padStart(2, "0")}
+      </KindRow>
+      {/* The canonical sentence itself, clamped short - a glance, not a read;
+          the full text is in the detail panel, never a paraphrase. */}
+      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
+    </Shell>
+  );
+}
+
 export function ConditionCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
   const w = CARD_TEXT[lang];
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.condition}`}>
+    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.condition} py-2.5`}>
       <KindRow kind={KIND.condition} icon={<Split aria-hidden />}>
         {w.decision}
       </KindRow>
-      <p className="mt-2 line-clamp-3 text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
-      {typeof node.branchCount === "number" ? (
-        <span className="mt-2 flex [[data-lod=far]_&]:hidden">
-          <Pill>{w.branches(node.branchCount)}</Pill>
-        </span>
-      ) : null}
+      {/* Branch count used to show here too - dropped: the branches
+          themselves, labelled, are drawn right below on the canvas, so a
+          count added nothing a reader couldn't already see. Still on
+          FlowNode (`branchCount`) for anything else that wants it. */}
+      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
     </Shell>
   );
 }
@@ -302,7 +562,7 @@ export function WaitCard({ node, onOpen }: { node: FlowNode; onOpen: () => void 
       <Tile kind={KIND.wait}>
         <Clock aria-hidden />
       </Tile>
-      <span className="line-clamp-2 text-[13px] leading-snug font-medium text-ink-800 [[data-lod=far]_&]:hidden">{humanize(node.headline)}</span>
+      <span className="line-clamp-2 text-[13px] leading-snug font-medium text-ink-800 [[data-lod=far]_&]:hidden">{waitLabel(node)}</span>
     </Shell>
   );
 }

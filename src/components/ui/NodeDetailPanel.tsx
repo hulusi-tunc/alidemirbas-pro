@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import type { FlowNode } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
 import { humanize } from "@/components/ui/JourneyCanvasNodes";
+import { CHANNEL_LABEL } from "@/lib/journey-channels";
 import { springSnap } from "@/lib/motion";
 
 /* The canvas answers "what is the shape of this journey"; this panel answers
@@ -17,6 +18,9 @@ import { springSnap } from "@/lib/motion";
    canonical field, no node-type-specific panel component. One panel renders
    any of the seven kinds because the data shape is already uniform. */
 
+const PRIORITY_LABEL: Record<Lang, string> = { en: "Channel priority", tr: "Kanal önceliği" };
+const ROUTING_LABEL: Record<Lang, string> = { en: "Routing logic", tr: "Yönlendirme mantığı" };
+
 const KIND_LABEL: Record<FlowNode["kind"], Record<Lang, string>> = {
   trigger: { en: "Trigger", tr: "Tetikleyici" },
   action: { en: "Internal action", tr: "İç işlem" },
@@ -25,6 +29,15 @@ const KIND_LABEL: Record<FlowNode["kind"], Record<Lang, string>> = {
   outcome: { en: "Outcome", tr: "Sonuç" },
   exit: { en: "Exit", tr: "Çıkış" },
   handoff: { en: "Handoff", tr: "Devir" },
+};
+
+/** `action` alone reads as "Internal action" above regardless of
+    `execution` - true for the 1,048-of-1,232 majority with no outward
+    effect, wrong for the message/human minority (`ActionNode.execution`,
+    same field JourneyCanvasNodes.tsx already reads to pick a card). */
+const ACTION_KIND_LABEL: Record<"communication" | "human", Record<Lang, string>> = {
+  communication: { en: "Message", tr: "Mesaj" },
+  human: { en: "Human action", tr: "İnsan işlemi" },
 };
 
 export type PanelLabels = {
@@ -39,18 +52,29 @@ export type PanelLabels = {
 
 export function NodeDetailPanel({
   node,
+  collapsedRouter,
   basePath,
   labels,
   onClose,
 }: {
   node: FlowNode | null;
+  /** The channel-selecting action this node's own card absorbed on the
+      canvas (see journey-canvas-layout.ts's display-graph collapse) - still
+      a real, full FlowNode, just drawn as one card with `node` instead of
+      two. Null for a node that collapsed nothing, which is every kind but a
+      collapsed message/human action. Renders as an extra section below
+      `node`'s own, so the router's full priority/fallback prose stays
+      reachable exactly as the collapse's own contract requires. */
+  collapsedRouter?: FlowNode | null;
   basePath: string;
   labels: PanelLabels;
   onClose: () => void;
 }) {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
-  const kindLabel = (kind: FlowNode["kind"]) => KIND_LABEL[kind][labels.lang ?? "en"];
+  const lang = labels.lang ?? "en";
+  const kindLabel = (n: FlowNode) =>
+    n.execution === "communication" || n.execution === "human" ? ACTION_KIND_LABEL[n.execution][lang] : KIND_LABEL[n.kind][lang];
 
   /* Matches JourneyModal.tsx's own dialog convention (Escape closes,
      opening moves focus in, closing returns it to whatever opened it) -
@@ -95,7 +119,7 @@ export function NodeDetailPanel({
         <motion.aside
           key={node.id}
           role="dialog"
-          aria-label={kindLabel(node.kind)}
+          aria-label={kindLabel(node)}
           initial={{ x: 24, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 24, opacity: 0 }}
@@ -105,7 +129,7 @@ export function NodeDetailPanel({
           <div className="flex items-start justify-between gap-3 border-b border-line-soft px-5 py-4">
             <div className="min-w-0">
               <p className="flex flex-wrap items-center gap-2 font-mono text-[10px] font-semibold tracking-[0.1em] text-ink-400 uppercase">
-                {kindLabel(node.kind)}
+                {kindLabel(node)}
                 <span className="text-ink-300">·</span>
                 <span className="normal-case">{node.id}</span>
                 {node.isEntry ? (
@@ -139,6 +163,26 @@ export function NodeDetailPanel({
 
           <div className="flex-1 space-y-5 px-5 py-4">
             {node.detail ? <p className="text-sm leading-relaxed text-ink-700">{node.detail}</p> : null}
+
+            {node.channelPriority && node.channelPriority.length >= 2 ? (
+              <div className="border-t border-line-soft pt-4">
+                <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-ink-400 uppercase">{PRIORITY_LABEL[lang]}</p>
+                <ol className="mt-1.5 space-y-1 text-[13px] leading-snug text-ink-700">
+                  {node.channelPriority.map((id, i) => (
+                    <li key={id}>
+                      {i + 1}. {CHANNEL_LABEL[id][lang]}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ) : null}
+
+            {collapsedRouter ? (
+              <div className="border-t border-line-soft pt-4">
+                <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-ink-400 uppercase">{ROUTING_LABEL[lang]}</p>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-ink-600">{collapsedRouter.headline}</p>
+              </div>
+            ) : null}
 
             {node.meta.length ? (
               <ul className="space-y-1.5 border-t border-line-soft pt-4">

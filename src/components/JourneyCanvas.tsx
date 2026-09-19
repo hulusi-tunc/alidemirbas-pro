@@ -5,7 +5,7 @@ import { ArrowRightLeft, LogOut, Maximize2, Minus, Plus, RotateCcw, Split, Workf
 
 import type { FlowNode } from "@/lib/canonical-view";
 import type { ChannelId } from "@/canonical/types";
-import { edgePath, type CanvasLayout, type LaidOutEdge } from "@/lib/journey-canvas-layout";
+import { collapsibleRouters, edgePath, type CanvasLayout, type LaidOutEdge } from "@/lib/journey-canvas-layout";
 import {
   ActionCard,
   ConditionCard,
@@ -126,6 +126,22 @@ export default function JourneyCanvas({
     for (const n of nodes) if (n.kind === "action") map.set(n.id, ++i);
     return map;
   }, [nodes]);
+  /* The channel-selecting action a message/human card absorbed on the
+     canvas (see journey-canvas-layout.ts's own collapse - same detection,
+     reused rather than re-derived) - still a real FlowNode, just not laid
+     out as its own box. Keyed by the MESSAGE's id, so opening that card can
+     hand the detail panel the router's own full priority/fallback prose
+     alongside its own, which is the "still reachable from the detail
+     panel" half of the collapse. */
+  const collapsedRouterOf = useMemo(() => {
+    const collapsed = collapsibleRouters(nodes, byId);
+    const inverse = new Map<string, FlowNode>();
+    for (const [routerId, messageId] of collapsed) {
+      const router = byId.get(routerId);
+      if (router) inverse.set(messageId, router);
+    }
+    return inverse;
+  }, [nodes, byId]);
 
   /* Computed during render from `layout`, which is deterministic for a given
      journey - so the server and the first client paint agree on the frame's
@@ -140,6 +156,7 @@ export default function JourneyCanvas({
   const [zoom, setZoom] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedNode = selectedId ? (byId.get(selectedId) ?? null) : null;
+  const selectedRouter = selectedId ? (collapsedRouterOf.get(selectedId) ?? null) : null;
 
   const isMobile = () => (containerRef.current?.clientWidth ?? 0) < MOBILE_BREAKPOINT;
 
@@ -315,6 +332,7 @@ export default function JourneyCanvas({
         shape={shape}
         basePath={basePath}
         selectedNode={selectedNode}
+        selectedRouter={selectedRouter}
         onClose={() => setSelectedId(null)}
       />
     );
@@ -360,7 +378,7 @@ export default function JourneyCanvas({
             changed that element's own scrollable bounds, and the browser
             committed the clamped value). Positioned against the stage that
             wraps them both, it still overlays exactly the same visible area. */}
-        <NodeDetailPanel node={selectedNode} basePath={basePath} labels={labels} onClose={() => setSelectedId(null)} />
+        <NodeDetailPanel node={selectedNode} collapsedRouter={selectedRouter} basePath={basePath} labels={labels} onClose={() => setSelectedId(null)} />
       </div>
 
       {/* The caption bar. It states what the figure contains and carries the
@@ -468,6 +486,7 @@ function FreeCanvas({
   shape,
   basePath,
   selectedNode,
+  selectedRouter,
   onClose,
 }: {
   layout: CanvasLayout;
@@ -477,6 +496,7 @@ function FreeCanvas({
   shape: readonly { kind: "nodes" | "decisions" | "exits" | "handoffs"; label: string }[];
   basePath: string;
   selectedNode: FlowNode | null;
+  selectedRouter: FlowNode | null;
   onClose: () => void;
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -640,7 +660,7 @@ function FreeCanvas({
           {world}
         </div>
       </div>
-      <NodeDetailPanel node={selectedNode} basePath={basePath} labels={labels} onClose={onClose} />
+      <NodeDetailPanel node={selectedNode} collapsedRouter={selectedRouter} basePath={basePath} labels={labels} onClose={onClose} />
       {/* The legend: the journey's shape as icon tiles with counts, in the
           kinds' own colours - a key to the drawing, centred at the bottom
           where a map keeps its key. */}

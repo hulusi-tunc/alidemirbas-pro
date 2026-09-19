@@ -127,12 +127,12 @@ export type CanvasLayout = {
    feed these. */
 export const SIZE: Record<CanvasNodeKind, { width: number; height: number }> = {
   trigger: { width: 240, height: 124 },
-  action: { width: 264, height: 168 },
-  condition: { width: 240, height: 128 },
+  action: { width: 264, height: 108 },
+  condition: { width: 240, height: 100 },
   wait: { width: 240, height: 56 },
   handoff: { width: 240, height: 124 },
   outcome: { width: 232, height: 100 },
-  exit: { width: 208, height: 88 },
+  exit: { width: 200, height: 48 },
 };
 
 /** Height of a label chip (`text-xs` pill with `py-0.5`), as ELK sees it. */
@@ -175,18 +175,58 @@ function edgeKindFor(node: FlowNode, edge: FlowEdge): CanvasEdgeKind {
    instance of it is a complete drawing of it. */
 const INSTANCED_KINDS: ReadonlySet<CanvasNodeKind> = new Set(["exit", "handoff", "outcome"]);
 
+/* A channel-selecting action (`FlowNode.channelPriority`, self-detected -
+   see canonical-view.ts) that leads directly into the one send action it
+   selects for is, on the CANVAS, the same step as that send - "pick a
+   channel" and "send on it" read as one action to a journey reader, not
+   two. The canonical graph keeps both nodes exactly as authored (nothing
+   here reads or writes src/canonical); this is a DISPLAY GRAPH decision
+   only, the same kind this module already makes for a shared terminal
+   drawn once per parent below - here the router simply draws no box of
+   its own, and whatever fed into it connects straight through to the
+   message/human action instead. Detail panel access to the router's own
+   full priority/fallback prose is JourneyCanvas.tsx's concern (it still
+   has the router as an ordinary FlowNode, just not laid out); this
+   function only decides what gets a box. Generic: works for any journey
+   with the shape, not looked up by journey or node id. */
+export function collapsibleRouters(nodes: readonly FlowNode[], byId: ReadonlyMap<string, FlowNode>): ReadonlyMap<string, string> {
+  const collapsed = new Map<string, string>();
+  for (const n of nodes) {
+    if (n.kind !== "action" || n.execution || (n.channelPriority?.length ?? 0) < 2) continue;
+    const out = n.edges.filter((e) => e.kind === "node");
+    if (out.length !== 1) continue;
+    const next = byId.get(out[0].to);
+    if (next?.kind === "action" && (next.execution === "communication" || next.execution === "human")) {
+      collapsed.set(n.id, out[0].to);
+    }
+  }
+  return collapsed;
+}
+
 /* ---------------------------------------------------------------- display graph */
 
 export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const entry = nodes.find((n) => n.isEntry) ?? nodes[0];
+  const collapsed = collapsibleRouters(nodes, byId);
+  const resolve = (id: string): string => collapsed.get(id) ?? id;
 
   /* Internal edges only - an edge to another journey or an external system
-     is where this journey's drawing ends. */
+     is where this journey's drawing ends. A collapsed router contributes
+     no edges of its own (its one edge, into the node it selects for, is
+     what the collapse absorbs); any edge that targeted it is retargeted to
+     what it resolves to, so the rest of this function never has to know
+     the collapse happened. */
   const internal = new Map<string, FlowEdge[]>();
   const parents = new Map<string, Set<string>>();
   for (const n of nodes) {
-    const out = n.edges.filter((e) => e.kind === "node" && byId.has(e.to));
+    if (collapsed.has(n.id)) {
+      internal.set(n.id, []);
+      continue;
+    }
+    const out = n.edges
+      .filter((e) => e.kind === "node" && byId.has(e.to))
+      .map((e) => (collapsed.has(e.to) ? { ...e, to: resolve(e.to) } : e));
     internal.set(n.id, out);
     for (const e of out) {
       const set = parents.get(e.to) ?? new Set<string>();
@@ -223,7 +263,7 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
   const displayNodes: DisplayNode[] = [];
   const displayEdges: DisplayEdge[] = [];
   for (const n of nodes) {
-    if (!instanced.has(n.id)) displayNodes.push({ layoutId: n.id, canonicalNodeId: n.id, node: n });
+    if (!instanced.has(n.id) && !collapsed.has(n.id)) displayNodes.push({ layoutId: n.id, canonicalNodeId: n.id, node: n });
     const out = internal.get(n.id)!;
     /* Instances go into the model order right after their parent, which is
        where ELK's model-order tie-breaking keeps them on the canvas too. */

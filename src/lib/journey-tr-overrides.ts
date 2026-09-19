@@ -1,4 +1,5 @@
 import type { FlowNode, JourneyDetail } from "@/lib/canonical-view";
+import { splitExitState } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
 
 /* JOURNEY CANVAS LOCALIZATION for the TR site - applied on top of the
@@ -3561,11 +3562,20 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     not by any page. */
 export const TRANSLATION_COVERAGE = { journeysCovered: Object.keys(OVERRIDES).length } as const;
 
+/* An exit's TR `headline` override is hand-translated from the full
+   canonical `state` sentence, the same source the EN side runs through
+   `splitExitState` (canonical-view.ts) before it ever becomes a headline -
+   so an override written as a direct translation carries the same
+   "<short clause>; <elaboration>" shape the EN clause was split away from.
+   Re-running the split here keeps the TR exit card exactly as short as its
+   EN twin instead of trusting each translated entry to have been
+   pre-shortened by hand (confirmed corpus-wide: several were not). */
 function localizeNodeContent(node: FlowNode, override: NodeOverride | undefined): FlowNode {
   if (!override) return node;
+  const headline = override.headline ?? node.headline;
   return {
     ...node,
-    headline: override.headline ?? node.headline,
+    headline: node.kind === "exit" ? splitExitState(headline) : headline,
     detail: override.detail !== undefined ? override.detail : node.detail,
     edges: override.edges
       ? node.edges.map((e, i) => {
