@@ -1,8 +1,10 @@
 import Image from "next/image";
-import { ArrowUpRight, BellRing, Check, CircleCheck, Gauge, LayoutList, Lock, Mail, MessageSquare, Ruler, Smartphone } from "lucide-react";
+import { ArrowUpRight, BellRing, Blocks, Check, CircleCheck, Gauge, LayoutList, Lock, Mail, MessageSquare, Ruler, Smartphone, Terminal } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
+import { GitHubMark } from "@/components/ui/BrandIcons";
 import { buttonStyles } from "@/components/ui/Button";
+import { InstallPanel } from "@/components/ui/InstallPanel";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { ProductCta } from "@/components/ui/ProductCta";
@@ -462,21 +464,12 @@ function ChannelRulesWindow({ lang }: { lang: Lang }) {
 /* ---- 10 · Why different — the product at work, not screenshots ------- */
 function WhyDifferent({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.journeyBuilder.whyDifferent;
+  /* The three stories open straight after the hero (2026-09-20, Hulusi's
+     sub-page pass: remove the sections that are only text). The "Approach"
+     band that stood here - a centred heading, one paragraph and a second
+     GitHub button - said what the first story's own title says. */
   return (
     <>
-      <ProductSection tone="paper" space="md" className="pb-0! md:pb-0!">
-        <PortraitContainer>
-          <ProductHeading eyebrow={c.eyebrow} title={c.title} body={c.body} align="center" />
-          <Reveal delay={100} className="mt-8 flex flex-wrap justify-center gap-2.5">
-            <a href={REPO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
-              <PixelFill />
-              {t.abTesting.repoLink}
-              <ArrowUpRight aria-hidden className="size-4" />
-            </a>
-          </Reveal>
-        </PortraitContainer>
-      </ProductSection>
-
       <ProductSection tone="paper" space="lg">
         <PortraitContainer>
           <ProductBenefitStory
@@ -560,6 +553,46 @@ function CarouselSection({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   );
 }
 
+/* ---- 11b · Install ----------------------------------------------------
+   The page had no install section although the product is a Claude Code
+   plugin (2026-09-20). The shared panel (ui/InstallPanel), fed with the
+   repository README's own Quickstart, verbatim: the three ways in, then
+   the three commands the plugin answers to, with the README's own
+   one-line notes on them. */
+const INSTALL_PLUGIN = `/plugin install claude-lifecycle`;
+const INSTALL_LOCAL = `git clone https://github.com/ali-demirbas/claude-lifecycle && cd claude-lifecycle && claude`;
+const INSTALL_SKILLS = `npx skills add ali-demirbas/claude-lifecycle --all`;
+const USE_CMDS = `/lifecycle connect # score your data (GA4 via MCP, or point at a CSV)\n/lifecycle journeys # generate the portfolio\n/lifecycle copy # channel copy for the generated journeys`;
+
+function Install({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+  const c = t.journeyBuilder.install;
+  return (
+    <ProductSection tone="soft" space="md">
+      <PortraitContainer>
+        <InstallPanel
+          slug="claude-lifecycle"
+          tone="soft"
+          title={c.title}
+          methodsTitle={c.stepAdd}
+          methods={[
+            { id: "plugin", label: c.tabPlugin, code: INSTALL_PLUGIN, icon: <Blocks aria-hidden /> },
+            { id: "local", label: c.tabLocal, code: INSTALL_LOCAL, icon: <GitHubMark /> },
+            { id: "skills", label: c.tabSkills, code: INSTALL_SKILLS, icon: <Terminal aria-hidden /> },
+          ]}
+          use={{ title: c.stepUse, note: c.useNote, code: USE_CMDS }}
+          linksTitle={c.stepLinks}
+          links={[
+            { label: t.abTesting.repoLink, href: REPO },
+            { label: t.abTesting.demoLink, href: DEMO },
+          ]}
+          copyLabel={lang === "en" ? "Copy" : "Kopyala"}
+          copiedLabel={lang === "en" ? "Copied" : "Kopyalandı"}
+        />
+      </PortraitContainer>
+    </ProductSection>
+  );
+}
+
 /* ---- 12 · FAQ ---------------------------------------------------------- */
 function Faq({ t }: { t: (typeof copy)[Lang] }) {
   const c = t.journeyBuilder.faq;
@@ -618,6 +651,7 @@ export default function JourneyBuilderPage({ lang }: { lang: Lang }) {
         <Hero t={t} lang={lang} />
         <WhyDifferent t={t} lang={lang} />
         <CarouselSection t={t} lang={lang} />
+        <Install t={t} lang={lang} />
         <Faq t={t} />
         <PageCta t={t} />
       </main>

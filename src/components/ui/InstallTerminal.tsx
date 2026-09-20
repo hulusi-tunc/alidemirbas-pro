@@ -95,9 +95,14 @@ export function InstallTerminal({
         {/* Keyed on the method so a switch re-runs the short rise. A long
             install id wraps under its own first character, the way a
             terminal wraps, never under the Copy pill. */}
-        <div key={active.id} className="lab-panel-in px-5 py-5 pr-28 font-mono text-[13px] leading-7 sm:pr-32">
+        <div key={active.id} className="lab-panel-in px-5 py-5 pr-36 font-mono text-[13px] leading-7 sm:pr-32">
           {lines.map((line, i) => {
-            const [word, ...rest] = line.split(" ");
+            /* A trailing `# note` is the README's own comment on the line:
+               drawn quieter, still copied with the line. */
+            const hash = line.indexOf(" #");
+            const command = hash > 0 ? line.slice(0, hash) : line;
+            const note = hash > 0 ? line.slice(hash) : "";
+            const [word, ...rest] = command.split(" ");
             return (
               <div key={`${line}-${i}`} className="flex gap-3">
                 <span aria-hidden className="w-3 shrink-0 text-white/35 select-none">
@@ -106,6 +111,7 @@ export function InstallTerminal({
                 <span className="min-w-0 whitespace-pre-wrap text-white/90 [overflow-wrap:anywhere]">
                   <span className={clsx("font-semibold", accent ?? "text-white")}>{word}</span>
                   {rest.length > 0 && ` ${rest.join(" ")}`}
+                  {note && <span className="text-white/40">{note}</span>}
                 </span>
               </div>
             );

@@ -31,6 +31,7 @@ export function InstallPanel({
   methodsTitle,
   methods,
   then,
+  use,
   linksTitle,
   linksNote,
   links,
@@ -46,6 +47,9 @@ export function InstallPanel({
   methods: readonly InstallMethod[];
   /** An optional second step - the repository's own test command. */
   then?: { title: string; note?: string; code: string };
+  /** An optional step for what to type once the tool is in - the
+      README's own commands, drawn as a second terminal block. */
+  use?: { title: string; note?: string; code: string };
   linksTitle: string;
   linksNote?: string;
   links: readonly { label: string; href: string }[];
@@ -72,6 +76,17 @@ export function InstallPanel({
                 <code className="min-w-0 flex-1 py-2 font-mono text-xs leading-5 whitespace-pre-wrap text-ink-950 [overflow-wrap:anywhere]">{then.code}</code>
                 <CopyPill value={then.code} label={copyLabel} copiedLabel={copiedLabel} />
               </div>
+            ),
+          },
+        ]
+      : []),
+    ...(use
+      ? [
+          {
+            title: use.title,
+            note: use.note,
+            content: (
+              <InstallTerminal methods={[{ id: "use", label: use.title, code: use.code }]} accent={accent.darkInk} copyLabel={copyLabel} copiedLabel={copiedLabel} className="-ml-12 sm:ml-0" />
             ),
           },
         ]

@@ -527,6 +527,18 @@ export const copy = {
       title: "Journey design from start to finish.",
       sub: "Each journey states what starts it, where it branches, how long it waits and what happens next.",
       proof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
+      /* The Install section - the repository README's own Quickstart, verbatim:
+         three ways in, then the three commands the plugin answers to. */
+      install: {
+        title: "Install",
+        stepAdd: "Add the plugin to Claude Code",
+        tabPlugin: "Plugin",
+        tabLocal: "Local clone",
+        tabSkills: "skills.sh",
+        stepUse: "Then, inside Claude Code",
+        useNote: "Score your data, generate the journey portfolio, then write the channel copy.",
+        stepLinks: "Read the repository, or try the demo",
+      },
       canvas: {
         nodes: "nodes",
         rejoins: "rejoins at Reconcile",
@@ -1277,6 +1289,16 @@ export const copy = {
       title: "Baştan sona journey kurgusu.",
       sub: "Her journey neyle başladığını, nerede dallandığını, ne kadar beklediğini ve sonra ne olacağını açıkça tanımlar.",
       proof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
+      install: {
+        title: "Kurulum",
+        stepAdd: "Eklentiyi Claude Code'a ekleyin",
+        tabPlugin: "Eklenti",
+        tabLocal: "Yerel klon",
+        tabSkills: "skills.sh",
+        stepUse: "Sonra, Claude Code'un içinde",
+        useNote: "Verini puanla, journey portföyünü üret, sonra kanal metinlerini yaz.",
+        stepLinks: "Repoyu okuyun ya da demoyu deneyin",
+      },
       canvas: {
         nodes: "düğüm",
         rejoins: "Reconcile'da birleşir",
