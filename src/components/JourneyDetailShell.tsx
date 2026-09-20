@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useState, type ReactNode } from "react";
-import { ArrowLeft, ChevronDown, ChevronUp, FlaskConical, Info, Workflow } from "lucide-react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { ArrowLeft, ChevronDown, FlaskConical, Info, Workflow } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -20,17 +20,40 @@ export function JourneyDetailShell({
   hrefs,
   info,
   canvas,
-  titleCard,
+  summary,
 }: {
   labels: { back: string; info: string; canvas: string; lang: string; cta: string; lab: string; minimize: string; expand: string };
   hrefs: { library: string; lab: string; lang: string; cta: string };
   info: ReactNode;
   canvas: ReactNode;
-  titleCard: ReactNode;
+  /** What the canvas is: the category mark (its icon on its tint), the
+      category name, the title, the purpose and the goal/channel chips - the
+      title sits in the bar's left pill on the Canvas tab, the rest opens
+      under it (Hulusi, 2026-09-20: the loose title card "doesn't look
+      right"; the FigJam way is the name in the top-left pill). */
+  summary: { mark: ReactNode; category: string; title: string; purpose: string; chips: ReactNode };
 }) {
   const [tab, setTab] = useState<"info" | "canvas">("info");
-  const [cardOpen, setCardOpen] = useState(true);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const detailsRef = useRef<HTMLDivElement>(null);
   const base = useId();
+
+  // The popover closes on Escape and on a press anywhere outside it.
+  useEffect(() => {
+    if (!detailsOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDetailsOpen(false);
+    };
+    const onDown = (e: PointerEvent) => {
+      if (detailsRef.current && !detailsRef.current.contains(e.target as Node)) setDetailsOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
+    };
+  }, [detailsOpen]);
 
   useEffect(() => {
     const fromHash = () => setTab(window.location.hash === "#canvas" ? "canvas" : "info");
@@ -61,19 +84,47 @@ export function JourneyDetailShell({
         }
       >
         <div className="altor-container-wide flex h-16 items-center justify-between gap-3">
-          <div className={`pointer-events-auto flex items-center gap-1 ${pill} ${floating ? "p-1 pr-3" : ""}`}>
+          <div ref={detailsRef} className={`pointer-events-auto relative flex min-w-0 items-center gap-1 ${pill} ${floating ? "p-1 pr-1.5" : ""}`}>
             <Link
               href={hrefs.library}
-              className="flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-600 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft hover:text-ink-950"
+              className="flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-600 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft hover:text-ink-950"
             >
               <ArrowLeft aria-hidden className="size-4" />
               <span className="hidden sm:inline">{labels.back}</span>
             </Link>
-            <span aria-hidden className="h-4 w-px bg-line-soft" />
-            <Link href={hrefs.lab} className="flex h-9 items-center gap-2 px-2 text-sm font-semibold text-ink-950">
-              <FlaskConical aria-hidden className="size-4 text-primary-600" />
-              <span className="hidden md:inline">{labels.lab}</span>
-            </Link>
+            <span aria-hidden className="h-4 w-px shrink-0 bg-line-soft" />
+            {floating ? (
+              <>
+                {/* The canvas's name, in the pill: the category mark, the
+                    title, and a chevron that opens the rest. */}
+                <button
+                  type="button"
+                  onClick={() => setDetailsOpen((v) => !v)}
+                  aria-expanded={detailsOpen}
+                  aria-controls={`${base}-details`}
+                  className="flex h-9 min-w-0 items-center gap-2 rounded-full py-1 pr-2 pl-1 text-sm font-semibold text-ink-950 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft"
+                >
+                  {summary.mark}
+                  <span className="max-w-[16rem] truncate">{summary.title}</span>
+                  <ChevronDown aria-hidden className={`size-4 shrink-0 text-ink-500 transition-transform duration-[var(--duration-fast)] ${detailsOpen ? "rotate-180" : ""}`} />
+                </button>
+                <div
+                  id={`${base}-details`}
+                  hidden={!detailsOpen}
+                  className="absolute top-[calc(100%+0.5rem)] left-0 w-[24rem] max-w-[calc(100vw-2rem)] rounded-[24px] bg-paper p-5 shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06]"
+                >
+                  <p className="text-xs font-medium text-ink-subtle">{summary.category}</p>
+                  <p className="mt-1 text-lg leading-snug font-semibold text-balance text-ink-950">{summary.title}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-pretty text-ink-muted">{summary.purpose}</p>
+                  <div className="mt-4">{summary.chips}</div>
+                </div>
+              </>
+            ) : (
+              <Link href={hrefs.lab} className="flex h-9 items-center gap-2 px-2 text-sm font-semibold text-ink-950">
+                <FlaskConical aria-hidden className="size-4 text-primary-600" />
+                <span className="hidden md:inline">{labels.lab}</span>
+              </Link>
+            )}
           </div>
 
           <div role="tablist" aria-label={`${labels.info} / ${labels.canvas}`} className={`pointer-events-auto flex items-center gap-1 ${pill} ${floating ? "p-1" : ""}`}>
@@ -130,27 +181,6 @@ export function JourneyDetailShell({
         </div>
         <div role="tabpanel" id={`${base}-panel-canvas`} aria-labelledby={`${base}-tab-canvas`} hidden={!floating} className="relative h-svh">
           {canvas}
-          {/* The title card: what this canvas is, always in view - and
-              collapsible to its title alone (Hulusi, 2026-09-14). Sits on
-              the bar's own grid so its edge lines up with the pills. */}
-          <div className="pointer-events-none absolute inset-x-0 top-[4.5rem] z-30 hidden sm:block">
-            <div className="altor-container-wide">
-              <div className={`pointer-events-auto rounded-[24px] bg-paper/95 shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] backdrop-blur-sm ${cardOpen ? "w-full max-w-sm p-5" : "inline-flex items-center gap-2 py-2 pr-2 pl-4"}`}>
-                <div className="flex items-start justify-between gap-3">
-                  <div className={`min-w-0 ${cardOpen ? "" : "[&_p:not(:nth-child(2))]:hidden [&_p]:mt-0 [&_p]:text-sm"}`}>{titleCard}</div>
-                  <button
-                    type="button"
-                    onClick={() => setCardOpen((v) => !v)}
-                    aria-expanded={cardOpen}
-                    aria-label={cardOpen ? labels.minimize : labels.expand}
-                    className="grid size-8 shrink-0 place-items-center rounded-full text-ink-500 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft hover:text-ink-950"
-                  >
-                    {cardOpen ? <ChevronUp aria-hidden className="size-4" /> : <ChevronDown aria-hidden className="size-4" />}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
     </div>
