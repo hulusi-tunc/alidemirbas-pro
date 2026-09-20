@@ -187,15 +187,22 @@ function actionTitle(node: FlowNode, lang: Lang): string | null {
     inherited that action's own priority, the message/human action right
     after it (see `FlowNode.channelPriority`) - one presentation for every
     router+message pairing on the canvas, not a per-journey choice. */
-function ChannelPriorityRow({ ids, lang }: { ids: readonly ChannelId[]; lang: Lang }) {
+function ChannelPriorityRow({ groups, lang }: { groups: readonly (readonly ChannelId[])[]; lang: Lang }) {
   const w = CARD_TEXT[lang];
   return (
     <div className="mt-2.5 flex flex-col gap-1 [[data-lod=far]_&]:hidden">
-      {ids.map((id, i) => (
-        <span key={id} className="flex items-center gap-2">
+      {groups.map((ids, i) => (
+        <span key={ids.join("+")} className="flex items-center gap-2">
           <span className="w-[62px] shrink-0 text-[11px] text-ink-400">{i === 0 ? w.primary : w.fallback}</span>
-          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[id].pill}`}>
-            {CHANNEL_LABEL[id][lang]}
+          {/* A role can carry more than one channel (low-friction is push
+              AND in-app): both pills sit on the one row, because they are
+              one step of the priority, not two. */}
+          <span className="flex flex-wrap gap-1">
+            {ids.map((id) => (
+              <span key={id} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[id].pill}`}>
+                {CHANNEL_LABEL[id][lang]}
+              </span>
+            ))}
           </span>
         </span>
       ))}
@@ -443,7 +450,7 @@ function RouterCard({ node, onOpen, priority, lang }: { node: FlowNode; onOpen: 
       <KindRow kind={KIND.router} icon={<Route aria-hidden />}>
         {w.channelSelection}
       </KindRow>
-      <ChannelPriorityRow ids={priority} lang={lang} />
+      <ChannelPriorityRow groups={priority.map((id) => [id])} lang={lang} />
     </Shell>
   );
 }
@@ -474,7 +481,17 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
   const kind = isHuman ? KIND.human : KIND.message;
   const far = isHuman ? FAR.human : FAR.message;
   const routes = isHuman ? humanLabels : messageLabels;
+  /* The journey's own declared plan for THIS touch first (channelPlan -
+     ordered roles, each with its channels), then a priority inherited from
+     an adjacent router's prose, then the journey's whole roster. Each step
+     down is a step further from "what this touch actually does". */
+  const plan = node.channelPlan;
   const priority = node.channelPriority;
+  const groups: readonly (readonly ChannelId[])[] = plan?.length
+    ? plan.map((r) => r.channels)
+    : (priority?.length ?? 0) >= 2
+      ? priority!.map((id) => [id])
+      : [];
   const title = actionTitle(node, lang) ?? (isHuman ? w.human : w.message);
   return (
     <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${far} py-2.5`}>
@@ -482,8 +499,8 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
         <Tile kind={kind}>{isHuman ? <UserRound aria-hidden /> : <Mail aria-hidden />}</Tile>
         <span className="text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{title}</span>
       </span>
-      {priority && priority.length >= 2 ? (
-        <ChannelPriorityRow ids={priority} lang={lang} />
+      {groups.length ? (
+        <ChannelPriorityRow groups={groups} lang={lang} />
       ) : routes.length > 0 ? (
         <span className="mt-2.5 flex flex-wrap gap-1 [[data-lod=far]_&]:hidden">
           {routes.map((r) => (

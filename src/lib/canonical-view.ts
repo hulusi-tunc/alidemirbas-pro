@@ -277,6 +277,17 @@ export type FlowNode = {
       or an action no touch references; the card falls back further, to
       the generic kind label, in that case. */
   touchStage?: string;
+  /** Communication/human action nodes only, on a vNext journey whose touch
+      plan declares channel roles. The channels this touch reaches for, in
+      the order it reaches for them - the first entry is what it tries, the
+      rest are what it falls back to. Joined from `Touch.channelRoles` and
+      `channelStrategy.roles` (see `touchChannelPlans`), both authored; a
+      role can carry more than one channel ("low-friction" is push AND
+      in-app), which is why this is a list of groups rather than a flat
+      channel order. Preferred over `channelPriority` where both exist:
+      that one is read off an adjacent router's prose, this one is the
+      plan the journey actually declares. */
+  channelPlan?: readonly { role: string; channels: readonly ChannelId[] }[];
 };
 
 const humanEvent = (event: string): string => {
@@ -312,10 +323,17 @@ export function splitExitState(state: string): string {
   if (semi !== -1) cuts.push(semi);
   const dash = state.indexOf(" - ");
   if (dash !== -1) cuts.push(dash);
+  if (cuts.length) return state.slice(0, Math.min(...cuts));
+  /* Comma is the LAST resort, not a third equal tier: a state that already
+     carries a real "; "/" - " boundary has its lead clause there, and a
+     comma inside that lead clause is punctuation, not a boundary. Splitting
+     on the earliest of all three cut ACQ-11's TR x.lapsed ("kurtarma
+     süresi, süreç hâlâ açıkken doldu; başka hiçbir şey gönderilmez") down
+     to "kurtarma süresi" - a noun phrase, not a statement of what ended.
+     Reached only where neither separator exists at all (RET-24's x.monitor
+     and the handful like it), where the first comma IS the clause end. */
   const comma = state.indexOf(", ");
-  if (comma !== -1 && comma <= 60) cuts.push(comma);
-  if (cuts.length === 0) return state;
-  return state.slice(0, Math.min(...cuts));
+  return comma !== -1 && comma <= 60 ? state.slice(0, comma) : state;
 }
 
 const capitalize = (s: string): string => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
@@ -419,7 +437,14 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
     case "handoff":
       return {
         ...base,
-        headline: n.to.startsWith("external:") ? n.to : (byId(n.to)?.name ?? n.to),
+        /* The target's PLAIN-LANGUAGE name, the same one the library cards,
+           the lists and every cross-journey link already use - not its
+           state-machine `name` ("Payment failure → classify → recover,
+           alternate or exit"), which is a three-clause sentence on a card
+           whose whole job is to say where this hands off to. The long form
+           is still one click away in the detail panel, and an external
+           handoff (no journey to look up) keeps its own `external:` id. */
+        headline: n.to.startsWith("external:") ? n.to : (byId(n.to)?.shortName ?? byId(n.to)?.name ?? n.to),
         detail: n.on,
         meta: [
           ...n.carries.map((c) => `carries: ${c}`),
@@ -553,6 +578,29 @@ function touchStages(j: CanonicalJourney): ReadonlyMap<string, string> {
   return stages;
 }
 
+/** Action node id -> the channels this touch actually reaches for, in the
+    order it reaches for them (see `FlowNode.channelPlan`). Joined from two
+    authored vNext fields and nothing else: the touch's own ordered
+    `channelRoles` ("low-friction" then "persistent") and the journey's
+    `channelStrategy.roles`, which is where a role's channels are declared
+    (low-friction: push, in-app). That join is what a per-touch priority
+    IS in this schema - a communication action deliberately does not name
+    its channel (the send path picks one at runtime from the permitted
+    set), so the roles are the only place the ORDER is stated. Absent
+    where either half is missing, and the card falls back to the journey's
+    whole roster exactly as before. */
+function touchChannelPlans(j: CanonicalJourney): ReadonlyMap<string, readonly { role: string; channels: readonly ChannelId[] }[]> {
+  const byRole = new Map((j.channelStrategy?.roles ?? []).map((r) => [r.role, r.channels]));
+  const plans = new Map<string, readonly { role: string; channels: readonly ChannelId[] }[]>();
+  for (const t of j.orchestration?.touches ?? []) {
+    const plan = (t.channelRoles ?? [])
+      .map((role) => ({ role, channels: byRole.get(role) ?? [] }))
+      .filter((r) => r.channels.length > 0);
+    if (plan.length) plans.set(t.action, plan);
+  }
+  return plans;
+}
+
 /** The FlowNode projection of one journey - the exact input both the detail
     page's Canvas and the library card's topology thumbnail lay out, so the
     two can never drift into being different graphs. */
@@ -564,6 +612,7 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
   const position = new Map(nodes.map((n, i) => [n.id, i]));
   const channelHints = actionChannelHints(j);
   const stages = touchStages(j);
+  const plans = touchChannelPlans(j);
   return nodes.map((n, i) => ({
     ...n,
     edges: n.edges.map((e) =>
@@ -571,6 +620,7 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
     ),
     ...(n.kind === "action" && channelHints.has(n.id) ? { channelPriority: channelHints.get(n.id) } : {}),
     ...(n.kind === "action" && stages.has(n.id) ? { touchStage: stages.get(n.id) } : {}),
+    ...(n.kind === "action" && plans.has(n.id) ? { channelPlan: plans.get(n.id) } : {}),
   }));
 }
 

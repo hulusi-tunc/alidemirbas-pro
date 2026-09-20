@@ -3570,12 +3570,33 @@ export const TRANSLATION_COVERAGE = { journeysCovered: Object.keys(OVERRIDES).le
    Re-running the split here keeps the TR exit card exactly as short as its
    EN twin instead of trusting each translated entry to have been
    pre-shortened by hand (confirmed corpus-wide: several were not). */
+/* A handoff's TR headline is the same case one layer along: the EN side
+   names the target by its PLAIN-LANGUAGE shortName (canonical-view.ts), but
+   a hand-translated override here carries whatever long state-machine
+   sentence the translator worked from ("Ödeme hatası → sınıflandır →
+   kurtar, alternatif sun veya çıkış"). The target journey's own TR
+   shortName is in this very table, under the target's id - so the card
+   names it the way every TR list and link already does. An external
+   handoff has no journey to look up and keeps its own id. */
+function trHandoffHeadline(node: FlowNode, fallback: string): string {
+  const to = node.edges.find((e) => e.kind === "journey")?.to;
+  return (to ? OVERRIDES[to]?.shortName : undefined) ?? fallback;
+}
+
 function localizeNodeContent(node: FlowNode, override: NodeOverride | undefined): FlowNode {
-  if (!override) return node;
+  // A handoff is renamed from the target's own TR shortName whether or not
+  // this node has a content override of its own, so an untranslated one
+  // does not fall back to the EN name on a TR page.
+  if (!override) return node.kind === "handoff" ? { ...node, headline: trHandoffHeadline(node, node.headline) } : node;
   const headline = override.headline ?? node.headline;
   return {
     ...node,
-    headline: node.kind === "exit" ? splitExitState(headline) : headline,
+    headline:
+      node.kind === "exit"
+        ? splitExitState(headline)
+        : node.kind === "handoff"
+          ? trHandoffHeadline(node, headline)
+          : headline,
     detail: override.detail !== undefined ? override.detail : node.detail,
     edges: override.edges
       ? node.edges.map((e, i) => {

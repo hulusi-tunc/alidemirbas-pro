@@ -203,13 +203,99 @@ export function collapsibleRouters(nodes: readonly FlowNode[], byId: ReadonlyMap
   return collapsed;
 }
 
+/** A binary condition (exactly two branches) where one side is a real
+    continuation and the other is a bookkeeping short-circuit is, on the
+    DISPLAY graph, not a decision a reader needs to see - "may this touch
+    go out" is inherent to every communication node's own permission/
+    reachability/pressure rules, and "is this instance even eligible to
+    open" right after a trigger is entry plumbing, not a journey branch.
+    The qualifying signal is `ExitNode.class === "no-action"` on the short
+    side (resolved through at most one plain-internal bookkeeping hop, the
+    corpus's own "record why nothing was sent" step) - already-authored
+    vNext data, not a guess from either branch's prose or the condition's
+    own question. That is what tells this apart from a structurally
+    identical-looking gate a reader DOES need (ACQ-11's "is a final notice
+    enabled, and is there a real expiry to name?" short-circuits to
+    `x.lapsed`, class `timeout` - a business-meaningful ending, not a
+    no-action record - so it is left alone and drawn as an ordinary
+    branch). Absorbed the same way `collapsibleRouters` absorbs a channel-
+    selecting action: the gate (and the bookkeeping hop on either side, and
+    the no-action exit itself) draw no box, and whatever fed into the gate
+    connects straight through to the continuation side. Generic: any
+    condition with this exact shape qualifies, not looked up by journey or
+    node id - collapsibleGates never reads a journey id, only edge/kind/
+    class shape shared by the whole corpus's Config schema. */
+export function collapsibleGates(
+  nodes: readonly FlowNode[],
+  byId: ReadonlyMap<string, FlowNode>,
+): { hidden: ReadonlySet<string>; into: ReadonlyMap<string, string> } {
+  const isPlainInternal = (n: FlowNode | undefined): n is FlowNode => !!n && n.kind === "action" && !n.execution;
+  const soleNext = (n: FlowNode): FlowNode | undefined => {
+    const out = n.edges.filter((e) => e.kind === "node");
+    return out.length === 1 ? byId.get(out[0].to) : undefined;
+  };
+  // Up to one plain-internal hop past `start`; returns the real target and
+  // any internal node stepped over on the way to it.
+  const resolveChain = (start: FlowNode): { end: FlowNode; hops: readonly string[] } => {
+    if (isPlainInternal(start)) {
+      const next = soleNext(start);
+      if (next) return { end: next, hops: [start.id] };
+    }
+    return { end: start, hops: [] };
+  };
+
+  const hidden = new Set<string>();
+  const into = new Map<string, string>();
+  for (const n of nodes) {
+    if (n.kind !== "condition") continue;
+    const branchTargets = n.edges.filter((e) => e.kind === "node").map((e) => byId.get(e.to));
+    if (branchTargets.length !== 2 || branchTargets.some((t) => !t)) continue;
+    const chains = branchTargets.map((t) => resolveChain(t!));
+    const shortCircuits = chains.filter((c) => c.end.kind === "exit" && c.end.exitClass === "no-action");
+    const continuations = chains.filter((c) => !(c.end.kind === "exit" && c.end.exitClass === "no-action"));
+    if (shortCircuits.length !== 1 || continuations.length !== 1) continue;
+    const cont = continuations[0];
+    // Never collapse into another (possibly also-collapsible) condition -
+    // this stays a single hop, not a chain of guesses.
+    if (cont.end.kind === "condition" || cont.end.kind === "exit") continue;
+    const short = shortCircuits[0];
+    hidden.add(n.id);
+    for (const id of cont.hops) hidden.add(id);
+    for (const id of short.hops) hidden.add(id);
+    /* The no-action exit itself is deliberately NOT hidden here. It is
+       usually reached only through gates like this one and then falls away
+       on its own as unreachable (buildDisplayGraph prunes that below), but
+       a journey where something still visible points at the same exit
+       keeps it drawn - hiding it eagerly would cut a live branch off at
+       the knee on a shape this function has not seen. */
+    into.set(n.id, cont.end.id);
+  }
+  return { hidden, into };
+}
+
 /* ---------------------------------------------------------------- display graph */
 
 export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const entry = nodes.find((n) => n.isEntry) ?? nodes[0];
-  const collapsed = collapsibleRouters(nodes, byId);
-  const resolve = (id: string): string => collapsed.get(id) ?? id;
+  const routers = collapsibleRouters(nodes, byId);
+  const gates = collapsibleGates(nodes, byId);
+  /* Both collapses answer the same question - "what does an edge pointing
+     at this node actually reach on the canvas?" - so they share one
+     resolver. Chained (a gate whose continuation is itself a collapsed
+     router) resolves through in a bounded loop rather than one hop; the
+     bound is what keeps a pathological cycle of collapses from spinning. */
+  const hop = (id: string): string => routers.get(id) ?? gates.into.get(id) ?? id;
+  const resolve = (id: string): string => {
+    let at = id;
+    for (let i = 0; i < 4; i++) {
+      const next = hop(at);
+      if (next === at) break;
+      at = next;
+    }
+    return at;
+  };
+  const hiddenNodes = new Set<string>([...routers.keys(), ...gates.hidden]);
 
   /* Internal edges only - an edge to another journey or an external system
      is where this journey's drawing ends. A collapsed router contributes
@@ -220,13 +306,17 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
   const internal = new Map<string, FlowEdge[]>();
   const parents = new Map<string, Set<string>>();
   for (const n of nodes) {
-    if (collapsed.has(n.id)) {
+    if (hiddenNodes.has(n.id)) {
       internal.set(n.id, []);
       continue;
     }
     const raw = n.edges
       .filter((e) => e.kind === "node" && byId.has(e.to))
-      .map((e) => (collapsed.has(e.to) ? { ...e, to: resolve(e.to) } : e));
+      .map((e) => (hiddenNodes.has(e.to) ? { ...e, to: resolve(e.to) } : e))
+      /* An edge whose target is still hidden after resolving is one of the
+         collapsed short-circuit's own arms (the bookkeeping hop a gate
+         absorbed); it has no box to point at any more. */
+      .filter((e) => !hiddenNodes.has(e.to));
     /* Twin routes (Hulusi, 2026-09-20: "why do two lines leave here?"): a
        wait whose "on event" and "on timeout" both lead to the same node -
        ACQ-11's second wait feeds one decision either way - drew two
@@ -276,10 +366,25 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
       .map((n) => n.id),
   );
 
+  /* Reachability AFTER the collapses. A node whose only parents were gates
+     that just collapsed - the corpus's shared "no touch sent" exit is the
+     usual one - has nothing pointing at it any more, and a box nothing
+     reaches is not a step a reader can follow. Measured from the
+     post-collapse edges rather than assumed, so the same exit stays drawn
+     on a journey where something still visible points at it. */
+  const reachable = new Set<string>();
+  const walk = (id: string) => {
+    if (reachable.has(id)) return;
+    reachable.add(id);
+    for (const e of internal.get(id) ?? []) walk(e.to);
+  };
+  if (entry) walk(entry.id);
+
   const displayNodes: DisplayNode[] = [];
   const displayEdges: DisplayEdge[] = [];
   for (const n of nodes) {
-    if (!instanced.has(n.id) && !collapsed.has(n.id)) displayNodes.push({ layoutId: n.id, canonicalNodeId: n.id, node: n });
+    if (!reachable.has(n.id)) continue;
+    if (!instanced.has(n.id)) displayNodes.push({ layoutId: n.id, canonicalNodeId: n.id, node: n });
     const out = internal.get(n.id)!;
     /* Instances go into the model order right after their parent, which is
        where ELK's model-order tie-breaking keeps them on the canvas too. */
