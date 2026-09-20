@@ -335,9 +335,9 @@ const ROOT_OPTIONS: Record<string, string> = {
   "elk.spacing.nodeNode": "48",
   "elk.layered.spacing.nodeNodeBetweenLayers": "72",
   "elk.spacing.edgeNode": "32",
-  "elk.spacing.edgeEdge": "20",
+  "elk.spacing.edgeEdge": "28",
   "elk.layered.spacing.edgeNodeBetweenLayers": "32",
-  "elk.layered.spacing.edgeEdgeBetweenLayers": "20",
+  "elk.layered.spacing.edgeEdgeBetweenLayers": "28",
   "elk.spacing.edgeLabel": "8",
   "elk.padding": `[top=${PAD_Y},left=${PAD_X},bottom=${PAD_BOTTOM},right=${PAD_X}]`,
 };

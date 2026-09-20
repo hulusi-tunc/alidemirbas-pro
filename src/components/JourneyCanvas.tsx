@@ -269,6 +269,7 @@ export default function JourneyCanvas({
       messageLabels={messageLabels}
       humanLabels={humanLabels}
       onOpen={(canonicalNodeId) => setSelectedId(canonicalNodeId)}
+      focusId={selectedId}
     />
   );
 
@@ -394,6 +395,7 @@ export function JourneyWorld({
   messageLabels = [],
   humanLabels = [],
   onOpen,
+  focusId = null,
 }: {
   layout: CanvasLayout;
   actionSequence: ReadonlyMap<string, number>;
@@ -401,7 +403,16 @@ export function JourneyWorld({
   messageLabels?: readonly { id: ChannelId; label: string }[];
   humanLabels?: readonly { id: ChannelId; label: string }[];
   onOpen: (canonicalNodeId: string) => void;
+  /** A node whose routes stay lit while its detail panel is open. */
+  focusId?: string | null;
 }) {
+  /* TRACING (Hulusi, 2026-09-20: "two lines come in and we cannot
+     understand which one goes where"): resting the pointer on a card - or
+     opening it - lights every route into and out of it in brand blue and
+     sits the rest back, so a line is followed by pointing at either end. */
+  const [hoverId, setHoverId] = useState<string | null>(null);
+  const focus = hoverId ?? focusId;
+  const hi = (e: LaidOutEdge) => (focus ? (e.canonicalFrom === focus || e.canonicalTo === focus ? "on" : "off") : undefined);
   return (
     <>
       <svg
@@ -410,13 +421,8 @@ export function JourneyWorld({
         className="pointer-events-none absolute inset-0"
         aria-hidden
       >
-        <defs>
-          <marker id="journey-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-            <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-400" />
-          </marker>
-        </defs>
         {layout.edges.map((e) => (
-          <EdgeShape key={e.id} edge={e} />
+          <EdgeShape key={e.id} edge={e} hi={hi(e)} />
         ))}
       </svg>
 
@@ -431,6 +437,8 @@ export function JourneyWorld({
             data-canvas-node-kind={n.kind}
             style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
             className="absolute"
+            onPointerEnter={() => setHoverId(l.canonicalNodeId)}
+            onPointerLeave={() => setHoverId(null)}
           >
             {n.kind === "trigger" ? (
               <TriggerCard node={n} onOpen={open} entryLabel={labels.entry} lang={labels.lang} />
@@ -457,6 +465,14 @@ export function JourneyWorld({
           </div>
         );
       })}
+
+      {/* The arrowheads, on a layer above the cards: a route's end used to
+          hide under the card it entered. */}
+      <svg width={layout.width} height={layout.height} className="pointer-events-none absolute inset-0 z-10" aria-hidden>
+        {layout.edges.map((e) => (
+          <EdgeArrow key={e.id} edge={e} hi={hi(e)} />
+        ))}
+      </svg>
     </>
   );
 }
@@ -496,15 +512,29 @@ function roundedEdgePath(points: readonly { x: number; y: number }[]): string {
   return `${d} L ${last.x} ${last.y}`;
 }
 
-function EdgeShape({ edge }: { edge: LaidOutEdge }) {
+function EdgeShape({ edge, hi }: { edge: LaidOutEdge; hi?: "on" | "off" }) {
   const d = roundedEdgePath(edge.points);
   return (
-    <g data-canvas-edge-from={edge.canonicalFrom} data-canvas-edge-to={edge.canonicalTo} data-canvas-edge-label={edge.label ?? ""}>
+    <g
+      data-canvas-edge-from={edge.canonicalFrom}
+      data-canvas-edge-to={edge.canonicalTo}
+      data-canvas-edge-label={edge.label ?? ""}
+      data-hi={hi}
+      className="group transition-opacity duration-[var(--duration-fast)] data-[hi=off]:opacity-25"
+    >
       {/* The halo: a ground-coloured stroke under the line, so where two
           routes cross the one drawn later visibly passes over the other
           instead of merging into it ("I am not sure where it is going"). */}
       <path d={d} fill="none" className="stroke-paper-soft" strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-      <path d={d} fill="none" className="stroke-ink-300" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" markerEnd="url(#journey-arrow)" />
+      <path
+        d={d}
+        fill="none"
+        className="stroke-ink-300 transition-[stroke] duration-[var(--duration-fast)] group-data-[hi=on]:stroke-primary-600"
+        strokeWidth={hi === "on" ? 2.5 : 1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
       {edge.label ? (
         <foreignObject
           x={edge.labelX - 100}
@@ -514,12 +544,31 @@ function EdgeShape({ edge }: { edge: LaidOutEdge }) {
           className="overflow-visible"
         >
           <div className="flex justify-center [[data-lod=far]_&]:hidden">
-            <span className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-medium whitespace-nowrap text-ink-700 ring-1 ring-ink-950/[0.08]">
+            <span className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-medium whitespace-nowrap text-ink-700 ring-1 ring-ink-950/[0.08] group-data-[hi=on]:text-primary-700 group-data-[hi=on]:ring-primary-300">
               {edge.label}
             </span>
           </div>
         </foreignObject>
       ) : null}
+    </g>
+  );
+}
+
+/** The arrowhead alone, at a route's end, pointed along its last segment -
+    drawn on the layer above the cards. */
+function EdgeArrow({ edge, hi }: { edge: LaidOutEdge; hi?: "on" | "off" }) {
+  const pts = edge.points;
+  if (pts.length < 2) return null;
+  const end = pts[pts.length - 1];
+  const prev = pts[pts.length - 2];
+  const angle = (Math.atan2(end.y - prev.y, end.x - prev.x) * 180) / Math.PI;
+  return (
+    <g data-canvas-edge-from={edge.canonicalFrom} data-canvas-edge-to={edge.canonicalTo} data-hi={hi} className="group transition-opacity duration-[var(--duration-fast)] data-[hi=off]:opacity-25">
+      <path
+        d="M -8 -4.5 L 1 0 L -8 4.5 Z"
+        transform={`translate(${end.x} ${end.y}) rotate(${angle})`}
+        className="fill-ink-400 transition-[fill] duration-[var(--duration-fast)] group-data-[hi=on]:fill-primary-600"
+      />
     </g>
   );
 }
