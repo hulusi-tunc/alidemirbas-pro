@@ -1,229 +1,190 @@
-# Repo Map
+# Repo map — the 51-journey refactor
 
-Discovery pass for the 73-journey display/presentation audit. Every entry below
-was verified against the working tree at `1d2e929`, not assumed from prior
-sessions — the starting hints were all still correct, and the one architectural
-question they did not answer (is there a display overlay layer?) is answered
-"no, none exists yet".
+Phase 2 discovery, rewritten for this refactor (it previously described the
+73-journey audit). Every path below was opened, not inferred from a naming
+convention. Where a thing does **not** exist, that is stated — an assumed file
+is worse than a missing one.
 
-## Journey Sources
+The one-line orientation: **canonical data → one adapter → pages**, with a
+publishing gate in the middle and a display-graph transform on the way to the
+canvas. Nothing renders from canonical directly.
 
-- **Format: hand-authored TypeScript.** Not JSON, not YAML, not generated.
-  `src/canonical/` holds `types.ts` plus 26 flat domain files (`acquisition.ts`,
-  `retention.ts`, …), each exporting exactly `<DOMAIN>_JOURNEYS` and
-  `<DOMAIN>_RULES` as top-level `export const` array literals.
-- `src/canonical/index.ts` aggregates them into `CATEGORIES` (26 categories,
-  each carrying `id`, `title`, `titleTr`, `purpose`, `descriptionTr`,
-  `journeys`, `rules`).
-- Object keys inside the domain files are currently written JSON-style
-  (`"id": "ACQ-11"`), which is still a legal TS object literal — the validator
-  parses these files **as text** and evals the literals, so the shape of the
-  `export const` matters more than the key style.
-- **Generated mirror:** `production/canonical-dump.json` (`npm run
-  dump:canonical`) is a git-tracked JSON projection of the same corpus. Safe to
-  read for analysis; not the source of truth.
-- **Surface assignment:** `production/surface-assignment.json` carries
-  `{ id, surface, sends, routesToHuman }` per journey — the join used to
-  compute which journeys are public vs library.
+```
+src/canonical/*.ts ──► src/lib/public-corpus.ts ──► src/lib/canonical-view.ts ──► pages
+   (hand-authored)        (WHAT is public)            (the only adapter)
+                                                            │
+                                                            ▼
+                                              src/lib/journey-canvas-layout.ts
+                                              (display graph + ELK)  ──► JourneyCanvas
+```
 
-## Canonical Schema
+---
 
-- `src/canonical/types.ts` (626 lines). `CanonicalJourney` = base fields
-  (`id`, `slug`, `category`, `goal`, `channels`, `name`, `shortName`,
-  `purpose`, `entity`, `guardrails`, `reusableRule`, `distinctFrom`,
-  `entry`, `nodes`) **plus** optional vNext fields (`objective`,
-  `eligibility`, `suppressions`, `contact`, `channelStrategy`,
-  `orchestration`, `implementation`, `measurement`, `discovery`).
-- `measurement` is the **vNext migration marker** — its presence turns vNext
-  validator rules from warnings into errors and is what
-  `practitionerView()` gates on.
-- Node kinds: `trigger | action | condition | wait | outcome | exit | handoff`.
-  Relevant per-kind fields for display work:
-  - `trigger`: `event`, `evidence.{requires, insufficientAlone, source}`, `next`
-  - `action`: `does`, `execution?: "communication" | "human"` (absent = internal),
-    `writes`, `idempotencyKey`, `attemptBudget`, `next`
-  - `condition`: `asks`, `branches[] { label, when, observes, to }`
-  - `wait`: `until[]`, `onEvent`, `onTimeout`, `timeout.{after, reason,
-    relativeTo, attribute}`, `recheck`, `windowExtendsOnEngagement`
-  - `exit`: `state`, `class: ExitClass`, `terminal`, `reEntry`
-  - `handoff`: `to`, `on`, `carries[]`, `suppresses[]`, `contract`
-- `ExitClass` is authored data and is already load-bearing for display
-  (`success` drives the green exit capsule; `no-action` drives the gate
-  collapse added in #9).
-- `Orchestration.touches[]` carries `{ id, stage, action, after?, gatedBy?,
-  prerequisites[], purpose, channelRoles[], destination, mandatory, label }`
-  — the touch plan, joined to action nodes by `Touch.action`.
+## 1. Canonical journey definitions
 
-## Display/View Layer
+| path | what it is |
+|---|---|
+| `src/canonical/*.ts` | 26 hand-authored domain files, each exporting `<DOMAIN>_JOURNEYS` and `<DOMAIN>_RULES`; `types.ts` holds the schema; `index.ts` aggregates |
+| `src/canonical/surface.ts` | derives a journey's product surface (customer / mechanism / operational) from its own facts |
+| `src/canonical/events.ts` | **generated** event registry (`scripts/build-event-registry.mjs`) |
+| `src/canonical/config-text.ts` | turns a `Config` into the sentence a reader sees — the source of the `"(configure <key>)"` wrapper |
+| `production/canonical-dump.json` | **generated** machine-readable export (`npm run dump:canonical`). Read this for analysis; plain Node cannot import the TS |
 
-- **`src/lib/canonical-view.ts` (821 lines) is the only bridge**, server-only.
-  `CanonicalJourney` → `FlowNode[]` / `JourneyDetail`.
-  - `nodeView()` projects one canonical node to one `FlowNode`
-    (`headline`, `detail`, `meta`, `edges`, plus per-kind extras).
-  - `flowNodesOf()` adds derived, mechanical fields: `channelPriority`
-    (prose-detected), `touchStage` (from `touches[].stage`), `channelPlan`
-    (from `touches[].channelRoles` × `channelStrategy.roles`).
-  - `splitExitState()` shortens an exit's `state` to its lead clause.
-  - `JOURNEY_ROWS` and the card thumbnails are computed **once at module
-    load** (top-level `await` on the ELK layout), so importing this module
-    from a `"use client"` file would ship all 286 graphs to the browser.
-- **There is NO display overlay / presentation-metadata layer today.**
-  Searched for `displayOverlay`, `DisplayOverlay`, `display-overlay`,
-  presentation metadata: zero hits in `src/`. All display simplification so
-  far lives in two places only: derived `FlowNode` fields (above) and the
-  display-graph transform (below). Phase 2.1 Level 2 would be net-new.
+A journey is a **graph, not a sequence**: an `entry` node plus nodes naming
+their own successors. Node kinds: `trigger`, `action`, `condition`, `wait`,
+`outcome`, `exit`, `handoff`. An action's `execution` is `communication`,
+`human`, or unset (internal).
 
-## Layout Engine
+**Corpus size today:** 286 journeys / 3728 nodes / 8 merged ids.
 
-- **ELK** (`elkjs`, `elk.bundled.js`) — layered / DOWN / ORTHOGONAL, in
-  `src/lib/journey-canvas-layout.ts` (662 lines). Not Dagre, not custom.
-- **A display graph layer DOES exist here**, and it is the sanctioned place
-  to transform canonical structure for drawing. `buildDisplayGraph()`
-  currently performs four transforms, all generic (no journey/node id
-  lookups):
-  1. **Shared-terminal instancing** — an `exit`/`handoff`/`outcome` with ≥2
-     parents is drawn once per parent (`x.converted@c.state`), keeping
-     `canonicalNodeId` for the detail panel.
-  2. **`collapsibleRouters`** — a channel-selecting action feeding one
-     communication/human action draws no box; its edges pass through.
-  3. **`collapsibleGates`** — a binary condition whose short branch reaches
-     an exit of class `no-action` (through ≤1 bookkeeping hop) draws no box.
-  4. **Twin-route merge** — a wait whose event and timeout arms land on the
-     same node draws one line carrying both labels.
-  Plus a post-collapse **unreachable prune**.
-- `SIZE` is a per-kind card footprint table; spacing/options in
-  `ROOT_OPTIONS`. Layouts are cached per structural signature.
-- **No manual coordinates anywhere** — ELK's own x/y/bendpoints are copied
-  through in `readBack()`.
+## 2. Registries — what is public
 
-## Renderer & Node Components
+| path | role |
+|---|---|
+| `src/lib/public-corpus.ts` | **the gate.** `EXCLUDED_FROM_PUBLIC` (22 ids) + `PUBLIC_LIBRARY_IDS` (51 ids) + a module-load assertion that they partition the library exactly |
+| `scripts/public-scope.mjs` | parses those two lists out of the TS as text, so plain-Node scripts share one source |
+| `production/surface-assignment.json` | **generated** per-journey surface + `excludedFromPublic`, for scripts that cannot import TS |
 
-- **`src/components/JourneyCanvas.tsx` (908 lines)** — the client island.
-  Takes the finished `layout` as a prop (never lays out in the browser).
-  Owns pan/zoom, LOD (`data-lod=far`), edge rendering (rounded bends, halos,
-  hover route tracing — recent work by Hulusi), and node selection.
-- **`src/components/ui/JourneyCanvasNodes.tsx` (585 lines)** — one exported
-  card per kind: `TriggerCard`, `ActionCard` (dispatches to
-  `CommunicationCard` / `RouterCard` / plain internal), `ConditionCard`,
-  `WaitCard`, `ExitCard`, `HandoffCard`, `OutcomeCard`. Shared helpers:
-  `humanize`, `waitLabel`, `actionTitle`, `ChannelPriorityRow`, `CARD_TEXT`
-  (the bilingual chrome dictionary), `KIND`/`FAR`/`ACCENT` token maps.
-- `src/lib/journey-preview.ts` builds card thumbnails from the **same**
-  `CanvasLayout`, so a thumbnail and its detail canvas cannot disagree.
+Layering, which matters: the **Operational Workflows archive** is a *rule*
+(`surface !== "operational"`, 124 journeys); the **51-journey scope** is a
+*list*, because no honest predicate reproduces it. Both are applied by
+`isPublicJourney`.
 
-## Detail Panel
+`isLibraryJourney` = public AND customer surface AND (sends OR routes to a
+person) → `LIBRARY_JOURNEYS`, which is the 51.
 
-- **`src/components/ui/NodeDetailPanel.tsx`** — opened by clicking a card.
-  Receives the `FlowNode` plus, for a collapsed router, the router's own
-  `FlowNode` via `collapsedRouter` (rendered as "Channel priority" +
-  "Routing logic"). This is the existing precedent for Phase 2.2's
-  "represented canonical steps" contract — it already proves a collapsed
-  visual node can keep full traceability.
-- `JourneyCanvas.tsx` computes `collapsedRouterOf` and threads it in.
-  **Nothing equivalent exists yet for `collapsibleGates`** — the gate's
-  question and its no-action outcome are currently not surfaced anywhere in
-  the panel. Gap to close in Phase 3.
+## 3. The adapter
 
-## Detail Page Template
+`src/lib/canonical-view.ts` (~800 lines) is the **only** bridge, and is
+**server-only**. Client components take shaped props and import types only —
+importing it from a `"use client"` file would ship all 286 graphs to the
+browser.
 
-- `src/components/JourneyRoutes.tsx` — `JourneyFullPage` (Info/Canvas tabs via
-  `JourneyDetailShell`) and `JourneyModalPage` (intercepted `(.)[slug]`).
-- `src/components/JourneyInfo.tsx` — hero (category, title, purpose, goal +
-  channel chips) then canvas preview + Shape tile.
-- `src/components/JourneyDetailBody.tsx` — the single body for every journey:
-  canvas, then the notes tiles (Reusable rule / Entity / Guardrails /
-  Distinct from / Competes / Pre-empted by), then — only when
-  `detail.practitioner` exists — the full `PractitionerView` write-up inside
-  a native `<details>` disclosure closed by default.
-- **The Phase-5 "detail page standard" is already implemented** (PR #7): the
-  long technical sections are behind "Technical details" / "Teknik detaylar".
-  Phase 5 needs to verify it, not build it.
-- `src/components/PractitionerView.tsx` renders the technical sections from
-  `src/lib/practitioner-view.ts`'s projection (null for non-vNext journeys).
+Things in it this refactor touches:
 
-## Localization
+- `nodeView()` — canonical node → `FlowNode` (`headline`, `detail`, `meta`,
+  `edges`, `execution`, `exitClass`, `channelPriority`, `channelPlan`, …)
+- `publicChannels()` — filters a journey's channels to the five customer
+  channels; `sales`/`task` never reach a badge
+- `externalTargetName()` — humanizes `external:sales-assignment`
+- `splitExitState()` — cuts an exit state at its first real boundary
+- `JOURNEY_ROWS` / `LIBRARY_ROWS` / `LIBRARY_COUNT` — computed once at module load
+- `surfaceKeyOf()` — throws if an operational row reaches a public listing
 
-- **No i18n library, no `dictionaries/` folder.** Two mechanisms:
-  1. **UI chrome** — one dictionary, `src/lib/content.ts` (1613 lines),
-     `copy.en` / `copy.tr`. Canvas card chrome additionally lives in
-     `CARD_TEXT` inside `JourneyCanvasNodes.tsx`, and channel/goal names in
-     `journey-channels.ts` / `journey-taxonomy.ts`.
-  2. **Canonical prose** — `src/lib/journey-tr-overrides.ts` (~3600 lines),
-     a two-layer localizer: a *structural* layer applied to every node
-     (edge labels, `meta` prefixes, category titles, wait-detail wrappers)
-     and a *content* `OVERRIDES` table keyed by journey id → node id →
-     `{ headline, detail, edges[] }`, covering the public corpus.
-- **Routing:** every page exists twice (`src/app/(en)/…` and `src/app/tr/…`),
-  no `[lang]` segment. `localizedJourneyDetail(detail, lang)` is the single
-  entry point; it returns `detail` untouched for any lang but `tr`.
-- Canonical ids and event ids are deliberately **not** translated.
+## 4. Display graph + layout
 
-## Build / Lint / Typecheck / Tests
+`src/lib/journey-canvas-layout.ts` owns two things: the **display graph** and
+the **ELK graph**. The canonical shape is never rewritten.
 
-| Purpose | Command | Notes |
-|---|---|---|
-| Build | `npm run build` | plain `next build`, no prebuild hook |
-| Typecheck | `npx tsc --noEmit` | currently clean |
-| Lint | `npm run lint` | eslint; 1 pre-existing error (`MobileNav.tsx`) + 12 warnings, unrelated |
-| Canonical gate | `npm run validate:canonical` | ~25 hard invariants + vNext rules; the real gate for `src/canonical/` |
-| Production artifacts | `npm run validate:journey-production` | 30 checks against frozen baselines |
-| SEO | `npm run validate:seo` | title/description corpus + cannibalization |
-| Dump | `npm run dump:canonical` | regenerates `production/canonical-dump.json` |
+Five transforms, all generic, none branching on a journey id:
 
-- **There is no test framework** (no jest/vitest). Correctness is enforced by
-  the validators above plus the QA harnesses below.
+| transform | what it collapses |
+|---|---|
+| per-parent terminal instancing | a shared exit/handoff drawn once beside each branch (`x.converted@c.state`) |
+| `collapsibleRouters` | a channel-selecting action into the send it selects for |
+| `collapsibleGates` | a send-path permission gate whose short arm records why nothing was sent |
+| `absorbableBookkeeping` | a pass-through internal action that writes only journal fields |
+| `collapsibleWaitFollowers` | a wait into the one condition it exclusively feeds |
 
-## Visual Validation
+`representedSteps()` is the traceability half: every collapsed node is listed
+in the detail panel under *Represented canonical steps*.
 
-- `qa/journey-canvas/` — Playwright-based harnesses expecting the app on
-  **port 4022**: `qa-gate.mjs` (fast 19-check gate over a 39-journey
-  fixture), `full-sweep-255.mjs` (~15-20 min), `viewport-sweep.mjs`,
-  `responsive-integration-smoke.mjs`, `a11y-test.mjs`, `perf-test.mjs`,
-  `drawer-audit.mjs`, `link-integrity.mjs` (pure data, runs anywhere).
-- **Caveat:** these reference `/opt/node22/...` and Playwright, which is not
-  in `node_modules` — only `puppeteer-core` is. Chromium *is* available at
-  `/opt/pw-browsers/chromium`.
-- **What actually works here:** `puppeteer-core` against a local
-  `next start`, which is what this session has been using for DOM extraction
-  and screenshots. `scripts/shot.mjs` is the existing screenshot helper
-  (port 5182 by default).
-- `ENABLE_QA_CANVAS_SWEEP=1` gates the `/qa-canvas-sweep/[id]` route used by
-  the sweep harnesses.
+`SIZE` reserves a slot per kind; `sizeOf()` is the only content-aware sizing
+(currently one case). **Measure card heights with the slot released to
+`height: auto`** — the canvas is CSS-transformed, so `getBoundingClientRect`
+returns zoomed values and will report every card as overflowing.
 
-## Git State
+## 5. Renderer
 
-- Working tree **clean** at discovery time.
-- HEAD = `1d2e929` "Canvas: collapse permission gates, name the touch's real
-  channels (#9)", which is also `origin/main`.
-- **Shared repository — a second author (Hulusi) is actively committing to the
-  same canvas files.** Recent commits touch `JourneyCanvas.tsx` and
-  `journey-canvas-layout.ts`. Any work here must build on top of current
-  `main`, never revert or rewrite their changes.
-- Vercel deploys are blocked for commits authored by that collaborator
-  (Hobby-plan restriction); commits landed through a PR merge under the
-  project owner's account deploy normally.
+| path | role |
+|---|---|
+| `src/components/JourneyCanvas.tsx` | the canvas island: pan/zoom, `JourneyWorld` (cards + edges), detail panel wiring. `"use client"` |
+| `src/components/ui/JourneyCanvasNodes.tsx` | **the card kit** — one component per kind, `cardSummary()` text budget, `CARD_TEXT` labels |
+| `src/components/ui/NodeDetailPanel.tsx` | the drawer; one panel renders any kind |
+| `src/components/ui/JourneyMiniMap.tsx` | the card thumbnail — renders the *same* `JourneyWorld`, so preview and canvas cannot disagree |
+| `src/components/ui/JourneyNodeFigure.tsx` | a single card, for documentation figures |
+| `src/lib/journey-preview.ts` | topology thumbnail, consumes the same `CanvasLayout` |
 
-## Risks / Unknowns
+Edge rendering, arrowheads and label chips live in `JourneyCanvas.tsx`; label
+width is estimated by `estimatedLabelWidth` in the layout module — **two
+literals in two files for one chip**, which is a known open item.
 
-1. **Concurrent authorship.** Hulusi edits the same renderer/layout files.
-   Mitigation: re-fetch before every batch, keep changes additive, never
-   force-push, prefer new functions over rewriting existing ones.
-2. **No display overlay layer exists.** Phase 2.1 Level 2 means introducing a
-   new concept. Preference per the brief is Level 1 (generic transforms)
-   wherever the semantics carry it — the three transforms already shipped
-   prove that route works, so Level 2 should stay a last resort for shapes
-   that genuinely cannot be detected structurally.
-3. **`canonical-view.ts` top-level `await`** means plain `tsx`/`node` cannot
-   import it without an ESM bundle. Corpus analysis therefore reads
-   `production/canonical-dump.json`; *display* counts must come from a real
-   render (puppeteer against `next start`), not a re-implementation, or the
-   two will drift.
-4. **Playwright harnesses are unrunnable as-written** (paths + missing dep).
-   Visual validation will use `puppeteer-core` + `next start` rather than
-   repairing them, to avoid widening scope.
-5. **TR content overrides are hand-authored per node**, so a display change
-   that alters which node is drawn can silently change which translated
-   string appears. Locale validation must run against the rendered TR page,
-   not the override table.
-6. **Pre-existing lint error** in `MobileNav.tsx` is unrelated and must not
-   be counted as a regression.
+## 6. Detail page
+
+`JourneyRoutes.tsx` exports both the metadata factory and the page component;
+the two route files (`src/app/(en)/lab/journeys/[slug]`, `src/app/tr/...`) are
+~15-line shells. A parallel `@modal` slot with an intercepting `(.)[slug]`
+route overlays a modal on client-side navigation.
+
+Page composition: `JourneyDetailShell` → `JourneyDetailHeader` (category,
+title, purpose, **channel pills**, goal) → `JourneyInfo` / `JourneyDetailBody`
+→ `JourneyCanvas`. Technical detail sits in a collapsible panel.
+
+## 7. Localization
+
+**No i18n library, no `dictionaries/`.** Two mechanisms:
+
+1. `src/lib/content.ts` — one dictionary, `copy.en` / `copy.tr`, for UI chrome.
+2. `src/lib/journey-tr-overrides.ts` — journey *content* in Turkish: a
+   structural regex layer applied to every node, plus an `OVERRIDES` table
+   keyed journey → node. `trHandoffHeadline` resolves a handoff's TR name;
+   `EXTERNAL_TARGET_TR` names the nine out-of-corpus destinations.
+
+Every page exists twice — `src/app/(en)/…` and `src/app/tr/…`, two independent
+root layouts, **no shared `src/app/layout.tsx`**. Shipping a page in one locale
+only is the default failure mode.
+
+## 8. Sitemap, search, related
+
+| path | note |
+|---|---|
+| `src/app/sitemap.ts` | hand-maintained `routes` array + `JOURNEY_ROWS`/`PRESET_ROWS` — journey routes derive, so scope changes need no edit here |
+| `search/build-search-index.mjs` | filters on `surface !== operational` **and** `!excludedFromPublic`; duplicates the goal taxonomy by hand (plain Node cannot resolve `@/`) |
+| `search/search-index*.json` | **generated, git-tracked** — a stale one is a visible diff |
+| `src/app/api/search/route.ts` | must use **static JSON imports, never `fs`** — the file tracer cannot see a dynamic path |
+
+Cross-journey links: every `href` a detail page builds goes through
+`isPublicJourneyId`. A non-public target renders as **the target's name in
+text**, never a link. 50 such references exist from the 51 — expected, not a
+defect.
+
+## 9. Validation
+
+| command | what it gates |
+|---|---|
+| `npm run validate:canonical` | ~25 graph invariants. **Channels must be backed by an action, in both directions** — this is why `task` cannot simply be deleted from a journey that raises one |
+| `node scripts/validate-public-scope.mjs` | 15 checks: the 51/22 partition, channel taxonomy, search/surface artifacts, no renderer hack, terminal states, bounded waits |
+| `node audit/canvas-hygiene.mjs` | against a real render: no config key, no sequence number, no namespaced id, no silent message card |
+| `node audit/guard-display.mjs` | against a real render: exits drawn, handoffs drawn, condition branches kept, canonical hashes unchanged |
+| `node audit/measure-display.mjs` | display node counts, long cards, locale leaks |
+| `npm run validate:journey-production` | production artifacts against frozen baselines |
+| `npm run validate:seo` | title/description corpus |
+
+**There is no test framework.** Correctness is these scripts plus the build.
+
+## 10. Known-stale and known-open
+
+- `CLAUDE.md` still says the library is 73 / 21 categories and the corpus is
+  284 / 3690. Both are stale: the library is **51**, the corpus **286 / 3728**.
+- `npm run lint` has **1 pre-existing error** in `src/components/ui/MobileNav.tsx:78`
+  (`react-hooks/set-state-in-effect`), unrelated to this work, not build-failing.
+- `SIZE.exit` is sized 68 but the worst Turkish exit wants 103 in a 200px slot —
+  a partial fix, documented at the definition.
+- Branch-label width is defined in two places with different values.
+- `qa/journey-canvas/*` hardcodes Linux paths and port 4022; only
+  `link-integrity.mjs` runs anywhere.
+
+## 11. Risks for the remaining phases
+
+1. **`validate:canonical`'s channel rule is bidirectional.** Any Phase 21 edit
+   that adds or removes a communication action must move the journey's
+   `channels` in the same commit, or the build fails.
+2. **`journey-marketing.ts` throws at module load** if any of `ACQ-01`,
+   `ACQ-09`, `ACT-12`, `CON-38`, `TIM-65` is removed. Two of those are in the 51.
+3. **Handoff targets must exist.** A canonical deletion breaks the validator —
+   which is why the 22 excluded journeys stay in `src/canonical/`.
+4. **Generated files are git-tracked.** After any corpus change, regenerate the
+   dump, the surface assignment, the search index and the audit manifest, or the
+   diff carries a stale artifact.
+5. **TR overrides are keyed by node id.** Renaming or adding canonical nodes
+   silently drops their Turkish text back to English.
