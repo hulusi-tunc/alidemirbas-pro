@@ -800,6 +800,7 @@ export const copy = {
           title: "{count} scenarios. Pick the next one here.",
           body: "Filed by category and page, searchable, and readable without installing anything. Each entry carries the variable under test, the primary KPI and the guardrails.",
           cta: "Browse all tests",
+          decidedBy: "Decided by",
           filterLabel: "Browse by category",
         },
         how: {
@@ -1552,6 +1553,7 @@ export const copy = {
           title: "{count} senaryo. Bir sonrakini buradan seç.",
           body: "Kategoriye ve sayfaya göre dosyalanmış, aranabilir ve hiçbir şey kurmadan okunabilir. Her kayıt test edilen değişkeni, birincil KPI'ı ve guardrail'leri taşır.",
           cta: "Tüm senaryoları aç",
+          decidedBy: "Karar metriği",
           filterLabel: "Kategoriye göre gez",
         },
         how: {

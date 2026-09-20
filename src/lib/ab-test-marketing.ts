@@ -1,4 +1,6 @@
 import rawTests from "@/data/ab-tests.json";
+import { primaryKpiLabel } from "@/lib/ab-test-kpi-labels";
+import { abElementKind, abVariableKind, type AbElementKind, type AbVariableKind } from "@/lib/ab-test-playbook";
 
 /* Read model for the A/B Test Playbook PRODUCT PAGE (/lab/ab-testing).
 
@@ -26,6 +28,8 @@ type AbTestRecord = {
   comparisonMode: string;
   differenceBehavior: string;
   testedSlot: string | null;
+  primaryKpi: { label: string; explanation: string };
+  whatToTest: { label: string }[];
   guardrails: string[];
   sideA: { role: string; label: string | null } | null;
   sideB: { role: string; label: string | null } | null;
@@ -97,6 +101,21 @@ export type SpreadCard = {
   surface: string;
   setupType: string;
   href: string;
+  /** The record's own primary KPI, in the page's language (the dataset
+      stores the Turkish label; ab-test-kpi-labels maps it). */
+  kpi: string;
+  /** What ui/AbScreen needs to draw the record's variant side as its real
+      page - the same classifiers the detail page runs (lib/ab-test-
+      playbook), so a card and its detail page draw the same element. */
+  screen: {
+    element: AbElementKind;
+    kind: AbVariableKind;
+    /** Fixed by the data on a presence test (the variant HAS the element
+        on `add`, lacks it on `remove`); null for every other kind. */
+    presence: "absent" | "present" | null;
+    behavior: string;
+    slot: string | null;
+  };
 };
 
 export function spreadCards(lang: Lang): SpreadCard[] {
@@ -113,6 +132,16 @@ export function spreadCards(lang: Lang): SpreadCard[] {
       surface: r.surface,
       setupType: r.setupType,
       href: `${base}/${r.slug}`,
+      kpi: primaryKpiLabel(r.primaryKpi.label, lang),
+      screen: (() => {
+        const kind = abVariableKind(r);
+        const presence =
+          kind !== "presence" ? null
+          : r.differenceBehavior === "add" ? "present"
+          : r.differenceBehavior === "remove" ? "absent"
+          : null;
+        return { element: abElementKind(r), kind, presence, behavior: r.differenceBehavior, slot: r.testedSlot };
+      })(),
     };
   });
 }
