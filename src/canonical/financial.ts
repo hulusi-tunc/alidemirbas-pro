@@ -1791,6 +1791,11 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "Approving a refund authorises the movement. FIN-138 performs it and confirms the money arrived, which fails independently and more often than the decision does.",
       },
+      {
+        journey: "FIN-302",
+        because:
+          "This journey tells the requester the decision - approved, refused, or under review - and nothing about money moving. FIN-302 says that money is moving and whether it arrived, and it opens only once the refund has been submitted for settlement, so the two never speak about the same fact.",
+      },
     ],
     objective: "Turn a refund request into an authorised decision, without money moving on the request itself.",
     eligibility: [
@@ -2223,6 +2228,13 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
       scope: "the approved refund and the original transaction it is issued against",
       note: "A refund is a new financial event rather than an edit to the original transaction, which stays historical throughout.",
     },
+    distinctFrom: [
+      {
+        journey: "FIN-302",
+        because:
+          "This journey moves the money and verifies it arrived, and it tells nobody - its channels are empty on purpose. FIN-302 is what the person is told about that movement, and every claim it makes is read from the record this journey writes rather than from the approval behind it.",
+      },
+    ],
     entry: "t.approved",
     nodes: [
       {
@@ -2676,5 +2688,556 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "Financial reconciliation restores consistency by explaining and correcting mismatches through authoritative transaction history rather than rewriting financial history.",
+  },
+  {
+    "id": "FIN-302",
+    "slug": "refund-notification",
+    "category": "financial",
+    "goal": "delivery-confirmation",
+    "channels": ["email", "in-app"],
+    "name": "Refund submitted → settlement observed → returned, partly returned or not arrived",
+    "shortName": "Refund Notification",
+    "purpose": "Tell the person that money is going back, and then whether it actually arrived - keeping the decision to refund, the movement of the money and its arrival as three facts stated at the moments each becomes true.",
+    "objective": "Make a refund something the person can watch happen rather than wait on: said from the financial record that holds it, never from the approval that authorised it, and never as a whole when only part of it moved.",
+    "entity": {
+      "scope": "one refund in motion - the submitted refund, the original transaction it is issued against, and the person owed the money",
+      "note": "The entity is the money movement, not the decision that authorised it and not the problem that produced it. One instance per refund; a further refund against the same transaction is its own movement with its own instance, which is what keeps a partial refund from being announced twice as a whole one.",
+      "instanceKey": [
+        "refund_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A settled outcome supersedes everything this journey was going to say about the refund being in motion: nothing pending is sent once an arrival is on record."
+      }
+    },
+    "eligibility": [
+      "an authoritative record that an approved refund has been submitted for settlement against a named original transaction",
+      "the submitted amount, and whether it is the whole of the original transaction or part of it, recorded rather than inferred",
+      "the remaining refundable amount recorded separately where the submission is partial",
+      "a person the original transaction resolves to, with a permitted destination for a transactional notice",
+      "no instance is already open for this refund, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.decision",
+        "label": "CANONICAL_RULE",
+        "text": "The decision to refund is not this journey's to announce. Whether a refund was approved, refused or is under review is said by the journey that decided it (FIN-137), and which remedy would resolve the obligation at all is said by the journey that chose it (REM-157). This one opens only once money is actually moving."
+      },
+      {
+        "id": "s.approved",
+        "label": "CANONICAL_RULE",
+        "text": "Approved is not refunded and submitted is not settled. Every message says which of the three is true at the moment it is sent, and an arrival is claimed only from the financial record that confirms it (FIN-138)."
+      },
+      {
+        "id": "s.partial",
+        "label": "CANONICAL_RULE",
+        "text": "A partial refund is named as partial, with the amount returned and the amount still refundable stated separately. A part announced as a whole is a claim the record does not make, and it leaves the person with a question nobody can answer."
+      },
+      {
+        "id": "s.timing",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is promised about when the money will appear. The settlement route's own timing is not the sender's to assert, and a date the business cannot enforce turns an arrival into a broken promise."
+      },
+      {
+        "id": "s.unknown",
+        "label": "CANONICAL_RULE",
+        "text": "A refund whose outcome is unknown is told as unknown and reconciled (GLB-20). Unknown is not failed, nothing is re-submitted to have something to say, and the person is told it is being reconciled rather than left waiting on silence."
+      },
+      {
+        "id": "s.once",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "One message per state that becomes true - the movement, then its outcome. Repeating a state because time has passed is a reminder about the business's own process, addressed to somebody who is only waiting for money."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "refund_notification.discretionary_touches",
+          "rule": "Every touch in the plan is a statement about money the person is owed and is mandatory; nothing discretionary exists to cap, and the outcome touches are exclusive arms of one condition rather than a sequence.",
+          "default": {
+            "value": 0,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; every touch in the plan is marked mandatory"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "refund_notification.cooldown",
+        "rule": "This journey is per refund; a further refund is a different movement of money and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "GLB-24; the entity note - one instance per refund"
+        },
+        "required": false
+      },
+      "competition": "none"
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "a statement about money has to be kept and returned to - the default route for both the notice and the outcome"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is in the product where the original transaction and its refund are both visible, and the statement belongs beside them"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "notice-then-confirm",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "in-motion",
+          "action": "a.issued",
+          "prerequisites": [
+            "c.scope",
+            "c.sendable"
+          ],
+          "purpose": "Say that money is going back against this transaction: the amount submitted, whether that is the whole of it or part of it with the remainder named separately, and that it has not arrived yet.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "transaction-record",
+            "boundTo": "refund_id",
+            "mustNotClaim": [
+              "a date the money will appear",
+              "that the money has already arrived",
+              "that the rest of the transaction will also be refunded",
+              "that the original transaction has been reversed"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "returned",
+          "action": "a.settled",
+          "after": "t1",
+          "gatedBy": "w.outcome",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Confirm from the financial record that the whole submitted amount has been returned, and say nothing about where it now sits.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "transaction-record",
+            "boundTo": "refund_id",
+            "mustNotClaim": [
+              "that the original transaction has been reversed",
+              "that anything further is owed back"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "returned-in-part",
+          "action": "a.partial",
+          "after": "t1",
+          "gatedBy": "w.outcome",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Say that part of the submitted amount has been returned, name the part that has not, and say what is happening to the remainder.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "transaction-record",
+            "boundTo": "refund_id",
+            "mustNotClaim": [
+              "that the refund is complete",
+              "a date the remainder will follow"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t4",
+          "stage": "not-arrived",
+          "action": "a.unresolved",
+          "after": "t1",
+          "gatedBy": "w.outcome",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Say plainly that the money has not been confirmed back, that the movement is being reconciled rather than attempted again, and that nothing further is needed from them.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "transaction-record",
+            "boundTo": "refund_id",
+            "mustNotClaim": [
+              "that the refund has failed",
+              "that the money is lost",
+              "a date the reconciliation will finish"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.decision",
+        "s.approved",
+        "s.partial",
+        "s.timing",
+        "s.unknown",
+        "s.once"
+      ]
+    },
+    "entry": "t.submitted",
+    "nodes": [
+      {
+        "id": "t.submitted",
+        "kind": "trigger",
+        "event": "refund_submitted_for_settlement",
+        "evidence": {
+          "requires": [
+            "an authoritative record that an approved refund has been submitted for settlement against a named original transaction",
+            "the submitted amount, and whether it is the whole of the original transaction or part of it",
+            "the person the original transaction resolves to, with the remaining refundable amount where the submission is partial"
+          ],
+          "insufficientAlone": [
+            "a refund requested but not yet decided - that decision belongs to the journey that makes it, and it is announced there",
+            "a refund approved but not yet submitted; approving authorises the movement and does not make it",
+            "a remedy agreed that has not resolved to a refund at all",
+            "an amount taken from the approval rather than from the record of what was actually submitted",
+            "a cancellation with a financial consequence, which is a decision about whether money is owed back rather than money moving"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.scope"
+      },
+      {
+        "id": "c.scope",
+        "kind": "condition",
+        "asks": "What is actually moving, and against what?",
+        "branches": [
+          {
+            "label": "The whole transaction",
+            "when": "the submitted amount is the whole of the original transaction and nothing remains refundable against it",
+            "observes": "the refund record and the original transaction",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Part of it",
+            "when": "the submitted amount is part of the original transaction, with the remaining refundable amount recorded separately",
+            "observes": "the refund record and the remaining refundable amount",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Nothing is moving",
+            "when": "the submission was withdrawn or reversed before anything had been said about it",
+            "observes": "the refund record",
+            "to": "x.void"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the notice go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: a transactional purpose, a deliverable destination, hard gates clear, and no notice already recorded against this refund",
+            "observes": "send path stages 1-8, notification log",
+            "to": "a.issued"
+          },
+          {
+            "label": "No route",
+            "when": "no permitted, deliverable destination remains for a transactional notice of this kind; the reason is recorded rather than the notice being forced onto a route that is not permitted",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.issued",
+        "kind": "action",
+        "does": "Say that money is going back: the amount submitted, whether that is the whole of the original transaction or part of it with the remaining refundable amount named separately, and that it has not arrived yet. Promise no date for the arrival - the settlement route's own timing is not ours to assert.",
+        "execution": "communication",
+        "idempotencyKey": "refund_id",
+        "writes": [
+          {
+            "field": "refund_notice_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.outcome"
+      },
+      {
+        "id": "w.outcome",
+        "kind": "wait",
+        "until": [
+          "refund_settlement_confirmed",
+          "refund_settlement_failed"
+        ],
+        "onEvent": "c.outcome",
+        "timeout": {
+          "after": {
+            "key": "refund_notification.settlement_window",
+            "rule": "The period the settlement route is given to produce an outcome before the person is told that the money has not been confirmed back.",
+            "class": "external-window",
+            "required": true
+          },
+          "reason": "a refund that has neither arrived nor failed leaves somebody waiting on their own money with nobody saying anything, which is the silence this journey exists to end",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.outcome",
+        "recheck": "the refund record, the original transaction and the remaining refundable amount, re-read from the financial systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.outcome",
+        "kind": "condition",
+        "asks": "What does the financial record say happened to the money?",
+        "branches": [
+          {
+            "label": "Returned in full",
+            "when": "the record confirms the whole submitted amount was returned",
+            "observes": "refund_settlement_confirmed",
+            "to": "a.settled"
+          },
+          {
+            "label": "Returned in part",
+            "when": "the record confirms part of the submitted amount was returned and names the amount still outstanding on it",
+            "observes": "refund_settlement_confirmed",
+            "to": "a.partial"
+          },
+          {
+            "label": "Not confirmed back",
+            "when": "the record shows a failed settlement, or no outcome at all when the window closed; either way the money has not been confirmed returned",
+            "observes": "refund_settlement_failed",
+            "to": "a.unresolved"
+          }
+        ]
+      },
+      {
+        "id": "a.settled",
+        "kind": "action",
+        "does": "Confirm from the financial record that the money has been returned, and how much. Nothing is claimed about where it now sits or when it becomes visible to the person.",
+        "execution": "communication",
+        "idempotencyKey": "refund_id + a.settled",
+        "writes": [
+          {
+            "field": "refund_notice_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.settled"
+      },
+      {
+        "id": "a.partial",
+        "kind": "action",
+        "does": "Say that part of the submitted amount has been returned, name the part that has not, and say what is happening to the remainder. A part announced as a whole leaves the person holding a question nobody can answer.",
+        "execution": "communication",
+        "idempotencyKey": "refund_id + a.partial",
+        "writes": [
+          {
+            "field": "refund_notice_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.partial"
+      },
+      {
+        "id": "a.unresolved",
+        "kind": "action",
+        "does": "Say plainly that the money has not been confirmed back, that the movement is being reconciled rather than attempted again, and that nothing further is needed from them. Unknown is told as unknown, because a person waiting on their own money is owed the truth about it and not a reassurance.",
+        "execution": "communication",
+        "idempotencyKey": "refund_id + a.unresolved",
+        "writes": [
+          {
+            "field": "refund_notice_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.unsettled"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no notice was sent and against which refund, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "refund_id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.settled",
+        "kind": "exit",
+        "state": "returned and confirmed; the money is back and the person was told so from the record",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a further refund against the same transaction is its own movement and its own instance"
+      },
+      {
+        "id": "x.partial",
+        "kind": "exit",
+        "state": "partly returned; the amount returned and the amount still refundable were stated separately",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a refund submitted against the remaining refundable amount opens its own instance"
+      },
+      {
+        "id": "x.unsettled",
+        "kind": "exit",
+        "state": "not confirmed back; the person was told it is being reconciled rather than left waiting",
+        "class": "failure",
+        "terminal": false,
+        "reEntry": "if the reconciliation moves money again, that submission is its own instance"
+      },
+      {
+        "id": "x.void",
+        "kind": "exit",
+        "state": "nothing to announce; the submission was withdrawn before anything was said about it",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a resubmitted refund is its own movement and its own instance"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no notice sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a further refund against this transaction is evaluated on its own gates"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "refund_id",
+          "original_transaction_id",
+          "person_id",
+          "refund_amount",
+          "refund_scope",
+          "transaction_destination"
+        ],
+        "optional": [
+          "remaining_refundable_amount",
+          "refund_reason",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.settled",
+          "x.partial",
+          "x.unsettled",
+          "x.void",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "refund_settlement_confirmed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "not-applicable"
+      },
+      "secondary": [
+        "refund_settlement_failed"
+      ],
+      "guardrails": [
+        "complaint",
+        "arrival_claimed_before_settlement",
+        "partial_announced_as_whole",
+        "settlement_date_promised",
+        "decision_restated_as_movement"
+      ],
+      "operational": [
+        "entry_volume",
+        "notice_rate",
+        "settlement_outcome_distribution",
+        "partial_refund_rate",
+        "no_action_rate_by_reason"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "refund notification",
+        "refund confirmation",
+        "money back notice",
+        "refund issued message",
+        "refund status update"
+      ],
+      "useCases": [
+        "a refund submitted for settlement, told to the person before it has arrived",
+        "a partial refund where the amount returned and the amount still refundable have to be stated separately",
+        "a refund that has not been confirmed back, told as being reconciled rather than left silent"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "FIN-137",
+        "because": "FIN-137 decides whether a refund is owed and tells the requester that decision - approved, refused or under review. This journey opens only once money is actually moving, and it never restates the decision behind it."
+      },
+      {
+        "journey": "FIN-138",
+        "because": "FIN-138 moves the money and verifies it arrived, and it tells nobody - its channels are empty on purpose. This journey is what the person is told about that movement, and every claim it makes is read from FIN-138's own record rather than from the approval behind it."
+      },
+      {
+        "journey": "REM-157",
+        "because": "REM-157 says which remedy would resolve the obligation, and a refund is only one of the answers it can give. This exists only where that answer was a refund and only once the refund has been submitted: a remedy confirmed is not money arrived."
+      },
+      {
+        "journey": "FIN-134",
+        "because": "FIN-134 is money that failed to come in and an obligation that stays open. This is money going back out against an obligation already discharged; the two share a payment record and nothing else."
+      }
+    ],
+    "guardrails": [
+      "Approved is not refunded and submitted is not settled; each message says which is true at the moment it is sent.",
+      "A partial refund is named as partial, with the amount returned and the amount still refundable stated separately.",
+      "No date is promised for the arrival - the settlement route's own timing is not the sender's to assert.",
+      "An unknown outcome is told as unknown and reconciled; nothing is re-submitted in order to have something to say.",
+      "The decision to refund is announced by the journey that made it, never here."
+    ],
+    "reusableRule": "Money going back is three separate facts - decided, submitted, arrived - and a person is told each one only at the moment it becomes true, from the record that holds it rather than from the decision that authorised it."
   },
 ];

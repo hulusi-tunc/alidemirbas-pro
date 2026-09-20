@@ -626,6 +626,18 @@
     ]
   },
   {
+    "id": "CON-300",
+    "slug": "unengaged-sunset",
+    "title": "Marketing contact unanswered → the question put once → kept, reduced or ended",
+    "category": "consent",
+    "categoryTitle": "Consent, preferences, communication & contactability",
+    "triggerLabel": "Marketing contact unanswered across window",
+    "searchableAliases": [
+      "CON-300",
+      "unengaged-sunset"
+    ]
+  },
+  {
     "id": "CON-31",
     "slug": "permission-capture-and-scope",
     "title": "Permission capture → validate scope → activate or reject",
@@ -1495,6 +1507,18 @@
     ]
   },
   {
+    "id": "FIN-302",
+    "slug": "refund-notification",
+    "title": "Refund submitted → settlement observed → returned, partly returned or not arrived",
+    "category": "financial",
+    "categoryTitle": "Transactions, payments, billing & financial outcomes",
+    "triggerLabel": "Refund submitted for settlement",
+    "searchableAliases": [
+      "FIN-302",
+      "refund-notification"
+    ]
+  },
+  {
     "id": "FUL-141",
     "slug": "fulfillment-request-acceptance",
     "title": "Fulfillment request → validate → accept, reject or hold",
@@ -1648,6 +1672,18 @@
     "searchableAliases": [
       "FUL-291",
       "post-purchase-follow-up"
+    ]
+  },
+  {
+    "id": "FUL-301",
+    "slug": "order-confirmation",
+    "title": "Order accepted → what was accepted stated once → confirmed, void or handed on",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Fulfillment obligation accepted",
+    "searchableAliases": [
+      "FUL-301",
+      "order-confirmation"
     ]
   },
   {
@@ -2563,6 +2599,18 @@
     ]
   },
   {
+    "id": "REM-305",
+    "slug": "support-request-acknowledgement",
+    "title": "Service request received → acknowledged or already resolved → closed or handed to the work",
+    "category": "remedy",
+    "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+    "triggerLabel": "Support request received",
+    "searchableAliases": [
+      "REM-305",
+      "support-request-acknowledgement"
+    ]
+  },
+  {
     "id": "RET-21",
     "slug": "engagement-state-reclassification",
     "title": "Engagement state change → reclassify → appropriate lifecycle",
@@ -2717,6 +2765,18 @@
     "searchableAliases": [
       "RET-294",
       "complementary-next-offer"
+    ]
+  },
+  {
+    "id": "RET-295",
+    "slug": "milestone-recognition",
+    "title": "A date belonging to the person approaching → eligibility checked → recognised or not sent",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Personal milestone approaching",
+    "searchableAliases": [
+      "RET-295",
+      "milestone-recognition"
     ]
   },
   {
@@ -3188,6 +3248,30 @@
     ]
   },
   {
+    "id": "SCH-303",
+    "slug": "reservation-payment-reminder",
+    "title": "Reservation standing on a payment condition → reminded → kept, released or routed to recovery",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Reservation payment outstanding",
+    "searchableAliases": [
+      "SCH-303",
+      "reservation-payment-reminder"
+    ]
+  },
+  {
+    "id": "SCH-304",
+    "slug": "pre-arrival-preparation",
+    "title": "Arrival window opens → what arriving requires → checked in, arrived or superseded",
+    "category": "scheduling",
+    "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+    "triggerLabel": "Arrival window opened",
+    "searchableAliases": [
+      "SCH-304",
+      "pre-arrival-preparation"
+    ]
+  },
+  {
     "id": "SUB-161",
     "slug": "continuing-relationship-creation",
     "title": "Continuing relationship created → validate → activate or pending",
@@ -3317,6 +3401,54 @@
     "searchableAliases": [
       "SUB-262",
       "cancellation-wind-down-notice"
+    ]
+  },
+  {
+    "id": "SUB-296",
+    "slug": "loyalty-welcome",
+    "title": "Membership enrolled → welcomed → oriented, already in use, or closed",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Loyalty membership enrolled",
+    "searchableAliases": [
+      "SUB-296",
+      "loyalty-welcome"
+    ]
+  },
+  {
+    "id": "SUB-297",
+    "slug": "loyalty-nurture",
+    "title": "Membership holding something unused → explained → used, reminded once, or closed",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Loyalty membership holds unused value",
+    "searchableAliases": [
+      "SUB-297",
+      "loyalty-nurture"
+    ]
+  },
+  {
+    "id": "SUB-298",
+    "slug": "reward-confirmation",
+    "title": "Reward earned → record confirmed → stated once, or closed unstated",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Loyalty reward earned",
+    "searchableAliases": [
+      "SUB-298",
+      "reward-confirmation"
+    ]
+  },
+  {
+    "id": "SUB-299",
+    "slug": "loyalty-tier-change",
+    "title": "Tier moved → direction checked → upgrade announced, used, or left to another journey",
+    "category": "subscription",
+    "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+    "triggerLabel": "Loyalty tier changed",
+    "searchableAliases": [
+      "SUB-299",
+      "loyalty-tier-change"
     ]
   },
   {

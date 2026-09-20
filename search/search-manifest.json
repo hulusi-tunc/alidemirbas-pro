@@ -2,7 +2,7 @@
   "_description": "Reproducibility + payload manifest for search-index.json. sourceVersion identifies the generator commit context by describing WHAT was read, not a timestamp (this repo's own convention for deterministic build scripts avoids Date.now()).",
   "sourceVersion": {
     "abTestRecordCount": 211,
-    "journeyRecordCount": 147,
+    "journeyRecordCount": 158,
     "archivedJourneyRecordCount": 145,
     "mergedJourneyCount": 8,
     "presetFoldedCount": 8,
@@ -10,10 +10,10 @@
     "labProductCount": 6,
     "blogArticleCount": 5
   },
-  "totalDocuments": 388,
+  "totalDocuments": 399,
   "countsByType": {
     "ab-test": 211,
-    "journey": 147,
+    "journey": 158,
     "calculator": 19,
     "lab-product": 6,
     "blog-article": 5
@@ -25,7 +25,7 @@
     "mobile": 12,
     "pricing-and-monetization": 12,
     "saas-and-b2b": 16,
-    "retention-and-engagement": 16,
+    "retention-and-engagement": 17,
     "experimentation-and-testing": 4,
     "unit-economics": 4,
     "advertising-and-media": 3,
@@ -48,10 +48,10 @@
     "thankyou": 4
   },
   "countsByStage": {
-    "engagement-retention": 37,
+    "engagement-retention": 38,
     "acquisition-qualification": 69,
     "ending-closure": 7,
-    "cross-lifecycle": 105,
+    "cross-lifecycle": 115,
     "activation-onboarding": 8
   },
   "countsByMetric": {
@@ -508,15 +508,15 @@
     "Sample Size": 1
   },
   "aliasCount": 11,
-  "relationshipCount": 385,
+  "relationshipCount": 386,
   "sizeReport": {
     "rawSourceSizeBytes": {
       "src/data/ab-tests.json": 635240,
-      "production/journey-view-model.json": 3292143
+      "production/journey-view-model.json": 3456033
     },
-    "searchIndexSizeBytes": 957560,
-    "searchIndexLightSizeBytes": 601021,
-    "averageDocumentSizeBytes": 2006,
+    "searchIndexSizeBytes": 1004826,
+    "searchIndexLightSizeBytes": 633790,
+    "averageDocumentSizeBytes": 2052,
     "maxDocumentSizeBytes": 4740,
     "minDocumentSizeBytes": 992
   }

@@ -3571,4 +3571,1745 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "The period between deciding to leave and leaving is still a relationship, and it is the one where being told the truth matters most.",
   },
+  {
+    "id": "SUB-296",
+    "slug": "loyalty-welcome",
+    "category": "subscription",
+    "goal": "progression-milestone",
+    "channels": ["email", "in-app", "push"],
+    "name": "Membership enrolled → welcomed → oriented, already in use, or closed",
+    "shortName": "Loyalty Program Welcome",
+    "purpose": "Open an enrolled membership honestly: what it actually grants from today, where it lives, and how it is used - without borrowing the product's own onboarding or the first purchase's own welcome.",
+    "objective": "Get a newly enrolled member to the first real use of what their membership grants, by saying once what it grants and, where it has gone unused, saying once where to use it.",
+    "entity": {
+      "scope": "the loyalty membership a person has just enrolled in - one person, one membership",
+      "note": "The entity is the membership, not the person and not the order that may have created it. One instance per membership, ever: a membership that is closed and later reopened is a new membership with its own enrolment and its own instance.",
+      "instanceKey": [
+        "membership_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A membership that ends supersedes this instance: nothing further is sent under this journey about a membership that no longer exists."
+      }
+    },
+    "eligibility": [
+      "an authoritative enrolment record for this person in this membership programme",
+      "the membership is active - enrolment has taken effect rather than merely been requested",
+      "no earlier instance of this journey exists for this membership",
+      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.onboarding",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never carries product onboarding and never counts as a setup step. Enrolling in a membership is not activation, and a member who is also mid-onboarding is inside two instances that share nothing but the person."
+      },
+      {
+        "id": "s.purchase",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never carries the first-purchase welcome and never makes a bounceback offer. Where somebody enrols at the moment they first buy, the purchase moment belongs to the journey that owns the customer relationship and this one speaks only about the membership."
+      },
+      {
+        "id": "s.grant",
+        "label": "CANONICAL_RULE",
+        "text": "The welcome names only what the membership actually grants from today, as the membership record states it. A benefit that starts later is described as starting later, and a benefit the record does not carry is not named at all."
+      },
+      {
+        "id": "s.used",
+        "label": "CANONICAL_RULE",
+        "text": "A member who has already used what the membership grants is not told where to find it. The orientation is reached only through a condition that just re-read the membership's own usage record."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for lifecycle communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A reward the membership has actually earned, and a change in the membership's own standing, both outrank this journey in the membership-standing group; while either holds the membership, this journey's touch is deferred and re-evaluated against current state rather than queued blindly (GLB-06)."
+      },
+      {
+        "id": "s.ended",
+        "label": "CANONICAL_RULE",
+        "text": "A membership cancelled, reversed or never made active is not welcomed; the instance ends without a touch."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "loyalty_welcome.touches",
+          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - a welcome and at most one orientation - and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the plan's own length - a welcome and one optional orientation"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "loyalty_welcome.cooldown",
+        "rule": "The instance opens once per membership and never reopens, so the cooldown governs only how long the orientation may sit behind the welcome before the ordinary membership journeys take the relationship over.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "membership-standing",
+        "scope": "subscription",
+        "precedence": "below the reward confirmation and below the tier change on the same membership - a state the membership has actually reached outranks an introduction to it; above the membership nurture, which is suppressed for a membership this new because a member who has not yet been welcomed cannot be nurtured",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the touch has to carry what the membership grants and survive until the person can act on it - the default for both touches"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is already in a session where the membership itself is visible and can be used without leaving the product"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the permission covering it still stands, and the touch is short enough to be a nudge"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "welcome",
+          "action": "a.welcome",
+          "prerequisites": [
+            "c.state",
+            "c.sendable"
+          ],
+          "purpose": "What this membership grants from today, where it lives, and how it is used - stated from the membership record and nothing else.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "membership-account",
+            "boundTo": "membership_id",
+            "mustNotClaim": [
+              "a benefit the membership record does not carry",
+              "a balance that has not been credited",
+              "a tier the membership does not hold",
+              "an expiry the programme does not enforce"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "orientation",
+          "action": "a.orient",
+          "after": "t1",
+          "gatedBy": "w.benefit",
+          "prerequisites": [
+            "c.used",
+            "c.sendable2"
+          ],
+          "purpose": "One route to the thing the membership already grants, sent only to a member whose own usage record says they have not used it yet.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "membership-benefit",
+            "boundTo": "membership_id",
+            "mustNotClaim": [
+              "a benefit that has not been granted",
+              "a balance that has not been credited",
+              "a deadline the programme does not enforce"
+            ]
+          },
+          "mandatory": false,
+          "label": "OPTIONAL_STRATEGY"
+        }
+      ],
+      "noAction": [
+        "s.onboarding",
+        "s.purchase",
+        "s.grant",
+        "s.used",
+        "s.permission",
+        "s.contest",
+        "s.ended"
+      ]
+    },
+    "entry": "t.enrolled",
+    "nodes": [
+      {
+        "id": "t.enrolled",
+        "kind": "trigger",
+        "event": "loyalty_membership_enrolled",
+        "evidence": {
+          "requires": [
+            "an authoritative enrolment record placing this person in this membership programme",
+            "the membership's own state, confirming enrolment has taken effect rather than merely been requested"
+          ],
+          "insufficientAlone": [
+            "an account created, or a purchase made, with no enrolment record behind it",
+            "an enrolment requested but not yet accepted by the system of record",
+            "a membership that already existed and was merely re-read",
+            "an enrolment attributed to an identity that has not resolved to a person, who may well already hold a membership under another one"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.state"
+      },
+      {
+        "id": "c.state",
+        "kind": "condition",
+        "asks": "Is this membership ours to welcome?",
+        "branches": [
+          {
+            "label": "Welcome due",
+            "when": "the membership is active, no welcome has been recorded against it, and permission for lifecycle communication still holds",
+            "observes": "membership record, permission record",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Membership no longer stands",
+            "when": "the enrolment was reversed, the membership was cancelled before the welcome went out, or the person withdrew permission",
+            "observes": "loyalty_membership_ended",
+            "to": "x.closed"
+          },
+          {
+            "label": "Already welcomed",
+            "when": "a welcome is already recorded against this membership",
+            "observes": "welcome record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the welcome go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence membership journey currently holding this membership",
+            "observes": "send path stages 1-8",
+            "to": "a.welcome"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.welcome",
+        "kind": "action",
+        "does": "State what this membership grants from today, where it lives and how it is used, reading each claim from the membership record. Name nothing the record does not carry, and describe a benefit that starts later as starting later.",
+        "execution": "communication",
+        "idempotencyKey": "membership_id + touch id",
+        "writes": [
+          {
+            "field": "membership_welcome_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.benefit"
+      },
+      {
+        "id": "w.benefit",
+        "kind": "wait",
+        "until": [
+          "loyalty_benefit_used",
+          "loyalty_membership_ended"
+        ],
+        "onEvent": "c.used",
+        "timeout": {
+          "after": {
+            "key": "loyalty_welcome.orientation_window",
+            "rule": "The orientation waits long enough that a member who was going to use the membership on their own has had the chance to, and no longer than the point at which an enrolment stops being recent enough to be worth explaining.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an orientation sent to somebody already using the membership teaches them nothing, and one sent long after enrolment explains a decision they have forgotten making",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.used",
+        "recheck": "the membership's own state, its usage record and the person's permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.used",
+        "kind": "condition",
+        "asks": "Has the membership been used yet?",
+        "branches": [
+          {
+            "label": "Already in use",
+            "when": "the membership's own usage record shows a benefit it grants has been used",
+            "observes": "loyalty_benefit_used",
+            "to": "x.settled"
+          },
+          {
+            "label": "Not yet",
+            "when": "the membership is still active and its usage record shows nothing used since enrolment",
+            "observes": "membership usage record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the orientation go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes, the touch budget is not spent, and the membership record still carries an unused benefit to point at",
+            "observes": "send path stages 1-8, membership record",
+            "to": "a.orient"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it, or the membership no longer carries an unused benefit to point at; the reason is recorded",
+            "observes": "send path stages 1-8, membership record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.orient",
+        "kind": "action",
+        "does": "Point at one thing the membership already grants and the route to use it, re-read from the membership record immediately before sending. Nothing invented, and nothing sent to a member who has already used it.",
+        "execution": "communication",
+        "idempotencyKey": "membership_id + touch id",
+        "writes": [
+          {
+            "field": "membership_welcome_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.oriented"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "membership_id + touch id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.settled",
+        "kind": "exit",
+        "state": "welcomed and the membership is in use; there is nothing left to orient",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a membership is enrolled once; the ordinary membership journeys own it from here"
+      },
+      {
+        "id": "x.oriented",
+        "kind": "exit",
+        "state": "welcomed and oriented; the plan ran to its end and this journey's own work is done",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "this instance does not reopen; whether the membership is used is the ordinary membership journeys' to observe"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a welcome; the membership was reversed, cancelled or never made active",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a membership enrolled again after being closed is a new membership and opens its own instance"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no touch sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the instance does not reopen; a membership whose welcome was suppressed is not welcomed later as if it were new"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "membership_id",
+          "membership_enrolled_at",
+          "membership_state",
+          "membership_account_destination"
+        ],
+        "optional": [
+          "granted_benefit_ids",
+          "benefit_starts_at",
+          "membership_usage_at",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.settled",
+          "x.oriented",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "loyalty_benefit_used",
+        "unit": "person",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "loyalty_welcome.holdout_share",
+          "rule": "A persistent per-member holdout is required: a share of new members use what they enrolled for without being told anything, and without a holdout this journey claims every one of them.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "permission_withdrawn"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "orientation_after_benefit_used",
+        "benefit_named_without_record",
+        "onboarding_step_claimed_by_membership"
+      ],
+      "operational": [
+        "entry_volume",
+        "welcome_rate",
+        "orientation_rate",
+        "no_action_rate_by_reason",
+        "first_benefit_use_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "loyalty welcome",
+        "loyalty program welcome",
+        "membership welcome",
+        "rewards programme onboarding",
+        "new member welcome"
+      ],
+      "useCases": [
+        "somebody who has just enrolled in a loyalty or rewards membership and does not yet know what it grants",
+        "a membership that has been active since enrolment with nothing used against it"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-290",
+        "because": "RET-290 opens on a first purchase and owns the customer relationship that purchase created; its subject is the second purchase. This opens on an enrolment and its subject is the membership. Where both are true at the same moment, neither carries the other's message: this one never makes a bounceback offer, and RET-290 never explains the membership."
+      },
+      {
+        "journey": "ACT-12",
+        "because": "ACT-12 advances product onboarding against a setup record. Enrolling in a membership is not a setup step and never advances that record; this journey orients somebody inside a membership and never inside the product."
+      },
+      {
+        "journey": "SUB-297",
+        "because": "SUB-297 acts on a membership that has been running and holds something unused. This acts on an enrolment that has just happened, and it runs once per membership, ever."
+      }
+    ],
+    "guardrails": [
+      "The welcome names only what the membership record actually grants, and a benefit that starts later is described as starting later.",
+      "Product onboarding is never carried here, and an enrolment is never counted as a setup step.",
+      "The first-purchase welcome and its bounceback are never carried here, even when enrolment and first purchase happen in the same moment.",
+      "The orientation is never sent to a member whose usage record already shows the benefit used - the record is re-read immediately before it.",
+      "One welcome and at most one orientation; there is no third touch to time."
+    ],
+    "reusableRule": "Joining something is a state with its own journey, separate from whatever produced the join: it explains only what the thing joined actually grants, and it stops the moment the member has used it."
+  },
+  {
+    "id": "SUB-297",
+    "slug": "loyalty-nurture",
+    "category": "subscription",
+    "goal": "progression-milestone",
+    "channels": ["email", "in-app", "push"],
+    "name": "Membership holding something unused → explained → used, reminded once, or closed",
+    "shortName": "Loyalty Program Nurture",
+    "purpose": "Tell a member what their own membership is currently holding for them that they have not used, in a bounded way that ends rather than a cadence that continues.",
+    "objective": "Turn something the membership already holds - a balance, an unused benefit, a standing they have earned - into a first use, by saying it once and, where nothing happened, saying it once more and stopping.",
+    "entity": {
+      "scope": "one unused thing a person's membership is holding - the member, the membership, and the specific balance or benefit that has gone unused",
+      "note": "The entity is what the membership record says is unused, not the member's interests and not a segment. One instance per membership and unused subject: where the subject is used, expires or leaves the record, the instance closes rather than substituting a different subject to keep the sequence alive.",
+      "instanceKey": [
+        "membership_id",
+        "unused_subject_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "Using the subject by any route closes the instance, and so does the subject leaving the membership record; a different unused subject is a different instance and never a continuation of this one."
+      }
+    },
+    "eligibility": [
+      "an authoritative membership record showing a specific balance or benefit this member holds and has not used",
+      "the membership is active and the subject is still usable by this member",
+      "no instance is already open for this membership and this unused subject",
+      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.bounded",
+        "label": "CANONICAL_RULE",
+        "text": "This is a bounded nurture, not a cadence. The plan has its own end, and reaching it without a use closes the instance rather than starting the sequence again with different words."
+      },
+      {
+        "id": "s.record",
+        "label": "CANONICAL_RULE",
+        "text": "Every claim is read from the membership record at the moment of sending: what is held, what it may be used for, and until when. A balance that has been spent, a benefit that has expired and a standing that has changed each close the instance rather than being restated as they were."
+      },
+      {
+        "id": "s.recommendation",
+        "label": "CANONICAL_RULE",
+        "text": "This journey speaks about what the membership already holds. It never assembles a set of things to buy and never presents a product proposal as a membership benefit; a recommendation or a complementary offer is a different journey with a different subject."
+      },
+      {
+        "id": "s.transactional",
+        "label": "CANONICAL_RULE",
+        "text": "A reward the membership has actually earned outranks this journey and is never carried by it. A confirmation states a state the membership reached; this states only that something already held has gone unused."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for lifecycle communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.ended",
+        "label": "CANONICAL_RULE",
+        "text": "A membership that has ended, or a member who withdrew permission, closes the instance without a further touch."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "loyalty_nurture.touches",
+          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - one explanation and at most one reminder - and reaching it closes the instance instead of extending it.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the plan's own length - an explanation and one optional reminder"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "loyalty_nurture.cooldown",
+        "rule": "After an instance closes, the same membership is not re-entered on a different unused subject until the cooldown has run, so a membership holding several unused things does not become a standing campaign.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "membership-standing",
+        "scope": "subscription",
+        "precedence": "lowest in the group - a reward the membership has earned, a change in its standing and the welcome that opens it all outrank a reminder that something already held has gone unused; while any of them holds the membership, this journey is suppressed for it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the touch has to carry what is held and until when, and survive until the member can act on it - the default"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the member is already in a session where what they hold is visible and can be used without leaving the product"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the permission covering it still stands, and the subject is short enough to carry the whole message"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "explanation",
+          "action": "a.explain",
+          "prerequisites": [
+            "c.valid",
+            "c.sendable"
+          ],
+          "purpose": "What this membership is holding that has not been used, what it may be used for and until when - every part of it re-read from the membership record.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "membership-benefit",
+            "boundTo": "unused_subject_id",
+            "mustNotClaim": [
+              "a balance that has not been credited",
+              "a benefit the membership record does not carry",
+              "a deadline the programme does not enforce",
+              "that anything was chosen for this member by a person"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "reminder",
+          "action": "a.remind",
+          "after": "t1",
+          "gatedBy": "w.act",
+          "prerequisites": [
+            "c.acted",
+            "c.sendable2"
+          ],
+          "purpose": "The same unused thing, said once more and with nothing added to it, to a member whose record still shows it unused - and then the plan is over.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "membership-benefit",
+            "boundTo": "unused_subject_id",
+            "mustNotClaim": [
+              "a balance that has not been credited",
+              "a deadline the programme does not enforce",
+              "that the offer is about to be withdrawn"
+            ]
+          },
+          "mandatory": false,
+          "label": "OPTIONAL_STRATEGY"
+        }
+      ],
+      "noAction": [
+        "s.bounded",
+        "s.record",
+        "s.recommendation",
+        "s.transactional",
+        "s.permission",
+        "s.ended"
+      ]
+    },
+    "entry": "t.unused",
+    "nodes": [
+      {
+        "id": "t.unused",
+        "kind": "trigger",
+        "event": "loyalty_membership_holds_unused_value",
+        "evidence": {
+          "requires": [
+            "an authoritative membership record naming a specific balance or benefit this member holds",
+            "that subject's own usage record, showing it has not been used",
+            "the rule the programme uses to say the subject is still usable by this member"
+          ],
+          "insufficientAlone": [
+            "a membership that is merely inactive, with nothing specific held against it",
+            "a benefit held by the programme's members generally rather than by this member",
+            "a subject that has already been used, has expired, or has left the membership record",
+            "a marketing calendar date with no unused subject behind it"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.valid"
+      },
+      {
+        "id": "c.valid",
+        "kind": "condition",
+        "asks": "Is there still something real to say?",
+        "branches": [
+          {
+            "label": "Still unused",
+            "when": "the membership is active and its record still shows this subject held, usable by this member and unused",
+            "observes": "membership record",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Membership no longer stands",
+            "when": "the membership ended, or the member withdrew permission for this kind of communication",
+            "observes": "loyalty_membership_ended",
+            "to": "x.closed"
+          },
+          {
+            "label": "Nothing left to say",
+            "when": "the subject has been used, has expired, or is no longer usable by this member",
+            "observes": "loyalty_benefit_used",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the explanation go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the promotional pressure cap, no higher-precedence membership journey currently holding this membership, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.explain"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.explain",
+        "kind": "action",
+        "does": "Say what this membership is holding that has not been used, what it may be used for and until when, reading each part from the membership record immediately before sending.",
+        "execution": "communication",
+        "idempotencyKey": "membership_id + unused_subject_id + touch id",
+        "writes": [
+          {
+            "field": "membership_nurture_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.act"
+      },
+      {
+        "id": "w.act",
+        "kind": "wait",
+        "until": [
+          "loyalty_benefit_used",
+          "loyalty_membership_ended",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.acted",
+        "timeout": {
+          "after": {
+            "key": "loyalty_nurture.response_window",
+            "rule": "The reminder waits long enough that a member who was going to use the thing has had the chance to, and no longer than the point at which the first message stops being the reason they would remember it.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "a reminder sent to somebody who has already used the thing is noise, and one sent long after the explanation is a new message pretending to be a reminder",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.acted",
+        "recheck": "the membership's own state, the subject's usage and usability, and the member's permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.acted",
+        "kind": "condition",
+        "asks": "Has the member used it?",
+        "branches": [
+          {
+            "label": "Used",
+            "when": "the membership record shows the subject has been used",
+            "observes": "loyalty_benefit_used",
+            "to": "x.used"
+          },
+          {
+            "label": "Still unused",
+            "when": "the membership is active and its record still shows the subject held and unused",
+            "observes": "membership record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and the touch budget is not spent",
+            "observes": "send path stages 1-8",
+            "to": "a.remind"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it, or the touch budget is spent; the reason is recorded",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.remind",
+        "kind": "action",
+        "does": "Say the same unused thing once more, adding nothing the explanation did not already have, and close the plan whatever happens next.",
+        "execution": "communication",
+        "idempotencyKey": "membership_id + unused_subject_id + touch id",
+        "writes": [
+          {
+            "field": "membership_nurture_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.nurtured"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "membership_id + unused_subject_id + touch id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.used",
+        "kind": "exit",
+        "state": "used; the thing the membership was holding has been used",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a different unused subject on the same membership opens its own instance once the cooldown has run"
+      },
+      {
+        "id": "x.nurtured",
+        "kind": "exit",
+        "state": "explained and reminded; the plan ran to its end without a use and is over",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "this subject is not raised again; a different unused subject opens its own instance once the cooldown has run"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a further touch; the membership ended or the member withdrew permission",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a restored membership with a restored permission is evaluated on whatever it holds unused then"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no touch sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "this subject is not raised again under this instance; a different unused subject opens its own"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "membership_id",
+          "unused_subject_id",
+          "unused_subject_kind",
+          "membership_state",
+          "membership_benefit_destination"
+        ],
+        "optional": [
+          "subject_usable_until",
+          "subject_credited_at",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.used",
+          "x.nurtured",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "loyalty_benefit_used",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "loyalty_nurture.holdout_share",
+          "rule": "A persistent per-member holdout is required: members use what they hold without being reminded, and without a holdout this journey claims every one of those uses as its own.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "permission_withdrawn"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "touch_after_subject_used",
+        "subject_stated_without_record",
+        "instance_reopened_on_same_subject"
+      ],
+      "operational": [
+        "entry_volume",
+        "explanation_rate",
+        "reminder_rate",
+        "no_action_rate_by_reason",
+        "subject_use_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "loyalty nurture",
+        "points balance reminder",
+        "unused reward reminder",
+        "membership engagement",
+        "loyalty programme nurture"
+      ],
+      "useCases": [
+        "a member holding a balance or benefit their own record says they have not used",
+        "a membership that has been active for a while with something specific still sitting unused against it"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-293",
+        "because": "RET-293 assembles a set of things to buy from a signal about the person. This names one thing the membership already holds. A product proposal is never presented as a membership benefit, and what somebody already holds is never assembled from a recommendation signal."
+      },
+      {
+        "journey": "RET-294",
+        "because": "RET-294 offers a second product that completes one the person owns. This offers nothing new at all - the subject is already theirs, and the only question is whether they have used it."
+      },
+      {
+        "journey": "SUB-298",
+        "because": "SUB-298 states a state the membership actually reached and is transactional. This states only that something already held has gone unused, and it is suppressed wherever SUB-298 holds the same membership."
+      },
+      {
+        "journey": "SUB-296",
+        "because": "SUB-296 runs once per membership, at enrolment, and explains what the membership grants at all. This runs on a specific thing that has gone unused on a membership that has been running."
+      }
+    ],
+    "guardrails": [
+      "A bounded plan with its own end: one explanation and at most one reminder, and reaching the end closes the instance rather than restarting it with different words.",
+      "Every claim is re-read from the membership record immediately before sending; a subject that has been used, expired or left the record closes the instance.",
+      "No set of things to buy is ever assembled here, and no product proposal is presented as something the membership grants.",
+      "A reward the membership has actually earned is never carried by this journey and always outranks it.",
+      "A membership holding several unused things does not become a standing campaign - the cooldown is what stops it."
+    ],
+    "reusableRule": "A reminder that something already owned has gone unused is honest only while the record still says it is unused, and it is a nurture only while it has an end."
+  },
+  {
+    "id": "SUB-298",
+    "slug": "reward-confirmation",
+    "category": "subscription",
+    "goal": "delivery-confirmation",
+    "channels": ["email", "in-app", "push"],
+    "name": "Reward earned → record confirmed → stated once, or closed unstated",
+    "shortName": "Reward Confirmation",
+    "purpose": "Confirm a state the membership actually reached - a reward earned, credited and usable - as the record states it, and confirm nothing that the record does not.",
+    "objective": "Leave a member in no doubt about what they have just earned, what it may be used for and until when, from the authoritative membership record and from nothing else.",
+    "entity": {
+      "scope": "one reward a person's membership has earned - the member, the membership, and the reward record itself",
+      "note": "The entity is the reward record, not the activity that produced it. One instance per reward record; a correction to the same reward supersedes this instance rather than opening a second confirmation of the same thing.",
+      "instanceKey": [
+        "reward_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A newer authoritative state for the same reward supersedes this instance: a correction, a reversal or a re-credit is confirmed as what it is, and never as a second copy of the original confirmation."
+      }
+    },
+    "eligibility": [
+      "an authoritative reward record against this membership, showing the reward credited rather than merely projected",
+      "the membership is active and the reward is held by this member",
+      "no confirmation is already recorded for this reward record",
+      "hard gates (GLB-31) allow communication for this purpose"
+    ],
+    "suppressions": [
+      {
+        "id": "s.credited",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is confirmed before it is credited. A reward that is projected, pending, or conditional on something that has not happened is not a state the membership has reached, and confirming it early makes the confirmation untrue."
+      },
+      {
+        "id": "s.record",
+        "label": "CANONICAL_RULE",
+        "text": "The confirmation states what the reward record states: what was earned, what it may be used for, and until when. It adds no offer, no recommendation and no encouragement to earn the next one."
+      },
+      {
+        "id": "s.reversed",
+        "label": "CANONICAL_RULE",
+        "text": "A reward reversed or corrected before the confirmation went out is not confirmed as earned; the instance ends without a message and the correction is the thing that gets stated, under its own instance."
+      },
+      {
+        "id": "s.deliverable",
+        "label": "CANONICAL_RULE",
+        "text": "A confirmation still needs somewhere to arrive. Without a deliverable destination it is recorded as a no-action rather than forced onto another route, and the reward remains visible where the membership itself is."
+      },
+      {
+        "id": "s.duplicate",
+        "label": "CANONICAL_RULE",
+        "text": "One confirmation per reward record. A redelivered event, a replayed trigger or a re-read of the same record produces no second confirmation."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "reward_confirmation.touches",
+          "rule": "One confirmation per reward record. The cap governs anything non-mandatory that might be added later; the confirmation itself is mandatory and is never traded against a marketing budget.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - a single confirmation per reward record"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "reward_confirmation.cooldown",
+        "rule": "No cooldown applies between confirmations: each one is about a different reward record, and a member who earns several in quick succession is owed each of them.",
+        "class": "cooldown",
+        "required": false,
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "GLB-24; a transactional confirmation is never withheld to protect a contact budget"
+        }
+      },
+      "competition": {
+        "exclusionGroup": "membership-standing",
+        "scope": "subscription",
+        "precedence": "highest in the group - a state the membership has actually reached outranks every marketing-shaped message about it, so the welcome, the tier announcement and the nurture are all suppressed for a membership this journey is holding; it yields to nothing in this group and loses only to a newer authoritative state for the same reward",
+        "onLoss": "superseded"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the confirmation has to be kept and produced again later - the default for a record of something earned"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the member is already in a session and the reward belongs where the membership itself is visible"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the confirmation is short enough to carry the whole state"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "confirmation",
+          "action": "a.confirm",
+          "prerequisites": [
+            "c.state"
+          ],
+          "purpose": "What was earned, what it may be used for and until when - read from the reward record, said once, with nothing attached to it.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "membership-reward",
+            "boundTo": "reward_id",
+            "mustNotClaim": [
+              "a reward that has not been credited",
+              "a use the reward record does not permit",
+              "a deadline the programme does not enforce",
+              "a further reward that has not been earned"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.credited",
+        "s.record",
+        "s.reversed",
+        "s.deliverable",
+        "s.duplicate"
+      ]
+    },
+    "entry": "t.earned",
+    "nodes": [
+      {
+        "id": "t.earned",
+        "kind": "trigger",
+        "event": "loyalty_reward_earned",
+        "evidence": {
+          "requires": [
+            "an authoritative reward record against this membership, showing the reward credited rather than projected",
+            "the reward's own terms as the record states them - what it may be used for and until when"
+          ],
+          "insufficientAlone": [
+            "activity that would normally earn a reward, with no reward record behind it",
+            "a reward projected, pending, or conditional on something that has not happened",
+            "a balance re-read and found unchanged, which is not a reward having been earned",
+            "a reward record already confirmed, re-delivered by a retried event"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.state"
+      },
+      {
+        "id": "c.state",
+        "kind": "condition",
+        "asks": "Is this reward a state the membership has actually reached, and is it still ours to confirm?",
+        "branches": [
+          {
+            "label": "Confirm",
+            "when": "the reward is credited, the membership is active, no confirmation is recorded against this reward record, and a deliverable destination exists",
+            "observes": "reward record, membership record",
+            "to": "a.confirm"
+          },
+          {
+            "label": "Not a reached state",
+            "when": "the reward was reversed or corrected before the confirmation went out, or the membership ended",
+            "observes": "loyalty_membership_ended",
+            "to": "x.closed"
+          },
+          {
+            "label": "Nothing to send",
+            "when": "a confirmation is already recorded against this reward record, or there is no deliverable destination; the reason is recorded",
+            "observes": "confirmation record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.confirm",
+        "kind": "action",
+        "does": "State what was earned, what it may be used for and until when, reading every part of it from the reward record. Attach no offer, no recommendation and no encouragement to earn the next one.",
+        "execution": "communication",
+        "idempotencyKey": "reward_id",
+        "writes": [
+          {
+            "field": "reward_confirmation_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.confirmed"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no confirmation was sent and against which reward record, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "reward_id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.confirmed",
+        "kind": "exit",
+        "state": "confirmed; what the membership earned was stated once, as the record states it",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a newer authoritative state for the same reward - a correction, a reversal, a re-credit - opens its own instance and is stated as what it is"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a confirmation; the reward did not stand, or the membership it belonged to ended",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a reinstated reward on an active membership is confirmed under its own reinstated record"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no confirmation sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the same reward record is not confirmed later as if it were new; a corrected record opens its own instance"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "membership_id",
+          "reward_id",
+          "reward_credited_at",
+          "reward_terms",
+          "membership_reward_destination"
+        ],
+        "optional": [
+          "reward_usable_until",
+          "membership_state",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.confirmed",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "guardrails": [
+        "complaint",
+        "confirmation_before_credit",
+        "reward_confirmed_twice",
+        "confirmation_after_reversal",
+        "terms_stated_without_record",
+        "offer_attached_to_confirmation"
+      ],
+      "operational": [
+        "entry_volume",
+        "confirmation_rate",
+        "no_action_rate_by_reason",
+        "time_from_credit_to_confirmation"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "reward confirmation",
+        "points earned notification",
+        "reward credited",
+        "loyalty reward statement",
+        "benefit earned confirmation"
+      ],
+      "useCases": [
+        "a reward credited to a membership that the member should be left in no doubt about",
+        "a correction or reversal of a reward, stated as what it is rather than as a second confirmation"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "SUB-297",
+        "because": "SUB-297 says that something already held has gone unused, which is a marketing-shaped claim about the member's behaviour. This says only that the membership reached a state, which is a fact about the record. This journey outranks SUB-297 on the same membership and never carries its message."
+      },
+      {
+        "journey": "SUB-299",
+        "because": "SUB-299 states that the membership's own standing moved. This states that a single reward was credited, which can happen many times inside one standing and changes nothing about it."
+      },
+      {
+        "journey": "REM-157",
+        "because": "REM-157 confirms that a remedy for something that went wrong has been carried out. This confirms an ordinary earned state on a membership, with nothing having gone wrong."
+      }
+    ],
+    "guardrails": [
+      "Nothing is confirmed before it is credited; a projected or pending reward is not a state the membership has reached.",
+      "The confirmation states the reward record's own terms and attaches no offer, recommendation or encouragement to earn the next one.",
+      "One confirmation per reward record; a redelivered event produces no second copy.",
+      "A reversal or correction is stated as what it is, never as a repeat of the original confirmation.",
+      "The confirmation is not withheld to protect a marketing contact budget, and it is not sent to a membership that has ended."
+    ],
+    "reusableRule": "A confirmation is owed for a state the record has actually reached, it states only what that record states, and it is never the place to ask for the next thing."
+  },
+  {
+    "id": "SUB-299",
+    "slug": "loyalty-tier-change",
+    "category": "subscription",
+    "goal": "progression-milestone",
+    "channels": ["email", "in-app", "push"],
+    "name": "Tier moved → direction checked → upgrade announced, used, or left to another journey",
+    "shortName": "Loyalty Tier Upgrade",
+    "purpose": "Tell a member that their membership's own standing has moved up, and say exactly what that standing now grants that it did not before - and nothing else.",
+    "objective": "Make a member who has reached a higher standing able to use what it grants, by stating the new standing once and observing whether anything it grants is then actually used.",
+    "entity": {
+      "scope": "one upward movement in a person's membership standing - the member, the membership, and the tier change record",
+      "note": "UPGRADE ONLY, stated here rather than implied: a downward movement fires this trigger and is deliberately refused at the first condition, because a loss of standing is a different message with different obligations and belongs to a journey written for it. One instance per tier change record; a further change supersedes it.",
+      "instanceKey": [
+        "tier_change_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A newer tier change on the same membership supersedes this instance: the standing the member holds now is the only one worth stating, and a superseded announcement is never delivered late."
+      }
+    },
+    "eligibility": [
+      "an authoritative tier change record against this membership, with the standing held before and the standing held after",
+      "the movement is upward - a downward or lateral movement is refused at the first condition and is out of this journey's scope",
+      "the new standing is in effect rather than merely projected, and the membership is active",
+      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.upgrade-only",
+        "label": "CANONICAL_RULE",
+        "text": "Downgrade is out of scope, by decision rather than by omission. A loss of standing carries obligations this journey does not have - what is lost, when it is lost, and what the member may still do about it - and announcing it with an upgrade's structure would be the wrong message in the right envelope."
+      },
+      {
+        "id": "s.effective",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is announced before the new standing is in effect. A tier the member is projected to reach, or has reached subject to something that has not happened, is not a standing they hold."
+      },
+      {
+        "id": "s.grant",
+        "label": "CANONICAL_RULE",
+        "text": "The announcement names only what the new standing actually grants that the previous one did not, as the programme's own terms state it. A benefit that both standings already granted is not presented as new."
+      },
+      {
+        "id": "s.superseded",
+        "label": "CANONICAL_RULE",
+        "text": "A standing that has already moved again is not announced as current. Where a newer tier change exists, this instance closes and the newer one speaks."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for lifecycle communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A reward the membership has actually earned outranks this journey in the membership-standing group; while it holds the membership, this announcement is deferred and re-evaluated against current state rather than queued blindly (GLB-06)."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "loyalty_tier_change.touches",
+          "rule": "One announcement per tier change record, fixed when the instance opened; there is no follow-up to time and nothing is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - a single announcement per change record"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "loyalty_tier_change.cooldown",
+        "rule": "Two upward movements on the same membership close together produce one announcement of the standing actually held, not one announcement each.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "membership-standing",
+        "scope": "subscription",
+        "precedence": "below the reward confirmation on the same membership, which is a state the record reached and outranks an announcement about standing; above the membership welcome and the membership nurture, both of which are suppressed while this journey holds the membership because a standing that has just moved is the more current thing to say",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the announcement has to carry what the new standing grants and survive until the member can use it - the default"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the member is already in a session where the membership's own standing is visible"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the permission covering it still stands, and the standing is short enough to carry the whole message"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "announcement",
+          "action": "a.announce",
+          "prerequisites": [
+            "c.direction",
+            "c.sendable"
+          ],
+          "purpose": "The standing the member now holds and what it grants that the previous one did not - read from the programme's own terms and said once.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "membership-standing",
+            "boundTo": "tier_change_id",
+            "mustNotClaim": [
+              "a benefit the new standing does not grant",
+              "a benefit the previous standing already granted",
+              "a standing that is not yet in effect",
+              "a period the programme does not guarantee the standing for"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.upgrade-only",
+        "s.effective",
+        "s.grant",
+        "s.superseded",
+        "s.permission",
+        "s.contest"
+      ]
+    },
+    "entry": "t.changed",
+    "nodes": [
+      {
+        "id": "t.changed",
+        "kind": "trigger",
+        "event": "loyalty_tier_changed",
+        "evidence": {
+          "requires": [
+            "an authoritative tier change record against this membership, naming the standing held before and the standing held after",
+            "the programme's own ordering of its standings, from which the direction of the movement is read",
+            "the moment the new standing takes effect"
+          ],
+          "insufficientAlone": [
+            "a projection that the member is close to a higher standing, which is not a standing they hold",
+            "a recalculation that produced the same standing the member already held",
+            "a standing granted provisionally, subject to something that has not happened",
+            "an ordering of standings assumed rather than read from the programme's own terms"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.direction"
+      },
+      {
+        "id": "c.direction",
+        "kind": "condition",
+        "asks": "Which way did the standing move, and is it in effect?",
+        "branches": [
+          {
+            "label": "Moved up and in effect",
+            "when": "the programme's own ordering places the new standing above the previous one, the new standing is in effect, and no newer tier change exists on this membership",
+            "observes": "tier change record, programme terms",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Moved down",
+            "when": "the programme's own ordering places the new standing below the previous one",
+            "observes": "tier change record, programme terms",
+            "to": "x.out-of-scope"
+          },
+          {
+            "label": "No material movement",
+            "when": "the standing is unchanged, lateral, not yet in effect, or already superseded by a newer change on this membership",
+            "observes": "tier change record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the announcement go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence membership journey currently holding this membership",
+            "observes": "send path stages 1-8",
+            "to": "a.announce"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.announce",
+        "kind": "action",
+        "does": "State the standing the member now holds and what it grants that the previous one did not, reading both from the programme's own terms. Present nothing as new that the previous standing already granted.",
+        "execution": "communication",
+        "idempotencyKey": "tier_change_id",
+        "writes": [
+          {
+            "field": "tier_change_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.use"
+      },
+      {
+        "id": "w.use",
+        "kind": "wait",
+        "until": [
+          "loyalty_benefit_used",
+          "loyalty_membership_ended"
+        ],
+        "onEvent": "c.used",
+        "timeout": {
+          "after": {
+            "key": "loyalty_tier_change.adoption_window",
+            "rule": "The window is long enough for a member who intends to use the new standing to have had an ordinary opportunity to, and no longer - it decides how the instance is recorded, never whether another message is sent.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "whether a new standing was actually used is the only honest measure of the announcement, and the window has to close for the instance to be recorded at all",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.used",
+        "recheck": "the membership's own state and its usage record since the standing took effect, re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.used",
+        "kind": "condition",
+        "asks": "Has the new standing been used?",
+        "branches": [
+          {
+            "label": "Used",
+            "when": "the membership's usage record shows a benefit granted by the new standing has been used since it took effect",
+            "observes": "loyalty_benefit_used",
+            "to": "x.adopted"
+          },
+          {
+            "label": "Not used",
+            "when": "the window closed, or the membership ended, with nothing granted by the new standing used against it",
+            "observes": "membership usage record",
+            "to": "x.announced"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no announcement was sent and against which change record, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "tier_change_id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.adopted",
+        "kind": "exit",
+        "state": "announced and used; something the new standing grants has actually been used",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a further upward movement on this membership opens its own instance"
+      },
+      {
+        "id": "x.announced",
+        "kind": "exit",
+        "state": "announced; the window closed with nothing the new standing grants used",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a further upward movement opens its own instance; nothing further is sent about this one"
+      },
+      {
+        "id": "x.out-of-scope",
+        "kind": "exit",
+        "state": "not this journey's subject; the standing moved down and a loss of standing is deliberately out of scope here",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a later upward movement on this membership opens its own instance; the downward movement is left to whatever journey owns it, and is not narrated here by default"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no announcement sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "this change record is not announced later as if it were current; a newer change opens its own instance"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "membership_id",
+          "tier_change_id",
+          "tier_before",
+          "tier_after",
+          "tier_effective_at",
+          "membership_standing_destination"
+        ],
+        "optional": [
+          "tier_ordering",
+          "newly_granted_benefit_ids",
+          "membership_usage_at",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.adopted",
+          "x.announced",
+          "x.out-of-scope",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "loyalty_benefit_used",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "none"
+      },
+      "secondary": [
+        "permission_withdrawn"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "announcement_before_standing_effective",
+        "downgrade_announced_as_upgrade",
+        "benefit_named_without_record",
+        "superseded_standing_announced"
+      ],
+      "operational": [
+        "entry_volume",
+        "upgrade_share_of_entries",
+        "announcement_rate",
+        "no_action_rate_by_reason",
+        "new_standing_use_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "loyalty tier upgrade",
+        "tier change notification",
+        "status upgrade",
+        "membership level change",
+        "loyalty status achieved"
+      ],
+      "useCases": [
+        "a member whose membership standing has moved up and who does not yet know what it grants",
+        "a tier change record that needs its direction read before anything is said about it"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "SUB-298",
+        "because": "SUB-298 confirms one reward credited to the membership. This states that the membership's own standing moved, which can be true while no individual reward has been earned and can stay true across many that have."
+      },
+      {
+        "journey": "SUB-296",
+        "because": "SUB-296 runs once, at enrolment, and explains the membership at all. This runs on a change to a membership that already existed and explains only the difference the change made."
+      },
+      {
+        "journey": "RET-295",
+        "because": "RET-295 recognises a date and changes nothing. This announces a change the record actually made, and would be dishonest if nothing had moved."
+      }
+    ],
+    "guardrails": [
+      "Upgrade only, and the refusal of a downgrade is in the graph rather than in a comment - a downward movement exits at the first condition.",
+      "Nothing is announced before the new standing is in effect.",
+      "Only what the new standing grants that the previous one did not is presented as new.",
+      "A standing that has already moved again is never announced as current.",
+      "One announcement per change record, and two upward movements close together produce one announcement of the standing actually held."
+    ],
+    "reusableRule": "An announcement that a standing has moved is honest only in the direction the journey was written for, only once the new standing is in effect, and only about the difference the movement actually made."
+  },
 ];

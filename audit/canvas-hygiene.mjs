@@ -18,9 +18,12 @@
 */
 import fs from "node:fs";
 import puppeteer from "puppeteer-core";
+import { assertServerBuild } from "./assert-build.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const PORT = process.argv[2] ?? "4511";
+/* Refuse to report numbers measured against a build we did not make. */
+await assertServerBuild(PORT);
 const manifest = JSON.parse(fs.readFileSync(ROOT + "audit/manifest.json", "utf8"));
 
 const browser = await puppeteer.launch({ executablePath: "/opt/pw-browsers/chromium", args: ["--no-sandbox", "--disable-gpu"] });

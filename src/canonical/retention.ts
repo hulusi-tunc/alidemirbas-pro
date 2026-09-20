@@ -4118,6 +4118,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "RET-28",
         "because": "RET-28 acts at the moment of cancellation intent, inside the cancellation's own window. This starts only after that window and its cooldown have passed."
+      },
+      {
+        "journey": "CON-300",
+        "because": "CON-300 is not trying to keep anybody: it asks whether marketing contact should continue and takes the answer, offer-free. This journey is the argument for coming back, and it runs on a lapsed paid relationship rather than on unanswered contact - a person can be perfectly engaged with our messages and still lapsed, or still buying and entirely silent on everything we send."
       }
     ],
     "guardrails": [
@@ -4161,7 +4165,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.transactional",
         "label": "CANONICAL_RULE",
-        "text": "This journey never carries the order's confirmation and never competes with it. The confirmation answers whether the order was received; this answers what happens now that somebody is a customer, and it waits until the first question has been answered."
+        "text": "This journey never carries the order's confirmation and never competes with it. The confirmation (FUL-301) answers what the business took on; this answers what happens now that somebody is a customer, and it waits until that first question has been answered."
       },
       {
         "id": "s.returned",
@@ -4215,7 +4219,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "post-purchase-welcome",
         "scope": "person",
-        "precedence": "below the post-purchase follow-up on the same person's order - what somebody is already holding comes before what they might buy next; above every promotional journey addressed to a person whose relationship is this new",
+        "precedence": "below the order's own confirmation (FUL-301) and below the post-purchase follow-up on the same person's order - the record has to open before anything is said about the relationship it opened, and what somebody is already holding comes before what they might buy next; above every promotional journey addressed to a person whose relationship is this new",
         "onLoss": "suppressed"
       }
     },
@@ -4621,6 +4625,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "RET-31",
         "because": "RET-31 prompts a repeat of something the person's own history says is due. Here there is no history yet - one purchase is not a cadence - so the prompt is an offer rather than a prediction."
+      },
+      {
+        "journey": "SUB-296",
+        "because": "SUB-296 opens on an enrolment into a loyalty membership and its whole subject is that membership - what it grants and how it is used. This opens on a first purchase and owns the customer relationship that purchase created. Where somebody enrols at the moment they first buy, both are true at once and neither carries the other's message: this journey owns the first-purchase moment and never explains the membership, and SUB-296 owns the membership and never makes the bounceback."
+      },
+      {
+        "journey": "FUL-301",
+        "because": "FUL-301 states what the business took on, from the order record, and it outranks this journey for exactly that reason: the record has to open before there is anything to welcome somebody into. This journey carries none of what that confirmation says and waits until it has had its moment."
       }
     ],
     "guardrails": [
@@ -4686,6 +4698,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.claim",
         "label": "CANONICAL_RULE",
         "text": "The message states only what the record supports - how long the relationship has lasted. It never attaches a reward, a tier or a benefit that has not been issued."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A personal milestone recognition addressed to the same person outranks this one in the date-recognition group; while it holds the person's window this interval is suppressed and closes unsent rather than being queued to arrive after the date it was about."
       }
     ],
     "contact": {
@@ -4711,7 +4728,12 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "class": "cooldown",
         "required": true
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "date-recognition",
+        "scope": "person",
+        "precedence": "below the personal milestone recognition for the same person - the company's own count of how long the relationship has lasted yields to a date the person would call their own; where both fall in the same window this one is suppressed and its interval closes unsent, exactly as an interval that passes unsent always does here",
+        "onLoss": "suppressed"
+      }
     },
     "channelStrategy": {
       "roles": [
@@ -4774,7 +4796,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.date",
         "s.ended",
         "s.permission",
-        "s.claim"
+        "s.claim",
+        "s.contest"
       ]
     },
     "entry": "t.approaching",
@@ -4935,6 +4958,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "SUB-163",
         "because": "SUB-163 counts down to an obligation somebody has to act on before a date. An anniversary carries no obligation and no deadline - nothing happens if it is ignored."
+      },
+      {
+        "journey": "RET-295",
+        "because": "RET-295 recognises a date that belongs to the person - a birthday they gave us, or a milestone their own record reached. This counts the relationship's length from the first purchase, which is the company's side of it. The two share the date-recognition exclusion group, and this one is the side that yields, so a person never receives both in the same window."
       }
     ],
     "guardrails": [
@@ -5366,6 +5393,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "ACQ-13",
         "because": "ACQ-13 acts on attention to one subject that never became a selection. This assembles a set from a record that may be much older and has no single unresolved subject in it."
+      },
+      {
+        "journey": "SUB-297",
+        "because": "SUB-297 speaks about the membership itself - a balance, a benefit or a standing the member already holds and has not used. This proposes things to buy. The boundary is the subject, not the tone: a message about what somebody already has is never assembled from a recommendation signal, and a set of items is never sent as if it were a membership benefit."
       }
     ],
     "guardrails": [
@@ -5890,6 +5921,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "ACQ-288",
         "because": "ACQ-288 recovers a selection the person made and left behind. Here the purchase completed; nothing is being recovered, and the subject of the offer is something they never selected."
+      },
+      {
+        "journey": "SUB-297",
+        "because": "SUB-297 is about a membership the person is enrolled in and a benefit they already hold. This is about a product they already own and a second product that completes it. Neither may borrow the other's authority: a membership benefit is never presented as a complementary product, and a complementary product is never presented as something the membership grants."
       }
     ],
     "guardrails": [
@@ -5900,5 +5935,361 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "One offer and at most one reminder, and the reminder adds nothing the offer did not have."
     ],
     "reusableRule": "A complementary offer is bound to a relationship the company has actually declared between two things and to ownership of the first of them, re-read before every touch - which is what keeps it a next step rather than a second guess at what somebody likes."
+  },
+  {
+    "id": "RET-295",
+    "slug": "milestone-recognition",
+    "category": "retention",
+    "goal": "progression-milestone",
+    "channels": ["email", "push", "in-app"],
+    "name": "A date belonging to the person approaching → eligibility checked → recognised or not sent",
+    "shortName": "Birthday & Milestone",
+    "purpose": "Recognise a date that belongs to the person themselves - a birthday they told us, or a milestone their own record has reached - and say so once, with nothing attached that has not been issued.",
+    "objective": "Mark one date the person would recognise as theirs, to somebody the relationship is still open with, without turning the recognition into an offer and without inventing the date.",
+    "entity": {
+      "scope": "one recognisable date about the person - the person, the milestone that date marks, and the cycle this occurrence belongs to",
+      "note": "The entity is a date the person would call theirs: a birthday they gave us, or a milestone their own record reached. A relationship anniversary is a different entity and belongs to the anniversary journey. One instance per person per milestone cycle, and a cycle that passes unsent is closed rather than made up later.",
+      "instanceKey": [
+        "person_id",
+        "milestone_cycle"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "The next cycle of the same milestone supersedes the last: a cycle that passed unsent is closed, never sent late and never folded into the following one."
+      }
+    },
+    "eligibility": [
+      "a recorded date for this person that the person themselves supplied, or a milestone their own record has authoritatively reached",
+      "the relationship is still open - the account is not closed and the person has not asked to be left alone",
+      "no instance is already open for this person and this milestone cycle",
+      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.cycle",
+        "label": "CANONICAL_RULE",
+        "text": "A milestone is recognised on its own cycle or not at all. A cycle that passed without a message is closed; it is never sent late and never merged into the next one."
+      },
+      {
+        "id": "s.date",
+        "label": "CANONICAL_RULE",
+        "text": "The date is one the person would recognise as theirs, taken from what they supplied or from what their own record reached. A guessed birthday, a date inferred from something else, and the relationship's own anniversary are each a different claim, and substituting one for another makes the recognition untrue."
+      },
+      {
+        "id": "s.ended",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship that has ended is not congratulated. A closed account, a withdrawn permission or a request to be left alone ends the instance without a message."
+      },
+      {
+        "id": "s.claim",
+        "label": "CANONICAL_RULE",
+        "text": "The message states only what the record supports. It never attaches a reward, a discount, a tier or a benefit that has not been issued, and the recognition is not turned into an offer to make it earn its place."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No message without purpose-level permission for lifecycle communication and a deliverable destination; absent either, it is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "Where a higher-precedence journey already holds this person's window, the recognition is suppressed and its cycle closes with it; nothing is queued behind another journey to arrive after the date it was about."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "milestone_recognition.touches",
+          "rule": "One recognition per milestone cycle, fixed when the instance opened; there is no follow-up to time and nothing is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - a single recognition per cycle"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "milestone_recognition.cooldown",
+        "rule": "Between one recognition and the next lies a whole milestone cycle; nothing shorter reopens this journey for the same person, and two different milestones falling close together are one recognition, not two.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "date-recognition",
+        "scope": "person",
+        "precedence": "above the first-purchase anniversary for the same person - a date the person would call their own comes before the company's own count of how long the relationship has lasted; while this journey holds the person's window, that one is suppressed for it rather than queued behind it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the recognition should be kept rather than glanced at - the default"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the permission covering it still stands"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is already in a session and the recognition belongs where their own record is visible"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "recognition",
+          "action": "a.recognise",
+          "prerequisites": [
+            "c.date",
+            "c.sendable"
+          ],
+          "purpose": "The date, said plainly and once, to somebody the relationship is still open with - and nothing attached to it that the record does not already carry.",
+          "channelRoles": [
+            "persistent",
+            "low-friction",
+            "in-session"
+          ],
+          "destination": {
+            "target": "customer-account",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "a reward that has not been issued",
+              "a discount the business has not authorised",
+              "a tier the account does not hold",
+              "a benefit tied to the date that does not exist"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.cycle",
+        "s.date",
+        "s.ended",
+        "s.claim",
+        "s.permission",
+        "s.contest"
+      ]
+    },
+    "entry": "t.approaching",
+    "nodes": [
+      {
+        "id": "t.approaching",
+        "kind": "trigger",
+        "event": "personal_milestone_approaching",
+        "evidence": {
+          "requires": [
+            "a date this person supplied about themselves, or a milestone their own record has authoritatively reached",
+            "the cycle this occurrence of that milestone belongs to"
+          ],
+          "insufficientAlone": [
+            "a birthday guessed, modelled or bought rather than given by the person",
+            "the relationship's own anniversary, which counts the company's side of it and has its own journey",
+            "a milestone belonging to a segment rather than to this person's own record",
+            "a cycle of this milestone that has already passed without a message"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.date"
+      },
+      {
+        "id": "c.date",
+        "kind": "condition",
+        "asks": "Is this date still ours to recognise?",
+        "branches": [
+          {
+            "label": "Recognise",
+            "when": "the date is one the person supplied or one their own record reached, the relationship is open, and this cycle has not already been recognised",
+            "observes": "milestone record, relationship record",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Relationship ended",
+            "when": "the account is closed, the person withdrew permission for this kind of communication, or they asked to be left alone",
+            "observes": "permission_withdrawn",
+            "to": "x.closed"
+          },
+          {
+            "label": "Cycle already spent",
+            "when": "this cycle has already been recognised, or the date has passed and the cycle closed unsent",
+            "observes": "recognition record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the recognition go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: purpose-level permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person",
+            "observes": "send path stages 1-8",
+            "to": "a.recognise"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it, or a higher-precedence date recognition holds this person's window; the reason is recorded",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.recognise",
+        "kind": "action",
+        "does": "Say the date and what it marks, in the person's own terms, and say nothing the record does not support. No reward, discount, tier or benefit unless one has actually been issued.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + milestone_cycle",
+        "writes": [
+          {
+            "field": "recognition_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.recognised"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no recognition was sent and for which cycle, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + milestone_cycle",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.recognised",
+        "kind": "exit",
+        "state": "recognised; the date was marked once for this cycle",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "the next cycle of this milestone, or a different milestone belonging to this person, opens its own instance"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a message; the relationship this recognition would have been addressed to has ended",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a reopened relationship with a restored permission is evaluated at the next cycle; a person who asked to be left alone is not re-entered"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no recognition sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the next cycle opens its own instance; this cycle is not made up later"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "milestone_date",
+          "milestone_kind",
+          "milestone_cycle",
+          "customer_account_destination"
+        ],
+        "optional": [
+          "relationship_state",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.recognised",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "secondary": [
+        "permission_withdrawn"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "recognition_after_relationship_ended",
+        "cycle_recognised_twice",
+        "benefit_named_without_record",
+        "recognition_sent_off_its_own_date"
+      ],
+      "operational": [
+        "entry_volume",
+        "recognition_rate",
+        "no_action_rate_by_reason",
+        "suppressed_by_higher_precedence_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "birthday message",
+        "birthday recognition",
+        "milestone recognition",
+        "customer milestone",
+        "personal milestone greeting"
+      ],
+      "useCases": [
+        "a birthday the person themselves gave the business",
+        "a milestone the person's own record has reached and that they would recognise as theirs"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-292",
+        "because": "RET-292 counts the relationship's own length from the first purchase - the company's side of it. This recognises a date that belongs to the person, which the company holds only because they supplied it or because their own record reached it. The two share an exclusion group so that a person never receives both in the same window."
+      },
+      {
+        "journey": "SUB-299",
+        "because": "SUB-299 announces that a membership's standing actually changed, which is a fact about an enrolled relationship. A milestone recognition changes nothing and is deliberately not an announcement of anything the person has newly gained."
+      },
+      {
+        "journey": "RET-294",
+        "because": "RET-294 proposes something to buy. This proposes nothing; attaching an offer to it is the specific failure its own guardrails forbid."
+      }
+    ],
+    "guardrails": [
+      "The date is one the person supplied or one their own record reached; a guessed or purchased date is not recognised at all.",
+      "A cycle that passed without a message is closed, never sent late.",
+      "A relationship that has ended is not congratulated.",
+      "Nothing is attached that has not been issued - no reward, no discount, no tier, no benefit.",
+      "Where the anniversary journey and this one both fall in the same window, only one of them speaks, and which one is decided by the declared precedence rather than by whichever fires first."
+    ],
+    "reusableRule": "A recognition addressed to the person is only honest if the date came from them or from their own record, and it is only a recognition if nothing is being sold under it."
   },
 ];

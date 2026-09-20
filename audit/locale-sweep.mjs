@@ -22,10 +22,17 @@
    in one text node. Two, not one, is what stops "In-app", a bare "Push"
    or a product name from reading as a sentence. */
 import fs from "node:fs";
+import { assertServerBuild } from "./assert-build.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const ARG = process.argv[2] ?? "4514";
 const BASE = /^https?:\/\//.test(ARG) ? ARG.replace(/\/$/, "") : `http://localhost:${ARG}`;
+
+/* Only a LOCAL server is claimed to be this checkout's build. Pointed at a
+   deployed URL - which is how the 140-leak baseline for this gate was taken -
+   there is no local build to compare against and the check would be false. */
+const IS_LOCAL = !/^https?:\/\//.test(ARG);
+if (IS_LOCAL) await assertServerBuild(ARG);
 
 /* ---------------------------------------------------------------- detector */
 

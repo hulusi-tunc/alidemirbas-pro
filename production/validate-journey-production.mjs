@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 292", journeys.length === 292);
+check(1, "active journey count = 303", journeys.length === 303);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -248,8 +248,8 @@ const requiredGraphFixtures = ["SUB-166", "DOC-216", "RSK-194", "ACQ-10", "RET-2
 const missingGraphFixtures = requiredGraphFixtures.filter((i) => !fixtureIds.has(i));
 check(28, "extreme graph fixtures included", missingGraphFixtures.length === 0);
 
-// 29 — production manifest covers all 292
-check(29, "production manifest covers all 292", manifest.length === 292);
+// 29 — production manifest covers all 303
+check(29, "production manifest covers all 303", manifest.length === 303);
 
 // 30 — canonical source mutation = 0 (checked via node/edge/rule counts matching the last known validate:canonical baseline)
 // Baseline moved from 3674 to 3682 nodes in the operational-workflow production-readiness repair
@@ -300,11 +300,76 @@ check(29, "production manifest covers all 292", manifest.length === 292);
 //   RET-294 Cross-Sell / Next Best Offer   (15 nodes, src/canonical/retention.ts)
 // The public library moved 52 -> 58 with the same batch (src/lib/public-corpus.ts,
 // scripts/public-scope.mjs); rules, global rules and merged redirects are unchanged.
+// FROZEN BASELINE: 303 journeys / 3959 nodes - the seventeen additions are complete.
+// Batches B, C and D were authored in PARALLEL, each against 292/3802, so each bumped
+// this to its own total and the merge reconciled them:
+//   292 + 5 (B) + 3 (D) + 3 (C) = 303 journeys
+//   3802 + 52 (B) + 58 (D) + 47 (C) = 3959 nodes
+// The public library is 69 / 21 excluded / 90 source. Rules, global rules and merged
+// redirects are unchanged throughout.
+// FROZEN BASELINE: 300 journeys / 3912 nodes. Batches B and D were authored in
+// PARALLEL, each against 292/3802, so each bumped this to its own total and the
+// merge reconciled them: 292 + 5 (B) + 3 (D) = 300 journeys, 3802 + 52 + 58 = 3912
+// nodes. Batch C lands the last three and takes it to 303/<nodes>.
+// BATCH B took the baseline 292/3802 -> 297/3854 (2026-09-20) of the
+// additions — the five loyalty / relationship journeys, ids allocated in the same map,
+// 52 nodes between them:
+//   RET-295 Birthday & Milestone           (8 nodes,  src/canonical/retention.ts)
+//                        - a date the PERSON owns (a birthday they gave us, a milestone their
+//                          own record reached), deliberately separate from RET-292's
+//                          relationship anniversary. The two now share the `date-recognition`
+//                          exclusion group with RET-295 above RET-292, so a person can never
+//                          receive both in one window; RET-292 gained that competition block
+//                          and an `s.contest` suppression in the same change (it previously
+//                          declared "none"), which is why its hash moves here too.
+//   SUB-296 Loyalty Program Welcome        (13 nodes, src/canonical/subscription.ts)
+//   SUB-297 Loyalty Program Nurture        (13 nodes, src/canonical/subscription.ts)
+//   SUB-298 Reward Confirmation            (7 nodes,  src/canonical/subscription.ts)
+//   SUB-299 Loyalty Tier Upgrade           (11 nodes, src/canonical/subscription.ts)
+//                        - the four membership journeys share the `membership-standing`
+//                          exclusion group, scope `subscription`, ordered reward confirmation
+//                          (transactional) > tier change > welcome > nurture, so a marketing-
+//                          shaped loyalty send can never speak over a state the membership
+//                          actually reached.
+// Four already-shipped journeys gained one reciprocal `distinctFrom` row each and no graph
+// change — RET-290 -> SUB-296, RET-293 -> SUB-297, RET-294 -> SUB-297, ACT-12 -> SUB-296 —
+// because an ownership boundary stated from one side only is a bug in this corpus.
+// The public library moved 58 -> 63 with this batch (src/lib/public-corpus.ts,
+// scripts/public-scope.mjs); rules, global rules and merged redirects are unchanged.
+// BATCH D then added 3 journeys / 58 nodes on top (2026-09-20) of the
+// scheduling / service journey additions — three new canonical journeys, ids allocated in
+// audit/new-journey-id-map.md, 58 nodes between them:
+//   SCH-303 Reservation Payment Reminder   (18 nodes, src/canonical/scheduling.ts)
+//   SCH-304 Pre-Arrival Preparation        (20 nodes, src/canonical/scheduling.ts)
+//   REM-305 Support Request Acknowledgement (20 nodes, src/canonical/remedy.ts)
+// The public library moved 58 -> 61 with the same batch. Four EXISTING journeys changed in
+// the same commit and nothing else did: SCH-266, SCH-277, REM-151 and REM-157 each replaced
+// `contact.competition: "none"` with a competition block, because an ownership boundary that
+// is stated from one side only is not a boundary — see audit/batch-d-notes.md. No node, edge,
+// rule, global rule or merged redirect was touched on any of the four, so the node total above
+// is Batch D's three journeys and nothing more.
+// BATCH C then added 3 journeys / 47 nodes on top (2026-09-20) of the same
+// seventeen-journey addition — three new canonical journeys, ids allocated in
+// audit/new-journey-id-map.md, 47 nodes between them:
+//   CON-300 Unengaged Subscriber Sunset    (21 nodes, src/canonical/consent.ts)
+//   FUL-301 Order Confirmation             (11 nodes, src/canonical/fulfillment.ts)
+//   FIN-302 Refund Notification            (15 nodes, src/canonical/financial.ts)
+// CON-300 is the largest of the three because the sunset has to hold four endings apart that are
+// routinely collapsed into one: the person answered, the person reduced instead, the person
+// withdrew permission themselves, and nobody answered at all — and only the last of those may
+// produce a suppression, which is why it also carries three handoffs (CON-38 for the sender-side
+// suppression, CON-283 for a reduction, CON-35 for a real permission withdrawal).
+// No node was added to any existing journey. Eleven existing journeys were edited in the same
+// change for RECIPROCITY only — a boundary stated from one side is a bug here — and those edits
+// touch competition/suppression/distinctFrom prose, never graphs: CON-272 and CON-283 (join the
+// new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
+// FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
+// public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 check(
   30,
-  "canonical source mutation = 0 (292 journeys / 3802 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 292 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3802 &&
+  "canonical source mutation = 0 (303 journeys / 3959 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 303 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3959 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

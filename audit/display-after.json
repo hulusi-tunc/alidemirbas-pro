@@ -1851,6 +1851,211 @@
     }
   },
   {
+    "journey_id": "SUB-297",
+    "slug": "loyalty-nurture",
+    "locales": {
+      "en": {
+        "display_nodes": 10,
+        "distinct_canonical_nodes": 10,
+        "terminal_instances": 0,
+        "edges": 14,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.record-no-action",
+            "len": 120
+          },
+          {
+            "id": "a.explain",
+            "len": 154
+          },
+          {
+            "id": "a.remind",
+            "len": 141
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Membership no longer stands",
+            "len": 27
+          }
+        ],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 10,
+        "distinct_canonical_nodes": 10,
+        "terminal_instances": 0,
+        "edges": 14,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.explain",
+            "len": 165
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Üyelik artık geçerli değil",
+            "len": 26
+          },
+          {
+            "label": "Söylenecek bir şey kalmamış",
+            "len": 27
+          }
+        ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "SUB-299",
+    "slug": "loyalty-tier-change",
+    "locales": {
+      "en": {
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
+        "terminal_instances": 0,
+        "edges": 13,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.announce",
+            "len": 145
+          },
+          {
+            "id": "c.used",
+            "len": 117
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
+        "terminal_instances": 0,
+        "edges": 13,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.announce",
+            "len": 130
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Yukarı hareket etti ve yürürlükte",
+            "len": 33
+          }
+        ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "SUB-296",
+    "slug": "loyalty-welcome",
+    "locales": {
+      "en": {
+        "display_nodes": 10,
+        "distinct_canonical_nodes": 10,
+        "terminal_instances": 0,
+        "edges": 14,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.record-no-action",
+            "len": 120
+          },
+          {
+            "id": "a.welcome",
+            "len": 117
+          },
+          {
+            "id": "c.used",
+            "len": 119
+          },
+          {
+            "id": "a.orient",
+            "len": 128
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Membership no longer stands",
+            "len": 27
+          }
+        ],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 10,
+        "distinct_canonical_nodes": 10,
+        "terminal_instances": 0,
+        "edges": 14,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.welcome",
+            "len": 129
+          },
+          {
+            "id": "a.orient",
+            "len": 125
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Üyelik artık geçerli değil",
+            "len": 26
+          }
+        ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "RET-295",
+    "slug": "milestone-recognition",
+    "locales": {
+      "en": {
+        "display_nodes": 7,
+        "distinct_canonical_nodes": 7,
+        "terminal_instances": 0,
+        "edges": 9,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.record-no-action",
+            "len": 128
+          },
+          {
+            "id": "a.recognise",
+            "len": 159
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 7,
+        "distinct_canonical_nodes": 7,
+        "terminal_instances": 0,
+        "edges": 9,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.recognise",
+            "len": 172
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
     "journey_id": "FBK-49",
     "slug": "missing-critical-data",
     "locales": {
@@ -2054,6 +2259,60 @@
           {
             "label": "Engel yok; sadece tamamlanmadı",
             "len": 30
+          }
+        ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "FUL-301",
+    "slug": "order-confirmation",
+    "locales": {
+      "en": {
+        "display_nodes": 8,
+        "distinct_canonical_nodes": 8,
+        "terminal_instances": 0,
+        "edges": 14,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.confirm",
+            "len": 173
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Accepted in full · Accepted in part",
+            "len": 35
+          },
+          {
+            "label": "Cancelled before it moved",
+            "len": 25
+          }
+        ],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 8,
+        "distinct_canonical_nodes": 8,
+        "terminal_instances": 0,
+        "edges": 14,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.confirm",
+            "len": 128
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Tamamı kabul edildi · Bir kısmı kabul edildi",
+            "len": 44
+          },
+          {
+            "label": "Hareket etmeden iptal edildi",
+            "len": 28
           }
         ],
         "locale_leaks": []
@@ -2318,6 +2577,68 @@
     }
   },
   {
+    "journey_id": "SCH-304",
+    "slug": "pre-arrival-preparation",
+    "locales": {
+      "en": {
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
+        "terminal_instances": 0,
+        "edges": 36,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "w.checkin",
+            "len": 257
+          },
+          {
+            "id": "a.checkin",
+            "len": 165
+          },
+          {
+            "id": "a.late-detail",
+            "len": 148
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Something changed or became knowable",
+            "len": 36
+          }
+        ],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
+        "terminal_instances": 0,
+        "edges": 36,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.checkin",
+            "len": 154
+          },
+          {
+            "id": "a.late-detail",
+            "len": 158
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "İptal edildi ya da taşındı",
+            "len": 26
+          },
+          {
+            "label": "Değişen ya da yeni bilinen bir şey var",
+            "len": 38
+          }
+        ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
     "journey_id": "TIM-63",
     "slug": "pre-expiry-window",
     "locales": {
@@ -2414,6 +2735,72 @@
           }
         ],
         "long_branch_labels": [],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "FIN-302",
+    "slug": "refund-notification",
+    "locales": {
+      "en": {
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
+        "terminal_instances": 0,
+        "edges": 15,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "c.outcome",
+            "len": 156
+          },
+          {
+            "id": "a.settled",
+            "len": 120
+          },
+          {
+            "id": "a.partial",
+            "len": 130
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "The whole transaction · Part of it",
+            "len": 34
+          }
+        ],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
+        "terminal_instances": 0,
+        "edges": 15,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.issued",
+            "len": 143
+          },
+          {
+            "id": "a.settled",
+            "len": 124
+          },
+          {
+            "id": "a.partial",
+            "len": 158
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "İşlemin tamamı · Bir kısmı",
+            "len": 26
+          },
+          {
+            "label": "Geri geldiği doğrulanmadı",
+            "len": 25
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -2669,6 +3056,76 @@
     }
   },
   {
+    "journey_id": "SCH-303",
+    "slug": "reservation-payment-reminder",
+    "locales": {
+      "en": {
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
+        "terminal_instances": 0,
+        "edges": 36,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.remind",
+            "len": 151
+          },
+          {
+            "id": "a.final",
+            "len": 151
+          },
+          {
+            "id": "a.lapse",
+            "len": 139
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "The payment itself failed",
+            "len": 25
+          },
+          {
+            "label": "Withdrawn in the meantime",
+            "len": 25
+          },
+          {
+            "label": "The payment itself failed",
+            "len": 25
+          }
+        ],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
+        "terminal_instances": 0,
+        "edges": 36,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.final",
+            "len": 177
+          },
+          {
+            "id": "a.lapse",
+            "len": 136
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Ödemenin kendisi başarısız oldu",
+            "len": 31
+          },
+          {
+            "label": "Ödemenin kendisi başarısız oldu",
+            "len": 31
+          }
+        ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
     "journey_id": "RET-30",
     "slug": "retention-intervention-outcome",
     "locales": {
@@ -2708,6 +3165,47 @@
           {
             "label": "Kabul edildi ama uygulanmadı",
             "len": 28
+          }
+        ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "SUB-298",
+    "slug": "reward-confirmation",
+    "locales": {
+      "en": {
+        "display_nodes": 6,
+        "distinct_canonical_nodes": 6,
+        "terminal_instances": 0,
+        "edges": 8,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.confirm",
+            "len": 168
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 6,
+        "distinct_canonical_nodes": 6,
+        "terminal_instances": 0,
+        "edges": 8,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.confirm",
+            "len": 137
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Ulaşılmış bir durum değil",
+            "len": 25
           }
         ],
         "locale_leaks": []
@@ -2869,6 +3367,112 @@
           {
             "id": "a.followup",
             "len": 172
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "REM-305",
+    "slug": "support-request-acknowledgement",
+    "locales": {
+      "en": {
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
+        "terminal_instances": 0,
+        "edges": 24,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.resolved-now",
+            "len": 116
+          },
+          {
+            "id": "a.acknowledge",
+            "len": 131
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Closed while the window ran",
+            "len": 27
+          }
+        ],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
+        "terminal_instances": 0,
+        "edges": 24,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.resolved-now",
+            "len": 112
+          },
+          {
+            "id": "a.resolution",
+            "len": 151
+          }
+        ],
+        "long_branch_labels": [
+          {
+            "label": "Pencere sürerken kapanmış",
+            "len": 25
+          }
+        ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "CON-300",
+    "slug": "unengaged-sunset",
+    "locales": {
+      "en": {
+        "display_nodes": 18,
+        "distinct_canonical_nodes": 18,
+        "terminal_instances": 0,
+        "edges": 36,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "c.answered",
+            "len": 118
+          },
+          {
+            "id": "a.final",
+            "len": 134
+          },
+          {
+            "id": "c.final",
+            "len": 121
+          },
+          {
+            "id": "a.confirm-end",
+            "len": 112
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 18,
+        "distinct_canonical_nodes": 18,
+        "terminal_instances": 0,
+        "edges": 36,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.ask",
+            "len": 154
+          },
+          {
+            "id": "a.confirm-end",
+            "len": 123
           }
         ],
         "long_branch_labels": [],

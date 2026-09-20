@@ -3195,7 +3195,12 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "booking-lifecycle",
+        "scope": "reservation",
+        "precedence": "third in the booking-lifecycle group: below the booking outcome notice (SCH-277), which decides whether the commitment exists, and below the reservation payment reminder (SCH-303), because a reservation that may be released outranks getting its holder ready for it - and above the pre-arrival notice (SCH-304), which is suppressed while a prerequisite that could stop the service is still outstanding, since the at-risk notice restates the time and the place itself",
+        "onLoss": "suppressed"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -3703,7 +3708,12 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "booking-lifecycle",
+        "scope": "reservation",
+        "precedence": "highest in the booking-lifecycle group: while the requested time has not yet become a commitment, nothing else may speak to the requester about this booking - the reservation payment reminder (SCH-303), the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) are all suppressed for it, because each of them presumes a commitment this journey has not yet established",
+        "onLoss": "suppressed"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -4947,5 +4957,1246 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "An answer about availability holds nothing, so anything sent afterwards has to be re-checked before it is offered.",
+  },
+  {
+    "id": "SCH-303",
+    "slug": "reservation-payment-reminder",
+    "category": "scheduling",
+    "goal": "scheduling-commitment",
+    "channels": ["email", "sms", "in-app"],
+    "name": "Reservation standing on a payment condition → reminded → kept, released or routed to recovery",
+    "shortName": "Reservation Payment Reminder",
+    "purpose": "Keep a reservation that is standing only because a payment is still expected, by telling the holder what is outstanding and what the booking terms do about it - and by getting out of the way the moment the payment itself is what went wrong.",
+    "objective": "Stop a reservation being released for a reason its holder never heard, and move the money question to payment recovery instead of answering it here.",
+    "entity": {
+      "scope": "one confirmed reservation whose continued standing depends on a payment its holder still owes",
+      "note": "The reservation is the subject and the payment is a condition on it. One instance per reservation: a later reservation by the same person is its own instance, and a second attempt against the same obligation is an event inside the open instance rather than a new one.",
+      "instanceKey": [
+        "booking_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A reservation that is cancelled, moved or re-priced supersedes this instance. The reservation that replaces it runs its own instance from its own terms rather than inheriting this one's clock."
+      }
+    },
+    "eligibility": [
+      "a confirmed reservation in the system of record whose continued standing is conditional on a payment its holder still owes",
+      "an authoritative due point and release point read from the booking terms rather than inferred from when the reservation was made",
+      "the obligation is outstanding rather than satisfied, waived, disputed or of unknown outcome",
+      "no instance is already open for this reservation",
+      "the holder is contactable for service messages about this reservation, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.settled",
+        "label": "CANONICAL_RULE",
+        "text": "Exit the moment the obligation behind the reservation is satisfied, waived or cancelled by any route. A notice about a payment already made is the failure this journey exists to prevent, and every touch is reached only through a condition that just re-read the obligation."
+      },
+      {
+        "id": "s.superseded",
+        "label": "CANONICAL_RULE",
+        "text": "A reservation that is cancelled, moved or materially changed ends the instance. Nothing is built from a stored copy of the reservation: the booking and its terms are re-read before every touch, which is how somebody who already cancelled is not told their place is at risk."
+      },
+      {
+        "id": "s.failure-not-ours",
+        "label": "CANONICAL_RULE",
+        "text": "An attempted payment that actually failed is not a reminder problem. Ownership of the money moves to payment recovery (FIN-134), and this journey stops talking about the payment rather than running alongside it."
+      },
+      {
+        "id": "s.unknown-outcome",
+        "label": "CANONICAL_RULE",
+        "text": "An attempt whose outcome could not be established is reconciled first (GLB-20). Unknown is not outstanding, and nothing is sent or escalated on it."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "While the booking outcome notice (SCH-277) still holds the reservation in the booking-lifecycle group, this journey is suppressed for it rather than queued behind it: a reservation whose existence is still being decided has nothing this journey can honestly say about it (GLB-06)."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Hard gates (GLB-31) apply. The service pressure class deduplicates this against other service messages about the same reservation; it does not ration a notice the holder is owed before the terms release their place."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "reservation_payment.touches",
+          "rule": "Discretionary touches run against a budget fixed when the instance opened. The final notice and the notice that the reservation was released are both owed to the holder and sit outside the budget; the first reminder is the only touch here there is anything to ration.",
+          "default": {
+            "value": 1,
+            "confidence": "medium",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own discretionary touch count - the outstanding notice, the one touch this journey may choose not to send"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "reservation_payment.cooldown",
+        "rule": "Per reservation. A later reservation by the same person is its own instance and no cooldown applies between reservations.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note read with GLB-19: a repeated event against the same reservation changes nothing on its second arrival"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "booking-lifecycle",
+        "scope": "reservation",
+        "precedence": "second in the booking-lifecycle group: below the booking outcome notice (SCH-277), which decides whether there is a reservation at all, and above the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) - a reservation that may be released outranks anything about preparing for it or turning up to it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the holder is in the product, where the outstanding obligation can be settled without leaving it"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the notice carries terms and an amount the holder has to be able to return to, or no faster route clears both permission and reachability"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "the release point the terms assert lies inside the urgent horizon and permission for service messages on this route is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "deadline-countdown",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "outstanding-notice",
+          "action": "a.remind",
+          "prerequisites": [
+            "c.standing",
+            "c.sendable"
+          ],
+          "purpose": "What is outstanding against this reservation, the point by which the booking terms expect it, and what those terms do if it is not met.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "reservation-payment",
+            "boundTo": "booking_id",
+            "mustNotClaim": [
+              "that the reservation is already released",
+              "that the amount or the terms have changed",
+              "that the place is held beyond the release point the terms assert"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "final-notice",
+          "action": "a.final",
+          "after": "t1",
+          "gatedBy": "w.payment",
+          "prerequisites": [
+            "c.still",
+            "c.sendable2"
+          ],
+          "purpose": "The reservation as it stands at this moment, the last point at which it can still be kept, and what the terms do to it after that point.",
+          "channelRoles": [
+            "urgent",
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "reservation-payment",
+            "boundTo": "booking_id",
+            "mustNotClaim": [
+              "that the place is held past the release point",
+              "that the terms will be waived",
+              "a consequence the booking terms do not actually carry"
+            ]
+          },
+          "mandatory": true,
+          "priority": "service-critical",
+          "priorityReason": "without it the holder loses a reservation they planned around and never learned was at risk - this is a notice owed before the terms act, not a touch to ration",
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "release-notice",
+          "action": "a.lapse",
+          "after": "t2",
+          "gatedBy": "w.release",
+          "prerequisites": [],
+          "purpose": "That the reservation was released and nothing is held, said plainly, with what the record now shows.",
+          "channelRoles": [
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "reservation-detail",
+            "boundTo": "booking_id",
+            "mustNotClaim": [
+              "that the reservation can still be kept",
+              "that the same time is still available"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.settled",
+        "s.superseded",
+        "s.failure-not-ours",
+        "s.unknown-outcome",
+        "s.contest",
+        "s.hard-gates"
+      ]
+    },
+    "implementation": {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "person_id",
+          "obligation_id",
+          "amount_outstanding",
+          "payment_due_at",
+          "release_at",
+          "reservation_terms"
+        ],
+        "optional": [
+          "scheduled_at",
+          "has_active_session",
+          "urgent_route_permitted"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.kept",
+          "x.released",
+          "x.superseded",
+          "x.no-action",
+          "h.payment-failure"
+        ]
+      },
+      "businessOutcome": {
+        "event": "obligation_satisfied",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [],
+      "guardrails": [
+        "complaint",
+        "unsubscribe",
+        "message_after_success",
+        "notice_sent_for_released_reservation",
+        "duplicate_notice_per_reservation"
+      ],
+      "operational": [
+        "entry_volume",
+        "exit_distribution",
+        "no_action_rate_by_reason",
+        "time_to_settlement",
+        "handoff_to_payment_recovery_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "reservation payment reminder",
+        "deposit reminder",
+        "balance due before arrival",
+        "booking payment outstanding",
+        "hold expiring without payment"
+      ],
+      "useCases": [
+        "a reservation standing on a deposit that has not been paid",
+        "a balance owed before a booked date, where the terms release the place if it is not met",
+        "an attempted payment that then fails, where the money question belongs to payment recovery"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "FIN-134",
+        "because": "FIN-134 starts from a payment that failed and works on the obligation until it is discharged. This starts from a reservation that is still standing and works on whether it survives; the moment an attempt actually fails, this journey hands the money over and says nothing more about it."
+      },
+      {
+        "journey": "SCH-277",
+        "because": "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a commitment that is conditional, and it never re-opens the question of whether the commitment exists."
+      },
+      {
+        "journey": "SCH-266",
+        "because": "SCH-266 chases the prerequisites a customer owes so the service can be delivered. What is outstanding here is not a prerequisite for delivery - it is the condition on which the reservation itself continues to exist, and missing it costs the place rather than the preparation."
+      }
+    ],
+    "entry": "t.outstanding",
+    "nodes": [
+      {
+        "id": "t.outstanding",
+        "kind": "trigger",
+        "event": "reservation_payment_outstanding",
+        "evidence": {
+          "requires": [
+            "a confirmed reservation whose continued standing the booking terms make conditional on a payment",
+            "an authoritative obligation recorded against that reservation, still outstanding",
+            "a due point and a release point read from the booking terms themselves"
+          ],
+          "insufficientAlone": [
+            "a reservation that is already unconditional, where nothing outstanding can cost the place",
+            "an obligation whose attempt outcome could not be established - unknown is reconciled before it is treated as outstanding",
+            "a payment that has already been attempted and declined, which is payment recovery's subject rather than this one's",
+            "a request that has not yet become a confirmed reservation"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.standing"
+      },
+      {
+        "id": "c.standing",
+        "kind": "condition",
+        "asks": "Does the reservation still stand with the obligation still outstanding?",
+        "branches": [
+          {
+            "label": "Standing and outstanding",
+            "when": "the reservation is confirmed at the time recorded, and the obligation behind it is neither satisfied, waived nor cancelled",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Already settled",
+            "when": "the obligation is recorded satisfied, waived or cancelled by any route",
+            "observes": "obligation_satisfied",
+            "to": "x.kept"
+          },
+          {
+            "label": "No longer standing",
+            "when": "the reservation was cancelled, moved or materially changed before anything was sent",
+            "observes": "booking_materially_changed",
+            "to": "x.superseded"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the outstanding notice go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for service communication about this reservation, a deliverable destination, the service pressure class, and no higher-precedence booking-lifecycle journey currently holding this reservation",
+            "observes": "send path stages 1-8",
+            "to": "a.remind"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.remind",
+        "kind": "action",
+        "does": "Say what is still outstanding against this reservation, the point by which the booking terms expect it, and what those terms do to the reservation if it is not met. The subject is the place they hold, not the money - somebody who reads this as a bill will file it, and somebody who reads it as their reservation being at risk will act on it",
+        "execution": "communication",
+        "idempotencyKey": "booking_id + a.remind",
+        "next": "w.payment"
+      },
+      {
+        "id": "w.payment",
+        "kind": "wait",
+        "until": [
+          "obligation_satisfied",
+          "authoritative_payment_failure",
+          "booking_materially_changed"
+        ],
+        "onEvent": "c.outcome",
+        "timeout": {
+          "after": {
+            "key": "reservation_payment.due",
+            "rule": "The due point the booking terms themselves assert for this reservation. This journey reads that point; it never sets one, and it never treats the moment the reminder happened to go out as the start of a clock.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "past the due point the reservation is no longer merely outstanding - it is inside the window in which the terms will act, and that is a different thing to say",
+          "relativeTo": "attribute",
+          "attribute": "payment_due_at"
+        },
+        "onTimeout": "c.still",
+        "recheck": "the reservation, its terms and the obligation behind it re-read from the systems that own them: still confirmed, same time, same amount, and whether anything has been paid",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.outcome",
+        "kind": "condition",
+        "asks": "What resolved the wait?",
+        "branches": [
+          {
+            "label": "Reservation kept",
+            "when": "the obligation behind the reservation is recorded satisfied, waived or cancelled",
+            "observes": "obligation_satisfied",
+            "to": "x.kept"
+          },
+          {
+            "label": "The payment itself failed",
+            "when": "an attempt was made against this obligation and the payment system stated that it failed",
+            "observes": "authoritative_payment_failure",
+            "to": "h.payment-failure"
+          },
+          {
+            "label": "Reservation withdrawn",
+            "when": "the reservation was cancelled, moved or materially changed",
+            "observes": "booking_materially_changed",
+            "to": "x.superseded"
+          }
+        ]
+      },
+      {
+        "id": "c.still",
+        "kind": "condition",
+        "asks": "Does the reservation still stand as it has just been re-read?",
+        "branches": [
+          {
+            "label": "Still at risk",
+            "when": "the reservation is confirmed and the obligation behind it is still outstanding at the due point",
+            "to": "c.sendable2"
+          },
+          {
+            "label": "Settled in the meantime",
+            "when": "the obligation was satisfied, waived or cancelled while the window was open",
+            "observes": "obligation_satisfied",
+            "to": "x.kept"
+          },
+          {
+            "label": "Withdrawn in the meantime",
+            "when": "the reservation was cancelled, moved or materially changed while the window was open",
+            "observes": "booking_materially_changed",
+            "to": "x.superseded"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the final notice go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and no higher-precedence booking-lifecycle journey is holding this reservation; the notice is owed rather than rationed, so the discretionary budget does not stop it",
+            "observes": "send path stages 1-8",
+            "to": "a.final"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a hard gate stops it; the gate is recorded as the reason and no route is forced that cannot deliver",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.final",
+        "kind": "action",
+        "does": "State the reservation as it stands at this moment, the last point at which it can still be kept, and what the terms do to it afterwards. Nothing here moves the release point or softens it - a holder who is told the deadline is flexible has been told the wrong thing twice",
+        "execution": "communication",
+        "idempotencyKey": "booking_id + a.final",
+        "next": "w.release"
+      },
+      {
+        "id": "w.release",
+        "kind": "wait",
+        "until": [
+          "obligation_satisfied",
+          "authoritative_payment_failure",
+          "booking_materially_changed"
+        ],
+        "onEvent": "c.outcome2",
+        "timeout": {
+          "after": {
+            "key": "reservation_payment.release",
+            "rule": "The point at which the booking terms release the reservation back to availability. The terms own that point; this journey reads it and states what happened at it.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "after the release point there is no reservation left to protect, and the only thing owed to the holder is being told so",
+          "relativeTo": "attribute",
+          "attribute": "release_at"
+        },
+        "onTimeout": "a.lapse",
+        "recheck": "the reservation and its obligation re-read from the systems that own them, so the release is stated only where the record actually shows one",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.outcome2",
+        "kind": "condition",
+        "asks": "What resolved the final window?",
+        "branches": [
+          {
+            "label": "Reservation kept",
+            "when": "the obligation behind the reservation is recorded satisfied, waived or cancelled",
+            "observes": "obligation_satisfied",
+            "to": "x.kept"
+          },
+          {
+            "label": "The payment itself failed",
+            "when": "an attempt was made against this obligation and the payment system stated that it failed",
+            "observes": "authoritative_payment_failure",
+            "to": "h.payment-failure"
+          },
+          {
+            "label": "Reservation withdrawn",
+            "when": "the reservation was cancelled, moved or materially changed",
+            "observes": "booking_materially_changed",
+            "to": "x.superseded"
+          }
+        ]
+      },
+      {
+        "id": "a.lapse",
+        "kind": "action",
+        "does": "Say that the reservation was released, that nothing is being held, and what the record now shows. A place that quietly disappears is discovered on the day by somebody who still believes they have it",
+        "execution": "communication",
+        "idempotencyKey": "booking_id + a.lapse",
+        "writes": [
+          {
+            "field": "reservation_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.released"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record which gate stopped the notice and at which stage, so a reservation that was never warned is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "reservation_log",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "booking_id + a.record-no-action",
+        "next": "x.no-action"
+      },
+      {
+        "id": "h.payment-failure",
+        "kind": "handoff",
+        "to": "FIN-134",
+        "on": "an attempt against this reservation's obligation that the payment system states failed",
+        "carries": [
+          "the obligation behind the reservation, and that a reservation depends on it",
+          "the release point the booking terms assert, which is the consequence recovery has to work inside",
+          "what the holder has already been told about the reservation, and when"
+        ],
+        "suppresses": [
+          "every further notice from this journey about the payment"
+        ],
+        "contract": {
+          "requiredFields": [
+            "obligation_id",
+            "booking_id",
+            "amount_outstanding",
+            "release_at"
+          ]
+        }
+      },
+      {
+        "id": "x.kept",
+        "kind": "exit",
+        "state": "kept; the condition the reservation stood on is satisfied",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a further conditional payment against this reservation, or a later reservation by the same person, opens its own instance"
+      },
+      {
+        "id": "x.released",
+        "kind": "exit",
+        "state": "released; the terms took the place back and the holder was told",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "a new reservation is a new instance; this one is never revived, because the place it referred to no longer belongs to this holder"
+      },
+      {
+        "id": "x.superseded",
+        "kind": "exit",
+        "state": "superseded; the reservation was cancelled, moved or materially changed",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "the reservation that replaced it runs its own instance from its own terms"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no notice sent; the gate that stopped it is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a later reservation by the same person is evaluated on its own gates"
+      }
+    ],
+    "guardrails": [
+      "The reservation is the subject and the payment is a condition on it. A journey that starts talking about the money has become a different journey.",
+      "The booking terms own the due point and the release point. This journey reads both and never asserts, moves or softens either.",
+      "An attempt that actually failed is handed to payment recovery, and this journey stops talking about the payment rather than running beside it.",
+      "Nothing is sent without re-reading the reservation and its obligation at send time; the scheduled job carries a claim, not a fact.",
+      "The release is stated. A place that disappears in silence is discovered by the holder on the day.",
+      "An outcome that could not be established is reconciled before it is treated as outstanding."
+    ],
+    "reusableRule": "Where a commitment stands on a condition, the journey belongs to the commitment and not to the condition: it says what the terms will do and by when, and it hands the condition's own failure to whoever owns that failure."
+  },
+  {
+    "id": "SCH-304",
+    "slug": "pre-arrival-preparation",
+    "category": "scheduling",
+    "goal": "readiness-revalidation",
+    "channels": ["email", "sms", "in-app"],
+    "name": "Arrival window opens → what arriving requires → checked in, arrived or superseded",
+    "shortName": "Pre-Arrival Preparation",
+    "purpose": "Tell somebody what turning up actually requires - where to go or how to join, what to bring, and the step they can complete before they get there - and say it only where it answers something they could not already know.",
+    "objective": "Get the holder to the commitment able to start it, by carrying the arrival facts that are knowable only close to the time and nothing else.",
+    "entity": {
+      "scope": "one occurrence of a confirmed booking, inside the window in which arriving at it becomes something to prepare for",
+      "note": "One occurrence, one instance. Each occurrence of a recurring commitment opens its own arrival window and prepares on its own; a rescheduled occurrence is the same instance re-timed from the new scheduled time.",
+      "instanceKey": [
+        "booking_id",
+        "occurrence_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A cancellation or a material change supersedes this instance. The replacement occurrence opens its own arrival window rather than inheriting the touches this one already spent."
+      }
+    },
+    "eligibility": [
+      "a confirmed booking occurrence whose scheduled time is still ahead and whose arrival window has opened",
+      "arrival facts recorded against the occurrence - a place or joining route, and whatever the holder has to have with them",
+      "the holder is contactable for service messages about this booking, and hard gates (GLB-31) allow it",
+      "no instance is already open for this booking and occurrence"
+    ],
+    "suppressions": [
+      {
+        "id": "s.changed",
+        "label": "CANONICAL_RULE",
+        "text": "Exit on cancellation or material change. Arrival facts are re-read from the booking immediately before every touch and never carried from the moment the window opened, which is how somebody who moved their booking is not sent to the old place."
+      },
+      {
+        "id": "s.nothing-new",
+        "label": "CANONICAL_RULE",
+        "text": "A touch that repeats what the holder already has is not sent. Every touch here has to answer something the holder must do or could not already know; a message whose content is the number of days remaining is a countdown and this journey does not send one."
+      },
+      {
+        "id": "s.already-done",
+        "label": "CANONICAL_RULE",
+        "text": "A check-in step already completed is never prompted again, and a check-in prompt is never sent where the booking requires no check-in step at all."
+      },
+      {
+        "id": "s.overtaken",
+        "label": "CANONICAL_RULE",
+        "text": "Once attendance or arrival is authoritatively recorded, the instance ends. Preparation for something that has already begun is the clearest possible evidence that the message was built from a stale copy."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "This journey has the lowest precedence in the booking-lifecycle group. While the booking outcome notice (SCH-277), the reservation payment reminder (SCH-303) or the readiness reminder (SCH-266) holds this occurrence, arrival preparation is suppressed for it rather than queued behind it - those journeys restate the time and the place themselves, and whether the commitment will survive at all outranks how to turn up to it (GLB-06)."
+      },
+      {
+        "id": "s.hard-gates",
+        "label": "CANONICAL_RULE",
+        "text": "Hard gates (GLB-31) apply. The service pressure class deduplicates this against other service messages about the same occurrence; it does not ration facts the holder needs in order to arrive."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "pre_arrival.touches",
+          "rule": "The whole journey runs against a budget fixed when the arrival window opened, and every touch inside it is conditional on having something to say. The budget is a ceiling rather than a plan: an occurrence that needs nothing said reaches its exit without spending any of it.",
+          "default": {
+            "value": 3,
+            "confidence": "medium",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the graph's own touch count - the arrival details, a check-in prompt where a check-in step exists, and the late detail that could not have been known earlier"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "pre_arrival.cooldown",
+        "rule": "Per occurrence. The next occurrence of a recurring commitment is its own instance and no cooldown applies between occurrences.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "the entity note read with GLB-19: each occurrence is its own instance and a repeated event within one changes nothing"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "booking-lifecycle",
+        "scope": "reservation",
+        "precedence": "lowest in the booking-lifecycle group: the booking outcome notice (SCH-277), the reservation payment reminder (SCH-303) and the readiness reminder (SCH-266) all outrank it, because whether the commitment exists, whether it survives and whether the holder's side will be ready are each prior to how to turn up - and each of those journeys restates the time and the place itself, so a suppressed arrival message loses nothing the holder needed",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the message carries a place, a route or a list of things to have, which the holder has to be able to open again when they set off"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the holder is in the product, where the check-in step and the booking's own detail already are"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "the scheduled time is close enough that the holder is likely already travelling, and permission for service messages on this route is recorded"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "deadline-countdown",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "arrival-details",
+          "action": "a.details",
+          "prerequisites": [
+            "c.standing",
+            "c.sendable"
+          ],
+          "purpose": "What arriving requires: the place or the joining route, what to have, and the step that can be completed before setting off if the booking has one.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "booking-detail",
+            "boundTo": "booking_id",
+            "mustNotClaim": [
+              "a place or route the booking record does not hold",
+              "that a step has been completed when the record does not say so",
+              "that the time has changed"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "check-in-prompt",
+          "action": "a.checkin",
+          "after": "t1",
+          "gatedBy": "w.checkin",
+          "prerequisites": [
+            "c.owed",
+            "c.sendable2"
+          ],
+          "purpose": "The one step still owed before arrival, and the last point at which it can be completed ahead of time.",
+          "channelRoles": [
+            "in-session",
+            "persistent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "booking-check-in",
+            "boundTo": "booking_id",
+            "mustNotClaim": [
+              "that arrival is refused without it, unless the booking terms say so",
+              "that the step has already been completed"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "late-detail",
+          "action": "a.late-detail",
+          "after": "t2",
+          "gatedBy": "w.dayof",
+          "prerequisites": [
+            "c.late",
+            "c.sendable3"
+          ],
+          "purpose": "Only what changed or became knowable after the first message - the exact place within the location, the access instruction, the person to ask for.",
+          "channelRoles": [
+            "urgent",
+            "in-session",
+            "persistent"
+          ],
+          "destination": {
+            "target": "booking-detail",
+            "boundTo": "booking_id",
+            "mustNotClaim": [
+              "anything the first message already said",
+              "a detail the booking record does not hold"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.changed",
+        "s.nothing-new",
+        "s.already-done",
+        "s.overtaken",
+        "s.contest",
+        "s.hard-gates"
+      ]
+    },
+    "implementation": {
+      "attributes": {
+        "required": [
+          "booking_id",
+          "occurrence_id",
+          "person_id",
+          "scheduled_at",
+          "timezone",
+          "location_or_joining_route",
+          "arrival_requirements"
+        ],
+        "optional": [
+          "check_in_opens_at",
+          "check_in_state",
+          "late_detail",
+          "has_active_session",
+          "urgent_route_permitted"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.ready",
+          "x.arrived",
+          "x.superseded",
+          "x.overtaken",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "attendance_recorded",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "entered-before-event",
+        "comparison": "pre-post"
+      },
+      "secondary": [
+        "check_in_completed"
+      ],
+      "guardrails": [
+        "complaint",
+        "unsubscribe",
+        "message_after_success",
+        "details_sent_for_cancelled_booking",
+        "touch_repeating_known_content"
+      ],
+      "operational": [
+        "entry_volume",
+        "touches_spent_per_occurrence",
+        "check_in_prompt_rate",
+        "late_detail_rate",
+        "no_action_rate_by_reason"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "pre-arrival information",
+        "check-in reminder",
+        "know before you go",
+        "arrival instructions",
+        "pre-visit preparation"
+      ],
+      "useCases": [
+        "an appointment, stay or class whose place, route or access detail the holder has to have before setting off",
+        "a booking with a check-in step that can be completed ahead of arrival",
+        "a detail that only becomes knowable close to the time, such as the room, the door or the person to ask for"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "SCH-266",
+        "because": "SCH-266 acts on the prerequisites the customer owes so the service can be delivered at all, and escalates when one of them will block it. This acts on arriving: where to go, what to have and the step that can be done first. A booking with nothing outstanding still needs this one, and a booking whose prerequisite will stop it needs SCH-266 rather than this."
+      },
+      {
+        "journey": "SCH-277",
+        "because": "SCH-277 states whether the requested time became a commitment. This runs only inside the arrival window of a commitment that already exists, and it never restates the confirmation as if it were news."
+      },
+      {
+        "journey": "SCH-303",
+        "because": "SCH-303 is about whether the reservation survives at all. This is about turning up to one that will; where both apply, SCH-303 holds the booking and this is suppressed until it does not."
+      }
+    ],
+    "entry": "t.window",
+    "nodes": [
+      {
+        "id": "t.window",
+        "kind": "trigger",
+        "event": "arrival_window_opened",
+        "evidence": {
+          "requires": [
+            "a confirmed booking occurrence whose scheduled time is still ahead",
+            "the arrival window for that occurrence opening, read from the booking's own scheduled time",
+            "arrival facts recorded against the occurrence: a place or joining route, and whatever the holder has to have with them"
+          ],
+          "insufficientAlone": [
+            "a confirmed booking whose arrival window has not opened - a message sent then is a countdown, not preparation",
+            "a request that has not become a confirmed booking",
+            "an occurrence whose arrival is already recorded, which has nothing left to prepare for",
+            "a booking held on an unmet condition, which belongs to the journey that owns that condition"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.standing"
+      },
+      {
+        "id": "c.standing",
+        "kind": "condition",
+        "asks": "Is this occurrence still something to arrive at?",
+        "branches": [
+          {
+            "label": "Still ahead",
+            "when": "the booking is confirmed at the time recorded and the scheduled time has not passed",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Cancelled or moved",
+            "when": "the booking was cancelled, moved or materially changed",
+            "observes": "booking_materially_changed",
+            "to": "x.superseded"
+          },
+          {
+            "label": "Already under way",
+            "when": "arrival or attendance is already authoritatively recorded against this occurrence",
+            "observes": "attendance_recorded",
+            "to": "x.overtaken"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the arrival details go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes, the booking holds arrival facts worth carrying, and no higher-precedence booking-lifecycle journey is holding this occurrence",
+            "observes": "send path stages 1-8",
+            "to": "a.details"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it, or the booking holds nothing the holder does not already have; the reason is recorded",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.details",
+        "kind": "action",
+        "does": "Say what arriving requires: the place or the joining route, what to have, and the step that can be completed before setting off if the booking has one. Everything here is read from the booking at the moment of sending, because a route that was right when the window opened is the one somebody follows to the wrong door",
+        "execution": "communication",
+        "idempotencyKey": "booking_id + occurrence_id + a.details",
+        "next": "w.checkin"
+      },
+      {
+        "id": "w.checkin",
+        "kind": "wait",
+        "until": [
+          "check_in_completed",
+          "booking_materially_changed",
+          "attendance_recorded"
+        ],
+        "onEvent": "c.resolved",
+        "timeout": {
+          "after": {
+            "key": "pre_arrival.check_in_point",
+            "rule": "The point before the scheduled time at which a check-in step, if the booking has one, is worth prompting. It is set from how long the step actually takes the holder, never from how far ahead the booking was made.",
+            "class": "reminder-before-attribute",
+            "required": true
+          },
+          "reason": "a check-in step is worth prompting only while there is still time to complete it, and past that point the prompt names work the holder can no longer do",
+          "relativeTo": "attribute",
+          "attribute": "scheduled_at"
+        },
+        "onTimeout": "c.owed",
+        "recheck": "the booking, its arrival facts and the state of its check-in step re-read from the systems that own them before anything further is built",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.resolved",
+        "kind": "condition",
+        "asks": "What resolved the check-in window?",
+        "branches": [
+          {
+            "label": "Checked in",
+            "when": "the check-in step the booking required is recorded complete",
+            "observes": "check_in_completed",
+            "to": "w.dayof"
+          },
+          {
+            "label": "Booking changed",
+            "when": "the booking was cancelled, moved or materially changed",
+            "observes": "booking_materially_changed",
+            "to": "x.superseded"
+          },
+          {
+            "label": "Already arrived",
+            "when": "arrival or attendance is authoritatively recorded against this occurrence",
+            "observes": "attendance_recorded",
+            "to": "x.arrived"
+          }
+        ]
+      },
+      {
+        "id": "c.owed",
+        "kind": "condition",
+        "asks": "Is a check-in step still owed on this booking?",
+        "branches": [
+          {
+            "label": "Still owed",
+            "when": "the booking requires a check-in step, the step is open, and the record does not show it complete",
+            "to": "c.sendable2"
+          },
+          {
+            "label": "Nothing owed",
+            "when": "the booking requires no check-in step, or the record already shows it complete",
+            "to": "w.dayof"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the check-in prompt go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes, the touch budget for this occurrence is not spent, and no higher-precedence booking-lifecycle journey is holding this occurrence",
+            "observes": "send path stages 1-8",
+            "to": "a.checkin"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it or the budget is spent; the reason is recorded rather than the prompt being forced",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.checkin",
+        "kind": "action",
+        "does": "Name the one step still owed before arrival and the last point at which it can be completed ahead of time. One step, one message - a holder with one thing to do who receives a second copy of the arrival details has been given work to do finding the new part",
+        "execution": "communication",
+        "idempotencyKey": "booking_id + occurrence_id + a.checkin",
+        "next": "w.dayof"
+      },
+      {
+        "id": "w.dayof",
+        "kind": "wait",
+        "until": [
+          "booking_materially_changed",
+          "attendance_recorded"
+        ],
+        "onEvent": "c.resolved2",
+        "timeout": {
+          "after": {
+            "key": "pre_arrival.late_detail_point",
+            "rule": "The point close to the scheduled time at which whatever could not be known earlier is knowable. It exists so a late detail has somewhere to be sent from, not so that something is sent.",
+            "class": "reminder-before-attribute",
+            "required": true
+          },
+          "reason": "a detail that only becomes true close to the time has to be read close to the time, and after the scheduled time there is nothing left to prepare",
+          "relativeTo": "attribute",
+          "attribute": "scheduled_at"
+        },
+        "onTimeout": "c.late",
+        "recheck": "the booking's arrival facts re-read from the systems that own them and compared against what this journey has already said",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.resolved2",
+        "kind": "condition",
+        "asks": "What resolved the final window?",
+        "branches": [
+          {
+            "label": "Booking changed",
+            "when": "the booking was cancelled, moved or materially changed",
+            "observes": "booking_materially_changed",
+            "to": "x.superseded"
+          },
+          {
+            "label": "Already arrived",
+            "when": "arrival or attendance is authoritatively recorded against this occurrence",
+            "observes": "attendance_recorded",
+            "to": "x.arrived"
+          }
+        ]
+      },
+      {
+        "id": "c.late",
+        "kind": "condition",
+        "asks": "Is there anything about arriving that could not have been said earlier?",
+        "branches": [
+          {
+            "label": "Something changed or became knowable",
+            "when": "the booking now holds an arrival fact this journey has not already sent - a different place within the location, an access instruction, a named host",
+            "to": "c.sendable3"
+          },
+          {
+            "label": "Nothing new",
+            "when": "the booking holds nothing the holder has not already been told, which is the ordinary case and not a failure",
+            "to": "x.ready"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable3",
+        "kind": "condition",
+        "asks": "May the late detail go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes, the touch budget for this occurrence is not spent, and no higher-precedence booking-lifecycle journey is holding this occurrence",
+            "observes": "send path stages 1-8",
+            "to": "a.late-detail"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it or the budget is spent; the reason is recorded",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.late-detail",
+        "kind": "action",
+        "does": "Send only what changed or became knowable after the first message, and say which part is new. Repeating the whole set of arrival facts to carry one new line makes the holder search for the difference, and most of them will not",
+        "execution": "communication",
+        "idempotencyKey": "booking_id + occurrence_id + a.late-detail",
+        "writes": [
+          {
+            "field": "arrival_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.ready"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record which gate stopped the touch, or that there was nothing to say, and at which stage - so an occurrence that received nothing is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "arrival_log",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "booking_id + occurrence_id + a.record-no-action",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.ready",
+        "kind": "exit",
+        "state": "prepared; the holder has everything arriving requires",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "the next occurrence of a recurring commitment opens its own arrival window and its own instance"
+      },
+      {
+        "id": "x.arrived",
+        "kind": "exit",
+        "state": "arrived; attendance was recorded while the window was still open",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "the next occurrence opens its own arrival window and its own instance"
+      },
+      {
+        "id": "x.superseded",
+        "kind": "exit",
+        "state": "superseded; the booking was cancelled, moved or materially changed",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "the occurrence that replaced it opens its own arrival window from its own scheduled time"
+      },
+      {
+        "id": "x.overtaken",
+        "kind": "exit",
+        "state": "overtaken; the occurrence had already begun when the window opened",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "the next occurrence opens its own arrival window and its own instance"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "nothing sent; the gate, or the absence of anything to say, is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the next occurrence is evaluated on its own gates"
+      }
+    ],
+    "guardrails": [
+      "Every touch has to answer something the holder must do or could not already know. A message whose content is how long remains is a countdown, and this journey does not send one.",
+      "Arrival facts are re-read from the booking immediately before each touch, never carried from the moment the window opened.",
+      "A check-in prompt is sent only where a check-in step exists, is open, and the record does not show it complete.",
+      "The late detail carries what is new and says which part is new; it never repeats the whole set to deliver one line.",
+      "Preparation never moves the scheduled time, and a booking that will not go ahead is somebody else's message to send.",
+      "Once arrival or attendance is recorded, the instance ends rather than finishing its plan."
+    ],
+    "reusableRule": "A journey that runs towards a fixed moment earns each touch by having something new to say at it, and a touch with nothing new is the point at which people stop reading the ones that do."
   },
 ];

@@ -126,7 +126,15 @@ for (const p of manifest.pages) {
 check(17, "no page assigns a schema type outside the approved candidate list (WebSite/Person/BreadcrumbList/Article-BlogPosting/ItemList)", badSchema === 0, `${badSchema} bad assignment(s)`);
 
 /* --------------------------------------------- 18. sitemap route counts match live data */
-check(18, "AB/journey/blog counts used by sitemap.ts match the live data sources", abTests.length === 211 && journeyViewModel.length === 286 && blogPostCount === 5, `ab=${abTests.length}, journey=${journeyViewModel.length}, blog=${blogPostCount}`);
+/* 286 -> 297. One of the deliberate hardcoded corpus tripwires CLAUDE.md
+   lists: it is SUPPOSED to fail until the constant moves with the corpus.
+   It did its job and nobody was listening - Batch A took the view model
+   286 -> 292 without bumping it, and because CLAUDE.md documents only
+   check 14 as known-failing here, that failure read as inherited drift for
+   a whole batch. All four batches of the seventeen additions make it 303.
+   Bump this in the same commit as any corpus change, and run this validator
+   in the post-change loop. */
+check(18, "AB/journey/blog counts used by sitemap.ts match the live data sources", abTests.length === 211 && journeyViewModel.length === 303 && blogPostCount === 5, `ab=${abTests.length}, journey=${journeyViewModel.length}, blog=${blogPostCount}`);
 
 /* --------------------------------------------- 19. structured-data verdicts respected */
 const rejectedTypes = ["SoftwareApplication", "WebApplication", "FAQPage"];

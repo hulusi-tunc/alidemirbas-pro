@@ -67,3 +67,18 @@ The wider canonical corpus goes 286 → 303 journeys.
   The money side of the same moment belongs to FIN.
 - **No new prefix was created**, and no journey concept was renamed to make a
   prefix fit.
+
+## Batch status
+
+| Batch | Ids | Landed | Public library |
+|---|---|---|---:|
+| A — commerce / post-purchase | ACQ-289, RET-290, FUL-291, RET-292, RET-293, RET-294 | yes | 52 → 58 |
+| B — relationship / loyalty | RET-295, SUB-296, SUB-297, SUB-298, SUB-299 | yes | 58 → **63** |
+| C — communication hygiene / transaction | CON-300, FUL-301, FIN-302 | pending | 63 → 66 |
+| D — scheduling / service | SCH-303, SCH-304, REM-305 | pending | 66 → 69 |
+
+Batch B's ownership boundaries (the reciprocal `date-recognition` pair between
+RET-295 and RET-292, and the four-member `membership-standing` group), its
+per-journey touch counts and what it deliberately left out of scope are recorded
+in `audit/batch-b-notes.md`. The canonical corpus after Batch B is 297 journeys /
+3854 nodes.

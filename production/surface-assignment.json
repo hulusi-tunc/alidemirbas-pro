@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 292,
-    "customer": 143,
+    "journeys": 303,
+    "customer": 154,
     "customer-silent": 67,
-    "customer-communicating": 76,
+    "customer-communicating": 87,
     "mechanism": 25,
     "operational": 124
   },
@@ -462,6 +462,17 @@
       "reason": "declares a message channel (email, push, in-app)"
     },
     {
+      "id": "RET-295",
+      "shortName": "Birthday & Milestone",
+      "category": "retention",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, push, in-app)"
+    },
+    {
       "id": "CON-31",
       "shortName": "Permission Validation",
       "category": "consent",
@@ -592,6 +603,17 @@
       "silent": false,
       "excludedFromPublic": true,
       "reason": "declares a message channel (email)"
+    },
+    {
+      "id": "CON-300",
+      "shortName": "Unengaged Subscriber Sunset",
+      "category": "consent",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "FBK-41",
@@ -1804,6 +1826,17 @@
       "reason": "no message channel and a system-side entity or category"
     },
     {
+      "id": "FIN-302",
+      "shortName": "Refund Notification",
+      "category": "financial",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app)"
+    },
+    {
       "id": "FUL-141",
       "shortName": "Fulfillment Request Validation",
       "category": "fulfillment",
@@ -1947,6 +1980,17 @@
       "reason": "declares a message channel (email, in-app, push)"
     },
     {
+      "id": "FUL-301",
+      "shortName": "Order Confirmation",
+      "category": "fulfillment",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, sms, in-app)"
+    },
+    {
       "id": "REM-151",
       "shortName": "Post-Purchase Issue Recovery",
       "category": "remedy",
@@ -2055,6 +2099,17 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "no message channel and a system-side entity or category"
+    },
+    {
+      "id": "REM-305",
+      "shortName": "Support Request Acknowledgement",
+      "category": "remedy",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "SUB-161",
@@ -2176,6 +2231,50 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (email, in-app)"
+    },
+    {
+      "id": "SUB-296",
+      "shortName": "Loyalty Program Welcome",
+      "category": "subscription",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app, push)"
+    },
+    {
+      "id": "SUB-297",
+      "shortName": "Loyalty Program Nurture",
+      "category": "subscription",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app, push)"
+    },
+    {
+      "id": "SUB-298",
+      "shortName": "Reward Confirmation",
+      "category": "subscription",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app, push)"
+    },
+    {
+      "id": "SUB-299",
+      "shortName": "Loyalty Tier Upgrade",
+      "category": "subscription",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app, push)"
     },
     {
       "id": "SCH-171",
@@ -2330,6 +2429,28 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (email, push)"
+    },
+    {
+      "id": "SCH-303",
+      "shortName": "Reservation Payment Reminder",
+      "category": "scheduling",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, sms, in-app)"
+    },
+    {
+      "id": "SCH-304",
+      "shortName": "Pre-Arrival Preparation",
+      "category": "scheduling",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, sms, in-app)"
     },
     {
       "id": "DEC-181",

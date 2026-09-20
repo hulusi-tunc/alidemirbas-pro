@@ -1506,6 +1506,13 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
+    distinctFrom: [
+      {
+        journey: "FUL-301",
+        because:
+          "FUL-301 states the original commitment once, at the moment the record opens, and then says nothing further. This journey is what happens when that commitment slips - it is measured against what the confirmation said, and it never restates the confirmation itself.",
+      },
+    ],
     objective: "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
     eligibility: [
       "a material slip against the timing this obligation was committed to",
@@ -3189,6 +3196,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "FUL-149 decides whether acceptance is contractually meaningful and records finalisation. This is the request for that acceptance and the deadline enforced in front of the person who owes it.",
       },
+      {
+        journey: "FUL-301",
+        because:
+          "FUL-301 confirms what the record accepted at the moment it opened, and stops there. This journey begins at dispatch, which is where the order first has a position to report - it never re-confirms the order, and the confirmation never reports a position.",
+      },
     ],
     objective: "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
     eligibility: [
@@ -4141,7 +4153,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.confirmation",
         "label": "CANONICAL_RULE",
-        "text": "This journey never confirms the order. Whether the order was received is answered at the opening of the fulfillment record, long before this instance exists."
+        "text": "This journey never confirms the order. What the business took on is answered at the opening of the fulfillment record by the order confirmation (FUL-301), long before this instance exists."
       },
       {
         "id": "s.permission",
@@ -4180,7 +4192,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "post-purchase-welcome",
         "scope": "person",
-        "precedence": "above the first-purchase welcome for the same person - what somebody is already holding comes before what they might buy next; below every remedy journey on the same order, which ends this one rather than queueing it",
+        "precedence": "above the first-purchase welcome for the same person - what somebody is already holding comes before what they might buy next; below the order's own confirmation (FUL-301), which answers what the business took on before this journey explains what to do with it, and below every remedy journey on the same order, which ends this one rather than queueing it",
         "onLoss": "suppressed"
       }
     },
@@ -4472,6 +4484,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "REM-151",
         "because": "REM-151 owns the order the moment a problem is raised against it. This journey ends there rather than continuing beside it."
+      },
+      {
+        "journey": "FUL-301",
+        "because": "FUL-301 opens the record and says what was taken on; this closes it and says what to do with what arrived. They sit at opposite ends of the same obligation, which is why this journey never repeats the confirmation and why the confirmation outranks it when both would speak in the same window."
       }
     ],
     "guardrails": [
@@ -4481,5 +4497,442 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       "Where nothing useful is recorded against what was delivered, nothing is sent."
     ],
     "reusableRule": "A completion is a state with a message of its own, and that message is whatever makes the delivered thing useful - never a restatement of the status that produced it, and never a request for the recipient's opinion about it."
+  },
+  {
+    "id": "FUL-301",
+    "slug": "order-confirmation",
+    "category": "fulfillment",
+    "goal": "delivery-confirmation",
+    "channels": ["email", "sms", "in-app"],
+    "name": "Order accepted → what was accepted stated once → confirmed, void or handed on",
+    "shortName": "Order Confirmation",
+    "purpose": "Say once, at the moment the fulfillment record opens, exactly what the business has taken on and what it has not - the question every later message about this order assumes has already been answered.",
+    "objective": "Open the fulfillment record in front of the person who owns it, stated from the record rather than from the request, so that tracking, delay and follow-up all have something true to be later than.",
+    "entity": {
+      "scope": "one accepted fulfillment obligation - what the record accepted, what it declined, and the person it was accepted for",
+      "note": "The entity is the order record at the moment it opens, not the order's whole life. Where it is, whether it is running late and whether it arrived are states other journeys narrate, and this one states none of them. One instance per accepted obligation; a replacement or re-accepted obligation is its own record and its own instance.",
+      "instanceKey": [
+        "obligation_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "The acceptance being reversed before the confirmation goes out supersedes the instance: there is nothing to confirm, and confirming an order that no longer exists is worse than saying nothing."
+      }
+    },
+    "eligibility": [
+      "an authoritative record that the fulfillment obligation was accepted, naming what it covers",
+      "the declined scope and the reason recorded against it, where the record accepted only part of what was asked for",
+      "a recipient the record resolves to a person, with a permitted destination for a transactional notice",
+      "no confirmation is already recorded for this obligation and no instance is already open for it",
+      "hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.accepted",
+        "label": "CANONICAL_RULE",
+        "text": "A request received is not an order accepted, and only what the record accepted is confirmed. Confirming something the business has not taken on creates an obligation nobody agreed to (FUL-141 is where acceptance is decided)."
+      },
+      {
+        "id": "s.record",
+        "label": "CANONICAL_RULE",
+        "text": "Everything said comes from the record: the accepted scope, the declined scope, the amount as the financial record holds it. Nothing about timing, settlement or availability is asserted beyond what the record actually carries."
+      },
+      {
+        "id": "s.partial",
+        "label": "CANONICAL_RULE",
+        "text": "A partly accepted order says so in the same message - what was accepted, what was not, and the reason the record gives. An order confirmed as whole when part of it was declined is a promise the business never made, and the person finds out from its absence."
+      },
+      {
+        "id": "s.once",
+        "label": "CANONICAL_RULE",
+        "text": "One confirmation per accepted obligation. A second is not reassurance; it reads as a second order, and it is the duplicate that generates the support contact this message exists to prevent."
+      },
+      {
+        "id": "s.status",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never reports progress. Where the order is and whether it is running late are the tracking journey's (FUL-265) and the delay journey's (FUL-146) own states, and both of them begin after this one has had its moment."
+      },
+      {
+        "id": "s.marketing",
+        "label": "CANONICAL_RULE",
+        "text": "The confirmation carries nothing promotional. It is the transactional message every other post-purchase journey defers to, and padding it with an offer is what makes deferring to it worthless."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "transactional",
+      "pressureClass": "none",
+      "localCap": {
+        "value": {
+          "key": "order_confirmation.discretionary_touches",
+          "rule": "The only touch in the plan is the confirmation itself and it is mandatory; nothing discretionary exists to cap, and it is deduplicated by obligation rather than rationed.",
+          "default": {
+            "value": 0,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the plan's only touch is marked mandatory"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "order_confirmation.cooldown",
+        "rule": "This journey is per accepted obligation; a later order is a different obligation and no cooldown applies between them.",
+        "default": {
+          "value": "none",
+          "confidence": "high",
+          "basis": "corpus-rule",
+          "applicableWhen": "GLB-24; the entity note - one instance per accepted obligation"
+        },
+        "required": false
+      },
+      "competition": {
+        "exclusionGroup": "post-purchase-welcome",
+        "scope": "person",
+        "precedence": "highest in the post-purchase-welcome group - the order's own confirmation answers the question the post-purchase follow-up and the first-purchase welcome both assume has been answered, so both of them wait behind it rather than beside it; being transactional it is never itself deferred, and the contest is declared here so the other two have a named side to defer to",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the confirmation has to be kept and returned to - it is the record of what was accepted, and the default route for it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "the accepted obligation carries a time-bound action the person has to take, and permission for messages on this route is recorded"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the order was placed inside the product and the confirmation belongs beside the record it describes"
+        }
+      ],
+      "fallback": "same-role-other-channel",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "confirmation",
+          "action": "a.confirm",
+          "prerequisites": [
+            "c.stands",
+            "c.sendable"
+          ],
+          "purpose": "State once what the record accepted, what it declined and the reason it gives, the amount as the financial record holds it, and the route to the order itself. No progress, no timing the record does not carry, nothing promotional.",
+          "channelRoles": [
+            "persistent",
+            "urgent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "order-record",
+            "boundTo": "obligation_id",
+            "mustNotClaim": [
+              "a delivery date the record does not carry",
+              "that payment has settled",
+              "that a declined part will be fulfilled later",
+              "that anything is reserved beyond what the record reserved"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.accepted",
+        "s.record",
+        "s.partial",
+        "s.once",
+        "s.status",
+        "s.marketing"
+      ]
+    },
+    "entry": "t.accepted",
+    "nodes": [
+      {
+        "id": "t.accepted",
+        "kind": "trigger",
+        "event": "fulfillment_obligation_accepted",
+        "evidence": {
+          "requires": [
+            "an authoritative record that the fulfillment obligation was accepted, with what it covers",
+            "the declined scope and the recorded reason for it, where only part of the request was accepted",
+            "the recipient the obligation was accepted for, resolved to a person"
+          ],
+          "insufficientAlone": [
+            "a submitted request the business has not yet accepted - the request-validation journey decides that, and this one opens on its decision",
+            "a successful payment, which by itself creates an obligation to deliver nothing",
+            "a request held pending an unresolved requirement, which is not an acceptance",
+            "an acceptance recorded against a recipient who has not resolved to a person",
+            "a resource allocation, which follows acceptance rather than constituting it"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.stands"
+      },
+      {
+        "id": "c.stands",
+        "kind": "condition",
+        "asks": "Does the accepted obligation still stand, and what does it actually cover?",
+        "branches": [
+          {
+            "label": "Accepted in full",
+            "when": "the record accepts everything that was asked for and the acceptance still stands",
+            "observes": "the fulfillment record",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Accepted in part",
+            "when": "the record accepts some of what was asked for and declines the rest, with a reason recorded against the declined scope",
+            "observes": "the fulfillment record, the declined scope",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Nothing stands",
+            "when": "the acceptance was reversed, voided or fully declined before any confirmation could go out",
+            "observes": "fulfillment_cancellation_effective",
+            "to": "x.void"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the confirmation go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: a transactional purpose, a deliverable destination, hard gates clear, and no confirmation already recorded against this obligation",
+            "observes": "send path stages 1-8, confirmation log",
+            "to": "a.confirm"
+          },
+          {
+            "label": "No route",
+            "when": "no permitted, deliverable destination remains for a transactional notice of this kind; the reason is recorded rather than the confirmation being forced onto a route that is not permitted",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.confirm",
+        "kind": "action",
+        "does": "State what the record accepted, what it declined and the reason it gives, the amount as the financial record holds it, and the route to the order. Claim no delivery date the record does not carry, no settled payment, and nothing about where the order is - that state does not exist yet.",
+        "execution": "communication",
+        "idempotencyKey": "obligation_id",
+        "writes": [
+          {
+            "field": "confirmation_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.stands"
+      },
+      {
+        "id": "w.stands",
+        "kind": "wait",
+        "until": [
+          "fulfillment_handed_to_delivery_executor",
+          "fulfillment_cancellation_effective"
+        ],
+        "onEvent": "c.next",
+        "timeout": {
+          "after": {
+            "key": "order_confirmation.record_window",
+            "rule": "The period this journey stays the last thing said about the order, before the journeys that narrate its movement take it over.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "the confirmation owns the order's narrative only until the order starts moving; holding it open past that would put two journeys on one record",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "x.confirmed",
+        "recheck": "the fulfillment record and any cancellation recorded against it, re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.next",
+        "kind": "condition",
+        "asks": "What became of the order while this confirmation was still the last thing said about it?",
+        "branches": [
+          {
+            "label": "It started moving",
+            "when": "the obligation was handed to a delivery executor; tracking and any delay against it belong to the journeys that own those states from here",
+            "observes": "fulfillment_handed_to_delivery_executor",
+            "to": "x.confirmed"
+          },
+          {
+            "label": "Cancelled before it moved",
+            "when": "an authoritative cancellation took effect on the obligation before anything was dispatched",
+            "observes": "fulfillment_cancellation_effective",
+            "to": "h.cancelled"
+          }
+        ]
+      },
+      {
+        "id": "h.cancelled",
+        "kind": "handoff",
+        "to": "FUL-150",
+        "on": "an accepted obligation cancelled before anything moved, with a confirmation of it already in the recipient's hands",
+        "carries": [
+          "obligation_id",
+          "the accepted and declined scopes exactly as the confirmation stated them",
+          "that a confirmation was sent, and when",
+          "the recipient and the destination it was sent to"
+        ],
+        "suppresses": [
+          "every further message from this journey about this obligation"
+        ],
+        "contract": {
+          "requiredFields": [
+            "obligation_id",
+            "confirmed_scope",
+            "confirmed_at"
+          ]
+        }
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no confirmation was sent and against which obligation, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "obligation_id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.confirmed",
+        "kind": "exit",
+        "state": "confirmed; what the record accepted has been stated once and this journey says nothing further about it",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a later accepted obligation opens its own instance; this one never reopens and is never re-sent"
+      },
+      {
+        "id": "x.void",
+        "kind": "exit",
+        "state": "nothing to confirm; the acceptance was reversed before a confirmation could go out",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a re-accepted or replacement obligation is its own record and its own instance"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no confirmation sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a later accepted obligation opens its own instance"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "obligation_id",
+          "person_id",
+          "accepted_scope",
+          "accepted_at",
+          "order_destination"
+        ],
+        "optional": [
+          "declined_scope",
+          "declined_reason",
+          "order_amount",
+          "email_address",
+          "phone_number",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.confirmed",
+          "x.void",
+          "x.no-action",
+          "h.cancelled"
+        ]
+      },
+      "secondary": [
+        "fulfillment_handed_to_delivery_executor"
+      ],
+      "guardrails": [
+        "complaint",
+        "duplicate_confirmation",
+        "confirmation_without_acceptance",
+        "declined_scope_omitted",
+        "promotional_content_in_transactional_message"
+      ],
+      "operational": [
+        "entry_volume",
+        "confirmation_rate",
+        "partial_acceptance_rate",
+        "no_action_rate_by_reason",
+        "time_to_confirmation"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "order confirmation",
+        "purchase confirmation",
+        "order receipt",
+        "booking confirmation message",
+        "we got your order"
+      ],
+      "useCases": [
+        "an accepted order confirmed to the person who placed it, stated from the record rather than from the request",
+        "an order accepted in part, where the declined scope has to be said in the same message as the accepted one"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "FUL-265",
+        "because": "FUL-265 begins at dispatch and narrates the order while it moves. This journey ends where that one begins: it opens the record and says nothing about where the order is, because at the moment it speaks there is nowhere yet."
+      },
+      {
+        "journey": "FUL-146",
+        "because": "FUL-146 holds lateness against an original commitment. This journey is where that original commitment is first stated to the person, which is what FUL-146's own commitment history is later measured against - and it never opens a second narrative about a slip."
+      },
+      {
+        "journey": "FUL-291",
+        "because": "FUL-291 speaks once the thing has arrived, about making it useful. This speaks once the record opens, about what was taken on; neither is a variation of the other and they are separated by the whole of the fulfillment."
+      },
+      {
+        "journey": "RET-290",
+        "because": "RET-290 marks somebody becoming a customer and waits for this confirmation to have had its moment first. This carries no message about the relationship at all - only what the record says."
+      },
+      {
+        "journey": "FIN-131",
+        "because": "FIN-131 opens the obligation to pay that arises from the same event. This opens the obligation to deliver. They fail independently, and confirming one has never confirmed the other."
+      }
+    ],
+    "guardrails": [
+      "Only what the record accepted is confirmed; a request the business has not accepted is never confirmed as an order.",
+      "A partly accepted order states the declined scope and its reason in the same message as the accepted one.",
+      "One confirmation per accepted obligation, deduplicated by the obligation rather than rationed by pressure.",
+      "No progress, no delivery date the record does not carry, and no settled payment is claimed.",
+      "Nothing promotional rides on it - this is the message the other post-purchase journeys defer to."
+    ],
+    "reusableRule": "The opening of a record is a state with a message of its own: it states what was taken on and what was not, from the record rather than from the request, once - and every later message about that record is measured against what it said."
   },
 ];

@@ -4,10 +4,13 @@
    Writes audit/display-<phase>.json and folds the counts into the manifest. */
 import fs from "node:fs";
 import puppeteer from "puppeteer-core";
+import { assertServerBuild } from "./assert-build.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const phase = process.argv[2] === "after" ? "after" : "before";
 const PORT = process.argv[3] ?? "4511";
+/* Refuse to report numbers measured against a build we did not make. */
+await assertServerBuild(PORT);
 const BASE = `http://localhost:${PORT}`;
 
 const manifest = JSON.parse(fs.readFileSync(ROOT + "audit/manifest.json", "utf8"));

@@ -207,9 +207,9 @@
       "ok": true,
       "isKnownGap": false,
       "top3": [
-        "journey:ACT-11",
         "journey:ACT-12",
-        "journey:ACT-16"
+        "journey:ACT-16",
+        "journey:ACT-19"
       ],
       "reason": "VERIFIED against the real corpus: no calculator or ab-test document contains 'onboard'/'onboarding' anywhere - an all-journey result set is honest and correct here. Same correction as 'pricing' above."
     },
@@ -315,9 +315,9 @@
       "ok": true,
       "isKnownGap": false,
       "top3": [
-        "journey:FBK-48",
         "journey:RET-24",
-        "journey:FBK-50"
+        "journey:FBK-48",
+        "journey:SCH-266"
       ],
       "reason": "RSK-192 (the exact title-token match, and the RET-25 survivor) is on the Operational Workflows surface, archived from the public site 2026-09-05 (archive/operational-workflows/README.md): it has no public page and must not surface as a result. Was: 'exact title-token match - also the survivor of the RET-25 merge'."
     },
@@ -328,8 +328,8 @@
       "isKnownGap": false,
       "top3": [
         "journey:CMS-208",
-        "journey:FUL-148",
-        "journey:IDN-84"
+        "journey:IDN-84",
+        "journey:FUL-148"
       ],
       "reason": "matches CMS-208's own title"
     },
@@ -341,7 +341,7 @@
       "top3": [
         "calculator:roas",
         "blog-article:why-your-roas-looks-different-on-every-ad-platform",
-        "journey:REM-152"
+        "journey:ACT-20"
       ],
       "reason": "synonym expansion (ROAS <-> return on ad spend) should surface the exact calculator"
     },
@@ -614,8 +614,8 @@
       "isKnownGap": false,
       "top3": [
         "journey:ACQ-12",
-        "ab-test:AB-001",
-        "ab-test:AB-002"
+        "journey:ACQ-288",
+        "ab-test:AB-001"
       ],
       "reason": "exact calculator title-token match should outrank the broader ab-test/journey matches on the same concept"
     },
@@ -649,9 +649,9 @@
       "ok": true,
       "isKnownGap": false,
       "top3": [
+        "ab-test:AB-058",
         "ab-test:AB-049",
-        "ab-test:AB-056",
-        "ab-test:AB-054"
+        "ab-test:AB-056"
       ],
       "reason": "VERIFIED: the journey corpus is backend lifecycle/state-machine content (entitlement, ownership, access) and genuinely has no document about UI-level 'signup forms' - that's an ab-test/surface concept in this corpus, not a journey one. An all-ab-test result is the honest reflection of that real structural difference between the two corpora, not a balancing defect."
     },
@@ -674,8 +674,8 @@
       "isKnownGap": false,
       "top3": [
         "journey:CMS-208",
-        "journey:CON-32",
-        "journey:CON-35"
+        "journey:CON-300",
+        "journey:CON-32"
       ],
       "reason": "merged id must resolve to survivor CMS-208 (delivery-recovery), never return a separate CON-37 result"
     },

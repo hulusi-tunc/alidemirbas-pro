@@ -11,7 +11,7 @@
       },
       {
         "value": "journey",
-        "documentCount": 147,
+        "documentCount": 158,
         "lowUtility": false
       },
       {
@@ -51,12 +51,12 @@
         "lowUtility": false
       },
       {
-        "value": "saas-and-b2b",
-        "documentCount": 16,
+        "value": "retention-and-engagement",
+        "documentCount": 17,
         "lowUtility": false
       },
       {
-        "value": "retention-and-engagement",
+        "value": "saas-and-b2b",
         "documentCount": 16,
         "lowUtility": false
       },
@@ -174,7 +174,7 @@
     "values": [
       {
         "value": "cross-lifecycle",
-        "documentCount": 105,
+        "documentCount": 115,
         "lowUtility": false
       },
       {
@@ -184,7 +184,7 @@
       },
       {
         "value": "engagement-retention",
-        "documentCount": 37,
+        "documentCount": 38,
         "lowUtility": false
       },
       {
@@ -205,7 +205,7 @@
     "values": [
       {
         "value": "review-required",
-        "documentCount": 199,
+        "documentCount": 201,
         "lowUtility": false
       },
       {
@@ -215,17 +215,22 @@
       },
       {
         "value": "cancellation-termination",
-        "documentCount": 23,
+        "documentCount": 27,
         "lowUtility": false
       },
       {
         "value": "recovery-retry",
-        "documentCount": 21,
+        "documentCount": 22,
         "lowUtility": false
       },
       {
         "value": "eligibility-qualification",
-        "documentCount": 17,
+        "documentCount": 18,
+        "lowUtility": false
+      },
+      {
+        "value": "delivery-confirmation",
+        "documentCount": 10,
         "lowUtility": false
       },
       {
@@ -240,11 +245,6 @@
       },
       {
         "value": "expiry-renewal",
-        "documentCount": 8,
-        "lowUtility": false
-      },
-      {
-        "value": "delivery-confirmation",
         "documentCount": 8,
         "lowUtility": false
       },
@@ -269,17 +269,17 @@
         "lowUtility": false
       },
       {
+        "value": "change-versioning",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
         "value": "suspension-restoration",
         "documentCount": 4,
         "lowUtility": false
       },
       {
         "value": "escalation-exception",
-        "documentCount": 4,
-        "lowUtility": false
-      },
-      {
-        "value": "change-versioning",
         "documentCount": 4,
         "lowUtility": false
       },
@@ -2689,32 +2689,32 @@
     "values": [
       {
         "value": "cross-journey-handoff",
-        "documentCount": 110,
+        "documentCount": 114,
         "lowUtility": false
       },
       {
         "value": "wait-timeout",
-        "documentCount": 102,
+        "documentCount": 111,
         "lowUtility": false
       },
       {
         "value": "multi-exit",
-        "documentCount": 91,
+        "documentCount": 102,
         "lowUtility": false
       },
       {
         "value": "backward-edge",
-        "documentCount": 80,
+        "documentCount": 86,
+        "lowUtility": false
+      },
+      {
+        "value": "competition",
+        "documentCount": 48,
         "lowUtility": false
       },
       {
         "value": "external-handoff",
         "documentCount": 39,
-        "lowUtility": false
-      },
-      {
-        "value": "competition",
-        "documentCount": 32,
         "lowUtility": false
       },
       {

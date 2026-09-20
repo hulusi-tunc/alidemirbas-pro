@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm run dev                 # next dev on :3000 (see .claude/launch.json)
 npm run build               # plain `next build` — no prebuild hook, no validator runs
-npm run lint                # eslint; 6 pre-existing warnings in production/, 0 errors
+npm run lint                # eslint; 1 pre-existing ERROR (MobileNav.tsx:78) + 27 warnings
 npx tsc --noEmit            # typecheck; currently clean
 ```
 
@@ -28,7 +28,7 @@ npm run dump:canonical                # regenerates production/canonical-dump.js
 npm run validate:journey-production   # asserts production/ artifacts against frozen baselines
 npm run validate:seo                  # title/description corpus + cannibalization clustering
 
-node scripts/validate-public-scope.mjs # 15 checks: the 52/21 partition, channel taxonomy, search
+node scripts/validate-public-scope.mjs # 15 checks: the 69/21 partition, channel taxonomy, search
                                       # and surface artifacts free of excluded ids, no renderer
                                       # hack, every journey terminal, every wait bounded
 
@@ -48,7 +48,8 @@ rule reaches the page:
 
 ```bash
 node audit/guard-display.mjs 4511     # G1 exits drawn · G2 handoffs drawn · G3 condition branches
-                                      # kept · G4 canonical hashes unchanged
+                                      # kept · G4 canonical hashes unchanged · G5 some ending is
+                                      # drawn · G6 a hidden condition matches the one gate shape
 node audit/canvas-hygiene.mjs 4511    # no config key · no sequence number · no namespaced id ·
                                       # no silent message card, on every card in both locales
 node audit/measure-display.mjs after 4511   # display node counts, long cards, LOCALE LEAKS
@@ -134,7 +135,7 @@ field) and its own `src/app/tr/blog/[slug]/page.tsx` route.
 `src/canonical/` is **hand-authored TypeScript**: `types.ts` plus 26 flat domain files, each
 exporting exactly `<DOMAIN>_JOURNEYS` and `<DOMAIN>_RULES`, aggregated by `index.ts`. A journey
 is a **graph, not a sequence** — an `entry` node plus nodes that name their own successors.
-Currently 286 journeys / 3732 nodes / 8 merged (retired) ids.
+Currently 303 journeys / 3959 nodes / 8 merged (retired) ids.
 
 **vNext (Customer Journeys).** Every customer-surface journey carries the vNext contract
 (`eligibility`, `suppressions`, `implementation`, `measurement`, `discovery`; communicating ones
@@ -153,7 +154,7 @@ See `JOURNEY_VNEXT_ARCHITECTURE.md`, `ARCHITECTURE_PATCH_0_5.md` and `VNEXT_MIGR
 Data flows **`src/canonical/index.ts` → `src/lib/canonical-view.ts` → pages**. That adapter is the
 only bridge and it is **server-only**: `JOURNEY_ROWS` and the preview thumbnails are computed
 once at module load. Importing `@/canonical` or `@/lib/canonical-view` from a `"use client"`
-file ships all 286 journey graphs (3732 nodes) to the browser — client components take shaped props and import
+file ships all 303 journey graphs (3959 nodes) to the browser — client components take shaped props and import
 only *types*. The canvas layout engine is ELK (`elkjs`, `src/lib/journey-canvas-layout.ts`):
 asynchronous and server-only - `layoutJourneyCanvas()` runs in async server components and
 the client `JourneyCanvas` takes the finished `layout` as a prop; `canonical-view.ts` awaits
@@ -181,7 +182,7 @@ are public but are silent lifecycle states, not library journeys.
 **The public site projects THREE of the four surfaces (since 2026-09-05).** The Operational
 Workflows surface (`/lab/operational-workflows`, 124 journeys) was removed from the public
 website and archived under `archive/operational-workflows/` — read its README before touching
-anything surface-related. The canonical graph is UNCHANGED (286 journeys; `validate:canonical`
+anything surface-related. The canonical graph's operational half is UNCHANGED (`validate:canonical`
 still reports `operational 124`) because 54 public journeys hand off into operational ones (78 handoff
 edges to 23 targets; 67 public journeys reference 41 of them once `distinctFrom` rows are counted) and
 the validator requires every handoff target to exist. The archive is enforced at the publishing
@@ -190,21 +191,22 @@ boundary by one predicate, `src/lib/public-corpus.ts` (`isPublicJourney` = surfa
 survivor is archived are not public routes), the sitemap, and every cross-journey `href` the
 detail pages build all read it.
 
-**The library's stated size is 52 journeys / 18 categories** (product decision, 2026-09-20 —
-`audit/public-journey-scope.md`). This is a SECOND gate stacked on the Operational Workflows
+**The library's stated size is 69 journeys / 18 categories** (product decision, 2026-09-20 —
+`audit/public-journey-scope.md`; the seventeen additions of Phases 25–33 took it 52 → 69,
+id map in `audit/new-journey-id-map.md`, per-batch notes in `audit/batch-{b,c,d}-notes.md`). This is a SECOND gate stacked on the Operational Workflows
 archive, and it is a different KIND of gate: the archive is a rule (`surface !== operational`)
 because it follows from facts a journey states about itself, while these 21 are excluded because
 of what the product is for. So `EXCLUDED_FROM_PUBLIC` is an explicit id list in
 `public-corpus.ts`, asserted at module load against the derived library — a canonical edit that
 moves a journey across the surface line fails the build with the ids named rather than quietly
-publishing 51 or 53.
+publishing 68 or 70.
 `LIBRARY_JOURNEYS` (`public-corpus.ts`, `isLibraryJourney` = public AND customer AND sends-or-routes-
 to-a-person) feeds `LIBRARY_COUNT`/`LIBRARY_CATEGORY_COUNT`/`LIBRARY_ROWS` in `canonical-view.ts`,
 `withLibraryCount()` (the only `{count}`/`{categories}` filler — it THROWS on a `{rules}` token; no
 public page states a rule count), and `journey-marketing.ts`'s `JOURNEY_SCALE`/category counts. The
-141 public journeys are still routed, and the two supporting surfaces state their own counts on their
+158 public journeys are still routed, and the two supporting surfaces state their own counts on their
 own pages (64 lifecycle states, 25 runtime mechanisms) — but a headline, project card, metadata
-description or stat strip that says "the library" means 52/18. Never type a corpus number into copy;
+description or stat strip that says "the library" means 69/18. Never type a corpus number into copy;
 `lab.page.intro` is a template shipped as a client prop and is not rendered by the gallery.
 A handoff into an archived journey renders as the target's name in text, never a link.
 `search/build-search-index.mjs` applies the same rule through `production/surface-assignment.json`.
@@ -264,15 +266,17 @@ Hand-authored: everything in `src/`, every contract JSON in `seo/` and `search/`
 validators themselves. `archive/` is preserved-but-retired repository content (currently the
 Operational Workflows corpus): a verbatim export plus the removed route shells, taxonomy and copy,
 with a README explaining structure and restoration. Nothing in the build imports from it. Several validators and the search index generator **hardcode corpus
-counts** (`211` ab-tests, `286` journeys, `3732` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
-adding a record fails them until those constants are updated in lockstep. Those `286`/`8` are the
+counts** (`211` ab-tests, `303` journeys, `3959` nodes, `8` merged ids, `43` calculators, `5` blog posts,
+and `seo/seo-validator.mjs` check 18's journey view-model length), so
+adding a record fails them until those constants are updated in lockstep. Those `303`/`8` are the
 CANONICAL corpus and stay correct after the Operational Workflows archive; the PUBLIC corpus is
-141 routed journeys / 5 public merged redirects, and the stated LIBRARY is 52 journeys / 18
-categories. The 52 is the one number here that is NOT derived — it is the id list above — but it is
+158 routed journeys / 5 public merged redirects, and the stated LIBRARY is 69 journeys / 18
+categories. The 69 is the one number here that is NOT derived — it is the id list above — but it is
 never typed into copy either: pages read `LIBRARY_COUNT`, and the list and the derived library are
-asserted equal at module load. `search/build-search-index.mjs` derives the same 52/18 for the
-library's lab-product card from `production/surface-assignment.json`, whose rows now carry
-`excludedFromPublic` so every plain-Node script drops the same 21. `build-search-index.mjs`
+asserted equal at module load. `search/build-search-index.mjs` derives the same 69/18 for the
+library's lab-product card from `production/surface-assignment.json`, whose rows carry
+`excludedFromPublic` so every plain-Node script drops the same 21. That flag has to be in the
+filter: leaving it out is how the card came to advertise 82/21 on a public page. `build-search-index.mjs`
 also duplicates the goal taxonomy from `src/lib/journey-taxonomy.ts` by hand — plain Node cannot
 resolve the `@/` alias, and the copy must be kept in sync manually.
 

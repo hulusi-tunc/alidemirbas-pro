@@ -235,7 +235,7 @@
       "cross-journey-handoff",
       "competition"
     ],
-    "complexityTier": "extreme",
+    "complexityTier": "complex",
     "isMergedAlias": false,
     "resolvesTo": null
   },

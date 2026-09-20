@@ -37,14 +37,21 @@ import type { CanonicalJourney } from "@/canonical/types";
 
 export const ARCHIVED_SURFACE = "operational" as const;
 
-/* THE 58-JOURNEY PUBLIC LIBRARY (2026-09-20, product decision).
+/* THE 69-JOURNEY PUBLIC LIBRARY (2026-09-20, product decision).
 
    Batch A of the commerce / post-purchase additions - ACQ-289, RET-290,
    FUL-291, RET-292, RET-293 and RET-294 - raised this from 52/73 to 58/79.
-   The id allocation and its reasoning are audit/new-journey-id-map.md.
+   Batch B of the loyalty / relationship additions - RET-295, SUB-296,
+   SUB-297, SUB-298 and SUB-299 - took it to 63/84. Batch D of the
+   scheduling / service additions - SCH-303, SCH-304 and REM-305 - took it to
+   66/87, and Batch C of the hygiene / transaction additions - CON-300,
+   FUL-301 and FIN-302 - completes the seventeen at 69/90.
+
+   The id allocation and its reasoning are audit/new-journey-id-map.md; each
+   batch's ownership boundaries and touch counts are audit/batch-<x>-notes.md.
 
    A second, later scope decision sits on top of the Operational Workflows
-   archive above: of the 79 journeys in the library surface, 58 are the public
+   archive above: of the 90 journeys in the library surface, 69 are the public
    product and 21 are not. The decision and its reasoning are written down in
    audit/public-journey-scope.md; this is where code reads it. It was taken as
    It briefly ran at 51/22 - see audit/public-scope-validation.md for why, and
@@ -78,8 +85,8 @@ export const EXCLUDED_FROM_PUBLIC: ReadonlySet<string> = new Set([
   "FUL-276", "REM-152", "SCH-180", "DEC-184", "DEC-267", "DOC-220", "DOC-286",
 ]);
 
-/** The 58, listed in full so the decision is readable at its own definition
-    rather than only as "79 minus 21". Asserted against the derived library
+/** The 69, listed in full so the decision is readable at its own definition
+    rather than only as "90 minus 21". Asserted against the derived library
     below - the two can never drift apart without failing the build. */
 export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Acquisition, intent & qualification - 8
@@ -87,19 +94,21 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "ACQ-289",
   // Activation, onboarding & early value - 7
   "ACT-12", "ACT-13", "ACT-14", "ACT-17", "ACT-18", "ACT-19", "ACT-20",
-  // Engagement, retention & contactability - 11
+  // Engagement, retention & contactability - 13
   "RET-24", "RET-26", "RET-28", "RET-30", "RET-31", "RET-32", "CON-272",
-  "RET-290", "RET-292", "RET-293", "RET-294",
+  "RET-290", "RET-292", "RET-293", "RET-294", "RET-295", "CON-300",
   // Feedback, advocacy & relationship signals - 4
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",
   // Time, deadlines, expiry & temporary states - 5
   "TIM-61", "TIM-63", "TIM-268", "TIM-274", "TIM-281",
   // Access, identity & relationship - 5
   "ACC-261", "ACC-263", "IDN-84", "IDN-271", "REL-284",
-  // Transactions, fulfillment & remedies - 7
-  "FIN-134", "FUL-146", "FUL-148", "FUL-265", "FUL-291", "REM-151", "REM-157",
-  // Subscriptions & scheduling - 6
-  "SCH-266", "SCH-277", "SCH-280", "SCH-282", "SUB-163", "SUB-262",
+  // Transactions, fulfillment & remedies - 10
+  "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291", "FUL-301",
+  "REM-151", "REM-157", "REM-305",
+  // Subscriptions & scheduling - 12
+  "SCH-266", "SCH-277", "SCH-280", "SCH-282", "SCH-303", "SCH-304", "SUB-163",
+  "SUB-262", "SUB-296", "SUB-297", "SUB-298", "SUB-299",
   // Risk, documents, rollout & incidents - 5
   "DOC-214", "DOC-215", "INC-254", "RLT-279", "RSK-273",
 ]);
@@ -144,12 +153,12 @@ export const LIBRARY_JOURNEYS: readonly CanonicalJourney[] = PUBLIC_JOURNEYS.fil
 
 /* THE SCOPE ASSERTION. `PUBLIC_LIBRARY_IDS` is the product decision;
    `LIBRARY_JOURNEYS` is what the surface rule plus the exclusion list actually
-   produce. They must be the same 58 ids. Checked at module load, in the
+   produce. They must be the same 69 ids. Checked at module load, in the
    server-only module every public projection already imports, so a canonical
    edit that changes a journey's surface - adding a communication action to a
    silent lifecycle state, say, or removing the last one from a library
    journey - fails the build with the offending ids named, instead of quietly
-   publishing 59 journeys or 57. Same discipline as journey-marketing.ts's own
+   publishing 70 journeys or 68. Same discipline as journey-marketing.ts's own
    throw on a missing showcase id. */
 {
   const derived = new Set(LIBRARY_JOURNEYS.map((j) => j.id));
@@ -157,7 +166,7 @@ export const LIBRARY_JOURNEYS: readonly CanonicalJourney[] = PUBLIC_JOURNEYS.fil
   const unexpected = [...derived].filter((id) => !PUBLIC_LIBRARY_IDS.has(id));
   if (missing.length || unexpected.length) {
     throw new Error(
-      `public library scope drift (audit/public-journey-scope.md says 58): ` +
+      `public library scope drift (audit/public-journey-scope.md says 69): ` +
         `${derived.size} derived` +
         (missing.length ? ` · decided-but-not-derived: ${missing.join(", ")}` : "") +
         (unexpected.length ? ` · derived-but-not-decided: ${unexpected.join(", ")}` : ""),

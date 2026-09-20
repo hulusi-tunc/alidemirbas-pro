@@ -1029,7 +1029,8 @@
     "primaryStructure": "self-contained",
     "behaviors": [
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "simple",
     "complexityScore": 36,
@@ -1050,12 +1051,36 @@
     "behaviors": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "medium",
     "complexityScore": 42,
     "nodeCount": 11,
     "edgeCount": 12,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "CON-300",
+    "slug": "unengaged-sunset",
+    "category": "consent",
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "extreme",
+    "complexityScore": 88,
+    "nodeCount": 21,
+    "edgeCount": 30,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -2451,6 +2476,26 @@
     "productionReady": true
   },
   {
+    "id": "FIN-302",
+    "slug": "refund-notification",
+    "category": "financial",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "complexityTier": "medium",
+    "complexityScore": 49,
+    "nodeCount": 15,
+    "edgeCount": 16,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
     "id": "FUL-141",
     "slug": "fulfillment-request-acceptance",
     "category": "fulfillment",
@@ -2716,6 +2761,28 @@
     "complexityScore": 33,
     "nodeCount": 10,
     "edgeCount": 10,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "FUL-301",
+    "slug": "order-confirmation",
+    "category": "fulfillment",
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "simple",
+    "complexityScore": 40,
+    "nodeCount": 11,
+    "edgeCount": 13,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -4101,7 +4168,8 @@
     "primaryStructure": "mixed-termination",
     "behaviors": [
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "simple",
     "complexityScore": 35,
@@ -4226,7 +4294,8 @@
     "behaviors": [
       "backward-edge",
       "wait-timeout",
-      "cross-journey-handoff"
+      "cross-journey-handoff",
+      "competition"
     ],
     "complexityTier": "medium",
     "complexityScore": 52,
@@ -4293,6 +4362,29 @@
     "complexityScore": 39,
     "nodeCount": 11,
     "edgeCount": 14,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "REM-305",
+    "slug": "support-request-acknowledgement",
+    "category": "remedy",
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "extreme",
+    "complexityScore": 76,
+    "nodeCount": 20,
+    "edgeCount": 24,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -4436,7 +4528,7 @@
       "cross-journey-handoff",
       "competition"
     ],
-    "complexityTier": "extreme",
+    "complexityTier": "complex",
     "complexityScore": 66,
     "nodeCount": 16,
     "edgeCount": 22,
@@ -4495,7 +4587,8 @@
     "category": "retention",
     "primaryStructure": "self-contained",
     "behaviors": [
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "simple",
     "complexityScore": 21,
@@ -4545,6 +4638,26 @@
     "complexityScore": 59,
     "nodeCount": 15,
     "edgeCount": 18,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "RET-295",
+    "slug": "milestone-recognition",
+    "category": "retention",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "simple",
+    "complexityScore": 27,
+    "nodeCount": 8,
+    "edgeCount": 8,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -5308,7 +5421,8 @@
     "behaviors": [
       "backward-edge",
       "wait-timeout",
-      "cross-journey-handoff"
+      "cross-journey-handoff",
+      "competition"
     ],
     "complexityTier": "complex",
     "complexityScore": 56,
@@ -5330,7 +5444,8 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "medium",
     "complexityScore": 49,
@@ -5380,6 +5495,51 @@
     "complexityScore": 53,
     "nodeCount": 15,
     "edgeCount": 17,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "SCH-303",
+    "slug": "reservation-payment-reminder",
+    "category": "scheduling",
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "extreme",
+    "complexityScore": 87,
+    "nodeCount": 18,
+    "edgeCount": 26,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "SCH-304",
+    "slug": "pre-arrival-preparation",
+    "category": "scheduling",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "extreme",
+    "complexityScore": 91,
+    "nodeCount": 20,
+    "edgeCount": 27,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -5611,6 +5771,91 @@
     "complexityTier": "simple",
     "complexityScore": 38,
     "nodeCount": 10,
+    "edgeCount": 12,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "SUB-296",
+    "slug": "loyalty-welcome",
+    "category": "subscription",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "medium",
+    "complexityScore": 50,
+    "nodeCount": 13,
+    "edgeCount": 15,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "SUB-297",
+    "slug": "loyalty-nurture",
+    "category": "subscription",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "medium",
+    "complexityScore": 50,
+    "nodeCount": 13,
+    "edgeCount": 15,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "SUB-298",
+    "slug": "reward-confirmation",
+    "category": "subscription",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "simple",
+    "complexityScore": 21,
+    "nodeCount": 7,
+    "edgeCount": 6,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "SUB-299",
+    "slug": "loyalty-tier-change",
+    "category": "subscription",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "simple",
+    "complexityScore": 39,
+    "nodeCount": 11,
     "edgeCount": 12,
     "hasTrueCycle": false,
     "semanticReady": true,

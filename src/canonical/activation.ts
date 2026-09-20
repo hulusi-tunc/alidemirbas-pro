@@ -385,6 +385,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "This one advances a path already chosen; ACT-19 is what chooses it. They share an account and a trigger condition - onboarding_active_without_activation is true for both, and stays true for the whole of ACT-19's answer wait - so while a personalization question is outstanding this journey holds its prompts (s.personalizing) rather than pushing the generic next step over the answer that would re-route it.",
       },
+      {
+        journey: "SUB-296",
+        because:
+          "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person.",
+      },
     ],
     entity: {
       scope: "person or account plus the onboarding instance",

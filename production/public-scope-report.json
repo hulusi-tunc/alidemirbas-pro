@@ -1,8 +1,8 @@
 {
-  "generated": "2026-09-20T21:44:41.332Z",
-  "publicCount": 58,
+  "generated": "2026-09-20T22:50:31.620Z",
+  "publicCount": 69,
   "excludedCount": 21,
-  "sourceCorpus": 79,
+  "sourceCorpus": 90,
   "checks": 15,
   "failures": [],
   "warnings": [
@@ -16,7 +16,7 @@
     },
     {
       "label": "handoffs into non-public journeys render as text, not links",
-      "detail": "50: ACQ-09.h.progressed -> ACQ-03; ACT-12.h.activated -> ACT-16; ACT-13.h.reroute -> ACT-11; ACT-14.h.activated -> ACT-16; ACT-20.h.intent -> ACQ-03; ACT-20.h.qualify -> ACQ-05; RET-24.h.resolve-first -> RET-23; RET-26.h.compensation -> REM-159; RET-28.h.execute -> SUB-167; RET-30.h.observe -> RET-27; RET-30.h.proceed -> SUB-167; FBK-42.h.permission -> CON-31; FBK-43.h.issue -> FBK-46; FBK-43.h.triage -> DEC-181; FBK-43.h.promise -> DEC-181; TIM-61.h.overdue -> TIM-62; TIM-61.h.escalate -> OWN-55; TIM-61.h.expired -> TIM-64; TIM-63.h.expiry -> TIM-64; ACC-261.h.unreachable -> CON-36; IDN-84.h.escalate -> OWN-55; IDN-84.h.review -> DEC-181; IDN-271.h.recovery -> IDN-88; FIN-134.h.grace -> TIM-65; FIN-134.h.overdue -> TIM-62; FIN-134.h.restrict -> ACC-78; FUL-146.h.resume -> FUL-144; FUL-146.h.exception -> FUL-145; FUL-146.h.cancel -> FUL-150; FUL-146.h.escalate -> OWN-55; FUL-148.h.retry -> FUL-147; FUL-148.h.exception -> FUL-145; FUL-265.h.issue -> FUL-149; REM-157.h.correction -> REM-156; REM-157.h.replacement -> REM-155; REM-157.h.return -> REM-152; REM-157.h.financial -> FIN-137; SCH-266.h.at-risk -> SCH-174; SCH-266.h.prestart -> SCH-177; SCH-277.h.rebook -> SCH-173; SCH-280.h.provider -> SCH-180; SUB-163.h.undefined -> DEC-181; SUB-163.h.escalate -> OWN-55; SUB-163.h.execute -> SUB-164; SUB-163.h.scheduled-end -> SUB-168; SUB-262.h.obligations -> SUB-170; DOC-214.h.recover -> CMS-208; DOC-215.h.effective -> DOC-216; RLT-279.h.resume -> RLT-242; RSK-273.h.capacity -> SUB-166"
+      "detail": "54: ACQ-09.h.progressed -> ACQ-03; ACT-12.h.activated -> ACT-16; ACT-13.h.reroute -> ACT-11; ACT-14.h.activated -> ACT-16; ACT-20.h.intent -> ACQ-03; ACT-20.h.qualify -> ACQ-05; RET-24.h.resolve-first -> RET-23; RET-26.h.compensation -> REM-159; RET-28.h.execute -> SUB-167; RET-30.h.observe -> RET-27; RET-30.h.proceed -> SUB-167; CON-300.h.enforce -> CON-38; CON-300.h.frequency -> CON-283; CON-300.h.permission -> CON-35; FBK-42.h.permission -> CON-31; FBK-43.h.issue -> FBK-46; FBK-43.h.triage -> DEC-181; FBK-43.h.promise -> DEC-181; TIM-61.h.overdue -> TIM-62; TIM-61.h.escalate -> OWN-55; TIM-61.h.expired -> TIM-64; TIM-63.h.expiry -> TIM-64; ACC-261.h.unreachable -> CON-36; IDN-84.h.escalate -> OWN-55; IDN-84.h.review -> DEC-181; IDN-271.h.recovery -> IDN-88; FIN-134.h.grace -> TIM-65; FIN-134.h.overdue -> TIM-62; FIN-134.h.restrict -> ACC-78; FUL-146.h.resume -> FUL-144; FUL-146.h.exception -> FUL-145; FUL-146.h.cancel -> FUL-150; FUL-146.h.escalate -> OWN-55; FUL-148.h.retry -> FUL-147; FUL-148.h.exception -> FUL-145; FUL-265.h.issue -> FUL-149; FUL-301.h.cancelled -> FUL-150; REM-157.h.correction -> REM-156; REM-157.h.replacement -> REM-155; REM-157.h.return -> REM-152; REM-157.h.financial -> FIN-137; SCH-266.h.at-risk -> SCH-174; SCH-266.h.prestart -> SCH-177; SCH-277.h.rebook -> SCH-173; SCH-280.h.provider -> SCH-180; SUB-163.h.undefined -> DEC-181; SUB-163.h.escalate -> OWN-55; SUB-163.h.execute -> SUB-164; SUB-163.h.scheduled-end -> SUB-168; SUB-262.h.obligations -> SUB-170; DOC-214.h.recover -> CMS-208; DOC-215.h.effective -> DOC-216; RLT-279.h.resume -> RLT-242; RSK-273.h.capacity -> SUB-166"
     }
   ]
 }

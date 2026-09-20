@@ -3,7 +3,11 @@
   "summary": {
     "pass": 32,
     "fail": 2,
-    "totalDocuments": 403
+<<<<<<< HEAD
+    "totalDocuments": 393
+=======
+    "totalDocuments": 391
+>>>>>>> worktree-agent-aa6230778288639c9
   },
   "failures": [
     "30. search fixture queries pass (excluding disclosed known gaps - see run-query-fixtures.mjs) — 9 failure(s): MDE, CTOR, checkout, click through rate, cost per lead",

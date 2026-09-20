@@ -26,9 +26,12 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import puppeteer from "puppeteer-core";
+import { assertServerBuild } from "./assert-build.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const PORT = process.argv[2] ?? "4511";
+/* Refuse to report numbers measured against a build we did not make. */
+await assertServerBuild(PORT);
 const dump = JSON.parse(fs.readFileSync(ROOT + "production/canonical-dump.json", "utf8"));
 const manifest = JSON.parse(fs.readFileSync(ROOT + "audit/manifest.json", "utf8"));
 const baseline = JSON.parse(fs.readFileSync(ROOT + "audit/canonical-baseline.json", "utf8"));

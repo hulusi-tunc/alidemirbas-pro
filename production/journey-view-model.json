@@ -9961,6 +9961,10 @@
         {
           "journey": "ACT-19",
           "because": "This one advances a path already chosen; ACT-19 is what chooses it. They share an account and a trigger condition - onboarding_active_without_activation is true for both, and stays true for the whole of ACT-19's answer wait - so while a personalization question is outstanding this journey holds its prompts (s.personalizing) rather than pushing the generic next step over the answer that would re-route it."
+        },
+        {
+          "journey": "SUB-296",
+          "because": "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person."
         }
       ],
       "competition": null,
@@ -16775,6 +16779,10 @@
         {
           "journey": "CON-39",
           "because": "A cooldown is one reason among the nine this journey holds. It has its own journey because its release is time-based and its scope is deliberately partial, which the general mechanism does not assume."
+        },
+        {
+          "journey": "CON-300",
+          "because": "CON-300 decides that continued marketing contact is no longer warranted and hands the result here. What it produces is the sender-side kind of suppression this journey keeps apart from a permission the person withdrew: it is recorded against our own sending, it is scoped to commercial communication, and this journey releases it by asking for permission again rather than by switching sending back on."
         }
       ],
       "competition": null,
@@ -17920,6 +17928,10 @@
         {
           "journey": "CON-264",
           "because": "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart."
+        },
+        {
+          "journey": "CON-300",
+          "because": "CON-300 decides whether a working route should keep being used at all, which is a permission question. This journey is about a route that has stopped working, which is a technical one - and a broken destination is a common reason nothing was engaged with, which is why this journey takes precedence in the contactability-question group and CON-300 stands down while a repair is open."
         }
       ],
       "competition": null,
@@ -17948,7 +17960,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 11,
       "edgeCount": 11,
       "branchNodeCount": 2,
@@ -17961,7 +17973,8 @@
       "primaryStructure": "self-contained",
       "behaviors": [
         "wait-timeout",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "simple",
       "complexityScore": 36
@@ -18196,6 +18209,10 @@
         {
           "journey": "CON-38",
           "because": "CON-38 records a stop and decides when it releases. A reduction is not a stop, and recording the two as the same state loses exactly the relationship the person was trying to keep."
+        },
+        {
+          "journey": "CON-300",
+          "because": "CON-300 puts the choice in front of somebody who has chosen nothing, and hands the reduction here the moment they take it. This journey never asks - it confirms a cadence the person set themselves, which is why it outranks CON-300 in the contactability-question group: somebody who has just answered is not asked again."
         }
       ],
       "competition": null,
@@ -18223,7 +18240,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 11,
       "edgeCount": 12,
       "branchNodeCount": 3,
@@ -18237,10 +18254,546 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 42
+    }
+  },
+  {
+    "identity": {
+      "id": "CON-300",
+      "slug": "unengaged-sunset",
+      "category": "consent",
+      "categoryTitle": "Consent, preferences, communication & contactability",
+      "title": "Marketing contact unanswered → the question put once → kept, reduced or ended",
+      "purpose": "Decide whether continued marketing contact is still warranted for somebody who has answered none of it - by asking them once, putting fewer beside none as a real answer, and ending marketing contact where no answer ever comes."
+    },
+    "entry": {
+      "trigger": "Marketing contact unanswered across window",
+      "triggerEvidenceClass": "behavioral",
+      "requires": [
+        "an authoritative record of the marketing sends actually made to this person across the company's unengaged window",
+        "confirmation that those sends ran on a route whose engagement the company can observe",
+        "no recorded engagement with any of them inside that window, and a purpose-level permission for commercial communication that still stands"
+      ],
+      "insufficientAlone": [
+        "a period without a purchase - that is a lapse, and the lapsed-customer win-back owns it",
+        "a single message that went unanswered",
+        "silence on a route that cannot report engagement at all, which is an absence of measurement rather than an absence of interest",
+        "a window in which nothing was actually sent to this person",
+        "an opt-out already recorded, which is an answer rather than a question"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.unengaged",
+          "kind": "trigger",
+          "headline": "Marketing contact unanswered across window",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.evidence",
+          "kind": "condition",
+          "headline": "Does the record actually support the conclusion that marketing contact is unwanted?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the question go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.ask",
+          "kind": "action",
+          "headline": "Ask once whether marketing contact should continue, and set a reduced cadence beside stopping altogether so that fewer is an answer the person can actually give. Carry no offer, no incentive and no argument for the relationship.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.answer",
+          "kind": "wait",
+          "headline": "until marketing_engagement_recorded, or frequency_preference_changed, or permission_withdrawn",
+          "detail": "timeout after {'key': 'unengaged_sunset.answer_window', 'rule': 'The period the question is given to be answered before a final notice is due.', 'class': 'response-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.answered",
+          "kind": "condition",
+          "headline": "Did the question get an answer?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2",
+          "kind": "condition",
+          "headline": "May the final notice go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.final",
+          "kind": "action",
+          "headline": "Give one final notice: the date marketing contact will end, the single action that keeps it, and the reduced cadence as the answer in between. Nothing is added to argue for the relationship and nothing is claimed about what else changes.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.final",
+          "kind": "wait",
+          "headline": "until marketing_engagement_recorded, or frequency_preference_changed, or permission_withdrawn",
+          "detail": "timeout after {'key': 'unengaged_sunset.notice_period', 'rule': 'The notice period named in the final notice, which has to arrive for the notice to have meant anything.', 'class': 'response-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.final",
+          "kind": "condition",
+          "headline": "What did the notice period end in?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.suppress",
+          "kind": "action",
+          "headline": "Record a sender-side suppression of marketing contact for this person, scoped to commercial communication and to nothing else, with the reason, the window it was read from and the condition that would release it. The person's own permission record is left exactly as it was: silence is not an opt-out, and writing one here would put a decision on their record that they never made.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.notify",
+          "kind": "condition",
+          "headline": "Can the ending be confirmed to the person?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.confirm-end",
+          "kind": "action",
+          "headline": "Confirm that marketing contact has ended, name what continues because it was never marketing - anything the person holds, owes or is owed - and leave the route back for whenever they want it. This is a notice about our own sending and says so, rather than thanking them or asking again.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "h.enforce",
+          "kind": "handoff",
+          "headline": "Communication suppression → reason → release or persist",
+          "detail": "marketing contact ended for this person, with the suppression now needing to be held, scoped and released by the mechanism that owns suppression states",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "h.frequency",
+          "kind": "handoff",
+          "headline": "Frequency reduced → cadence recalculated → kept rather than lost",
+          "detail": "a reduced cadence chosen instead of an ending",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "h.permission",
+          "kind": "handoff",
+          "headline": "Consent or permission change → immediate enforcement → propagate",
+          "detail": "the person withdrawing permission for commercial communication themselves",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why the question was not asked and against which window, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.kept",
+          "kind": "exit",
+          "headline": "kept; the person answered and marketing contact continues unchanged",
+          "detail": "a later unengaged window is read on its own evidence, after the cooldown",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.answered",
+          "kind": "exit",
+          "headline": "closed without asking; the person had already answered the question themselves",
+          "detail": "a later unengaged window opens its own instance, read from the sends made after the answer",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.ended",
+          "kind": "exit",
+          "headline": "marketing contact ended; the suppression is recorded and no route remained to confirm it on",
+          "detail": "permission given afresh releases the suppression; nothing inside this journey reopens it",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no question asked; the reason is recorded",
+          "detail": "the next unengaged window is evaluated on its own gates",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.unengaged",
+          "to": "c.evidence",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.evidence",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Supported",
+          "when": "sends were made inside the window on a route that reports engagement, none of them was engaged with, and permission for commercial communication still stands"
+        },
+        {
+          "from": "c.evidence",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Nothing to read",
+          "when": "nothing was sent inside the window, or the route it was sent on cannot report engagement; there is no silence here to draw a conclusion from"
+        },
+        {
+          "from": "c.evidence",
+          "to": "x.answered",
+          "family": "branch",
+          "label": "Already answered",
+          "when": "the person set a preference or made a permission decision of their own inside the window"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.ask",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for this purpose, a deliverable destination, the service pressure cap, no cooldown in force, and no higher-precedence contactability journey currently holds this person"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason and nothing is forced onto another route"
+        },
+        {
+          "from": "a.ask",
+          "to": "w.answer",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.answer",
+          "to": "c.answered",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "marketing_engagement_recorded, frequency_preference_changed, permission_withdrawn"
+        },
+        {
+          "from": "w.answer",
+          "to": "c.answered",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a question left open indefinitely is a person kept on a list by inertia, which is the state this journey exists to end"
+        },
+        {
+          "from": "c.answered",
+          "to": "x.kept",
+          "family": "branch",
+          "label": "Keep it",
+          "when": "a recorded engagement with marketing communication is on file for this person inside the window, or they asked to keep hearing from us"
+        },
+        {
+          "from": "c.answered",
+          "to": "h.frequency",
+          "family": "branch",
+          "label": "Fewer instead",
+          "when": "the person set a reduced cadence rather than an ending"
+        },
+        {
+          "from": "c.answered",
+          "to": "h.permission",
+          "family": "branch",
+          "label": "Stop it",
+          "when": "the person withdrew permission for commercial communication themselves"
+        },
+        {
+          "from": "c.answered",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "No answer",
+          "when": "the window closed with nothing recorded against it"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.final",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes and no higher-precedence contactability journey currently holds this person"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.suppress",
+          "family": "branch",
+          "label": "No route left",
+          "when": "no permitted, deliverable destination remains for this purpose; there is nobody left to give notice to and the reason is recorded"
+        },
+        {
+          "from": "a.final",
+          "to": "w.final",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.final",
+          "to": "c.final",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "marketing_engagement_recorded, frequency_preference_changed, permission_withdrawn"
+        },
+        {
+          "from": "w.final",
+          "to": "c.final",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a stated ending date that passes without the ending happening teaches the person that nothing we say about their preferences is load-bearing"
+        },
+        {
+          "from": "c.final",
+          "to": "x.kept",
+          "family": "backward",
+          "label": "Keep it",
+          "when": "a recorded engagement with marketing communication is on file for this person inside the notice period, or they asked to keep hearing from us"
+        },
+        {
+          "from": "c.final",
+          "to": "h.frequency",
+          "family": "backward",
+          "label": "Fewer instead",
+          "when": "the person set a reduced cadence rather than an ending"
+        },
+        {
+          "from": "c.final",
+          "to": "h.permission",
+          "family": "backward",
+          "label": "Stop it",
+          "when": "the person withdrew permission for commercial communication themselves"
+        },
+        {
+          "from": "c.final",
+          "to": "a.suppress",
+          "family": "backward",
+          "label": "Ended by silence",
+          "when": "the notice period closed with nothing recorded against it"
+        },
+        {
+          "from": "a.suppress",
+          "to": "c.notify",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.notify",
+          "to": "a.confirm-end",
+          "family": "branch",
+          "label": "Confirm it",
+          "when": "a permitted, deliverable destination remains for a service notice of this kind"
+        },
+        {
+          "from": "c.notify",
+          "to": "x.ended",
+          "family": "branch",
+          "label": "Nothing to confirm on",
+          "when": "no route to this person remains; the suppression stands and is recorded without a notice"
+        },
+        {
+          "from": "a.confirm-end",
+          "to": "h.enforce",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "h.enforce",
+          "to": "CON-38",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "marketing contact ended for this person, with the suppression now needing to be held, scoped and released by the mechanism that owns suppression states"
+        },
+        {
+          "from": "h.frequency",
+          "to": "CON-283",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "a reduced cadence chosen instead of an ending"
+        },
+        {
+          "from": "h.permission",
+          "to": "CON-35",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "the person withdrawing permission for commercial communication themselves"
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.unengaged",
+      "terminalNodes": [
+        "h.enforce",
+        "h.frequency",
+        "h.permission",
+        "x.kept",
+        "x.answered",
+        "x.ended",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        18,
+        19,
+        20,
+        21
+      ],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        18,
+        19,
+        20,
+        21,
+        23,
+        24
+      ],
+      "handoffEdgeIds": [
+        26,
+        27,
+        28
+      ],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [
+        {
+          "to": "CON-38",
+          "isExternal": false
+        },
+        {
+          "to": "CON-283",
+          "isExternal": false
+        },
+        {
+          "to": "CON-35",
+          "isExternal": false
+        }
+      ],
+      "distinctFrom": [
+        {
+          "journey": "RET-32",
+          "because": "RET-32 is trying to get the person back and speaks about the relationship. This journey is deciding whether we may keep speaking at all, carries no offer, and takes silence as an answer to that question rather than as a reason to try harder."
+        },
+        {
+          "journey": "CON-272",
+          "because": "CON-272 repairs a destination that broke, which is a technical fact about a route. This decides whether a route that works should keep being used, which is a permission question - and a route CON-272 is still repairing is exactly why nothing was engaged with, so this journey stands down while that one holds the person."
+        },
+        {
+          "journey": "CON-283",
+          "because": "CON-283 confirms a reduced cadence somebody chose for themselves. This journey is what puts that choice in front of somebody who has chosen nothing, and it hands the reduction to CON-283 the moment they take it."
+        },
+        {
+          "journey": "CON-38",
+          "because": "CON-38 holds, scopes and releases a suppression once it exists. This journey is the decision that one is warranted, and the suppression it produces is the sender-side kind CON-38 keeps apart from a permission the person withdrew."
+        },
+        {
+          "journey": "RET-26",
+          "because": "RET-26 reads a person's engagement with the product. This reads their engagement with our messages, and the two are routinely opposite: an active customer who ignores marketing is not dormant, and a sunset that treats them as such loses a customer to fix a list."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Silence is read only where engagement could have been observed; an unreportable route produces no conclusion.",
+        "A reduced cadence is offered before contact is ended, and taking it hands the person to the journey that owns the reduction.",
+        "What the person holds, owes or is owed is never affected - a sunset ends marketing contact and nothing else.",
+        "The ending is recorded as a sender-side suppression, never as an opt-out on the person's own consent record.",
+        "No offer, no incentive and no argument for the relationship appears in any of the touches."
+      ],
+      "reusableRule": "Deciding whether to keep contacting somebody is a separate question from whether to keep them, and it is answered by asking once, offering less before none, and recording the ending against our own sending rather than against their consent.",
+      "entityScope": "one person's marketing contactability - the permission it runs on, the sends made against it, and the unengaged window being decided",
+      "entityNote": "The entity is the standing to keep sending, not the customer. Nothing here changes what the person has bought, owes or is owed, and nothing here changes what they may be told about those things. One instance per person and unengaged window; a window that closes is decided rather than extended."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": true,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 21,
+      "edgeCount": 30,
+      "branchNodeCount": 6,
+      "backwardEdgeCount": 4,
+      "handoffCount": 3,
+      "exitCount": 4,
+      "maxDepth": 10,
+      "maxFanIn": 2,
+      "maxFanOut": 4,
+      "primaryStructure": "mixed-termination",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "cross-journey-handoff",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "extreme",
+      "complexityScore": 88
     }
   },
   {
@@ -37278,6 +37831,10 @@
         {
           "journey": "FIN-138",
           "because": "Approving a refund authorises the movement. FIN-138 performs it and confirms the money arrived, which fails independently and more often than the decision does."
+        },
+        {
+          "journey": "FIN-302",
+          "because": "This journey tells the requester the decision - approved, refused, or under review - and nothing about money moving. FIN-302 says that money is moving and whether it arrived, and it opens only once the refund has been submitted for settlement, so the two never speak about the same fact."
         }
       ],
       "competition": null,
@@ -37553,7 +38110,12 @@
           "isExternal": false
         }
       ],
-      "distinctFrom": [],
+      "distinctFrom": [
+        {
+          "journey": "FIN-302",
+          "because": "This journey moves the money and verifies it arrived, and it tells nobody - its channels are empty on purpose. FIN-302 is what the person is told about that movement, and every claim it makes is read from the record this journey writes rather than from the approval behind it."
+        }
+      ],
       "competition": null,
       "preemptedBy": []
     },
@@ -38221,6 +38783,355 @@
       ],
       "complexityTier": "medium",
       "complexityScore": 48
+    }
+  },
+  {
+    "identity": {
+      "id": "FIN-302",
+      "slug": "refund-notification",
+      "category": "financial",
+      "categoryTitle": "Transactions, payments, billing & financial outcomes",
+      "title": "Refund submitted → settlement observed → returned, partly returned or not arrived",
+      "purpose": "Tell the person that money is going back, and then whether it actually arrived - keeping the decision to refund, the movement of the money and its arrival as three facts stated at the moments each becomes true."
+    },
+    "entry": {
+      "trigger": "Refund submitted for settlement",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "an authoritative record that an approved refund has been submitted for settlement against a named original transaction",
+        "the submitted amount, and whether it is the whole of the original transaction or part of it",
+        "the person the original transaction resolves to, with the remaining refundable amount where the submission is partial"
+      ],
+      "insufficientAlone": [
+        "a refund requested but not yet decided - that decision belongs to the journey that makes it, and it is announced there",
+        "a refund approved but not yet submitted; approving authorises the movement and does not make it",
+        "a remedy agreed that has not resolved to a refund at all",
+        "an amount taken from the approval rather than from the record of what was actually submitted",
+        "a cancellation with a financial consequence, which is a decision about whether money is owed back rather than money moving"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.submitted",
+          "kind": "trigger",
+          "headline": "Refund submitted for settlement",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.scope",
+          "kind": "condition",
+          "headline": "What is actually moving, and against what?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the notice go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.issued",
+          "kind": "action",
+          "headline": "Say that money is going back: the amount submitted, whether that is the whole of the original transaction or part of it with the remaining refundable amount named separately, and that it has not arrived yet. Promise no date for the arrival - the settlement route's own timing is not ours to assert.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.outcome",
+          "kind": "wait",
+          "headline": "until refund_settlement_confirmed, or refund_settlement_failed",
+          "detail": "timeout after {'key': 'refund_notification.settlement_window', 'rule': 'The period the settlement route is given to produce an outcome before the person is told that the money has not been confirmed back.', 'class': 'external-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.outcome",
+          "kind": "condition",
+          "headline": "What does the financial record say happened to the money?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.settled",
+          "kind": "action",
+          "headline": "Confirm from the financial record that the money has been returned, and how much. Nothing is claimed about where it now sits or when it becomes visible to the person.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.partial",
+          "kind": "action",
+          "headline": "Say that part of the submitted amount has been returned, name the part that has not, and say what is happening to the remainder. A part announced as a whole leaves the person holding a question nobody can answer.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.unresolved",
+          "kind": "action",
+          "headline": "Say plainly that the money has not been confirmed back, that the movement is being reconciled rather than attempted again, and that nothing further is needed from them. Unknown is told as unknown, because a person waiting on their own money is owed the truth about it and not a reassurance.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why no notice was sent and against which refund, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.settled",
+          "kind": "exit",
+          "headline": "returned and confirmed; the money is back and the person was told so from the record",
+          "detail": "a further refund against the same transaction is its own movement and its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.partial",
+          "kind": "exit",
+          "headline": "partly returned; the amount returned and the amount still refundable were stated separately",
+          "detail": "a refund submitted against the remaining refundable amount opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.unsettled",
+          "kind": "exit",
+          "headline": "not confirmed back; the person was told it is being reconciled rather than left waiting",
+          "detail": "if the reconciliation moves money again, that submission is its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.void",
+          "kind": "exit",
+          "headline": "nothing to announce; the submission was withdrawn before anything was said about it",
+          "detail": "a resubmitted refund is its own movement and its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no notice sent; the reason is recorded",
+          "detail": "a further refund against this transaction is evaluated on its own gates",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.submitted",
+          "to": "c.scope",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.scope",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "The whole transaction",
+          "when": "the submitted amount is the whole of the original transaction and nothing remains refundable against it"
+        },
+        {
+          "from": "c.scope",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "The whole transaction",
+          "when": "the submitted amount is the whole of the original transaction and nothing remains refundable against it"
+        },
+        {
+          "from": "c.scope",
+          "to": "x.void",
+          "family": "branch",
+          "label": "Nothing is moving",
+          "when": "the submission was withdrawn or reversed before anything had been said about it"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.issued",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: a transactional purpose, a deliverable destination, hard gates clear, and no notice already recorded against this refund"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "No route",
+          "when": "no permitted, deliverable destination remains for a transactional notice of this kind; the reason is recorded rather than the notice being forced onto a route that is not permitted"
+        },
+        {
+          "from": "a.issued",
+          "to": "w.outcome",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.outcome",
+          "to": "c.outcome",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "refund_settlement_confirmed, refund_settlement_failed"
+        },
+        {
+          "from": "w.outcome",
+          "to": "c.outcome",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a refund that has neither arrived nor failed leaves somebody waiting on their own money with nobody saying anything, which is the silence this journey exists to end"
+        },
+        {
+          "from": "c.outcome",
+          "to": "a.settled",
+          "family": "branch",
+          "label": "Returned in full",
+          "when": "the record confirms the whole submitted amount was returned"
+        },
+        {
+          "from": "c.outcome",
+          "to": "a.partial",
+          "family": "branch",
+          "label": "Returned in part",
+          "when": "the record confirms part of the submitted amount was returned and names the amount still outstanding on it"
+        },
+        {
+          "from": "c.outcome",
+          "to": "a.unresolved",
+          "family": "branch",
+          "label": "Not confirmed back",
+          "when": "the record shows a failed settlement, or no outcome at all when the window closed; either way the money has not been confirmed returned"
+        },
+        {
+          "from": "a.settled",
+          "to": "x.settled",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.partial",
+          "to": "x.partial",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.unresolved",
+          "to": "x.unsettled",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.submitted",
+      "terminalNodes": [
+        "x.settled",
+        "x.partial",
+        "x.unsettled",
+        "x.void",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        9,
+        10,
+        11
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "FIN-137",
+          "because": "FIN-137 decides whether a refund is owed and tells the requester that decision - approved, refused or under review. This journey opens only once money is actually moving, and it never restates the decision behind it."
+        },
+        {
+          "journey": "FIN-138",
+          "because": "FIN-138 moves the money and verifies it arrived, and it tells nobody - its channels are empty on purpose. This journey is what the person is told about that movement, and every claim it makes is read from FIN-138's own record rather than from the approval behind it."
+        },
+        {
+          "journey": "REM-157",
+          "because": "REM-157 says which remedy would resolve the obligation, and a refund is only one of the answers it can give. This exists only where that answer was a refund and only once the refund has been submitted: a remedy confirmed is not money arrived."
+        },
+        {
+          "journey": "FIN-134",
+          "because": "FIN-134 is money that failed to come in and an obligation that stays open. This is money going back out against an obligation already discharged; the two share a payment record and nothing else."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Approved is not refunded and submitted is not settled; each message says which is true at the moment it is sent.",
+        "A partial refund is named as partial, with the amount returned and the amount still refundable stated separately.",
+        "No date is promised for the arrival - the settlement route's own timing is not the sender's to assert.",
+        "An unknown outcome is told as unknown and reconciled; nothing is re-submitted in order to have something to say.",
+        "The decision to refund is announced by the journey that made it, never here."
+      ],
+      "reusableRule": "Money going back is three separate facts - decided, submitted, arrived - and a person is told each one only at the moment it becomes true, from the record that holds it rather than from the decision that authorised it.",
+      "entityScope": "one refund in motion - the submitted refund, the original transaction it is issued against, and the person owed the money",
+      "entityNote": "The entity is the money movement, not the decision that authorised it and not the problem that produced it. One instance per refund; a further refund against the same transaction is its own movement with its own instance, which is what keeps a partial refund from being announced twice as a whole one."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": false,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": false,
+      "nodeCount": 15,
+      "edgeCount": 16,
+      "branchNodeCount": 3,
+      "backwardEdgeCount": 0,
+      "handoffCount": 0,
+      "exitCount": 5,
+      "maxDepth": 7,
+      "maxFanIn": 2,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "wait-timeout",
+        "multi-exit"
+      ],
+      "complexityTier": "medium",
+      "complexityScore": 49
     }
   },
   {
@@ -40295,7 +41206,12 @@
           "isExternal": false
         }
       ],
-      "distinctFrom": [],
+      "distinctFrom": [
+        {
+          "journey": "FUL-301",
+          "because": "FUL-301 states the original commitment once, at the moment the record opens, and then says nothing further. This journey is what happens when that commitment slips - it is measured against what the confirmation said, and it never restates the confirmation itself."
+        }
+      ],
       "competition": null,
       "preemptedBy": []
     },
@@ -41946,6 +42862,10 @@
         {
           "journey": "FUL-149",
           "because": "FUL-149 decides whether acceptance is contractually meaningful and records finalisation. This is the request for that acceptance and the deadline enforced in front of the person who owes it."
+        },
+        {
+          "journey": "FUL-301",
+          "because": "FUL-301 confirms what the record accepted at the moment it opened, and stops there. This journey begins at dispatch, which is where the order first has a position to report - it never re-confirms the order, and the confirmation never reports a position."
         }
       ],
       "competition": null,
@@ -42534,6 +43454,10 @@
         {
           "journey": "REM-151",
           "because": "REM-151 owns the order the moment a problem is raised against it. This journey ends there rather than continuing beside it."
+        },
+        {
+          "journey": "FUL-301",
+          "because": "FUL-301 opens the record and says what was taken on; this closes it and says what to do with what arrived. They sit at opposite ends of the same obligation, which is why this journey never repeats the confirmation and why the confirmation outranks it when both would speak in the same window."
         }
       ],
       "competition": null,
@@ -42579,6 +43503,313 @@
       ],
       "complexityTier": "simple",
       "complexityScore": 33
+    }
+  },
+  {
+    "identity": {
+      "id": "FUL-301",
+      "slug": "order-confirmation",
+      "category": "fulfillment",
+      "categoryTitle": "Orders, fulfillment, delivery & service completion",
+      "title": "Order accepted → what was accepted stated once → confirmed, void or handed on",
+      "purpose": "Say once, at the moment the fulfillment record opens, exactly what the business has taken on and what it has not - the question every later message about this order assumes has already been answered."
+    },
+    "entry": {
+      "trigger": "Fulfillment obligation accepted",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "an authoritative record that the fulfillment obligation was accepted, with what it covers",
+        "the declined scope and the recorded reason for it, where only part of the request was accepted",
+        "the recipient the obligation was accepted for, resolved to a person"
+      ],
+      "insufficientAlone": [
+        "a submitted request the business has not yet accepted - the request-validation journey decides that, and this one opens on its decision",
+        "a successful payment, which by itself creates an obligation to deliver nothing",
+        "a request held pending an unresolved requirement, which is not an acceptance",
+        "an acceptance recorded against a recipient who has not resolved to a person",
+        "a resource allocation, which follows acceptance rather than constituting it"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.accepted",
+          "kind": "trigger",
+          "headline": "Fulfillment obligation accepted",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.stands",
+          "kind": "condition",
+          "headline": "Does the accepted obligation still stand, and what does it actually cover?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the confirmation go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.confirm",
+          "kind": "action",
+          "headline": "State what the record accepted, what it declined and the reason it gives, the amount as the financial record holds it, and the route to the order. Claim no delivery date the record does not carry, no settled payment, and nothing about where the order is - that state does not exist yet.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.stands",
+          "kind": "wait",
+          "headline": "until fulfillment_handed_to_delivery_executor, or fulfillment_cancellation_effective",
+          "detail": "timeout after {'key': 'order_confirmation.record_window', 'rule': 'The period this journey stays the last thing said about the order, before the journeys that narrate its movement take it over.', 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.next",
+          "kind": "condition",
+          "headline": "What became of the order while this confirmation was still the last thing said about it?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "h.cancelled",
+          "kind": "handoff",
+          "headline": "Fulfillment cancellation → stop future work → release resources → reconcile",
+          "detail": "an accepted obligation cancelled before anything moved, with a confirmation of it already in the recipient's hands",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why no confirmation was sent and against which obligation, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.confirmed",
+          "kind": "exit",
+          "headline": "confirmed; what the record accepted has been stated once and this journey says nothing further about it",
+          "detail": "a later accepted obligation opens its own instance; this one never reopens and is never re-sent",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.void",
+          "kind": "exit",
+          "headline": "nothing to confirm; the acceptance was reversed before a confirmation could go out",
+          "detail": "a re-accepted or replacement obligation is its own record and its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no confirmation sent; the reason is recorded",
+          "detail": "a later accepted obligation opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.accepted",
+          "to": "c.stands",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.stands",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Accepted in full",
+          "when": "the record accepts everything that was asked for and the acceptance still stands"
+        },
+        {
+          "from": "c.stands",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Accepted in full",
+          "when": "the record accepts everything that was asked for and the acceptance still stands"
+        },
+        {
+          "from": "c.stands",
+          "to": "x.void",
+          "family": "branch",
+          "label": "Nothing stands",
+          "when": "the acceptance was reversed, voided or fully declined before any confirmation could go out"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.confirm",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: a transactional purpose, a deliverable destination, hard gates clear, and no confirmation already recorded against this obligation"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "No route",
+          "when": "no permitted, deliverable destination remains for a transactional notice of this kind; the reason is recorded rather than the confirmation being forced onto a route that is not permitted"
+        },
+        {
+          "from": "a.confirm",
+          "to": "w.stands",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.stands",
+          "to": "c.next",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "fulfillment_handed_to_delivery_executor, fulfillment_cancellation_effective"
+        },
+        {
+          "from": "w.stands",
+          "to": "x.confirmed",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "the confirmation owns the order's narrative only until the order starts moving; holding it open past that would put two journeys on one record"
+        },
+        {
+          "from": "c.next",
+          "to": "x.confirmed",
+          "family": "branch",
+          "label": "It started moving",
+          "when": "the obligation was handed to a delivery executor; tracking and any delay against it belong to the journeys that own those states from here"
+        },
+        {
+          "from": "c.next",
+          "to": "h.cancelled",
+          "family": "branch",
+          "label": "Cancelled before it moved",
+          "when": "an authoritative cancellation took effect on the obligation before anything was dispatched"
+        },
+        {
+          "from": "h.cancelled",
+          "to": "FUL-150",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "an accepted obligation cancelled before anything moved, with a confirmation of it already in the recipient's hands"
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.accepted",
+      "terminalNodes": [
+        "h.cancelled",
+        "x.confirmed",
+        "x.void",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        9,
+        10
+      ],
+      "handoffEdgeIds": [
+        11
+      ],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [
+        {
+          "to": "FUL-150",
+          "isExternal": false
+        }
+      ],
+      "distinctFrom": [
+        {
+          "journey": "FUL-265",
+          "because": "FUL-265 begins at dispatch and narrates the order while it moves. This journey ends where that one begins: it opens the record and says nothing about where the order is, because at the moment it speaks there is nowhere yet."
+        },
+        {
+          "journey": "FUL-146",
+          "because": "FUL-146 holds lateness against an original commitment. This journey is where that original commitment is first stated to the person, which is what FUL-146's own commitment history is later measured against - and it never opens a second narrative about a slip."
+        },
+        {
+          "journey": "FUL-291",
+          "because": "FUL-291 speaks once the thing has arrived, about making it useful. This speaks once the record opens, about what was taken on; neither is a variation of the other and they are separated by the whole of the fulfillment."
+        },
+        {
+          "journey": "RET-290",
+          "because": "RET-290 marks somebody becoming a customer and waits for this confirmation to have had its moment first. This carries no message about the relationship at all - only what the record says."
+        },
+        {
+          "journey": "FIN-131",
+          "because": "FIN-131 opens the obligation to pay that arises from the same event. This opens the obligation to deliver. They fail independently, and confirming one has never confirmed the other."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Only what the record accepted is confirmed; a request the business has not accepted is never confirmed as an order.",
+        "A partly accepted order states the declined scope and its reason in the same message as the accepted one.",
+        "One confirmation per accepted obligation, deduplicated by the obligation rather than rationed by pressure.",
+        "No progress, no delivery date the record does not carry, and no settled payment is claimed.",
+        "Nothing promotional rides on it - this is the message the other post-purchase journeys defer to."
+      ],
+      "reusableRule": "The opening of a record is a state with a message of its own: it states what was taken on and what was not, from the record rather than from the request, once - and every later message about that record is measured against what it said.",
+      "entityScope": "one accepted fulfillment obligation - what the record accepted, what it declined, and the person it was accepted for",
+      "entityNote": "The entity is the order record at the moment it opens, not the order's whole life. Where it is, whether it is running late and whether it arrived are states other journeys narrate, and this one states none of them. One instance per accepted obligation; a replacement or re-accepted obligation is its own record and its own instance."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": false,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": true,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 11,
+      "edgeCount": 13,
+      "branchNodeCount": 3,
+      "backwardEdgeCount": 0,
+      "handoffCount": 1,
+      "exitCount": 3,
+      "maxDepth": 6,
+      "maxFanIn": 2,
+      "maxFanOut": 3,
+      "primaryStructure": "mixed-termination",
+      "behaviors": [
+        "wait-timeout",
+        "cross-journey-handoff",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "simple",
+      "complexityScore": 40
     }
   },
   {
@@ -62712,7 +63943,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 11,
       "edgeCount": 11,
       "branchNodeCount": 2,
@@ -62725,7 +63956,8 @@
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "cross-journey-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "simple",
       "complexityScore": 35
@@ -64650,6 +65882,10 @@
         {
           "journey": "FIN-137",
           "because": "This decides which remedy applies. FIN-137 runs only if that decision is a refund, and then decides whether the refund is owed - a separate eligibility with separate rules."
+        },
+        {
+          "journey": "FIN-302",
+          "because": "This journey says which remedy will resolve the obligation, and a refund is only one of the answers it can give. FIN-302 says that money is actually moving and whether it arrived, which is two decisions further down the chain - a remedy confirmed here is never money arrived, and this journey never announces the movement."
         }
       ],
       "competition": null,
@@ -64677,7 +65913,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": false,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 14,
       "edgeCount": 19,
       "branchNodeCount": 2,
@@ -64691,7 +65927,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "cross-journey-handoff"
+        "cross-journey-handoff",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 52
@@ -65688,6 +66925,466 @@
       ],
       "complexityTier": "simple",
       "complexityScore": 39
+    }
+  },
+  {
+    "identity": {
+      "id": "REM-305",
+      "slug": "support-request-acknowledgement",
+      "category": "remedy",
+      "categoryTitle": "Returns, remedies, corrections & post-completion recovery",
+      "title": "Service request received → acknowledged or already resolved → closed or handed to the work",
+      "purpose": "Tell somebody who raised a problem that it exists, is owned and is not lost - once, transactionally, and without promising an outcome nobody has decided yet."
+    },
+    "entry": {
+      "trigger": "Support request received",
+      "triggerEvidenceClass": "declared",
+      "requires": [
+        "a service request recorded against a named requester, with the problem as they described it",
+        "the intake route it arrived on and the moment it was received",
+        "a contact point that can carry a message about this request"
+      ],
+      "insufficientAlone": [
+        "negative feedback about an experience, which reports a feeling rather than asking for something",
+        "a page view of a help article, which asks nobody for anything",
+        "an internal note opened about a customer, which is not a request the customer made",
+        "a request whose requester has not resolved to a person we can answer"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.received",
+          "kind": "trigger",
+          "headline": "Support request received",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "a.capture",
+          "kind": "action",
+          "headline": "Record the request under a reference the requester can quote and the team can find: who raised it, the problem as they described it, the route it arrived on, when it arrived and who owns it now. A request whose owner is a queue rather than a name is a request nobody has taken",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.covered",
+          "kind": "condition",
+          "headline": "Is an open request already covering this problem?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.attach",
+          "kind": "action",
+          "headline": "Attach what was just described to the request already open on it, and leave that request's own acknowledgement standing. Opening a second request produces two owners, two answers and a requester deciding which one to believe",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.immediate",
+          "kind": "condition",
+          "headline": "Was this request already resolved at the moment it was received?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable-now",
+          "kind": "condition",
+          "headline": "May the resolved-on-receipt message go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.resolved-now",
+          "kind": "action",
+          "headline": "Say that the thing they raised is already done, and what was done. An acknowledgement here would promise attention to a problem that no longer exists, and the requester would then wait for it",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the acknowledgement go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.acknowledge",
+          "kind": "action",
+          "headline": "Say that the request exists, under what reference, who owns it now and what happens next. No remedy, no eligibility and no fault - none of them has been decided, and a guess made here is the thing the requester will hold everyone to afterwards",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.window",
+          "kind": "wait",
+          "headline": "until support_request_resolved, or request_withdrawn",
+          "detail": "timeout after {'key': 'support_ack.window', 'rule': 'The period the acknowledgement covers: how long it is honest to say nothing more because nothing more has happened. Past it the request is not silent, it is simply owned by somebody else.', 'class': 'decision-sla', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.outcome",
+          "kind": "condition",
+          "headline": "What resolved the acknowledgement window?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.open",
+          "kind": "condition",
+          "headline": "Is the request still open now the acknowledgement window has closed?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2",
+          "kind": "condition",
+          "headline": "May the resolution notice go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.resolution",
+          "kind": "action",
+          "headline": "Say that the request is closed and what closed it. This is sent because the request's own state changed, which is the only reason a second message exists at all",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record which gate stopped the message and at which stage, so a requester who heard nothing is a measured outcome rather than a silent absence - and so nobody reads the silence as the request not having arrived",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "h.owner",
+          "kind": "handoff",
+          "headline": "Post-completion issue → validate → remedy route",
+          "detail": "a request still open when the acknowledgement window closes, where the problem itself now has to be established",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.resolved",
+          "kind": "exit",
+          "headline": "resolved; the requester was told what closed it",
+          "detail": "a further request from the same person is its own instance; the same problem described again while nothing is open enters as a new request",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.attached",
+          "kind": "exit",
+          "headline": "attached to the request already open on this problem; acknowledged once",
+          "detail": "if that request closes with the problem still present, the next description of it enters as a new request on its own evidence",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.withdrawn",
+          "kind": "exit",
+          "headline": "withdrawn by the requester; nothing further is sent",
+          "detail": "a fresh request about the same problem is a new instance, unless the requester asked for no further contact about it",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no message sent; the gate that stopped it is recorded and the request still has its owner",
+          "detail": "a later request from the same person is evaluated on its own gates",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.received",
+          "to": "a.capture",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.capture",
+          "to": "c.covered",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.covered",
+          "to": "a.attach",
+          "family": "branch",
+          "label": "Already covered",
+          "when": "an open request from the same requester concerns the same problem"
+        },
+        {
+          "from": "c.covered",
+          "to": "c.immediate",
+          "family": "branch",
+          "label": "Nothing open",
+          "when": "no open request from this requester concerns this problem"
+        },
+        {
+          "from": "a.attach",
+          "to": "x.attached",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.immediate",
+          "to": "c.sendable-now",
+          "family": "branch",
+          "label": "Resolved on receipt",
+          "when": "the record shows the request closed as resolved at intake, with what resolved it"
+        },
+        {
+          "from": "c.immediate",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Still open",
+          "when": "the request is recorded open with an owner and no resolution against it"
+        },
+        {
+          "from": "c.sendable-now",
+          "to": "a.resolved-now",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "hard gates permit communication for this purpose and the contact point is deliverable"
+        },
+        {
+          "from": "c.sendable-now",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a hard gate stops it; the gate is recorded as the reason rather than another route being forced"
+        },
+        {
+          "from": "a.resolved-now",
+          "to": "x.resolved",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.acknowledge",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "hard gates permit communication for this purpose and the contact point is deliverable; no pressure cap applies, because this message is owed rather than rationed"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a hard gate stops it; the gate is recorded as the reason and the request still goes to its owner"
+        },
+        {
+          "from": "a.acknowledge",
+          "to": "w.window",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.window",
+          "to": "c.outcome",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "support_request_resolved, request_withdrawn"
+        },
+        {
+          "from": "w.window",
+          "to": "c.open",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "an acknowledgement only holds for as long as the requester can reasonably assume it is still the latest thing that happened"
+        },
+        {
+          "from": "c.outcome",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "Resolved",
+          "when": "the request is recorded resolved by whoever owns it"
+        },
+        {
+          "from": "c.outcome",
+          "to": "x.withdrawn",
+          "family": "branch",
+          "label": "Withdrawn",
+          "when": "the requester withdrew the request"
+        },
+        {
+          "from": "c.open",
+          "to": "h.owner",
+          "family": "branch",
+          "label": "Still open",
+          "when": "the request is recorded open against an owner, with no resolution and no withdrawal"
+        },
+        {
+          "from": "c.open",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "Closed while the window ran",
+          "when": "the request was recorded resolved before the window closed and the event has been reconciled"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.resolution",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "hard gates permit communication for this purpose, the contact point is deliverable, and the record actually carries what closed the request"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.record-no-action",
+          "family": "backward",
+          "label": "Suppressed",
+          "when": "a hard gate stops it, or the record shows the request closed with nothing that can be told to the requester; the reason is recorded"
+        },
+        {
+          "from": "a.resolution",
+          "to": "x.resolved",
+          "family": "backward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "h.owner",
+          "to": "REM-151",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "a request still open when the acknowledgement window closes, where the problem itself now has to be established"
+        }
+      ],
+      "startNode": "t.received",
+      "terminalNodes": [
+        "h.owner",
+        "x.resolved",
+        "x.attached",
+        "x.withdrawn",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        20,
+        21
+      ],
+      "branchEdgeIds": [
+        2,
+        3,
+        5,
+        6,
+        7,
+        8,
+        10,
+        11,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "handoffEdgeIds": [
+        23
+      ],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [
+        {
+          "to": "REM-151",
+          "isExternal": false
+        }
+      ],
+      "distinctFrom": [
+        {
+          "journey": "REM-151",
+          "because": "REM-151 starts from a concrete problem with something already delivered and establishes whether an obligation exists. This runs before that question is asked: its subject is the request, not the problem, and its whole job is that the requester knows it arrived and who has it."
+        },
+        {
+          "journey": "REM-157",
+          "because": "REM-157 chooses the remedy that would satisfy an obligation already established. This states no outcome at all, because at the moment it sends there is nothing established to state."
+        },
+        {
+          "journey": "FBK-43",
+          "because": "FBK-43 starts from somebody's account of an experience and asks whether any operational issue exists behind it. This starts from a request made of us and answers only whether it arrived and who owns it."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "The acknowledgement states that the request exists and who owns it, and nothing about an outcome nobody has decided.",
+        "One acknowledgement per problem. A second description of the same problem is attached to the open request rather than acknowledged again.",
+        "A request already resolved on arrival is told so, never acknowledged as though it were still open.",
+        "Nothing is sent because a period elapsed; a second message exists only where the request's own state changed.",
+        "A request still open when the window closes is handed to whoever owns the work, and this journey stops rather than narrating it.",
+        "A hard gate that blocks the message never blocks the request: it still reaches its owner, and the gate is recorded."
+      ],
+      "reusableRule": "Intake owes the requester exactly two things - that it arrived and who has it - and a journey that keeps talking after that is filling a silence that belongs to whoever is doing the work.",
+      "entityScope": "one service request as it was raised, and the problem it names",
+      "entityNote": "The request is the subject, not the problem behind it: an established problem becomes an issue owned elsewhere. One instance per request; a second description of the same problem while a request is open is attached to it rather than acknowledged again."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": true,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 20,
+      "edgeCount": 24,
+      "branchNodeCount": 7,
+      "backwardEdgeCount": 2,
+      "handoffCount": 1,
+      "exitCount": 4,
+      "maxDepth": 9,
+      "maxFanIn": 3,
+      "maxFanOut": 2,
+      "primaryStructure": "mixed-termination",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "cross-journey-handoff",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "extreme",
+      "complexityScore": 76
     }
   },
   {
@@ -67822,7 +69519,7 @@
         "cross-journey-handoff",
         "competition"
       ],
-      "complexityTier": "extreme",
+      "complexityTier": "complex",
       "complexityScore": 66
     }
   },
@@ -69229,6 +70926,10 @@
         {
           "journey": "RET-28",
           "because": "RET-28 acts at the moment of cancellation intent, inside the cancellation's own window. This starts only after that window and its cooldown have passed."
+        },
+        {
+          "journey": "CON-300",
+          "because": "CON-300 is not trying to keep anybody: it asks whether marketing contact should continue and takes the answer, offer-free. This journey is the argument for coming back, and it runs on a lapsed paid relationship rather than on unanswered contact - a person can be perfectly engaged with our messages and still lapsed, or still buying and entirely silent on everything we send."
         }
       ],
       "competition": null,
@@ -69575,6 +71276,14 @@
         {
           "journey": "RET-31",
           "because": "RET-31 prompts a repeat of something the person's own history says is due. Here there is no history yet - one purchase is not a cadence - so the prompt is an offer rather than a prediction."
+        },
+        {
+          "journey": "SUB-296",
+          "because": "SUB-296 opens on an enrolment into a loyalty membership and its whole subject is that membership - what it grants and how it is used. This opens on a first purchase and owns the customer relationship that purchase created. Where somebody enrols at the moment they first buy, both are true at once and neither carries the other's message: this journey owns the first-purchase moment and never explains the membership, and SUB-296 owns the membership and never makes the bounceback."
+        },
+        {
+          "journey": "FUL-301",
+          "because": "FUL-301 states what the business took on, from the order record, and it outranks this journey for exactly that reason: the record has to open before there is anything to welcome somebody into. This journey carries none of what that confirmation says and waits until it has had its moment."
         }
       ],
       "competition": null,
@@ -69774,6 +71483,10 @@
         {
           "journey": "SUB-163",
           "because": "SUB-163 counts down to an obligation somebody has to act on before a date. An anniversary carries no obligation and no deadline - nothing happens if it is ignored."
+        },
+        {
+          "journey": "RET-295",
+          "because": "RET-295 recognises a date that belongs to the person - a birthday they gave us, or a milestone their own record reached. This counts the relationship's length from the first purchase, which is the company's side of it. The two share the date-recognition exclusion group, and this one is the side that yields, so a person never receives both in the same window."
         }
       ],
       "competition": null,
@@ -69801,7 +71514,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 7,
       "edgeCount": 6,
       "branchNodeCount": 1,
@@ -69813,7 +71526,8 @@
       "maxFanOut": 3,
       "primaryStructure": "self-contained",
       "behaviors": [
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "simple",
       "complexityScore": 21
@@ -70064,6 +71778,10 @@
         {
           "journey": "ACQ-13",
           "because": "ACQ-13 acts on attention to one subject that never became a selection. This assembles a set from a record that may be much older and has no single unresolved subject in it."
+        },
+        {
+          "journey": "SUB-297",
+          "because": "SUB-297 speaks about the membership itself - a balance, a benefit or a standing the member already holds and has not used. This proposes things to buy. The boundary is the subject, not the tone: a message about what somebody already has is never assembled from a recommendation signal, and a set of items is never sent as if it were a membership benefit."
         }
       ],
       "competition": null,
@@ -70428,6 +72146,10 @@
         {
           "journey": "ACQ-288",
           "because": "ACQ-288 recovers a selection the person made and left behind. Here the purchase completed; nothing is being recovered, and the subject of the offer is something they never selected."
+        },
+        {
+          "journey": "SUB-297",
+          "because": "SUB-297 is about a membership the person is enrolled in and a benefit they already hold. This is about a product they already own and a second product that completes it. Neither may borrow the other's authority: a membership benefit is never presented as a complementary product, and a complementary product is never presented as something the membership grants."
         }
       ],
       "competition": null,
@@ -70475,6 +72197,232 @@
       ],
       "complexityTier": "complex",
       "complexityScore": 59
+    }
+  },
+  {
+    "identity": {
+      "id": "RET-295",
+      "slug": "milestone-recognition",
+      "category": "retention",
+      "categoryTitle": "Engagement, health, retention & churn prevention",
+      "title": "A date belonging to the person approaching → eligibility checked → recognised or not sent",
+      "purpose": "Recognise a date that belongs to the person themselves - a birthday they told us, or a milestone their own record has reached - and say so once, with nothing attached that has not been issued."
+    },
+    "entry": {
+      "trigger": "Personal milestone approaching",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "a date this person supplied about themselves, or a milestone their own record has authoritatively reached",
+        "the cycle this occurrence of that milestone belongs to"
+      ],
+      "insufficientAlone": [
+        "a birthday guessed, modelled or bought rather than given by the person",
+        "the relationship's own anniversary, which counts the company's side of it and has its own journey",
+        "a milestone belonging to a segment rather than to this person's own record",
+        "a cycle of this milestone that has already passed without a message"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.approaching",
+          "kind": "trigger",
+          "headline": "Personal milestone approaching",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.date",
+          "kind": "condition",
+          "headline": "Is this date still ours to recognise?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the recognition go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.recognise",
+          "kind": "action",
+          "headline": "Say the date and what it marks, in the person's own terms, and say nothing the record does not support. No reward, discount, tier or benefit unless one has actually been issued.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why no recognition was sent and for which cycle, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.recognised",
+          "kind": "exit",
+          "headline": "recognised; the date was marked once for this cycle",
+          "detail": "the next cycle of this milestone, or a different milestone belonging to this person, opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "headline": "closed without a message; the relationship this recognition would have been addressed to has ended",
+          "detail": "a reopened relationship with a restored permission is evaluated at the next cycle; a person who asked to be left alone is not re-entered",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no recognition sent; the reason is recorded",
+          "detail": "the next cycle opens its own instance; this cycle is not made up later",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.approaching",
+          "to": "c.date",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.date",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Recognise",
+          "when": "the date is one the person supplied or one their own record reached, the relationship is open, and this cycle has not already been recognised"
+        },
+        {
+          "from": "c.date",
+          "to": "x.closed",
+          "family": "branch",
+          "label": "Relationship ended",
+          "when": "the account is closed, the person withdrew permission for this kind of communication, or they asked to be left alone"
+        },
+        {
+          "from": "c.date",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Cycle already spent",
+          "when": "this cycle has already been recognised, or the date has passed and the cycle closed unsent"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.recognise",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: purpose-level permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it, or a higher-precedence date recognition holds this person's window; the reason is recorded"
+        },
+        {
+          "from": "a.recognise",
+          "to": "x.recognised",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.approaching",
+      "terminalNodes": [
+        "x.recognised",
+        "x.closed",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "RET-292",
+          "because": "RET-292 counts the relationship's own length from the first purchase - the company's side of it. This recognises a date that belongs to the person, which the company holds only because they supplied it or because their own record reached it. The two share an exclusion group so that a person never receives both in the same window."
+        },
+        {
+          "journey": "SUB-299",
+          "because": "SUB-299 announces that a membership's standing actually changed, which is a fact about an enrolled relationship. A milestone recognition changes nothing and is deliberately not an announcement of anything the person has newly gained."
+        },
+        {
+          "journey": "RET-294",
+          "because": "RET-294 proposes something to buy. This proposes nothing; attaching an offer to it is the specific failure its own guardrails forbid."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "The date is one the person supplied or one their own record reached; a guessed or purchased date is not recognised at all.",
+        "A cycle that passed without a message is closed, never sent late.",
+        "A relationship that has ended is not congratulated.",
+        "Nothing is attached that has not been issued - no reward, no discount, no tier, no benefit.",
+        "Where the anniversary journey and this one both fall in the same window, only one of them speaks, and which one is decided by the declared precedence rather than by whichever fires first."
+      ],
+      "reusableRule": "A recognition addressed to the person is only honest if the date came from them or from their own record, and it is only a recognition if nothing is being sold under it.",
+      "entityScope": "one recognisable date about the person - the person, the milestone that date marks, and the cycle this occurrence belongs to",
+      "entityNote": "The entity is a date the person would call theirs: a birthday they gave us, or a milestone their own record reached. A relationship anniversary is a different entity and belongs to the anniversary journey. One instance per person per milestone cycle, and a cycle that passes unsent is closed rather than made up later."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": false,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": false,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 8,
+      "edgeCount": 8,
+      "branchNodeCount": 2,
+      "backwardEdgeCount": 0,
+      "handoffCount": 0,
+      "exitCount": 3,
+      "maxDepth": 4,
+      "maxFanIn": 2,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "simple",
+      "complexityScore": 27
     }
   },
   {
@@ -81928,7 +83876,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": false,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 14,
       "edgeCount": 19,
       "branchNodeCount": 4,
@@ -81942,7 +83890,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "cross-journey-handoff"
+        "cross-journey-handoff",
+        "competition"
       ],
       "complexityTier": "complex",
       "complexityScore": 56
@@ -82260,7 +84209,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 14,
       "edgeCount": 16,
       "branchNodeCount": 2,
@@ -82275,7 +84224,8 @@
         "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 49
@@ -82951,6 +84901,954 @@
       ],
       "complexityTier": "complex",
       "complexityScore": 53
+    }
+  },
+  {
+    "identity": {
+      "id": "SCH-303",
+      "slug": "reservation-payment-reminder",
+      "category": "scheduling",
+      "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+      "title": "Reservation standing on a payment condition → reminded → kept, released or routed to recovery",
+      "purpose": "Keep a reservation that is standing only because a payment is still expected, by telling the holder what is outstanding and what the booking terms do about it - and by getting out of the way the moment the payment itself is what went wrong."
+    },
+    "entry": {
+      "trigger": "Reservation payment outstanding",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "a confirmed reservation whose continued standing the booking terms make conditional on a payment",
+        "an authoritative obligation recorded against that reservation, still outstanding",
+        "a due point and a release point read from the booking terms themselves"
+      ],
+      "insufficientAlone": [
+        "a reservation that is already unconditional, where nothing outstanding can cost the place",
+        "an obligation whose attempt outcome could not be established - unknown is reconciled before it is treated as outstanding",
+        "a payment that has already been attempted and declined, which is payment recovery's subject rather than this one's",
+        "a request that has not yet become a confirmed reservation"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.outstanding",
+          "kind": "trigger",
+          "headline": "Reservation payment outstanding",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.standing",
+          "kind": "condition",
+          "headline": "Does the reservation still stand with the obligation still outstanding?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the outstanding notice go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.remind",
+          "kind": "action",
+          "headline": "Say what is still outstanding against this reservation, the point by which the booking terms expect it, and what those terms do to the reservation if it is not met. The subject is the place they hold, not the money - somebody who reads this as a bill will file it, and somebody who reads it as their reservation being at risk will act on it",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.payment",
+          "kind": "wait",
+          "headline": "until obligation_satisfied, or authoritative_payment_failure, or booking_materially_changed",
+          "detail": "timeout after {'key': 'reservation_payment.due', 'rule': 'The due point the booking terms themselves assert for this reservation. This journey reads that point; it never sets one, and it never treats the moment the reminder happened to go out as the start of a clock.', 'class': 'attribute-bound', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.outcome",
+          "kind": "condition",
+          "headline": "What resolved the wait?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.still",
+          "kind": "condition",
+          "headline": "Does the reservation still stand as it has just been re-read?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2",
+          "kind": "condition",
+          "headline": "May the final notice go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.final",
+          "kind": "action",
+          "headline": "State the reservation as it stands at this moment, the last point at which it can still be kept, and what the terms do to it afterwards. Nothing here moves the release point or softens it - a holder who is told the deadline is flexible has been told the wrong thing twice",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.release",
+          "kind": "wait",
+          "headline": "until obligation_satisfied, or authoritative_payment_failure, or booking_materially_changed",
+          "detail": "timeout after {'key': 'reservation_payment.release', 'rule': 'The point at which the booking terms release the reservation back to availability. The terms own that point; this journey reads it and states what happened at it.', 'class': 'attribute-bound', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.outcome2",
+          "kind": "condition",
+          "headline": "What resolved the final window?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.lapse",
+          "kind": "action",
+          "headline": "Say that the reservation was released, that nothing is being held, and what the record now shows. A place that quietly disappears is discovered on the day by somebody who still believes they have it",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record which gate stopped the notice and at which stage, so a reservation that was never warned is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "h.payment-failure",
+          "kind": "handoff",
+          "headline": "Payment failure → classify → recover, alternate or exit",
+          "detail": "an attempt against this reservation's obligation that the payment system states failed",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.kept",
+          "kind": "exit",
+          "headline": "kept; the condition the reservation stood on is satisfied",
+          "detail": "a further conditional payment against this reservation, or a later reservation by the same person, opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.released",
+          "kind": "exit",
+          "headline": "released; the terms took the place back and the holder was told",
+          "detail": "a new reservation is a new instance; this one is never revived, because the place it referred to no longer belongs to this holder",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.superseded",
+          "kind": "exit",
+          "headline": "superseded; the reservation was cancelled, moved or materially changed",
+          "detail": "the reservation that replaced it runs its own instance from its own terms",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no notice sent; the gate that stopped it is recorded",
+          "detail": "a later reservation by the same person is evaluated on its own gates",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.outstanding",
+          "to": "c.standing",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.standing",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Standing and outstanding",
+          "when": "the reservation is confirmed at the time recorded, and the obligation behind it is neither satisfied, waived nor cancelled"
+        },
+        {
+          "from": "c.standing",
+          "to": "x.kept",
+          "family": "branch",
+          "label": "Already settled",
+          "when": "the obligation is recorded satisfied, waived or cancelled by any route"
+        },
+        {
+          "from": "c.standing",
+          "to": "x.superseded",
+          "family": "branch",
+          "label": "No longer standing",
+          "when": "the reservation was cancelled, moved or materially changed before anything was sent"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.remind",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for service communication about this reservation, a deliverable destination, the service pressure class, and no higher-precedence booking-lifecycle journey currently holding this reservation"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.remind",
+          "to": "w.payment",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.payment",
+          "to": "c.outcome",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "obligation_satisfied, authoritative_payment_failure, booking_materially_changed"
+        },
+        {
+          "from": "w.payment",
+          "to": "c.still",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "past the due point the reservation is no longer merely outstanding - it is inside the window in which the terms will act, and that is a different thing to say"
+        },
+        {
+          "from": "c.outcome",
+          "to": "x.kept",
+          "family": "backward",
+          "label": "Reservation kept",
+          "when": "the obligation behind the reservation is recorded satisfied, waived or cancelled"
+        },
+        {
+          "from": "c.outcome",
+          "to": "h.payment-failure",
+          "family": "branch",
+          "label": "The payment itself failed",
+          "when": "an attempt was made against this obligation and the payment system stated that it failed"
+        },
+        {
+          "from": "c.outcome",
+          "to": "x.superseded",
+          "family": "backward",
+          "label": "Reservation withdrawn",
+          "when": "the reservation was cancelled, moved or materially changed"
+        },
+        {
+          "from": "c.still",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "Still at risk",
+          "when": "the reservation is confirmed and the obligation behind it is still outstanding at the due point"
+        },
+        {
+          "from": "c.still",
+          "to": "x.kept",
+          "family": "backward",
+          "label": "Settled in the meantime",
+          "when": "the obligation was satisfied, waived or cancelled while the window was open"
+        },
+        {
+          "from": "c.still",
+          "to": "x.superseded",
+          "family": "backward",
+          "label": "Withdrawn in the meantime",
+          "when": "the reservation was cancelled, moved or materially changed while the window was open"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.final",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes and no higher-precedence booking-lifecycle journey is holding this reservation; the notice is owed rather than rationed, so the discretionary budget does not stop it"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.record-no-action",
+          "family": "backward",
+          "label": "Suppressed",
+          "when": "a hard gate stops it; the gate is recorded as the reason and no route is forced that cannot deliver"
+        },
+        {
+          "from": "a.final",
+          "to": "w.release",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.release",
+          "to": "c.outcome2",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "obligation_satisfied, authoritative_payment_failure, booking_materially_changed"
+        },
+        {
+          "from": "w.release",
+          "to": "a.lapse",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "after the release point there is no reservation left to protect, and the only thing owed to the holder is being told so"
+        },
+        {
+          "from": "c.outcome2",
+          "to": "x.kept",
+          "family": "backward",
+          "label": "Reservation kept",
+          "when": "the obligation behind the reservation is recorded satisfied, waived or cancelled"
+        },
+        {
+          "from": "c.outcome2",
+          "to": "h.payment-failure",
+          "family": "backward",
+          "label": "The payment itself failed",
+          "when": "an attempt was made against this obligation and the payment system stated that it failed"
+        },
+        {
+          "from": "c.outcome2",
+          "to": "x.superseded",
+          "family": "backward",
+          "label": "Reservation withdrawn",
+          "when": "the reservation was cancelled, moved or materially changed"
+        },
+        {
+          "from": "a.lapse",
+          "to": "x.released",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "h.payment-failure",
+          "to": "FIN-134",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "an attempt against this reservation's obligation that the payment system states failed"
+        }
+      ],
+      "startNode": "t.outstanding",
+      "terminalNodes": [
+        "h.payment-failure",
+        "x.kept",
+        "x.released",
+        "x.superseded",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        9,
+        11,
+        13,
+        14,
+        16,
+        20,
+        21,
+        22
+      ],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        20,
+        21,
+        22
+      ],
+      "handoffEdgeIds": [
+        25
+      ],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [
+        {
+          "to": "FIN-134",
+          "isExternal": false
+        }
+      ],
+      "distinctFrom": [
+        {
+          "journey": "FIN-134",
+          "because": "FIN-134 starts from a payment that failed and works on the obligation until it is discharged. This starts from a reservation that is still standing and works on whether it survives; the moment an attempt actually fails, this journey hands the money over and says nothing more about it."
+        },
+        {
+          "journey": "SCH-277",
+          "because": "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a commitment that is conditional, and it never re-opens the question of whether the commitment exists."
+        },
+        {
+          "journey": "SCH-266",
+          "because": "SCH-266 chases the prerequisites a customer owes so the service can be delivered. What is outstanding here is not a prerequisite for delivery - it is the condition on which the reservation itself continues to exist, and missing it costs the place rather than the preparation."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "The reservation is the subject and the payment is a condition on it. A journey that starts talking about the money has become a different journey.",
+        "The booking terms own the due point and the release point. This journey reads both and never asserts, moves or softens either.",
+        "An attempt that actually failed is handed to payment recovery, and this journey stops talking about the payment rather than running beside it.",
+        "Nothing is sent without re-reading the reservation and its obligation at send time; the scheduled job carries a claim, not a fact.",
+        "The release is stated. A place that disappears in silence is discovered by the holder on the day.",
+        "An outcome that could not be established is reconciled before it is treated as outstanding."
+      ],
+      "reusableRule": "Where a commitment stands on a condition, the journey belongs to the commitment and not to the condition: it says what the terms will do and by when, and it hands the condition's own failure to whoever owns that failure.",
+      "entityScope": "one confirmed reservation whose continued standing depends on a payment its holder still owes",
+      "entityNote": "The reservation is the subject and the payment is a condition on it. One instance per reservation: a later reservation by the same person is its own instance, and a second attempt against the same obligation is an event inside the open instance rather than a new one."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": true,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 18,
+      "edgeCount": 26,
+      "branchNodeCount": 6,
+      "backwardEdgeCount": 8,
+      "handoffCount": 1,
+      "exitCount": 4,
+      "maxDepth": 10,
+      "maxFanIn": 4,
+      "maxFanOut": 3,
+      "primaryStructure": "mixed-termination",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "cross-journey-handoff",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "extreme",
+      "complexityScore": 87
+    }
+  },
+  {
+    "identity": {
+      "id": "SCH-304",
+      "slug": "pre-arrival-preparation",
+      "category": "scheduling",
+      "categoryTitle": "Scheduling, appointments, reservations & time-bound commitments",
+      "title": "Arrival window opens → what arriving requires → checked in, arrived or superseded",
+      "purpose": "Tell somebody what turning up actually requires - where to go or how to join, what to bring, and the step they can complete before they get there - and say it only where it answers something they could not already know."
+    },
+    "entry": {
+      "trigger": "Arrival window opened",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "a confirmed booking occurrence whose scheduled time is still ahead",
+        "the arrival window for that occurrence opening, read from the booking's own scheduled time",
+        "arrival facts recorded against the occurrence: a place or joining route, and whatever the holder has to have with them"
+      ],
+      "insufficientAlone": [
+        "a confirmed booking whose arrival window has not opened - a message sent then is a countdown, not preparation",
+        "a request that has not become a confirmed booking",
+        "an occurrence whose arrival is already recorded, which has nothing left to prepare for",
+        "a booking held on an unmet condition, which belongs to the journey that owns that condition"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.window",
+          "kind": "trigger",
+          "headline": "Arrival window opened",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.standing",
+          "kind": "condition",
+          "headline": "Is this occurrence still something to arrive at?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the arrival details go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.details",
+          "kind": "action",
+          "headline": "Say what arriving requires: the place or the joining route, what to have, and the step that can be completed before setting off if the booking has one. Everything here is read from the booking at the moment of sending, because a route that was right when the window opened is the one somebody follows to the wrong door",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.checkin",
+          "kind": "wait",
+          "headline": "until check_in_completed, or booking_materially_changed, or attendance_recorded",
+          "detail": "timeout after {'key': 'pre_arrival.check_in_point', 'rule': 'The point before the scheduled time at which a check-in step, if the booking has one, is worth prompting. It is set from how long the step actually takes the holder, never from how far ahead the booking was made.', 'class': 'reminder-before-attribute', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.resolved",
+          "kind": "condition",
+          "headline": "What resolved the check-in window?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.owed",
+          "kind": "condition",
+          "headline": "Is a check-in step still owed on this booking?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2",
+          "kind": "condition",
+          "headline": "May the check-in prompt go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.checkin",
+          "kind": "action",
+          "headline": "Name the one step still owed before arrival and the last point at which it can be completed ahead of time. One step, one message - a holder with one thing to do who receives a second copy of the arrival details has been given work to do finding the new part",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.dayof",
+          "kind": "wait",
+          "headline": "until booking_materially_changed, or attendance_recorded",
+          "detail": "timeout after {'key': 'pre_arrival.late_detail_point', 'rule': 'The point close to the scheduled time at which whatever could not be known earlier is knowable. It exists so a late detail has somewhere to be sent from, not so that something is sent.', 'class': 'reminder-before-attribute', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.resolved2",
+          "kind": "condition",
+          "headline": "What resolved the final window?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.late",
+          "kind": "condition",
+          "headline": "Is there anything about arriving that could not have been said earlier?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable3",
+          "kind": "condition",
+          "headline": "May the late detail go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.late-detail",
+          "kind": "action",
+          "headline": "Send only what changed or became knowable after the first message, and say which part is new. Repeating the whole set of arrival facts to carry one new line makes the holder search for the difference, and most of them will not",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record which gate stopped the touch, or that there was nothing to say, and at which stage - so an occurrence that received nothing is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.ready",
+          "kind": "exit",
+          "headline": "prepared; the holder has everything arriving requires",
+          "detail": "the next occurrence of a recurring commitment opens its own arrival window and its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.arrived",
+          "kind": "exit",
+          "headline": "arrived; attendance was recorded while the window was still open",
+          "detail": "the next occurrence opens its own arrival window and its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.superseded",
+          "kind": "exit",
+          "headline": "superseded; the booking was cancelled, moved or materially changed",
+          "detail": "the occurrence that replaced it opens its own arrival window from its own scheduled time",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.overtaken",
+          "kind": "exit",
+          "headline": "overtaken; the occurrence had already begun when the window opened",
+          "detail": "the next occurrence opens its own arrival window and its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "nothing sent; the gate, or the absence of anything to say, is recorded",
+          "detail": "the next occurrence is evaluated on its own gates",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.window",
+          "to": "c.standing",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.standing",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Still ahead",
+          "when": "the booking is confirmed at the time recorded and the scheduled time has not passed"
+        },
+        {
+          "from": "c.standing",
+          "to": "x.superseded",
+          "family": "branch",
+          "label": "Cancelled or moved",
+          "when": "the booking was cancelled, moved or materially changed"
+        },
+        {
+          "from": "c.standing",
+          "to": "x.overtaken",
+          "family": "branch",
+          "label": "Already under way",
+          "when": "arrival or attendance is already authoritatively recorded against this occurrence"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.details",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes, the booking holds arrival facts worth carrying, and no higher-precedence booking-lifecycle journey is holding this occurrence"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it, or the booking holds nothing the holder does not already have; the reason is recorded"
+        },
+        {
+          "from": "a.details",
+          "to": "w.checkin",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.checkin",
+          "to": "c.resolved",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "check_in_completed, booking_materially_changed, attendance_recorded"
+        },
+        {
+          "from": "w.checkin",
+          "to": "c.owed",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a check-in step is worth prompting only while there is still time to complete it, and past that point the prompt names work the holder can no longer do"
+        },
+        {
+          "from": "c.resolved",
+          "to": "w.dayof",
+          "family": "branch",
+          "label": "Checked in",
+          "when": "the check-in step the booking required is recorded complete"
+        },
+        {
+          "from": "c.resolved",
+          "to": "x.superseded",
+          "family": "backward",
+          "label": "Booking changed",
+          "when": "the booking was cancelled, moved or materially changed"
+        },
+        {
+          "from": "c.resolved",
+          "to": "x.arrived",
+          "family": "branch",
+          "label": "Already arrived",
+          "when": "arrival or attendance is authoritatively recorded against this occurrence"
+        },
+        {
+          "from": "c.owed",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "Still owed",
+          "when": "the booking requires a check-in step, the step is open, and the record does not show it complete"
+        },
+        {
+          "from": "c.owed",
+          "to": "w.dayof",
+          "family": "branch",
+          "label": "Nothing owed",
+          "when": "the booking requires no check-in step, or the record already shows it complete"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.checkin",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes, the touch budget for this occurrence is not spent, and no higher-precedence booking-lifecycle journey is holding this occurrence"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.record-no-action",
+          "family": "backward",
+          "label": "Suppressed",
+          "when": "a gate stops it or the budget is spent; the reason is recorded rather than the prompt being forced"
+        },
+        {
+          "from": "a.checkin",
+          "to": "w.dayof",
+          "family": "backward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.dayof",
+          "to": "c.resolved2",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "booking_materially_changed, attendance_recorded"
+        },
+        {
+          "from": "w.dayof",
+          "to": "c.late",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a detail that only becomes true close to the time has to be read close to the time, and after the scheduled time there is nothing left to prepare"
+        },
+        {
+          "from": "c.resolved2",
+          "to": "x.superseded",
+          "family": "backward",
+          "label": "Booking changed",
+          "when": "the booking was cancelled, moved or materially changed"
+        },
+        {
+          "from": "c.resolved2",
+          "to": "x.arrived",
+          "family": "backward",
+          "label": "Already arrived",
+          "when": "arrival or attendance is authoritatively recorded against this occurrence"
+        },
+        {
+          "from": "c.late",
+          "to": "c.sendable3",
+          "family": "branch",
+          "label": "Something changed or became knowable",
+          "when": "the booking now holds an arrival fact this journey has not already sent - a different place within the location, an access instruction, a named host"
+        },
+        {
+          "from": "c.late",
+          "to": "x.ready",
+          "family": "branch",
+          "label": "Nothing new",
+          "when": "the booking holds nothing the holder has not already been told, which is the ordinary case and not a failure"
+        },
+        {
+          "from": "c.sendable3",
+          "to": "a.late-detail",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes, the touch budget for this occurrence is not spent, and no higher-precedence booking-lifecycle journey is holding this occurrence"
+        },
+        {
+          "from": "c.sendable3",
+          "to": "a.record-no-action",
+          "family": "backward",
+          "label": "Suppressed",
+          "when": "a gate stops it or the budget is spent; the reason is recorded"
+        },
+        {
+          "from": "a.late-detail",
+          "to": "x.ready",
+          "family": "backward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.window",
+      "terminalNodes": [
+        "x.ready",
+        "x.arrived",
+        "x.superseded",
+        "x.overtaken",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        10,
+        15,
+        16,
+        19,
+        20,
+        24,
+        25
+      ],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "SCH-266",
+          "because": "SCH-266 acts on the prerequisites the customer owes so the service can be delivered at all, and escalates when one of them will block it. This acts on arriving: where to go, what to have and the step that can be done first. A booking with nothing outstanding still needs this one, and a booking whose prerequisite will stop it needs SCH-266 rather than this."
+        },
+        {
+          "journey": "SCH-277",
+          "because": "SCH-277 states whether the requested time became a commitment. This runs only inside the arrival window of a commitment that already exists, and it never restates the confirmation as if it were news."
+        },
+        {
+          "journey": "SCH-303",
+          "because": "SCH-303 is about whether the reservation survives at all. This is about turning up to one that will; where both apply, SCH-303 holds the booking and this is suppressed until it does not."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Every touch has to answer something the holder must do or could not already know. A message whose content is how long remains is a countdown, and this journey does not send one.",
+        "Arrival facts are re-read from the booking immediately before each touch, never carried from the moment the window opened.",
+        "A check-in prompt is sent only where a check-in step exists, is open, and the record does not show it complete.",
+        "The late detail carries what is new and says which part is new; it never repeats the whole set to deliver one line.",
+        "Preparation never moves the scheduled time, and a booking that will not go ahead is somebody else's message to send.",
+        "Once arrival or attendance is recorded, the instance ends rather than finishing its plan."
+      ],
+      "reusableRule": "A journey that runs towards a fixed moment earns each touch by having something new to say at it, and a touch with nothing new is the point at which people stop reading the ones that do.",
+      "entityScope": "one occurrence of a confirmed booking, inside the window in which arriving at it becomes something to prepare for",
+      "entityNote": "One occurrence, one instance. Each occurrence of a recurring commitment opens its own arrival window and prepares on its own; a rescheduled occurrence is the same instance re-timed from the new scheduled time."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 20,
+      "edgeCount": 27,
+      "branchNodeCount": 8,
+      "backwardEdgeCount": 7,
+      "handoffCount": 0,
+      "exitCount": 5,
+      "maxDepth": 9,
+      "maxFanIn": 3,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "extreme",
+      "complexityScore": 91
     }
   },
   {
@@ -86953,6 +89851,1144 @@
       ],
       "complexityTier": "simple",
       "complexityScore": 38
+    }
+  },
+  {
+    "identity": {
+      "id": "SUB-296",
+      "slug": "loyalty-welcome",
+      "category": "subscription",
+      "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+      "title": "Membership enrolled → welcomed → oriented, already in use, or closed",
+      "purpose": "Open an enrolled membership honestly: what it actually grants from today, where it lives, and how it is used - without borrowing the product's own onboarding or the first purchase's own welcome."
+    },
+    "entry": {
+      "trigger": "Loyalty membership enrolled",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "an authoritative enrolment record placing this person in this membership programme",
+        "the membership's own state, confirming enrolment has taken effect rather than merely been requested"
+      ],
+      "insufficientAlone": [
+        "an account created, or a purchase made, with no enrolment record behind it",
+        "an enrolment requested but not yet accepted by the system of record",
+        "a membership that already existed and was merely re-read",
+        "an enrolment attributed to an identity that has not resolved to a person, who may well already hold a membership under another one"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.enrolled",
+          "kind": "trigger",
+          "headline": "Loyalty membership enrolled",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.state",
+          "kind": "condition",
+          "headline": "Is this membership ours to welcome?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the welcome go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.welcome",
+          "kind": "action",
+          "headline": "State what this membership grants from today, where it lives and how it is used, reading each claim from the membership record. Name nothing the record does not carry, and describe a benefit that starts later as starting later.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.benefit",
+          "kind": "wait",
+          "headline": "until loyalty_benefit_used, or loyalty_membership_ended",
+          "detail": "timeout after {'key': 'loyalty_welcome.orientation_window', 'rule': 'The orientation waits long enough that a member who was going to use the membership on their own has had the chance to, and no longer than the point at which an enrolment stops being recent enough to be worth explaining.', 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.used",
+          "kind": "condition",
+          "headline": "Has the membership been used yet?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2",
+          "kind": "condition",
+          "headline": "May the orientation go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.orient",
+          "kind": "action",
+          "headline": "Point at one thing the membership already grants and the route to use it, re-read from the membership record immediately before sending. Nothing invented, and nothing sent to a member who has already used it.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.settled",
+          "kind": "exit",
+          "headline": "welcomed and the membership is in use; there is nothing left to orient",
+          "detail": "a membership is enrolled once; the ordinary membership journeys own it from here",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.oriented",
+          "kind": "exit",
+          "headline": "welcomed and oriented; the plan ran to its end and this journey's own work is done",
+          "detail": "this instance does not reopen; whether the membership is used is the ordinary membership journeys' to observe",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "headline": "closed without a welcome; the membership was reversed, cancelled or never made active",
+          "detail": "a membership enrolled again after being closed is a new membership and opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no touch sent; the reason is recorded",
+          "detail": "the instance does not reopen; a membership whose welcome was suppressed is not welcomed later as if it were new",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.enrolled",
+          "to": "c.state",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.state",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Welcome due",
+          "when": "the membership is active, no welcome has been recorded against it, and permission for lifecycle communication still holds"
+        },
+        {
+          "from": "c.state",
+          "to": "x.closed",
+          "family": "branch",
+          "label": "Membership no longer stands",
+          "when": "the enrolment was reversed, the membership was cancelled before the welcome went out, or the person withdrew permission"
+        },
+        {
+          "from": "c.state",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Already welcomed",
+          "when": "a welcome is already recorded against this membership"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.welcome",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence membership journey currently holding this membership"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.welcome",
+          "to": "w.benefit",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.benefit",
+          "to": "c.used",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "loyalty_benefit_used, loyalty_membership_ended"
+        },
+        {
+          "from": "w.benefit",
+          "to": "c.used",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "an orientation sent to somebody already using the membership teaches them nothing, and one sent long after enrolment explains a decision they have forgotten making"
+        },
+        {
+          "from": "c.used",
+          "to": "x.settled",
+          "family": "branch",
+          "label": "Already in use",
+          "when": "the membership's own usage record shows a benefit it grants has been used"
+        },
+        {
+          "from": "c.used",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "Not yet",
+          "when": "the membership is still active and its usage record shows nothing used since enrolment"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.orient",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes, the touch budget is not spent, and the membership record still carries an unused benefit to point at"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.record-no-action",
+          "family": "backward",
+          "label": "Suppressed",
+          "when": "a gate stops it, or the membership no longer carries an unused benefit to point at; the reason is recorded"
+        },
+        {
+          "from": "a.orient",
+          "to": "x.oriented",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.enrolled",
+      "terminalNodes": [
+        "x.settled",
+        "x.oriented",
+        "x.closed",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        12
+      ],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        9,
+        10,
+        11,
+        12
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "RET-290",
+          "because": "RET-290 opens on a first purchase and owns the customer relationship that purchase created; its subject is the second purchase. This opens on an enrolment and its subject is the membership. Where both are true at the same moment, neither carries the other's message: this one never makes a bounceback offer, and RET-290 never explains the membership."
+        },
+        {
+          "journey": "ACT-12",
+          "because": "ACT-12 advances product onboarding against a setup record. Enrolling in a membership is not a setup step and never advances that record; this journey orients somebody inside a membership and never inside the product."
+        },
+        {
+          "journey": "SUB-297",
+          "because": "SUB-297 acts on a membership that has been running and holds something unused. This acts on an enrolment that has just happened, and it runs once per membership, ever."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "The welcome names only what the membership record actually grants, and a benefit that starts later is described as starting later.",
+        "Product onboarding is never carried here, and an enrolment is never counted as a setup step.",
+        "The first-purchase welcome and its bounceback are never carried here, even when enrolment and first purchase happen in the same moment.",
+        "The orientation is never sent to a member whose usage record already shows the benefit used - the record is re-read immediately before it.",
+        "One welcome and at most one orientation; there is no third touch to time."
+      ],
+      "reusableRule": "Joining something is a state with its own journey, separate from whatever produced the join: it explains only what the thing joined actually grants, and it stops the moment the member has used it.",
+      "entityScope": "the loyalty membership a person has just enrolled in - one person, one membership",
+      "entityNote": "The entity is the membership, not the person and not the order that may have created it. One instance per membership, ever: a membership that is closed and later reopened is a new membership with its own enrolment and its own instance."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 13,
+      "edgeCount": 15,
+      "branchNodeCount": 4,
+      "backwardEdgeCount": 1,
+      "handoffCount": 0,
+      "exitCount": 4,
+      "maxDepth": 8,
+      "maxFanIn": 3,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "medium",
+      "complexityScore": 50
+    }
+  },
+  {
+    "identity": {
+      "id": "SUB-297",
+      "slug": "loyalty-nurture",
+      "category": "subscription",
+      "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+      "title": "Membership holding something unused → explained → used, reminded once, or closed",
+      "purpose": "Tell a member what their own membership is currently holding for them that they have not used, in a bounded way that ends rather than a cadence that continues."
+    },
+    "entry": {
+      "trigger": "Loyalty membership holds unused value",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "an authoritative membership record naming a specific balance or benefit this member holds",
+        "that subject's own usage record, showing it has not been used",
+        "the rule the programme uses to say the subject is still usable by this member"
+      ],
+      "insufficientAlone": [
+        "a membership that is merely inactive, with nothing specific held against it",
+        "a benefit held by the programme's members generally rather than by this member",
+        "a subject that has already been used, has expired, or has left the membership record",
+        "a marketing calendar date with no unused subject behind it"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.unused",
+          "kind": "trigger",
+          "headline": "Loyalty membership holds unused value",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.valid",
+          "kind": "condition",
+          "headline": "Is there still something real to say?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the explanation go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.explain",
+          "kind": "action",
+          "headline": "Say what this membership is holding that has not been used, what it may be used for and until when, reading each part from the membership record immediately before sending.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.act",
+          "kind": "wait",
+          "headline": "until loyalty_benefit_used, or loyalty_membership_ended, or permission_withdrawn",
+          "detail": "timeout after {'key': 'loyalty_nurture.response_window', 'rule': 'The reminder waits long enough that a member who was going to use the thing has had the chance to, and no longer than the point at which the first message stops being the reason they would remember it.', 'class': 'response-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.acted",
+          "kind": "condition",
+          "headline": "Has the member used it?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2",
+          "kind": "condition",
+          "headline": "May the reminder go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.remind",
+          "kind": "action",
+          "headline": "Say the same unused thing once more, adding nothing the explanation did not already have, and close the plan whatever happens next.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.used",
+          "kind": "exit",
+          "headline": "used; the thing the membership was holding has been used",
+          "detail": "a different unused subject on the same membership opens its own instance once the cooldown has run",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.nurtured",
+          "kind": "exit",
+          "headline": "explained and reminded; the plan ran to its end without a use and is over",
+          "detail": "this subject is not raised again; a different unused subject opens its own instance once the cooldown has run",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "headline": "closed without a further touch; the membership ended or the member withdrew permission",
+          "detail": "a restored membership with a restored permission is evaluated on whatever it holds unused then",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no touch sent; the reason is recorded",
+          "detail": "this subject is not raised again under this instance; a different unused subject opens its own",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.unused",
+          "to": "c.valid",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.valid",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Still unused",
+          "when": "the membership is active and its record still shows this subject held, usable by this member and unused"
+        },
+        {
+          "from": "c.valid",
+          "to": "x.closed",
+          "family": "branch",
+          "label": "Membership no longer stands",
+          "when": "the membership ended, or the member withdrew permission for this kind of communication"
+        },
+        {
+          "from": "c.valid",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Nothing left to say",
+          "when": "the subject has been used, has expired, or is no longer usable by this member"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.explain",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the promotional pressure cap, no higher-precedence membership journey currently holding this membership, and no cooldown in force"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.explain",
+          "to": "w.act",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.act",
+          "to": "c.acted",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "loyalty_benefit_used, loyalty_membership_ended, permission_withdrawn"
+        },
+        {
+          "from": "w.act",
+          "to": "c.acted",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a reminder sent to somebody who has already used the thing is noise, and one sent long after the explanation is a new message pretending to be a reminder"
+        },
+        {
+          "from": "c.acted",
+          "to": "x.used",
+          "family": "branch",
+          "label": "Used",
+          "when": "the membership record shows the subject has been used"
+        },
+        {
+          "from": "c.acted",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "Still unused",
+          "when": "the membership is active and its record still shows the subject held and unused"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.remind",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes and the touch budget is not spent"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.record-no-action",
+          "family": "backward",
+          "label": "Suppressed",
+          "when": "a gate stops it, or the touch budget is spent; the reason is recorded"
+        },
+        {
+          "from": "a.remind",
+          "to": "x.nurtured",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.unused",
+      "terminalNodes": [
+        "x.used",
+        "x.nurtured",
+        "x.closed",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        12
+      ],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        9,
+        10,
+        11,
+        12
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "RET-293",
+          "because": "RET-293 assembles a set of things to buy from a signal about the person. This names one thing the membership already holds. A product proposal is never presented as a membership benefit, and what somebody already holds is never assembled from a recommendation signal."
+        },
+        {
+          "journey": "RET-294",
+          "because": "RET-294 offers a second product that completes one the person owns. This offers nothing new at all - the subject is already theirs, and the only question is whether they have used it."
+        },
+        {
+          "journey": "SUB-298",
+          "because": "SUB-298 states a state the membership actually reached and is transactional. This states only that something already held has gone unused, and it is suppressed wherever SUB-298 holds the same membership."
+        },
+        {
+          "journey": "SUB-296",
+          "because": "SUB-296 runs once per membership, at enrolment, and explains what the membership grants at all. This runs on a specific thing that has gone unused on a membership that has been running."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "A bounded plan with its own end: one explanation and at most one reminder, and reaching the end closes the instance rather than restarting it with different words.",
+        "Every claim is re-read from the membership record immediately before sending; a subject that has been used, expired or left the record closes the instance.",
+        "No set of things to buy is ever assembled here, and no product proposal is presented as something the membership grants.",
+        "A reward the membership has actually earned is never carried by this journey and always outranks it.",
+        "A membership holding several unused things does not become a standing campaign - the cooldown is what stops it."
+      ],
+      "reusableRule": "A reminder that something already owned has gone unused is honest only while the record still says it is unused, and it is a nurture only while it has an end.",
+      "entityScope": "one unused thing a person's membership is holding - the member, the membership, and the specific balance or benefit that has gone unused",
+      "entityNote": "The entity is what the membership record says is unused, not the member's interests and not a segment. One instance per membership and unused subject: where the subject is used, expires or leaves the record, the instance closes rather than substituting a different subject to keep the sequence alive."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 13,
+      "edgeCount": 15,
+      "branchNodeCount": 4,
+      "backwardEdgeCount": 1,
+      "handoffCount": 0,
+      "exitCount": 4,
+      "maxDepth": 8,
+      "maxFanIn": 3,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "medium",
+      "complexityScore": 50
+    }
+  },
+  {
+    "identity": {
+      "id": "SUB-298",
+      "slug": "reward-confirmation",
+      "category": "subscription",
+      "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+      "title": "Reward earned → record confirmed → stated once, or closed unstated",
+      "purpose": "Confirm a state the membership actually reached - a reward earned, credited and usable - as the record states it, and confirm nothing that the record does not."
+    },
+    "entry": {
+      "trigger": "Loyalty reward earned",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "an authoritative reward record against this membership, showing the reward credited rather than projected",
+        "the reward's own terms as the record states them - what it may be used for and until when"
+      ],
+      "insufficientAlone": [
+        "activity that would normally earn a reward, with no reward record behind it",
+        "a reward projected, pending, or conditional on something that has not happened",
+        "a balance re-read and found unchanged, which is not a reward having been earned",
+        "a reward record already confirmed, re-delivered by a retried event"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.earned",
+          "kind": "trigger",
+          "headline": "Loyalty reward earned",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.state",
+          "kind": "condition",
+          "headline": "Is this reward a state the membership has actually reached, and is it still ours to confirm?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.confirm",
+          "kind": "action",
+          "headline": "State what was earned, what it may be used for and until when, reading every part of it from the reward record. Attach no offer, no recommendation and no encouragement to earn the next one.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why no confirmation was sent and against which reward record, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.confirmed",
+          "kind": "exit",
+          "headline": "confirmed; what the membership earned was stated once, as the record states it",
+          "detail": "a newer authoritative state for the same reward - a correction, a reversal, a re-credit - opens its own instance and is stated as what it is",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "headline": "closed without a confirmation; the reward did not stand, or the membership it belonged to ended",
+          "detail": "a reinstated reward on an active membership is confirmed under its own reinstated record",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no confirmation sent; the reason is recorded",
+          "detail": "the same reward record is not confirmed later as if it were new; a corrected record opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.earned",
+          "to": "c.state",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.state",
+          "to": "a.confirm",
+          "family": "branch",
+          "label": "Confirm",
+          "when": "the reward is credited, the membership is active, no confirmation is recorded against this reward record, and a deliverable destination exists"
+        },
+        {
+          "from": "c.state",
+          "to": "x.closed",
+          "family": "branch",
+          "label": "Not a reached state",
+          "when": "the reward was reversed or corrected before the confirmation went out, or the membership ended"
+        },
+        {
+          "from": "c.state",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Nothing to send",
+          "when": "a confirmation is already recorded against this reward record, or there is no deliverable destination; the reason is recorded"
+        },
+        {
+          "from": "a.confirm",
+          "to": "x.confirmed",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.earned",
+      "terminalNodes": [
+        "x.confirmed",
+        "x.closed",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [],
+      "branchEdgeIds": [
+        1,
+        2,
+        3
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "SUB-297",
+          "because": "SUB-297 says that something already held has gone unused, which is a marketing-shaped claim about the member's behaviour. This says only that the membership reached a state, which is a fact about the record. This journey outranks SUB-297 on the same membership and never carries its message."
+        },
+        {
+          "journey": "SUB-299",
+          "because": "SUB-299 states that the membership's own standing moved. This states that a single reward was credited, which can happen many times inside one standing and changes nothing about it."
+        },
+        {
+          "journey": "REM-157",
+          "because": "REM-157 confirms that a remedy for something that went wrong has been carried out. This confirms an ordinary earned state on a membership, with nothing having gone wrong."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Nothing is confirmed before it is credited; a projected or pending reward is not a state the membership has reached.",
+        "The confirmation states the reward record's own terms and attaches no offer, recommendation or encouragement to earn the next one.",
+        "One confirmation per reward record; a redelivered event produces no second copy.",
+        "A reversal or correction is stated as what it is, never as a repeat of the original confirmation.",
+        "The confirmation is not withheld to protect a marketing contact budget, and it is not sent to a membership that has ended."
+      ],
+      "reusableRule": "A confirmation is owed for a state the record has actually reached, it states only what that record states, and it is never the place to ask for the next thing.",
+      "entityScope": "one reward a person's membership has earned - the member, the membership, and the reward record itself",
+      "entityNote": "The entity is the reward record, not the activity that produced it. One instance per reward record; a correction to the same reward supersedes this instance rather than opening a second confirmation of the same thing."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": false,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": false,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 7,
+      "edgeCount": 6,
+      "branchNodeCount": 1,
+      "backwardEdgeCount": 0,
+      "handoffCount": 0,
+      "exitCount": 3,
+      "maxDepth": 3,
+      "maxFanIn": 1,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "simple",
+      "complexityScore": 21
+    }
+  },
+  {
+    "identity": {
+      "id": "SUB-299",
+      "slug": "loyalty-tier-change",
+      "category": "subscription",
+      "categoryTitle": "Subscriptions, contracts, renewals & continuing relationships",
+      "title": "Tier moved → direction checked → upgrade announced, used, or left to another journey",
+      "purpose": "Tell a member that their membership's own standing has moved up, and say exactly what that standing now grants that it did not before - and nothing else."
+    },
+    "entry": {
+      "trigger": "Loyalty tier changed",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "an authoritative tier change record against this membership, naming the standing held before and the standing held after",
+        "the programme's own ordering of its standings, from which the direction of the movement is read",
+        "the moment the new standing takes effect"
+      ],
+      "insufficientAlone": [
+        "a projection that the member is close to a higher standing, which is not a standing they hold",
+        "a recalculation that produced the same standing the member already held",
+        "a standing granted provisionally, subject to something that has not happened",
+        "an ordering of standings assumed rather than read from the programme's own terms"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.changed",
+          "kind": "trigger",
+          "headline": "Loyalty tier changed",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.direction",
+          "kind": "condition",
+          "headline": "Which way did the standing move, and is it in effect?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the announcement go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.announce",
+          "kind": "action",
+          "headline": "State the standing the member now holds and what it grants that the previous one did not, reading both from the programme's own terms. Present nothing as new that the previous standing already granted.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.use",
+          "kind": "wait",
+          "headline": "until loyalty_benefit_used, or loyalty_membership_ended",
+          "detail": "timeout after {'key': 'loyalty_tier_change.adoption_window', 'rule': 'The window is long enough for a member who intends to use the new standing to have had an ordinary opportunity to, and no longer - it decides how the instance is recorded, never whether another message is sent.', 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.used",
+          "kind": "condition",
+          "headline": "Has the new standing been used?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why no announcement was sent and against which change record, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.adopted",
+          "kind": "exit",
+          "headline": "announced and used; something the new standing grants has actually been used",
+          "detail": "a further upward movement on this membership opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.announced",
+          "kind": "exit",
+          "headline": "announced; the window closed with nothing the new standing grants used",
+          "detail": "a further upward movement opens its own instance; nothing further is sent about this one",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.out-of-scope",
+          "kind": "exit",
+          "headline": "not this journey's subject; the standing moved down and a loss of standing is deliberately out of scope here",
+          "detail": "a later upward movement on this membership opens its own instance; the downward movement is left to whatever journey owns it, and is not narrated here by default",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no announcement sent; the reason is recorded",
+          "detail": "this change record is not announced later as if it were current; a newer change opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.changed",
+          "to": "c.direction",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.direction",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Moved up and in effect",
+          "when": "the programme's own ordering places the new standing above the previous one, the new standing is in effect, and no newer tier change exists on this membership"
+        },
+        {
+          "from": "c.direction",
+          "to": "x.out-of-scope",
+          "family": "branch",
+          "label": "Moved down",
+          "when": "the programme's own ordering places the new standing below the previous one"
+        },
+        {
+          "from": "c.direction",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "No material movement",
+          "when": "the standing is unchanged, lateral, not yet in effect, or already superseded by a newer change on this membership"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.announce",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence membership journey currently holding this membership"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.announce",
+          "to": "w.use",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.use",
+          "to": "c.used",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "loyalty_benefit_used, loyalty_membership_ended"
+        },
+        {
+          "from": "w.use",
+          "to": "c.used",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "whether a new standing was actually used is the only honest measure of the announcement, and the window has to close for the instance to be recorded at all"
+        },
+        {
+          "from": "c.used",
+          "to": "x.adopted",
+          "family": "branch",
+          "label": "Used",
+          "when": "the membership's usage record shows a benefit granted by the new standing has been used since it took effect"
+        },
+        {
+          "from": "c.used",
+          "to": "x.announced",
+          "family": "branch",
+          "label": "Not used",
+          "when": "the window closed, or the membership ended, with nothing granted by the new standing used against it"
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.changed",
+      "terminalNodes": [
+        "x.adopted",
+        "x.announced",
+        "x.out-of-scope",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        9,
+        10
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "SUB-298",
+          "because": "SUB-298 confirms one reward credited to the membership. This states that the membership's own standing moved, which can be true while no individual reward has been earned and can stay true across many that have."
+        },
+        {
+          "journey": "SUB-296",
+          "because": "SUB-296 runs once, at enrolment, and explains the membership at all. This runs on a change to a membership that already existed and explains only the difference the change made."
+        },
+        {
+          "journey": "RET-295",
+          "because": "RET-295 recognises a date and changes nothing. This announces a change the record actually made, and would be dishonest if nothing had moved."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Upgrade only, and the refusal of a downgrade is in the graph rather than in a comment - a downward movement exits at the first condition.",
+        "Nothing is announced before the new standing is in effect.",
+        "Only what the new standing grants that the previous one did not is presented as new.",
+        "A standing that has already moved again is never announced as current.",
+        "One announcement per change record, and two upward movements close together produce one announcement of the standing actually held."
+      ],
+      "reusableRule": "An announcement that a standing has moved is honest only in the direction the journey was written for, only once the new standing is in effect, and only about the difference the movement actually made.",
+      "entityScope": "one upward movement in a person's membership standing - the member, the membership, and the tier change record",
+      "entityNote": "UPGRADE ONLY, stated here rather than implied: a downward movement fires this trigger and is deliberately refused at the first condition, because a loss of standing is a different message with different obligations and belongs to a journey written for it. One instance per tier change record; a further change supersedes it."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": false,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 11,
+      "edgeCount": 12,
+      "branchNodeCount": 3,
+      "backwardEdgeCount": 0,
+      "handoffCount": 0,
+      "exitCount": 4,
+      "maxDepth": 6,
+      "maxFanIn": 2,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "wait-timeout",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "simple",
+      "complexityScore": 39
     }
   },
   {

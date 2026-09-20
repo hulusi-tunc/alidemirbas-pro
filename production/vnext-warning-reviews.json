@@ -1744,6 +1744,14 @@
    "note": "IDN-90 is account-restriction-authority's own highest-precedence member (\"a suspected compromise is the more urgent, safety-critical question\") - it never defers to ACC-78, the group's only other member, so it structurally has nothing to check before acting. The actual P0 this group had (ACC-78 not checking IDN-90's live state before releasing a restriction) was fixed directly in ACC-78's own graph (a.check-authority/c.authority-clear) this round; see FIXES-APPLIED.md.",
    "reviewedBy": "cross-library integration repair round",
    "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "FIN-302",
+   "code": "simultaneous_review",
+   "match": "touches t2, t3, t4",
+   "note": "t2 (returned in full), t3 (returned in part) and t4 (not confirmed back) are the three exclusive arms of c.outcome - the financial record says exactly one of them about a given refund. They are never sent together and no simultaneous rule is needed; the shared gate is w.outcome because all three read the same settlement result.",
+   "reviewedBy": "Batch C, the seventeen-journey additions",
+   "reviewedAt": "2026-09-20"
   }
  ]
 }

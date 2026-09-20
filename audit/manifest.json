@@ -1,7 +1,7 @@
 {
-  "generated": "2026-09-20T21:27:06.488Z",
-  "expected_count": 58,
-  "found_count": 58,
+  "generated": "2026-09-20T22:55:21.532Z",
+  "expected_count": 69,
+  "found_count": 69,
   "issues": [],
   "journeys": [
     {
@@ -1116,6 +1116,125 @@
       "notes": []
     },
     {
+      "journey_id": "SUB-297",
+      "slug": "loyalty-nurture",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 13,
+      "display_node_count_before": null,
+      "display_node_count_after": 10,
+      "condition_count": 4,
+      "exit_count": 4,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "nurture",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "SUB-299",
+      "slug": "loyalty-tier-change",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 11,
+      "display_node_count_before": null,
+      "display_node_count_after": 9,
+      "condition_count": 3,
+      "exit_count": 4,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "nurture",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "SUB-296",
+      "slug": "loyalty-welcome",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 13,
+      "display_node_count_before": null,
+      "display_node_count_after": 10,
+      "condition_count": 4,
+      "exit_count": 4,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "nurture",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "RET-295",
+      "slug": "milestone-recognition",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 8,
+      "display_node_count_before": null,
+      "display_node_count_after": 7,
+      "condition_count": 2,
+      "exit_count": 3,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nested-decision",
+        "nurture",
+        "short"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
       "journey_id": "FBK-49",
       "slug": "missing-critical-data",
       "locales": [
@@ -1230,6 +1349,37 @@
         "no-deadline",
         "nurture",
         "shared-handoff",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "FUL-301",
+      "slug": "order-confirmation",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 11,
+      "display_node_count_before": null,
+      "display_node_count_after": 8,
+      "condition_count": 3,
+      "exit_count": 3,
+      "handoff_count": 1,
+      "journey_types": [
+        "communication",
+        "handoff",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "shared-exit",
         "wait-event-timeout"
       ],
       "severity": null,
@@ -1398,6 +1548,38 @@
       "notes": []
     },
     {
+      "journey_id": "SCH-304",
+      "slug": "pre-arrival-preparation",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 20,
+      "display_node_count_before": null,
+      "display_node_count_after": 15,
+      "condition_count": 8,
+      "exit_count": 5,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "communication-heavy",
+        "deadline-driven",
+        "large-graph",
+        "multi-branch",
+        "nested-decision",
+        "shared-exit",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
       "journey_id": "TIM-63",
       "slug": "pre-expiry-window",
       "locales": [
@@ -1449,6 +1631,36 @@
         "nested-decision",
         "recovery",
         "shared-exit",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "FIN-302",
+      "slug": "refund-notification",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 15,
+      "display_node_count_before": null,
+      "display_node_count_after": 11,
+      "condition_count": 3,
+      "exit_count": 5,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "communication-heavy",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
         "wait-event-timeout"
       ],
       "severity": null,
@@ -1588,6 +1800,39 @@
       "notes": []
     },
     {
+      "journey_id": "SCH-303",
+      "slug": "reservation-payment-reminder",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 18,
+      "display_node_count_before": null,
+      "display_node_count_after": 14,
+      "condition_count": 6,
+      "exit_count": 4,
+      "handoff_count": 1,
+      "journey_types": [
+        "communication",
+        "communication-heavy",
+        "deadline-driven",
+        "handoff",
+        "multi-branch",
+        "nested-decision",
+        "shared-exit",
+        "shared-handoff",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
       "journey_id": "RET-30",
       "slug": "retention-intervention-outcome",
       "locales": [
@@ -1610,6 +1855,33 @@
         "shared-exit",
         "shared-handoff",
         "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "SUB-298",
+      "slug": "reward-confirmation",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 7,
+      "display_node_count_before": null,
+      "display_node_count_after": 6,
+      "condition_count": 1,
+      "exit_count": 3,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "short"
       ],
       "severity": null,
       "patterns_detected": [],
@@ -1706,6 +1978,75 @@
         "multi-branch",
         "nested-decision",
         "no-deadline",
+        "shared-exit",
+        "shared-handoff",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "REM-305",
+      "slug": "support-request-acknowledgement",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 20,
+      "display_node_count_before": null,
+      "display_node_count_after": 13,
+      "condition_count": 7,
+      "exit_count": 4,
+      "handoff_count": 1,
+      "journey_types": [
+        "communication",
+        "communication-heavy",
+        "handoff",
+        "large-graph",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "routing",
+        "shared-exit",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "CON-300",
+      "slug": "unengaged-sunset",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 21,
+      "display_node_count_before": null,
+      "display_node_count_after": 18,
+      "condition_count": 6,
+      "exit_count": 4,
+      "handoff_count": 3,
+      "journey_types": [
+        "communication",
+        "communication-heavy",
+        "handoff",
+        "large-graph",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "parallel-fan-out",
         "shared-exit",
         "shared-handoff",
         "wait-event-timeout"

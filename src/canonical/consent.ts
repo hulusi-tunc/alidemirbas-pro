@@ -1207,6 +1207,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "A cooldown is one reason among the nine this journey holds. It has its own journey because its release is time-based and its scope is deliberately partial, which the general mechanism does not assume.",
       },
+      {
+        journey: "CON-300",
+        because:
+          "CON-300 decides that continued marketing contact is no longer warranted and hands the result here. What it produces is the sender-side kind of suppression this journey keeps apart from a permission the person withdrew: it is recorded against our own sending, it is scoped to commercial communication, and this journey releases it by asking for permission again rather than by switching sending back on.",
+      },
     ],
     objective: "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
     eligibility: [
@@ -2177,6 +2182,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart.",
       },
+      {
+        journey: "CON-300",
+        because:
+          "CON-300 decides whether a working route should keep being used at all, which is a permission question. This journey is about a route that has stopped working, which is a technical one - and a broken destination is a common reason nothing was engaged with, which is why this journey takes precedence in the contactability-question group and CON-300 stands down while a repair is open.",
+      },
     ],
     objective: "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
     eligibility: [
@@ -2240,7 +2250,12 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "contactability-question",
+        "scope": "person",
+        "precedence": "highest in the contactability-question group - a route that has actually stopped working has to be repaired before any conclusion is drawn from the silence on it, so while this repair currently holds the person the unengaged sunset stands down rather than reading a dead destination as disinterest",
+        "onLoss": "paused"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -2574,6 +2589,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "CON-38 records a stop and decides when it releases. A reduction is not a stop, and recording the two as the same state loses exactly the relationship the person was trying to keep.",
       },
+      {
+        journey: "CON-300",
+        because:
+          "CON-300 puts the choice in front of somebody who has chosen nothing, and hands the reduction here the moment they take it. This journey never asks - it confirms a cadence the person set themselves, which is why it outranks CON-300 in the contactability-question group: somebody who has just answered is not asked again.",
+      },
     ],
     objective: "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.",
     eligibility: [
@@ -2633,7 +2653,12 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "contactability-question",
+        "scope": "person",
+        "precedence": "above the unengaged sunset in the contactability-question group - somebody who has just chosen a cadence has answered the question the sunset would otherwise ask, so while this confirmation currently holds the person the sunset is suppressed for them; below a contact repair, which is fixing the route this confirmation would travel on",
+        "onLoss": "paused"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -2884,5 +2909,693 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "Somebody asking for less is staying, and the only way to lose them is to hear it as leaving.",
+  },
+  {
+    "id": "CON-300",
+    "slug": "unengaged-sunset",
+    "category": "consent",
+    "goal": "consent-permission",
+    "channels": ["email", "in-app"],
+    "name": "Marketing contact unanswered → the question put once → kept, reduced or ended",
+    "shortName": "Unengaged Subscriber Sunset",
+    "purpose": "Decide whether continued marketing contact is still warranted for somebody who has answered none of it - by asking them once, putting fewer beside none as a real answer, and ending marketing contact where no answer ever comes.",
+    "objective": "End marketing contact that nothing in the record supports any more, without ending the relationship, without touching what the person is owed, and without recording a decision on their consent that they never made.",
+    "entity": {
+      "scope": "one person's marketing contactability - the permission it runs on, the sends made against it, and the unengaged window being decided",
+      "note": "The entity is the standing to keep sending, not the customer. Nothing here changes what the person has bought, owes or is owed, and nothing here changes what they may be told about those things. One instance per person and unengaged window; a window that closes is decided rather than extended.",
+      "instanceKey": [
+        "person_id",
+        "unengaged_window"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A recorded engagement with marketing communication, or a preference or permission decision the person makes themselves, supersedes the instance: the question has been answered and this journey stops asking it."
+      }
+    },
+    "eligibility": [
+      "an authoritative record of the marketing sends actually made to this person across the company's unengaged window",
+      "those sends were made on a route whose engagement the company can observe, so that silence is evidence rather than a gap in instrumentation",
+      "no recorded engagement with any of them inside that window",
+      "purpose-level permission for commercial communication is still recorded - somebody who has already opted out is not a sunset case",
+      "no instance is already open for this person and this window, and hard gates (GLB-31) allow communication for this purpose"
+    ],
+    "suppressions": [
+      {
+        "id": "s.unmeasurable",
+        "label": "CANONICAL_RULE",
+        "text": "Silence is evidence only where engagement could have been seen. A route that does not report engagement, a window in which nothing was actually sent, or a person whose sends were held back for some other reason produce no evidence of disinterest and no sunset."
+      },
+      {
+        "id": "s.notwinback",
+        "label": "CANONICAL_RULE",
+        "text": "This journey is not trying to keep the customer and carries no offer, no incentive and no argument for the relationship. It asks one question about contact and takes whichever answer comes; a message that argues for staying is the lapsed-customer win-back (RET-32) wearing this journey's name."
+      },
+      {
+        "id": "s.transactional",
+        "label": "CANONICAL_RULE",
+        "text": "A sunset ends marketing contact and nothing else. What the person holds, owes or is owed stays governed by its own rules, and an implementation that stops those messages too has made an opt-out out of something nobody chose."
+      },
+      {
+        "id": "s.lessbeforenone",
+        "label": "CANONICAL_RULE",
+        "text": "Fewer is offered before none. Ending contact without ever having put a reduced cadence in front of the person turns an unanswered question into a decision they were never given the chance to make; the reduction itself is the frequency preference journey's (CON-283) work, not this one's."
+      },
+      {
+        "id": "s.notconsent",
+        "label": "CANONICAL_RULE",
+        "text": "Silence is not an opt-out. What this journey reaches is a sender-side suppression recorded against our own sending, never a withdrawal recorded against the person's consent, and it is released by asking for permission again rather than by switching sending back on (CON-38)."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A contact repair or a frequency change already running for this person outranks this journey in the contactability-question group; while either holds the person, this journey is suppressed for them rather than queued behind it (GLB-06). A route that broke is why nothing was engaged with, not evidence that nothing was wanted."
+      },
+      {
+        "id": "s.bounded",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "The question, one final notice, and the confirmation that contact has ended - and nothing else. A further message to somebody who has answered nothing is the volume this journey exists to end."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "unengaged_sunset.discretionary_touches",
+          "rule": "The question and the final notice are the discretionary touches and run against a budget fixed when the instance opened; the confirmation that contact has ended is a notice about our own sending and is mandatory, so it is not rationed against them.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - the question and one final notice before the ending"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "unengaged_sunset.cooldown",
+        "rule": "Somebody whose marketing contact has ended is not asked again until permission has been given afresh; somebody who answered is left alone for a cooldown before another unengaged window is opened against them.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "contactability-question",
+        "scope": "person",
+        "precedence": "lowest in the contactability-question group - a contact repair is fixing a route that broke and a frequency confirmation is answering a cadence the person themselves chose, and both are already answering the question this journey would otherwise ask over the top of; when either currently holds the person this journey is suppressed for them rather than queued behind it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the question has to reach somebody who is not in the product and survive until they answer it - the default route, and the one the unengaged window was measured on"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is still active in the product, where the preference can be changed in the same place the question is asked"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "the-question",
+          "action": "a.ask",
+          "prerequisites": [
+            "c.evidence",
+            "c.sendable"
+          ],
+          "purpose": "Ask once whether marketing contact should continue, with a reduced cadence set beside stopping altogether so that fewer is an answer the person can actually give.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "preference-centre",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "that messages about what they hold, owe or are owed will stop",
+              "that the account will be closed",
+              "that anything has already been decided"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "final-notice",
+          "action": "a.final",
+          "after": "t1",
+          "gatedBy": "w.answer",
+          "prerequisites": [
+            "c.answered",
+            "c.sendable2"
+          ],
+          "purpose": "One final notice: the date marketing contact will end, the single action that keeps it, and the reduced cadence as the answer in between. Nothing is added to argue for the relationship.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "preference-centre",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "that messages about what they hold, owe or are owed will stop",
+              "that the relationship itself is ending",
+              "an offer the business has not issued"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "ended",
+          "action": "a.confirm-end",
+          "after": "t2",
+          "gatedBy": "w.final",
+          "prerequisites": [
+            "c.final",
+            "c.notify"
+          ],
+          "purpose": "Confirm that marketing contact has ended, name what continues because it was never marketing, and leave the route back for whenever they want it.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "preference-centre",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "that the person opted out",
+              "that anything they hold or are owed has changed"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.unmeasurable",
+        "s.notwinback",
+        "s.transactional",
+        "s.lessbeforenone",
+        "s.notconsent",
+        "s.contest",
+        "s.bounded"
+      ]
+    },
+    "entry": "t.unengaged",
+    "nodes": [
+      {
+        "id": "t.unengaged",
+        "kind": "trigger",
+        "event": "marketing_contact_unanswered_across_window",
+        "evidence": {
+          "requires": [
+            "an authoritative record of the marketing sends actually made to this person across the company's unengaged window",
+            "confirmation that those sends ran on a route whose engagement the company can observe",
+            "no recorded engagement with any of them inside that window, and a purpose-level permission for commercial communication that still stands"
+          ],
+          "insufficientAlone": [
+            "a period without a purchase - that is a lapse, and the lapsed-customer win-back owns it",
+            "a single message that went unanswered",
+            "silence on a route that cannot report engagement at all, which is an absence of measurement rather than an absence of interest",
+            "a window in which nothing was actually sent to this person",
+            "an opt-out already recorded, which is an answer rather than a question"
+          ],
+          "source": "behavioral"
+        },
+        "next": "c.evidence"
+      },
+      {
+        "id": "c.evidence",
+        "kind": "condition",
+        "asks": "Does the record actually support the conclusion that marketing contact is unwanted?",
+        "branches": [
+          {
+            "label": "Supported",
+            "when": "sends were made inside the window on a route that reports engagement, none of them was engaged with, and permission for commercial communication still stands",
+            "observes": "send log, engagement record, permission record",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Nothing to read",
+            "when": "nothing was sent inside the window, or the route it was sent on cannot report engagement; there is no silence here to draw a conclusion from",
+            "observes": "send log, engagement reporting availability",
+            "to": "a.record-no-action"
+          },
+          {
+            "label": "Already answered",
+            "when": "the person set a preference or made a permission decision of their own inside the window",
+            "observes": "frequency_preference_changed",
+            "to": "x.answered"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the question go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for this purpose, a deliverable destination, the service pressure cap, no cooldown in force, and no higher-precedence contactability journey currently holds this person",
+            "observes": "send path stages 1-8",
+            "to": "a.ask"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason and nothing is forced onto another route",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.ask",
+        "kind": "action",
+        "does": "Ask once whether marketing contact should continue, and set a reduced cadence beside stopping altogether so that fewer is an answer the person can actually give. Carry no offer, no incentive and no argument for the relationship.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + unengaged_window + a.ask",
+        "writes": [
+          {
+            "field": "sunset_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.answer"
+      },
+      {
+        "id": "w.answer",
+        "kind": "wait",
+        "until": [
+          "marketing_engagement_recorded",
+          "frequency_preference_changed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.answered",
+        "timeout": {
+          "after": {
+            "key": "unengaged_sunset.answer_window",
+            "rule": "The period the question is given to be answered before a final notice is due.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "a question left open indefinitely is a person kept on a list by inertia, which is the state this journey exists to end",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.answered",
+        "recheck": "the engagement record, the preference record and the permission record re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.answered",
+        "kind": "condition",
+        "asks": "Did the question get an answer?",
+        "branches": [
+          {
+            "label": "Keep it",
+            "when": "a recorded engagement with marketing communication is on file for this person inside the window, or they asked to keep hearing from us",
+            "observes": "marketing_engagement_recorded",
+            "to": "x.kept"
+          },
+          {
+            "label": "Fewer instead",
+            "when": "the person set a reduced cadence rather than an ending",
+            "observes": "frequency_preference_changed",
+            "to": "h.frequency"
+          },
+          {
+            "label": "Stop it",
+            "when": "the person withdrew permission for commercial communication themselves",
+            "observes": "permission_withdrawn",
+            "to": "h.permission"
+          },
+          {
+            "label": "No answer",
+            "when": "the window closed with nothing recorded against it",
+            "observes": "engagement record, preference record, permission record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the final notice go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and no higher-precedence contactability journey currently holds this person",
+            "observes": "send path stages 1-8",
+            "to": "a.final"
+          },
+          {
+            "label": "No route left",
+            "when": "no permitted, deliverable destination remains for this purpose; there is nobody left to give notice to and the reason is recorded",
+            "observes": "send path stages 1-8",
+            "to": "a.suppress"
+          }
+        ]
+      },
+      {
+        "id": "a.final",
+        "kind": "action",
+        "does": "Give one final notice: the date marketing contact will end, the single action that keeps it, and the reduced cadence as the answer in between. Nothing is added to argue for the relationship and nothing is claimed about what else changes.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + unengaged_window + a.final",
+        "writes": [
+          {
+            "field": "sunset_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.final"
+      },
+      {
+        "id": "w.final",
+        "kind": "wait",
+        "until": [
+          "marketing_engagement_recorded",
+          "frequency_preference_changed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.final",
+        "timeout": {
+          "after": {
+            "key": "unengaged_sunset.notice_period",
+            "rule": "The notice period named in the final notice, which has to arrive for the notice to have meant anything.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "a stated ending date that passes without the ending happening teaches the person that nothing we say about their preferences is load-bearing",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.final",
+        "recheck": "the engagement record, the preference record and the permission record re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.final",
+        "kind": "condition",
+        "asks": "What did the notice period end in?",
+        "branches": [
+          {
+            "label": "Keep it",
+            "when": "a recorded engagement with marketing communication is on file for this person inside the notice period, or they asked to keep hearing from us",
+            "observes": "marketing_engagement_recorded",
+            "to": "x.kept"
+          },
+          {
+            "label": "Fewer instead",
+            "when": "the person set a reduced cadence rather than an ending",
+            "observes": "frequency_preference_changed",
+            "to": "h.frequency"
+          },
+          {
+            "label": "Stop it",
+            "when": "the person withdrew permission for commercial communication themselves",
+            "observes": "permission_withdrawn",
+            "to": "h.permission"
+          },
+          {
+            "label": "Ended by silence",
+            "when": "the notice period closed with nothing recorded against it",
+            "observes": "engagement record, preference record, permission record",
+            "to": "a.suppress"
+          }
+        ]
+      },
+      {
+        "id": "a.suppress",
+        "kind": "action",
+        "does": "Record a sender-side suppression of marketing contact for this person, scoped to commercial communication and to nothing else, with the reason, the window it was read from and the condition that would release it. The person's own permission record is left exactly as it was: silence is not an opt-out, and writing one here would put a decision on their record that they never made.",
+        "idempotencyKey": "person_id + unengaged_window",
+        "writes": [
+          {
+            "field": "marketing_suppression",
+            "mode": "append"
+          }
+        ],
+        "next": "c.notify"
+      },
+      {
+        "id": "c.notify",
+        "kind": "condition",
+        "asks": "Can the ending be confirmed to the person?",
+        "branches": [
+          {
+            "label": "Confirm it",
+            "when": "a permitted, deliverable destination remains for a service notice of this kind",
+            "observes": "send path stages 1-8",
+            "to": "a.confirm-end"
+          },
+          {
+            "label": "Nothing to confirm on",
+            "when": "no route to this person remains; the suppression stands and is recorded without a notice",
+            "observes": "send path stages 1-8",
+            "to": "x.ended"
+          }
+        ]
+      },
+      {
+        "id": "a.confirm-end",
+        "kind": "action",
+        "does": "Confirm that marketing contact has ended, name what continues because it was never marketing - anything the person holds, owes or is owed - and leave the route back for whenever they want it. This is a notice about our own sending and says so, rather than thanking them or asking again.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + unengaged_window + a.confirm-end",
+        "writes": [
+          {
+            "field": "sunset_log",
+            "mode": "append"
+          }
+        ],
+        "next": "h.enforce"
+      },
+      {
+        "id": "h.enforce",
+        "kind": "handoff",
+        "to": "CON-38",
+        "on": "marketing contact ended for this person, with the suppression now needing to be held, scoped and released by the mechanism that owns suppression states",
+        "carries": [
+          "person_id",
+          "the suppression scope - commercial communication only, and nothing the person holds, owes or is owed",
+          "the reason and the unengaged window it was read from",
+          "the release condition: permission given afresh, never the passing of time"
+        ],
+        "suppresses": [
+          "every promotional and lifecycle journey addressed to this person",
+          "their queued and in-flight commercial sends",
+          "re-entry into this journey while the suppression stands"
+        ],
+        "contract": {
+          "requiredFields": [
+            "person_id",
+            "suppression_scope",
+            "suppression_reason",
+            "release_condition"
+          ]
+        }
+      },
+      {
+        "id": "h.frequency",
+        "kind": "handoff",
+        "to": "CON-283",
+        "on": "a reduced cadence chosen instead of an ending",
+        "carries": [
+          "person_id",
+          "the cadence the person chose and the classes it governs",
+          "that this came from a contactability question rather than from the preference centre unprompted"
+        ],
+        "suppresses": [
+          "every further touch in this journey",
+          "the suppression this journey would otherwise have recorded"
+        ],
+        "contract": {
+          "requiredFields": [
+            "person_id",
+            "new_cadence",
+            "governed_classes"
+          ]
+        }
+      },
+      {
+        "id": "h.permission",
+        "kind": "handoff",
+        "to": "CON-35",
+        "on": "the person withdrawing permission for commercial communication themselves",
+        "carries": [
+          "person_id",
+          "the permission record that changed, at its purpose, channel and scope",
+          "the time and origin of the change, so an out-of-order update cannot undo it"
+        ],
+        "suppresses": [
+          "every further touch in this journey",
+          "every queued commercial send for this person"
+        ],
+        "contract": {
+          "requiredFields": [
+            "person_id",
+            "change_version",
+            "permission_purpose",
+            "change_origin"
+          ]
+        }
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why the question was not asked and against which window, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + unengaged_window",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.kept",
+        "kind": "exit",
+        "state": "kept; the person answered and marketing contact continues unchanged",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a later unengaged window is read on its own evidence, after the cooldown"
+      },
+      {
+        "id": "x.answered",
+        "kind": "exit",
+        "state": "closed without asking; the person had already answered the question themselves",
+        "class": "suppression",
+        "terminal": false,
+        "reEntry": "a later unengaged window opens its own instance, read from the sends made after the answer"
+      },
+      {
+        "id": "x.ended",
+        "kind": "exit",
+        "state": "marketing contact ended; the suppression is recorded and no route remained to confirm it on",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "permission given afresh releases the suppression; nothing inside this journey reopens it"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no question asked; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the next unengaged window is evaluated on its own gates"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "unengaged_window",
+          "marketing_sends_in_window",
+          "engagement_reporting_available",
+          "permission_state"
+        ],
+        "optional": [
+          "last_engagement_at",
+          "preference_destination",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.kept",
+          "x.answered",
+          "x.ended",
+          "x.no-action",
+          "h.enforce",
+          "h.frequency",
+          "h.permission"
+        ]
+      },
+      "secondary": [
+        "frequency_preference_changed",
+        "permission_withdrawn"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "marketing_send_after_sunset",
+        "service_message_suppressed_by_sunset",
+        "sunset_without_observable_window",
+        "consent_record_written_from_silence"
+      ],
+      "operational": [
+        "entry_volume",
+        "answer_rate_by_kind",
+        "reduction_instead_of_ending_rate",
+        "sunset_rate",
+        "no_action_rate_by_reason"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "unengaged subscriber sunset",
+        "sunset policy",
+        "list hygiene",
+        "inactive subscriber removal",
+        "re-permission",
+        "are you still interested"
+      ],
+      "useCases": [
+        "somebody who has answered none of the marketing sent to them, asked once whether it should continue",
+        "ending marketing contact that no evidence supports any more, without recording an opt-out the person never gave"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-32",
+        "because": "RET-32 is trying to get the person back and speaks about the relationship. This journey is deciding whether we may keep speaking at all, carries no offer, and takes silence as an answer to that question rather than as a reason to try harder."
+      },
+      {
+        "journey": "CON-272",
+        "because": "CON-272 repairs a destination that broke, which is a technical fact about a route. This decides whether a route that works should keep being used, which is a permission question - and a route CON-272 is still repairing is exactly why nothing was engaged with, so this journey stands down while that one holds the person."
+      },
+      {
+        "journey": "CON-283",
+        "because": "CON-283 confirms a reduced cadence somebody chose for themselves. This journey is what puts that choice in front of somebody who has chosen nothing, and it hands the reduction to CON-283 the moment they take it."
+      },
+      {
+        "journey": "CON-38",
+        "because": "CON-38 holds, scopes and releases a suppression once it exists. This journey is the decision that one is warranted, and the suppression it produces is the sender-side kind CON-38 keeps apart from a permission the person withdrew."
+      },
+      {
+        "journey": "RET-26",
+        "because": "RET-26 reads a person's engagement with the product. This reads their engagement with our messages, and the two are routinely opposite: an active customer who ignores marketing is not dormant, and a sunset that treats them as such loses a customer to fix a list."
+      }
+    ],
+    "guardrails": [
+      "Silence is read only where engagement could have been observed; an unreportable route produces no conclusion.",
+      "A reduced cadence is offered before contact is ended, and taking it hands the person to the journey that owns the reduction.",
+      "What the person holds, owes or is owed is never affected - a sunset ends marketing contact and nothing else.",
+      "The ending is recorded as a sender-side suppression, never as an opt-out on the person's own consent record.",
+      "No offer, no incentive and no argument for the relationship appears in any of the touches."
+    ],
+    "reusableRule": "Deciding whether to keep contacting somebody is a separate question from whether to keep them, and it is answered by asking once, offering less before none, and recording the ending against our own sending rather than against their consent."
   },
 ];

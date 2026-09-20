@@ -211,6 +211,303 @@ type JourneyOverride = {
 };
 
 const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
+  "SCH-303": {
+  shortName: "Rezervasyon Ödeme Hatırlatması",
+  name: "Ödeme koşuluna bağlı duran rezervasyon → hatırlatıldı → korundu, serbest bırakıldı ya da tahsilata devredildi",
+  purpose: "Yalnızca bir ödeme hâlâ beklendiği için ayakta duran bir rezervasyonu korumak: sahibine neyin ödenmediğini ve rezervasyon koşullarının bu durumda ne yapacağını söyleyerek - ve asıl aksayan şey ödemenin kendisi olduğu anda aradan çekilerek.",
+  nodes: {
+    "t.outstanding": { headline: "Rezervasyonun ödemesi hâlâ bekliyor" },
+    "c.standing": {
+      headline: "Rezervasyon hâlâ ayakta mı ve yükümlülük hâlâ ödenmemiş mi?",
+      edges: [
+        { label: "Ayakta ve ödenmemiş", detail: "rezervasyon kayıtlı saatiyle onaylı durumda ve arkasındaki yükümlülük ne karşılanmış, ne feragat edilmiş, ne de iptal edilmiş" },
+        { label: "Zaten karşılanmış", detail: "yükümlülüğün herhangi bir yoldan karşılandığı, feragat edildiği ya da iptal edildiği kayıtlı" },
+        { label: "Artık ayakta değil", detail: "hiçbir şey gönderilmeden önce rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Ödenmemiş tutar bildirimi gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: bu rezervasyona dair hizmet iletişimi izni, ulaşılabilir bir hedef, hizmet baskı sınıfı ve bu rezervasyonu şu anda tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışının bulunmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.remind": {
+      headline: "Bu rezervasyona karşı hâlâ neyin ödenmediğini, rezervasyon koşullarının bunu hangi noktaya kadar beklediğini ve karşılanmazsa koşulların rezervasyona ne yapacağını söyle. Konu para değil, kişinin elindeki yer: bunu bir fatura gibi okuyan kişi mesajı bir kenara koyar, rezervasyonunun tehlikede olduğunu okuyan kişi harekete geçer",
+    },
+    "w.payment": {
+      headline: "yükümlülük karşılanana, ödeme sistemi bir denemenin başarısız olduğunu bildirene ya da rezervasyon iptal edilene, taşınana veya esaslı biçimde değişene kadar",
+      detail: "Zaman aşımı: rezervasyon koşullarının bu rezervasyon için kendi belirlediği son ödeme noktası. Bu akış o noktayı okur; kendisi asla bir nokta belirlemez ve hatırlatmanın gönderildiği anı bir saatin başlangıcı saymaz. (reservation_payment.due ayarlanmalı)",
+    },
+    "c.outcome": {
+      headline: "Bekleme neyle sonuçlandı?",
+      edges: [
+        { label: "Rezervasyon korundu", detail: "rezervasyonun arkasındaki yükümlülüğün karşılandığı, feragat edildiği ya da iptal edildiği kayıtlı" },
+        { label: "Ödemenin kendisi başarısız oldu", detail: "bu yükümlülüğe karşı bir deneme yapıldı ve ödeme sistemi denemenin başarısız olduğunu bildirdi" },
+        { label: "Rezervasyon geri çekildi", detail: "rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+      ],
+    },
+    "c.still": {
+      headline: "Yeniden okunduğu hâliyle rezervasyon hâlâ ayakta mı?",
+      edges: [
+        { label: "Hâlâ risk altında", detail: "rezervasyon onaylı durumda ve arkasındaki yükümlülük son ödeme noktasında hâlâ karşılanmamış" },
+        { label: "Bu arada karşılandı", detail: "pencere açıkken yükümlülük karşılandı, feragat edildi ya da iptal edildi" },
+        { label: "Bu arada geri çekildi", detail: "pencere açıkken rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "Son bildirim gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor ve bu rezervasyonu tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışı yok; bu bildirim kişiye borçlu olunan bir bildirimdir, bu yüzden isteğe bağlı temas bütçesi onu durdurmaz" },
+        { label: "Engellendi", detail: "sert bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir ve iletemeyecek başka bir yol zorlanmaz" },
+      ],
+    },
+    "a.final": {
+      headline: "Rezervasyonun şu andaki hâlini, hâlâ korunabileceği son noktayı ve o noktadan sonra koşulların ona ne yapacağını bildir. Burada serbest bırakma noktası ne ötelenir ne de yumuşatılır - son tarihin esnek olduğu söylenen kişiye iki kez yanlış şey söylenmiş olur",
+    },
+    "w.release": {
+      headline: "yükümlülük karşılanana, ödeme sistemi bir denemenin başarısız olduğunu bildirene ya da rezervasyon iptal edilene, taşınana veya esaslı biçimde değişene kadar",
+      detail: "Zaman aşımı: rezervasyon koşullarının yeri yeniden müsaitliğe bıraktığı nokta. O noktanın sahibi koşullardır; bu akış onu okur ve o noktada ne olduğunu bildirir. (reservation_payment.release ayarlanmalı)",
+    },
+    "c.outcome2": {
+      headline: "Son pencere neyle sonuçlandı?",
+      edges: [
+        { label: "Rezervasyon korundu", detail: "rezervasyonun arkasındaki yükümlülüğün karşılandığı, feragat edildiği ya da iptal edildiği kayıtlı" },
+        { label: "Ödemenin kendisi başarısız oldu", detail: "bu yükümlülüğe karşı bir deneme yapıldı ve ödeme sistemi denemenin başarısız olduğunu bildirdi" },
+        { label: "Rezervasyon geri çekildi", detail: "rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+      ],
+    },
+    "a.lapse": {
+      headline: "Rezervasyonun serbest bırakıldığını, hiçbir yerin tutulmadığını ve kaydın şimdi ne gösterdiğini söyle. Sessizce kaybolan bir yer, o yerin hâlâ kendisinde olduğuna inanan biri tarafından gün geldiğinde fark edilir",
+    },
+    "a.record-no-action": {
+      headline: "Bildirimi hangi kapının ve hangi aşamada durdurduğunu kaydet; böylece hiç uyarılmamış bir rezervasyon sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "h.payment-failure": {
+      detail: "bu rezervasyonun yükümlülüğüne karşı yapılan ve ödeme sisteminin başarısız olduğunu bildirdiği bir deneme",
+    },
+    "x.kept": {
+      headline: "Korundu",
+      detail: "bu rezervasyona karşı yeni bir koşullu ödeme ya da aynı kişinin sonraki bir rezervasyonu kendi örneğini açar",
+    },
+    "x.released": {
+      headline: "Serbest bırakıldı",
+      detail: "yeni bir rezervasyon yeni bir örnektir; bu örnek asla canlandırılmaz, çünkü işaret ettiği yer artık bu kişiye ait değildir",
+    },
+    "x.superseded": {
+      headline: "Geçersiz kaldı",
+      detail: "onun yerine geçen rezervasyon kendi koşullarıyla kendi örneğini çalıştırır",
+    },
+    "x.no-action": {
+      headline: "Bildirim gönderilmedi",
+      detail: "aynı kişinin sonraki bir rezervasyonu kendi kapılarıyla değerlendirilir",
+    },
+  },
+  },
+  "SCH-304": {
+  shortName: "Varış Öncesi Hazırlık",
+  name: "Varış penceresi açıldı → gelmek için gerekenler → giriş yapıldı, gelindi ya da geçersiz kaldı",
+  purpose: "Birine gelmenin gerçekte ne gerektirdiğini söylemek - nereye gideceğini ya da nasıl katılacağını, yanında ne bulunduracağını ve yola çıkmadan önce tamamlayabileceği adımı - ve bunu yalnızca zaten bilemeyeceği bir şeyi yanıtladığı yerde söylemek.",
+  nodes: {
+    "t.window": { headline: "Varış penceresi açıldı" },
+    "c.standing": {
+      headline: "Bu randevu hâlâ gidilecek bir şey mi?",
+      edges: [
+        { label: "Hâlâ ileride", detail: "rezervasyon kayıtlı saatiyle onaylı durumda ve planlanan saat henüz geçmedi" },
+        { label: "İptal edildi ya da taşındı", detail: "rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+        { label: "Çoktan başlamış", detail: "bu randevuya karşı varış ya da katılım hâlihazırda yetkili olarak kaydedilmiş" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Varış bilgileri gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor, rezervasyon aktarmaya değer varış bilgileri taşıyor ve bu randevuyu tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışı yok" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor ya da rezervasyon, kişinin zaten sahip olmadığı hiçbir bilgi taşımıyor; gerekçe kaydedilir" },
+      ],
+    },
+    "a.details": {
+      headline: "Gelmenin ne gerektirdiğini söyle: yer ya da katılım yolu, yanında bulundurulacaklar ve rezervasyonun böyle bir adımı varsa yola çıkmadan önce tamamlanabilecek adım. Buradaki her şey gönderim anında rezervasyondan okunur; çünkü pencere açıldığında doğru olan bir tarif, insanın yanlış kapıya gitmesini sağlayan tariftir",
+    },
+    "w.checkin": {
+      headline: "giriş adımı tamamlanana, rezervasyon iptal edilene, taşınana veya esaslı biçimde değişene ya da katılım kaydedilene kadar",
+      detail: "Zaman aşımı: rezervasyonun bir giriş adımı varsa, bunun hatırlatılmaya değer olduğu, planlanan saatten önceki nokta. Bu nokta adımın kişinin kendisinden ne kadar zaman aldığına göre belirlenir, rezervasyonun ne kadar önceden yapıldığına göre değil. (pre_arrival.check_in_point ayarlanmalı)",
+    },
+    "c.resolved": {
+      headline: "Giriş penceresi neyle sonuçlandı?",
+      edges: [
+        { label: "Giriş yapıldı", detail: "rezervasyonun gerektirdiği giriş adımı tamamlanmış olarak kayıtlı" },
+        { label: "Rezervasyon değişti", detail: "rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+        { label: "Zaten gelinmiş", detail: "bu randevuya karşı varış ya da katılım yetkili olarak kaydedilmiş" },
+      ],
+    },
+    "c.owed": {
+      headline: "Bu rezervasyonda hâlâ yapılması gereken bir giriş adımı var mı?",
+      edges: [
+        { label: "Hâlâ bekliyor", detail: "rezervasyon bir giriş adımı gerektiriyor, adım açık ve kayıt bunun tamamlandığını göstermiyor" },
+        { label: "Bekleyen bir şey yok", detail: "rezervasyon hiçbir giriş adımı gerektirmiyor ya da kayıt adımın çoktan tamamlandığını gösteriyor" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "Giriş hatırlatması gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor, bu randevu için temas bütçesi tükenmemiş ve bu randevuyu tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışı yok" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor ya da bütçe tükenmiş; hatırlatma zorlanmak yerine gerekçe kaydedilir" },
+      ],
+    },
+    "a.checkin": {
+      headline: "Varıştan önce hâlâ yapılması gereken tek adımı ve bunun önceden tamamlanabileceği son noktayı belirt. Tek adım, tek mesaj - yapacak tek şeyi olan birine varış bilgilerinin ikinci bir kopyası gönderildiğinde, ona yeni kısmı bulma işi verilmiş olur",
+    },
+    "w.dayof": {
+      headline: "rezervasyon iptal edilene, taşınana veya esaslı biçimde değişene ya da katılım kaydedilene kadar",
+      detail: "Zaman aşımı: planlanan saate yakın, daha önce bilinemeyecek olanın artık bilinebildiği nokta. Bu nokta, geç bir bilginin gönderilebileceği bir yer olsun diye vardır; bir şey gönderilsin diye değil. (pre_arrival.late_detail_point ayarlanmalı)",
+    },
+    "c.resolved2": {
+      headline: "Son pencere neyle sonuçlandı?",
+      edges: [
+        { label: "Rezervasyon değişti", detail: "rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+        { label: "Zaten gelinmiş", detail: "bu randevuya karşı varış ya da katılım yetkili olarak kaydedilmiş" },
+      ],
+    },
+    "c.late": {
+      headline: "Gelmekle ilgili, daha önce söylenemeyecek olan bir şey var mı?",
+      edges: [
+        { label: "Değişen ya da yeni bilinen bir şey var", detail: "rezervasyon artık bu akışın daha önce göndermediği bir varış bilgisi taşıyor - binanın içinde farklı bir yer, bir giriş talimatı, adı verilen bir kişi" },
+        { label: "Yeni bir şey yok", detail: "rezervasyon, kişiye zaten söylenmemiş hiçbir şey taşımıyor; bu olağan durumdur ve bir başarısızlık değildir" },
+      ],
+    },
+    "c.sendable3": {
+      headline: "Geç gelen bilgi gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor, bu randevu için temas bütçesi tükenmemiş ve bu randevuyu tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışı yok" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor ya da bütçe tükenmiş; gerekçe kaydedilir" },
+      ],
+    },
+    "a.late-detail": {
+      headline: "Yalnızca ilk mesajdan sonra değişen ya da bilinir hâle geleni gönder ve hangi kısmın yeni olduğunu söyle. Tek bir yeni satırı taşımak için varış bilgilerinin tamamını tekrarlamak, kişiye farkı arama işi yükler ve çoğu kişi bunu yapmaz",
+    },
+    "a.record-no-action": {
+      headline: "Teması hangi kapının durdurduğunu ya da söylenecek bir şey olmadığını ve bunun hangi aşamada olduğunu kaydet - böylece hiçbir şey almayan bir randevu sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.ready": {
+      headline: "Hazır",
+      detail: "süregelen bir taahhüdün bir sonraki randevusu kendi varış penceresini ve kendi örneğini açar",
+    },
+    "x.arrived": {
+      headline: "Gelindi",
+      detail: "bir sonraki randevu kendi varış penceresini ve kendi örneğini açar",
+    },
+    "x.superseded": {
+      headline: "Geçersiz kaldı",
+      detail: "onun yerine geçen randevu kendi planlanan saatinden kendi varış penceresini açar",
+    },
+    "x.overtaken": {
+      headline: "Zamanı geçti",
+      detail: "bir sonraki randevu kendi varış penceresini ve kendi örneğini açar",
+    },
+    "x.no-action": {
+      headline: "Hiçbir şey gönderilmedi",
+      detail: "bir sonraki randevu kendi kapılarıyla değerlendirilir",
+    },
+  },
+  },
+  "REM-305": {
+  shortName: "Destek Talebi Alındı Bildirimi",
+  name: "Hizmet talebi alındı → alındı bildirildi ya da zaten çözülmüştü → kapandı veya işi yürütene devredildi",
+  purpose: "Bir sorunu bildiren kişiye, o talebin var olduğunu, bir sahibi bulunduğunu ve kaybolmadığını söylemek - bir kez, işlemsel olarak ve henüz kimsenin karar vermediği bir sonucu vaat etmeden.",
+  nodes: {
+    "t.received": { headline: "Hizmet talebi alındı" },
+    "a.capture": {
+      headline: "Talebi, kişinin geri okuyabileceği ve ekibin bulabileceği bir referansla kaydet: kimin bildirdiği, sorunu nasıl anlattığı, hangi kanaldan geldiği, ne zaman geldiği ve şu anda kimin sahiplendiği. Sahibi bir isim değil de bir kuyruk olan talep, kimsenin üstlenmediği taleptir",
+    },
+    "c.covered": {
+      headline: "Bu sorunu zaten kapsayan açık bir talep var mı?",
+      edges: [
+        { label: "Zaten kapsanıyor", detail: "aynı kişiden gelen açık bir talep aynı sorunla ilgili" },
+        { label: "Açık talep yok", detail: "bu kişiden gelen hiçbir açık talep bu sorunla ilgili değil" },
+      ],
+    },
+    "a.attach": {
+      headline: "Yeni anlatılanı, o sorun için zaten açık olan talebe ekle ve o talebin kendi alındı bildirimini geçerli bırak. İkinci bir talep açmak iki sahip, iki yanıt ve hangisine inanacağına karar vermeye çalışan bir kişi üretir",
+    },
+    "c.immediate": {
+      headline: "Bu talep, alındığı anda çoktan çözülmüş müydü?",
+      edges: [
+        { label: "Alındığında çözülmüş", detail: "kayıt, talebin girişte çözülmüş olarak kapandığını ve onu neyin çözdüğünü gösteriyor" },
+        { label: "Hâlâ açık", detail: "talep bir sahiple açık olarak kayıtlı ve karşısında herhangi bir çözüm yok" },
+      ],
+    },
+    "c.sendable-now": {
+      headline: "\"Zaten çözülmüş\" mesajı gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "sert kapılar bu amaçla iletişime izin veriyor ve iletişim noktası ulaşılabilir durumda" },
+        { label: "Engellendi", detail: "sert bir kapı durduruyor; başka bir yol zorlanmak yerine hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.resolved-now": {
+      headline: "Bildirdikleri şeyin çoktan yapılmış olduğunu ve ne yapıldığını söyle. Burada bir alındı bildirimi, artık var olmayan bir soruna ilgi göstereceğini vaat eder ve kişi o ilgiyi beklemeye başlar",
+    },
+    "c.sendable": {
+      headline: "Alındı bildirimi gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "sert kapılar bu amaçla iletişime izin veriyor ve iletişim noktası ulaşılabilir durumda; hiçbir baskı sınırı uygulanmaz, çünkü bu mesaj kişiye borçlu olunan bir mesajdır" },
+        { label: "Engellendi", detail: "sert bir kapı durduruyor; hangi kapının durdurduğu kaydedilir ve talep yine de sahibine ulaşır" },
+      ],
+    },
+    "a.acknowledge": {
+      headline: "Talebin var olduğunu, hangi referansla kayıtlı olduğunu, şu anda kimin sahiplendiğini ve bundan sonra ne olacağını söyle. Çözüm yok, hak ediş yok, kusur atfı yok - hiçbirine karar verilmedi ve burada yapılacak bir tahmin, kişinin sonradan herkesi bağlı tutacağı şey olur",
+    },
+    "w.window": {
+      headline: "talep sahibi ekip ya da sistem tarafından çözülmüş olarak kaydedilene ya da talep sahibi talebini geri çekene kadar",
+      detail: "Zaman aşımı: alındı bildiriminin kapsadığı süre - hiçbir şey olmadığı için başka bir şey söylememenin dürüst olduğu süre. Bu sürenin ardından talep sessiz değildir, yalnızca sahibi başkasıdır. (support_ack.window ayarlanmalı)",
+    },
+    "c.outcome": {
+      headline: "Alındı bildirimi penceresi neyle sonuçlandı?",
+      edges: [
+        { label: "Çözüldü", detail: "talep, sahibi olan taraf tarafından çözülmüş olarak kayda geçti" },
+        { label: "Geri çekildi", detail: "talep sahibi talebini geri çekti" },
+      ],
+    },
+    "c.open": {
+      headline: "Alındı bildirimi penceresi kapandığına göre talep hâlâ açık mı?",
+      edges: [
+        { label: "Hâlâ açık", detail: "talep bir sahibe karşı açık olarak kayıtlı; ne bir çözüm ne de bir geri çekme var" },
+        { label: "Pencere sürerken kapanmış", detail: "talep pencere kapanmadan önce çözülmüş olarak kaydedilmiş ve bu olay mutabakatla doğrulanmış" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "Çözüm bildirimi gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "sert kapılar bu amaçla iletişime izin veriyor, iletişim noktası ulaşılabilir durumda ve kayıt talebi neyin kapattığını gerçekten taşıyor" },
+        { label: "Engellendi", detail: "sert bir kapı durduruyor ya da kayıt, talebin kişiye anlatılabilecek hiçbir şey olmadan kapandığını gösteriyor; gerekçe kaydedilir" },
+      ],
+    },
+    "a.resolution": {
+      headline: "Talebin kapandığını ve onu neyin kapattığını söyle. Bu mesaj, talebin kendi durumu değiştiği için gönderilir; ikinci bir mesajın var olmasının tek nedeni budur",
+    },
+    "a.record-no-action": {
+      headline: "Mesajı hangi kapının ve hangi aşamada durdurduğunu kaydet; böylece hiçbir şey duymayan bir talep sahibi sessiz bir boşluk değil, ölçülen bir sonuç olur - ve kimse bu sessizliği talebin hiç ulaşmadığı biçiminde okumaz",
+    },
+    "h.owner": {
+      detail: "alındı bildirimi penceresi kapandığında hâlâ açık olan ve artık sorunun kendisinin tespit edilmesi gereken bir talep",
+    },
+    "x.resolved": {
+      headline: "Çözüldü",
+      detail: "aynı kişiden gelen başka bir talep kendi örneğidir; hiçbir şey açık değilken yeniden anlatılan aynı sorun yeni bir talep olarak girer",
+    },
+    "x.attached": {
+      headline: "Bu sorun için zaten açık olan talebe eklendi",
+      detail: "o talep sorun hâlâ ortadayken kapanırsa, sorunun bir sonraki anlatımı kendi kanıtıyla yeni bir talep olarak girer",
+    },
+    "x.withdrawn": {
+      headline: "Talep sahibi tarafından geri çekildi",
+      detail: "aynı sorunla ilgili yeni bir talep yeni bir örnektir; kişi bu konuda başka iletişim istemediğini söylemediyse",
+    },
+    "x.no-action": {
+      headline: "Hiçbir mesaj gönderilmedi",
+      detail: "aynı kişiden gelen sonraki bir talep kendi kapılarıyla değerlendirilir",
+    },
+  },
+  },
   "ACQ-289": {
   shortName: "Yeniden Stokta Bildirimi",
   name: "Ürün alınamazken ilgi kaydedildi → ürün yeniden alınabilir oldu → bildirildi → satın alındı veya kapandı",
@@ -557,6 +854,269 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.no-action": {
       headline: "Hiçbir temas gönderilmedi",
       detail: "kendi tanımlı tamamlayıcısı olan başka bir sahip olunan ürün kendi örneğini açar",
+    },
+  },
+  },
+  "RET-295": {
+  shortName: "Doğum Günü ve Kişisel Dönüm Noktası",
+  name: "Kişiye ait bir tarih yaklaştı → uygunluk kontrol edildi → kutlandı veya gönderilmedi",
+  purpose: "Kişinin kendisine ait bir tarihi - bize kendi verdiği doğum gününü ya da kendi kaydının ulaştığı bir dönüm noktasını - bir kez dile getirmek ve tanımlanmamış hiçbir şeyi ona iliştirmemek.",
+  nodes: {
+    "t.approaching": { headline: "Kişiye ait bir dönüm noktası yaklaşıyor" },
+    "c.date": {
+      headline: "Bu tarih hâlâ bizim kutlayacağımız bir şey mi?",
+      edges: [
+        { label: "Kutla", detail: "tarih kişinin kendi verdiği ya da kendi kaydının ulaştığı bir tarih, ilişki açık ve bu dönem daha önce kutlanmamış" },
+        { label: "İlişki sona ermiş", detail: "hesap kapalı, kişi bu tür iletişim için iznini geri çekmiş ya da rahatsız edilmemeyi istemiş" },
+        { label: "Dönem tükenmiş", detail: "bu dönem zaten kutlanmış ya da tarih geçmiş ve dönem mesaj gönderilmeden kapanmış" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Kutlama gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi için amaç düzeyinde izin, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu kişiyi şu anda tutan daha yüksek öncelikli bir akışın bulunmaması" },
+        { label: "Engellendi", detail: "bir kapı durduruyor ya da daha yüksek öncelikli bir tarih kutlaması bu kişinin penceresini tutuyor; gerekçe kaydedilir" },
+      ],
+    },
+    "a.recognise": {
+      headline: "Tarihi ve neyi işaret ettiğini kişinin kendi diliyle söyle; kaydın desteklemediği hiçbir şeyi dile getirme. Gerçekten tanımlanmış olmadıkça ödül, indirim, seviye ya da ayrıcalıktan söz etme.",
+    },
+    "a.record-no-action": {
+      headline: "Neden kutlama gönderilmediğini ve hangi dönem için olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.recognised": {
+      headline: "Kutlandı",
+      detail: "bu dönüm noktasının sonraki dönemi ya da kişiye ait başka bir dönüm noktası kendi örneğini açar",
+    },
+    "x.closed": {
+      headline: "Mesaj gönderilmeden kapandı",
+      detail: "izni geri gelen ve yeniden açılan bir ilişki sonraki dönemde değerlendirilir; rahatsız edilmemeyi isteyen kişi yeniden alınmaz",
+    },
+    "x.no-action": {
+      headline: "Kutlama gönderilmedi",
+      detail: "sonraki dönem kendi örneğini açar; bu dönem sonradan telafi edilmez",
+    },
+  },
+  },
+  "SUB-296": {
+  shortName: "Sadakat Programı Karşılaması",
+  name: "Üyelik açıldı → karşılandı → yönlendirildi, zaten kullanımda ya da kapandı",
+  purpose: "Açılan bir üyeliği dürüstçe başlatmak: bugünden itibaren gerçekte neyi verdiği, nerede durduğu ve nasıl kullanıldığı - ürünün kendi onboarding'ini ya da ilk satın almanın kendi karşılamasını ödünç almadan.",
+  nodes: {
+    "t.enrolled": { headline: "Sadakat üyeliğine kayıt gerçekleşti" },
+    "c.state": {
+      headline: "Bu üyelik bizim karşılayacağımız bir üyelik mi?",
+      edges: [
+        { label: "Karşılama gerekli", detail: "üyelik aktif, bu üyeliğe karşı kayıtlı bir karşılama yok ve yaşam döngüsü iletişimi izni hâlâ geçerli" },
+        { label: "Üyelik artık geçerli değil", detail: "kayıt geri alınmış, üyelik karşılama gönderilmeden iptal edilmiş ya da kişi iznini geri çekmiş" },
+        { label: "Zaten karşılanmış", detail: "bu üyeliğe karşı kayıtlı bir karşılama zaten var" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Karşılama gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi izni, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması" },
+        { label: "Engellendi", detail: "bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.welcome": {
+      headline: "Bu üyeliğin bugünden itibaren neyi verdiğini, nerede durduğunu ve nasıl kullanıldığını, her iddiayı üyelik kaydından okuyarak söyle. Kaydın taşımadığı hiçbir şeyi adlandırma; sonra başlayan bir ayrıcalığı sonra başlıyor diye anlat.",
+    },
+    "w.benefit": {
+      headline: "üyeliğin verdiği bir şey kullanılana ya da üyelik sona erene kadar",
+      detail: "Zaman aşımı: yönlendirme, üyeliği kendi başına kullanacak olan bir üyenin buna fırsat bulacağı kadar bekler; kaydın açıklanmaya değecek kadar yeni olmaktan çıktığı noktadan öteye geçmez. (loyalty_welcome.orientation_window ayarlanmalı)",
+    },
+    "c.used": {
+      headline: "Üyelik kullanıldı mı?",
+      edges: [
+        { label: "Zaten kullanımda", detail: "üyeliğin kendi kullanım kaydı, verdiği bir ayrıcalığın kullanıldığını gösteriyor" },
+        { label: "Henüz değil", detail: "üyelik hâlâ aktif ve kullanım kaydı kayıttan bu yana kullanılmış hiçbir şey göstermiyor" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "Yönlendirme gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor, temas bütçesi tükenmemiş ve üyelik kaydı hâlâ işaret edilecek kullanılmamış bir ayrıcalık taşıyor" },
+        { label: "Engellendi", detail: "bir kapı durduruyor ya da üyelik artık işaret edilecek kullanılmamış bir ayrıcalık taşımıyor; gerekçe kaydedilir" },
+      ],
+    },
+    "a.orient": {
+      headline: "Üyeliğin hâlihazırda verdiği tek bir şeyi ve onu kullanma yolunu göster; her ikisini de göndermeden hemen önce üyelik kaydından yeniden oku. Hiçbir şey uydurma ve onu zaten kullanmış bir üyeye gönderme.",
+    },
+    "a.record-no-action": {
+      headline: "Neden hiçbir şey gönderilmediğini ve hangi aşamada olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.settled": {
+      headline: "Karşılandı ve üyelik kullanımda",
+      detail: "bir üyeliğe bir kez kayıt olunur; buradan sonrasını olağan üyelik akışları sahiplenir",
+    },
+    "x.oriented": {
+      headline: "Karşılandı ve yönlendirildi",
+      detail: "bu örnek yeniden açılmaz; üyeliğin kullanılıp kullanılmadığı olağan üyelik akışlarının gözleyeceği bir şeydir",
+    },
+    "x.closed": {
+      headline: "Karşılama gönderilmeden kapandı",
+      detail: "kapandıktan sonra yeniden kayıt olunan bir üyelik yeni bir üyeliktir ve kendi örneğini açar",
+    },
+    "x.no-action": {
+      headline: "Hiçbir temas gönderilmedi",
+      detail: "örnek yeniden açılmaz; karşılaması engellenen bir üyelik sonradan yeniymiş gibi karşılanmaz",
+    },
+  },
+  },
+  "SUB-297": {
+  shortName: "Sadakat Programı Besleme",
+  name: "Üyelikte kullanılmamış bir şey duruyor → anlatıldı → kullanıldı, bir kez hatırlatıldı ya da kapandı",
+  purpose: "Bir üyeye, kendi üyeliğinin onun için tuttuğu ve kullanmadığı şeyi söylemek - süren bir kadans olarak değil, sonu olan sınırlı bir plan olarak.",
+  nodes: {
+    "t.unused": { headline: "Üyelik, kullanılmamış bir değer tutuyor" },
+    "c.valid": {
+      headline: "Söylenecek gerçek bir şey hâlâ var mı?",
+      edges: [
+        { label: "Hâlâ kullanılmamış", detail: "üyelik aktif ve kaydı bu şeyin hâlâ tutulduğunu, bu üye tarafından kullanılabilir olduğunu ve kullanılmadığını gösteriyor" },
+        { label: "Üyelik artık geçerli değil", detail: "üyelik sona ermiş ya da üye bu tür iletişim için iznini geri çekmiş" },
+        { label: "Söylenecek bir şey kalmamış", detail: "konu kullanılmış, süresi dolmuş ya da artık bu üye tarafından kullanılabilir değil" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Anlatım gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Engellendi", detail: "bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.explain": {
+      headline: "Bu üyeliğin tuttuğu ve kullanılmamış olan şeyi, ne için kullanılabileceğini ve ne zamana kadar geçerli olduğunu, her parçasını göndermeden hemen önce üyelik kaydından okuyarak söyle.",
+    },
+    "w.act": {
+      headline: "şey kullanılana, üyelik sona erene ya da izin geri çekilene kadar",
+      detail: "Zaman aşımı: hatırlatma, şeyi kullanacak olan bir üyenin buna fırsat bulacağı kadar bekler; ilk mesajın onu hatırlamasının nedeni olmaktan çıktığı noktadan öteye geçmez. (loyalty_nurture.response_window ayarlanmalı)",
+    },
+    "c.acted": {
+      headline: "Üye kullandı mı?",
+      edges: [
+        { label: "Kullandı", detail: "üyelik kaydı konunun kullanıldığını gösteriyor" },
+        { label: "Hâlâ kullanılmamış", detail: "üyelik aktif ve kaydı konunun hâlâ tutulduğunu ve kullanılmadığını gösteriyor" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "Hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor ve temas bütçesi tükenmemiş" },
+        { label: "Engellendi", detail: "bir kapı durduruyor ya da temas bütçesi tükenmiş; gerekçe kaydedilir" },
+      ],
+    },
+    "a.remind": {
+      headline: "Aynı kullanılmamış şeyi bir kez daha söyle, anlatımın söylemediği hiçbir şeyi ekleme ve bundan sonra ne olursa olsun planı kapat.",
+    },
+    "a.record-no-action": {
+      headline: "Neden hiçbir şey gönderilmediğini ve hangi aşamada olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.used": {
+      headline: "Kullanıldı",
+      detail: "aynı üyelikte kullanılmamış başka bir konu, bekleme süresi dolduktan sonra kendi örneğini açar",
+    },
+    "x.nurtured": {
+      headline: "Anlatıldı ve hatırlatıldı",
+      detail: "bu konu bir daha gündeme getirilmez; kullanılmamış başka bir konu, bekleme süresi dolduktan sonra kendi örneğini açar",
+    },
+    "x.closed": {
+      headline: "Başka temas olmadan kapandı",
+      detail: "geri gelen bir üyelik, izni de geri geldiyse, o anda kullanılmamış olarak ne tutuyorsa onun üzerinden değerlendirilir",
+    },
+    "x.no-action": {
+      headline: "Hiçbir temas gönderilmedi",
+      detail: "bu konu bu örnek altında bir daha gündeme getirilmez; kullanılmamış başka bir konu kendi örneğini açar",
+    },
+  },
+  },
+  "SUB-298": {
+  shortName: "Ödül Onayı",
+  name: "Ödül kazanıldı → kayıt doğrulandı → bir kez bildirildi ya da bildirilmeden kapandı",
+  purpose: "Üyeliğin gerçekten ulaştığı bir durumu - kazanılmış, hesaba geçmiş ve kullanılabilir bir ödülü - kaydın söylediği gibi bildirmek ve kaydın söylemediği hiçbir şeyi bildirmemek.",
+  nodes: {
+    "t.earned": { headline: "Üyelik bir ödül kazandı" },
+    "c.state": {
+      headline: "Bu ödül üyeliğin gerçekten ulaştığı bir durum mu ve hâlâ bizim bildireceğimiz bir şey mi?",
+      edges: [
+        { label: "Bildir", detail: "ödül hesaba geçmiş, üyelik aktif, bu ödül kaydına karşı kayıtlı bir bildirim yok ve ulaşılabilir bir hedef mevcut" },
+        { label: "Ulaşılmış bir durum değil", detail: "ödül bildirim gönderilmeden önce geri alınmış ya da düzeltilmiş, veya üyelik sona ermiş" },
+        { label: "Gönderilecek bir şey yok", detail: "bu ödül kaydına karşı zaten bir bildirim kayıtlı ya da ulaşılabilir bir hedef yok; gerekçe kaydedilir" },
+      ],
+    },
+    "a.confirm": {
+      headline: "Neyin kazanıldığını, ne için kullanılabileceğini ve ne zamana kadar geçerli olduğunu, her parçasını ödül kaydından okuyarak söyle. Hiçbir teklif, öneri ya da bir sonrakini kazanmaya teşvik ekleme.",
+    },
+    "a.record-no-action": {
+      headline: "Neden bildirim gönderilmediğini ve hangi ödül kaydına karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.confirmed": {
+      headline: "Bildirildi",
+      detail: "aynı ödülün daha yeni bir yetkili durumu - düzeltme, geri alma, yeniden hesaba geçirme - kendi örneğini açar ve ne ise o olarak bildirilir",
+    },
+    "x.closed": {
+      headline: "Bildirim gönderilmeden kapandı",
+      detail: "aktif bir üyelikte yeniden geçerli kılınan bir ödül, kendi yeni kaydı üzerinden bildirilir",
+    },
+    "x.no-action": {
+      headline: "Bildirim gönderilmedi",
+      detail: "aynı ödül kaydı sonradan yeniymiş gibi bildirilmez; düzeltilmiş bir kayıt kendi örneğini açar",
+    },
+  },
+  },
+  "SUB-299": {
+  shortName: "Sadakat Seviyesi Yükselmesi",
+  name: "Seviye değişti → yön kontrol edildi → yükselme duyuruldu, kullanıldı ya da başka bir akışa bırakıldı",
+  purpose: "Bir üyeye üyeliğinin kendi standının yukarı hareket ettiğini söylemek ve bu standın öncekinin vermediği neyi verdiğini tam olarak belirtmek - başka hiçbir şeyi değil.",
+  nodes: {
+    "t.changed": { headline: "Üyelik seviyesi değişti" },
+    "c.direction": {
+      headline: "Stand hangi yöne hareket etti ve yürürlükte mi?",
+      edges: [
+        { label: "Yukarı hareket etti ve yürürlükte", detail: "programın kendi sıralaması yeni standı öncekinin üzerine koyuyor, yeni stand yürürlükte ve bu üyelikte daha yeni bir seviye değişikliği yok" },
+        { label: "Aşağı hareket etti", detail: "programın kendi sıralaması yeni standı öncekinin altına koyuyor" },
+        { label: "Anlamlı bir hareket yok", detail: "stand değişmemiş, yatay, henüz yürürlükte değil ya da bu üyelikteki daha yeni bir değişiklikle geçersiz kılınmış" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Duyuru gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi izni, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması" },
+        { label: "Engellendi", detail: "bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.announce": {
+      headline: "Üyenin artık tuttuğu standı ve bu standın öncekinin vermediği neyi verdiğini, ikisini de programın kendi koşullarından okuyarak söyle. Önceki standın zaten verdiği hiçbir şeyi yeniymiş gibi sunma.",
+    },
+    "w.use": {
+      headline: "yeni standın verdiği bir şey kullanılana ya da üyelik sona erene kadar",
+      detail: "Zaman aşımı: pencere, yeni standı kullanmak isteyen bir üyenin bunun için olağan bir fırsat bulacağı kadar uzundur, daha fazlası değil; örneğin nasıl kaydedileceğine karar verir, başka bir mesaj gönderilip gönderilmeyeceğine değil. (loyalty_tier_change.adoption_window ayarlanmalı)",
+    },
+    "c.used": {
+      headline: "Yeni stand kullanıldı mı?",
+      edges: [
+        { label: "Kullanıldı", detail: "üyeliğin kullanım kaydı, yeni standın verdiği bir ayrıcalığın yürürlüğe girmesinden bu yana kullanıldığını gösteriyor" },
+        { label: "Kullanılmadı", detail: "pencere kapandı ya da üyelik sona erdi ve yeni standın verdiği hiçbir şey kullanılmadı" },
+      ],
+    },
+    "a.record-no-action": {
+      headline: "Neden duyuru gönderilmediğini ve hangi değişiklik kaydına karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.adopted": {
+      headline: "Duyuruldu ve kullanıldı",
+      detail: "bu üyelikte yukarı yönlü başka bir hareket kendi örneğini açar",
+    },
+    "x.announced": {
+      headline: "Duyuruldu",
+      detail: "yukarı yönlü başka bir hareket kendi örneğini açar; bununla ilgili başka bir şey gönderilmez",
+    },
+    "x.out-of-scope": {
+      headline: "Bu akışın konusu değil",
+      detail: "bu üyelikte sonraki yukarı yönlü bir hareket kendi örneğini açar; aşağı yönlü hareket onu sahiplenen akışa bırakılır ve burada varsayılan olarak anlatılmaz",
+    },
+    "x.no-action": {
+      headline: "Duyuru gönderilmedi",
+      detail: "bu değişiklik kaydı sonradan güncelmiş gibi duyurulmaz; daha yeni bir değişiklik kendi örneğini açar",
     },
   },
   },
@@ -3969,6 +4529,238 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.unverified": { headline: "Talebi doğrulanamadı olarak kapatın; hiçbir şeyin silinmediğini, nedenini ve yeni bir talebin istenildiği zaman açılabileceğini açıkça belirtin. Sessizce kapatılan bir talep, gerçekleşmiş bir silme işlemi gibi algılanır" },
     "x.closed": { headline: "yanıtlandı ve kayıtlı olarak kapatıldı", detail: "aynı kişiden gelecek sonraki bir silme talebi yeni bir vaka sayılır ve baştan yeniden doğrulanır" },
     "x.unverified": { headline: "doğrulanamadı olarak kapatıldı, hiçbir şey silinmedi", detail: "aynı kişiden gelecek yeni bir talep, kendi süresi ve kendi doğrulaması olan yeni bir vaka sayılır" },
+  },
+  },
+  "CON-300": {
+  shortName: "Yanıt Vermeyen Aboneyi Sonlandırma",
+  name: "Pazarlama iletişimi yanıtsız kaldı → soru bir kez soruldu → sürdürüldü, azaltıldı veya sonlandırıldı",
+  purpose: "Gönderilenlerin hiçbirine yanıt vermemiş biriyle pazarlama iletişimini sürdürmenin hâlâ gerekçeli olup olmadığına karar vermek - bunu bir kez sorarak, \"daha az\" seçeneğini \"hiç\" seçeneğinin yanına gerçek bir yanıt olarak koyarak ve yanıt hiç gelmediğinde iletişimi sonlandırarak.",
+  nodes: {
+    "t.unengaged": { headline: "Pazarlama iletişimi bir dönem boyunca yanıtsız kaldı" },
+    "c.evidence": {
+      headline: "Kayıt, pazarlama iletişiminin istenmediği sonucunu gerçekten destekliyor mu?",
+      edges: [
+        { label: "Destekliyor", detail: "dönem içinde etkileşimi raporlayabilen bir yoldan gönderim yapılmış, hiçbirine yanıt gelmemiş ve ticari iletişim izni hâlâ geçerli" },
+        { label: "Okunacak bir şey yok", detail: "dönem içinde hiçbir şey gönderilmemiş ya da gönderilen yol etkileşimi hiç raporlayamıyor; buradaki sessizlikten bir sonuç çıkarılamaz" },
+        { label: "Zaten yanıtlanmış", detail: "kişi dönem içinde kendi tercihini belirlemiş ya da izniyle ilgili bir karar vermiş" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Soru gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: bu amaç için izin, ulaşılabilir bir hedef, hizmet baskı sınırı, yürürlükte bekleme süresi olmaması ve bu kişiyi şu anda tutan daha yüksek öncelikli bir ulaşılabilirlik akışının bulunmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir ve mesaj başka bir yola zorlanmaz" },
+      ],
+    },
+    "a.ask": {
+      headline: "Pazarlama iletişiminin sürüp sürmeyeceğini bir kez sor ve azaltılmış bir sıklığı tamamen durdurmanın yanına koy; böylece \"daha az\" kişinin gerçekten verebileceği bir yanıt olsun. Hiçbir teklif, hiçbir ayrıcalık ve ilişkiyi savunan hiçbir gerekçe taşıma.",
+    },
+    "w.answer": {
+      headline: "soru yanıtlanana kadar",
+      detail: "Zaman aşımı: soruya, son bir bildirim gerekmeden önce yanıtlanması için tanınan süre. (unengaged_sunset.answer_window ayarlanmalı)",
+    },
+    "c.answered": {
+      headline: "Soru bir yanıt aldı mı?",
+      edges: [
+        { label: "Sürsün", detail: "bu kişi için dönem içinde pazarlama iletişimiyle kurulmuş kayıtlı bir etkileşim var ya da kişi duymaya devam etmek istediğini belirtti" },
+        { label: "Daha az olsun", detail: "kişi sonlandırma yerine azaltılmış bir sıklık belirledi" },
+        { label: "Dursun", detail: "kişi ticari iletişim iznini kendisi geri çekti" },
+        { label: "Yanıt yok", detail: "süre, hiçbir kayıt oluşmadan kapandı" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "Son bildirim gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor ve bu kişiyi şu anda tutan daha yüksek öncelikli bir ulaşılabilirlik akışı yok" },
+        { label: "Kalan yol yok", detail: "bu amaç için izinli ve ulaşılabilir hiçbir hedef kalmamış; bildirimi iletebileceğimiz kimse yok ve gerekçe kaydedilir" },
+      ],
+    },
+    "a.final": {
+      headline: "Sona erme tarihini taşıyan tek bir son bildirim ver: pazarlama iletişiminin hangi tarihte biteceğini, onu sürdürecek tek eylemi ve arada duran yanıt olarak azaltılmış sıklığı söyle. İlişkiyi savunan hiçbir şey eklenmez ve başka neyin değiştiğine dair hiçbir iddiada bulunulmaz.",
+    },
+    "w.final": {
+      headline: "bildirim süresi dolana kadar",
+      detail: "Zaman aşımı: son bildirimde belirtilen süre; bildirimin bir anlamı olması için bu tarihin gerçekten gelmesi gerekir. (unengaged_sunset.notice_period ayarlanmalı)",
+    },
+    "c.final": {
+      headline: "Bildirim süresi neyle sonuçlandı?",
+      edges: [
+        { label: "Sürsün", detail: "bu kişi için bildirim süresi içinde pazarlama iletişimiyle kurulmuş kayıtlı bir etkileşim var ya da kişi duymaya devam etmek istediğini belirtti" },
+        { label: "Daha az olsun", detail: "kişi sonlandırma yerine azaltılmış bir sıklık belirledi" },
+        { label: "Dursun", detail: "kişi ticari iletişim iznini kendisi geri çekti" },
+        { label: "Sessizlikle sona erdi", detail: "bildirim süresi, hiçbir kayıt oluşmadan kapandı" },
+      ],
+    },
+    "a.suppress": {
+      headline: "Bu kişi için pazarlama iletişimini gönderen tarafta durdur; kapsamı yalnızca ticari iletişimle sınırlı tut ve gerekçeyi, okunduğu dönemi ve durdurmayı kaldıracak koşulu birlikte kaydet. Kişinin kendi izin kaydına dokunulmaz: sessizlik bir çıkış talebi değildir ve buraya öyle yazmak, kişinin hiç vermediği bir kararı kaydına geçirmek olur.",
+    },
+    "c.notify": {
+      headline: "Sonlandırma kişiye bildirilebilir mi?",
+      edges: [
+        { label: "Bildirilebilir", detail: "bu türden bir hizmet bildirimi için izinli ve ulaşılabilir bir hedef kalmış durumda" },
+        { label: "Bildirilecek yol yok", detail: "bu kişiye ulaşacak hiçbir yol kalmamış; durdurma geçerli olur ve bildirim yapılmadan kaydedilir" },
+      ],
+    },
+    "a.confirm-end": {
+      headline: "Pazarlama iletişiminin sona erdiğini bildir, zaten pazarlama olmadığı için sürmeye devam edecekleri - kişinin elindeki, borçlu olduğu ya da alacaklı olduğu her şeyi - adıyla say ve istediğinde geri dönebileceği yolu bırak. Bu, kendi gönderimimiz hakkında bir bildirimdir; teşekkür etmek ya da bir kez daha sormak yerine bunu söyler.",
+    },
+    "h.enforce": {
+      headline: "İletişim Durdurma",
+      detail: "bu kişi için pazarlama iletişiminin sona ermesi ve durdurmanın artık durdurma durumlarını yöneten mekanizma tarafından tutulması, kapsamlanması ve kaldırılması gerekmesi",
+    },
+    "h.frequency": {
+      headline: "Sıklık Tercihi Güncelleme",
+      detail: "sonlandırma yerine azaltılmış bir sıklığın seçilmesi",
+    },
+    "h.permission": {
+      headline: "İzin Değişikliği Uygulaması",
+      detail: "kişinin ticari iletişim iznini kendisinin geri çekmesi",
+    },
+    "a.record-no-action": {
+      headline: "Sorunun neden sorulmadığını ve hangi döneme karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.kept": {
+      headline: "Sürdürüldü",
+      detail: "sonraki bir yanıtsız dönem, bekleme süresinden sonra kendi kanıtıyla değerlendirilir",
+    },
+    "x.answered": {
+      headline: "Sorulmadan kapandı",
+      detail: "sonraki bir yanıtsız dönem kendi örneğini açar ve yanıttan sonra yapılan gönderimlerden okunur",
+    },
+    "x.ended": {
+      headline: "Pazarlama iletişimi sonlandırıldı",
+      detail: "yeniden verilen bir izin durdurmayı kaldırır; bu akışın içinde onu yeniden açan hiçbir şey yoktur",
+    },
+    "x.no-action": {
+      headline: "Soru sorulmadı",
+      detail: "sonraki yanıtsız dönem kendi kapılarıyla değerlendirilir",
+    },
+  },
+  },
+  "FUL-301": {
+  shortName: "Sipariş Onayı",
+  name: "Sipariş kabul edildi → neyin kabul edildiği bir kez söylendi → onaylandı, geçersiz kaldı veya devredildi",
+  purpose: "İfa kaydının açıldığı anda, işletmenin neyi üstlendiğini ve neyi üstlenmediğini bir kez söylemek - bu siparişle ilgili sonraki her mesajın zaten yanıtlanmış saydığı soru.",
+  nodes: {
+    "t.accepted": { headline: "İfa yükümlülüğü kabul edildi" },
+    "c.stands": {
+      headline: "Kabul edilen yükümlülük hâlâ geçerli mi ve gerçekte neyi kapsıyor?",
+      edges: [
+        { label: "Tamamı kabul edildi", detail: "kayıt, istenen her şeyi kabul ediyor ve kabul hâlâ geçerli" },
+        { label: "Bir kısmı kabul edildi", detail: "kayıt istenenin bir kısmını kabul edip kalanını reddediyor ve reddedilen kapsam için bir gerekçe kayıtlı" },
+        { label: "Geçerli bir şey kalmadı", detail: "kabul, herhangi bir onay çıkmadan önce geri alındı, iptal edildi ya da tümüyle reddedildi" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Onay gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: işlemsel bir amaç, ulaşılabilir bir hedef, sert kapıların açık olması ve bu yükümlülük için daha önce kaydedilmiş bir onayın bulunmaması" },
+        { label: "Yol yok", detail: "bu türden bir işlemsel bildirim için izinli ve ulaşılabilir hiçbir hedef kalmamış; onay izinsiz bir yola zorlanmak yerine gerekçesiyle kaydedilir" },
+      ],
+    },
+    "a.confirm": {
+      headline: "Kaydın neyi kabul ettiğini, neyi reddettiğini ve buna dair verdiği gerekçeyi, finansal kaydın tuttuğu haliyle tutarı ve siparişe giden yolu belirt. Kaydın taşımadığı bir teslim tarihi, tamamlanmış bir tahsilat ya da siparişin nerede olduğuna dair hiçbir şey iddia etme - o durum henüz yok.",
+    },
+    "w.stands": {
+      headline: "sipariş harekete geçene ya da iptal edilene kadar",
+      detail: "Zaman aşımı: bu akışın sipariş hakkında söylenen son şey olarak kaldığı süre; ardından siparişin hareketini anlatan akışlar devralır. (order_confirmation.record_window ayarlanmalı)",
+    },
+    "c.next": {
+      headline: "Bu onay hâlâ sipariş hakkında söylenen son şeyken siparişe ne oldu?",
+      edges: [
+        { label: "Harekete geçti", detail: "yükümlülük bir teslimat yürütücüsüne devredildi; buradan sonra takip ve olası gecikme, o durumları yöneten akışlara aittir" },
+        { label: "Hareket etmeden iptal edildi", detail: "hiçbir şey sevk edilmeden önce yükümlülük üzerinde yetkili bir iptal yürürlüğe girdi" },
+      ],
+    },
+    "h.cancelled": {
+      headline: "İfa İptali Mutabakatı",
+      detail: "onayı çoktan alıcının elinde olan, kabul edilmiş ama hiç hareket etmeden iptal edilen bir yükümlülük",
+    },
+    "a.record-no-action": {
+      headline: "Neden onay gönderilmediğini ve hangi yükümlülüğe karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.confirmed": {
+      headline: "Onaylandı",
+      detail: "sonraki bir kabul edilmiş yükümlülük kendi örneğini açar; bu örnek yeniden açılmaz ve mesaj bir daha gönderilmez",
+    },
+    "x.void": {
+      headline: "Onaylanacak bir şey yok",
+      detail: "yeniden kabul edilen ya da yerine geçen bir yükümlülük kendi kaydı ve kendi örneğidir",
+    },
+    "x.no-action": {
+      headline: "Onay gönderilmedi",
+      detail: "sonraki bir kabul edilmiş yükümlülük kendi örneğini açar",
+    },
+  },
+  },
+  "FIN-302": {
+  shortName: "İade Bildirimi",
+  name: "İade gönderildi → sonuç gözlendi → tamamı iade edildi, bir kısmı iade edildi ya da ulaşmadı",
+  purpose: "Kişiye paranın geri gittiğini, sonra da gerçekten ulaşıp ulaşmadığını söylemek - iade kararını, paranın hareketini ve paranın varışını, her biri doğru hale geldiği anda söylenen üç ayrı olgu olarak tutarak.",
+  nodes: {
+    "t.submitted": { headline: "İade, tahsilat yoluna gönderildi" },
+    "c.scope": {
+      headline: "Gerçekte ne hareket ediyor ve neye karşı?",
+      edges: [
+        { label: "İşlemin tamamı", detail: "gönderilen tutar işlemin tamamı ve işleme karşı iade edilebilir bir bakiye kalmıyor" },
+        { label: "Bir kısmı", detail: "gönderilen tutar işlemin bir kısmı ve kalan iade edilebilir tutar ayrıca kayıtlı" },
+        { label: "Hareket eden bir şey yok", detail: "gönderim, hakkında herhangi bir şey söylenmeden geri çekildi ya da iptal edildi" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Bildirim gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: işlemsel bir amaç, ulaşılabilir bir hedef, sert kapıların açık olması ve bu iade için daha önce kaydedilmiş bir bildirimin bulunmaması" },
+        { label: "Yol yok", detail: "bu türden bir işlemsel bildirim için izinli ve ulaşılabilir hiçbir hedef kalmamış; bildirim izinsiz bir yola zorlanmak yerine gerekçesiyle kaydedilir" },
+      ],
+    },
+    "a.issued": {
+      headline: "Paranın geri gittiğini söyle: gönderilen tutarı, bunun işlemin tamamı mı yoksa bir kısmı mı olduğunu - bir kısmıysa kalan iade edilebilir tutarı ayrıca adıyla - ve henüz ulaşmadığını. Varış için hiçbir tarih verme; tahsilat yolunun kendi süresi bizim iddia edeceğimiz bir şey değildir.",
+    },
+    "w.outcome": {
+      headline: "iadenin sonucu finansal kayda düşene kadar",
+      detail: "Zaman aşımı: tahsilat yoluna, kişiye paranın geri geldiğinin doğrulanamadığı söylenmeden önce bir sonuç üretmesi için tanınan süre. (refund_notification.settlement_window ayarlanmalı)",
+    },
+    "c.outcome": {
+      headline: "Finansal kayıt, paraya ne olduğunu söylüyor?",
+      edges: [
+        { label: "Tamamı geri döndü", detail: "kayıt, gönderilen tutarın tamamının iade edildiğini doğruluyor" },
+        { label: "Bir kısmı geri döndü", detail: "kayıt, gönderilen tutarın bir kısmının iade edildiğini doğruluyor ve üzerinde açık kalan tutarı belirtiyor" },
+        { label: "Geri geldiği doğrulanmadı", detail: "kayıt başarısız bir tahsilat gösteriyor ya da süre kapandığında hiçbir sonuç yok; her iki durumda da paranın geri geldiği doğrulanmış değil" },
+      ],
+    },
+    "a.settled": {
+      headline: "Finansal kayda dayanarak paranın geri geldiğini ve ne kadarının geldiğini bildir. Paranın şu anda nerede durduğuna dair hiçbir şey söyleme.",
+    },
+    "a.partial": {
+      headline: "Gönderilen tutarın bir kısmının geri geldiğini söyle, gelmeyen kısmı adıyla belirt ve kalan için ne olduğunu anlat. Bir kısmı tamamıymış gibi duyurmak, kişiyi kimsenin yanıtlayamayacağı bir soruyla baş başa bırakır.",
+    },
+    "a.unresolved": {
+      headline: "Paranın geri geldiğinin doğrulanmadığını açıkça söyle, hareketin yeniden denenmek yerine mutabakata alındığını belirt ve kendisinden başka bir şey beklenmediğini ekle. Belirsiz olan belirsiz olarak söylenir; çünkü kendi parasını bekleyen birine borçlu olunan şey bir güvence değil, gerçeğin kendisidir.",
+    },
+    "a.record-no-action": {
+      headline: "Neden bildirim gönderilmediğini ve hangi iadeye karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.settled": {
+      headline: "Geri döndü ve doğrulandı",
+      detail: "aynı işleme karşı yapılacak başka bir iade kendi hareketi ve kendi örneğidir",
+    },
+    "x.partial": {
+      headline: "Kısmen geri döndü",
+      detail: "kalan iade edilebilir tutara karşı gönderilen bir iade kendi örneğini açar",
+    },
+    "x.unsettled": {
+      headline: "Geri geldiği doğrulanmadı",
+      detail: "mutabakat sonucunda para yeniden hareket ederse, o gönderim kendi örneğidir",
+    },
+    "x.void": {
+      headline: "Duyurulacak bir şey yok",
+      detail: "yeniden gönderilen bir iade kendi hareketi ve kendi örneğidir",
+    },
+    "x.no-action": {
+      headline: "Bildirim gönderilmedi",
+      detail: "bu işleme karşı yapılacak başka bir iade kendi kapılarıyla değerlendirilir",
+    },
   },
   },
 };

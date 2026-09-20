@@ -3466,6 +3466,18 @@
           "score": 0.5
         }
       ]
+    },
+    "journey:RET-295": {
+      "relatedPrimary": [],
+      "relatedSecondary": [
+        {
+          "to": "calculator:retention-rate",
+          "reasons": [
+            "shared-category"
+          ],
+          "score": 0.5
+        }
+      ]
     }
   }
 }

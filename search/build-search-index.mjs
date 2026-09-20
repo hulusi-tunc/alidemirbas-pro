@@ -406,8 +406,21 @@ for (const slug of liveCalcSlugs) {
 /* The library's public size is the Customer Journeys surface (2026-09-05, same
    definition as src/lib/public-corpus.ts's LIBRARY_JOURNEYS): a public journey
    that sends or routes to a person. surface-assignment.json carries exactly
-   those two booleans, so the count and its categories are derived, not typed. */
-const libraryRows = surfaceAssignment.journeys.filter((r) => r.surface === "customer" && (r.sends || r.routesToHuman));
+   those booleans, so the count and its categories are derived, not typed.
+
+   `!r.excludedFromPublic` IS PART OF THAT DEFINITION and was missing here.
+   `isLibraryJourney` is "PUBLIC and customer and sends-or-routes-to-a-person",
+   and since the 21-journey scope decision "public" means the surface rule AND
+   the exclusion list - which is why surface-assignment.json carries the flag at
+   all. Without it this card advertised the pre-exclusion number on a public
+   page: 79 journeys / 21 categories against a real 52 / 18, drifting further
+   with every batch of additions (82 / 21 by the time it was caught). Both
+   Batch C and Batch D found it independently and correctly left it alone -
+   three parallel branches each carrying a different one-line fix to the one
+   file every batch regenerates would have been worse than the bug. */
+const libraryRows = surfaceAssignment.journeys.filter(
+  (r) => r.surface === "customer" && !r.excludedFromPublic && (r.sends || r.routesToHuman),
+);
 const libraryCategoryCount = new Set(libraryRows.map((r) => r.category)).size;
 const LAB_PROJECTS = [
   { slug: "claude-lifecycle", name: "Lifecycle Marketing Journey Builder", desc: "Looks at the customer data you already track and builds lifecycle journeys around what you can actually measure, segment and act on.", tags: ["Claude Code Plugin", "CRM", "Lifecycle Marketing", "26 journey patterns", "9 industries"], url: "https://github.com/ali-demirbas/claude-lifecycle", external: true, poweredCorpus: null },

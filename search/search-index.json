@@ -16101,6 +16101,10 @@
         {
           "targetId": "journey:ACT-19",
           "because": "This one advances a path already chosen; ACT-19 is what chooses it. They share an account and a trigger condition - onboarding_active_without_activation is true for both, and stays true for the whole of ACT-19's answer wait - so while a personalization question is outstanding this journey holds its prompts (s.personalizing) rather than pushing the generic next step over the answer that would re-route it."
+        },
+        {
+          "targetId": "journey:SUB-296",
+          "because": "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person."
         }
       ]
     }
@@ -17646,6 +17650,10 @@
         {
           "targetId": "journey:CON-39",
           "because": "A cooldown is one reason among the nine this journey holds. It has its own journey because its release is time-based and its scope is deliberately partial, which the general mechanism does not assume."
+        },
+        {
+          "targetId": "journey:CON-300",
+          "because": "CON-300 decides that continued marketing contact is no longer warranted and hands the result here. What it produces is the sender-side kind of suppression this journey keeps apart from a permission the person withdrew: it is recorded against our own sending, it is scoped to commercial communication, and this journey releases it by asking for permission again rather than by switching sending back on."
         }
       ]
     }
@@ -17809,7 +17817,8 @@
     ],
     "tags": [
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -17839,6 +17848,99 @@
         {
           "targetId": "journey:CON-38",
           "because": "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed."
+        },
+        {
+          "targetId": "journey:CON-300",
+          "because": "CON-300 decides whether a working route should keep being used at all, which is a permission question. This journey is about a route that has stopped working, which is a technical one - and a broken destination is a common reason nothing was engaged with, which is why this journey takes precedence in the contactability-question group and CON-300 stands down while a repair is open."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:CON-300",
+    "type": "journey",
+    "slug": "unengaged-sunset",
+    "url": "/lab/journeys/unengaged-sunset",
+    "urlTr": "/tr/lab/journeys/unengaged-sunset",
+    "external": false,
+    "title": "CON-300 Marketing contact unanswered → the question put once → kept, reduced or ended",
+    "summary": "Decide whether continued marketing contact is still warranted for somebody who has answered none of it - by asking them once, putting fewer beside none as a real answer, and ending marketing contact where no answer ever comes.",
+    "searchText": "Marketing contact unanswered → the question put once → kept, reduced or ended. Decide whether continued marketing contact is still warranted for somebody who has answered none of it - by asking them once, putting fewer beside none as a real answer, and ending marketing contact where no answer ever comes.. Also known as unengaged subscriber sunset, sunset policy, list hygiene, inactive subscriber removal, re-permission, are you still interested. somebody who has answered none of the marketing sent to them, asked once whether it should continue. ending marketing contact that no evidence supports any more, without recording an opt-out the person never gave. Marketing contact unanswered across window. Consent, preferences, communication & contactability. Hands off to CON-38, CON-283, CON-35. kept; the person answered and marketing contact continues unchanged. closed without asking; the person had already answered the question themselves. marketing contact ended; the suppression is recorded and no route remained to confirm it on. no question asked; the reason is recorded",
+    "keywords": [
+      "CON-300",
+      "unengaged subscriber sunset",
+      "sunset policy",
+      "list hygiene",
+      "inactive subscriber removal",
+      "re-permission",
+      "are you still interested"
+    ],
+    "category": [
+      "consent"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "review-required"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/unengaged-sunset",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:CON-38"
+        },
+        {
+          "targetId": "journey:CON-35"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-32",
+          "because": "RET-32 is trying to get the person back and speaks about the relationship. This journey is deciding whether we may keep speaking at all, carries no offer, and takes silence as an answer to that question rather than as a reason to try harder."
+        },
+        {
+          "targetId": "journey:CON-272",
+          "because": "CON-272 repairs a destination that broke, which is a technical fact about a route. This decides whether a route that works should keep being used, which is a permission question - and a route CON-272 is still repairing is exactly why nothing was engaged with, so this journey stands down while that one holds the person."
+        },
+        {
+          "targetId": "journey:CON-38",
+          "because": "CON-38 holds, scopes and releases a suppression once it exists. This journey is the decision that one is warranted, and the suppression it produces is the sender-side kind CON-38 keeps apart from a permission the person withdrew."
+        },
+        {
+          "targetId": "journey:RET-26",
+          "because": "RET-26 reads a person's engagement with the product. This reads their engagement with our messages, and the two are routinely opposite: an active customer who ignores marketing is not dormant, and a sunset that treats them as such loses a customer to fix a list."
         }
       ]
     }
@@ -18603,6 +18705,76 @@
     }
   },
   {
+    "id": "journey:FIN-302",
+    "type": "journey",
+    "slug": "refund-notification",
+    "url": "/lab/journeys/refund-notification",
+    "urlTr": "/tr/lab/journeys/refund-notification",
+    "external": false,
+    "title": "FIN-302 Refund submitted → settlement observed → returned, partly returned or not arrived",
+    "summary": "Tell the person that money is going back, and then whether it actually arrived - keeping the decision to refund, the movement of the money and its arrival as three facts stated at the moments each becomes true.",
+    "searchText": "Refund submitted → settlement observed → returned, partly returned or not arrived. Tell the person that money is going back, and then whether it actually arrived - keeping the decision to refund, the movement of the money and its arrival as three facts stated at the moments each becomes true.. Also known as refund notification, refund confirmation, money back notice, refund issued message, refund status update. a refund submitted for settlement, told to the person before it has arrived. a partial refund where the amount returned and the amount still refundable have to be stated separately. a refund that has not been confirmed back, told as being reconciled rather than left silent. Refund submitted for settlement. Transactions, payments, billing & financial outcomes. returned and confirmed; the money is back and the person was told so from the record. partly returned; the amount returned and the amount still refundable were stated separately. not confirmed back; the person was told it is being reconciled rather than left waiting. nothing to announce; the submission was withdrawn before anything was said about it. no notice sent; the reason is recorded",
+    "keywords": [
+      "FIN-302",
+      "refund notification",
+      "refund confirmation",
+      "money back notice",
+      "refund issued message",
+      "refund status update"
+    ],
+    "category": [
+      "financial"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "delivery-confirmation"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/refund-notification",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REM-157",
+          "because": "REM-157 says which remedy would resolve the obligation, and a refund is only one of the answers it can give. This exists only where that answer was a refund and only once the refund has been submitted: a remedy confirmed is not money arrived."
+        },
+        {
+          "targetId": "journey:FIN-134",
+          "because": "FIN-134 is money that failed to come in and an obligation that stays open. This is money going back out against an obligation already discharged; the two share a payment record and nothing else."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:FUL-141",
     "type": "journey",
     "slug": "fulfillment-request-acceptance",
@@ -19040,7 +19212,12 @@
           "targetId": "journey:FUL-150"
         }
       ],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-301",
+          "because": "FUL-301 states the original commitment once, at the moment the record opens, and then says nothing further. This journey is what happens when that commitment slips - it is measured against what the confirmation said, and it never restates the confirmation itself."
+        }
+      ]
     }
   },
   {
@@ -19385,6 +19562,10 @@
         {
           "targetId": "journey:FUL-149",
           "because": "FUL-149 decides whether acceptance is contractually meaningful and records finalisation. This is the request for that acceptance and the deadline enforced in front of the person who owes it."
+        },
+        {
+          "targetId": "journey:FUL-301",
+          "because": "FUL-301 confirms what the record accepted at the moment it opened, and stops there. This journey begins at dispatch, which is where the order first has a position to report - it never re-confirms the order, and the confirmation never reports a position."
         }
       ]
     }
@@ -19464,6 +19645,98 @@
         {
           "targetId": "journey:REM-151",
           "because": "REM-151 owns the order the moment a problem is raised against it. This journey ends there rather than continuing beside it."
+        },
+        {
+          "targetId": "journey:FUL-301",
+          "because": "FUL-301 opens the record and says what was taken on; this closes it and says what to do with what arrived. They sit at opposite ends of the same obligation, which is why this journey never repeats the confirmation and why the confirmation outranks it when both would speak in the same window."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:FUL-301",
+    "type": "journey",
+    "slug": "order-confirmation",
+    "url": "/lab/journeys/order-confirmation",
+    "urlTr": "/tr/lab/journeys/order-confirmation",
+    "external": false,
+    "title": "FUL-301 Order accepted → what was accepted stated once → confirmed, void or handed on",
+    "summary": "Say once, at the moment the fulfillment record opens, exactly what the business has taken on and what it has not - the question every later message about this order assumes has already been answered.",
+    "searchText": "Order accepted → what was accepted stated once → confirmed, void or handed on. Say once, at the moment the fulfillment record opens, exactly what the business has taken on and what it has not - the question every later message about this order assumes has already been answered.. Also known as order confirmation, purchase confirmation, order receipt, booking confirmation message, we got your order. an accepted order confirmed to the person who placed it, stated from the record rather than from the request. an order accepted in part, where the declined scope has to be said in the same message as the accepted one. Fulfillment obligation accepted. Orders, fulfillment, delivery & service completion. Hands off to FUL-150. confirmed; what the record accepted has been stated once and this journey says nothing further about it. nothing to confirm; the acceptance was reversed before a confirmation could go out. no confirmation sent; the reason is recorded",
+    "keywords": [
+      "FUL-301",
+      "order confirmation",
+      "purchase confirmation",
+      "order receipt",
+      "booking confirmation message",
+      "we got your order"
+    ],
+    "category": [
+      "fulfillment"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "delivery-confirmation"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/order-confirmation",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FUL-150"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-265",
+          "because": "FUL-265 begins at dispatch and narrates the order while it moves. This journey ends where that one begins: it opens the record and says nothing about where the order is, because at the moment it speaks there is nowhere yet."
+        },
+        {
+          "targetId": "journey:FUL-146",
+          "because": "FUL-146 holds lateness against an original commitment. This journey is where that original commitment is first stated to the person, which is what FUL-146's own commitment history is later measured against - and it never opens a second narrative about a slip."
+        },
+        {
+          "targetId": "journey:FUL-291",
+          "because": "FUL-291 speaks once the thing has arrived, about making it useful. This speaks once the record opens, about what was taken on; neither is a variation of the other and they are separated by the whole of the fulfillment."
+        },
+        {
+          "targetId": "journey:RET-290",
+          "because": "RET-290 marks somebody becoming a customer and waits for this confirmation to have had its moment first. This carries no message about the relationship at all - only what the record says."
+        },
+        {
+          "targetId": "journey:FIN-131",
+          "because": "FIN-131 opens the obligation to pay that arises from the same event. This opens the obligation to deliver. They fail independently, and confirming one has never confirmed the other."
         }
       ]
     }
@@ -21049,7 +21322,8 @@
     ],
     "tags": [
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -21185,7 +21459,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "cross-journey-handoff"
+      "cross-journey-handoff",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -21211,7 +21486,93 @@
           "targetId": "journey:REM-156"
         }
       ],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-302",
+          "because": "This journey says which remedy will resolve the obligation, and a refund is only one of the answers it can give. FIN-302 says that money is actually moving and whether it arrived, which is two decisions further down the chain - a remedy confirmed here is never money arrived, and this journey never announces the movement."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:REM-305",
+    "type": "journey",
+    "slug": "support-request-acknowledgement",
+    "url": "/lab/journeys/support-request-acknowledgement",
+    "urlTr": "/tr/lab/journeys/support-request-acknowledgement",
+    "external": false,
+    "title": "REM-305 Service request received → acknowledged or already resolved → closed or handed to the work",
+    "summary": "Tell somebody who raised a problem that it exists, is owned and is not lost - once, transactionally, and without promising an outcome nobody has decided yet.",
+    "searchText": "Service request received → acknowledged or already resolved → closed or handed to the work. Tell somebody who raised a problem that it exists, is owned and is not lost - once, transactionally, and without promising an outcome nobody has decided yet.. Also known as support request acknowledgement, ticket received confirmation, we got your message, service request intake, case opened notification. a problem reported through any intake route, acknowledged once with the reference and the owner. a request that turns out to be already resolved when it arrives, told as that rather than acknowledged. a request still open when the acknowledgement window closes, handed to the journey that owns the work. Support request received. Returns, remedies, corrections & post-completion recovery. Hands off to REM-151. resolved; the requester was told what closed it. attached to the request already open on this problem; acknowledged once. withdrawn by the requester; nothing further is sent. no message sent; the gate that stopped it is recorded and the request still has its owner",
+    "keywords": [
+      "REM-305",
+      "support request acknowledgement",
+      "ticket received confirmation",
+      "we got your message",
+      "service request intake",
+      "case opened notification"
+    ],
+    "category": [
+      "remedy"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/support-request-acknowledgement",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:REM-151"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:REM-151",
+          "because": "REM-151 starts from a concrete problem with something already delivered and establishes whether an obligation exists. This runs before that question is asked: its subject is the request, not the problem, and its whole job is that the requester knows it arrived and who has it."
+        },
+        {
+          "targetId": "journey:REM-157",
+          "because": "REM-157 chooses the remedy that would satisfy an obligation already established. This states no outcome at all, because at the moment it sends there is nothing established to state."
+        },
+        {
+          "targetId": "journey:FBK-43",
+          "because": "FBK-43 starts from somebody's account of an experience and asks whether any operational issue exists behind it. This starts from a request made of us and answers only whether it arrived and who owns it."
+        }
+      ]
     }
   },
   {
@@ -22016,6 +22377,10 @@
         {
           "targetId": "journey:RET-28",
           "because": "RET-28 acts at the moment of cancellation intent, inside the cancellation's own window. This starts only after that window and its cooldown have passed."
+        },
+        {
+          "targetId": "journey:CON-300",
+          "because": "CON-300 is not trying to keep anybody: it asks whether marketing contact should continue and takes the answer, offer-free. This journey is the argument for coming back, and it runs on a lapsed paid relationship rather than on unanswered contact - a person can be perfectly engaged with our messages and still lapsed, or still buying and entirely silent on everything we send."
         }
       ]
     }
@@ -22094,6 +22459,14 @@
         {
           "targetId": "journey:RET-31",
           "because": "RET-31 prompts a repeat of something the person's own history says is due. Here there is no history yet - one purchase is not a cadence - so the prompt is an offer rather than a prediction."
+        },
+        {
+          "targetId": "journey:SUB-296",
+          "because": "SUB-296 opens on an enrolment into a loyalty membership and its whole subject is that membership - what it grants and how it is used. This opens on a first purchase and owns the customer relationship that purchase created. Where somebody enrols at the moment they first buy, both are true at once and neither carries the other's message: this journey owns the first-purchase moment and never explains the membership, and SUB-296 owns the membership and never makes the bounceback."
+        },
+        {
+          "targetId": "journey:FUL-301",
+          "because": "FUL-301 states what the business took on, from the order record, and it outranks this journey for exactly that reason: the record has to open before there is anything to welcome somebody into. This journey carries none of what that confirmation says and waits until it has had its moment."
         }
       ]
     }
@@ -22135,7 +22508,8 @@
       "learn"
     ],
     "tags": [
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -22165,6 +22539,10 @@
         {
           "targetId": "journey:SUB-163",
           "because": "SUB-163 counts down to an obligation somebody has to act on before a date. An anniversary carries no obligation and no deadline - nothing happens if it is ignored."
+        },
+        {
+          "targetId": "journey:RET-295",
+          "because": "RET-295 recognises a date that belongs to the person - a birthday they gave us, or a milestone their own record reached. This counts the relationship's length from the first purchase, which is the company's side of it. The two share the date-recognition exclusion group, and this one is the side that yields, so a person never receives both in the same window."
         }
       ]
     }
@@ -22243,6 +22621,10 @@
         {
           "targetId": "journey:ACQ-13",
           "because": "ACQ-13 acts on attention to one subject that never became a selection. This assembles a set from a record that may be much older and has no single unresolved subject in it."
+        },
+        {
+          "targetId": "journey:SUB-297",
+          "because": "SUB-297 speaks about the membership itself - a balance, a benefit or a standing the member already holds and has not used. This proposes things to buy. The boundary is the subject, not the tone: a message about what somebody already has is never assembled from a recommendation signal, and a set of items is never sent as if it were a membership benefit."
         }
       ]
     }
@@ -22321,6 +22703,86 @@
         {
           "targetId": "journey:ACQ-288",
           "because": "ACQ-288 recovers a selection the person made and left behind. Here the purchase completed; nothing is being recovered, and the subject of the offer is something they never selected."
+        },
+        {
+          "targetId": "journey:SUB-297",
+          "because": "SUB-297 is about a membership the person is enrolled in and a benefit they already hold. This is about a product they already own and a second product that completes it. Neither may borrow the other's authority: a membership benefit is never presented as a complementary product, and a complementary product is never presented as something the membership grants."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:RET-295",
+    "type": "journey",
+    "slug": "milestone-recognition",
+    "url": "/lab/journeys/milestone-recognition",
+    "urlTr": "/tr/lab/journeys/milestone-recognition",
+    "external": false,
+    "title": "RET-295 A date belonging to the person approaching → eligibility checked → recognised or not sent",
+    "summary": "Recognise a date that belongs to the person themselves - a birthday they told us, or a milestone their own record has reached - and say so once, with nothing attached that has not been issued.",
+    "searchText": "A date belonging to the person approaching → eligibility checked → recognised or not sent. Recognise a date that belongs to the person themselves - a birthday they told us, or a milestone their own record has reached - and say so once, with nothing attached that has not been issued.. Also known as birthday message, birthday recognition, milestone recognition, customer milestone, personal milestone greeting. a birthday the person themselves gave the business. a milestone the person's own record has reached and that they would recognise as theirs. Personal milestone approaching. Engagement, health, retention & churn prevention. recognised; the date was marked once for this cycle. closed without a message; the relationship this recognition would have been addressed to has ended. no recognition sent; the reason is recorded",
+    "keywords": [
+      "RET-295",
+      "birthday message",
+      "birthday recognition",
+      "milestone recognition",
+      "customer milestone",
+      "personal milestone greeting"
+    ],
+    "category": [
+      "retention"
+    ],
+    "normalizedCategory": [
+      "retention-and-engagement"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "engagement-retention"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "eligibility-qualification"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/milestone-recognition",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-292",
+          "because": "RET-292 counts the relationship's own length from the first purchase - the company's side of it. This recognises a date that belongs to the person, which the company holds only because they supplied it or because their own record reached it. The two share an exclusion group so that a person never receives both in the same window."
+        },
+        {
+          "targetId": "journey:SUB-299",
+          "because": "SUB-299 announces that a membership's standing actually changed, which is a fact about an enrolled relationship. A milestone recognition changes nothing and is deliberately not an announcement of anything the person has newly gained."
+        },
+        {
+          "targetId": "journey:RET-294",
+          "because": "RET-294 proposes something to buy. This proposes nothing; attaching an offer to it is the specific failure its own guardrails forbid."
         }
       ]
     }
@@ -23045,7 +23507,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "cross-journey-handoff"
+      "cross-journey-handoff",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -23124,7 +23587,8 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -23295,6 +23759,163 @@
         {
           "targetId": "journey:SCH-172",
           "because": "SCH-172 holds capacity for somebody who asked for it. Nothing here is held at any point, and the offer says so."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:SCH-303",
+    "type": "journey",
+    "slug": "reservation-payment-reminder",
+    "url": "/lab/journeys/reservation-payment-reminder",
+    "urlTr": "/tr/lab/journeys/reservation-payment-reminder",
+    "external": false,
+    "title": "SCH-303 Reservation standing on a payment condition → reminded → kept, released or routed to recovery",
+    "summary": "Keep a reservation that is standing only because a payment is still expected, by telling the holder what is outstanding and what the booking terms do about it - and by getting out of the way the moment the payment itself is what went wrong.",
+    "searchText": "Reservation standing on a payment condition → reminded → kept, released or routed to recovery. Keep a reservation that is standing only because a payment is still expected, by telling the holder what is outstanding and what the booking terms do about it - and by getting out of the way the moment the payment itself is what went wrong.. Also known as reservation payment reminder, deposit reminder, balance due before arrival, booking payment outstanding, hold expiring without payment. a reservation standing on a deposit that has not been paid. a balance owed before a booked date, where the terms release the place if it is not met. an attempted payment that then fails, where the money question belongs to payment recovery. Reservation payment outstanding. Scheduling, appointments, reservations & time-bound commitments. Hands off to FIN-134. kept; the condition the reservation stood on is satisfied. released; the terms took the place back and the holder was told. superseded; the reservation was cancelled, moved or materially changed. no notice sent; the gate that stopped it is recorded",
+    "keywords": [
+      "SCH-303",
+      "reservation payment reminder",
+      "deposit reminder",
+      "balance due before arrival",
+      "booking payment outstanding",
+      "hold expiring without payment"
+    ],
+    "category": [
+      "scheduling"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "recovery-retry"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/reservation-payment-reminder",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:FIN-134"
+        }
+      ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FIN-134",
+          "because": "FIN-134 starts from a payment that failed and works on the obligation until it is discharged. This starts from a reservation that is still standing and works on whether it survives; the moment an attempt actually fails, this journey hands the money over and says nothing more about it."
+        },
+        {
+          "targetId": "journey:SCH-277",
+          "because": "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a commitment that is conditional, and it never re-opens the question of whether the commitment exists."
+        },
+        {
+          "targetId": "journey:SCH-266",
+          "because": "SCH-266 chases the prerequisites a customer owes so the service can be delivered. What is outstanding here is not a prerequisite for delivery - it is the condition on which the reservation itself continues to exist, and missing it costs the place rather than the preparation."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:SCH-304",
+    "type": "journey",
+    "slug": "pre-arrival-preparation",
+    "url": "/lab/journeys/pre-arrival-preparation",
+    "urlTr": "/tr/lab/journeys/pre-arrival-preparation",
+    "external": false,
+    "title": "SCH-304 Arrival window opens → what arriving requires → checked in, arrived or superseded",
+    "summary": "Tell somebody what turning up actually requires - where to go or how to join, what to bring, and the step they can complete before they get there - and say it only where it answers something they could not already know.",
+    "searchText": "Arrival window opens → what arriving requires → checked in, arrived or superseded. Tell somebody what turning up actually requires - where to go or how to join, what to bring, and the step they can complete before they get there - and say it only where it answers something they could not already know.. Also known as pre-arrival information, check-in reminder, know before you go, arrival instructions, pre-visit preparation. an appointment, stay or class whose place, route or access detail the holder has to have before setting off. a booking with a check-in step that can be completed ahead of arrival. a detail that only becomes knowable close to the time, such as the room, the door or the person to ask for. Arrival window opened. Scheduling, appointments, reservations & time-bound commitments. prepared; the holder has everything arriving requires. arrived; attendance was recorded while the window was still open. superseded; the booking was cancelled, moved or materially changed. overtaken; the occurrence had already begun when the window opened. nothing sent; the gate, or the absence of anything to say, is recorded",
+    "keywords": [
+      "SCH-304",
+      "pre-arrival information",
+      "check-in reminder",
+      "know before you go",
+      "arrival instructions",
+      "pre-visit preparation"
+    ],
+    "category": [
+      "scheduling"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "change-versioning"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/pre-arrival-preparation",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SCH-266",
+          "because": "SCH-266 acts on the prerequisites the customer owes so the service can be delivered at all, and escalates when one of them will block it. This acts on arriving: where to go, what to have and the step that can be done first. A booking with nothing outstanding still needs this one, and a booking whose prerequisite will stop it needs SCH-266 rather than this."
+        },
+        {
+          "targetId": "journey:SCH-277",
+          "because": "SCH-277 states whether the requested time became a commitment. This runs only inside the arrival window of a commitment that already exists, and it never restates the confirmation as if it were news."
+        },
+        {
+          "targetId": "journey:SCH-303",
+          "because": "SCH-303 is about whether the reservation survives at all. This is about turning up to one that will; where both apply, SCH-303 holds the booking and this is suppressed until it does not."
         }
       ]
     }
@@ -23999,6 +24620,311 @@
         {
           "targetId": "journey:SUB-167",
           "because": "SUB-167 establishes whether and when the relationship ends. This is what the customer is told across that window."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:SUB-296",
+    "type": "journey",
+    "slug": "loyalty-welcome",
+    "url": "/lab/journeys/loyalty-welcome",
+    "urlTr": "/tr/lab/journeys/loyalty-welcome",
+    "external": false,
+    "title": "SUB-296 Membership enrolled → welcomed → oriented, already in use, or closed",
+    "summary": "Open an enrolled membership honestly: what it actually grants from today, where it lives, and how it is used - without borrowing the product's own onboarding or the first purchase's own welcome.",
+    "searchText": "Membership enrolled → welcomed → oriented, already in use, or closed. Open an enrolled membership honestly: what it actually grants from today, where it lives, and how it is used - without borrowing the product's own onboarding or the first purchase's own welcome.. Also known as loyalty welcome, loyalty program welcome, membership welcome, rewards programme onboarding, new member welcome. somebody who has just enrolled in a loyalty or rewards membership and does not yet know what it grants. a membership that has been active since enrolment with nothing used against it. Loyalty membership enrolled. Subscriptions, contracts, renewals & continuing relationships. welcomed and the membership is in use; there is nothing left to orient. welcomed and oriented; the plan ran to its end and this journey's own work is done. closed without a welcome; the membership was reversed, cancelled or never made active. no touch sent; the reason is recorded",
+    "keywords": [
+      "SUB-296",
+      "loyalty welcome",
+      "loyalty program welcome",
+      "membership welcome",
+      "rewards programme onboarding",
+      "new member welcome"
+    ],
+    "category": [
+      "subscription"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/loyalty-welcome",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-290",
+          "because": "RET-290 opens on a first purchase and owns the customer relationship that purchase created; its subject is the second purchase. This opens on an enrolment and its subject is the membership. Where both are true at the same moment, neither carries the other's message: this one never makes a bounceback offer, and RET-290 never explains the membership."
+        },
+        {
+          "targetId": "journey:ACT-12",
+          "because": "ACT-12 advances product onboarding against a setup record. Enrolling in a membership is not a setup step and never advances that record; this journey orients somebody inside a membership and never inside the product."
+        },
+        {
+          "targetId": "journey:SUB-297",
+          "because": "SUB-297 acts on a membership that has been running and holds something unused. This acts on an enrolment that has just happened, and it runs once per membership, ever."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:SUB-297",
+    "type": "journey",
+    "slug": "loyalty-nurture",
+    "url": "/lab/journeys/loyalty-nurture",
+    "urlTr": "/tr/lab/journeys/loyalty-nurture",
+    "external": false,
+    "title": "SUB-297 Membership holding something unused → explained → used, reminded once, or closed",
+    "summary": "Tell a member what their own membership is currently holding for them that they have not used, in a bounded way that ends rather than a cadence that continues.",
+    "searchText": "Membership holding something unused → explained → used, reminded once, or closed. Tell a member what their own membership is currently holding for them that they have not used, in a bounded way that ends rather than a cadence that continues.. Also known as loyalty nurture, points balance reminder, unused reward reminder, membership engagement, loyalty programme nurture. a member holding a balance or benefit their own record says they have not used. a membership that has been active for a while with something specific still sitting unused against it. Loyalty membership holds unused value. Subscriptions, contracts, renewals & continuing relationships. used; the thing the membership was holding has been used. explained and reminded; the plan ran to its end without a use and is over. closed without a further touch; the membership ended or the member withdrew permission. no touch sent; the reason is recorded",
+    "keywords": [
+      "SUB-297",
+      "loyalty nurture",
+      "points balance reminder",
+      "unused reward reminder",
+      "membership engagement",
+      "loyalty programme nurture"
+    ],
+    "category": [
+      "subscription"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/loyalty-nurture",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-293",
+          "because": "RET-293 assembles a set of things to buy from a signal about the person. This names one thing the membership already holds. A product proposal is never presented as a membership benefit, and what somebody already holds is never assembled from a recommendation signal."
+        },
+        {
+          "targetId": "journey:RET-294",
+          "because": "RET-294 offers a second product that completes one the person owns. This offers nothing new at all - the subject is already theirs, and the only question is whether they have used it."
+        },
+        {
+          "targetId": "journey:SUB-298",
+          "because": "SUB-298 states a state the membership actually reached and is transactional. This states only that something already held has gone unused, and it is suppressed wherever SUB-298 holds the same membership."
+        },
+        {
+          "targetId": "journey:SUB-296",
+          "because": "SUB-296 runs once per membership, at enrolment, and explains what the membership grants at all. This runs on a specific thing that has gone unused on a membership that has been running."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:SUB-298",
+    "type": "journey",
+    "slug": "reward-confirmation",
+    "url": "/lab/journeys/reward-confirmation",
+    "urlTr": "/tr/lab/journeys/reward-confirmation",
+    "external": false,
+    "title": "SUB-298 Reward earned → record confirmed → stated once, or closed unstated",
+    "summary": "Confirm a state the membership actually reached - a reward earned, credited and usable - as the record states it, and confirm nothing that the record does not.",
+    "searchText": "Reward earned → record confirmed → stated once, or closed unstated. Confirm a state the membership actually reached - a reward earned, credited and usable - as the record states it, and confirm nothing that the record does not.. Also known as reward confirmation, points earned notification, reward credited, loyalty reward statement, benefit earned confirmation. a reward credited to a membership that the member should be left in no doubt about. a correction or reversal of a reward, stated as what it is rather than as a second confirmation. Loyalty reward earned. Subscriptions, contracts, renewals & continuing relationships. confirmed; what the membership earned was stated once, as the record states it. closed without a confirmation; the reward did not stand, or the membership it belonged to ended. no confirmation sent; the reason is recorded",
+    "keywords": [
+      "SUB-298",
+      "reward confirmation",
+      "points earned notification",
+      "reward credited",
+      "loyalty reward statement",
+      "benefit earned confirmation"
+    ],
+    "category": [
+      "subscription"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/reward-confirmation",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-297",
+          "because": "SUB-297 says that something already held has gone unused, which is a marketing-shaped claim about the member's behaviour. This says only that the membership reached a state, which is a fact about the record. This journey outranks SUB-297 on the same membership and never carries its message."
+        },
+        {
+          "targetId": "journey:SUB-299",
+          "because": "SUB-299 states that the membership's own standing moved. This states that a single reward was credited, which can happen many times inside one standing and changes nothing about it."
+        },
+        {
+          "targetId": "journey:REM-157",
+          "because": "REM-157 confirms that a remedy for something that went wrong has been carried out. This confirms an ordinary earned state on a membership, with nothing having gone wrong."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:SUB-299",
+    "type": "journey",
+    "slug": "loyalty-tier-change",
+    "url": "/lab/journeys/loyalty-tier-change",
+    "urlTr": "/tr/lab/journeys/loyalty-tier-change",
+    "external": false,
+    "title": "SUB-299 Tier moved → direction checked → upgrade announced, used, or left to another journey",
+    "summary": "Tell a member that their membership's own standing has moved up, and say exactly what that standing now grants that it did not before - and nothing else.",
+    "searchText": "Tier moved → direction checked → upgrade announced, used, or left to another journey. Tell a member that their membership's own standing has moved up, and say exactly what that standing now grants that it did not before - and nothing else.. Also known as loyalty tier upgrade, tier change notification, status upgrade, membership level change, loyalty status achieved. a member whose membership standing has moved up and who does not yet know what it grants. a tier change record that needs its direction read before anything is said about it. Loyalty tier changed. Subscriptions, contracts, renewals & continuing relationships. announced and used; something the new standing grants has actually been used. announced; the window closed with nothing the new standing grants used. not this journey's subject; the standing moved down and a loss of standing is deliberately out of scope here. no announcement sent; the reason is recorded",
+    "keywords": [
+      "SUB-299",
+      "loyalty tier upgrade",
+      "tier change notification",
+      "status upgrade",
+      "membership level change",
+      "loyalty status achieved"
+    ],
+    "category": [
+      "subscription"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "review-required"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/loyalty-tier-change",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-298",
+          "because": "SUB-298 confirms one reward credited to the membership. This states that the membership's own standing moved, which can be true while no individual reward has been earned and can stay true across many that have."
+        },
+        {
+          "targetId": "journey:SUB-296",
+          "because": "SUB-296 runs once, at enrolment, and explains the membership at all. This runs on a change to a membership that already existed and explains only the difference the change made."
+        },
+        {
+          "targetId": "journey:RET-295",
+          "because": "RET-295 recognises a date and changes nothing. This announces a change the record actually made, and would be dishonest if nothing had moved."
         }
       ]
     }
@@ -26028,13 +26954,13 @@
     "urlTr": "/tr/lab/journeys",
     "external": false,
     "title": "Canonical Journey Library",
-    "summary": "79 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
-    "searchText": "Canonical Journey Library. 79 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 79 journeys, 21 categories",
+    "summary": "69 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
+    "searchText": "Canonical Journey Library. 69 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 69 journeys, 18 categories",
     "keywords": [
       "CRM",
       "Lifecycle Marketing",
-      "79 journeys",
-      "21 categories"
+      "69 journeys",
+      "18 categories"
     ],
     "category": [],
     "normalizedCategory": [],
@@ -26049,8 +26975,8 @@
     "tags": [
       "CRM",
       "Lifecycle Marketing",
-      "79 journeys",
-      "21 categories"
+      "69 journeys",
+      "18 categories"
     ],
     "language": "en+tr",
     "indexable": true,

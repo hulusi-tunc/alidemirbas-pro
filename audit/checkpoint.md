@@ -1,6 +1,8 @@
 # Current Checkpoint
 
-Scope: **58 public / 21 excluded / 79 source** — Batch A of the 17 additions shipped.
+Scope: **69 public / 21 excluded / 90 source** — all four batches of the 17
+additions are in. Canonical corpus 303 journeys / 3959 nodes.
+B, C and D were authored in PARALLEL against the same base and reconciled here.
 Target when all four batches land: **69 public / 21 excluded / 90 source**.
 Phase: Phase 25–33, adding 17 new public journeys, over the approved decision
 list (`audit/DECISIONS-PENDING.md`) which is partly still open.
@@ -18,7 +20,7 @@ list (`audit/DECISIONS-PENDING.md`) which is partly still open.
 | 6 | C — data hygiene | C1 **DONE**; C2–C5 pending |
 | 7 | D — canvas fixes | pending |
 | 8 | Redesign batches over the 52 | pending |
-| 9 | Phase 25–33 — 17 new journeys | Batch A **DONE** (ACQ-289, RET-290, FUL-291, RET-292, RET-293, RET-294); B/C/D pending |
+| 9 | Phase 25–33 — 17 new journeys | **DONE**. A: ACQ-289, RET-290, FUL-291, RET-292, RET-293, RET-294 · B: RET-295, SUB-296, SUB-297, SUB-298, SUB-299 · C: CON-300, FUL-301, FIN-302 · D: SCH-303, SCH-304, REM-305. Per-batch notes in `audit/batch-{b,c,d}-notes.md` |
 
 ## Shipped to main
 
@@ -56,13 +58,15 @@ removed, suppressed or given a message.
 | gate | result |
 |---|---|
 | `scripts/validate-public-scope.mjs` | PASS — 15 checks, 0 failures, 3 warnings |
-| `audit/canvas-hygiene.mjs` | PASS — 1457 cards, 0 findings |
+| `audit/canvas-hygiene.mjs` | PASS — 0 findings |
 | `audit/guard-display.mjs` | PASS — canonical drift none, G1/G2/G3/G5/G6 0 |
-| `npm run validate:canonical` | PASS — 0 errors |
-| `npm run validate:journey-production` | PASS — 30/30, baseline 292/3802 |
+| `audit/locale-sweep.mjs` | PASS — 0 leaks over every public TR route |
+| `npm run validate:canonical` | PASS — 303/3959, 0 errors |
+| `npm run validate:journey-production` | PASS — baseline 303/3959 |
+| `audit/measure-display.mjs` | PASS — 0 locale leaks, 0 render errors |
 | `npm run validate:seo` | PASS |
-| `tsc` / `build` / `eslint` | clean |
-| route parity | 58 × 200 EN+TR · 21 × 404 EN+TR |
+| `tsc` / `build` | clean |
+| route parity | 69 × 200 EN+TR · 21 × 404 EN+TR |
 
 ## After every step — the required loop
 
@@ -83,6 +87,14 @@ node scripts/surface-assignment.mjs
 npm run validate:canonical
 npm run build && npx next start -p 4511
 
+#  the production/ model is regenerated from the new dump BEFORE the search index
+#  and before check 29 — otherwise journey-manifest.json is a corpus behind and
+#  build-search-index.mjs files the new journeys as archived
+cd production && python3 analyze.py && python3 build_journey_model.py \
+  && python3 build_view_model.py && python3 build_manifest_projection.py \
+  && python3 build_content_stats.py && python3 build_fixtures.py \
+  && python3 build_layout_risks.py && cd ..
+
 #  G4 FIRST, against the COMMITTED baseline, so intended drift is listed by id
 node audit/guard-display.mjs 4511
 #  ... confirm the journeys it names are the ones this step was supposed to
@@ -94,7 +106,16 @@ node scripts/validate-public-scope.mjs
 node audit/canvas-hygiene.mjs 4511
 node audit/measure-display.mjs after 4511      # locale leaks must stay 0
 npm run validate:journey-production            # frozen node-count baseline
+node seo/seo-validator.mjs                     # check 18 hardcodes the journey count
+node audit/locale-sweep.mjs 4511               # whole-page TR leak sweep (161 routes)
 ```
+
+`seo/seo-validator.mjs` check 18 is in this list for a reason. It hardcodes
+`journeyViewModel.length` on purpose — a tripwire that fails until the constant
+moves with the corpus. Batch A changed the corpus without bumping it, and
+because CLAUDE.md lists only check 14 as known-failing for that validator, the
+failure read as inherited drift for a whole batch before Batch B caught it.
+Bump the constant in the same commit as the corpus change.
 
 Cross-check the intended drift independently, which does not depend on run
 order:
@@ -127,9 +148,31 @@ drawn parent is left to flag it. Two checks close it:
   unexecuted hop into a `no-action` exit. Anything else is a decision the
   reader lost.
 
-G6 is not vacuous: 25 conditions in the 58 public journeys are hidden, and all
-25 match that shape. Forcing `sanctioned = false` reports all 25, which is how
+G6 is not vacuous: 25 conditions in the 58 public journeys were hidden when the
+check was written, and all 25 matched that shape. Neither Batch B nor Batch D
+added a hidden condition. Forcing `sanctioned = false` reports all 25, which is how
 that was proven.
+
+## The stale-server trap, now guarded
+
+Every render gate calls `assertServerBuild(PORT)` (`audit/assert-build.mjs`)
+before it measures anything, and dies if the server is not serving
+`.next/BUILD_ID`. It exists because this failed twice, both times producing
+findings that read as real authoring bugs:
+
+- Batch B's first post-manifest guard run reported `G5_NO_VISIBLE_ENDING` and
+  `G6_DECISION_HIDDEN` on five brand-new journeys. A server left over from an
+  earlier build was serving cached 404s for slugs that did not exist when it
+  started.
+- Reconciling Batch B against the locale fix, `next start -p 4511` **failed to
+  bind** because another worktree's server already held the port. It exits,
+  the port still answers 200, every page renders — from the old build. That
+  produced a TR `distinctFrom` locale leak that did not exist, and it was
+  chased into the data before the server was suspected.
+
+The second is the nastier one and is easy to hit with worktrees in play:
+`ps -eo pid,args | grep next-server` before trusting a render gate, or just
+let the assertion do it.
 
 ## Traps that have already cost time
 
