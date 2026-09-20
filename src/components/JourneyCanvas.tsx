@@ -582,8 +582,16 @@ function FreeCanvas({
     if (stage) {
       // FigJam's sheet: a fine dot every 24 world px, scaling and moving
       // with the world (Hulusi, 2026-09-20: "let's add dots like FigJam").
-      stage.style.backgroundSize = `${DOT_GAP * z}px ${DOT_GAP * z}px`;
+      // As the world zooms out the grid coarsens by powers of two so the
+      // dots never crowd below ~18px on screen ("when we zoom out the dots
+      // don't adapt, it looks so dense"), and they fade a step at the
+      // coarser levels so the sheet stays quieter than the drawing.
+      let gap = DOT_GAP;
+      while (gap * z < 18) gap *= 2;
+      const level = Math.log2(gap / DOT_GAP);
+      stage.style.backgroundSize = `${gap * z}px ${gap * z}px`;
       stage.style.backgroundPosition = `${x}px ${y}px`;
+      stage.style.backgroundImage = `radial-gradient(circle, rgb(10 16 32 / ${(0.14 - level * 0.03).toFixed(2)}) 1.1px, transparent 1.6px)`;
     }
     setZoomPct(Math.round(z * 100));
   };
