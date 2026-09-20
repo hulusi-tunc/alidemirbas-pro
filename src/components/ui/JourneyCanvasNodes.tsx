@@ -78,6 +78,70 @@ function firstClause(text: string): string {
   return m && m.index <= 90 ? text.slice(0, m.index) : text;
 }
 
+/* Card body budget - the same idea as the wait pill's `firstClause` above,
+   applied to every card that renders a canonical sentence.
+
+   Every body below is already `line-clamp-2`: two lines, then an ellipsis.
+   That stops a long sentence overflowing its slot, but it cuts wherever the
+   second line happens to run out - mid-word, mid-clause - so the corpus's
+   longest action sentences (412 characters on FBK-47's `a.apply`, 391 on
+   FBK-46's `a.close-unconfirmed`, measured, not estimated) reach the canvas
+   as a fragment. A reader glancing at the graph gets half a subordinate
+   clause and no way to tell there was more.
+
+   Cutting at the sentence's OWN first boundary instead gives them a whole
+   clause. Order of preference: the end of the first sentence, then a
+   semicolon or a dash, then - only if none of those exists - the softer
+   comma/"or"/"veya" break `firstClause` already uses. Nothing is
+   paraphrased and nothing is lost: the detail panel renders `node.headline`
+   in full, unchanged, which is the same contract the wait pill and the
+   clamp itself have always had. A sentence that already fits the budget is
+   passed through exactly as authored, so short cards - the majority - are
+   untouched.
+
+   Every boundary in the sentence is collected, not just the first, and the
+   LONGEST one that still fits the budget wins - the most the card can say
+   inside its two lines, rather than the least. The 24-character floor drops
+   a cut so early that the card would say nothing ("Establish what failed");
+   the next boundary is taken instead. A sentence with no boundary at all
+   inside the budget keeps its full text and the clamp handles it, which is
+   exactly the behaviour before this function existed. */
+const CARD_BODY_BUDGET = 120;
+const MIN_CARD_BODY = 24;
+/* `keep: 1` keeps the full stop itself; the others cut before the mark. The
+   sentence rule wants a capital after the stop so that an abbreviation
+   mid-sentence ("e.g. the ...") is not read as the end of one. */
+const HARD_CUTS: readonly { re: RegExp; keep: number }[] = [
+  { re: /\.\s+[A-ZÇĞİÖŞÜ]/g, keep: 1 },
+  { re: /: /g, keep: 0 },
+  { re: /; /g, keep: 0 },
+  { re: / - | — /g, keep: 0 },
+];
+const SOFT_CUTS = /, | veya | ya da | or /g;
+
+function cutPoints(text: string, re: RegExp, keep: number): number[] {
+  const out: number[] = [];
+  re.lastIndex = 0;
+  for (let m = re.exec(text); m; m = re.exec(text)) {
+    const at = m.index + keep;
+    if (at >= MIN_CARD_BODY) out.push(at);
+  }
+  return out;
+}
+
+export function cardSummary(text: string): string {
+  if (text.length <= CARD_BODY_BUDGET) return text;
+  const hard: number[] = [];
+  for (const { re, keep } of HARD_CUTS) hard.push(...cutPoints(text, re, keep));
+  const fits = (points: number[]) => points.filter((p) => p <= CARD_BODY_BUDGET).sort((a, b) => b - a)[0];
+  const hardFit = fits(hard);
+  if (hardFit !== undefined) return text.slice(0, hardFit);
+  const softFit = fits(cutPoints(text, SOFT_CUTS, 0));
+  if (softFit !== undefined) return text.slice(0, softFit);
+  const anyHard = hard.sort((a, b) => a - b)[0];
+  return anyHard === undefined ? text : text.slice(0, anyHard);
+}
+
 function waitLabel(node: FlowNode): string {
   const detail = node.detail;
   const value = detail ? WAIT_VALUE_RE.exec(detail) : null;
@@ -358,7 +422,7 @@ export function TriggerCard({ node, onOpen, entryLabel, lang = "en" }: { node: F
           </Tile>
           <span className="text-xs font-medium text-white/85 [[data-lod=far]_&]:hidden">{w.trigger}</span>
         </span>
-        <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium [[data-lod=far]_&]:hidden">{humanize(node.headline)}</p>
+        <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium [[data-lod=far]_&]:hidden">{humanize(cardSummary(node.headline))}</p>
         {node.evidenceSource ? (
           <span className="mt-2 flex [[data-lod=far]_&]:hidden">
             <Pill onDark>{SIGNAL_SOURCE_LABEL[lang][node.evidenceSource]}</Pill>
@@ -376,7 +440,7 @@ export function HandoffCard({ node, onOpen, lang = "en" }: { node: FlowNode; onO
       <KindRow kind={KIND.handoff} icon={<ArrowRightLeft aria-hidden />}>
         {w.handoff}
       </KindRow>
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
+      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
       <span className="mt-2 flex [[data-lod=far]_&]:hidden">
         <Pill>{node.external ? w.external : w.internal}</Pill>
       </span>
@@ -391,7 +455,7 @@ export function OutcomeCard({ node, onOpen, lang = "en" }: { node: FlowNode; onO
       <KindRow kind={KIND.outcome} icon={<Flag aria-hidden />}>
         {w.outcome}
       </KindRow>
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
+      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
     </Shell>
   );
 }
@@ -546,7 +610,7 @@ export function ActionCard({ node, sequence, onOpen, messageLabels, humanLabels,
       </KindRow>
       {/* The canonical sentence itself, clamped short - a glance, not a read;
           the full text is in the detail panel, never a paraphrase. */}
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
+      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
     </Shell>
   );
 }
@@ -562,7 +626,7 @@ export function ConditionCard({ node, onOpen, lang = "en" }: { node: FlowNode; o
           themselves, labelled, are drawn right below on the canvas, so a
           count added nothing a reader couldn't already see. Still on
           FlowNode (`branchCount`) for anything else that wants it. */}
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
+      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
     </Shell>
   );
 }

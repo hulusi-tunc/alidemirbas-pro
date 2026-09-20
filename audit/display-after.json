@@ -152,12 +152,7 @@
         "terminal_instances": 0,
         "edges": 28,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.execute",
-            "len": 231
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
@@ -170,7 +165,7 @@
         "long_cards": [
           {
             "id": "a.execute",
-            "len": 243
+            "len": 111
           }
         ],
         "long_branch_labels": [],
@@ -214,12 +209,7 @@
         "terminal_instances": 0,
         "edges": 26,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.identify",
-            "len": 144
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Incomplete but not blocking",
@@ -377,12 +367,7 @@
         "terminal_instances": 0,
         "edges": 23,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.apply",
-            "len": 398
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "UPHELD · REVERSED · MODIFIED",
@@ -401,12 +386,7 @@
         "terminal_instances": 0,
         "edges": 23,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.apply",
-            "len": 412
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Askıya alma gerekli · Askıya alma yok",
@@ -435,12 +415,7 @@
         "terminal_instances": 0,
         "edges": 26,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.revalidate",
-            "len": 289
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Cancelled, moved or superseded",
@@ -463,12 +438,7 @@
         "terminal_instances": 0,
         "edges": 26,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.revalidate",
-            "len": 306
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Hatırlatmak için çok yakın",
@@ -541,12 +511,7 @@
         "terminal_instances": 0,
         "edges": 30,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.recheck",
-            "len": 227
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Anonymous or not permitted",
@@ -576,7 +541,7 @@
         "long_cards": [
           {
             "id": "a.recheck",
-            "len": 293
+            "len": 130
           }
         ],
         "long_branch_labels": [
@@ -640,11 +605,7 @@
         "long_cards": [
           {
             "id": "a.record-reason",
-            "len": 219
-          },
-          {
-            "id": "a.no-reason",
-            "len": 152
+            "len": 119
           }
         ],
         "long_branch_labels": [],
@@ -659,11 +620,7 @@
         "long_cards": [
           {
             "id": "a.record-reason",
-            "len": 242
-          },
-          {
-            "id": "a.no-reason",
-            "len": 170
+            "len": 114
           }
         ],
         "long_branch_labels": [],
@@ -796,10 +753,6 @@
         "internal_cards": 1,
         "long_cards": [
           {
-            "id": "a.evidence",
-            "len": 216
-          },
-          {
             "id": "c.operational",
             "len": 122
           }
@@ -813,12 +766,7 @@
         "terminal_instances": 0,
         "edges": 22,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "c.operational",
-            "len": 129
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Belirtilmiş bir niyet yok",
@@ -865,12 +813,7 @@
         "terminal_instances": 0,
         "edges": 23,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.activate",
-            "len": 291
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
@@ -883,7 +826,7 @@
         "long_cards": [
           {
             "id": "a.activate",
-            "len": 270
+            "len": 129
           }
         ],
         "long_branch_labels": [
@@ -997,7 +940,7 @@
         "long_cards": [
           {
             "id": "a.alternate",
-            "len": 240
+            "len": 111
           }
         ],
         "long_branch_labels": [
@@ -1029,7 +972,7 @@
         "long_cards": [
           {
             "id": "a.alternate",
-            "len": 247
+            "len": 127
           }
         ],
         "long_branch_labels": [
@@ -1239,12 +1182,7 @@
         "terminal_instances": 0,
         "edges": 17,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.measure",
-            "len": 246
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
@@ -1254,12 +1192,7 @@
         "terminal_instances": 0,
         "edges": 17,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.measure",
-            "len": 257
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       }
@@ -1356,7 +1289,7 @@
         "long_cards": [
           {
             "id": "a.persist-positive",
-            "len": 155
+            "len": 131
           }
         ],
         "long_branch_labels": [
@@ -1494,12 +1427,7 @@
         "terminal_instances": 0,
         "edges": 11,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.resolve",
-            "len": 208
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Automated continuation is sufficient",
@@ -1807,12 +1735,8 @@
         "internal_cards": 2,
         "long_cards": [
           {
-            "id": "a.close",
-            "len": 154
-          },
-          {
             "id": "a.close-unconfirmed",
-            "len": 363
+            "len": 127
           }
         ],
         "long_branch_labels": [],
@@ -1824,16 +1748,7 @@
         "terminal_instances": 0,
         "edges": 34,
         "internal_cards": 2,
-        "long_cards": [
-          {
-            "id": "a.close",
-            "len": 159
-          },
-          {
-            "id": "a.close-unconfirmed",
-            "len": 391
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       }
@@ -1852,7 +1767,7 @@
         "long_cards": [
           {
             "id": "a.record-no-action",
-            "len": 168
+            "len": 131
           }
         ],
         "long_branch_labels": [
@@ -1877,12 +1792,7 @@
         "terminal_instances": 0,
         "edges": 22,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.record-no-action",
-            "len": 202
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Ayrılma nedenlerine hitap eden bir şey değişti · Belirli bir şey yok",
@@ -1970,7 +1880,7 @@
         "long_cards": [
           {
             "id": "a.assess",
-            "len": 180
+            "len": 125
           }
         ],
         "long_branch_labels": [],
@@ -2041,12 +1951,7 @@
         "terminal_instances": 0,
         "edges": 27,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.read",
-            "len": 160
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Setup complete, value not yet produced",
@@ -2072,7 +1977,7 @@
         "long_cards": [
           {
             "id": "a.read",
-            "len": 172
+            "len": 130
           }
         ],
         "long_branch_labels": [
@@ -2103,16 +2008,7 @@
         "terminal_instances": 0,
         "edges": 12,
         "internal_cards": 2,
-        "long_cards": [
-          {
-            "id": "a.context",
-            "len": 270
-          },
-          {
-            "id": "a.self-service",
-            "len": 138
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
@@ -2138,12 +2034,7 @@
         "terminal_instances": 0,
         "edges": 28,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.recheck",
-            "len": 289
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Cancelled or adjusted away",
@@ -2166,12 +2057,7 @@
         "terminal_instances": 0,
         "edges": 28,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.recheck",
-            "len": 294
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Karşılanmayan bir şey yok",
@@ -2200,12 +2086,7 @@
         "terminal_instances": 0,
         "edges": 44,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.use-alternate",
-            "len": 267
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Declined, or no usable reason given",
@@ -2232,12 +2113,7 @@
         "terminal_instances": 0,
         "edges": 44,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.use-alternate",
-            "len": 282
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Geçici, tekrar denemek güvenli",
@@ -2355,12 +2231,7 @@
         "terminal_instances": 0,
         "edges": 32,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.record-no-action",
-            "len": 164
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       }
@@ -2525,11 +2396,11 @@
         "long_cards": [
           {
             "id": "a.review",
-            "len": 183
+            "len": 125
           },
           {
             "id": "a.decided",
-            "len": 245
+            "len": 125
           }
         ],
         "long_branch_labels": [
@@ -2549,11 +2420,11 @@
         "long_cards": [
           {
             "id": "a.review",
-            "len": 196
+            "len": 132
           },
           {
             "id": "a.decided",
-            "len": 267
+            "len": 115
           }
         ],
         "long_branch_labels": [
@@ -2651,12 +2522,7 @@
         "terminal_instances": 0,
         "edges": 28,
         "internal_cards": 2,
-        "long_cards": [
-          {
-            "id": "a.authorize",
-            "len": 268
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Requires review or evidence",
@@ -2671,12 +2537,7 @@
         "terminal_instances": 0,
         "edges": 28,
         "internal_cards": 2,
-        "long_cards": [
-          {
-            "id": "a.authorize",
-            "len": 285
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "İade edilecek bir şey yok",
@@ -2704,11 +2565,11 @@
         "long_cards": [
           {
             "id": "a.adapt",
-            "len": 171
+            "len": 114
           },
           {
             "id": "a.persist",
-            "len": 288
+            "len": 133
           }
         ],
         "long_branch_labels": [],
@@ -2720,12 +2581,7 @@
         "terminal_instances": 0,
         "edges": 15,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.adapt",
-            "len": 147
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       }
@@ -2840,7 +2696,7 @@
         "long_cards": [
           {
             "id": "a.record-no-action",
-            "len": 191
+            "len": 127
           }
         ],
         "long_branch_labels": [
@@ -2857,12 +2713,7 @@
         "terminal_instances": 0,
         "edges": 23,
         "internal_cards": 1,
-        "long_cards": [
-          {
-            "id": "a.record-no-action",
-            "len": 235
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Yeterli bulundu ve çözümlenmedi",
