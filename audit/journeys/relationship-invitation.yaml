@@ -1,0 +1,55 @@
+journey_id: REL-284
+slug: relationship-invitation
+status: audited
+
+story:
+  trigger: "A party holding the authority to extend one issues an invitation to link to a named counterparty, with a stated scope, direction and expiry."
+  entity: "The invitation itself - not the two parties. A different scope or the opposite direction is its own instance."
+  objective: "Put the proposed link in front of the party who has to accept it, on terms they can see before answering, and close the question before the invitation goes stale."
+  success: "The counterparty accepts, the link is active, and both sides are told its scope and direction with both identities intact."
+  summary: "An invitation is put to the counterparty in one of two registers - an existing holder is told what accepting would and would not change about their own record, while somebody new to us is told plainly that accepting creates a link rather than a transfer. One reminder follows if time remains, and the invitation ends accepted, declined or withdrawn, or expires unanswered."
+  handoffs: []
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - communication-heavy
+    - deadline-driven
+    - multi-branch
+    - shared-exit
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 22
+  unnecessary_internal_nodes: 0
+  technical_conditions_groupable: 2
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: false
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 13
+
+patterns_detected:
+  - P-DEMUX-01
+  - P-GATE-01
+  - P-TERM-01
+  - P-MERGE-01
+  - P-LOOP-01
+  - P-EXIT-01
+
+severity:
+  highest: P2
+
+planned_changes:
+  - "Drop c.response: its branches partition w.response's three until events. Put 'accepted' and 'declined or withdrawn' on the wait's event edges."
+  - "Draw c.remind as an inline send gate - 'is a reminder still worth sending?' is a sendability question, not a fork of equal weight to c.known."
+  - "x.expired has two parents - draw a local instance per parent."
+  - "w.final's event arm returns to the same answer decision; draw it as a short return rather than a long back edge."
+  - "Keep c.known full size: existing holder versus new to us produces two genuinely different messages, which is the journey's only real fork."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

@@ -244,8 +244,21 @@ export function collapsibleGates(
     return { end: start, hops: [] };
   };
 
-  const hidden = new Set<string>();
-  const into = new Map<string, string>();
+  /* Who points at what, canonically - needed because a bookkeeping hop is
+     frequently SHARED between several gates, and hiding it on behalf of one
+     of them would cut the arm of another that is still drawn. */
+  const parents = new Map<string, Set<string>>();
+  for (const n of nodes) {
+    for (const e of n.edges) {
+      if (e.kind !== "node") continue;
+      const set = parents.get(e.to) ?? new Set<string>();
+      set.add(n.id);
+      parents.set(e.to, set);
+    }
+  }
+
+  type Candidate = { gate: string; contEnd: string; contHops: readonly string[]; shortHops: readonly string[] };
+  const candidates: Candidate[] = [];
   for (const n of nodes) {
     if (n.kind !== "condition") continue;
     const branchTargets = n.edges.filter((e) => e.kind === "node").map((e) => byId.get(e.to));
@@ -258,18 +271,54 @@ export function collapsibleGates(
     // Never collapse into another (possibly also-collapsible) condition -
     // this stays a single hop, not a chain of guesses.
     if (cont.end.kind === "condition" || cont.end.kind === "exit") continue;
-    const short = shortCircuits[0];
-    hidden.add(n.id);
-    for (const id of cont.hops) hidden.add(id);
-    for (const id of short.hops) hidden.add(id);
-    /* The no-action exit itself is deliberately NOT hidden here. It is
-       usually reached only through gates like this one and then falls away
-       on its own as unreachable (buildDisplayGraph prunes that below), but
-       a journey where something still visible points at the same exit
-       keeps it drawn - hiding it eagerly would cut a live branch off at
-       the knee on a shape this function has not seen. */
-    into.set(n.id, cont.end.id);
+    /* THE SHORT ARM MUST RECORD BEFORE IT ENDS. An exit classed
+       "no-action" was not, on its own, enough evidence that a gate is
+       plumbing: a genuine business decision can end in one too, and
+       collapsing those erased authored logic - RET-24's "is a
+       proportionate automated recovery available?" (the journey's whole
+       objective, and its ONLY exit) and TIM-63's "is telling anyone useful
+       even though nothing can be done?" (its authored `s.nothing-to-say`
+       suppression) both disappeared. What separates them is where the
+       short arm goes FIRST: a business decision branches straight to its
+       outcome, while a send-path gate books the reason it did not send and
+       only then ends. Requiring that bookkeeping hop takes the rule from
+       24 gates to 9 corpus-wide, and those 9 are exactly the ones whose
+       own question is "may this touch go out?" - the 15 it now leaves
+       alone are all real questions a reader needs. */
+    if (shortCircuits[0].hops.length === 0) continue;
+    candidates.push({ gate: n.id, contEnd: cont.end.id, contHops: cont.hops, shortHops: shortCircuits[0].hops });
   }
+
+  const collapsedGates = new Set(candidates.map((c) => c.gate));
+  /* A hop may only disappear when EVERY node pointing at it is a gate that
+     collapsed. RET-32 is the case that proves it: its `a.record-no-action`
+     is reached from three conditions, two of which collapse and one of
+     which (its eligibility check, whose own continuation is another
+     condition) does not - hiding the hop for the two would have deleted
+     the third's "Excluded" arm from the drawing while leaving the decision
+     itself on screen, a branch silently lost. */
+  const hideable = (hop: string): boolean => {
+    const ps = parents.get(hop);
+    return !!ps && [...ps].every((p) => collapsedGates.has(p));
+  };
+
+  const hidden = new Set<string>(collapsedGates);
+  const into = new Map<string, string>();
+  for (const c of candidates) {
+    for (const id of c.shortHops) if (hideable(id)) hidden.add(id);
+    /* The continuation hop is the same question: where it is shared and
+       stays drawn, this gate collapses only as far as the hop rather than
+       past it, so the node still has its edge in. */
+    const contHopsHidden = c.contHops.every((id) => hideable(id));
+    for (const id of c.contHops) if (hideable(id)) hidden.add(id);
+    into.set(c.gate, contHopsHidden ? c.contEnd : (c.contHops[0] ?? c.contEnd));
+  }
+  /* The no-action exit itself is deliberately NOT hidden here. It is
+     usually reached only through gates like this one and then falls away
+     on its own as unreachable (buildDisplayGraph prunes that below), but
+     a journey where something still visible points at the same exit
+     keeps it drawn - hiding it eagerly would cut a live branch off at
+     the knee on a shape this function has not seen. */
   return { hidden, into };
 }
 

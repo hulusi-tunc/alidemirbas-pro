@@ -1,0 +1,72 @@
+journey_id: CON-283
+slug: frequency-reduction-confirmation
+status: audited
+
+story:
+  trigger: "An authoritative frequency preference was recorded against a person, reducing how often optional communication may arrive."
+  entity: "The person and the optional communication classes the reduced frequency actually governs - required and transactional communication stays under its own rules."
+  objective: "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none."
+  success: "x.holding - the reduced cadence is in effect and holding after the first cycle (x.reduced-again is also class success: they asked for less again before the first cadence settled)."
+  summary: "Someone asked for fewer messages, not none. The forward cadence is recalculated for optional classes only, anything already queued above that cadence is trimmed so the first thing they receive is not the backlog, and one confirmation names what changed and what was never optional."
+  non_success_endings:
+    - "x.opted-out (no-action): the preference was a full withdrawal, not a reduction - this journey sends nothing (reached both at entry and from the first cycle)"
+  handoffs:
+    []
+  business_decisions:
+    - "c.less-or-none - did they ask for less, or for none; the branch that keeps a reduction from being enforced as a stop"
+    - "c.settled - what changed during the first cycle: reduced again, or stopped altogether"
+  implementation_checks:
+    - "c.queued - 'does what is already scheduled exceed the new cadence?'; both arms reach a.confirm, so it is a housekeeping fork rather than a fork in the story"
+  bookkeeping_nodes:
+    - "a.recalculate - recalculating the forward cadence is what c.queued then asks about; 249-char card"
+  read_as_one_action:
+    - "c.queued + a.trim + a.confirm: 'trim anything already queued above the new cadence, then confirm once' reads as one step"
+    - "a.confirm + w.cycle as one 'confirm, then watch one cycle'"
+  must_stay_visible:
+    - "x.opted-out (the 'fewer is not none' boundary, reachable two ways)"
+    - "x.reduced-again"
+    - "x.holding"
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - multi-branch
+    - no-deadline
+    - shared-exit
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 18
+  unnecessary_internal_nodes: 1
+  technical_conditions_groupable: 1
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 9
+
+patterns_detected:
+  - P-FORK-NOOP-01
+  - P-CLASSIFY-01
+  - P-INTERNAL-01
+  - P-WAITARM-01
+  - P-TERM-01
+  - P-MERGE-01
+  - P-DETAIL-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "c.queued / a.trim / a.confirm is the clean instance of P-FORK-NOOP-01: a binary condition whose every arm converges on the same next node through at most one plain-internal hop. Draw one card, keep both arms in canonical."
+  - "a.recalculate should not have a box; its prose (what stays governed by its own rules) belongs in the detail of the confirmation card, which is where the reader needs it."
+  - "Fold c.settled into w.cycle (P-WAITARM-01) - its two branches are exactly w.cycle's two until-events."
+  - "a.recalculate (249) and a.trim (248) are both over 110 chars in both locales - cap and move to the detail panel (P-DETAIL-01)."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

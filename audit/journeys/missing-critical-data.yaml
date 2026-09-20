@@ -1,0 +1,60 @@
+journey_id: FBK-49
+slug: missing-critical-data
+status: audited
+
+story:
+  trigger: "A named business process cannot safely proceed because one specific field, document or value is missing."
+  entity: "The blocked business entity plus the specific missing requirement - one instance per gap per blocked process."
+  objective: "Treat a genuinely blocking data gap as a named dependency and close it, keeping it distinct from wanting to know more about someone."
+  success: "The requirement is satisfied by a valid value and the blocked process is free to continue."
+  summary: "When a process is blocked on a specific missing item, the journey first checks whether an authoritative system already holds it - asking for what we already have is its own failure. If it has to be provided, it goes to whoever can actually supply it: the customer on a customer channel, or an internal owner as owned work. What arrives is validated; if it never arrives or does not satisfy the requirement, the criticality of the blocked process decides between escalating to a person, taking an alternate route, or recording the process as blocked."
+  handoffs:
+    - "external:human-in-the-loop-lifecycle - a critical dependency that requesting did not resolve"
+
+classification:
+  journey_types:
+    - communication
+    - external-handoff
+    - handoff
+    - human-vs-automated
+    - multi-branch
+    - nested-decision
+    - no-deadline
+    - recovery
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 26
+  unnecessary_internal_nodes: 2
+  technical_conditions_groupable: 1
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 13
+
+patterns_detected:
+  - P-CLASSIFY-01
+  - P-OUTCOME-01
+  - P-INTERNAL-01
+  - P-GATE-01
+  - P-MERGE-01
+  - P-LABEL-01
+  - P-DETAIL-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Hide a.identify - execution:null, 210 chars, single consumer c.authoritative; the trigger card already says a named item is blocking a named process."
+  - "Merge a.persist into x.resumed: internal write plus success exit is one outcome card, 'requirement satisfied, the process continues'."
+  - "Keep a.retrieve visible: it is the entire treatment of the 'we already have it' branch and hiding it would leave that branch empty."
+  - "Draw c.valid as an inline validation gate on the return path; its invalid arm rejoins c.criticality and needs no diamond of its own."
+  - "Five branch labels exceed 24 chars; shorten to 'customer' / 'internal owner' and 'escalate' / 'alternate route' / 'not worth pursuing' with the full 'when' text in the detail panel."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

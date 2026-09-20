@@ -1,0 +1,60 @@
+journey_id: RET-24
+slug: churn-risk-escalation
+status: audited
+
+story:
+  trigger: "A churn-risk threshold was crossed on a relationship (churn_risk_threshold_crossed)."
+  entity: "The customer, account or subscription relationship at risk."
+  objective: "Match the size of the response to the strength of the evidence: hand off where a cause or an intent already exists, put a person on it only where corroborated evidence justifies the cost, and otherwise do the proportionate small thing or nothing."
+  success: "h.human - a person takes ownership of a corroborated risk, carrying the evidence rather than the score, with automated retention suppressed behind them."
+  summary: "Risk crosses a threshold and the journey asks, in order, whether the customer has already said they are leaving, whether something identifiable is broken, and whether the evidence is strong enough to justify a human. Strong corroborated evidence raises an owner task and suppresses automated retention; thin evidence gets a proportionate automated intervention if one exists, and nothing at all if it does not."
+  handoffs:
+    - "h.cancellation -> RET-28, when cancellation intent is already on record - there is nothing to infer."
+    - "h.resolve-first -> RET-23, when the risk has an identifiable operational cause that is not a payment failure already owned by payment recovery."
+    - "h.human -> external:human-in-the-loop-lifecycle, when the evidence justifies a person."
+    - "h.intervention -> RET-30, when a proportionate automated retention intervention exists."
+
+classification:
+  journey_types:
+    - external-handoff
+    - handoff
+    - human-vs-automated
+    - multi-branch
+    - nested-decision
+    - shared-exit
+
+display_audit:
+  display_node_count_before: 20
+  unnecessary_internal_nodes: 1
+  technical_conditions_groupable: 1
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 11
+
+patterns_detected:
+  - P-READ-01
+  - P-GATE-01
+  - P-TERM-01
+  - P-HANDOFF-01
+  - P-DETAIL-01
+  - P-LABEL-01
+  - P-EXIT-01
+
+severity:
+  highest: P0
+
+planned_changes:
+  - "P0 - the shipped gate collapse currently erases a business decision. c.automated ('Is a proportionate automated recovery available?') is a binary condition whose negative arm reaches x.monitor, class no-action, so collapsibleGates hides it and retargets the edge straight at h.intervention. x.monitor then becomes unreachable and is pruned, so the canvas today shows NO 'nothing proportionate to do' ending at all and implies every thin-evidence case gets an intervention. That contradicts the journey's own authored rule s.g4 ('the size of the intervention tracks the strength of the evidence'). Add a guard to the gate rule: never collapse a gate whose short arm is the journey's only exit, and never collapse one whose short arm corresponds to an authored suppressions entry."
+  - "P-GATE-01 does legitimately apply to c.priority-clear ('does a higher-precedence contender already claim this account?') - that is a precedence/contention gate, not a business decision, and it should stay collapsed into a.owner-task."
+  - "P-READ-01: a.evidence (execution:null, single edge into c.operational) only assembles signals with their sources; it is also the journey's longest card at 215 chars. Fold it into c.operational as a 'reads' caption with the full prose in the detail panel."
+  - "P-DETAIL-01: c.operational's question is 121 characters on the card ('Is the risk driven by a known operational problem, other than a payment failure already open in payment recovery?'). The card should ask the short question and keep the payment-recovery carve-out in the panel."
+  - "P-TERM-01: x.monitor has two parents (c.priority-clear, c.automated). Once the guard above keeps c.automated visible, draw x.monitor as a local instance per parent; the two reasons for it are different and should not be one shared box."
+  - "This is the only journey in the slice whose sole exit is a no-action exit, which is exactly why the no-action heuristic misfires here."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

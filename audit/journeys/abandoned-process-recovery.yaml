@@ -1,0 +1,94 @@
+journey_id: ACQ-11
+slug: abandoned-process-recovery
+status: audited
+
+story:
+  trigger: "A person started a resumable process - a basket and checkout, an application, a quote, a registration - and did not finish it."
+  entity: "The logical process itself (one open instance per person and logical process), not the platform's rotating identifier for it."
+  objective: "Bring the person back to that exact unfinished process while it is still resumable, claiming nothing the system does not assert - no held stock, no held price, no invented discount."
+  success: "The process is completed by any channel (x.converted). A completion recorded in a store or by phone counts and stops the cascade."
+  summary: "A started-and-abandoned process is watched from its last activity; up to three progressively different touches point back at the same resumable process, each one re-reading the process state first. It ends the moment the process completes, is cancelled or expired, is superseded by a newer process, or hits a payment failure - which belongs to a different journey."
+  non_success_endings:
+    - "x.invalid (invalid-state): cancelled, expired or emptied - nothing further is sent"
+    - "x.superseded (suppression): a newer process for the same person outranks this one"
+    - "x.lapsed (timeout): the recovery lifetime passed, or no honest expiry exists to name in a final notice"
+    - "x.no-action: a permission, deliverability, pressure-cap or contest gate stopped the touch; the gate is recorded"
+  handoffs:
+    - "h.payment -> FIN-134 when a payment failure is recorded against the process"
+  business_decisions:
+    - "c.state / c.state2 / c.state3 / c.close - 'what is the process now?', the re-read that decides send vs stop (the same question asked once per stage)"
+    - "c.final-enabled - is a final notice enabled AND is there a real expiry to name; its short side is x.lapsed (timeout), a business ending, not a no-action record"
+  implementation_checks:
+    - "c.eligible - entry plumbing: contactable identity, resumable process, no open instance, no payment failure, permission recorded"
+    - "c.sendable - 'may the first touch go out?' (permission, deliverability, pressure cap, contest, cooldown)"
+    - "c.sendable2 - the same send-path gate before the second touch"
+  bookkeeping_nodes:
+    - "a.open - opens the instance and starts the abandonment clock; instance bookkeeping that belongs on the trigger card"
+    - "a.record-no-action - writes which gate stopped the touch; its whole content is the x.no-action exit"
+    - "a.note-return - logs the return and re-arms one wait; the branch label 'Resumed, still open' and w.resumed already tell the reader this"
+  read_as_one_action:
+    - "Each touch action (a.touch1 / a.touch2 / a.touch3) with the sendable gate in front of it - one 'send touch N' card whose detail carries the gate and the declared channel roles (low-friction -> persistent -> urgent)"
+    - "Each wait and the state re-check that follows it (w.abandon+c.state, w.second+c.state2, w.final+c.state3) - the wait's arms ARE the branches"
+  must_stay_visible:
+    - "x.converted (the only success)"
+    - "x.invalid"
+    - "x.superseded"
+    - "x.lapsed"
+    - "h.payment -> FIN-134 (the payment/abandonment boundary is a stated rule of this journey)"
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - communication-heavy
+    - deadline-driven
+    - handoff
+    - large-graph
+    - multi-branch
+    - nested-decision
+    - parallel-fan-out
+    - recovery
+    - shared-exit
+    - shared-handoff
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 31
+  unnecessary_internal_nodes: 3
+  technical_conditions_groupable: 3
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 18
+
+patterns_detected:
+  - P-GATE-01
+  - P-INTERNAL-01
+  - P-WAITARM-01
+  - P-RECHECK-01
+  - P-WAIT-01
+  - P-TERM-01
+  - P-HANDOFF-01
+  - P-MERGE-01
+  - P-LABEL-01
+  - P-EXIT-01
+  - P-DETAIL-01
+  - P-LOOP-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Keep the existing gate collapse (c.eligible, c.sendable, c.sendable2 already draw no box) but surface the absorbed gate reason in the touch card's detail, so 'nothing was sent because X' is still findable."
+  - "Fold each wait's follower condition into the wait card (P-WAITARM-01): w.abandon/w.second/w.final each have exactly one condition parented only by waits, and the branch count equals the wait's until-event count."
+  - "The four 'what is the process now?' re-checks should render as one recognisable checkpoint form (P-RECHECK-01) with identical compact exits, not four different-looking decision cards."
+  - "Shorten the repeated 29-char branch labels ('Cancelled, expired or emptied' -> 'Cancelled'; 'Disabled, or no honest expiry' -> 'No honest expiry') - P-LABEL-01."
+  - "a.note-return's 196-char EN / 215-char TR card is the longest text in this journey; if it keeps a box at all it needs a one-line summary with the prose in the detail panel (P-DETAIL-01)."
+  - "Draw a.note-return -> w.resumed -> c.state2 as a single labelled return edge rather than a second lane (P-LOOP-01)."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

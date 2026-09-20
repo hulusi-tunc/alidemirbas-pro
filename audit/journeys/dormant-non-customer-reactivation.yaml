@@ -1,0 +1,79 @@
+journey_id: ACT-20
+slug: dormant-non-customer-reactivation
+status: audited
+
+story:
+  trigger: "A previously engaged non-customer passed the inactivity threshold defined for their context."
+  entity: "Person, lead or inactive non-customer account, in the context that went dormant. Dormancy is per context, not per account."
+  objective: "Make one bounded attempt to restart a relationship that never became a paying one, and judge the result on what the person actually did."
+  success: "A meaningful return that hands the instance to the journey that owns what they returned into - unfinished onboarding (ACT-12), renewed intent (ACQ-03) or re-qualification (ACQ-05)."
+  summary: "A dormant lead that never paid gets exactly one attempt, and only when a specific credible reason exists. What happens afterwards is judged on state that actually moved, not on the message being opened - engagement alone is explicitly not a return."
+  non_success_endings:
+    - "x.winback (invalid-state, terminal): a former paying customer is out of scope - win-back has different economics"
+    - "x.no-reason (no-action): no credible reason exists, or permission or eligibility has lapsed"
+    - "x.engagement-only (invalid-state): what looked like a return was engagement with the message and nothing more"
+    - "x.sunset (timeout): the reactivation window closed with a cooldown in force"
+  handoffs:
+    - "h.onboarding -> ACT-12 on a return into unfinished setup"
+    - "h.intent -> ACQ-03 on a return carrying stronger intent than the record holds"
+    - "h.qualify -> ACQ-05 on a return with no current qualification on record"
+  business_decisions:
+    - "c.never-monetized - has this relationship ever been monetised; the scope boundary between reactivation and win-back"
+    - "c.state - what state did they actually return into; the four-way routing that is the point of the journey"
+  implementation_checks:
+    - "c.worth-it - 'is there a credible reason, and is this person still eligible and contactable?'; structurally a no-action gate, but it carries a business qualifier (a specific reason must exist) that must not vanish with the box"
+  bookkeeping_nodes:
+    - "a.reason - establishes the credible reason; 233-char card whose content is the first half of c.worth-it's own question"
+    - "a.inspect - 'inspect what actually happened before declaring anything' is the preamble to c.state's question, not a step of its own"
+  read_as_one_action:
+    - "a.reason + c.worth-it as one eligibility step"
+    - "a.inspect + c.state as one 'what actually moved?' decision"
+    - "a.attempt + w.return as one 'one bounded attempt, then watch for a real return'"
+  must_stay_visible:
+    - "x.winback (the scope boundary is a stated rule of the journey)"
+    - "x.engagement-only (the 'an open is not a return' rule made visible)"
+    - "x.sunset"
+    - "all three handoffs - they are the journey's real outcomes"
+
+classification:
+  journey_types:
+    - communication
+    - handoff
+    - multi-branch
+    - no-deadline
+    - parallel-fan-out
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 23
+  unnecessary_internal_nodes: 2
+  technical_conditions_groupable: 1
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 11
+
+patterns_detected:
+  - P-GATE-01
+  - P-CLASSIFY-01
+  - P-INTERNAL-01
+  - P-HANDOFF-01
+  - P-LABEL-01
+  - P-DETAIL-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "c.worth-it already collapses under the existing gate rule, and this journey is the warning case for it: the absorbed question contains a real business qualifier ('a specific reason exists'), so P-GATE-01 must print the absorbed question in the detail of the card it collapses into, not drop it."
+  - "Absorb a.reason and a.inspect into the conditions they feed (P-CLASSIFY-01); both are over 110 chars and both restate the following question."
+  - "Shorten 'Signal did not survive inspection' (33) and 'Renewed commercial intent' (25) branch labels (P-LABEL-01)."
+  - "c.state's four arms are four different owners - they are the journey and must stay four separate visible paths."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

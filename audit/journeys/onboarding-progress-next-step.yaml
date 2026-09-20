@@ -1,0 +1,62 @@
+journey_id: ACT-12
+slug: onboarding-progress-next-step
+status: audited
+
+story:
+  trigger: "An onboarding account is active but has not yet reached activation."
+  entity: "The person or account plus the onboarding instance."
+  objective: "Get an onboarding account to activation by surfacing the single most useful next step, read from what is actually done, until activation happens, a named blocker takes over, or the window closes."
+  success: "The authoritative activation event is recorded and ownership passes to ACT-16 (h.activated)."
+  summary: "The journey reads which setup milestones the product itself records as done, surfaces the single most useful outstanding step, and then waits. Each completed milestone re-reads the state and surfaces the next one; a checklist that is finished without value ever being produced keeps waiting rather than declaring success. When nothing moves, the journey distinguishes a genuinely blocking prerequisite - handed to a blocker journey - from a merely quiet interval, and stops when the onboarding window expires."
+  handoffs:
+    - "ACT-16 - the authoritative activation event."
+    - "ACT-13 - one named mandatory prerequisite established as the thing preventing activation, rather than a general lack of progress."
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - handoff
+    - multi-branch
+    - nested-decision
+    - no-deadline
+    - nurture
+    - shared-handoff
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 22
+  unnecessary_internal_nodes: 1
+  technical_conditions_groupable: 1
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 10
+
+patterns_detected:
+  - P-EVAL-01
+  - P-WAITRES-01
+  - P-LOOP-01
+  - P-HANDOFF-01
+  - P-LABEL-01
+  - P-DETAIL-03
+  - P-STATE-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Absorb a.read (execution:null, writes:[], sole successor c.next-step) into the c.next-step card - 'read what is done' is how that question is answered, not a separate step. Every edge that targeted a.read (two back edges) retargets to the condition - P-EVAL-01. This is the journey's only Internal card and its only >110-char card."
+  - "Clamp the a.read lead sentence (159 chars as rendered) - P-DETAIL-03."
+  - "Merge w.progress with c.what-happened into one wait-outcome card; the timeout arm into the window check stays a separate labelled edge - P-WAITRES-01."
+  - "Draw the two back edges into the re-read (from the merged wait card, and from c.stalled-step's 'no blocker' arm) as labelled return arcs - P-LOOP-01. This loop is the journey's shape and must read as a loop, not as a line that falls off."
+  - "Demote c.window ('is the onboarding window still open?') to a deadline chip on the stalled-progress path with one stub to x.window-closed; it is a timing gate rather than a business decision, but the window-closed ending must stay visible - P-GATE-01 / P-STATE-01 (c.window and c.stalled-step together answer one question: 'has this stalled for a reason, and is there still time?')."
+  - "h.activated has two parents (c.ready and the merged wait card); keep per-parent handoff instancing - P-HANDOFF-01."
+  - "Shorten the three long branch labels ('Setup complete, value not yet produced' 38 chars, and two 29-char labels) on the canvas - P-LABEL-01."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

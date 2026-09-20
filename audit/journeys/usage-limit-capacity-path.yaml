@@ -1,0 +1,55 @@
+journey_id: RSK-273
+slug: usage-limit-capacity-path
+status: audited
+
+story:
+  trigger: "An authoritative usage figure reaches a defined limit in its measurement window and an action is actually blocked or held by it."
+  entity: "The entity and the one limit constraining it, in one measurement window - one limit, one window, one authoritative count."
+  objective: "Meet somebody at the moment a limit stops them with the three facts that decide what happens next: what the limit is, when it resets, and whether more capacity can be bought - without any of it reading as an accusation."
+  success: "The window resets or capacity is authorised, and the held action can proceed."
+  summary: "At the point the action is stopped, the journey states which limit was reached and when the window resets, then establishes what path exists - purchasable capacity, an automatic reset, or neither. Where capacity can be bought it matters who holds that decision: the person who hit the limit is offered it directly, or the party who holds it is told what is blocked and for whom while the blocked person is told who they are waiting on. Authorised capacity is executed as a plan change; a reset is announced from the authoritative reset point."
+  handoffs:
+    - "SUB-166 - an authorised capacity increase that has to be executed as a change of plan or terms"
+
+classification:
+  journey_types:
+    - communication
+    - communication-heavy
+    - deadline-driven
+    - handoff
+    - multi-branch
+    - nested-decision
+    - shared-exit
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 23
+  unnecessary_internal_nodes: 0
+  technical_conditions_groupable: 0
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: false
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 12
+
+patterns_detected:
+  - P-COMM-02
+  - P-WAIT-01
+  - P-TERM-01
+  - P-MERGE-01
+  - P-EXIT-01
+
+severity:
+  highest: P2
+
+planned_changes:
+  - "Group a.offer-holder and a.notify-blocked-party into one step: two consecutive sends, no decision between them, to two different parties on two different routes - one card with two recipient rows, not two cards in series."
+  - "w.capacity has onEvent and onTimeout pointing at the same node - drop the event/timeout edge labels and draw one edge."
+  - "x.blocked has two parents - draw a local instance per parent."
+  - "Nothing to hide here: the journey has no execution:null actions and no implementation-gate conditions. All three conditions are real business decisions and all five actions speak to a person. The only clutter is structural - a shared terminal, a double-labelled wait and a two-send step drawn as two steps."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

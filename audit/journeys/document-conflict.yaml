@@ -1,0 +1,61 @@
+journey_id: DOC-220
+slug: document-conflict
+status: audited
+
+story:
+  trigger: "A material inconsistency is detected in a document lineage - different content under one identifier, a wrong version distributed, a signature on the wrong version, several versions claiming current status (document_version_inconsistency_detected)."
+  entity: "The document lineage and every conflicting record claiming to be part of it (document_lineage_id + conflict_id)."
+  objective: "Work out which version actually governs, and explain the conflict rather than deleting it."
+  success: "The authoritative version is established, every conflicting record is preserved alongside it, and anyone holding the wrong version is told what changed (x.reconciled)."
+  summary: "Conflicting document records are gathered and tested against lineage, issuance authority and effective semantics. Where one version is deterministically authoritative it is recorded as such with the rest preserved as evidence; where two have equal claim nothing is changed and a human decides. Signatures bound to the wrong version and business actions taken on the wrong version each hand to their own remedy journey, and a recipient holding a superseded version is sent the correct one with an explicit statement of what it replaces."
+  handoffs:
+    - "DEC-181 - a conflict where the authoritative version cannot be safely determined"
+    - "DOC-215 - signatures that bind to a version other than the authoritative one"
+    - "REM-157 - a business action taken on a non-authoritative document version"
+
+classification:
+  journey_types:
+    - communication
+    - handoff
+    - multi-branch
+    - nested-decision
+    - routing-heavy
+    - shared-exit
+
+display_audit:
+  display_node_count_before: 27
+  unnecessary_internal_nodes: 4      # a.collect (evidence gather), a.cannot, a.sig-invalid, a.preserve-history (all three are 'record it and hand off')
+  technical_conditions_groupable: 0  # c.identifiable, c.signature and c.acted are all real business decisions
+  router_message_collapsible: false
+  shared_terminal_candidate: true    # x.reconciled has two parents (a.correct-distribution, c.acted 'Neither')
+  long_text_present: true            # a.authoritative 644/654 - the longest card in the slice; also a.cannot 292, a.preserve-history 243, a.sig-invalid 236, a.collect 223
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 10
+
+patterns_detected:
+  - P-CHECK-01
+  - P-RECORD-01
+  - P-INTERNAL-01
+  - P-TEXT-01
+  - P-DETAIL-01
+  - P-LABEL-01
+  - P-TERM-01
+  - P-HANDOFF-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "This journey has ten Internal cards for five internal nodes and only one communication action - it is the clearest case in the slice of implementation plumbing crowding out the story."
+  - "Merge a.collect forward into c.identifiable (P-CHECK-01): gathering ids, hashes, issuance times and signature evidence is the premise of 'is the authoritative version deterministically identifiable?'."
+  - "Merge a.cannot into h.review, a.sig-invalid into h.resign, and a.preserve-history into h.remedy (P-RECORD-01). Each is an internal action whose single edge goes to a handoff; the handoff card already names the outcome, so three cards become three detail panels."
+  - "Merge a.authoritative forward into c.signature (P-CHECK-01) - allowed here because c.signature has no other parent, so no branch distinction is lost. Its 644-char body must go to the panel either way (P-TEXT-01)."
+  - "Rewrite the two long branch labels ('Distributed, not acted upon' 27, 'Already used for a business action' 34) to fit the edge (P-LABEL-01)."
+  - "Draw x.reconciled once per parent (P-TERM-01) and keep all three handoffs visible - they are three genuinely different remedies."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

@@ -1,0 +1,74 @@
+journey_id: REM-151
+slug: post-completion-issue
+status: audited
+
+story:
+  trigger: "A concrete problem was reported against a completed fulfillment or service - a wrong or damaged item, a missing component, a quality or service defect, an incorrect configuration, an incomplete outcome."
+  entity: "The completed fulfillment or service and the specific problem reported against it (one issue id)."
+  objective: "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it."
+  success: "h.remedy -> REM-157: a confirmed unresolved obligation reaches the remedy decision with its route classified."
+  summary: "A reported issue is not a confirmed defect. The journey checks whether an existing case already covers it, establishes whether there is an actionable unresolved obligation at all, and either routes it to a remedy decision or acknowledges honestly that the delivery matched what was owed and the experience still disappointed."
+  non_success_endings:
+    - "x.attached (suppression): an open case already concerns the same defect on the same obligation, so the evidence is attached rather than a second recovery lifecycle opened"
+    - "x.no-defect (no-action): heard, no unresolved obligation, no remedy owed - and the person is told so"
+  handoffs:
+    - "h.remedy -> REM-157 on a confirmed unresolved obligation needing a remedy decision"
+  business_decisions:
+    - "c.actionable - is there an actionable unresolved obligation, or an experience that fell short without anything having gone wrong; the whole judgement of the journey"
+  implementation_checks:
+    - "c.duplicate - a dedupe check against an open case on the same obligation"
+  bookkeeping_nodes:
+    - "a.capture - captures the issue id, the fulfillment, the report, the scope, the time and the evidence; entry bookkeeping that belongs on the trigger card"
+    - "a.attach - attaches evidence to the existing case; its content is the x.attached exit (276-char card)"
+    - "a.assess - 'does the report describe an unresolved obligation a remedy could satisfy' is c.actionable's own question"
+    - "a.classify - classifies the remedy route; a 358-char card whose result is exactly what h.remedy carries to REM-157"
+  read_as_one_action:
+    - "a.attach + x.attached as one 'attached to the existing case' ending"
+    - "a.classify + h.remedy as one 'remedy route classified -> REM-157' handoff card"
+    - "a.assess + c.actionable as one decision"
+  must_stay_visible:
+    - "x.attached (the one-case-per-obligation rule made visible)"
+    - "x.no-defect (a real ending: no defect is manufactured to give the report somewhere to go)"
+    - "h.remedy -> REM-157"
+
+classification:
+  journey_types:
+    - communication
+    - handoff
+    - multi-branch
+    - routing-heavy
+
+display_audit:
+  display_node_count_before: 20
+  unnecessary_internal_nodes: 4
+  technical_conditions_groupable: 1
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 7
+
+patterns_detected:
+  - P-RECORD-01
+  - P-SETUP-01
+  - P-CLASSIFY-01
+  - P-INTERNAL-01
+  - P-GAUNTLET-01
+  - P-HANDOFF-01
+  - P-DETAIL-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Eleven canonical nodes, and four of them are execution:null actions that all draw over 110 characters: this journey is 4 cards of implementation prose wrapped around 1 message and 2 decisions. Every one of the four folds into a neighbour (trigger, condition, exit or handoff)."
+  - "P-RECORD-01 applies twice here in its two variants: a.attach -> x.attached (record into an exit) and a.classify -> h.remedy (record into a handoff). The handoff card should name the classified route, which is the information the reader actually wants."
+  - "a.classify's 358/356-char card is the longest single card measured in the slice in both locales - hard evidence that P-DETAIL-01 must be a hard cap, not a suggestion."
+  - "With the four internals folded, the journey is 7 cards and reads as: issue reported -> already covered? -> anything actually owed? -> route it, or say so honestly."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

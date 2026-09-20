@@ -1,0 +1,56 @@
+journey_id: DOC-214
+slug: document-distribution
+status: audited
+
+story:
+  trigger: "An issued document version requires distribution to a named recipient."
+  entity: "The issued version, the intended recipient, and the distribution of one to the other (document_version_id + recipient_id)."
+  objective: "Get a specific issued version to the party who should have it, without delivery state and document validity ever touching each other."
+  success: "Delivery or availability is established to the level the requirement demands, recorded against the exact version - and the document’s validity is unchanged by it either way."
+  summary: "A document that has been issued is bound to its exact version and to the party permitted to receive it, then sent through the canonical communication mechanism rather than a parallel delivery path. A confirmed delivery is recorded against that version; an authoritative failure goes to CMS-208 and an outcome nobody can establish goes to external reconciliation, recorded as unknown and never as delivered."
+  handoffs:
+    - "CMS-208 - a failed document distribution"
+    - "external:external-status-reconciliation - a distribution whose outcome could not be established"
+
+classification:
+  journey_types:
+    - communication
+    - external-handoff
+    - handoff
+    - multi-branch
+    - no-deadline
+    - routing-heavy
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 20
+  unnecessary_internal_nodes: 4
+  technical_conditions_groupable: 0
+  router_message_collapsible: true
+  shared_terminal_candidate: false
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 6
+
+patterns_detected:
+  - P-COMM-01
+  - P-OPEN-01
+  - P-RECORD-01
+  - P-SEAL-01
+  - P-WAIT-02
+  - P-INTERNAL-01
+  - P-DETAIL-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Worst clutter ratio in the slice: 4 of 11 canonical nodes are execution:null bookkeeping and all four are over-length cards. a.recipient is route resolution and a.version is the version binding - both are preconditions of a.distribute and should collapse into one \"Send this issued version to the permitted recipient\" card (P-COMM-01 widened past channelPriority, plus P-RECORD-01)."
+  - "a.confirmed -> x.distributed and a.unknown -> h.reconcile are record-then-terminate pairs; fold each state write into the terminal it precedes (P-SEAL-01)."
+  - "Fold c.outcome into w.distribution (P-WAIT-02); move the \"delivery state describes the distribution, never the document\" rationale to the detail panel (P-DETAIL-01)."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

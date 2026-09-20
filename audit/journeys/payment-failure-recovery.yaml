@@ -1,0 +1,65 @@
+journey_id: FIN-134
+slug: payment-failure-recovery
+status: audited
+
+story:
+  trigger: "An authoritative payment failure is recorded against an obligation that is still outstanding."
+  entity: "The failed attempt, the obligation behind it and the customer relationship it belongs to - the failure touches only the first of the three."
+  objective: "Respond to the reason the payment actually failed, rather than to the fact that it failed, and keep the obligation alive while recovery runs."
+  success: "A subsequent attempt discharges the obligation and the customer is told once that nothing further is expected."
+  summary: "A payment failure is classified into the class the provider actually reported, and that class decides everything: a transient failure is retried silently, a customer-fixable one gets the exact corrective action named, and a decline with no usable reason goes to the alternate-route question - a stored method the system already has authority to use, or a choice the customer has to make. One reminder naming the consequence follows if the obligation is still open, and if recovery ends without payment, policy decides between grace, overdue tracking and access restriction."
+  handoffs:
+    - "TIM-65 - an unpaid obligation entering a grace period"
+    - "TIM-62 - an unpaid obligation becoming overdue"
+    - "ACC-78 - policy restricting capability while an obligation is unpaid"
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - communication-heavy
+    - deadline-driven
+    - handoff
+    - large-graph
+    - multi-branch
+    - nested-decision
+    - recovery
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 36
+  unnecessary_internal_nodes: 1
+  technical_conditions_groupable: 2
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 18
+
+patterns_detected:
+  - P-CLASSIFY-01
+  - P-DEMUX-01
+  - P-GATE-01
+  - P-MERGE-01
+  - P-LOOP-01
+  - P-LABEL-01
+  - P-DETAIL-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Hide a.classify - at 416 chars it is the longest card in the slice, it is execution:null, and its entire content is the question c.class asks one step later. The class list belongs in the detail panel."
+  - "Keep a.retry and a.use-alternate visible despite execution:null: one is the whole treatment of the transient branch and the other moves money, so neither is bookkeeping."
+  - "Drop c.recovered: its two branches are exactly w.recovery's and w.final's until events. Label the event edges 'satisfied' and 'abandoned'."
+  - "Draw c.reminder as an inline send gate before a.remind."
+  - "w.recovery has four parents and c.next has four - centre both merges instead of routing four edges into a card edge."
+  - "Draw the 'nothing further to offer' arm of c.alternate as a short return into w.recovery rather than a long back edge."
+  - "Four branch labels exceed 24 chars, including the 43-char 'The customer has to choose or authorise one'."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

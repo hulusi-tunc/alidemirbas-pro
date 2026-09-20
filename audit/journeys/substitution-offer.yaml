@@ -1,0 +1,58 @@
+journey_id: FUL-276
+slug: substitution-offer
+status: audited
+
+story:
+  trigger: "A substitution becomes required for part of an obligation and a specific alternative has been defined."
+  entity: "The affected scope of the obligation and the single alternative offered against it."
+  objective: "Put a defined alternative in front of the person the obligation was made to, with a real decline path and a stated deadline, so nothing different is ever supplied on the assumption they would not have minded."
+  success: "The recipient explicitly accepts and the new promise is confirmed in its own terms (x.accepted). An explicit decline is a legitimate ending too - the obligation stays open and is never recorded as a cancellation."
+  summary: "When something cannot be supplied as promised, the journey first checks that a permitted route reaches the recipient in time to decide - if not, it hands off rather than substituting silently. The offer names what cannot be supplied, the one alternative, the difference in plain terms, and equally reachable accept and decline paths with a closing date. One reminder follows, then the offer lapses with an explicit statement that nothing was substituted and the affected scope is still open."
+  handoffs:
+    - "CON-36 - a substitution offer that cannot be delivered on any permitted route before its window closes."
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - communication-heavy
+    - deadline-driven
+    - handoff
+    - multi-branch
+    - recovery
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 23
+  unnecessary_internal_nodes: 0
+  technical_conditions_groupable: 1
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: false
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 8
+
+patterns_detected:
+  - P-GATE-01
+  - P-WAITRES-01
+  - P-LADDER-01
+  - P-LOOP-01
+  - P-TERM-02
+  - P-MERGE-01
+  - P-DETAIL-01
+
+severity:
+  highest: P2
+
+planned_changes:
+  - "Demote c.reachable ('is there a permitted route that reaches them in time to decide?') to a deliverability chip on the offer card with one muted stub to the CON-36 handoff - P-GATE-01. The handoff must stay visible; the diamond does not."
+  - "Merge w.decision with c.answer into one wait-outcome card ('accepted' / 'declined'), with the timeout arm to the reminder as a separate labelled edge - P-WAITRES-01."
+  - "Draw a.remind + w.final as one ladder step ('one reminder, then the offer closes') rather than two cards, with the closing date on the ladder - P-LADDER-01. w.final re-enters c.answer, so that re-entry is a labelled return arc into the merged wait-outcome card rather than a second copy of it - P-LOOP-01."
+  - "Merge a.confirm-accept+x.accepted, a.confirm-decline+x.declined and a.lapse+x.lapsed into single ending cards - P-TERM-02. Note x.declined is class failure and x.lapsed class timeout: the merged cards must keep the class badge, since 'declined' and 'lapsed' leave the obligation in different states."
+  - "Centre the merge where the accept and decline confirmations diverge from the single outcome card - P-MERGE-01."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

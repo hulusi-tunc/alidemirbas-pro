@@ -1,0 +1,54 @@
+journey_id: ACT-11
+slug: onboarding-route-selection
+status: audited
+
+story:
+  trigger: "A recorded lifecycle entry - account created, trial started, subscription started or customer onboarding started (authoritative_lifecycle_entry)."
+  entity: "The person, account, subscription or trial that was entered (account_id + onboarding_instance_id). One entry, one route; a second subscription is its own instance because its setup work is its own."
+  objective: "Choose the onboarding path from the work actually required to reach value, before any of that work starts - not from plan tier or account value."
+  success: "A route is recorded and onboarding starts on it: ACT-12 takes over with the route attached."
+  summary: "The onboarding context - declared goal, role, use-case, setup complexity, any implementation requirement - is read without treating plan tier as a proxy for any of it, and decides whether reaching value genuinely needs a person. Either route is then checked for a named mandatory prerequisite; a missing one hands to ACT-13, and a clear start hands to ACT-12."
+  handoffs:
+    - "ACT-13 - a mandatory prerequisite missing before onboarding can begin"
+    - "ACT-12 - a route chosen and nothing blocking the start"
+
+classification:
+  journey_types:
+    - handoff
+    - human-vs-automated
+    - multi-branch
+    - routing
+    - short
+
+display_audit:
+  display_node_count_before: 16
+  unnecessary_internal_nodes: 1      # a.context only - a.self-service is the visible counterweight to a.assisted and must stay
+  technical_conditions_groupable: 0  # c.assisted is the journey's whole point; c.prerequisite decides which journey owns next
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: true            # a.context 269/235, a.self-service 137/177
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 7
+
+patterns_detected:
+  - P-CHECK-01
+  - P-INTERNAL-01
+  - P-TEXT-01
+  - P-MERGE-01
+  - P-HANDOFF-01
+  - P-EXIT-01
+
+severity:
+  highest: P2
+
+planned_changes:
+  - "Merge a.context forward into c.assisted (P-CHECK-01) - 'read the onboarding context' is the premise of 'does reaching value here require assisted onboarding?', and today it is a 269-char Internal card sitting between the trigger and the only decision."
+  - "Do NOT merge a.self-service, even though it is execution:null and looks like bookkeeping: its successor c.prerequisite is also reached from the other branch (via a.assisted), so merging would attach one branch's content to a shared card and leave the two arms visually asymmetric. This is P-CHECK-01's shared-target guard clause."
+  - "Clamp a.self-service to its first clause and keep 'the route stays revisable' in the detail panel (P-TEXT-01)."
+  - "Centre c.prerequisite under its two parents (P-MERGE-01) so the two routes visibly rejoin before the prerequisite check."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

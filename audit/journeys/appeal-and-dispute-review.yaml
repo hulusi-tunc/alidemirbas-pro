@@ -1,0 +1,64 @@
+journey_id: FBK-47
+slug: appeal-and-dispute-review
+status: audited
+
+story:
+  trigger: "Somebody submits an appeal or dispute against a decision that has already been made (appeal_or_dispute_submitted)."
+  entity: "The appeal, linked to the original decision it contests. Two entities throughout - the decision and the appeal - and both survive the outcome."
+  objective: "Review a decision already made, without erasing it while the review runs."
+  success: "The review concludes (upheld, reversed or modified), the effective business state is updated to match, and the appellant is told the conclusion, what now applies, and what remains available procedurally - with the original decision, the appeal and the outcome all still readable."
+  summary: "An appeal is linked to its decision and checked for eligibility; ineligible ones are declined with the actual reason. Where policy requires it the decision is suspended (a hold, never a reversal) while the review runs. The review's verdict drives one state update and one outcome message; a review that cannot conclude asks once for the missing evidence, and a missed deadline hands to DEC-181."
+  handoffs:
+    - "DEC-181 - a review deadline passing without a conclusion (reached from both waits)"
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - communication-heavy
+    - deadline-driven
+    - handoff
+    - multi-branch
+    - nested-decision
+    - parallel-fan-out
+    - shared-handoff
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 26
+  unnecessary_internal_nodes: 1      # a.link only; a.hold and a.apply are business state changes
+  technical_conditions_groupable: 1  # c.hold - a policy gate whose two arms rejoin at the same wait
+  router_message_collapsible: false
+  shared_terminal_candidate: true    # h.deadline has two parents (w.review, w.more-info)
+  long_text_present: true            # a.apply 397/411, a.link 206, a.hold 193/226
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 14
+
+patterns_detected:
+  - P-CHECK-01
+  - P-INTERNAL-01
+  - P-TEXT-01
+  - P-DETAIL-01
+  - P-ENUM-01
+  - P-LABEL-01
+  - P-RETRY-01
+  - P-MERGE-01
+  - P-HANDOFF-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Merge a.link forward into c.eligible (P-CHECK-01) - linking the appeal to its decision is the premise of the eligibility question."
+  - "Do NOT merge a.hold forward into w.review: the wait is also reached from c.hold's other branch, so merging would attach the hold to a path that never applied it. This is the guard clause in P-CHECK-01."
+  - "Render 'UPHELD · REVERSED · MODIFIED' and 'MORE_INFORMATION_REQUIRED' through a display-label map built from each branch's `when` clause (P-ENUM-01) - raw enum tokens are the loudest thing on this canvas."
+  - "a.apply at 397/411 chars is the worst card here: first sentence on the card, the 'nothing is edited in place' rationale in the detail panel (P-TEXT-01)."
+  - "Draw h.deadline once per parent (P-HANDOFF-01, 2 instances) and the w.more-info -> w.review return as a labelled back arc rather than a long straight edge (P-RETRY-01)."
+  - "Centre a.apply under its three incoming branches and w.review under its three parents (P-MERGE-01)."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

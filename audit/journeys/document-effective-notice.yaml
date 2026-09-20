@@ -1,0 +1,54 @@
+journey_id: DOC-286
+slug: document-effective-notice
+status: audited
+
+story:
+  trigger: "An authoritative record says a document version is now in force - the effective moment, not the signing moment."
+  entity: "The effective document version and the entitlement it confers on its holder; a renewal or superseding version is its own instance."
+  objective: "Tell the holder that what they signed has actually started, and name what it now lets them do."
+  success: "The holder exercises the entitlement, or - where there is nothing to exercise - is told what now stands and why it matters."
+  summary: "When a document takes effect, the journey says so once, in one of two registers: an entitlement the holder can act on names the single first action, while a standing protection names the moment at which it would matter. An actionable entitlement gets one reminder if it is still in force and still unused, and then the journey records whether it was exercised, went dormant, or was overtaken by the document ending first."
+  handoffs: []
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - communication-heavy
+    - deadline-driven
+    - multi-branch
+    - nurture
+    - shared-exit
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 20
+  unnecessary_internal_nodes: 0
+  technical_conditions_groupable: 2
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: false
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 12
+
+patterns_detected:
+  - P-DEMUX-01
+  - P-GATE-01
+  - P-TERM-01
+  - P-MERGE-01
+  - P-EXIT-01
+
+severity:
+  highest: P2
+
+planned_changes:
+  - "Drop c.what-happened: its branches partition w.first-use's until events. Put 'exercised' and 'ended first' on the wait's event edges instead of a diamond."
+  - "Draw c.still-in-force as an inline validity gate in front of the reminder rather than as a decision of equal weight to c.usable."
+  - "x.used and x.moot each have two parents - draw a local instance per parent so the two arms of the wait do not cross."
+  - "Keep c.usable prominent: exercisable versus standing entitlement is the only real fork and it produces two genuinely different messages and two different endings."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

@@ -1,0 +1,67 @@
+journey_id: FUL-146
+slug: fulfillment-delay
+status: audited
+
+story:
+  trigger: "The expected timing of an obligation slipped (expected_fulfillment_timing_slipped)."
+  entity: "The obligation and its timing commitment, carrying the full history of what was promised."
+  objective: "Hold lateness as its own state with the original commitment intact behind every revised estimate, tell the recipient whenever the change moves something they planned around, and escalate rather than go silent once the delay passes tolerance."
+  success: "h.resume -> FUL-144, the delayed obligation resuming or completing."
+  summary: "An obligation is late. The journey establishes whether a reliable new estimate exists - and refuses to invent one if it does not - then tells the recipient whenever the change moves anything they arranged around it. Inside tolerance it waits for resumption; beyond tolerance it either offers the choices that genuinely exist (wait, reschedule, alternative, cancel) or says plainly that there is no option and escalates."
+  handoffs:
+    - "h.resume -> FUL-144, a delayed obligation resuming."
+    - "h.exception -> FUL-145, a counterparty choosing an alternative over waiting."
+    - "h.cancel -> FUL-150, a counterparty cancelling rather than waiting."
+    - "h.escalate -> OWN-55 (archived / operational surface), a delay beyond tolerance with nothing to offer, or one outliving its revised horizon."
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - communication-heavy
+    - handoff
+    - multi-branch
+    - nested-decision
+    - no-deadline
+    - parallel-fan-out
+    - shared-handoff
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 36
+  unnecessary_internal_nodes: 4
+  technical_conditions_groupable: 0
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 16
+
+patterns_detected:
+  - P-READ-01
+  - P-INTERNAL-01
+  - P-MERGE-01
+  - P-LABEL-01
+  - P-TERM-01
+  - P-HANDOFF-01
+  - P-HANDOFF-02
+  - P-DETAIL-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Eight measured Internal cards from four canonical nodes, and all four are the journey's long cards (a.assess 258, a.update 233, a.no-estimate 225, a.reschedule 113). Every one of them is execution:null record-keeping: assess and record DELAYED, append the new estimate to the commitment history, record that no estimate exists, record the rescheduled commitment."
+  - "P-READ-01: a.assess folds into c.estimate ('Is there a reliable new completion estimate?')."
+  - "P-INTERNAL-01 with a hard precondition: a.update and a.no-estimate sit on opposite arms of c.estimate and both step into c.recipient-impact. They may only be hidden if c.estimate's branch labels are promoted to carry the difference ('A reliable estimate' / 'No reliable estimate' already do). Both arms then merge into c.recipient-impact - P-MERGE-01, centred."
+  - "P-INTERNAL-01 for a.reschedule likewise: c.decision's arms 'Wait' and 'Reschedule' both reach w.resume, and the label is what tells them apart once the record node is hidden."
+  - "P-DETAIL-01: the authored reasoning these nodes carry is some of the strongest in the corpus ('repeatedly promising dates that do not hold costs more trust than admitting the date is unknown') and must land in the detail panel, not be deleted with the card."
+  - "P-TERM-01: h.escalate has two parents (a.no-choice-update and w.resume's timeout) - draw it once per parent, since 'beyond tolerance with nothing to offer' and 'outlived its revised horizon' are different escalations."
+  - "P-HANDOFF-02: h.escalate targets OWN-55, which is on the archived operational surface, so it must render as a named but unlinked handoff card - never a dead link and never a bare id."
+  - "P-LABEL-01: 'No material change for them' (27 chars) on c.recipient-impact."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

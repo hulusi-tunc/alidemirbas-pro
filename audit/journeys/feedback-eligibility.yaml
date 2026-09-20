@@ -1,0 +1,48 @@
+journey_id: FBK-41
+slug: feedback-eligibility
+status: audited
+
+story:
+  trigger: "A potential feedback moment is recorded against a person and one specific experience."
+  entity: "Person or account plus the specific experience being asked about (person_id + experience_ref)."
+  objective: "Ask a person about one specific completed experience, once, at an appropriate moment - and not at all when the experience is incomplete, an issue is open, it was asked already, or the person has been asked enough."
+  success: "One request goes out about that experience and feedback comes back; FBK-43 owns what it means."
+  summary: "A feedback moment waits until the experience is actually complete from the person’s side, then passes a series of checks - no open issue in the context, nothing asked about it recently, and room in the bound on how often this person is asked anything - before a single request is sent. Anything that fails is a recorded non-ask rather than a delayed one."
+  handoffs: []
+
+classification:
+  journey_types:
+    - communication
+    - multi-branch
+    - nested-decision
+    - no-deadline
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 17
+  unnecessary_internal_nodes: 0
+  technical_conditions_groupable: 3
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: false
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 10
+
+patterns_detected:
+  - P-STATE-01
+  - P-GATE-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "c.open-issue, c.recent and c.moment are three sequential implementation gates answering one business question - \"may this person be asked about this, now?\" - and they carry three near-identical suppression/no-action exits with them. Group them into one eligibility card whose reasons live in the detail panel (P-STATE-01); six exits on a fourteen-node journey is the comprehension cost."
+  - "c.moment + x.not-now already collapse under the shipped gate rule (distinct_canonical is 12, not 14) - the remaining two are the same shape with class suppression instead of no-action, so P-GATE-01 needs widening to the suppression class where the short arm sends nothing."
+  - "Keep c.complete and w.completion visible: \"we do not ask about something that has not finished\" is the journey’s substance, not plumbing."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

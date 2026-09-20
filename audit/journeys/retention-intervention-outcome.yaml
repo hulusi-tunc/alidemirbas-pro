@@ -1,0 +1,65 @@
+journey_id: RET-30
+slug: retention-intervention-outcome
+status: audited
+
+story:
+  trigger: "A defined retention intervention has actually been delivered - a plan alternative, a pause option, a support resolution, human outreach or an approved save offer (retention_intervention_delivered)."
+  entity: "The customer, account or subscription plus the retention episode the intervention belongs to (account_id + retention_episode_id). The episode is the unit, which is what makes remembering a declined offer possible."
+  objective: "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice."
+  success: "The outcome is read from the system of record rather than from the customer's answer: an accepted offer that actually applied hands to RET-27 as a positive outcome; an accepted offer that did not apply is never recorded as a retention success."
+  summary: "After an intervention is delivered the journey waits for the relationship to move. Acceptance is verified against the record - accepted is not applied, and the gap between them is where retention numbers go wrong. A decline is remembered for the whole episode so the same offer is not repeated, and silence earns at most one bounded follow-up before a cooldown."
+  handoffs:
+    - "RET-27 - a retention outcome that looks positive"
+    - "external:operational-resolution - an intervention that did not apply"
+    - "SUB-167 - a declined save offer with cancellation continuing"
+
+classification:
+  journey_types:
+    - communication
+    - external-handoff
+    - handoff
+    - multi-branch
+    - no-deadline
+    - parallel-fan-out
+    - shared-exit
+    - shared-handoff
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 22
+  unnecessary_internal_nodes: 1      # a.verify - the check whose result c.applied immediately asks about
+  technical_conditions_groupable: 0  # c.applied is the journey's signature rule, not a gate; c.outcome is a wait demux; c.proceed and c.followup are business decisions
+  router_message_collapsible: false
+  shared_terminal_candidate: true    # h.observe x2, h.fix x2, x.cooldown x2
+  long_text_present: true            # a.verify 316/298, a.record-decline 203/213
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 15
+
+patterns_detected:
+  - P-GATE-02
+  - P-WAIT-02
+  - P-CHECK-01
+  - P-INTERNAL-01
+  - P-TEXT-01
+  - P-LABEL-01
+  - P-TERM-01
+  - P-HANDOFF-01
+  - P-EXIT-01
+
+severity:
+  highest: P0
+
+planned_changes:
+  - "P0: the existing no-action gate collapse in collapsibleGates currently hides c.proceed AND x.declined (measured: 12 of 14 canonical nodes rendered). The canvas therefore shows every decline flowing into SUB-167 'cancellation continuing', which the canonical graph does not say. The qualifying signal - exit class 'no-action' - is wrong here: x.declined ('intervention declined, relationship intact') is a business ending, not a suppression record."
+  - "Add the P-GATE-02 guard: a gate may only be absorbed when its continuation arm is a NON-TERMINAL node. c.proceed's continuation is h.proceed, a handoff - so both of its arms end the journey, which makes it a decision about how the journey ends, not plumbing. With that clause c.proceed and x.declined are drawn again."
+  - "Merge w.outcome and c.outcome into one card (P-WAIT-02): the wait's four until events (accepted / declined / recovered / failed) are c.outcome's four branches one-for-one. This is the single biggest readability win here - four business outcomes fan out of the wait itself."
+  - "Merge a.verify forward into c.applied (P-CHECK-01) so the 316-char 'verify against the system of record' card becomes the subtitle of 'did the state actually change?'."
+  - "Shorten 'Recovered without answering' (27) on the demuxed wait edge (P-LABEL-01)."
+  - "Keep a.record-decline visible - remembering the decline for the whole episode is a stated canonical rule and the reason c.proceed exists."
+  - "Three terminals have two parents each (P-TERM-01, P-HANDOFF-01): draw one instance per parent rather than six crossing edges."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

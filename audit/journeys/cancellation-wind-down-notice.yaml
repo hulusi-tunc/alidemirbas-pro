@@ -1,0 +1,52 @@
+journey_id: SUB-262
+slug: cancellation-wind-down-notice
+status: audited
+
+story:
+  trigger: "A cancellation is authoritatively recorded against a relationship, with an effective end date (cancellation_confirmed)."
+  entity: "The cancelled relationship plus its effective end date (relationship_id, one active per key)."
+  objective: "Carry somebody through the gap between deciding to leave and actually losing access, so the end date is never a surprise and returning stays possible right up to it."
+  success: "Access ends on the stated date with nothing outstanding (x.ended) - or the person withdraws the cancellation and the relationship continues (x.returned), which the journey treats as a legitimate stop, not a failure."
+  summary: "The cancellation is confirmed with the exact end date and what stays available until then. If a meaningful window remains, the journey waits: a withdrawal ends it immediately, otherwise a second message says what will and will not survive the end date. Anything that outlives the relationship - a balance, a return, a retention period - hands to SUB-170."
+  handoffs:
+    - "SUB-170 - a cancelled relationship with obligations continuing past its end"
+
+classification:
+  journey_types:
+    - communication
+    - deadline-driven
+    - handoff
+    - multi-branch
+    - nested-decision
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 17
+  unnecessary_internal_nodes: 0      # no execution:null actions at all - the cleanest journey in this slice
+  technical_conditions_groupable: 1  # c.window - a scheduling feasibility gate ("is there time for a second message?")
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: false
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 9
+
+patterns_detected:
+  - P-WAIT-02
+  - P-MERGE-01
+  - P-TERM-01
+  - P-EXIT-01
+
+severity:
+  highest: P2
+
+planned_changes:
+  - "Merge w.window and c.withdrawn into one card (P-WAIT-02): the wait's until list is [cancellation_withdrawn, effective_end_reached] and c.withdrawn's two branches are exactly those two events. 'What ended the wait?' is the wait, not a decision after it."
+  - "Centre the c.obligations merge (reached from a.ending and from c.window's 'Ends immediately' arm) and the a.ending merge (P-MERGE-01)."
+  - "Keep c.window drawn but as a light-weight branch: it changes whether a second message is sent at all, which the reader can see from the shape - the card itself can carry just the question."
+  - "Keep x.returned visible. It is classed invalid-state but it is the good outcome of a withdrawal, and no collapse rule should absorb it."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

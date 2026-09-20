@@ -1,0 +1,62 @@
+journey_id: ACQ-288
+slug: cart-abandonment
+status: audited
+
+story:
+  trigger: "An item is added to a cart and checkout is not started."
+  entity: "One cart instance - its items and their current availability and price as the platform asserts them. A cleared-then-refilled cart is a new instance."
+  objective: "Bring the person back to a cart that still stands, with a reminder cascade that escalates channel for the highest-value carts and never speaks once the purchase exists."
+  success: "An authoritative purchase or order record exists that includes at least one item from this cart."
+  summary: "After an item is added and checkout never starts, the journey waits, re-checks that the cart is still live and unpurchased, and sends up to two reminders - the second on a more direct channel when the cart is high-value. The moment checkout actually starts, ownership passes to Checkout Abandonment; if the cart is cleared or the cascade runs out, it ends as cleared or abandoned."
+  handoffs:
+    - "ACQ-287 - checkout started from this cart; Checkout Abandonment owns recovery from that moment"
+
+classification:
+  journey_types:
+    - communication
+    - communication-heavy
+    - handoff
+    - large-graph
+    - multi-branch
+    - nested-decision
+    - no-deadline
+    - recovery
+    - shared-exit
+    - shared-handoff
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 32
+  unnecessary_internal_nodes: 0
+  technical_conditions_groupable: 7
+  router_message_collapsible: true
+  shared_terminal_candidate: true
+  long_text_present: false
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 15
+
+patterns_detected:
+  - P-COMM-01
+  - P-STATE-01
+  - P-REPEAT-01
+  - P-WAIT-01
+  - P-TERM-01
+  - P-HANDOFF-01
+  - P-MERGE-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Collapse each of the three channel-selection actions into the message it routes (a.router1+a.reminder1, a.router2-hv+a.reminder2-hv, a.router2-std+a.reminder2-std): one communication card carrying primary and fallback channel."
+  - "Collapse each pre-send condition stack into a single 'is this still worth sending?' check card that keeps its outcome chips - purchased, cleared, checkout started - as visible outcomes. Seven of the eight conditions are state re-checks; only c.highvalue is a business fork."
+  - "The same check stack repeats after every wait; render it once per touch as a compact state check rather than three full three-diamond stacks."
+  - "All three waits have onEvent and onTimeout pointing at the same node - drop the event/timeout edge labels and draw one edge."
+  - "x.purchased (3 parents), x.cleared (2) and h.checkout (2) are shared terminals - draw a local instance per parent so no long edges cross the cascade."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

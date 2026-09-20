@@ -1,0 +1,77 @@
+journey_id: IDN-84
+slug: verification-failure-routing
+status: audited
+
+story:
+  trigger: "A verification attempt failed - it did not establish its claim (authoritative)."
+  entity: "The verification instance that failed. The failure belongs to the attempt, not to the person."
+  objective: "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record."
+  success: "x.retry - a bounded retry is available and the verification instance stays open, reached either by explaining what the person must correct or by our own silent backoff."
+  summary: "The failure is classified first, because the class decides the route and decides whose record it lands on: something the person can correct gets an explanation and a bounded retry, our own transient failure gets a silent backoff that writes nothing against them, a mismatch or an exhausted budget goes to a person, and a policy-terminal claim is told plainly that it cannot be verified on this basis."
+  non_success_endings:
+    - "x.terminal (failure): verification is not possible on this basis; the message names what basis would be accepted if any is. There is no no-action, suppression or timeout ending here"
+  handoffs:
+    - "h.escalate -> OWN-55 on a technical failure that is not clearing"
+    - "h.review -> DEC-181 on a failure requiring human judgement, or a retry budget reached"
+  business_decisions:
+    - "c.class - what kind of failure was it; the four-way route that is the journey's whole purpose and the guardrail that keeps our outage off the person's record"
+  implementation_checks:
+    - "c.retry-budget - does the retry budget for this claim have room (a policy-limit check)"
+    - "c.technical-budget - is a safe retry available within the backoff budget (the same check on our side)"
+  bookkeeping_nodes:
+    - "a.classify - the classification itself: a 337-char EN / 490-char TR card that enumerates exactly the classes c.class branches on"
+    - "a.backoff - retry with backoff, recording nothing against the person's history; its content is the x.retry ending plus a guardrail that belongs in that ending's detail"
+  read_as_one_action:
+    - "a.classify + c.class as one 'why did it fail?' decision"
+    - "a.backoff + x.retry as one 'silent backoff, nothing recorded against the person' ending"
+    - "c.class + c.retry-budget + c.technical-budget as one 'route by reason and remaining budget' decision group"
+  must_stay_visible:
+    - "x.retry (the success, reachable from both the person-corrects path and our-failure path - one compact instance per parent)"
+    - "x.terminal"
+    - "h.escalate -> OWN-55"
+    - "h.review -> DEC-181 (the two different people a failure can end up with)"
+
+classification:
+  journey_types:
+    - communication
+    - handoff
+    - multi-branch
+    - nested-decision
+    - parallel-fan-out
+    - shared-exit
+    - shared-handoff
+
+display_audit:
+  display_node_count_before: 22
+  unnecessary_internal_nodes: 2
+  technical_conditions_groupable: 2
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 9
+
+patterns_detected:
+  - P-STATE-01
+  - P-CLASSIFY-01
+  - P-INTERNAL-01
+  - P-TERM-01
+  - P-HANDOFF-01
+  - P-DETAIL-01
+  - P-LABEL-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "c.class followed by c.retry-budget on one arm and c.technical-budget on another is the P-STATE-01 shape: three sequential conditions that together answer one business question, 'what is the route out of this failure?'. Group them into one routing decision whose arms are the four real outcomes (retry with help, silent retry, a person, terminal)."
+  - "Grouping must keep every bail-out visible: h.review is reached from two of the three conditions and is the journey's most important non-success route."
+  - "a.classify is the worst locale case in the slice: 337 chars EN against 490 chars TR (+45%). Any text cap has to be measured on the TR route, not the EN one (P-DETAIL-01)."
+  - "a.backoff -> x.retry is a record-then-end pair (P-RECORD-01 variant): the guardrail 'our failure is not their rejection' should read on the x.retry card, which is where it means something."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

@@ -1,0 +1,55 @@
+journey_id: IDN-85
+slug: authentication-challenge
+status: audited
+
+story:
+  trigger: "A context requires proof that whoever is present actually controls the identity being claimed."
+  entity: "The authentication session, bound to one actor and one account, carrying an explicit assurance level and an explicit validity."
+  objective: "Establish control of the identity at the assurance level this particular context demands - no more, no less."
+  success: "Control is established at the required level and a session is issued with a stated assurance and a stated validity; or an existing session already meets the level and nothing is challenged."
+  summary: "When something needs the actor's identity proven, the journey works out what assurance that context demands and skips the challenge entirely if the current session already meets it. Otherwise it issues one challenge and waits: success at the required level issues the session, success below it goes to step-up, failure goes to the failure journey, and an unanswered challenge is recorded as nothing at all rather than as a failed attempt."
+  handoffs:
+    - "IDN-86 - control established below the assurance the context requires (step-up)"
+    - "IDN-87 - an authentication failure"
+
+classification:
+  journey_types:
+    - communication
+    - handoff
+    - multi-branch
+    - no-deadline
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 20
+  unnecessary_internal_nodes: 2
+  technical_conditions_groupable: 1
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 9
+
+patterns_detected:
+  - P-CLASSIFY-01
+  - P-INTERNAL-01
+  - P-OUTCOME-01
+  - P-GATE-01
+  - P-LABEL-01
+  - P-DETAIL-01
+  - P-EXIT-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "Hide a.assurance (execution:null, 264 chars, single consumer c.sufficient) - fold its meaning into the gate question and move the reasoning to the detail panel."
+  - "Merge a.session into x.authenticated: an internal action whose only successor is an exit and whose write is exactly what the exit state already says."
+  - "Draw c.sufficient as an inline pre-send gate with an 'already authenticated' outcome chip; it is a state check before the only send, not a business fork."
+  - "Shorten 'Authenticated at the required level' / 'Authenticated below the required level' to two short labels that still read as different outcomes - this three-way split is the real decision and must stay visible."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

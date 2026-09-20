@@ -1,0 +1,60 @@
+journey_id: REM-152
+slug: return-authorization
+status: audited
+
+story:
+  trigger: "A request is made to send back an identified item, resource or deliverable."
+  entity: "The return request and the original fulfillment it concerns (return_request_id)."
+  objective: "Decide whether something may enter a return process, as a decision kept separate from whether money is owed."
+  success: "RETURN_AUTHORIZED with a scope, a method and a validity, the requester told, and transit handed to REM-153."
+  summary: "A return request is first tested for whether a return process applies at all, then against whatever return policy governs it; a deterministic policy authorises or refuses, an open one goes to a reviewer. Authorisation permits the resource to come back and decides nothing about a refund - that is a separate question with its own rules and its own answer."
+  handoffs:
+    - "REM-157 - a return requested against something that cannot be returned"
+    - "DEC-181 - a return request with no governing eligibility policy"
+    - "OWN-55 - a return decision outliving its SLA"
+    - "REM-153 - an authorised return, for transit"
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - handoff
+    - human-vs-automated
+    - multi-branch
+    - nested-decision
+    - no-deadline
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 32
+  unnecessary_internal_nodes: 3
+  technical_conditions_groupable: 1
+  router_message_collapsible: true
+  shared_terminal_candidate: false
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 13
+
+patterns_detected:
+  - P-OPEN-01
+  - P-RECORD-01
+  - P-WAIT-02
+  - P-MERGE-01
+  - P-LABEL-01
+  - P-DETAIL-01
+  - P-INTERNAL-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "a.capture is instance-open bookkeeping right after the trigger - hide it (P-OPEN-01)."
+  - "Two record-then-announce pairs: a.reject -> a.notify-rejection and a.authorize -> a.notify-authorization. Each is one act to a reader; the state write belongs in the detail panel, where the 267-character a.authorize rationale should also go (P-RECORD-01, P-DETAIL-01)."
+  - "Fold c.decision into w.decision (P-WAIT-02); keep c.applicable, c.policy and c.eligible visible - \"can this come back at all\", \"is there a rule\", \"what does the rule say\" are three different business questions."
+  - "Shorten \"Requires review or evidence\" (P-LABEL-01)."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

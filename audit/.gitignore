@@ -1,0 +1,4 @@
+# Regenerable subagent input slices - a duplication of
+# production/canonical-dump.json cut into per-agent batches.
+# Rebuild with: node audit/make-slices.mjs 6
+slices/

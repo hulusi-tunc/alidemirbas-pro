@@ -1,0 +1,58 @@
+journey_id: SCH-277
+slug: reservation-outcome-notice
+status: audited
+
+story:
+  trigger: "A reservation request is recorded for a named resource and slot."
+  entity: "The reservation request, the requester, and the resource and slot it names."
+  objective: "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold."
+  success: "The slot is committed and stated back concretely - date, time, place, what is needed on arrival (x.confirmed) - or a requester takes one of the alternatives offered and rebooking takes over."
+  summary: "A request is acknowledged immediately with an explicit statement that it is not yet a commitment and when the outcome will come. Revalidation then lands one of three ways: committed and confirmed in concrete terms, gone but with a genuine near alternative offered on a deadline, or gone with nothing near and a plain decline that names when capacity of this kind is next expected. If the outcome never arrives, the request is closed as lapsed and the requester is told nothing is held."
+  handoffs:
+    - "SCH-173 - a requester choosing one of the alternative slots offered to them."
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - communication-heavy
+    - deadline-driven
+    - handoff
+    - multi-branch
+    - shared-exit
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 23
+  unnecessary_internal_nodes: 0
+  technical_conditions_groupable: 0
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: false
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 10
+
+patterns_detected:
+  - P-WAITRES-01
+  - P-TERM-02
+  - P-TERM-01
+  - P-MERGE-01
+  - P-DETAIL-01
+  - P-EXIT-01
+
+severity:
+  highest: P2
+
+planned_changes:
+  - "Merge w.outcome with c.outcome, and w.choice with c.choice, into single wait-outcome cards; each keeps its timeout arm as a separate labelled edge (to the lapse message and to x.lapsed respectively) - P-WAITRES-01."
+  - "Merge a.confirm+x.confirmed, a.decline+x.declined and a.lapse+x.lapsed into single ending cards - each of these is a message immediately followed by its ending - P-TERM-02."
+  - "x.declined and x.lapsed each have two parents; keep the per-parent terminal instancing so the decline path and the declined-all-alternatives path end locally rather than converging on one box - P-TERM-01."
+  - "Keep all three branches of c.outcome drawn: committed / gone-but-something-near / gone-nothing-near are three genuinely different business paths with three different messages and three different endings."
+  - "Keep h.rebook (SCH-173) visible - taking an offered slot is a real ending of this journey."
+  - "Centre the merge where the confirm, reoffer and decline paths diverge from the single outcome card - P-MERGE-01."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

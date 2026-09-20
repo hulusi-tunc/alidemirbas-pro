@@ -1,0 +1,58 @@
+journey_id: SCH-266
+slug: appointment-readiness-reminder
+status: audited
+
+story:
+  trigger: "A confirmed booking occurrence is approaching and the customer still owes prerequisites against it."
+  entity: "One confirmed booking occurrence plus the prerequisites its customer owes (booking_id + occurrence_id)."
+  objective: "Get the customer’s side of a confirmed commitment done before it arrives, and remind them from what the booking is at the moment of sending."
+  success: "One reminder, built from freshly re-read booking state, hands the occurrence to pre-service revalidation (SCH-177) with the customer ready."
+  summary: "Where time remains, every outstanding prerequisite is named in one message; the booking is then re-read from authoritative state before anything is sent. A still-valid booking with a blocking prerequisite gets an at-risk notice and goes to SCH-174, a clean one gets the reminder and goes to SCH-177, and a booking that was cancelled or moved in the meantime is superseded and nothing is sent."
+  handoffs:
+    - "SCH-174 - a booking reaching pre-start with a critical prerequisite still outstanding"
+    - "SCH-177 - a reminded, revalidated booking; start window and attendance belong to pre-service revalidation"
+
+classification:
+  journey_types:
+    - communication
+    - communication-heavy
+    - deadline-driven
+    - handoff
+    - multi-branch
+    - nested-decision
+    - shared-exit
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 25
+  unnecessary_internal_nodes: 1
+  technical_conditions_groupable: 0
+  router_message_collapsible: false
+  shared_terminal_candidate: true
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 12
+
+patterns_detected:
+  - P-ASSESS-01
+  - P-WAIT-01
+  - P-WAIT-02
+  - P-STATE-01
+  - P-TERM-01
+  - P-LABEL-01
+  - P-DETAIL-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "a.revalidate (execution:null, 288 chars) is the longest card on the canvas and says nothing c.valid does not ask - fold it into c.valid as one \"Re-read the booking: does it still stand?\" decision (P-ASSESS-01), rationale prose to the detail panel (P-DETAIL-01)."
+  - "w.prestart sends both onEvent and onTimeout to a.revalidate; draw one edge, not two labelled lines (P-WAIT-01)."
+  - "Fold c.prereq into w.prereq - its two branches are that wait’s own until-events (P-WAIT-02)."
+  - "Shorten the three 26-30 character branch labels to business-readable chips (P-LABEL-01); keep c.critical visible, \"will this go ahead?\" is the decision the reader came for."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

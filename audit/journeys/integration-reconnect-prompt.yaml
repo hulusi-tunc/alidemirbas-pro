@@ -1,0 +1,57 @@
+journey_id: INT-269
+slug: integration-reconnect-prompt
+status: audited
+
+story:
+  trigger: "A connection to an external provider failed or was deauthorised (integration_connection_failed_or_deauthorized)."
+  entity: "One connection to one external provider, plus the failure recorded against it."
+  objective: "Tell the holder of a broken connection which of their capabilities stopped, whether the fix is theirs to perform, and the single step that restores it - so a silent dependency failure becomes a decision instead of a slow discovery."
+  success: "x.restored (reconnected and confirmed) and x.informed (told, with no step attached, because no holder action would work)."
+  summary: "A connection breaks and the first question is whether the holder can fix it at all; if not they are told what stopped and explicitly that nothing is required of them. If they can, they are told exactly which capabilities stopped - partial or total - and given one re-authorisation step. The window then ends in a confirmed reconnection, a deliberate removal, a reclassification, or an unreconnected connection that only becomes a relationship signal when something else already corroborates it."
+  handoffs:
+    - "h.abandoned -> RET-24 Churn Risk Escalation, only when independent risk evidence already exists against the relationship - the unreconnected integration adds to a picture rather than being the whole of it."
+
+classification:
+  journey_types:
+    - back-edge-retry
+    - communication
+    - communication-heavy
+    - handoff
+    - multi-branch
+    - nested-decision
+    - no-deadline
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 28
+  unnecessary_internal_nodes: 1
+  technical_conditions_groupable: 0
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: true
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 15
+
+patterns_detected:
+  - P-READ-01
+  - P-MERGE-01
+  - P-EXIT-01
+  - P-HANDOFF-01
+  - P-DETAIL-01
+  - P-LABEL-01
+
+severity:
+  highest: P1
+
+planned_changes:
+  - "P-READ-01: a.unreconnected is the only execution:null node and the only long card - 309 chars EN and 345 TR, the worst single card in the slice. It has one edge into c.relationship-signal and does nothing but record a dated fact, so it folds into that decision with the 'one signal is not a conclusion' reasoning in the panel."
+  - "P-MERGE-01: a.inform-only has two parents (c.fixable 'Not theirs' and c.outcome 'Not theirs after all'). Centre that merge - the same message is correctly reached two ways and the canvas should show that rather than duplicating the card."
+  - "Everything else stays: c.fixable, c.scope, c.outcome and c.relationship-signal are four genuine business decisions, and the three communication actions (inform-only, partial, total) differ in exactly the way the journey exists to make visible."
+  - "P-EXIT-01: four exits with three distinct classes (two success, one invalid-state, one timeout) - the compact exit must keep the class distinction, because 'informed, nothing you could do' and 'reconnected and confirmed' are both successes for very different reasons."
+  - "P-LABEL-01: 'This break is the only signal' (29 chars) on c.relationship-signal."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

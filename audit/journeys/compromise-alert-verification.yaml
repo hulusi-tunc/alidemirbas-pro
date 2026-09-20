@@ -1,0 +1,55 @@
+journey_id: IDN-271
+slug: compromise-alert-verification
+status: audited
+
+story:
+  trigger: "A compromise incident is opened against an account and its affected scope has been determined."
+  entity: "The account plus this security incident and the scope it affects."
+  objective: "Tell the account owner, at every verified destination the signal does not implicate, what was seen and what was restricted, and let their answer resolve it - cleared, or into secure recovery."
+  success: "The owner answers and the signal is cleared, with any restriction lifted and that lift stated back to them (x.cleared) - or the owner reports the activity was not theirs and control is rebuilt through IDN-88."
+  summary: "When a compromise signal opens, the first question is whether any contact point sits outside the suspicion; if every route is implicated, nothing is sent and that withholding is recorded. Otherwise the owner is told either what has been restricted and why, or - where nothing was restricted - that this is a question and not an accusation. Their answer clears the signal and lifts the restriction, or confirms the compromise and hands off to secure recovery; if the review point passes with no answer, the owner is told the incident is still open and that nothing is required of them."
+  handoffs:
+    - "IDN-88 - a confirmed compromise where the owner needs secure control of the account rebuilt."
+
+classification:
+  journey_types:
+    - communication
+    - communication-heavy
+    - handoff
+    - multi-branch
+    - nested-decision
+    - no-deadline
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 22
+  unnecessary_internal_nodes: 0
+  technical_conditions_groupable: 1
+  router_message_collapsible: false
+  shared_terminal_candidate: false
+  long_text_present: false
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 9
+
+patterns_detected:
+  - P-WAITRES-01
+  - P-TERM-02
+  - P-GATE-01
+  - P-EXIT-01
+  - P-DETAIL-01
+
+severity:
+  highest: P2
+
+planned_changes:
+  - "Merge w.verify with c.outcome into one 'what did the answer establish' card carrying the two branches; the timeout arm into a.standing stays a separate labelled edge off that card - P-WAITRES-01."
+  - "Merge a.cleared+x.cleared and a.standing+x.open into single ending cards (each exit has exactly one parent), with the exit class carried as a badge rather than a second box - P-TERM-02."
+  - "Demote c.route ('is there a destination the signal does not implicate?') to a reachability chip on the alert cards with one muted stub to x.withheld (class no-action) - P-GATE-01. It is a sendability check, not a security decision, but the withheld ending must remain readable because withholding an alert is a stated outcome here."
+  - "Keep c.contained drawn as a real decision: 'containment applied' vs 'nothing restricted' produces two materially different messages and is the journey's core branch."
+  - "Keep h.recovery (IDN-88) visible - it is the consequential ending of this journey."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null

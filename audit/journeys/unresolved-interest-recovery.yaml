@@ -1,0 +1,60 @@
+journey_id: ACQ-13
+slug: unresolved-interest-recovery
+status: audited
+
+story:
+  trigger: "A behavioural interest signal is recorded - repeated, recent, attributed attention to an item, category or search that ended in neither a selection nor a process (interest_signal_recorded). The trigger is inferred, not authoritative, which is why a qualification step stands between it and any instance."
+  entity: "An inferred interest: one person and one interest key (person_id + interest_key). A new key is a new interest."
+  objective: "Bring a person whose attention qualified as interest back to the thing they looked at, once, without asserting stock, price or intent the system does not hold - and leave everyone else alone."
+  success: "The interest resolves: a selection, process or purchase for the subject is recorded and its own journey owns the person from that moment (x.resolved)."
+  summary: "Most attention does not qualify, and recording no-action is the designed common outcome. Attention that does qualify opens an instance and settles briefly; if it is still unresolved and the subject is still available, one touch shows the thing as it stands now and claims nothing more. A second window then either sees the interest resolve or lets it lapse - there is no second touch."
+  handoffs: []
+
+classification:
+  journey_types:
+    - communication
+    - deadline-driven
+    - multi-branch
+    - nested-decision
+    - recovery
+    - shared-exit
+    - wait-event-timeout
+
+display_audit:
+  display_node_count_before: 15
+  unnecessary_internal_nodes: 2      # a.open (instance bookkeeping + clock start), a.record-no-action (writes the reason, then exits)
+  technical_conditions_groupable: 1  # c.sendable - a pure send gate (permission, deliverability, pressure cap, contest, cooldown)
+  router_message_collapsible: false
+  shared_terminal_candidate: true    # x.resolved has FOUR parents - the highest instancing pressure in this slice
+  long_text_present: true            # a.open 208/176
+  locale_issue: false
+  unknown_node_types: []
+  needed_visual_nodes: 10
+
+patterns_detected:
+  - P-GATE-02
+  - P-TERM-02
+  - P-RECORD-01
+  - P-CHECK-01
+  - P-STATE-01
+  - P-INTERNAL-01
+  - P-TEXT-01
+  - P-LABEL-01
+  - P-TERM-01
+  - P-EXIT-01
+
+severity:
+  highest: P0
+
+planned_changes:
+  - "P0: the existing no-action gate collapse hides three canonical nodes here (measured: 10 of 13 rendered) - c.sendable, a.record-no-action AND x.no-action. Collapsing c.sendable is correct, but a.record-no-action is ALSO the target of c.qualify's third branch ('Does not qualify'), and c.qualify is a three-branch condition that was never collapsed. Hiding the shared bookkeeping node severs that branch, so the canvas draws c.qualify with two arms instead of three and never draws x.no-action - the outcome this journey's own purpose calls its common one."
+  - "Add the P-GATE-02 guard: a gate collapse may hide a bookkeeping hop or exit only when every remaining in-edge to it comes from a node hidden by the SAME collapse. Here it does not, so a.record-no-action stays - merged into x.no-action by P-RECORD-01 - and c.qualify keeps all three arms."
+  - "Merge a.open forward into w.settle (P-CHECK-01): opening the instance and starting the clock is what the settle window IS."
+  - "x.resolved has four parents (c.qualify, w.settle, w.after, c.state). Per-parent instancing would put four copies of one exit on a 10-node canvas - apply P-TERM-02 and draw it once with merged incoming edges."
+  - "c.state and c.sendable are two sequential conditions answering one question, 'is this still worth sending, and may it go?' (P-STATE-01): keep c.state's three business outcomes and absorb c.sendable's gate into the touch."
+  - "Shorten 'Unresolved, subject available' (29) and clamp a.open's 208 chars to its first sentence (P-LABEL-01, P-TEXT-01)."
+
+canonical_logic:
+  mutation_required: false
+
+blocked_reason: null
