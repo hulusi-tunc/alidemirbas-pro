@@ -1,6 +1,7 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, MapPin } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CircleCheck, CircleX, Clock, Mail, MapPin, Radio } from "lucide-react";
 
 import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 import { clsx } from "@/lib/clsx";
@@ -9,7 +10,6 @@ import { CtaBurst } from "@/components/ui/CtaBurst";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { LabNavDropdown } from "@/components/ui/LabNavDropdown";
-import { MiniCanvasView, miniCanvas, type MiniCanvas } from "@/components/ui/MiniCanvas";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
@@ -18,7 +18,6 @@ import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
 import { Work } from "@/components/HomeWork";
 import { withJourneyCount } from "@/lib/archive";
-import { FEATURED_JOURNEY } from "@/lib/journey-marketing";
 import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 import {
   ALL_TOOL_SLUGS,
@@ -142,21 +141,58 @@ const HERO_TILES = ["lifecycle-card-archive", "ab-test-playbook", "numerspace"] 
    greyscale portrait under a blue multiply, the spec table and the photo
    frame that came before it are gone. */
 /* The miniature inside each product tile - one real thing from the tool,
-   not an illustration: the featured journey's own canvas, the A/B pair
-   drawn as two carts with the tested element ringed, and the calculator
+   not an illustration: a journey drawn as its steps, the A/B pair drawn
+   as two carts with the tested element ringed, and the calculator
    categories on the same endless marquee the Lab index uses. Hulusi,
    2026-09-06: "the hero feels a little dead, needs more liveliness". */
-function TileMini({ slug, lang, canvas }: { slug: string; lang: Lang; canvas: MiniCanvas | null }) {
+function MiniNode({ tint, icon, children }: { tint: string; icon: ReactNode; children: ReactNode }) {
+  return (
+    <div className="flex-1 rounded-xl bg-paper p-3 ring-1 ring-ink-950/[0.06]">
+      <div className="flex items-center gap-1.5">
+        <span className={`grid size-5 shrink-0 place-items-center rounded-full ${tint}`}>{icon}</span>
+        <span className="h-1.5 w-8 rounded-full bg-ink-950/10" />
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
   if (slug === "lifecycle-card-archive") {
-    /* The library's featured journey as the detail page draws it - its
-       real cards, lines and dot sheet, windowed on the entry
-       (ui/MiniCanvas). It replaced a drawn trigger-step-exit sketch once
-       the canvas itself had a design (2026-09-20: the same swap every
-       journey thumbnail on /lab and /lab/journeys made). */
-    if (!canvas) return null;
+    /* A journey the way the library defines one, in the same drawn idiom as
+       the A/B pair beside it (Hulusi, 2026-09-07: "the A/B image is amazing,
+       like how we want; the journey one is not good"): a trigger, an email
+       step with its wait, and the fork into the two kinds of exit. Real node
+       kinds, no words. The real canvas, small, was tried here for an hour on
+       2026-09-20 and sent back ("the low-fi one in the hero was better"):
+       at tile size the canvas is one blue card and a line, while the sketch
+       tells the whole shape. The Work band below keeps the real canvas,
+       where it has the room. */
     return (
-      <div aria-hidden className="mt-5 -mx-2 h-32 overflow-hidden rounded-xl bg-paper-soft ring-1 ring-ink-950/[0.06]">
-        <MiniCanvasView canvas={canvas} />
+      <div aria-hidden className="mt-5 -mx-2 flex items-center gap-1.5">
+        <MiniNode tint="bg-ink-950 text-white" icon={<Radio className="size-3" />}>
+          <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
+          <span className="mt-1.5 block h-1.5 w-2/3 rounded-full bg-ink-950/10" />
+        </MiniNode>
+        <span className="h-px w-2.5 shrink-0 bg-ink-300" />
+        <MiniNode tint="bg-primary-600 text-white" icon={<Mail className="size-3" />}>
+          <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
+          <span className="mt-2 inline-flex items-center gap-1 rounded-md bg-paper px-1.5 py-0.5 ring-1 ring-ink-950/[0.06]">
+            <Clock className="size-3 text-ink-500" />
+            <span className="h-1.5 w-5 rounded-full bg-ink-950/10" />
+          </span>
+        </MiniNode>
+        <span className="h-px w-2.5 shrink-0 bg-ink-300" />
+        <div className="flex flex-1 flex-col gap-1.5">
+          <span className="flex items-center gap-1.5 rounded-xl bg-paper px-2.5 py-2 ring-1 ring-ink-950/[0.06]">
+            <CircleCheck className="size-3.5 shrink-0 text-emerald-600" />
+            <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
+          </span>
+          <span className="flex items-center gap-1.5 rounded-xl bg-paper px-2.5 py-2 ring-1 ring-ink-950/[0.06]">
+            <CircleX className="size-3.5 shrink-0 text-rose-600" />
+            <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
+          </span>
+        </div>
       </div>
     );
   }
@@ -198,9 +234,8 @@ function TileMini({ slug, lang, canvas }: { slug: string; lang: Lang; canvas: Mi
   return null;
 }
 
-async function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
+function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const projects = HERO_TILES.map((slug) => t.lab.projects.find((p) => p.slug === slug)).filter((p) => p !== undefined);
-  const canvas = await miniCanvas(FEATURED_JOURNEY.id, lang);
   return (
     <section id="top" className="relative isolate flex min-h-[calc(100svh-4rem)] flex-col justify-center overflow-hidden bg-paper pt-14 pb-16 lg:pt-18 lg:pb-20">
       {/* The /lab hero's meadow behind the bento, bottom-anchored and
@@ -275,7 +310,7 @@ async function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
                   </span>
                   <p className="mt-4 text-lg font-semibold text-ink-950">{project.short}</p>
                   <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-600">{withJourneyCount(t.hero.tiles[project.slug as (typeof HERO_TILES)[number]])}</p>
-                  <TileMini slug={project.slug} lang={lang} canvas={canvas} />
+                  <TileMini slug={project.slug} lang={lang} />
                   <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium text-ink-950">
                     <span className="tabular-nums">{withJourneyCount(project.proof ?? "")}</span>
                     <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
