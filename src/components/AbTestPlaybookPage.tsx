@@ -7,7 +7,7 @@ import { categoryLabel, setupLabel, surfaceLabel } from "@/components/ui/AbTestV
 import { InfoTile } from "@/components/ui/InfoTile";
 import { ProductFrame } from "@/components/ui/ProductFrame";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
-import { AbScreen } from "@/components/ui/AbScreen";
+import { AbScreen, abCaption } from "@/components/ui/AbScreen";
 import { abElementKind, abPlaybookText, abSetupMode, abVariableKind } from "@/lib/ab-test-playbook";
 import type { AbElementKind, AbVariableKind } from "@/lib/ab-test-playbook";
 import type { AbTestDetail } from "@/lib/ab-test-view";
@@ -200,12 +200,15 @@ export default function AbTestPlaybookPage({
       {/* The stage's header: what this comparison is, and the setup facts
           on one line rather than in a box of their own. */}
       <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
-        <h2 className="flex items-center gap-3 text-base font-semibold text-ink-950">
+        <div className="flex items-center gap-3">
           <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-700 [&>svg]:size-5">
             <FlaskConical />
           </span>
-          {stageTitle}
-        </h2>
+          <div>
+            <h2 className="text-base font-semibold text-ink-950">{stageTitle}</h2>
+            <p className="text-sm text-ink-muted">{abCaption(kind, lang)}</p>
+          </div>
+        </div>
         {/* Label over value, one column per fact, a hairline between them
             (Hulusi, 2026-09-20: inline "Changed geri sayım sayacı · Page
             Category listing" ran together and was hard to read). */}
@@ -235,7 +238,7 @@ export default function AbTestPlaybookPage({
             label={roleLabel(test.sideA!.role, t.roles.control)}
             letter="A"
             side={test.sideA!}
-            screen={{ surface: test.surface, element, kind, side: "a", presence: presenceOf("a"), lang }}
+            screen={{ surface: test.surface, element, kind, side: "a", presence: presenceOf("a"), lang, address: surfaceLabel(test.surface, lang) }}
           />
           <div className="flex items-center justify-center">
             <span aria-hidden className="grid size-9 place-items-center rounded-full bg-paper text-ink-500 ring-1 ring-ink-950/[0.06] max-lg:rotate-90">
@@ -246,7 +249,7 @@ export default function AbTestPlaybookPage({
             label={roleLabel(test.sideB!.role, t.roles.variant)}
             letter="B"
             side={test.sideB!}
-            screen={{ surface: test.surface, element, kind, side: "b", presence: presenceOf("b"), lang }}
+            screen={{ surface: test.surface, element, kind, side: "b", presence: presenceOf("b"), lang, address: surfaceLabel(test.surface, lang) }}
             change={diffWord && test.testedSlot ? { sign: diffSign, word: diffWord, slot: test.testedSlot } : undefined}
           />
         </div>
@@ -255,7 +258,7 @@ export default function AbTestPlaybookPage({
         <ProductFrame slug="ab-test-playbook" wash={false} className="mt-6">
         <div className="mx-auto max-w-3xl rounded-[28px] bg-paper p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] sm:p-8">
           <div className="grid gap-6 sm:grid-cols-2 sm:items-center">
-            <AbScreen surface={test.surface} element={element} kind={kind} side="solo" lang={lang} />
+            <AbScreen surface={test.surface} element={element} kind={kind} side="solo" lang={lang} label={t.testConcept} address={surfaceLabel(test.surface, lang)} />
             <div className="flex flex-col gap-4">
               <div>
                 <p className="text-xs font-medium text-ink-subtle">{t.whatChanges}</p>
@@ -353,29 +356,31 @@ function Side({
   label: string;
   letter: string;
   side: { role: string; label: string | null; sourceBasis: string | null };
-  screen: { surface: string; element: AbElementKind; kind: AbVariableKind; side: "a" | "b"; presence: "absent" | "present" | null; lang: Lang };
+  screen: { surface: string; element: AbElementKind; kind: AbVariableKind; side: "a" | "b"; presence: "absent" | "present" | null; lang: Lang; address: string };
   change?: { sign: string; word: string; slot: string };
 }) {
   return (
-    <div className={`flex min-w-0 flex-col rounded-[28px] bg-paper p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 sm:p-7 ${change ? "ring-primary-300" : "ring-ink-950/[0.06]"}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    /* No card around the screen (Hulusi, 2026-09-20: "it still looks like
+       fake UI - maybe the box in the box"): the window stands on the plate
+       by itself, the role and the change pill above it, the record's own
+       words for this side under it. */
+    <div className="flex min-w-0 flex-col">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
         <span className="flex items-center gap-2.5 text-base font-semibold text-ink-950">
-          <span aria-hidden className="grid size-7 place-items-center rounded-full bg-paper-soft text-xs font-semibold text-ink-700">
+          <span aria-hidden className={`grid size-7 place-items-center rounded-full text-xs font-semibold ${change ? "bg-primary-600 text-white" : "bg-ink-950 text-white"}`}>
             {letter}
           </span>
           {label}
         </span>
         {change ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-600 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
             <span aria-hidden className="font-semibold">{change.sign}</span>
             {change.slot} · {change.word}
           </span>
         ) : null}
       </div>
-      <div className="mt-5 flex-1">
-        <AbScreen {...screen} />
-      </div>
-      <p className="mt-5 text-base leading-relaxed text-pretty text-ink-900">{side.label ?? "—"}</p>
+      <AbScreen {...screen} label={label} ring={Boolean(change)} className="flex-1" />
+      <p className="mt-3 px-1 text-sm leading-relaxed text-pretty text-ink-900">{side.label ?? "—"}</p>
     </div>
   );
 }

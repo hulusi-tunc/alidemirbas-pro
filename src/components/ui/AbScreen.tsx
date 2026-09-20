@@ -3,7 +3,6 @@ import {
   Check,
   ChevronDown,
   CreditCard,
-  Image as ImageIcon,
   Landmark,
   Minus,
   Play,
@@ -18,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 
+import { Window } from "@/components/ui/LabWindow";
 import { PixelHighlight } from "@/components/ui/PixelHighlight";
 import { clsx } from "@/lib/clsx";
 import type { AbElementKind, AbVariableKind } from "@/lib/ab-test-playbook";
@@ -112,7 +112,21 @@ const UI = {
   inStock: { en: "In stock", tr: "Stokta" },
   outOfStock: { en: "Out of stock", tr: "Stokta yok" },
   viewAll: { en: "View all", tr: "Tümünü gör" },
+  searchProducts: { en: "Search products", tr: "Ürün ara" },
+  newArrivals: { en: "New arrivals", tr: "Yeni gelenler" },
+  yourCart: { en: "Your cart", tr: "Sepetin" },
+  delivery: { en: "Delivery", tr: "Teslimat" },
+  payment: { en: "Payment", tr: "Ödeme" },
+  description: { en: "Description", tr: "Açıklama" },
+  add: { en: "Add", tr: "Ekle" },
+  choosePlan: { en: "Choose your plan", tr: "Planını seç" },
+  createAccount: { en: "Create your account", tr: "Hesabını oluştur" },
+  saleEndsIn: { en: "Sale ends in", tr: "İndirimin bitmesine" },
 } as const;
+
+export function abCaption(kind: AbVariableKind, lang: Lang): string {
+  return CAPTION[kind][lang];
+}
 
 /** The one line under each screen that names the variable - kept from the
     drawing this replaces, word for word. */
@@ -148,24 +162,43 @@ function Bar({ w = "w-full", className = "" }: { w?: string; className?: string 
 function Block({ className = "" }: { className?: string }) {
   return <span aria-hidden className={clsx("block rounded-md bg-ink-950/[0.05]", className)} />;
 }
+/** A photograph's place: a soft two-tone tile, no placeholder glyph (the
+    glyph is what made the earlier screens read as a wireframe). */
 function Img({ className = "", video = false }: { className?: string; video?: boolean }) {
   return (
-    <span aria-hidden className={clsx("grid place-items-center rounded-lg bg-gradient-to-br from-ink-100 to-ink-200 text-ink-400", className)}>
-      {video ? <span className="grid size-7 place-items-center rounded-full bg-paper/90 text-ink-900 shadow-sm"><Play className="size-3.5 fill-current" /></span> : <ImageIcon className="size-4" />}
+    <span aria-hidden className={clsx("grid place-items-center rounded-lg bg-gradient-to-br from-stone-200 via-stone-100 to-stone-300", className)}>
+      {video ? <span className="grid size-7 place-items-center rounded-full bg-paper/90 text-ink-900 shadow-sm"><Play className="size-3.5 fill-current" /></span> : null}
     </span>
   );
 }
-function Chrome({ mobile }: { mobile: boolean }) {
-  return mobile ? (
-    <div aria-hidden className="flex items-center justify-between border-b border-line-soft bg-paper-soft px-3 py-1.5">
-      <Bar w="w-6" /><span className="h-2 w-10 rounded-full bg-ink-950/80" /><Bar w="w-6" />
-    </div>
-  ) : (
-    <div aria-hidden className="flex items-center gap-2 border-b border-line-soft bg-paper-soft px-3 py-2">
-      <span className="flex gap-1"><i className="size-1.5 rounded-full bg-ink-950/15" /><i className="size-1.5 rounded-full bg-ink-950/15" /><i className="size-1.5 rounded-full bg-ink-950/15" /></span>
-      <span className="ml-2 h-3.5 flex-1 rounded-full bg-paper ring-1 ring-ink-950/[0.06]" />
-    </div>
+/** The shop's own top bar: a wordmark block and real menu words. */
+function ShopNav({ lang }: { lang: Lang }) {
+  const l = lang;
+  return (
+    <span className="flex items-center gap-3">
+      <span className="h-3.5 w-9 rounded bg-ink-950/85" />
+      {[UI.home[l], UI.shop[l], UI.sale[l], UI.about[l]].map((w, i) => <span key={w} className={clsx("text-[11px] font-medium", i === 1 ? "text-ink-950" : "text-ink-500")}>{w}</span>)}
+      <span className="ml-auto flex items-center gap-2 text-ink-400"><Search className="size-3.5" /><span className="size-3.5 rounded-full bg-ink-950/15" /></span>
+    </span>
   );
+}
+/** A product card as a shop draws one: the photograph, the name and the
+    price as bars, a real Add button. */
+function ProductCard({ lang, tall = false, children }: { lang: Lang; tall?: boolean; children?: ReactNode }) {
+  return (
+    <span className="relative block rounded-lg bg-paper p-1.5 ring-1 ring-ink-950/[0.06]">
+      <Img className={tall ? "h-16" : "h-14"} />
+      <Bar className="mt-2" w="w-4/5" />
+      <span className="mt-1.5 flex items-center justify-between">
+        <span className="block h-2 w-8 rounded bg-ink-950/80" />
+        <span className="rounded-md px-1.5 py-0.5 text-[9.5px] font-semibold text-ink-800 ring-1 ring-ink-950/[0.15]">{UI.add[lang]}</span>
+      </span>
+      {children}
+    </span>
+  );
+}
+function SectionTitle({ children }: { children: ReactNode }) {
+  return <span className="block text-[12px] font-semibold text-ink-950">{children}</span>;
 }
 
 /* ---- the real UI, high-fi -------------------------------------------- */
@@ -247,16 +280,16 @@ function Countdown({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
   const loud = diff(ctx, "emphasis", false, true, false);
   return (
-    <span className={clsx("flex items-center gap-2 rounded-lg px-2.5 py-2", loud ? "bg-ink-950 text-white" : "bg-paper-soft text-ink-900")}>
-      <span className="text-[10px] font-medium">{UI.endsIn[l]}</span>
-      <span className="ml-auto flex items-center gap-1">
+    <span className={clsx("flex items-center gap-3 rounded-lg px-3 py-2 text-white", loud ? "bg-primary-600" : "bg-ink-950")}>
+      <span className="text-[11px] font-semibold">{UI.saleEndsIn[l]}</span>
+      <span className="ml-auto flex items-center gap-1.5">
         {[UI.hours, UI.minutes, UI.seconds].map((u, i) => (
-          <span key={u.en} className="flex items-center gap-1">
-            <span className={clsx("flex h-6 w-7 flex-col items-center justify-center rounded", loud ? "bg-white/15" : "bg-paper ring-1 ring-ink-950/[0.08]")}>
-              <span className={clsx("block h-1.5 w-3.5 rounded-full", loud ? "bg-white/80" : "bg-ink-950/60")} />
-              <span className={clsx("mt-0.5 text-[7px] leading-none", loud ? "text-white/60" : "text-ink-500")}>{u[l]}</span>
+          <span key={u.en} className="flex items-center gap-1.5">
+            <span className="flex h-7 w-8 flex-col items-center justify-center rounded-md bg-white/15">
+              <span className="block h-2 w-4 rounded-sm bg-white/90" />
+              <span className="mt-0.5 text-[7.5px] leading-none text-white/60">{u[l]}</span>
             </span>
-            {i < 2 ? <span className="text-[10px] font-semibold opacity-60">:</span> : null}
+            {i < 2 ? <span className="text-[11px] font-semibold text-white/60">:</span> : null}
           </span>
         ))}
       </span>
@@ -505,11 +538,11 @@ function Grid({ ctx }: { ctx: Ctx }) {
   return (
     <span className={clsx("grid gap-1.5", list ? "grid-cols-1" : "")} style={list ? undefined : { gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
       {items.map((i) => (
-        <span key={i} className={clsx("relative rounded-md bg-paper p-1.5 ring-1 ring-ink-950/[0.08]", list ? "flex items-center gap-2" : "block")}>
-          <Img className={list ? "size-10 shrink-0" : "h-12"} />
-          <span className={clsx("block min-w-0", list ? "flex-1" : "mt-1.5")}>
+        <span key={i} className={clsx("relative rounded-lg bg-paper p-1.5 ring-1 ring-ink-950/[0.06]", list ? "flex items-center gap-2.5" : "block")}>
+          <Img className={list ? "size-12 shrink-0" : "h-14"} />
+          <span className={clsx("block min-w-0", list ? "flex-1" : "mt-2")}>
             {priceFirst ? <span className="block h-2 w-8 rounded bg-ink-950/80" /> : <Bar w="w-4/5" />}
-            {priceFirst ? <Bar className="mt-1" w="w-4/5" /> : <span className="mt-1 block h-2 w-8 rounded bg-ink-950/80" />}
+            {priceFirst ? <Bar className="mt-1.5" w="w-4/5" /> : <span className="mt-1.5 block h-2 w-8 rounded bg-ink-950/80" />}
           </span>
           {badge && i === 0 ? <span className="absolute top-1 left-1 rounded bg-rose-600 px-1 py-0.5 text-[7.5px] font-semibold text-white">%</span> : null}
           {stock && i === 1 ? <span className="absolute top-1 right-1 rounded bg-paper-soft px-1 py-0.5 text-[7.5px] font-medium text-ink-500">{UI.outOfStock[l]}</span> : null}
@@ -646,13 +679,15 @@ function useSlots(ctx: Ctx) {
 function Pdp({ ctx }: { ctx: Ctx }) {
   const { at, rest } = useSlots(ctx);
   return (
+    <span className="flex flex-col gap-3">
+      {at("nav", <ShopNav lang={ctx.lang} />)}
     <span className="grid grid-cols-[1fr_1.15fr] gap-3">
       <span className="flex flex-col gap-1.5">
-        {at("media", <Img className="h-28" />)}
-        <span className="grid grid-cols-4 gap-1"><Img className="h-6" /><Img className="h-6" /><Img className="h-6" /><Img className="h-6" /></span>
+        {at("media", <Img className="h-32" />)}
+        <span className="grid grid-cols-4 gap-1"><Img className="h-7" /><Img className="h-7" /><Img className="h-7" /><Img className="h-7" /></span>
       </span>
       <span className="flex flex-col gap-2">
-        {at("text", <><Bar w="w-5/6" className="h-2" /><Bar w="w-1/2" /></>)}
+        {at("text", <><span className="block h-2.5 w-5/6 rounded bg-ink-950/80" /><Bar w="w-1/2" /></>)}
         {at("reviews", <span className="flex items-center gap-0.5 text-amber-500">{[0, 1, 2, 3, 4].map((i) => <Star key={i} className="size-2.5" />)}</span>)}
         {at("price", <span className="block h-3.5 w-14 rounded-md bg-ink-950/80" />)}
         {at("selector", <span className="flex gap-1">{["S", "M", "L"].map((o) => <span key={o} className="grid size-6 place-items-center rounded text-[9px] font-medium text-ink-600 ring-1 ring-ink-950/[0.1]">{o}</span>)}</span>)}
@@ -663,23 +698,28 @@ function Pdp({ ctx }: { ctx: Ctx }) {
         {at("coupon", null)}
         {rest()}
         {at("cta", null, true)}{at("badge", null, true)}{at("price", null, true)}{at("reviews", null, true)}{at("text", null, true)}{at("media", null, true)}{at("selector", null, true)}
+        <span className="mt-1 block"><SectionTitle>{UI.description[ctx.lang]}</SectionTitle><Bar className="mt-1.5" /><Bar className="mt-1" w="w-3/4" /></span>
       </span>
+    </span>
+    {at("nav", null, true)}
     </span>
   );
 }
 
 function Plp({ ctx }: { ctx: Ctx }) {
   const { at, rest } = useSlots(ctx);
+  const l = ctx.lang;
   return (
-    <span className="flex flex-col gap-2.5">
-      {at("nav", <span className="flex items-center gap-3"><span className="h-3 w-8 rounded bg-ink-950/80" /><Bar w="w-8" /><Bar w="w-8" /><Bar w="w-8" /></span>)}
+    <span className="flex flex-col gap-3">
+      {at("nav", <ShopNav lang={l} />)}
       <span className="flex items-center gap-2">
-        <span className="min-w-0 flex-1">{at("search", <span className="flex h-7 items-center gap-2 rounded-md px-2 text-ink-300 ring-1 ring-ink-950/[0.08]"><Search className="size-3" /><Bar w="w-12" /></span>)}</span>
-        {at("filters", <span className="flex gap-1"><Block className="h-7 w-12" /><Block className="h-7 w-12" /></span>)}
+        <span className="min-w-0 flex-1">{at("search", <span className="flex h-8 items-center gap-2 rounded-md bg-paper px-2.5 text-[11px] text-ink-400 ring-1 ring-ink-950/[0.12]"><Search className="size-3.5 text-ink-500" />{UI.searchProducts[l]}</span>)}</span>
+        {at("filters", <span className="flex gap-1.5">{[UI.size[l], UI.colour[l]].map((c) => <span key={c} className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-[10px] font-medium text-ink-700 ring-1 ring-ink-950/[0.12]">{c}<ChevronDown className="size-3 text-ink-400" /></span>)}</span>)}
       </span>
       {at("countdown", null)}{at("text", null)}{at("badge", null)}{at("media", null)}
       {rest()}
-      {at("grid", <span className="grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className="block rounded-md bg-paper p-1.5 ring-1 ring-ink-950/[0.08]"><Img className="h-12" /><Bar className="mt-1.5" w="w-4/5" /><span className="mt-1 block h-2 w-8 rounded bg-ink-950/80" /></span>)}</span>)}
+      <SectionTitle>{UI.newArrivals[l]}</SectionTitle>
+      {at("grid", <span className="grid grid-cols-3 gap-2">{[0, 1, 2].map((i) => <ProductCard key={i} lang={l} />)}</span>)}
       {at("countdown", null, true)}{at("text", null, true)}{at("badge", null, true)}{at("search", null, true)}{at("filters", null, true)}{at("nav", null, true)}{at("media", null, true)}
       <span className="flex justify-center gap-1">{[0, 1, 2].map((i) => <span key={i} className={clsx("size-1.5 rounded-full", i === 0 ? "bg-ink-950/60" : "bg-ink-950/15")} />)}</span>
     </span>
@@ -690,12 +730,13 @@ function Checkout({ ctx }: { ctx: Ctx }) {
   const { at, rest } = useSlots(ctx);
   const l = ctx.lang;
   return (
-    <span className="flex flex-col gap-2.5">
+    <span className="flex flex-col gap-3">
       {at("nav", null)}
-      {at("stepper", <span className="flex items-center gap-2">{UI.steps[l].map((s, i) => <span key={s} className={clsx("text-[9.5px] font-medium", i === 0 ? "text-ink-900" : "text-ink-400")}>{s}</span>)}</span>)}
-      <span className="flex flex-col gap-1.5 rounded-md bg-paper-soft p-2">
+      {at("stepper", <span className="flex items-center gap-2.5">{UI.steps[l].map((s, i) => <span key={s} className={clsx("text-[10.5px] font-medium", i === 0 ? "text-ink-950" : "text-ink-400")}>{s}</span>)}</span>)}
+      <SectionTitle>{UI.yourCart[l]}</SectionTitle>
+      <span className="flex flex-col gap-2">
         {[0, 1].map((i) => (
-          <span key={i} className="flex items-center gap-2"><Img className="size-8 shrink-0" /><span className="flex-1"><Bar w="w-3/4" /><Bar className="mt-1" w="w-1/3" /></span>{i === 0 ? at("selector", <span className="h-2 w-6 rounded bg-ink-950/50" />) : <span className="h-2 w-6 rounded bg-ink-950/50" />}</span>
+          <span key={i} className="flex items-center gap-2.5"><Img className="size-10 shrink-0" /><span className="flex-1"><Bar w="w-3/4" /><Bar className="mt-1.5" w="w-1/3" /></span>{i === 0 ? at("selector", <span className="h-2 w-8 rounded bg-ink-950/60" />) : <span className="h-2 w-8 rounded bg-ink-950/60" />}</span>
         ))}
       </span>
       {at("coupon", null)}{at("shipping", null)}{at("countdown", null)}
@@ -714,9 +755,9 @@ function FormPage({ ctx }: { ctx: Ctx }) {
   const { at, rest } = useSlots(ctx);
   const l = ctx.lang;
   return (
-    <span className="mx-auto flex max-w-[16rem] flex-col gap-2.5">
+    <span className="mx-auto flex max-w-[17rem] flex-col gap-3">
       {at("stepper", null)}
-      {at("text", <><Bar w="w-2/3" className="h-2" /><Bar w="w-1/2" /></>)}
+      {at("text", <><SectionTitle>{UI.createAccount[l]}</SectionTitle><Bar w="w-1/2" /></>)}
       {at("payment", null)}
       {at("form", <span className="grid gap-2"><Field label={UI.fullName[l]} /><Field label={UI.email[l]} /></span>)}
       {at("selector", null)}
@@ -733,8 +774,8 @@ function Home({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-2.5">
-      {at("nav", <span className="flex items-center gap-3"><span className="h-3 w-8 rounded bg-ink-950/80" /><Bar w="w-8" /><Bar w="w-8" /><Bar w="w-8" /><span className="ml-auto"><Block className="h-5 w-12" /></span></span>)}
-      <span className="grid grid-cols-[1.1fr_1fr] items-center gap-3 rounded-md bg-paper-soft p-3">
+      {at("nav", <ShopNav lang={l} />)}
+      <span className="grid grid-cols-[1.1fr_1fr] items-center gap-3 rounded-lg bg-paper-soft p-3">
         <span className="flex flex-col gap-2">
           {at("text", <><span className="block h-3 w-4/5 rounded bg-ink-950/80" /><Bar /><Bar w="w-2/3" /></>)}
           {at("cta", <Btn tone="primary">{UI.getStarted[l]}</Btn>)}
@@ -744,7 +785,7 @@ function Home({ ctx }: { ctx: Ctx }) {
       </span>
       {at("countdown", null)}{at("reviews", null)}{at("search", null)}{at("plans", null)}{at("form", null)}{at("price", null)}
       {rest()}
-      {at("grid", <span className="grid grid-cols-3 gap-1.5"><Block className="h-10" /><Block className="h-10" /><Block className="h-10" /></span>)}
+      {at("grid", <span className="grid grid-cols-3 gap-2">{[0, 1, 2].map((i) => <ProductCard key={i} lang={l} />)}</span>)}
       {at("nav", null, true)}{at("text", null, true)}{at("cta", null, true)}{at("badge", null, true)}{at("media", null, true)}{at("countdown", null, true)}{at("reviews", null, true)}{at("grid", null, true)}{at("search", null, true)}{at("plans", null, true)}{at("form", null, true)}{at("price", null, true)}
     </span>
   );
@@ -753,8 +794,8 @@ function Home({ ctx }: { ctx: Ctx }) {
 function PricingPage({ ctx }: { ctx: Ctx }) {
   const { at, rest } = useSlots(ctx);
   return (
-    <span className="flex flex-col gap-2.5">
-      {at("text", <span className="mx-auto block w-2/3"><Bar className="mx-auto h-2 w-3/4" /><Bar className="mx-auto mt-1.5 w-1/2" /></span>)}
+    <span className="flex flex-col gap-3">
+      {at("text", <span className="block text-center"><SectionTitle>{UI.choosePlan[ctx.lang]}</SectionTitle><Bar className="mx-auto mt-1.5 w-1/2" /></span>)}
       {at("plans", <span className="grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={clsx("block rounded-md p-2 ring-1", i === 1 ? "bg-ink-950 ring-ink-950" : "bg-paper ring-ink-950/[0.1]")}><Bar w="w-1/2" className={i === 1 ? "bg-white/40" : ""} /><span className={clsx("mt-2 block h-3 w-10 rounded", i === 1 ? "bg-white/80" : "bg-ink-950/80")} /><Block className={clsx("mt-2 h-5", i === 1 ? "bg-white/20" : "")} /></span>)}</span>)}
       {at("price", null)}{at("badge", null)}{at("cta", null)}{at("selector", null)}
       {rest()}
@@ -783,7 +824,10 @@ export function AbScreen({
   side,
   presence,
   lang,
-  caption = true,
+  label,
+  address,
+  ring = false,
+  caption = false,
   className = "",
 }: {
   surface: string;
@@ -793,6 +837,12 @@ export function AbScreen({
   /** On a presence test the data fixes each side; elsewhere null. */
   presence?: "absent" | "present" | null;
   lang: Lang;
+  /** What a screen reader gets instead of the picture. */
+  label: string;
+  /** The window's address line - the page's name, not a made-up domain. */
+  address: string;
+  /** The brand ring the variant carries: "look here". */
+  ring?: boolean;
   caption?: boolean;
   className?: string;
 }) {
@@ -800,14 +850,18 @@ export function AbScreen({
   const popup = element === "popup" && ctx.present;
   const mobile = surface === "mobile";
   return (
-    <span className={clsx("block", className)}>
-      <span className={clsx("relative block overflow-hidden rounded-xl bg-paper text-[11px] leading-snug text-ink-700 ring-1 ring-ink-950/[0.08]", mobile ? "mx-auto max-w-[15rem]" : "")}>
-        <Chrome mobile={mobile} />
-        <span className="block p-3 sm:p-4"><Body ctx={ctx} /></span>
-        {popup ? <Spot className="absolute inset-0 rounded-none ring-0 ring-offset-0"><Popup ctx={ctx} /></Spot> : null}
-        {element === "popup" && !ctx.present ? <span className="absolute right-3 bottom-3"><Ghost lang={lang} className="h-8 w-24" /></span> : null}
-      </span>
+    <div className={clsx("min-w-0", className)}>
+      {/* The site's own product window (ui/LabWindow.tsx) - the frame every
+          Lab product page shows its screenshots in - rather than a chrome
+          of our own: one frame, no box inside a box. */}
+      <Window label={label} address={address} className={clsx(mobile ? "mx-auto max-w-[18rem]" : "", ring && "ring-2 ring-primary-400 ring-offset-2 ring-offset-paper-soft")}>
+        <span className="relative block p-4 text-[12px] leading-snug text-ink-700 sm:p-5">
+          <Body ctx={ctx} />
+          {popup ? <Spot className="absolute inset-0 rounded-none ring-0 ring-offset-0"><Popup ctx={ctx} /></Spot> : null}
+          {element === "popup" && !ctx.present ? <span className="absolute right-4 bottom-4"><Ghost lang={lang} className="h-8 w-24" /></span> : null}
+        </span>
+      </Window>
       {caption ? <span className="mt-2 block text-[11px] leading-snug text-ink-subtle">{CAPTION[kind][lang]}</span> : null}
-    </span>
+    </div>
   );
 }
