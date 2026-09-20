@@ -15002,80 +15002,6 @@
     }
   },
   {
-    "id": "journey:ACQ-04",
-    "type": "journey",
-    "slug": "high-intent-human-or-automated-route",
-    "url": "/lab/journeys/high-intent-human-or-automated-route",
-    "urlTr": "/tr/lab/journeys/high-intent-human-or-automated-route",
-    "external": false,
-    "title": "ACQ-04 High-intent action → qualification → human or automated route",
-    "summary": "Decide, after a commercially serious act, whether the next step needs a person's judgement or can continue automatically - and resolve what already exists before creating anything.",
-    "searchText": "High-intent action → qualification → human or automated route. Decide, after a commercially serious act, whether the next step needs a person's judgement or can continue automatically - and resolve what already exists before creating anything.. Also known as high-intent lead routing, sales handoff, MQL to SQL routing, demo request routing, lead assignment. a pricing or enterprise contact request that needs an owner. a self-serve request that continues automatically without a person. High intent commercial action. Acquisition, intent & qualification. Hands off to ACQ-08, external:human-in-the-loop-lifecycle, external:automated-continuation",
-    "keywords": [
-      "ACQ-04",
-      "high-intent lead routing",
-      "sales handoff",
-      "MQL to SQL routing",
-      "demo request routing",
-      "lead assignment"
-    ],
-    "category": [
-      "acquisition"
-    ],
-    "normalizedCategory": [
-      "acquisition-and-onboarding"
-    ],
-    "surface": [],
-    "funnelStage": [
-      "acquisition-qualification"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "eligibility-qualification"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "cross-journey-handoff",
-      "external-handoff",
-      "preemption",
-      "competition"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/high-intent-human-or-automated-route",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:ACQ-08"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:ACQ-05",
-          "because": "ACQ-05 reacts to a qualification state that has already changed. This one runs at the moment of the act, before any state has been decided, and its output is a routing decision rather than a state."
-        }
-      ]
-    }
-  },
-  {
     "id": "journey:ACQ-05",
     "type": "journey",
     "slug": "qualification-state-change-routing",
@@ -15981,79 +15907,6 @@
     }
   },
   {
-    "id": "journey:ACT-11",
-    "type": "journey",
-    "slug": "onboarding-route-selection",
-    "url": "/lab/journeys/onboarding-route-selection",
-    "urlTr": "/tr/lab/journeys/onboarding-route-selection",
-    "external": false,
-    "title": "ACT-11 New entry → onboarding route → appropriate path",
-    "summary": "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
-    "searchText": "New entry → onboarding route → appropriate path. Choose the onboarding path from the work actually required to reach value, before any of that work starts.. Also known as onboarding route assignment, assisted vs self-serve onboarding, onboarding path selection, onboarding triage. a new account whose onboarding path must be chosen from the setup actually required. deciding whether a human owner is needed before onboarding starts. Authoritative lifecycle entry. Activation, onboarding & early value. Hands off to ACT-13, ACT-12",
-    "keywords": [
-      "ACT-11",
-      "onboarding route assignment",
-      "assisted vs self-serve onboarding",
-      "onboarding path selection",
-      "onboarding triage"
-    ],
-    "category": [
-      "activation"
-    ],
-    "normalizedCategory": [
-      "acquisition-and-onboarding"
-    ],
-    "surface": [],
-    "funnelStage": [
-      "activation-onboarding"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "progression-milestone"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "cross-journey-handoff"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/onboarding-route-selection",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:ACT-13"
-        },
-        {
-          "targetId": "journey:ACT-12"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:ACT-19",
-          "because": "This routes on the work required, which is usually readable from the account itself. ACT-19 fires only where a named role or use-case is missing and the answer would change the path."
-        }
-      ]
-    }
-  },
-  {
     "id": "journey:ACT-12",
     "type": "journey",
     "slug": "onboarding-progress-next-step",
@@ -16190,9 +16043,6 @@
       "handoffs": [
         {
           "targetId": "journey:ACT-12"
-        },
-        {
-          "targetId": "journey:ACT-11"
         }
       ],
       "distinctFrom": [
@@ -17793,83 +17643,6 @@
     }
   },
   {
-    "id": "journey:CON-264",
-    "type": "journey",
-    "slug": "contact-point-confirmation",
-    "url": "/lab/journeys/contact-point-confirmation",
-    "urlTr": "/tr/lab/journeys/contact-point-confirmation",
-    "external": false,
-    "title": "CON-264 Contact point added or changed → confirm → permitted or lapsed",
-    "summary": "Establish that the person who owns a new destination actually asked for it, before anything is ever sent there - and tell the destination it replaces, because a change nobody made is only visible from the address it is being taken away from.",
-    "searchText": "Contact point added or changed → confirm → permitted or lapsed. Establish that the person who owns a new destination actually asked for it, before anything is ever sent there - and tell the destination it replaces, because a change nobody made is only visible from the address it is being taken away from.. Also known as contact verification, email verification, phone verification, double opt-in, contact change confirmation, verify new address. a new address or number added to an account and confirmed at the destination itself. a replaced contact point whose previous destination is warned and can dispute. Contact point added or changed. Consent, preferences, communication & contactability. Hands off to IDN-89. confirmed and permitted for this destination. unconfirmed; the destination stays unusable. superseded before confirmation",
-    "keywords": [
-      "CON-264",
-      "contact verification",
-      "email verification",
-      "phone verification",
-      "double opt-in",
-      "contact change confirmation",
-      "verify new address"
-    ],
-    "category": [
-      "consent"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "delivery-confirmation"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/contact-point-confirmation",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:IDN-89"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:CON-31",
-          "because": "CON-31 records what was authorised, for which purpose and scope. This runs earlier and answers a different question - whether the destination belongs to the person the permission would be recorded against."
-        },
-        {
-          "targetId": "journey:IDN-89",
-          "because": "IDN-89 changes the attribute and reconciles what depended on it. This is the exchange with the two destinations that decides whether the new one is usable at all."
-        }
-      ]
-    }
-  },
-  {
     "id": "journey:CON-272",
     "type": "journey",
     "slug": "contactability-repair",
@@ -17935,213 +17708,8 @@
         {
           "targetId": "journey:CON-38",
           "because": "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed."
-        },
-        {
-          "targetId": "journey:CON-264",
-          "because": "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart."
         }
       ]
-    }
-  },
-  {
-    "id": "journey:CON-283",
-    "type": "journey",
-    "slug": "frequency-reduction-confirmation",
-    "url": "/lab/journeys/frequency-reduction-confirmation",
-    "urlTr": "/tr/lab/journeys/frequency-reduction-confirmation",
-    "external": false,
-    "title": "CON-283 Frequency reduced → cadence recalculated → kept rather than lost",
-    "summary": "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.",
-    "searchText": "Frequency reduced → cadence recalculated → kept rather than lost. Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.. Also known as frequency preference update, send-less confirmation, frequency reduction, reduce emails confirmation. someone who asked for fewer messages told exactly what changes. trimming what is already scheduled to the new cadence before confirming. Frequency preference reduced. Consent, preferences, communication & contactability. full opt-out; this journey sends nothing. reduced a second time before the first cadence settled. reduced cadence in effect and holding",
-    "keywords": [
-      "CON-283",
-      "frequency preference update",
-      "send-less confirmation",
-      "frequency reduction",
-      "reduce emails confirmation"
-    ],
-    "category": [
-      "consent"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "delivery-confirmation"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/frequency-reduction-confirmation",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [],
-      "distinctFrom": [
-        {
-          "targetId": "journey:CON-34",
-          "because": "CON-34 works out which classes the preference governs and recalculates the cadence. This journey is the single confirmation the person receives, and it states nothing the recalculation has not already applied."
-        },
-        {
-          "targetId": "journey:CON-38",
-          "because": "CON-38 records a stop and decides when it releases. A reduction is not a stop, and recording the two as the same state loses exactly the relationship the person was trying to keep."
-        }
-      ]
-    }
-  },
-  {
-    "id": "journey:DEC-184",
-    "type": "journey",
-    "slug": "information-requirement",
-    "url": "/lab/journeys/information-requirement",
-    "urlTr": "/tr/lab/journeys/information-requirement",
-    "external": false,
-    "title": "DEC-184 More information required → collect → revalidate → resume review",
-    "summary": "Pause a decision for the fact it is actually missing, without losing the review already done.",
-    "searchText": "More information required → collect → revalidate → resume review. Pause a decision for the fact it is actually missing, without losing the review already done.. Also known as more information request, request for information, missing information on a case, pending information, information requirement. a decision paused for the one fact it turns on, without losing the review done. an information deadline expiring and handled as policy defines. Information requirement identified. Approvals, decisions, reviews & human-in-the-loop work. Hands off to DEC-189, DEC-183. no longer requiring a decision; the review history stands unclosed rather than concluded. closed for want of information; no decision was made on the merits",
-    "keywords": [
-      "DEC-184",
-      "more information request",
-      "request for information",
-      "missing information on a case",
-      "pending information",
-      "information requirement"
-    ],
-    "category": [
-      "decision"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "recovery-retry"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/information-requirement",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [],
-      "distinctFrom": [
-        {
-          "targetId": "journey:FBK-49",
-          "because": "FBK-49 resolves missing data blocking a process generally. This is evidence a named reviewer needs to answer a specific open question - it is scoped by the decision rather than by the record, and it ends by resuming a review rather than by unblocking a pipeline."
-        }
-      ]
-    }
-  },
-  {
-    "id": "journey:DEC-267",
-    "type": "journey",
-    "slug": "adverse-decision-remediation",
-    "url": "/lab/journeys/adverse-decision-remediation",
-    "urlTr": "/tr/lab/journeys/adverse-decision-remediation",
-    "external": false,
-    "title": "DEC-267 Adverse decision → stated remediation path → corrected or final",
-    "summary": "Tell somebody a decision went against them and which of exactly three things is true - correctable now, reapplicable later, or final - so the outcome arrives as a position they can act on instead of a verdict they have to interpret.",
-    "searchText": "Adverse decision → stated remediation path → corrected or final. Tell somebody a decision went against them and which of exactly three things is true - correctable now, reapplicable later, or final - so the outcome arrives as a position they can act on instead of a verdict they have to interpret.. Also known as adverse decision recovery, application rejected notice, declined with a path, rejection with next steps, decision against the customer. a decision against someone, stated with exactly which of three things is true. a correctable decision confirmed as resolved when the correction lands. Adverse decision recorded. Approvals, decisions, reviews & human-in-the-loop work. adverse decision remediated within its window. decision withdrawn before remediation. decided against, with a stated route to a fresh request. final; no path onward is defined",
-    "keywords": [
-      "DEC-267",
-      "adverse decision recovery",
-      "application rejected notice",
-      "declined with a path",
-      "rejection with next steps",
-      "decision against the customer"
-    ],
-    "category": [
-      "decision"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "reconciliation-correction"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "multi-exit",
-      "no-re-entry"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/adverse-decision-remediation",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [],
-      "distinctFrom": []
     }
   },
   {
@@ -18273,139 +17841,6 @@
     "journeyRelationRefs": {
       "handoffs": [],
       "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:DOC-220",
-    "type": "journey",
-    "slug": "document-conflict",
-    "url": "/lab/journeys/document-conflict",
-    "urlTr": "/tr/lab/journeys/document-conflict",
-    "external": false,
-    "title": "DOC-220 Document or record conflict → determine authoritative version → reconcile",
-    "summary": "Work out which version actually governs, and explain the conflict rather than deleting it.",
-    "searchText": "Document or record conflict → determine authoritative version → reconcile. Work out which version actually governs, and explain the conflict rather than deleting it.. Also known as document conflict review, version conflict, which version governs, duplicate document reconciliation. which version actually governs, with the conflict explained rather than deleted. a non-authoritative version that was distributed, corrected explicitly. Document version inconsistency detected. Documents, records, signatures & versioned artifacts. Hands off to DEC-181, DOC-215, REM-157. authoritative version established; conflicting records preserved and explained",
-    "keywords": [
-      "DOC-220",
-      "document conflict review",
-      "version conflict",
-      "which version governs",
-      "duplicate document reconciliation"
-    ],
-    "category": [
-      "document"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "reconciliation-correction"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "cross-journey-handoff"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/document-conflict",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:DOC-215"
-        },
-        {
-          "targetId": "journey:REM-157"
-        }
-      ],
-      "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:DOC-286",
-    "type": "journey",
-    "slug": "document-effective-notice",
-    "url": "/lab/journeys/document-effective-notice",
-    "urlTr": "/tr/lab/journeys/document-effective-notice",
-    "external": false,
-    "title": "DOC-286 Document effective → entitlement active → first use or dormant",
-    "summary": "Tell the holder that what they signed has actually started, and what it now lets them do, at the moment it becomes true rather than the moment they signed.",
-    "searchText": "Document effective → entitlement active → first use or dormant. Tell the holder that what they signed has actually started, and what it now lets them do, at the moment it becomes true rather than the moment they signed.. Also known as document activation, agreement now in force, policy effective notice, contract start notice, entitlement active. the holder told what they signed has started and what it lets them do, when it becomes true. one reminder of the first action, then dormancy recorded. Document recorded effective. Documents, records, signatures & versioned artifacts. in force, nothing for the holder to exercise. entitlement exercised. in force and ended without ever being used. in force and dormant",
-    "keywords": [
-      "DOC-286",
-      "document activation",
-      "agreement now in force",
-      "policy effective notice",
-      "contract start notice",
-      "entitlement active"
-    ],
-    "category": [
-      "document"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "revocation-access-change"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/document-effective-notice",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [],
-      "distinctFrom": [
-        {
-          "targetId": "journey:ACC-263",
-          "because": "ACC-263 runs a claim window on a granted capability that lapses if unused. Here nothing lapses for want of use - the document is in force either way, and dormancy is an observation rather than a loss."
-        }
-      ]
     }
   },
   {
@@ -18620,147 +18055,9 @@
       "handoffs": [
         {
           "targetId": "journey:FBK-42"
-        },
-        {
-          "targetId": "journey:FBK-46"
         }
       ],
       "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:FBK-46",
-    "type": "journey",
-    "slug": "issue-ownership-and-closure",
-    "url": "/lab/journeys/issue-ownership-and-closure",
-    "urlTr": "/tr/lab/journeys/issue-ownership-and-closure",
-    "external": false,
-    "title": "FBK-46 Complaint or issue created → ownership → resolution → confirmation",
-    "summary": "Hold an actionable issue as an open obligation with a named owner until both the fix and the closure condition are satisfied.",
-    "searchText": "Complaint or issue created → ownership → resolution → confirmation. Hold an actionable issue as an open obligation with a named owner until both the fix and the closure condition are satisfied.. Also known as complaint resolution, complaint handling, issue resolution, case management, escalation ladder, ticket resolution, service recovery (case). a complaint that becomes an owned case with an SLA. an issue whose fix must be confirmed by the person before it closes. Actionable issue created. Feedback, advocacy, referral & relationship signals. Hands off to OWN-51, external:human-in-the-loop-lifecycle. resolved and confirmed. fixed operationally, never confirmed",
-    "keywords": [
-      "FBK-46",
-      "complaint resolution",
-      "complaint handling",
-      "issue resolution",
-      "case management",
-      "escalation ladder",
-      "ticket resolution",
-      "service recovery (case)"
-    ],
-    "category": [
-      "feedback"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "cancellation-termination"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "external-handoff",
-      "multi-exit",
-      "competition"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/issue-ownership-and-closure",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [],
-      "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:FBK-47",
-    "type": "journey",
-    "slug": "appeal-and-dispute-review",
-    "url": "/lab/journeys/appeal-and-dispute-review",
-    "urlTr": "/tr/lab/journeys/appeal-and-dispute-review",
-    "external": false,
-    "title": "FBK-47 Appeal or dispute → evidence review → uphold, reverse or modify",
-    "summary": "Review a decision that has already been made, without erasing it while the review is running.",
-    "searchText": "Appeal or dispute → evidence review → uphold, reverse or modify. Review a decision that has already been made, without erasing it while the review is running.. Also known as appeal review, dispute review, decision appeal, review of a decision, appeal handling. a contested decision reviewed without being erased while the review runs. an appeal that needs specific evidence, asked for once against the same deadline. Appeal or dispute submitted. Feedback, advocacy, referral & relationship signals. Hands off to DEC-181. appeal not eligible; original decision unchanged. review concluded; original decision and outcome both preserved",
-    "keywords": [
-      "FBK-47",
-      "appeal review",
-      "dispute review",
-      "decision appeal",
-      "review of a decision",
-      "appeal handling"
-    ],
-    "category": [
-      "feedback"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "compensation-remedy"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/appeal-and-dispute-review",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [],
-      "distinctFrom": [
-        {
-          "targetId": "journey:FBK-46",
-          "because": "An issue is something that went wrong. An appeal contests something we did on purpose, which means the subject under review is our own decision and it has to remain intact to be reviewable."
-        }
-      ]
     }
   },
   {
@@ -19167,67 +18464,6 @@
           "targetId": "journey:ACC-79"
         }
       ],
-      "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:FIN-137",
-    "type": "journey",
-    "slug": "refund-request-decision",
-    "url": "/lab/journeys/refund-request-decision",
-    "urlTr": "/tr/lab/journeys/refund-request-decision",
-    "external": false,
-    "title": "FIN-137 Refund request → eligibility → approve, reject or review",
-    "summary": "Turn a refund request into an authorised decision, without money moving on the request itself.",
-    "searchText": "Refund request → eligibility → approve, reject or review. Turn a refund request into an authorised decision, without money moving on the request itself.. Also known as refund request, refund eligibility, money-back request, refund decision. a refund request turned into an authorised decision without money moving on the request. a request needing judgement, acknowledged as under review without implying an outcome. Refund requested. Transactions, payments, billing & financial outcomes. Hands off to DEC-181, OWN-55, FIN-138. REJECTED; no money moves and the original transaction stands",
-    "keywords": [
-      "FIN-137",
-      "refund request",
-      "refund eligibility",
-      "money-back request",
-      "refund decision"
-    ],
-    "category": [
-      "financial"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "eligibility-qualification"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/refund-request-decision",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [],
       "distinctFrom": []
     }
   },
@@ -19935,17 +19171,8 @@
       ]
     },
     "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:FIN-137"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:FIN-137",
-          "because": "Stopping a delivery and returning money are different decisions with different authority. Coupling them either refunds what was delivered or delivers what was refunded, and this journey hands the financial question to the lifecycle that owns it."
-        }
-      ]
+      "handoffs": [],
+      "distinctFrom": []
     }
   },
   {
@@ -20028,149 +19255,6 @@
     }
   },
   {
-    "id": "journey:FUL-276",
-    "type": "journey",
-    "slug": "substitution-offer",
-    "url": "/lab/journeys/substitution-offer",
-    "urlTr": "/tr/lab/journeys/substitution-offer",
-    "external": false,
-    "title": "FUL-276 Substitution required → offer alternative → accepted, declined or lapsed",
-    "summary": "Put a defined alternative in front of the person the obligation was made to, with a real decline path and a stated deadline, so that nothing different is ever supplied on the assumption they would not have minded.",
-    "searchText": "Substitution required → offer alternative → accepted, declined or lapsed. Put a defined alternative in front of the person the obligation was made to, with a real decline path and a stated deadline, so that nothing different is ever supplied on the assumption they would not have minded.. Also known as substitution approval, substitute item offer, replacement item consent, out-of-stock substitution. a defined alternative put to the person with a real decline path and a stated deadline. nothing different ever supplied on the strength of silence. Substitution required with defined alternative. Orders, fulfillment, delivery & service completion. Hands off to CON-36. alternative accepted and confirmed. alternative declined, affected scope still owed. offer lapsed undecided, affected scope still open",
-    "keywords": [
-      "FUL-276",
-      "substitution approval",
-      "substitute item offer",
-      "replacement item consent",
-      "out-of-stock substitution"
-    ],
-    "category": [
-      "fulfillment"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "review-required"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/substitution-offer",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:CON-36"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:FUL-145",
-          "because": "FUL-145 diagnoses the exception, scopes it and decides that a defined alternative exists. This journey is the offer put to the recipient, and it starts only once that decision has been taken."
-        }
-      ]
-    }
-  },
-  {
-    "id": "journey:IDN-81",
-    "type": "journey",
-    "slug": "identity-claim-verification",
-    "url": "/lab/journeys/identity-claim-verification",
-    "urlTr": "/tr/lab/journeys/identity-claim-verification",
-    "external": false,
-    "title": "IDN-81 Identity claim → evidence → verified, rejected or more evidence",
-    "summary": "Establish confidence in one specific identity claim, bound to the evidence that established it.",
-    "searchText": "Identity claim → evidence → verified, rejected or more evidence. Establish confidence in one specific identity claim, bound to the evidence that established it.. Also known as identity verification, KYC verification, ID check, identity proofing, document verification. a claim a process requires to be verified at a stated assurance. an inconclusive check that asks for the specific missing evidence, within the round limit. Identity verification required. Identity, verification, authentication & account integrity. Hands off to DEC-181, IDN-84. EXPIRED; the claim was never verified. VERIFIED for this claim, at this scope and assurance",
-    "keywords": [
-      "IDN-81",
-      "identity verification",
-      "KYC verification",
-      "ID check",
-      "identity proofing",
-      "document verification"
-    ],
-    "category": [
-      "identity"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "identity-verification"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/identity-claim-verification",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:IDN-84"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:IDN-85",
-          "because": "Verification asks whether a claim is true. Authentication asks whether whoever is present right now controls it. A verified claim from last year says nothing about who is at the keyboard."
-        }
-      ]
-    }
-  },
-  {
     "id": "journey:IDN-84",
     "type": "journey",
     "slug": "verification-failure-routing",
@@ -20227,73 +19311,6 @@
     },
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:IDN-85",
-    "type": "journey",
-    "slug": "authentication-challenge",
-    "url": "/lab/journeys/authentication-challenge",
-    "urlTr": "/tr/lab/journeys/authentication-challenge",
-    "external": false,
-    "title": "IDN-85 Authentication challenge → authenticate, step up or deny",
-    "summary": "Establish that whoever is present controls the required identity, at the assurance the context demands.",
-    "searchText": "Authentication challenge → authenticate, step up or deny. Establish that whoever is present controls the required identity, at the assurance the context demands.. Also known as login verification, OTP, 2FA, MFA challenge, one-time code, login code. a challenge issued at the assurance the context demands. a session already at the required level, challenged for nothing. Authentication required. Identity, verification, authentication & account integrity. Hands off to IDN-86, IDN-87. already authenticated at the required level. challenge unanswered; nothing authenticated and nothing recorded against the actor. authenticated, at a stated assurance and for a stated validity",
-    "keywords": [
-      "IDN-85",
-      "login verification",
-      "OTP",
-      "2FA",
-      "MFA challenge",
-      "one-time code",
-      "login code"
-    ],
-    "category": [
-      "identity"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "identity-verification"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/authentication-challenge",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:IDN-87"
-        }
-      ],
       "distinctFrom": []
     }
   },
@@ -20430,12 +19447,7 @@
           "targetId": "journey:IDN-90"
         }
       ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:IDN-81",
-          "because": "Verification establishes that a claim is true. Recovery establishes that this requester is entitled to regain control of a specific account, which a true claim about their identity does not by itself demonstrate."
-        }
-      ]
+      "distinctFrom": []
     }
   },
   {
@@ -20568,82 +19580,6 @@
         {
           "targetId": "journey:ACC-78",
           "because": "Suspension restricts for a stated business reason and expects to be resolved by that reason going away. This restricts on incomplete evidence about an adversary, which is why it opens an investigation rather than a review."
-        }
-      ]
-    }
-  },
-  {
-    "id": "journey:IDN-270",
-    "type": "journey",
-    "slug": "account-recovery-guidance",
-    "url": "/lab/journeys/account-recovery-guidance",
-    "urlTr": "/tr/lab/journeys/account-recovery-guidance",
-    "external": false,
-    "title": "IDN-270 Account recovery started → proof of control → access restored or window closed",
-    "summary": "Carry somebody who cannot authenticate through the evidence their recovery actually requires, inside a stated window, on a route that is no weaker than the login it is standing in for.",
-    "searchText": "Account recovery started → proof of control → access restored or window closed. Carry somebody who cannot authenticate through the evidence their recovery actually requires, inside a stated window, on a route that is no weaker than the login it is standing in for.. Also known as account recovery, forgot password recovery, locked-out recovery, recovery link, regain access. a recovery route sent only to a destination the account already held. one reminder inside a stated window that repeated attempts never restart. Account recovery case opened. Identity, verification, authentication & account integrity. Hands off to IDN-90. control restored and confirmed. recovery closed without being used. recovery window closed without sufficient proof",
-    "keywords": [
-      "IDN-270",
-      "account recovery",
-      "forgot password recovery",
-      "locked-out recovery",
-      "recovery link",
-      "regain access"
-    ],
-    "category": [
-      "identity"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "identity-verification"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/account-recovery-guidance",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:IDN-90"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:IDN-88",
-          "because": "IDN-88 decides the recovery basis, judges the evidence and rebuilds secure access. This journey sends nothing that IDN-88 has not already established, and it decides nothing - it is the requester's side of that case."
-        },
-        {
-          "targetId": "journey:IDN-90",
-          "because": "IDN-90 governs a suspected compromise. Here the account is not under suspicion; somebody simply cannot get in, and treating the two the same makes every locked-out person a suspect."
         }
       ]
     }
@@ -20783,142 +19719,6 @@
     "journeyRelationRefs": {
       "handoffs": [],
       "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:INT-269",
-    "type": "journey",
-    "slug": "integration-reconnect-prompt",
-    "url": "/lab/journeys/integration-reconnect-prompt",
-    "urlTr": "/tr/lab/journeys/integration-reconnect-prompt",
-    "external": false,
-    "title": "INT-269 Integration connection broken → reconnect → restored or degraded",
-    "summary": "Tell the person who owns a broken connection which of their capabilities stopped, whether the fix is theirs to perform, and what one step restores it - so a silent dependency failure becomes a decision instead of a slow discovery.",
-    "searchText": "Integration connection broken → reconnect → restored or degraded. Tell the person who owns a broken connection which of their capabilities stopped, whether the fix is theirs to perform, and what one step restores it - so a silent dependency failure becomes a decision instead of a slow discovery.. Also known as integration recovery, reconnect integration, integration disconnected, re-authorise connection, broken integration notice. a de-authorised connection whose owner is told which capabilities stopped and the one step that restores them. a break the holder cannot fix, stated without a reconnection step. Integration connection failed or deauthorized. Integrations, synchronization, external systems & data consistency. Hands off to RET-24. informed, recovery not the holder's to perform. reconnected and confirmed. connection deliberately removed by the holder. recovery window closed, connection still broken, relationship not labelled at risk",
-    "keywords": [
-      "INT-269",
-      "integration recovery",
-      "reconnect integration",
-      "integration disconnected",
-      "re-authorise connection",
-      "broken integration notice"
-    ],
-    "category": [
-      "integration"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "suspension-restoration"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit",
-      "no-re-entry"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/integration-reconnect-prompt",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:RET-24"
-        }
-      ],
-      "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:INT-278",
-    "type": "journey",
-    "slug": "integration-setup-outcome",
-    "url": "/lab/journeys/integration-setup-outcome",
-    "urlTr": "/tr/lab/journeys/integration-setup-outcome",
-    "external": false,
-    "title": "INT-278 Integration connection started → validation outcome → active or targeted fix",
-    "summary": "Tell the person who started a connection which stage it actually failed at and what would fix that stage - because a generic failure sends a capable person to support and an incapable one away for good.",
-    "searchText": "Integration connection started → validation outcome → active or targeted fix. Tell the person who started a connection which stage it actually failed at and what would fix that stage - because a generic failure sends a capable person to support and an incapable one away for good.. Also known as integration setup, connect integration, integration failed at setup, connection failed, integration onboarding. a connection attempt that names the stage it failed at and the fix for that stage. a successful connection confirmed with the capabilities actually validated. Integration connection attempt resolved. Integrations, synchronization, external systems & data consistency. Hands off to INT-111. active, with validated capabilities stated. still not connected after the named fix. abandoned before the connection was ever made",
-    "keywords": [
-      "INT-278",
-      "integration setup",
-      "connect integration",
-      "integration failed at setup",
-      "connection failed",
-      "integration onboarding"
-    ],
-    "category": [
-      "integration"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "recovery-retry"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/integration-setup-outcome",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [],
-      "distinctFrom": [
-        {
-          "targetId": "journey:INT-269",
-          "because": "INT-269 addresses an established connection that has broken. Here nothing has ever worked, so there is no prior capability to restore and nothing to describe as degraded."
-        }
-      ]
     }
   },
   {
@@ -22070,72 +20870,6 @@
     }
   },
   {
-    "id": "journey:REM-152",
-    "type": "journey",
-    "slug": "return-authorization",
-    "url": "/lab/journeys/return-authorization",
-    "urlTr": "/tr/lab/journeys/return-authorization",
-    "external": false,
-    "title": "REM-152 Return request → eligibility → authorize, reject or review",
-    "summary": "Decide whether something may enter a return process, as a decision separate from whether money is owed.",
-    "searchText": "Return request → eligibility → authorize, reject or review. Decide whether something may enter a return process, as a decision separate from whether money is owed.. Also known as return request, return authorisation, RMA, return eligibility, send it back. whether something may enter a return process, decided separately from money. a return needing review, held without authorising anything. Return requested. Returns, remedies, corrections & post-completion recovery. Hands off to REM-157, DEC-181, OWN-55, REM-153. RETURN_REJECTED; the original fulfillment is unchanged",
-    "keywords": [
-      "REM-152",
-      "return request",
-      "return authorisation",
-      "RMA",
-      "return eligibility",
-      "send it back"
-    ],
-    "category": [
-      "remedy"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "eligibility-qualification"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/return-authorization",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:REM-157"
-        }
-      ],
-      "distinctFrom": []
-    }
-  },
-  {
     "id": "journey:REM-156",
     "type": "journey",
     "slug": "correction-reperformance",
@@ -22261,20 +20995,9 @@
       "handoffs": [
         {
           "targetId": "journey:REM-156"
-        },
-        {
-          "targetId": "journey:REM-152"
-        },
-        {
-          "targetId": "journey:FIN-137"
         }
       ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:FIN-137",
-          "because": "This decides which remedy applies. FIN-137 runs only if that decision is a refund, and then decides whether the refund is owed - a separate eligibility with separate rules."
-        }
-      ]
+      "distinctFrom": []
     }
   },
   {
@@ -22487,85 +21210,6 @@
         },
         {
           "targetId": "journey:RET-27"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:RET-24",
-          "because": "This asks what is wrong. RET-24 asks how much is wrong and how hard to push back, and it can run on a relationship whose cause is already known and being fixed."
-        }
-      ]
-    }
-  },
-  {
-    "id": "journey:RET-24",
-    "type": "journey",
-    "slug": "churn-risk-escalation",
-    "url": "/lab/journeys/churn-risk-escalation",
-    "urlTr": "/tr/lab/journeys/churn-risk-escalation",
-    "external": false,
-    "title": "RET-24 Churn risk escalation → evidence → intervention priority",
-    "summary": "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
-    "searchText": "Churn risk escalation → evidence → intervention priority. Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.. Also known as churn risk escalation, churn risk, at-risk account escalation, customer success alert, churn prevention (risk). several independent risk signals crossing a threshold on one account. deciding between a person, an automated intervention, or watching. Churn risk threshold crossed. Engagement, health, retention & churn prevention. Hands off to RET-28, RET-23, external:human-in-the-loop-lifecycle, RET-30. risk recorded, nothing proportionate to do, or a higher-precedence contender already owns this account",
-    "keywords": [
-      "RET-24",
-      "churn risk escalation",
-      "churn risk",
-      "at-risk account escalation",
-      "customer success alert",
-      "churn prevention (risk)"
-    ],
-    "category": [
-      "retention"
-    ],
-    "normalizedCategory": [
-      "retention-and-engagement"
-    ],
-    "surface": [],
-    "funnelStage": [
-      "engagement-retention"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "escalation-exception"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "cross-journey-handoff",
-      "external-handoff",
-      "competition"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/churn-risk-escalation",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:RET-28"
-        },
-        {
-          "targetId": "journey:RET-23"
-        },
-        {
-          "targetId": "journey:RET-30"
         }
       ],
       "distinctFrom": []
@@ -23541,12 +22185,6 @@
     "journeyRelationRefs": {
       "handoffs": [
         {
-          "targetId": "journey:SCH-180"
-        },
-        {
-          "targetId": "journey:FIN-137"
-        },
-        {
           "targetId": "journey:FIN-131"
         }
       ],
@@ -23615,9 +22253,6 @@
     },
     "journeyRelationRefs": {
       "handoffs": [
-        {
-          "targetId": "journey:SCH-180"
-        },
         {
           "targetId": "journey:SCH-178"
         },
@@ -23697,9 +22332,6 @@
           "targetId": "journey:SCH-175"
         },
         {
-          "targetId": "journey:SCH-180"
-        },
-        {
           "targetId": "journey:SCH-175"
         }
       ],
@@ -23764,9 +22396,6 @@
     "journeyRelationRefs": {
       "handoffs": [
         {
-          "targetId": "journey:SCH-180"
-        },
-        {
           "targetId": "journey:SCH-178"
         },
         {
@@ -23777,82 +22406,6 @@
         {
           "targetId": "journey:RET-22",
           "because": "RET-22 reads a pattern of expected usage not happening across a relationship. This is the non-occurrence of one specific confirmed booking at one specific time, and it is established by exclusion rather than by observing a trend."
-        }
-      ]
-    }
-  },
-  {
-    "id": "journey:SCH-180",
-    "type": "journey",
-    "slug": "provider-cancellation",
-    "url": "/lab/journeys/provider-cancellation",
-    "urlTr": "/tr/lab/journeys/provider-cancellation",
-    "external": false,
-    "title": "SCH-180 Provider or resource cancellation → reallocate → reschedule, remedy or cancel",
-    "summary": "Recover a commitment we cannot keep, without any of the cost landing on the person who was ready.",
-    "searchText": "Provider or resource cancellation → reallocate → reschedule, remedy or cancel. Recover a commitment we cannot keep, without any of the cost landing on the person who was ready.. Also known as provider cancellation, appointment cancelled by provider, reallocation, we cannot keep your booking, provider-side reschedule. a commitment we cannot keep recovered without the cost landing on the person who was ready. an equivalent replacement at the same time, told only where it changes something for them. Provider or resource cannot fulfil. Scheduling, appointments, reservations & time-bound commitments. Hands off to SCH-175, REM-157, FIN-137. reallocated; the time and the commitment both stand. cancelled on the provider side; recorded as ours, with nothing attributed to the customer",
-    "keywords": [
-      "SCH-180",
-      "provider cancellation",
-      "appointment cancelled by provider",
-      "reallocation",
-      "we cannot keep your booking",
-      "provider-side reschedule"
-    ],
-    "category": [
-      "scheduling"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "cross-lifecycle"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "cancellation-termination"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/provider-cancellation",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:SCH-175"
-        },
-        {
-          "targetId": "journey:REM-157"
-        },
-        {
-          "targetId": "journey:FIN-137"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:FUL-145",
-          "because": "FUL-145 handles a generic fulfillment exception. This carries the scheduling-specific recovery: the same time with a different provider, a different time with the same commitment, and the rule that the customer is never recorded as the cause."
         }
       ]
     }
@@ -24067,11 +22620,7 @@
       ]
     },
     "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:SCH-180"
-        }
-      ],
+      "handoffs": [],
       "distinctFrom": [
         {
           "targetId": "journey:SCH-179",
@@ -24770,10 +23319,6 @@
       "handoffs": [],
       "distinctFrom": [
         {
-          "targetId": "journey:TRM-106",
-          "because": "A subscription, contract or membership ends here. TRM-106 closes the account relationship entirely. Most people who leave a plan keep their account, and chaining the two treats cancelling a subscription as asking to be removed."
-        },
-        {
           "targetId": "journey:REL-93",
           "because": "REL-93 ends a structural link between two entities, and what stops is what depended on the link existing. This ends a term, and what stops is what the term was granting. Someone can leave an organisation while the subscription they paid for personally keeps running, and a policy can expire while the person stays exactly as related to the organisation as before."
         }
@@ -25388,77 +23933,6 @@
     }
   },
   {
-    "id": "journey:TRM-106",
-    "type": "journey",
-    "slug": "account-closure-request",
-    "url": "/lab/journeys/account-closure-request",
-    "urlTr": "/tr/lab/journeys/account-closure-request",
-    "external": false,
-    "title": "TRM-106 Account closure request → validate → resolve blockers → close",
-    "summary": "End an account relationship once the obligations that legitimately block it are resolved, and end nothing else.",
-    "searchText": "Account closure request → validate → resolve blockers → close. End an account relationship once the obligations that legitimately block it are resolved, and end nothing else.. Also known as account closure, close account, close my account request, account termination request. a closure request checked for authority and blockers before anything ends. a blocker named specifically so the requester knows what to resolve. Account closure requested. Entity merge, account closure, data lifecycle & terminal states. Hands off to TRM-107, OWN-55. closure not requested by an authorised party; account unchanged. one blocker cleared, others remain and are surfaced. closure request lapsed with blockers outstanding. closure not permitted",
-    "keywords": [
-      "TRM-106",
-      "account closure",
-      "close account",
-      "close my account request",
-      "account termination request"
-    ],
-    "category": [
-      "terminal"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "ending-closure"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "cancellation-termination"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "cross-journey-handoff",
-      "multi-exit"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/account-closure-request",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [
-        {
-          "targetId": "journey:TRM-107"
-        }
-      ],
-      "distinctFrom": [
-        {
-          "targetId": "journey:RET-29",
-          "because": "RET-29 completes a subscription cancellation - a commercial relationship ending. An account can be closed with subscriptions running, and a subscription can be cancelled with the account intact."
-        }
-      ]
-    }
-  },
-  {
     "id": "journey:TRM-107",
     "type": "journey",
     "slug": "closure-external-dependencies",
@@ -25559,70 +24033,6 @@
     "language": "en+tr",
     "indexable": true,
     "canonical": "https://alidemirbas.com.tr/lab/journeys/closure-wind-down",
-    "searchAliases": [],
-    "boost": {},
-    "source": {
-      "file": [
-        "production/journey-view-model.json"
-      ],
-      "fields": [
-        "identity",
-        "entry.trigger",
-        "graph.nodes[exit]",
-        "relationships.handoffs",
-        "relationships.distinctFrom",
-        "derived.behaviors"
-      ]
-    },
-    "journeyRelationRefs": {
-      "handoffs": [],
-      "distinctFrom": []
-    }
-  },
-  {
-    "id": "journey:TRM-275",
-    "type": "journey",
-    "slug": "deletion-request-confirmation",
-    "url": "/lab/journeys/deletion-request-confirmation",
-    "urlTr": "/tr/lab/journeys/deletion-request-confirmation",
-    "external": false,
-    "title": "TRM-275 Deletion request → verify requester → confirm scope and retention → closed",
-    "summary": "Give the person who asked for their data to be removed a durable record of what went, what stayed, under which obligation, and the date the request closed - because a deletion nobody can point to is indistinguishable from one that never happened.",
-    "searchText": "Deletion request → verify requester → confirm scope and retention → closed. Give the person who asked for their data to be removed a durable record of what went, what stayed, under which obligation, and the date the request closed - because a deletion nobody can point to is indistinguishable from one that never happened.. Also known as data deletion confirmation, right to erasure, data deletion request, delete my data, data subject request. a deletion request acknowledged, verified and closed on the record inside the mandated window. a partial deletion that names what is retained and under which obligation. Data deletion requested by subject. Entity merge, account closure, data lifecycle & terminal states. Hands off to external:data-protection-escalation. closed unverified, nothing deleted. answered and closed on the record",
-    "keywords": [
-      "TRM-275",
-      "data deletion confirmation",
-      "right to erasure",
-      "data deletion request",
-      "delete my data",
-      "data subject request"
-    ],
-    "category": [
-      "terminal"
-    ],
-    "normalizedCategory": [],
-    "surface": [],
-    "funnelStage": [
-      "ending-closure"
-    ],
-    "metric": [],
-    "businessObjective": [
-      "identity-verification"
-    ],
-    "intent": [
-      "find-journey",
-      "learn"
-    ],
-    "tags": [
-      "backward-edge",
-      "wait-timeout",
-      "external-handoff",
-      "multi-exit",
-      "no-re-entry"
-    ],
-    "language": "en+tr",
-    "indexable": true,
-    "canonical": "https://alidemirbas.com.tr/lab/journeys/deletion-request-confirmation",
     "searchAliases": [],
     "boost": {},
     "source": {

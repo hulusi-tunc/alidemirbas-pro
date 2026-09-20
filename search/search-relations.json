@@ -2741,32 +2741,6 @@
         }
       ]
     },
-    "journey:ACQ-04": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:cac",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-049",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-050",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
     "journey:ACQ-05": {
       "relatedPrimary": [],
       "relatedSecondary": [
@@ -3079,32 +3053,6 @@
         }
       ]
     },
-    "journey:ACT-11": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:cac",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-049",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        },
-        {
-          "to": "ab-test:AB-050",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
     "journey:ACT-12": {
       "relatedPrimary": [],
       "relatedSecondary": [
@@ -3338,18 +3286,6 @@
       ]
     },
     "journey:RET-23": {
-      "relatedPrimary": [],
-      "relatedSecondary": [
-        {
-          "to": "calculator:retention-rate",
-          "reasons": [
-            "shared-category"
-          ],
-          "score": 0.5
-        }
-      ]
-    },
-    "journey:RET-24": {
       "relatedPrimary": [],
       "relatedSecondary": [
         {

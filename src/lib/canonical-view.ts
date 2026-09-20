@@ -338,6 +338,35 @@ export function splitExitState(state: string): string {
 
 const capitalize = (s: string): string => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
+/* THE PUBLIC CHANNEL TAXONOMY (2026-09-20, product decision - see
+   audit/public-journey-scope.md).
+
+   The customer-facing channels are Email, SMS, Push, WhatsApp and In-app, and
+   nothing else. `sales` and `task` are real canonical values and stay in the
+   canonical `channels` field: validate:canonical requires a declared channel
+   to be BACKED by an action doing the work, in both directions, so a journey
+   that raises an account-owner task genuinely must declare `task` - removing
+   it from src/canonical would make the corpus lie about itself and fail the
+   canonical validator.
+
+   What they are NOT is a channel the product advertises. "This journey
+   reaches you on Task" is not a sentence about a customer experience, and a
+   badge saying so puts internal routing on the same footing as an email. So
+   the split happens HERE, at the one projection from canonical to page:
+   canonical keeps the operational truth, every public surface reads the
+   filtered list. Four of the 52 are affected (ACT-13, RET-24, FBK-43,
+   FBK-49); three of them also send email and in-app, so only the badge
+   changes.
+
+   A journey left with NO public channel by this filter is a real product
+   problem, not a display one, and scripts/validate-public-scope.mjs fails on
+   it rather than letting this function quietly hide it. */
+const PUBLIC_CHANNELS: ReadonlySet<ChannelId> = new Set<ChannelId>(["email", "sms", "push", "whatsapp", "in-app"]);
+
+export function publicChannels(channels: readonly ChannelId[]): readonly ChannelId[] {
+  return channels.filter((c) => PUBLIC_CHANNELS.has(c));
+}
+
 const edge = (
   to: string,
   label: string | null = null,
@@ -646,7 +675,7 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = await Promise.all(PUBLIC_JOUR
   categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
   nodeCount: j.nodes.length,
   goal: j.goal,
-  channels: j.channels,
+  channels: publicChannels(j.channels),
   preview: buildJourneyPreview(await layoutJourneyCanvas(flowNodesOf(j))),
 })));
 
@@ -765,7 +794,7 @@ function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): Journey
     purpose: j.purpose,
     categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
     goal: j.goal,
-    channels: j.channels,
+    channels: publicChannels(j.channels),
     entityScope: j.entity.scope,
     entityNote: j.entity.note,
     reusableRule: j.reusableRule,

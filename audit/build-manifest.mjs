@@ -4,6 +4,8 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 
+import { EXPECTED_PUBLIC_COUNT } from "../scripts/public-scope.mjs";
+
 const ROOT = new URL("..", import.meta.url).pathname;
 const dump = JSON.parse(fs.readFileSync(ROOT + "production/canonical-dump.json", "utf8"));
 const sa = JSON.parse(fs.readFileSync(ROOT + "production/surface-assignment.json", "utf8"));
@@ -16,7 +18,12 @@ const surface = new Map((sa.journeys ?? sa).map((j) => [j.id, j]));
    surface-assignment artifact because this script runs in plain node. */
 const library = journeys.filter((j) => {
   const s = surface.get(j.id);
-  return s && s.surface === "customer" && (s.sends || s.routesToHuman);
+  /* `excludedFromPublic` carries the 51-journey scope decision
+     (audit/public-journey-scope.md) into every plain-node script. Without it
+     this manifest still lists the 22 removed journeys, and every audit tool
+     reading it - the render guard and the display measurement above all -
+     would try to open routes that now, correctly, 404. */
+  return s && s.surface === "customer" && (s.sends || s.routesToHuman) && !s.excludedFromPublic;
 });
 
 const outOf = (n) =>
@@ -142,9 +149,9 @@ const KNOWN_KINDS = new Set(["trigger", "action", "condition", "wait", "outcome"
 
 /* ---------------------------------------------------------------- emit */
 
-const manifest = { generated: new Date().toISOString(), expected_count: 73, found_count: library.length, issues: [], journeys: [] };
-if (library.length !== 73) {
-  manifest.issues.push({ severity: "P0", kind: "COUNT_MISMATCH", detail: `expected 73 library journeys, found ${library.length}` });
+const manifest = { generated: new Date().toISOString(), expected_count: EXPECTED_PUBLIC_COUNT, found_count: library.length, issues: [], journeys: [] };
+if (library.length !== EXPECTED_PUBLIC_COUNT) {
+  manifest.issues.push({ severity: "P0", kind: "COUNT_MISMATCH", detail: `expected ${EXPECTED_PUBLIC_COUNT} library journeys, found ${library.length}` });
 }
 
 const baseline = {};

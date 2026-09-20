@@ -126,9 +126,18 @@ for (const r of abTests) {
    applies at build time (src/canonical/surface.ts), so the index and the
    site cannot disagree about what is public. Merged-id aliases whose
    survivor is archived fall out on their own below (`if (!survivor)`). */
+/* Since 2026-09-20 the same file also carries `excludedFromPublic`, the
+   52-journey scope decision (audit/public-journey-scope.md). It is a second,
+   independent reason a journey is not a search document, for the identical
+   reason as the archive: the route does not exist, so a hit would 404. Both
+   filters are applied here so there is one definition of "indexable". */
 const surfaceAssignment = rj("production/surface-assignment.json");
 const ARCHIVED_SURFACE = "operational";
-const publicJourneyIds = new Set(surfaceAssignment.journeys.filter((r) => r.surface !== ARCHIVED_SURFACE).map((r) => r.id));
+const publicJourneyIds = new Set(
+  surfaceAssignment.journeys
+    .filter((r) => r.surface !== ARCHIVED_SURFACE && !r.excludedFromPublic)
+    .map((r) => r.id),
+);
 const journeys = rj("production/journey-view-model.json").filter((j) => publicJourneyIds.has(j.identity.id));
 /* vNext discovery lives on the canonical dump (aliases, use cases, presets)
    and is the practitioner's vocabulary: "cart abandonment", "dunning",

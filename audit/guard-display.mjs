@@ -141,7 +141,7 @@ const report = { generated: new Date().toISOString(), canonical_drift: canonical
 fs.writeFileSync(ROOT + "audit/guard-report.json", JSON.stringify(report, null, 2) + "\n");
 
 console.log(`\n=== DISPLAY GUARD ===`);
-console.log(`G4 canonical drift: ${canonicalDrift.length === 0 ? "NONE (all 73 hashes match)" : JSON.stringify(canonicalDrift)}`);
+console.log(`G4 canonical drift: ${canonicalDrift.length === 0 ? "NONE (all hashes match)" : JSON.stringify(canonicalDrift)}`);
 console.log(`G1/G2/G3 findings: ${p0.length}`);
 for (const f of p0.slice(0, 25)) console.log(`  ${f.check} ${f.journey} [${f.lang}] ${f.node ?? ""} - ${f.detail}`);
 if (p0.length > 25) console.log(`  ... and ${p0.length - 25} more`);

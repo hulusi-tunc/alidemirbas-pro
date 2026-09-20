@@ -11,7 +11,7 @@
       },
       {
         "value": "journey",
-        "documentCount": 162,
+        "documentCount": 140,
         "lowUtility": false
       },
       {
@@ -37,7 +37,7 @@
     "values": [
       {
         "value": "acquisition-and-onboarding",
-        "documentCount": 79,
+        "documentCount": 77,
         "lowUtility": false
       },
       {
@@ -67,7 +67,7 @@
       },
       {
         "value": "retention-and-engagement",
-        "documentCount": 12,
+        "documentCount": 11,
         "lowUtility": false
       },
       {
@@ -174,27 +174,27 @@
     "values": [
       {
         "value": "cross-lifecycle",
-        "documentCount": 121,
+        "documentCount": 104,
         "lowUtility": false
       },
       {
         "value": "acquisition-qualification",
-        "documentCount": 69,
+        "documentCount": 68,
         "lowUtility": false
       },
       {
         "value": "engagement-retention",
-        "documentCount": 33,
-        "lowUtility": false
-      },
-      {
-        "value": "ending-closure",
-        "documentCount": 9,
+        "documentCount": 32,
         "lowUtility": false
       },
       {
         "value": "activation-onboarding",
-        "documentCount": 9,
+        "documentCount": 8,
+        "lowUtility": false
+      },
+      {
+        "value": "ending-closure",
+        "documentCount": 7,
         "lowUtility": false
       }
     ]
@@ -205,7 +205,7 @@
     "values": [
       {
         "value": "review-required",
-        "documentCount": 200,
+        "documentCount": 199,
         "lowUtility": false
       },
       {
@@ -214,33 +214,23 @@
         "lowUtility": false
       },
       {
-        "value": "cancellation-termination",
-        "documentCount": 23,
+        "value": "recovery-retry",
+        "documentCount": 21,
         "lowUtility": false
       },
       {
-        "value": "recovery-retry",
-        "documentCount": 23,
+        "value": "cancellation-termination",
+        "documentCount": 20,
         "lowUtility": false
       },
       {
         "value": "eligibility-qualification",
-        "documentCount": 18,
-        "lowUtility": false
-      },
-      {
-        "value": "identity-verification",
-        "documentCount": 12,
+        "documentCount": 15,
         "lowUtility": false
       },
       {
         "value": "progression-milestone",
-        "documentCount": 10,
-        "lowUtility": false
-      },
-      {
-        "value": "delivery-confirmation",
-        "documentCount": 10,
+        "documentCount": 9,
         "lowUtility": false
       },
       {
@@ -254,17 +244,22 @@
         "lowUtility": false
       },
       {
-        "value": "reconciliation-correction",
-        "documentCount": 7,
+        "value": "delivery-confirmation",
+        "documentCount": 8,
         "lowUtility": false
       },
       {
-        "value": "suspension-restoration",
-        "documentCount": 5,
+        "value": "identity-verification",
+        "documentCount": 8,
         "lowUtility": false
       },
       {
         "value": "ownership-transfer",
+        "documentCount": 5,
+        "lowUtility": false
+      },
+      {
+        "value": "reconciliation-correction",
         "documentCount": 5,
         "lowUtility": false
       },
@@ -274,12 +269,12 @@
         "lowUtility": false
       },
       {
-        "value": "escalation-exception",
+        "value": "suspension-restoration",
         "documentCount": 4,
         "lowUtility": false
       },
       {
-        "value": "revocation-access-change",
+        "value": "escalation-exception",
         "documentCount": 3,
         "lowUtility": false
       },
@@ -289,13 +284,18 @@
         "lowUtility": false
       },
       {
-        "value": "compensation-remedy",
+        "value": "revocation-access-change",
         "documentCount": 2,
         "lowUtility": true
       },
       {
         "value": "merge-consolidation",
         "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "compensation-remedy",
+        "documentCount": 1,
         "lowUtility": true
       },
       {
@@ -2689,42 +2689,42 @@
     "values": [
       {
         "value": "cross-journey-handoff",
-        "documentCount": 126,
+        "documentCount": 108,
         "lowUtility": false
       },
       {
         "value": "wait-timeout",
-        "documentCount": 114,
+        "documentCount": 97,
         "lowUtility": false
       },
       {
         "value": "multi-exit",
-        "documentCount": 101,
+        "documentCount": 85,
         "lowUtility": false
       },
       {
         "value": "backward-edge",
-        "documentCount": 91,
+        "documentCount": 75,
         "lowUtility": false
       },
       {
         "value": "external-handoff",
-        "documentCount": 42,
+        "documentCount": 38,
         "lowUtility": false
       },
       {
         "value": "competition",
-        "documentCount": 22,
+        "documentCount": 19,
         "lowUtility": false
       },
       {
         "value": "no-re-entry",
-        "documentCount": 11,
+        "documentCount": 8,
         "lowUtility": false
       },
       {
         "value": "preemption",
-        "documentCount": 2,
+        "documentCount": 1,
         "lowUtility": true
       }
     ]

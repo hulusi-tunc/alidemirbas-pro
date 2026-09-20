@@ -2,18 +2,18 @@
   "_description": "Reproducibility + payload manifest for search-index.json. sourceVersion identifies the generator commit context by describing WHAT was read, not a timestamp (this repo's own convention for deterministic build scripts avoids Date.now()).",
   "sourceVersion": {
     "abTestRecordCount": 211,
-    "journeyRecordCount": 162,
-    "archivedJourneyRecordCount": 124,
+    "journeyRecordCount": 140,
+    "archivedJourneyRecordCount": 146,
     "mergedJourneyCount": 8,
     "presetFoldedCount": 8,
     "liveCalculatorCount": 19,
     "labProductCount": 6,
     "blogArticleCount": 5
   },
-  "totalDocuments": 403,
+  "totalDocuments": 381,
   "countsByType": {
     "ab-test": 211,
-    "journey": 162,
+    "journey": 140,
     "calculator": 19,
     "lab-product": 6,
     "blog-article": 5
@@ -21,11 +21,11 @@
   "countsByCategory": {
     "cart-and-checkout": 28,
     "search-and-discovery": 72,
-    "acquisition-and-onboarding": 79,
+    "acquisition-and-onboarding": 77,
     "mobile": 12,
     "pricing-and-monetization": 12,
     "saas-and-b2b": 16,
-    "retention-and-engagement": 12,
+    "retention-and-engagement": 11,
     "experimentation-and-testing": 4,
     "unit-economics": 4,
     "advertising-and-media": 3,
@@ -48,11 +48,11 @@
     "thankyou": 4
   },
   "countsByStage": {
-    "engagement-retention": 33,
-    "acquisition-qualification": 69,
-    "ending-closure": 9,
-    "cross-lifecycle": 121,
-    "activation-onboarding": 9
+    "engagement-retention": 32,
+    "acquisition-qualification": 68,
+    "ending-closure": 7,
+    "cross-lifecycle": 104,
+    "activation-onboarding": 8
   },
   "countsByMetric": {
     "Tıklama Oranı (CTR)": 12,
@@ -508,15 +508,15 @@
     "Sample Size": 1
   },
   "aliasCount": 11,
-  "relationshipCount": 384,
+  "relationshipCount": 377,
   "sizeReport": {
     "rawSourceSizeBytes": {
       "src/data/ab-tests.json": 635240,
       "production/journey-view-model.json": 3205289
     },
-    "searchIndexSizeBytes": 982812,
-    "searchIndexLightSizeBytes": 612449,
-    "averageDocumentSizeBytes": 1980,
+    "searchIndexSizeBytes": 922122,
+    "searchIndexLightSizeBytes": 574594,
+    "averageDocumentSizeBytes": 1964,
     "maxDocumentSizeBytes": 3523,
     "minDocumentSizeBytes": 992
   }
