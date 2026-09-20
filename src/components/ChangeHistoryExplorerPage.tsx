@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, Blocks, Check, Clock, FileCode2, Power, ShieldAlert, Users, Wallet } from "lucide-react";
+import { AppWindow, ArrowRight, ArrowUpRight, Blocks, Check, Clock, FileCode2, FileSpreadsheet, Play, Power, ShieldAlert, Users, Wallet } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
@@ -12,10 +12,10 @@ import { ProductBenefitStory, ProductHeading, ProductSection } from "@/component
 import { ChangeCell, explorerTabLabel, explorerTabs, ExplorerWindow, explorerDelta } from "@/components/ui/LabProductWindows";
 import { AppBar, AppMeta, AppTitle, Badge, CheckRow, Field, FormLabel, Rail, Table, TabStrip, Td, Th, Toggle, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, howTo, softwareApplication } from "@/lib/schema";
+import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { CHANGE_HISTORY_REAL } from "@/lib/lab-material";
 
@@ -262,7 +262,10 @@ function ActivityWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   return (
     <Window label={w.label} address="dashboard.html" meta={t.actTotal(REAL.totalChanges, REAL.period[lang])}>
       <TabStrip items={explorerTabs(lang)} active={explorerTabLabel("User Activity", lang)} />
-      <div className="grid grid-cols-1 divide-y divide-line-soft md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:divide-x md:divide-y-0">
+      {/* Side by side only when the WINDOW is wide enough (a container
+          query): inside a story column the two panes stack. */}
+      <div className="@container">
+      <div className="grid grid-cols-1 divide-y divide-line-soft @2xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] @2xl:divide-x @2xl:divide-y-0">
         <div className="min-w-0">
           <AppBar>
             <AppTitle icon={<Users aria-hidden />}>{t.actActivityLabel}</AppTitle>
@@ -307,6 +310,7 @@ function ActivityWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
             </tbody>
           </Table>
         </div>
+      </div>
       </div>
     </Window>
   );
@@ -457,45 +461,11 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
   );
 }
 
-/* ---- 02 · Worked example --------------------------------------------- */
-/* Compact transition, not a section in its own right - one real row,
-   shown large, before the full Change Explorer table below it makes the
-   same point at scale. */
-function WorkedExampleSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
-  const row = REAL.explorerRows[0]; // Campaign Alpha, Budget 150,000 -> 200,000 (+33%)
-  return (
-    <ProductSection tone="soft" space="band">
-      <PortraitContainer>
-        <Reveal className="mx-auto max-w-md">
-          <p className="mb-3 text-center text-[11px] font-medium tracking-wide text-ink-400 uppercase">{t.workedEyebrow}</p>
-          <div className="rounded-card border border-line bg-paper p-5">
-            <div className="flex items-center justify-between gap-3">
-              <CategoryBadge category={row.category} lang={lang} />
-              <span className="font-mono text-[11px] text-ink-400">{row[lang].date}</span>
-            </div>
-            <div className="mt-3 flex items-center gap-2.5">
-              <span className="rounded-md bg-[#fdf3f0] px-2.5 py-1.5 font-mono text-base text-[#c65d3f] line-through decoration-1">
-                {row[lang].old}
-              </span>
-              <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-300" />
-              <span className="rounded-md bg-emerald-50 px-2.5 py-1.5 font-mono text-base font-medium text-emerald-700">
-                {row[lang].new}
-              </span>
-              <span className="ml-auto font-mono text-[13px] font-semibold text-ink-500">+33%</span>
-            </div>
-            <p className="mt-3 text-[12.5px] text-ink-500">
-              {row.campaign} · {row.account}
-            </p>
-          </div>
-        </Reveal>
-        <Reveal delay={90} className="mx-auto mt-8 max-w-lg text-center">
-          <p className="text-lg leading-relaxed text-ink-950/70">{t.workedLine1}</p>
-          <p className="text-lg leading-relaxed font-medium text-ink-950">{t.workedLine2}</p>
-        </Reveal>
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
+/* ---- 02 · (gone) ------------------------------------------------------
+   The "worked example" band that stood here - one row shown large under
+   an uppercase tracked label, then two lines of prose - told the change
+   the Before/After story below tells with four rows (2026-09-20,
+   Hulusi's sub-page pass: remove what is only text or repeated). */
 
 /* ---- 03 · Change Explorer -------------------------------------------- */
 function ChangeExplorerSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
@@ -516,7 +486,7 @@ function ChangeExplorerSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang })
 /* ---- 04 · Before / After ---------------------------------------------- */
 function BeforeAfterCard({ row, lang }: { row: (typeof REAL.explorerRows)[number]; lang: Lang }) {
   return (
-    <div className="rounded-card border border-line bg-paper p-4">
+    <div className="rounded-2xl bg-paper p-4 ring-1 ring-ink-950/[0.06]">
       <div className="flex items-center justify-between gap-2">
         <p className="truncate text-[13px] font-medium text-ink-900">{row.campaign}</p>
         <CategoryBadge category={row.category} lang={lang} />
@@ -564,15 +534,23 @@ function BeforeAfterSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
 
 /* ---- 05 · Activity + Campaign Last Changes ----------------------------- */
 function ActivitySection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  /* A story with the window on the left, between the Before/After story
+     (window right) and the wide rule-matches moment - the alternating
+     rhythm the A/B page set, in place of a third centred plate. */
   return (
     <ProductSection tone="paper" space="lg">
       <PortraitContainer>
-        <ProductHeading eyebrow={t.actEyebrow} title={t.actTitle} body={t.actSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 max-w-4xl text-left">
-          <ProductFrame slug="google-ads-change-history-dashboard" inset="sm">
-            <ActivityWindow t={t} lang={lang} />
-          </ProductFrame>
-        </Reveal>
+        <ProductBenefitStory
+          eyebrow={t.actEyebrow}
+          title={t.actTitle}
+          body={t.actSub}
+          side="left"
+          visual={
+            <ProductFrame slug="google-ads-change-history-dashboard" inset="sm">
+              <ActivityWindow t={t} lang={lang} />
+            </ProductFrame>
+          }
+        />
       </PortraitContainer>
     </ProductSection>
   );
@@ -598,25 +576,44 @@ function RuleMatchesSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   );
 }
 
-/* ---- 07 · Portable offline dashboard --------------------------------------- */
+/* ---- 07 · Portable offline dashboard ---------------------------------------
+   The three-step flow drawn in the site's miniature idiom (2026-09-20):
+   the export and the run as paper tiles with their glyphs on a hairline,
+   the single HTML file as the dark output tile, the accepted formats as
+   chips under it. It was three bordered chips and a mono line. */
+const FILE_ICON = [<FileSpreadsheet key="export" aria-hidden />, <Play key="run" aria-hidden />, <AppWindow key="file" aria-hidden />];
+
 function OneFileSection({ t }: { t: (typeof T)[Lang] }) {
+  const last = t.fileFlow.length - 1;
   return (
     <ProductSection tone="paper" space="md">
       <PortraitContainer>
         <ProductHeading eyebrow={t.fileEyebrow} title={t.fileTitle} body={t.fileSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 flex max-w-xl flex-wrap items-center justify-center gap-3">
+        <Reveal delay={100} className="mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-center gap-y-3">
           {t.fileFlow.map((step, i) => (
-            <div key={step} className="flex items-center gap-3">
-              <span className="rounded-full border border-line-strong bg-paper px-4 py-2 text-sm font-medium text-ink-800">
+            <div key={step} className="flex items-center">
+              {i > 0 && <span aria-hidden className="h-px w-5 shrink-0 bg-ink-300" />}
+              <span
+                className={clsx(
+                  "flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-[13px] font-medium [&>svg]:size-4",
+                  i === last ? "bg-ink-950 text-white [&>svg]:text-white/70" : "bg-paper text-ink-900 ring-1 ring-ink-950/[0.06] [&>svg]:text-ink-500",
+                )}
+              >
+                {FILE_ICON[i]}
                 {step}
               </span>
-              {i < t.fileFlow.length - 1 && <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-300" />}
             </div>
           ))}
         </Reveal>
-        <Reveal delay={140} className="mt-5 text-center">
-          <p className="font-mono text-[12.5px] text-ink-400">{t.fileFormats}</p>
-          <p className="mt-2 text-[12.5px] text-ink-500">{t.fileNote}</p>
+        <Reveal delay={140} className="mt-5 flex flex-wrap items-center justify-center gap-1.5">
+          {t.fileFormats.split(" · ").map((f) => (
+            <span key={f} className="rounded-full bg-paper-soft px-3 py-1 text-xs font-medium text-ink-600">
+              {f}
+            </span>
+          ))}
+        </Reveal>
+        <Reveal delay={180} className="mx-auto mt-5 max-w-md text-center">
+          <p className="text-sm leading-relaxed text-pretty text-ink-600">{t.fileNote}</p>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -669,16 +666,9 @@ function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   );
 }
 
-function Related({ c }: { c: SkillProductContent }) {
-  if (c.related.length === 0) return null;
-  return (
-    <ProductSection tone="soft" space="lg">
-      <PortraitContainer>
-        <RelatedGrid title={c.relatedTitle} items={c.related} />
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
+/* The "Other Lab projects" grid before the closing band is gone
+   (2026-09-20): the footer lists the same projects, and the A/B and
+   Journey Builder pages never carried one. */
 
 function PageCta({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
@@ -732,7 +722,6 @@ export default function ChangeHistoryExplorerPage({ lang, content }: { lang: Lan
       <SiteHeader t={copyT} anchorBase={home} langHref={langHref} />
       <main>
         <Hero c={content} t={t} lang={lang} />
-        <WorkedExampleSection t={t} lang={lang} />
         <ChangeExplorerSection t={t} lang={lang} />
         <BeforeAfterSection t={t} lang={lang} />
         <ActivitySection t={t} lang={lang} />
@@ -740,7 +729,6 @@ export default function ChangeHistoryExplorerPage({ lang, content }: { lang: Lan
         <OneFileSection t={t} />
         <Install c={content} t={t} lang={lang} />
         <Faq c={content} t={t} />
-        <Related c={content} />
         <PageCta c={content} t={t} />
       </main>
       <SiteFooter t={copyT} lang={lang} />
