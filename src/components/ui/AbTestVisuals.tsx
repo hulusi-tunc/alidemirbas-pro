@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Ban, FlaskConical, Gauge, Layers, Search, ShieldCheck, Target } from "lucide-react";
 
+import { buttonStyles } from "@/components/ui/Button";
+import { labAccent } from "@/components/ui/LabProjectIdentity";
+import { clsx } from "@/lib/clsx";
 import { getCompute } from "@/lib/calc-registry";
 import {
   AB_SCALE,
@@ -170,16 +173,43 @@ export function ExperimentBrief({ lang }: { lang: Lang }) {
    shape. Bars are the point, so they survive to 375px.
    ==================================================================== */
 
+/* THE DRAWN PIECES (2026-09-20, Hulusi's pass over the sub lab pages:
+   the A/B page's stories, spread and steps were still on the old
+   bordered-card kit with uppercase mono labels). Every visual below is
+   now in the house miniature idiom the homepage approved: a paper tile
+   with a hairline ring, a glyph badge in the product's hue beside a
+   plain-case title, the A and B sides as the ink and rose badges, the
+   one tested side ringed rose, values tabular but never mono, mono kept
+   for ids alone. The data behind each piece is unchanged. */
+const AB = labAccent("ab-test-playbook");
+
+function TileTitle({ icon, children, meta, dark = false }: { icon: React.ReactNode; children: React.ReactNode; meta?: React.ReactNode; dark?: boolean }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className={clsx("grid size-8 shrink-0 place-items-center rounded-lg [&>svg]:size-4", dark ? AB.darkTile : AB.tile)}>{icon}</span>
+      <span className={clsx("min-w-0 flex-1 truncate text-sm font-semibold", dark ? "text-white" : "text-ink-950")}>{children}</span>
+      {meta && <span className={clsx("shrink-0 text-xs tabular-nums", dark ? "text-white/45" : "text-ink-500")}>{meta}</span>}
+    </div>
+  );
+}
+
+/** The A or B mark: the ink badge for the control, the rose one for the
+    variant - the homepage hero's own pair. */
+function SideMark({ side }: { side: "A" | "B" }) {
+  return (
+    <span className={clsx("grid size-6 shrink-0 place-items-center rounded-full text-xs font-semibold text-white", side === "A" ? "bg-ink-950" : "bg-rose-600")}>
+      {side}
+    </span>
+  );
+}
+
 export function CoverageMap({ lang }: { lang: Lang }) {
   const t = copy[lang].abTesting.product;
   return (
-    <div className="rounded-card border border-line-soft bg-paper p-5 sm:p-7">
-      <div className="flex items-baseline justify-between gap-4">
-        <p className="altor-eyebrow text-ink-400">{t.story1.caption}</p>
-        <p className="font-mono text-xs text-ink-400 tabular-nums">
-          {AB_SCALE.surfaces} · {nf(lang, AB_SCALE.scenarios)}
-        </p>
-      </div>
+    <div className="rounded-2xl bg-paper p-5 ring-1 ring-ink-950/[0.06] sm:p-7">
+      <TileTitle icon={<Layers aria-hidden />} meta={`${AB_SCALE.surfaces} · ${nf(lang, AB_SCALE.scenarios)}`}>
+        {t.story1.caption}
+      </TileTitle>
       <div className="mt-5 grid grid-cols-1 gap-x-8 gap-y-2.5 sm:grid-cols-2">
         {SURFACE_COUNTS.map((s) => (
           <div key={s.surface} className="flex items-center gap-3">
@@ -192,9 +222,7 @@ export function CoverageMap({ lang }: { lang: Lang }) {
                 style={{ width: `${Math.max((s.count / SURFACE_MAX) * 100, 4)}%` }}
               />
             </span>
-            <span className="w-6 shrink-0 text-right font-mono text-xs text-ink-500 tabular-nums">
-              {s.count}
-            </span>
+            <span className="w-6 shrink-0 text-right text-xs text-ink-500 tabular-nums">{s.count}</span>
           </div>
         ))}
       </div>
@@ -211,30 +239,37 @@ export function VariantDiff({ lang }: { lang: Lang }) {
   const t = copy[lang].abTesting.product;
   const b = copy[lang].abTesting.product.brief;
   return (
-    <div className="rounded-card border border-line-soft bg-paper p-5 sm:p-7">
-      <div className="flex items-baseline justify-between gap-4">
-        <p className="altor-eyebrow text-ink-400">{t.story2.caption}</p>
-        <span className="font-mono text-xs text-ink-400 tabular-nums">{FEATURED.id}</span>
-      </div>
+    <div className="rounded-2xl bg-paper p-5 ring-1 ring-ink-950/[0.06] sm:p-7">
+      <TileTitle icon={<FlaskConical aria-hidden />} meta={<span className="font-mono">{FEATURED.id}</span>}>
+        {t.story2.caption}
+      </TileTitle>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_1fr] md:items-center">
-        <div className="rounded-md border border-line-soft bg-paper-soft p-4">
-          <p className="font-mono text-[10px] tracking-wider text-ink-400 uppercase">{b.control}</p>
-          <p className="mt-2 text-sm leading-snug text-ink-700">{b.sideA}</p>
+      <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
+        <div className="rounded-2xl bg-paper-soft p-4">
+          <div className="flex items-center gap-2">
+            <SideMark side="A" />
+            <span className="text-xs font-medium text-ink-500">{b.control}</span>
+          </div>
+          <p className="mt-3 text-sm leading-snug text-ink-700">{b.sideA}</p>
         </div>
 
         {/* the single moving part, called out between the two sides */}
         <div className="flex items-center justify-center gap-2 md:flex-col">
           <span aria-hidden className="hidden h-6 w-px bg-line md:block" />
-          <span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-[11px] font-medium whitespace-nowrap text-primary-700">
+          <span className="rounded-full bg-paper px-3 py-1 text-xs font-medium whitespace-nowrap text-ink-700 ring-1 ring-ink-950/[0.08]">
             1 · {b.testedSlotValue}
           </span>
           <span aria-hidden className="hidden h-6 w-px bg-line md:block" />
         </div>
 
-        <div className="rounded-md border border-primary-200 bg-primary-50 p-4">
-          <p className="font-mono text-[10px] tracking-wider text-primary-700 uppercase">{b.variant}</p>
-          <p className="mt-2 text-sm leading-snug text-ink-800">{b.sideB}</p>
+        {/* the side the test is about, ringed like the tested element on
+            every A/B miniature the site draws */}
+        <div className="rounded-2xl bg-paper-soft p-4 ring-2 ring-rose-300">
+          <div className="flex items-center gap-2">
+            <SideMark side="B" />
+            <span className="text-xs font-medium text-ink-500">{b.variant}</span>
+          </div>
+          <p className="mt-3 text-sm leading-snug text-ink-800">{b.sideB}</p>
         </div>
       </div>
 
@@ -258,21 +293,15 @@ export function GuardrailLedger({ lang }: { lang: Lang }) {
   const t = copy[lang].abTesting;
   const p = t.product;
   return (
-    <div className="rounded-card bg-ink-950 p-5 sm:p-7">
-      <div className="flex items-baseline justify-between gap-4">
-        <p className="altor-eyebrow text-white/45">{p.story3.caption}</p>
-        <span className="font-mono text-xs text-white/40 tabular-nums">{FEATURED.id}</span>
-      </div>
+    <div className="rounded-2xl bg-ink-950 p-5 sm:p-7">
+      <TileTitle dark icon={<ShieldCheck aria-hidden />} meta={<span className="font-mono">{FEATURED.id}</span>}>
+        {p.story3.caption}
+      </TileTitle>
 
       <ol className="mt-5 flex flex-col">
-        {t.example.dontBox.items.map((item, i) => (
-          <li
-            key={item}
-            className="flex gap-4 border-b border-white/10 py-3 first:pt-0 last:border-0 last:pb-0"
-          >
-            <span className="font-mono text-[11px] text-white/35 tabular-nums">
-              {String(i + 1).padStart(2, "0")}
-            </span>
+        {t.example.dontBox.items.map((item) => (
+          <li key={item} className="flex gap-3 border-b border-white/10 py-3 first:pt-0 last:border-0 last:pb-0">
+            <Ban aria-hidden className="mt-0.5 size-4 shrink-0 text-white/40" />
             <span className="text-[13px] leading-relaxed text-white/75">{item}</span>
           </li>
         ))}
@@ -309,22 +338,20 @@ function SpreadCardTile({
   return (
     <Link
       href={card.href}
-      className={`flex w-[19rem] shrink-0 snap-center flex-col rounded-card border bg-paper p-5 transition-[border-color,box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-line-strong ${
+      className={`flex w-[19rem] shrink-0 snap-center flex-col rounded-2xl bg-paper p-5 ring-1 transition-[box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:-translate-y-0.5 ${
         centre
-          ? "border-line-strong shadow-[0_20px_50px_-24px_rgba(3,17,63,0.45)] lg:w-[21rem]"
-          : "border-line-soft shadow-[0_10px_30px_-24px_rgba(3,17,63,0.35)]"
+          ? "ring-ink-950/[0.12] shadow-[0_20px_50px_-24px_rgba(3,17,63,0.45)] lg:w-[21rem]"
+          : "ring-ink-950/[0.06] shadow-[0_10px_30px_-24px_rgba(3,17,63,0.35)]"
       }`}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono text-[11px] text-ink-400 tabular-nums">{card.id}</span>
-        <span className="rounded-xs bg-paper-soft px-2 py-0.5 font-mono text-[10px] text-ink-500">
-          {card.surface}
-        </span>
+        <span className="rounded-full bg-paper-soft px-2.5 py-0.5 text-xs font-medium text-ink-600">{surfaceLabel(card.surface, lang)}</span>
       </div>
       <p className="mt-3 min-h-[3.25rem] text-[15px] leading-snug font-medium text-ink-950">
         {card.title}
       </p>
-      <p className="mt-3 text-xs text-ink-400">{categoryLabel(card.category, lang)}</p>
+      <p className="mt-3 text-xs text-ink-500">{categoryLabel(card.category, lang)}</p>
       <div className="mt-4 flex items-center gap-2 border-t border-line-soft pt-3">
         <span
           aria-hidden
@@ -332,9 +359,7 @@ function SpreadCardTile({
             card.setupType === "control-vs-treatment" ? "bg-primary-600" : "bg-ink-300"
           }`}
         />
-        <span className="font-mono text-[10px] tracking-wide text-ink-400">
-          {setupLabel(card.setupType, lang)}
-        </span>
+        <span className="text-xs text-ink-500">{setupLabel(card.setupType, lang)}</span>
         <ArrowRight
           aria-hidden
           className="ml-auto size-3.5 text-ink-300 transition-colors group-hover:text-primary-600"
@@ -390,22 +415,19 @@ export function HowStepFind({ lang }: { lang: Lang }) {
   const shown = SURFACE_COUNTS.slice(0, 5);
   const active = SURFACE_COUNTS.find((s) => s.surface === FEATURED.surface);
   return (
-    <div className="flex h-full flex-col rounded-card border border-line-soft bg-paper p-5">
-      <p className="altor-eyebrow text-ink-400">{t.step1.label}</p>
-      <div className="mt-4 flex flex-col gap-1.5">
+    <div className="flex h-full flex-col rounded-2xl bg-paper p-5 ring-1 ring-ink-950/[0.06]">
+      <TileTitle icon={<Search aria-hidden />}>{t.step1.label}</TileTitle>
+      <div className="mt-4 flex flex-col gap-1">
         {shown.map((s) => (
-          <div
-            key={s.surface}
-            className="flex items-center justify-between rounded-sm px-2.5 py-1.5 text-[13px] text-ink-500"
-          >
+          <div key={s.surface} className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-[13px] text-ink-600">
             <span className="truncate">{surfaceLabel(s.surface, lang)}</span>
-            <span className="font-mono text-[11px] text-ink-300 tabular-nums">{s.count}</span>
+            <span className="text-xs text-ink-400 tabular-nums">{s.count}</span>
           </div>
         ))}
         {active && (
-          <div className="flex items-center justify-between rounded-sm border border-primary-200 bg-primary-50 px-2.5 py-1.5 text-[13px] font-medium text-primary-700">
+          <div className="flex items-center justify-between rounded-lg bg-primary-600 px-2.5 py-1.5 text-[13px] font-medium text-white">
             <span className="truncate">{surfaceLabel(active.surface, lang)}</span>
-            <span className="font-mono text-[11px] tabular-nums">{active.count}</span>
+            <span className="text-xs tabular-nums">{active.count}</span>
           </div>
         )}
       </div>
@@ -425,21 +447,27 @@ export function HowStepDesign({ lang }: { lang: Lang }) {
   const h = t.how.step2;
   const b = t.brief;
   return (
-    <div className="flex h-full flex-col rounded-card border border-line-soft bg-paper p-5">
-      <p className="altor-eyebrow text-ink-400">{h.hypothesis}</p>
-      <p className="mt-2.5 text-[13px] leading-snug text-ink-700">{b.sideB}</p>
+    <div className="flex h-full flex-col rounded-2xl bg-paper p-5 ring-1 ring-ink-950/[0.06]">
+      <TileTitle icon={<FlaskConical aria-hidden />}>{h.hypothesis}</TileTitle>
+      <p className="mt-3 text-[13px] leading-snug text-ink-700">{b.sideB}</p>
 
       <div className="mt-4 flex flex-col gap-2">
-        <div className="rounded-md border border-primary-200 bg-primary-50 px-3 py-2.5">
-          <p className="font-mono text-[10px] tracking-wider text-primary-700 uppercase">{h.kpi}</p>
-          <p className="mt-1 text-[13px] font-medium text-ink-950">{b.primaryKpiValue}</p>
+        <div className="flex items-start gap-2.5 rounded-xl bg-primary-50 px-3 py-2.5">
+          <Target aria-hidden className="mt-0.5 size-4 shrink-0 text-primary-700" />
+          <span className="min-w-0">
+            <span className="block text-xs font-medium text-primary-700">{h.kpi}</span>
+            <span className="mt-0.5 block text-[13px] font-medium text-ink-950">{b.primaryKpiValue}</span>
+          </span>
         </div>
-        <div className="rounded-md bg-ink-950 px-3 py-2.5">
-          <p className="font-mono text-[10px] tracking-wider text-white/45 uppercase">{h.guardrail}</p>
-          <p className="mt-1 text-[13px] text-white/80">{b.guardrailValue}</p>
+        <div className="flex items-start gap-2.5 rounded-xl bg-ink-950 px-3 py-2.5">
+          <ShieldCheck aria-hidden className="mt-0.5 size-4 shrink-0 text-white/60" />
+          <span className="min-w-0">
+            <span className="block text-xs font-medium text-white/60">{h.guardrail}</span>
+            <span className="mt-0.5 block text-[13px] text-white/85">{b.guardrailValue}</span>
+          </span>
         </div>
       </div>
-      <p className="mt-auto pt-4 font-mono text-[11px] text-ink-400">
+      <p className="mt-auto pt-4 text-xs text-ink-500">
         {setupLabel(FEATURED.setupType, lang)} · {setupLabel(FEATURED.comparisonMode, lang)}
       </p>
     </div>
@@ -488,19 +516,25 @@ const AB_EXAMPLE = {
 export function HowStepRead({ lang }: { lang: Lang }) {
   const t = copy[lang].abTesting.product.how.step3;
   return (
-    <div className="flex h-full flex-col rounded-card border border-line-soft bg-paper p-5">
+    <div className="flex h-full flex-col rounded-2xl bg-paper p-5 ring-1 ring-ink-950/[0.06]">
       <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-md border border-line-soft bg-paper-soft p-3">
-          <p className="font-mono text-[10px] tracking-wider text-ink-400 uppercase">{t.control}</p>
-          <p className="mt-1 text-lg font-semibold text-ink-950 tabular-nums">{AB_EXAMPLE.controlRate}</p>
-          <p className="mt-0.5 font-mono text-[10px] text-ink-400 tabular-nums">
+        <div className="rounded-xl bg-paper-soft p-3">
+          <div className="flex items-center gap-2">
+            <SideMark side="A" />
+            <span className="text-xs font-medium text-ink-500">{t.control}</span>
+          </div>
+          <p className="mt-2 text-lg font-semibold text-ink-950 tabular-nums">{AB_EXAMPLE.controlRate}</p>
+          <p className="mt-0.5 text-xs text-ink-500 tabular-nums">
             {nf(lang, AB_EXAMPLE.controlConversions)} / {nf(lang, AB_EXAMPLE.controlVisitors)}
           </p>
         </div>
-        <div className="rounded-md border border-primary-200 bg-primary-50 p-3">
-          <p className="font-mono text-[10px] tracking-wider text-primary-700 uppercase">{t.variant}</p>
-          <p className="mt-1 text-lg font-semibold text-ink-950 tabular-nums">{AB_EXAMPLE.variantRate}</p>
-          <p className="mt-0.5 font-mono text-[10px] text-primary-700/70 tabular-nums">
+        <div className="rounded-xl bg-paper-soft p-3">
+          <div className="flex items-center gap-2">
+            <SideMark side="B" />
+            <span className="text-xs font-medium text-ink-500">{t.variant}</span>
+          </div>
+          <p className="mt-2 text-lg font-semibold text-ink-950 tabular-nums">{AB_EXAMPLE.variantRate}</p>
+          <p className="mt-0.5 text-xs text-ink-500 tabular-nums">
             {nf(lang, AB_EXAMPLE.variantConversions)} / {nf(lang, AB_EXAMPLE.variantVisitors)}
           </p>
         </div>
@@ -509,26 +543,24 @@ export function HowStepRead({ lang }: { lang: Lang }) {
       <dl className="mt-3 flex flex-col gap-1.5">
         <div className="flex items-baseline justify-between gap-3">
           <dt className="text-[13px] text-ink-500">{t.uplift}</dt>
-          <dd className="font-mono text-[13px] font-medium text-ink-950 tabular-nums">
-            {AB_EXAMPLE.relativeUplift}
-          </dd>
+          <dd className="text-[13px] font-medium text-ink-950 tabular-nums">{AB_EXAMPLE.relativeUplift}</dd>
         </div>
         <div className="flex items-baseline justify-between gap-3">
           <dt className="text-[13px] text-ink-500">{t.pValue}</dt>
-          <dd className="font-mono text-[13px] font-medium text-ink-950 tabular-nums">
-            {AB_EXAMPLE.pValue}
-          </dd>
+          <dd className="text-[13px] font-medium text-ink-950 tabular-nums">{AB_EXAMPLE.pValue}</dd>
         </div>
       </dl>
 
       {/* the verdict: ink plate, plain wording, no invented red "fail" */}
-      <div className="mt-3 rounded-md bg-ink-950 px-3 py-2.5">
-        <p className="font-mono text-[10px] tracking-wider text-white/45 uppercase">{t.verdict}</p>
-        <p className="mt-1 text-[13px] font-medium text-white">{t.verdictValue}</p>
+      <div className="mt-3 flex items-start gap-2.5 rounded-xl bg-ink-950 px-3 py-2.5">
+        <Gauge aria-hidden className="mt-0.5 size-4 shrink-0 text-white/60" />
+        <span className="min-w-0">
+          <span className="block text-xs font-medium text-white/60">{t.verdict}</span>
+          <span className="mt-0.5 block text-[13px] font-medium text-white">{t.verdictValue}</span>
+        </span>
       </div>
-      {/* mirrors step 2's mono footer so the three cards share a baseline;
-          the method name is the calculator's own (formulaPlainEnglish). */}
-      <p className="mt-auto pt-4 font-mono text-[11px] text-ink-400">{t.test}</p>
+      {/* the method name is the calculator's own (formulaPlainEnglish) */}
+      <p className="mt-auto pt-4 text-xs text-ink-500">{t.test}</p>
     </div>
   );
 }
@@ -550,7 +582,7 @@ export function StatCalculatorLinks({ lang }: { lang: Lang }) {
         <Link
           key={c.slug}
           href={`${base}/${c.slug}`}
-          className="inline-flex items-center gap-1.5 rounded-full border border-line-soft bg-paper px-3.5 py-2 text-[13px] text-ink-600 transition-colors duration-[var(--duration-fast)] hover:border-ink-300 hover:text-ink-950"
+          className={buttonStyles({ variant: "outline", size: "sm" })}
         >
           {c[lang]}
           <ArrowUpRight aria-hidden className="size-3.5 text-ink-400" />

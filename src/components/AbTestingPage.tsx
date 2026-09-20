@@ -6,6 +6,7 @@ import { GitHubMark } from "@/components/ui/BrandIcons";
 import { InstallPanel } from "@/components/ui/InstallPanel";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { PlaybookScene } from "@/components/ui/LabPanels";
+import { labAccent } from "@/components/ui/LabProjectIdentity";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
@@ -13,7 +14,6 @@ import {
   ProductBenefitStory,
   ProductHeading,
   ProductHowItWorks,
-  ProductMetricStrip,
   ProductSection,
 } from "@/components/ui/ProductPage";
 import {
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/AbTestVisuals";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { AB_SCALE } from "@/lib/ab-test-marketing";
+import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
 
@@ -143,23 +144,14 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   );
 }
 
-/* ---- 02 · Scale band ------------------------------------------------- */
-function Scale({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const s = t.abTesting.product.scale;
-  const n = (v: number) => v.toLocaleString(lang === "en" ? "en-US" : "tr-TR");
-  return (
-    <ProductSection tone="paper" space="band" className="border-b border-line-soft">
-      <ProductMetricStrip
-        items={[
-          { value: n(AB_SCALE.scenarios), label: s.scenarios },
-          { value: n(AB_SCALE.surfaces), label: s.surfaces },
-          { value: n(AB_SCALE.categories), label: s.categories },
-          { value: n(AB_SCALE.guardrails), label: s.guardrails },
-        ]}
-      />
-    </ProductSection>
-  );
-}
+/* ---- 02 · (gone) ------------------------------------------------------
+   The scale band - four bare numerals with one-word labels - went on
+   2026-09-20 (Hulusi's pass over the sub lab pages; his standing rule: a
+   number never stands alone, it needs a name and a sentence). Each of
+   its four numbers already appears with its sentence further down: the
+   scenario count in the hero and the library title, the pages in the
+   coverage map, the guardrail rules in the ledger, the categories as the
+   library's chips. */
 
 /* ---- 03/04/05 · Benefit stories, sides alternating ------------------- */
 function Stories({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
@@ -275,19 +267,21 @@ function HowItWorks({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
    composition from every other section, which is the point. */
 function Rules({ t }: { t: (typeof copy)[Lang] }) {
   const c = t.abTesting;
+  const accent = labAccent("ab-test-playbook");
+  /* The five rules as the site's tiles (2026-09-20): the number in the
+     product's hue, the rule as the tile's title, the reason under it -
+     in place of the hairline table with grey mono numerals. */
   return (
     <ProductSection tone="soft" space="lg">
       <PortraitContainer>
-        <ProductHeading eyebrow={c.product.rulesEyebrow} title={c.principlesTitle} />
-        <div className="mt-12">
+        <ProductHeading eyebrow={c.product.rulesEyebrow} title={c.principlesTitle} align="center" />
+        <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {c.principles.map((r, i) => (
-            <Reveal key={r.title} delay={i * 60}>
-              <div className="grid grid-cols-1 gap-3 border-t border-line py-7 last:border-b md:grid-cols-[4rem_18rem_1fr] md:gap-8">
-                <span className="font-mono text-sm text-ink-300 tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="text-base font-medium tracking-tight text-ink-950">{r.title}</h3>
-                <p className="max-w-2xl text-[15px] leading-relaxed text-ink-950/65">{r.desc}</p>
+            <Reveal key={r.title} delay={i * 60} className={i === c.principles.length - 1 ? "sm:col-span-2 lg:col-span-1" : ""}>
+              <div className="flex h-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                <span className={clsx("grid size-8 place-items-center rounded-full text-sm font-semibold tabular-nums", accent.tile)}>{i + 1}</span>
+                <h3 className="mt-4 text-base font-semibold tracking-tight text-ink-950">{r.title}</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-pretty text-ink-600">{r.desc}</p>
               </div>
             </Reveal>
           ))}
@@ -372,7 +366,6 @@ export default function AbTestingPage({ lang }: { lang: Lang }) {
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
         <Hero t={t} lang={lang} />
-        <Scale t={t} lang={lang} />
         <Stories t={t} lang={lang} />
         <Library t={t} lang={lang} />
         <HowItWorks t={t} lang={lang} />
