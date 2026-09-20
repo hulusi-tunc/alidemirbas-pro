@@ -273,10 +273,21 @@ export default function AbTestPlaybookPage({
 
       {/* The claim, floating over the photograph (Hulusi, 2026-09-20:
           "make the hypothesis floating", then "liquid glass"): the
-          homepage hero tiles' frost - paper grading to half over a heavy
-          blur, a white hairline, the long soft shadow - sitting deep in
-          the plate's bottom band so the meadow shows through it. */}
-      <div className="relative z-10 mx-auto -mt-14 flex max-w-3xl gap-4 rounded-[24px] bg-gradient-to-b from-paper/90 to-paper/55 p-6 shadow-[0_24px_60px_-24px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl sm:-mt-16 sm:p-7 md:-mt-20">
+          `.liquid-glass` recipe in globals.css - blur with lifted
+          saturation, a specular rim, and in Chromium the displacement
+          lens below - sitting deep in the plate's bottom band so the
+          meadow shows through and bends at the edges. */}
+      {/* The lens behind `.liquid-glass` (globals.css): a low-frequency
+          noise field displacing the backdrop, so the meadow ripples at
+          the card's edges. Mounted once, size zero, next to the card. */}
+      <svg aria-hidden className="absolute size-0 overflow-hidden" focusable="false">
+        <filter id="liquid-lens" x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.006 0.009" numOctaves="2" seed="7" result="noise" />
+          <feGaussianBlur in="noise" stdDeviation="3" result="soft" />
+          <feDisplacementMap in="SourceGraphic" in2="soft" scale="46" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
+      <div className="liquid-glass z-10 mx-auto -mt-14 flex max-w-3xl gap-4 rounded-[24px] p-6 sm:-mt-16 sm:p-7 md:-mt-20">
         <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-700 [&>svg]:size-5">
           <Quote />
         </span>
