@@ -7,7 +7,8 @@
     "behaviors": [
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "medium",
     "complexityScore": 45,
@@ -424,14 +425,15 @@
     "category": "acquisition",
     "primaryStructure": "mixed-termination",
     "behaviors": [
+      "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "simple",
-    "complexityScore": 41,
-    "nodeCount": 13,
-    "edgeCount": 13,
+    "complexityTier": "complex",
+    "complexityScore": 57,
+    "nodeCount": 16,
+    "edgeCount": 20,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -556,16 +558,18 @@
     "id": "ACQ-287",
     "slug": "checkout-abandonment",
     "category": "acquisition",
-    "primaryStructure": "self-contained",
+    "primaryStructure": "mixed-termination",
     "behaviors": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
     ],
-    "complexityTier": "complex",
-    "complexityScore": 63,
-    "nodeCount": 16,
-    "edgeCount": 21,
+    "complexityTier": "extreme",
+    "complexityScore": 73,
+    "nodeCount": 17,
+    "edgeCount": 25,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -582,12 +586,35 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "extreme",
     "complexityScore": 96,
     "nodeCount": 22,
     "edgeCount": 30,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "ACQ-289",
+    "slug": "back-in-stock-alert",
+    "category": "acquisition",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "medium",
+    "complexityScore": 47,
+    "nodeCount": 13,
+    "edgeCount": 14,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -2676,6 +2703,27 @@
     "productionReady": true
   },
   {
+    "id": "FUL-291",
+    "slug": "post-purchase-follow-up",
+    "category": "fulfillment",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "simple",
+    "complexityScore": 33,
+    "nodeCount": 10,
+    "edgeCount": 10,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
     "id": "IDN-270",
     "slug": "account-recovery-guidance",
     "category": "identity",
@@ -4420,6 +4468,91 @@
     "productionReady": true
   },
   {
+    "id": "RET-290",
+    "slug": "first-purchase-welcome",
+    "category": "retention",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "complex",
+    "complexityScore": 56,
+    "nodeCount": 14,
+    "edgeCount": 17,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "RET-292",
+    "slug": "first-purchase-anniversary",
+    "category": "retention",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "multi-exit"
+    ],
+    "complexityTier": "simple",
+    "complexityScore": 21,
+    "nodeCount": 7,
+    "edgeCount": 6,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "RET-293",
+    "slug": "personalized-recommendations",
+    "category": "retention",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "medium",
+    "complexityScore": 42,
+    "nodeCount": 11,
+    "edgeCount": 13,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "RET-294",
+    "slug": "complementary-next-offer",
+    "category": "retention",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "complexityTier": "complex",
+    "complexityScore": 59,
+    "nodeCount": 15,
+    "edgeCount": 18,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
     "id": "RET-30",
     "slug": "retention-intervention-outcome",
     "category": "retention",
@@ -4433,9 +4566,9 @@
       "competition"
     ],
     "complexityTier": "complex",
-    "complexityScore": 55,
+    "complexityScore": 58,
     "nodeCount": 14,
-    "edgeCount": 19,
+    "edgeCount": 20,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -5496,6 +5629,7 @@
       "wait-timeout",
       "external-handoff",
       "multi-exit",
+      "competition",
       "no-re-entry"
     ],
     "complexityTier": "complex",
@@ -5517,7 +5651,8 @@
     "behaviors": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "medium",
     "complexityScore": 43,
@@ -5560,7 +5695,8 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "complex",
     "complexityScore": 53,
@@ -5603,7 +5739,8 @@
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "complexityTier": "medium",
     "complexityScore": 48,

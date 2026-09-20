@@ -1,7 +1,7 @@
 {
-  "generated": "2026-09-20T20:46:27.607Z",
-  "expected_count": 52,
-  "found_count": 52,
+  "generated": "2026-09-20T21:27:06.488Z",
+  "expected_count": 58,
+  "found_count": 58,
   "issues": [],
   "journeys": [
     {
@@ -264,6 +264,37 @@
       "notes": []
     },
     {
+      "journey_id": "ACQ-289",
+      "slug": "back-in-stock-alert",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 13,
+      "display_node_count_before": null,
+      "display_node_count_after": 9,
+      "condition_count": 3,
+      "exit_count": 5,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "recovery",
+        "shared-exit",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
       "journey_id": "ACQ-09",
       "slug": "bounded-education-progress-or-sunset",
       "locales": [
@@ -480,6 +511,37 @@
         "multi-branch",
         "nested-decision",
         "shared-exit"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "RET-294",
+      "slug": "complementary-next-offer",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 15,
+      "display_node_count_before": null,
+      "display_node_count_after": 9,
+      "condition_count": 4,
+      "exit_count": 5,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "nurture",
+        "shared-exit",
+        "wait-event-timeout"
       ],
       "severity": null,
       "patterns_detected": [],
@@ -871,6 +933,65 @@
       "notes": []
     },
     {
+      "journey_id": "RET-292",
+      "slug": "first-purchase-anniversary",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 7,
+      "display_node_count_before": null,
+      "display_node_count_after": 6,
+      "condition_count": 1,
+      "exit_count": 3,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nurture",
+        "short"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "RET-290",
+      "slug": "first-purchase-welcome",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 14,
+      "display_node_count_before": null,
+      "display_node_count_after": 8,
+      "condition_count": 4,
+      "exit_count": 4,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "nurture",
+        "shared-exit",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
       "journey_id": "FUL-146",
       "slug": "fulfillment-delay",
       "locales": [
@@ -1188,6 +1309,37 @@
       "notes": []
     },
     {
+      "journey_id": "RET-293",
+      "slug": "personalized-recommendations",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 11,
+      "display_node_count_before": null,
+      "display_node_count_after": 9,
+      "condition_count": 3,
+      "exit_count": 4,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "nurture",
+        "shared-exit",
+        "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
       "journey_id": "REM-151",
       "slug": "post-completion-issue",
       "locales": [
@@ -1205,6 +1357,36 @@
         "handoff",
         "multi-branch",
         "routing-heavy"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "FUL-291",
+      "slug": "post-purchase-follow-up",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 10,
+      "display_node_count_before": null,
+      "display_node_count_after": 6,
+      "condition_count": 2,
+      "exit_count": 4,
+      "handoff_count": 0,
+      "journey_types": [
+        "communication",
+        "multi-branch",
+        "nested-decision",
+        "no-deadline",
+        "nurture",
+        "wait-event-timeout"
       ],
       "severity": null,
       "patterns_detected": [],

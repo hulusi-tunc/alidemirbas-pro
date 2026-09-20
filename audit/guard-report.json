@@ -1,5 +1,262 @@
 {
-  "generated": "2026-09-20T20:48:39.025Z",
+  "generated": "2026-09-20T21:44:35.693Z",
   "canonical_drift": [],
-  "findings": []
+  "findings": [
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-11",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the first touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-11",
+      "lang": "en",
+      "node": "c.sendable2",
+      "detail": "\"May the second touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-11",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the first touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-11",
+      "lang": "tr",
+      "node": "c.sendable2",
+      "detail": "\"May the second touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-12",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the first touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-12",
+      "lang": "en",
+      "node": "c.sendable2",
+      "detail": "\"May the second touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-12",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the first touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-12",
+      "lang": "tr",
+      "node": "c.sendable2",
+      "detail": "\"May the second touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-289",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the alert go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-289",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the alert go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-294",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the offer go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-294",
+      "lang": "en",
+      "node": "c.sendable2",
+      "detail": "\"May the single reminder go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-294",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the offer go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-294",
+      "lang": "tr",
+      "node": "c.sendable2",
+      "detail": "\"May the single reminder go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-290",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the welcome go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-290",
+      "lang": "en",
+      "node": "c.sendable2",
+      "detail": "\"May the bounceback go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-290",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the welcome go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-290",
+      "lang": "tr",
+      "node": "c.sendable2",
+      "detail": "\"May the bounceback go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-32",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the invitation go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-32",
+      "lang": "en",
+      "node": "c.sendable2",
+      "detail": "\"May the follow-up go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-32",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the invitation go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-32",
+      "lang": "tr",
+      "node": "c.sendable2",
+      "detail": "\"May the follow-up go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-293",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the recommendation go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-293",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the recommendation go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "FUL-291",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the follow-up go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "FUL-291",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the follow-up go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-31",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the lead prompt go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-31",
+      "lang": "en",
+      "node": "c.sendable2",
+      "detail": "\"May the follow-up go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-31",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the lead prompt go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "RET-31",
+      "lang": "tr",
+      "node": "c.sendable2",
+      "detail": "\"May the follow-up go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-13",
+      "lang": "en",
+      "node": "c.sendable",
+      "detail": "\"May the touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    },
+    {
+      "severity": "P0",
+      "check": "G6_DECISION_HIDDEN",
+      "journey": "ACQ-13",
+      "lang": "tr",
+      "node": "c.sendable",
+      "detail": "\"May the touch go out?\" is not drawn and does not match the sanctioned gate shape (2 branches, 1 recording arm)"
+    }
+  ]
 }

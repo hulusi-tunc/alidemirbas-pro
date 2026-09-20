@@ -6535,4 +6535,462 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     "reusableRule": "A reminder cascade checks purchase, checkout-start and cart-state immediately before every touch and stops or hands off the instant it finds one; channel selection is a priority-with-fallback the router owns, never a chain of permission conditions in the graph, and a higher-value cart earns a more direct channel, not a different structure."
   },
+  {
+    "id": "ACQ-289",
+    "slug": "back-in-stock-alert",
+    "category": "acquisition",
+    "goal": "recovery-retry",
+    "channels": ["push", "email", "in-app"],
+    "name": "Interest recorded while unavailable → availability returns → alerted → purchased or closed",
+    "shortName": "Back-in-Stock Alert",
+    "purpose": "Tell a person, once, that the specific item they wanted while it was unavailable can be bought again - and only while that interest is still honestly theirs.",
+    "objective": "Convert an interest that could not convert because the thing was not there, by saying once - at the moment availability actually returns - that it is there now.",
+    "entity": {
+      "scope": "one interest in one unavailable item - the person, the item, and the availability cycle the interest was recorded against",
+      "note": "One instance per person, item and availability cycle. An item that goes unavailable again after the alert does not reopen this instance; interest recorded against the next unavailable period is a new instance with its own clock.",
+      "instanceKey": [
+        "person_id",
+        "item_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A purchase of the item by any route closes the instance; a further interest signal for the same item while an instance is open does not open a second one."
+      }
+    },
+    "eligibility": [
+      "an authoritative record that the item was not purchasable at the moment the interest was recorded",
+      "the interest is attributable to a person we may contact",
+      "no instance is already open for this person and this item",
+      "no purchase of the item by this person since the interest was recorded",
+      "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.purchased",
+        "label": "CANONICAL_RULE",
+        "text": "Exit the moment a purchase of the item is recorded by any route. An alert about something already bought is the failure this journey exists to prevent, and the alert is reached only through a condition that just re-read the purchase record."
+      },
+      {
+        "id": "s.unavailable",
+        "label": "CANONICAL_RULE",
+        "text": "Availability is re-read immediately before the alert and never trusted from the event that opened the window. If the item is not purchasable at that moment, nothing is sent."
+      },
+      {
+        "id": "s.withdrawn",
+        "label": "CANONICAL_RULE",
+        "text": "An interest the person has withdrawn ends the instance. A withdrawn interest is not a quiet one and is never alerted on."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No alert without purpose-level permission for commercial communication and a destination that is actually reachable; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A checkout in motion or a held cart for the same person outranks this journey in the commerce-recovery group; while either holds the person, this alert is suppressed for them rather than queued behind it (GLB-06)."
+      },
+      {
+        "id": "s.single",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "One alert per availability cycle. A second message about the same return of the same item is a repeat, not a reminder."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "back_in_stock.touches",
+          "rule": "The alert runs against a budget fixed when the instance opened; the budget is the number of alerts one availability cycle may carry, and no alert is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - one alert and nothing after it"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "back_in_stock.cooldown",
+        "rule": "After an alert, a further return of the same item to availability is tracked but not alerted on until the cooldown has passed. A purchase carries no cooldown.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "commerce-recovery",
+        "scope": "person",
+        "precedence": "lowest in the commerce-recovery group - a checkout in motion, a held cart and a held selection all outrank an interest that could never convert at all; when any of them holds the person this alert is suppressed for them rather than queued behind it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists for this person and the permission covering it still stands - the return of availability is worth minutes, not hours"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is already in a session where the item can be opened directly and the alert does not need to leave the product"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no faster route clears both permission and reachability, or the alert has to survive until the person can act on it"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "availability-alert",
+          "action": "a.alert",
+          "gatedBy": "w.availability",
+          "prerequisites": [
+            "c.relevant",
+            "c.sendable"
+          ],
+          "purpose": "The item they wanted is purchasable again, said once, with the route straight to it and nothing about how long that will last.",
+          "channelRoles": [
+            "low-friction",
+            "in-session",
+            "persistent"
+          ],
+          "destination": {
+            "target": "item-detail",
+            "boundTo": "item_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "how long availability will last"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.purchased",
+        "s.unavailable",
+        "s.withdrawn",
+        "s.permission",
+        "s.contest",
+        "s.single"
+      ]
+    },
+    "entry": "t.registered",
+    "nodes": [
+      {
+        "id": "t.registered",
+        "kind": "trigger",
+        "event": "interest_recorded_while_unavailable",
+        "evidence": {
+          "requires": [
+            "an attributable interest signal for one specific item, recorded against a person",
+            "an authoritative record that the item was not purchasable at the moment that interest was recorded",
+            "the availability cycle the item was in when the interest was recorded"
+          ],
+          "insufficientAlone": [
+            "an interest in an item that was purchasable all along - that is ordinary interest, not an unmet one",
+            "an interest in a category rather than in one specific item",
+            "an item withdrawn from the catalogue rather than temporarily unavailable, which never returns to alert on",
+            "an interest attributed to an identity that has not resolved to a person"
+          ],
+          "source": "behavioral"
+        },
+        "next": "w.availability"
+      },
+      {
+        "id": "w.availability",
+        "kind": "wait",
+        "until": [
+          "item_available_again",
+          "purchase_completed",
+          "interest_dismissed"
+        ],
+        "onEvent": "c.relevant",
+        "timeout": {
+          "after": {
+            "key": "back_in_stock.interest_lifetime",
+            "rule": "An interest in an unavailable item is worth holding only for as long as the company can honestly say it is still this person's; past that the instance ends without an alert.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an alert about something wanted long ago is addressed to a person who has already moved on",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "x.expired",
+        "recheck": "the item's current availability, the person's purchase record and the interest record re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.relevant",
+        "kind": "condition",
+        "asks": "Is this interest still worth alerting on?",
+        "branches": [
+          {
+            "label": "Still wanted",
+            "when": "the item is purchasable again, no purchase of it by this person is recorded, and the interest has not been withdrawn",
+            "observes": "item_available_again",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Already bought",
+            "when": "an authoritative purchase of the item by this person is recorded",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "No longer wanted",
+            "when": "the person withdrew the interest, or the item went unavailable again before the alert could go out",
+            "observes": "interest_dismissed",
+            "to": "x.closed"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the alert go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence commerce-recovery journey currently holding this person, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.alert"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.alert",
+        "kind": "action",
+        "does": "Say that the item this person wanted is purchasable again and give the route straight to it. Claim no reserved stock, no held price, no discount and no deadline the platform does not enforce.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + item_id + availability_cycle",
+        "writes": [
+          {
+            "field": "alert_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.window"
+      },
+      {
+        "id": "w.window",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "item_unavailable"
+        ],
+        "onEvent": "c.converted",
+        "timeout": {
+          "after": {
+            "key": "back_in_stock.conversion_window",
+            "rule": "The alert is given a short window in which a purchase can honestly be read as following from it, after which the instance closes; there is no second alert to time.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "the value of the alert lies in the moment availability returned, and that moment does not last",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.converted",
+        "recheck": "the person's purchase record and the item's current availability re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.converted",
+        "kind": "condition",
+        "asks": "Did the alert reach a purchase?",
+        "branches": [
+          {
+            "label": "Purchased",
+            "when": "an authoritative purchase of the item by this person is recorded after the alert",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "Not purchased",
+            "when": "no purchase of the item by this person is recorded inside the window",
+            "observes": "purchase record",
+            "to": "x.no-purchase"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no alert was sent and against which interest, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + item_id + availability_cycle",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.purchased",
+        "kind": "exit",
+        "state": "purchased; the item the alert was about is bought",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "interest recorded against a new unavailable period for this item opens its own instance"
+      },
+      {
+        "id": "x.no-purchase",
+        "kind": "exit",
+        "state": "alerted, not bought; the window closed with no purchase",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "interest recorded against a new unavailable period for this item opens its own instance, after the cooldown"
+      },
+      {
+        "id": "x.expired",
+        "kind": "exit",
+        "state": "interest expired before availability returned; no alert was sent",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "interest recorded against this item again opens a new instance with its own clock"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "interest closed; the person withdrew it or the item went unavailable again first",
+        "class": "suppression",
+        "terminal": false,
+        "reEntry": "interest recorded against a new unavailable period for this item opens its own instance, unless the person asked for no further alerts"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no alert sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the next return of this item to availability is evaluated on its own gates"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "item_id",
+          "interest_recorded_at",
+          "availability_cycle",
+          "item_destination"
+        ],
+        "optional": [
+          "item_price",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.purchased",
+          "x.no-purchase",
+          "x.expired",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "purchase_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "back_in_stock.holdout_share",
+          "rule": "A persistent per-person holdout is required: somebody who wanted an unavailable item checks back on their own often enough that a treated-only measurement cannot tell this alert's effect from theirs.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "interest_dismissed"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "alert_for_unavailable_item",
+        "repeat_alert_same_cycle"
+      ],
+      "operational": [
+        "entry_volume",
+        "availability_return_rate",
+        "alert_rate",
+        "no_action_rate_by_reason",
+        "interest_expiry_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "back in stock alert",
+        "restock notification",
+        "availability alert",
+        "notify me when available",
+        "waitlist availability notice"
+      ],
+      "useCases": [
+        "an item somebody wanted while it was unavailable that can now be bought again",
+        "an interest that never became a selection because the thing was not there to select"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "ACQ-13",
+        "because": "ACQ-13 acts on attention that never became a selection for reasons the library does not claim to know. This journey knows the reason - the item was not purchasable - and does nothing at all until that reason goes away."
+      },
+      {
+        "journey": "ACQ-12",
+        "because": "ACQ-12 recovers a selection the person made and left behind. Here nothing was ever selected, because nothing could be; the wait is on the item, not on the person."
+      },
+      {
+        "journey": "RET-31",
+        "because": "RET-31 prompts a purchase the person's own history says is due. This prompts one they already showed they wanted and were unable to make."
+      }
+    ],
+    "guardrails": [
+      "Availability is re-read immediately before the alert; the event that opened the window is not evidence that the item is still there.",
+      "One alert per availability cycle - a second message about the same return of the same item is a repeat, not a reminder.",
+      "No alert once a purchase of the item is on record.",
+      "Nothing is claimed about reserved stock, held prices, discounts or how long availability will last.",
+      "A withdrawn interest ends the instance; it is never treated as a quiet one."
+    ],
+    "reusableRule": "An alert that exists because a condition changed re-reads that condition immediately before it sends, sends once per change, and ends the moment the thing it was about has been bought or is gone again."
+  },
 ];

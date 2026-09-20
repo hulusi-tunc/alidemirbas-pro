@@ -3,7 +3,7 @@
     {
       "risk": "high-branch-count",
       "description": "A condition node's arm count varies 2 to 6+; a layout that assumes 2-3 arms per fork will overflow.",
-      "affectedCount": 85,
+      "affectedCount": 87,
       "threshold": ">=4 branch nodes in one journey",
       "worst": [
         [
@@ -61,7 +61,7 @@
     {
       "risk": "backward-edges",
       "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
-      "affectedCount": 154,
+      "affectedCount": 159,
       "threshold": ">=1 backward edge",
       "worst": [
         [
@@ -109,7 +109,7 @@
     {
       "risk": "many-exits",
       "description": "Multiple named terminal states from one journey. A layout with one exit slot at the bottom fails for these.",
-      "affectedCount": 29,
+      "affectedCount": 34,
       "threshold": ">=4 exits",
       "worst": [
         [
@@ -196,7 +196,7 @@
     {
       "risk": "node-divergence (fan-out)",
       "description": "One node with many outgoing edges (a condition with many branches, or a wait's two arms feeding a further hub). ACQ-10 alone has BOTH the highest fan-in (5) and highest fan-out (8) — the single worst node-density case in the library.",
-      "affectedCount": 9,
+      "affectedCount": 10,
       "threshold": ">=5 outgoing edges from one node",
       "worst": [
         [

@@ -10,11 +10,14 @@
      node audit/guard-display.mjs [port]
 
    Checks, per journey, in both locales:
-     G1  every canonical exit is drawn, or is unreachable once collapses
-         are applied (an exit that still has a live parent must be visible)
-     G2  every canonical handoff is drawn (ownership transfer is never
-         allowed to vanish - there is no "unreachable handoff" exception
-         that would be legitimate here)
+     G1  every canonical exit that a DRAWN node still leads to is drawn
+     G2  the same for handoffs - ownership transfer never vanishes from
+         under a branch that is still on screen
+     G5  every journey draws at least one ending, which is what makes the
+         unreachability exception in G1/G2 safe rather than a loophole
+     G6  a condition may only be missing from the canvas if it matches the
+         one sanctioned gate shape - this is what still catches a business
+         decision being collapsed, now that G1 no longer can
      G3  a DRAWN condition keeps an out-edge per canonical branch, allowing
          for two sanctioned merges: twin arms to one target, and arms that
          retarget to the same collapsed destination
@@ -105,16 +108,91 @@ for (const m of manifest.journeys) {
     const drawnCanonical = new Set([...drawn.nodes.keys ? [] : []]);
     for (const [layoutId] of drawn.nodes) drawnCanonical.add(layoutId.split("@")[0]);
 
-    // G1 / G2 - endings and handoffs
+    /* G1 / G2 - endings and handoffs.
+
+       An ending may legitimately be absent when the collapses made it
+       UNREACHABLE: a gate that draws no box takes its "record why nothing
+       was sent" hop with it, and an exit reached only through that hop has
+       nothing left pointing at it. ACQ-11 keeps its `x.no-action` because
+       `c.eligible` also points there and does not collapse; RET-290 and
+       FUL-291 do not, because the collapsed gates are the only way in. Both
+       are correct.
+
+       What is never correct is an ending that vanishes while something
+       STILL DRAWN points at it - that is a branch running off the edge of
+       the canvas, and it is the failure this guard was written for (the
+       PR #9 gate collapse erased endings in five journeys). So the test is
+       not "is it drawn" but "is it drawn IF a drawn node still leads to
+       it". G5 below then catches the degenerate case this exception could
+       otherwise permit: a journey with no visible ending at all. */
+    const canonicalParents = new Map();
+    for (const n of j.nodes) {
+      const targets =
+        n.kind === "condition" ? n.branches.map((b) => b.to)
+        : n.kind === "wait" ? [n.onEvent, n.onTimeout]
+        : n.next ? [n.next] : [];
+      for (const t of targets) {
+        if (!t) continue;
+        if (!canonicalParents.has(t)) canonicalParents.set(t, new Set());
+        canonicalParents.get(t).add(n.id);
+      }
+    }
     for (const n of j.nodes) {
       if (n.kind !== "exit" && n.kind !== "handoff") continue;
       if (drawnCanonical.has(n.id)) continue;
+      const liveParents = [...(canonicalParents.get(n.id) ?? [])].filter((p) => drawnCanonical.has(p));
+      if (liveParents.length === 0) continue; // unreachable after the collapses - correct
       findings.push({
         severity: "P0",
         check: n.kind === "handoff" ? "G2_HANDOFF_MISSING" : "G1_EXIT_MISSING",
         journey: m.journey_id, lang, node: n.id,
-        detail: n.kind === "exit" ? `exit class=${n.class ?? "-"} not drawn` : `handoff to ${n.to} not drawn`,
+        detail: `${n.kind === "exit" ? `exit class=${n.class ?? "-"}` : `handoff to ${n.to}`} not drawn, but ${liveParents.join(", ")} still is`,
       });
+    }
+
+    // G5 - a journey must show SOMEWHERE to end. The G1/G2 exception above
+    // is safe only while this holds.
+    if (!j.nodes.some((n) => (n.kind === "exit" || n.kind === "handoff") && drawnCanonical.has(n.id))) {
+      findings.push({
+        severity: "P0", check: "G5_NO_VISIBLE_ENDING", journey: m.journey_id, lang,
+        detail: "no exit or handoff is drawn at all - the canvas shows a journey that never ends",
+      });
+    }
+
+    /* G6 - WHICH decisions were allowed to disappear.
+
+       Relaxing G1/G2 to "only if a drawn node still leads there" is correct,
+       but on its own it re-opens the exact hole this guard exists to close.
+       The PR #9 failure was a business decision being COLLAPSED; its exits
+       then vanished as a consequence, and with the decision itself hidden
+       there is no drawn parent left to flag. RET-24 would still be caught by
+       G5 (x.monitor was its only ending) - TIM-63, RET-30, RET-32 and ACQ-13
+       would not have been.
+
+       So this checks the collapse's own output directly: a condition may be
+       missing from the canvas ONLY if it matches the one sanctioned shape -
+       exactly two branches, one arm reaching a `no-action` exit THROUGH a
+       bookkeeping hop (the "record why nothing was sent" step). That is the
+       signature `collapsibleGates` requires, and stating it here as an
+       assertion about the RESULT means a future widening of the rule fails
+       this check until somebody changes it on purpose. Any other hidden
+       condition is a decision the reader lost. */
+    for (const n of j.nodes) {
+      if (n.kind !== "condition" || drawnCanonical.has(n.id)) continue;
+      const byId = new Map(j.nodes.map((x) => [x.id, x]));
+      const arms = n.branches.map((b) => byId.get(b.to));
+      const viaHop = arms.filter((t) => {
+        if (!t || t.kind !== "action" || t.execution) return false;
+        const end = byId.get(t.next);
+        return end && end.kind === "exit" && end.class === "no-action";
+      });
+      const sanctioned = n.branches.length === 2 && viaHop.length === 1;
+      if (!sanctioned) {
+        findings.push({
+          severity: "P0", check: "G6_DECISION_HIDDEN", journey: m.journey_id, lang, node: n.id,
+          detail: `"${(n.asks ?? "").slice(0, 60)}" is not drawn and does not match the sanctioned gate shape (${n.branches.length} branches, ${viaHop.length} recording arm)`,
+        });
+      }
     }
 
     // G3 - a drawn condition keeps its branches
@@ -142,7 +220,7 @@ fs.writeFileSync(ROOT + "audit/guard-report.json", JSON.stringify(report, null, 
 
 console.log(`\n=== DISPLAY GUARD ===`);
 console.log(`G4 canonical drift: ${canonicalDrift.length === 0 ? "NONE (all hashes match)" : JSON.stringify(canonicalDrift)}`);
-console.log(`G1/G2/G3 findings: ${p0.length}`);
+console.log(`G1/G2/G3/G5/G6 findings: ${p0.length}`);
 for (const f of p0.slice(0, 25)) console.log(`  ${f.check} ${f.journey} [${f.lang}] ${f.node ?? ""} - ${f.detail}`);
 if (p0.length > 25) console.log(`  ... and ${p0.length - 25} more`);
 console.log(canonicalDrift.length === 0 && p0.length === 0 ? "\nRESULT: PASS" : "\nRESULT: FAIL");

@@ -336,6 +336,18 @@
     ]
   },
   {
+    "id": "ACQ-289",
+    "slug": "back-in-stock-alert",
+    "title": "Interest recorded while unavailable → availability returns → alerted → purchased or closed",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Interest recorded while unavailable",
+    "searchableAliases": [
+      "ACQ-289",
+      "back-in-stock-alert"
+    ]
+  },
+  {
     "id": "ACT-11",
     "slug": "onboarding-route-selection",
     "title": "New entry → onboarding route → appropriate path",
@@ -1627,6 +1639,18 @@
     ]
   },
   {
+    "id": "FUL-291",
+    "slug": "post-purchase-follow-up",
+    "title": "Fulfillment completed → the useful next step sent → followed up, superseded or not sent",
+    "category": "fulfillment",
+    "categoryTitle": "Orders, fulfillment, delivery & service completion",
+    "triggerLabel": "Authoritative delivery completion",
+    "searchableAliases": [
+      "FUL-291",
+      "post-purchase-follow-up"
+    ]
+  },
+  {
     "id": "IDN-270",
     "slug": "account-recovery-guidance",
     "title": "Account recovery started → proof of control → access restored or window closed",
@@ -2645,6 +2669,54 @@
     "searchableAliases": [
       "RET-29",
       "cancellation-completed-wind-down"
+    ]
+  },
+  {
+    "id": "RET-290",
+    "slug": "first-purchase-welcome",
+    "title": "First purchase completed → welcomed as a customer → returned, prompted or closed",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "First purchase completed",
+    "searchableAliases": [
+      "RET-290",
+      "first-purchase-welcome"
+    ]
+  },
+  {
+    "id": "RET-292",
+    "slug": "first-purchase-anniversary",
+    "title": "First-purchase anniversary approaching → eligibility checked → recognised or not sent",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "First purchase anniversary approaching",
+    "searchableAliases": [
+      "RET-292",
+      "first-purchase-anniversary"
+    ]
+  },
+  {
+    "id": "RET-293",
+    "slug": "personalized-recommendations",
+    "title": "Recommendation signal qualified → still valid → recommended → converted, dismissed or closed",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Recommendation signal qualified",
+    "searchableAliases": [
+      "RET-293",
+      "personalized-recommendations"
+    ]
+  },
+  {
+    "id": "RET-294",
+    "slug": "complementary-next-offer",
+    "title": "Purchase with a declared complement → matured → offered → taken, declined or closed",
+    "category": "retention",
+    "categoryTitle": "Engagement, health, retention & churn prevention",
+    "triggerLabel": "Purchase with known complement",
+    "searchableAliases": [
+      "RET-294",
+      "complementary-next-offer"
     ]
   },
   {

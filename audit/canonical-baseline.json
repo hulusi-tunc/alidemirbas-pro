@@ -39,6 +39,11 @@
     "source": "src/canonical/scheduling.ts",
     "schema_version": "vNext-2026-09"
   },
+  "ACQ-289": {
+    "hash": "sha256:e89feb2db4e1a7fd869c25938ca4fe11085e4aeb47337c7671a12a3b791f95e3",
+    "source": "src/canonical/acquisition.ts",
+    "schema_version": "vNext-2026-09"
+  },
   "ACQ-09": {
     "hash": "sha256:72ef9b32eb5668f49485c69e35c7c1728c5fa5abf597c0d86111b8198a6788de",
     "source": "src/canonical/acquisition.ts",
@@ -71,6 +76,11 @@
   },
   "RET-24": {
     "hash": "sha256:64a7cfbb25fdbb8ebd0eccdd7769ec70b39d1b5045c07fa80d397ea83354f32e",
+    "source": "src/canonical/retention.ts",
+    "schema_version": "vNext-2026-09"
+  },
+  "RET-294": {
+    "hash": "sha256:aff53e242b9603f44f75711f5817b5357995a61a33f15134aaf2dac976b22a4b",
     "source": "src/canonical/retention.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -134,6 +144,16 @@
     "source": "src/canonical/feedback.ts",
     "schema_version": "vNext-2026-09"
   },
+  "RET-292": {
+    "hash": "sha256:a52255a8a9b7cd6128f6010d27d524d25309282b9b84d0f2223f9f13995ff60f",
+    "source": "src/canonical/retention.ts",
+    "schema_version": "vNext-2026-09"
+  },
+  "RET-290": {
+    "hash": "sha256:1a69866f0cda948c93d23eb8a7a3ebcff0711ef9ad9b4b7410b7d14190cc71ea",
+    "source": "src/canonical/retention.ts",
+    "schema_version": "vNext-2026-09"
+  },
   "FUL-146": {
     "hash": "sha256:10c4c1ea2c9750c4cd5436593e248ecb1707621f76694f65615641ad964e227a",
     "source": "src/canonical/fulfillment.ts",
@@ -184,9 +204,19 @@
     "source": "src/canonical/financial.ts",
     "schema_version": "vNext-2026-09"
   },
+  "RET-293": {
+    "hash": "sha256:d9dbec1d1a0106d3e5dfda5ba524b67c5f105fd25d04605718a20ce9a4df48d6",
+    "source": "src/canonical/retention.ts",
+    "schema_version": "vNext-2026-09"
+  },
   "REM-151": {
     "hash": "sha256:bd4e1b729a5469f8b03ae6fb969f27a1f70324731d2348cab2df896dca851e56",
     "source": "src/canonical/remedy.ts",
+    "schema_version": "vNext-2026-09"
+  },
+  "FUL-291": {
+    "hash": "sha256:2b116749b21ec6989b7af68ccffcff773eb80ab033727851c3c11f32aa452d20",
+    "source": "src/canonical/fulfillment.ts",
     "schema_version": "vNext-2026-09"
   },
   "TIM-63": {

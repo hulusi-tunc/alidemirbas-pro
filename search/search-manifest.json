@@ -2,7 +2,7 @@
   "_description": "Reproducibility + payload manifest for search-index.json. sourceVersion identifies the generator commit context by describing WHAT was read, not a timestamp (this repo's own convention for deterministic build scripts avoids Date.now()).",
   "sourceVersion": {
     "abTestRecordCount": 211,
-    "journeyRecordCount": 141,
+    "journeyRecordCount": 147,
     "archivedJourneyRecordCount": 145,
     "mergedJourneyCount": 8,
     "presetFoldedCount": 8,
@@ -10,10 +10,10 @@
     "labProductCount": 6,
     "blogArticleCount": 5
   },
-  "totalDocuments": 382,
+  "totalDocuments": 388,
   "countsByType": {
     "ab-test": 211,
-    "journey": 141,
+    "journey": 147,
     "calculator": 19,
     "lab-product": 6,
     "blog-article": 5
@@ -21,11 +21,11 @@
   "countsByCategory": {
     "cart-and-checkout": 28,
     "search-and-discovery": 72,
-    "acquisition-and-onboarding": 77,
+    "acquisition-and-onboarding": 78,
     "mobile": 12,
     "pricing-and-monetization": 12,
     "saas-and-b2b": 16,
-    "retention-and-engagement": 12,
+    "retention-and-engagement": 16,
     "experimentation-and-testing": 4,
     "unit-economics": 4,
     "advertising-and-media": 3,
@@ -48,10 +48,10 @@
     "thankyou": 4
   },
   "countsByStage": {
-    "engagement-retention": 33,
-    "acquisition-qualification": 68,
+    "engagement-retention": 37,
+    "acquisition-qualification": 69,
     "ending-closure": 7,
-    "cross-lifecycle": 104,
+    "cross-lifecycle": 105,
     "activation-onboarding": 8
   },
   "countsByMetric": {
@@ -508,16 +508,16 @@
     "Sample Size": 1
   },
   "aliasCount": 11,
-  "relationshipCount": 378,
+  "relationshipCount": 385,
   "sizeReport": {
     "rawSourceSizeBytes": {
       "src/data/ab-tests.json": 635240,
-      "production/journey-view-model.json": 3205289
+      "production/journey-view-model.json": 3292143
     },
-    "searchIndexSizeBytes": 925864,
-    "searchIndexLightSizeBytes": 576708,
-    "averageDocumentSizeBytes": 1967,
-    "maxDocumentSizeBytes": 3523,
+    "searchIndexSizeBytes": 957560,
+    "searchIndexLightSizeBytes": 601021,
+    "averageDocumentSizeBytes": 2006,
+    "maxDocumentSizeBytes": 4740,
     "minDocumentSizeBytes": 992
   }
 }

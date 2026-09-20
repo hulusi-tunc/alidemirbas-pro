@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 286,
-    "customer": 137,
+    "journeys": 292,
+    "customer": 143,
     "customer-silent": 67,
-    "customer-communicating": 70,
+    "customer-communicating": 76,
     "mechanism": 25,
     "operational": 124
   },
@@ -185,6 +185,17 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (push, email, whatsapp, sms)"
+    },
+    {
+      "id": "ACQ-289",
+      "shortName": "Back-in-Stock Alert",
+      "category": "acquisition",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (push, email, in-app)"
     },
     {
       "id": "ACT-11",
@@ -405,6 +416,50 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (email, push)"
+    },
+    {
+      "id": "RET-290",
+      "shortName": "First Purchase Thank You & Bounceback",
+      "category": "retention",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app, push)"
+    },
+    {
+      "id": "RET-292",
+      "shortName": "First Purchase Anniversary",
+      "category": "retention",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, push, in-app)"
+    },
+    {
+      "id": "RET-293",
+      "shortName": "Personalized Recommendations",
+      "category": "retention",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app, push)"
+    },
+    {
+      "id": "RET-294",
+      "shortName": "Cross-Sell / Next Best Offer",
+      "category": "retention",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, push, in-app)"
     },
     {
       "id": "CON-31",
@@ -1879,6 +1934,17 @@
       "silent": false,
       "excludedFromPublic": true,
       "reason": "declares a message channel (email, sms)"
+    },
+    {
+      "id": "FUL-291",
+      "shortName": "Post-Purchase Follow-Up",
+      "category": "fulfillment",
+      "surface": "customer",
+      "sends": true,
+      "routesToHuman": false,
+      "silent": false,
+      "excludedFromPublic": false,
+      "reason": "declares a message channel (email, in-app, push)"
     },
     {
       "id": "REM-151",

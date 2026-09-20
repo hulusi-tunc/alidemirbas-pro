@@ -165,6 +165,355 @@ type JourneyOverride = {
 };
 
 const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
+  "ACQ-289": {
+  shortName: "Yeniden Stokta Bildirimi",
+  name: "Ürün alınamazken ilgi kaydedildi → ürün yeniden alınabilir oldu → bildirildi → satın alındı veya kapandı",
+  purpose: "Bir ürünü satın alınamaz durumdayken isteyen kişiye, o ürünün yeniden alınabilir olduğunu bir kez söylemek - ve bunu yalnızca bu ilgi hâlâ gerçekten o kişinin ilgisiyken yapmak.",
+  nodes: {
+    "t.registered": { headline: "Ürün satın alınamazken ilgi kaydedildi" },
+    "w.availability": {
+      headline: "ürün yeniden satın alınabilir olana kadar",
+      detail: "Zaman aşımı: satın alınamayan bir ürüne duyulan ilgi, ancak şirketin dürüstçe \"bu hâlâ bu kişinin ilgisi\" diyebildiği süre boyunca tutulmaya değer; o noktadan sonra örnek hiç bildirim gönderilmeden kapanır. (back_in_stock.interest_lifetime ayarlanmalı)",
+    },
+    "c.relevant": {
+      headline: "Bu ilgi hâlâ bildirime değer mi?",
+      edges: [
+        { label: "Hâlâ isteniyor", detail: "ürün yeniden satın alınabilir durumda, bu kişinin ürünü aldığına dair bir kayıt yok ve ilgi geri çekilmemiş" },
+        { label: "Zaten satın alınmış", detail: "bu kişinin ürünü satın aldığına dair yetkili bir kayıt mevcut" },
+        { label: "Artık istenmiyor", detail: "kişi ilgisini geri çekti ya da ürün bildirim gönderilmeden önce yeniden satın alınamaz hâle geldi" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Bildirim gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu kişiyi şu anda tutan daha yüksek öncelikli bir ticaret-kurtarma akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.alert": {
+      headline: "Bu kişinin istediği ürünün yeniden satın alınabilir olduğunu söyle ve doğrudan ürüne giden yolu ver. Rezerve stok, tutulan fiyat, indirim ya da platformun uygulamadığı bir son tarih iddia etme.",
+    },
+    "w.window": {
+      headline: "satın alma gerçekleşene kadar",
+      detail: "Zaman aşımı: bildirime, ardından gelen bir satın almanın dürüstçe ona bağlanabileceği kısa bir pencere tanınır; pencere kapandığında örnek de kapanır, zamanlanacak ikinci bir bildirim yoktur. (back_in_stock.conversion_window ayarlanmalı)",
+    },
+    "c.converted": {
+      headline: "Bildirim satın almaya ulaştı mı?",
+      edges: [
+        { label: "Satın alındı", detail: "bildirimden sonra bu kişinin ürünü satın aldığına dair yetkili bir kayıt mevcut" },
+        { label: "Satın alınmadı", detail: "pencere içinde bu kişinin ürünü satın aldığına dair hiçbir kayıt yok" },
+      ],
+    },
+    "a.record-no-action": {
+      headline: "Neden bildirim gönderilmediğini ve hangi ilgiye karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.purchased": {
+      headline: "Satın alındı",
+      detail: "bu ürün için yeni bir satın alınamazlık döneminde kaydedilen ilgi kendi örneğini açar",
+    },
+    "x.no-purchase": {
+      headline: "Bildirildi, satın alınmadı",
+      detail: "bu ürün için yeni bir satın alınamazlık döneminde kaydedilen ilgi, bekleme süresi dolduktan sonra kendi örneğini açar",
+    },
+    "x.expired": {
+      headline: "İlgi, ürün geri gelmeden zaman aşımına uğradı",
+      detail: "bu ürüne yeniden ilgi kaydedilmesi kendi saatiyle yeni bir örnek açar",
+    },
+    "x.closed": {
+      headline: "İlgi kapandı",
+      detail: "kişi başka bildirim istemediğini söylemediyse, bu ürün için yeni bir satın alınamazlık döneminde kaydedilen ilgi kendi örneğini açar",
+    },
+    "x.no-action": {
+      headline: "Bildirim gönderilmedi",
+      detail: "bu ürünün yeniden satın alınabilir hâle gelmesi kendi kapılarıyla yeniden değerlendirilir",
+    },
+  },
+  },
+  "RET-290": {
+  shortName: "İlk Satın Alma Teşekkürü ve Geri Dönüş Teklifi",
+  name: "İlk satın alma tamamlandı → müşteri olarak karşılandı → geri döndü, teklif aldı veya kapandı",
+  purpose: "Bir alıcının ilk kez müşteri olduğu anı işaretlemek ve ona geri dönmesi için dürüst tek bir neden vermek - siparişin kendi işlem bildiriminin üstüne asla konuşmadan.",
+  nodes: {
+    "t.first": { headline: "İlk satın alma tamamlandı" },
+    "w.settle": {
+      headline: "sipariş yerine oturana kadar",
+      detail: "Zaman aşımı: karşılama, sipariş yerine oturana kadar bekler; böylece işlem bildirimi kendi anını yaşar ve karşılama aynı şeyin ikinci mesajı hâline gelmez. (first_purchase_welcome.settle ayarlanmalı)",
+    },
+    "c.state": {
+      headline: "Sipariş yerine oturduğuna göre, karşılama hâlâ doğru şey mi?",
+      edges: [
+        { label: "Karşılama zamanı", detail: "ilk satın alma geçerli, ikinci bir satın alma kaydı yok ve yaşam döngüsü iletişimi izni hâlâ geçerli" },
+        { label: "Zaten geri dönmüş", detail: "karşılama gönderilmeden önce bu kişinin ikinci bir satın alma kaydı oluşmuş" },
+        { label: "İlişki sona ermiş", detail: "kişi iznini geri çekti ya da ilk satın alma iptal edildi veya tamamen geri alındı" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Karşılama gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi izni, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu kişiyi şu anda tutan daha yüksek öncelikli bir akışın bulunmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.welcome": {
+      headline: "Kişiyi müşteri olarak karşıla: aldığı şeyle bundan sonra ne olacağı, onu nerede bulacağı ve buradan bir insana nasıl ulaşacağı. Yalnızca gerçekten tanımlanmış ve kaydedilmiş bir teklif varsa ondan söz et.",
+    },
+    "w.second": {
+      headline: "ikinci satın alma gerçekleşene kadar",
+      detail: "Zaman aşımı: geri dönüş teklifi, kendi başına geri dönecek olan birinin bunu yapmaya fırsat bulacağı kadar bekler; ilk satın almanın \"yakın geçmiş\" olmaktan çıktığı noktadan sonrasına ise sarkmaz. (first_purchase_welcome.bounceback_window ayarlanmalı)",
+    },
+    "c.second": {
+      headline: "İkinci satın alma çoktan yapılmış mı?",
+      edges: [
+        { label: "Geri döndü", detail: "bu kişinin ikinci satın almasına dair yetkili bir kayıt mevcut" },
+        { label: "Henüz değil", detail: "bu kişi için ilk satın almadan sonra hiçbir satın alma kaydı yok" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "Geri dönüş teklifi gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor, temas bütçesi tükenmemiş ve işletmenin adını verebileceği, tanımlanmış bir teklifi var" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor ya da adı verilebilecek tanımlanmış bir teklif yok; gerekçe kaydedilir" },
+      ],
+    },
+    "a.bounceback": {
+      headline: "Tek bir geri dönüş teklifi yap: işletmenin gerçekten tanımladığı teklif, onu hangi süre boyunca geçerli sayacağı ve teklifin kullanılacağı yol. Uydurulan hiçbir şey yok ve çoktan yeniden satın almış birine hiçbir şey gönderilmez.",
+    },
+    "a.record-no-action": {
+      headline: "Hiçbir şeyin neden ve hangi aşamada gönderilmediğini kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.returning": {
+      headline: "Geri döndü",
+      detail: "ilk satın alma kişi başına bir kez olur; ilişkiyi buradan sonra olağan elde tutma akışları devralır",
+    },
+    "x.prompted": {
+      headline: "Karşılandı ve teklif yapıldı",
+      detail: "bu örnek yeniden açılmaz; teklifin kabul edilip edilmediğini gözlemek olağan yaşam döngüsünün işidir",
+    },
+    "x.closed": {
+      headline: "Karşılama yapılmadan kapandı",
+      detail: "geri alınan ilk satın alma yeniden geçerli olur ve izin geri gelirse kayıt yeniden değerlendirilir; aksi hâlde hiçbir şey yeniden açılmaz",
+    },
+    "x.no-action": {
+      headline: "Hiçbir temas gönderilmedi",
+      detail: "örnek yeniden açılmaz; karşılaması engellenmiş bir kişi daha sonra yeniymiş gibi karşılanmaz",
+    },
+  },
+  },
+  "FUL-291": {
+  shortName: "Satın Alma Sonrası Takip",
+  name: "Teslimat tamamlandı → işe yarayan bir sonraki adım gönderildi → takip edildi, devredildi veya gönderilmedi",
+  purpose: "Borçlu olunan şey gerçekten ulaştıktan sonra, onu işe yarar kılan tek şeyi göndermek - nasıl başlanacağı, nasıl bakılacağı, mantıken ne geldiği - ve başka hiçbir şeyi.",
+  nodes: {
+    "t.completed": { headline: "Teslimatın tamamlandığı yetkili olarak doğrulandı" },
+    "w.settle": {
+      headline: "ulaşan şey kişinin eline geçene kadar",
+      detail: "Zaman aşımı: takip mesajı, ulaşan şeyin kişinin eline makul olarak geçtiği ana kadar bekler; böylece kullanım rehberi gerçekten rehber olur, sipariş hakkında bir mesaj daha olmaz. (post_purchase_followup.settle ayarlanmalı)",
+    },
+    "c.state": {
+      headline: "Takip mesajı hâlâ gönderilecek doğru şey mi?",
+      edges: [
+        { label: "Takip zamanı", detail: "tamamlanma geçerli, buna karşı açılmış bir sorun yok ve hizmet iletişimi izni hâlâ geçerli" },
+        { label: "Açık bir sorun var", detail: "bu tamamlanmaya karşı bir sorun bildirilmiş" },
+        { label: "Artık ulaşılamıyor", detail: "kişi bu tür iletişim için iznini geri çekti" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Takip mesajı gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor ve teslim edilen şeye karşı gerçekten söylenmeye değer bir şey kayıtlı" },
+        { label: "Söylenecek bir şey yok veya engellendi", detail: "bir kapı akışı durduruyor ya da teslim edilen şeye karşı işe yarar hiçbir şey kayıtlı değil; gerekçe kaydedilir" },
+      ],
+    },
+    "a.followup": {
+      headline: "Alınan şey için işe yarayan sonraki adımı gönder: kurulumu, bakımı ya da mantıken ondan sonra geleni. Durum bildirimi yok, görüş talebi yok, siparişin kendi onayının tekrarı yok.",
+    },
+    "a.record-no-action": {
+      headline: "Neden takip mesajı gönderilmediğini ve hangi tamamlanmaya karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.followed-up": {
+      headline: "Takip edildi",
+      detail: "bu kişi için sonraki bir tamamlanma kendi örneğini açar; bu örnek yeniden açılmaz",
+    },
+    "x.superseded": {
+      headline: "Bir sorun nedeniyle devredildi",
+      detail: "bu kişi için sonraki bir tamamlanma kendi örneğini açar; çözülen bir telafi bu örneği yeniden açmaz",
+    },
+    "x.closed": {
+      headline: "Takip yapılmadan kapandı",
+      detail: "izin geri gelirse sonraki bir tamamlanma yeniden uygun hâle gelir; bu örnek yeniden açılmaz",
+    },
+    "x.no-action": {
+      headline: "Takip mesajı gönderilmedi",
+      detail: "bu kişi için sonraki bir tamamlanma kendi örneğini açar",
+    },
+  },
+  },
+  "RET-292": {
+  shortName: "İlk Satın Alma Yıl Dönümü",
+  name: "İlk satın alma yıl dönümü yaklaştı → uygunluk kontrol edildi → kutlandı veya gönderilmedi",
+  purpose: "Birinin ilk kez satın aldığı tarihin yıl dönümünü - ilişkinin kendi yaşını, ilk işleminden sayarak ve başka hiçbir şeyden değil - bir kez dile getirmek.",
+  nodes: {
+    "t.approaching": { headline: "İlk satın alma yıl dönümü yaklaşıyor" },
+    "c.eligible": {
+      headline: "Bu yıl dönümü hâlâ bizim kutlayacağımız bir şey mi?",
+      edges: [
+        { label: "Kutla", detail: "ilişki açık, ilk satın alma hâlâ geçerli, bu dönem daha önce kutlanmamış ve gönderim yolu geçiliyor" },
+        { label: "İlişki sona ermiş", detail: "hesap kapalı, ilk satın alma tamamen geri alınmış ya da kişi bu tür iletişim için iznini geri çekmiş" },
+        { label: "Gönderilemez", detail: "bir gönderim-yolu kapısı durduruyor ya da bu dönem zaten kutlanmış; gerekçe kaydedilir" },
+      ],
+    },
+    "a.recognise": {
+      headline: "İlişkinin ilk satın almadan bu yana ne kadar sürdüğünü söyle ve kaydın desteklemediği hiçbir şeyi dile getirme. Gerçekten tanımlanmış olmadıkça ödül, seviye ya da ayrıcalıktan söz etme.",
+    },
+    "a.record-no-action": {
+      headline: "Neden kutlama gönderilmediğini ve hangi dönem için olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.recognised": {
+      headline: "Kutlandı",
+      detail: "sonraki yıl dönümü dönemi kendi örneğini açar",
+    },
+    "x.closed": {
+      headline: "Mesaj gönderilmeden kapandı",
+      detail: "yeniden kurulan bir ilişki kendi ilk satın almasından tarihlenir ve sonraki dönemde değerlendirilir",
+    },
+    "x.no-action": {
+      headline: "Kutlama gönderilmedi",
+      detail: "sonraki yıl dönümü dönemi kendi örneğini açar; bu dönem sonradan telafi edilmez",
+    },
+  },
+  },
+  "RET-293": {
+  shortName: "Kişiye Özel Öneriler",
+  name: "Öneri sinyali nitelendi → hâlâ geçerli → önerildi → dönüştü, reddedildi veya kapandı",
+  purpose: "Kişiye, kendi yaptığı şeylerden - satın aldığı, incelediği, kaydettiği ya da açıkça belirttiği şeylerden - türeyen küçük bir küme göstermek; ve bunu yalnızca kümedeki her ürün gerçekten satın alınabilirken yapmak.",
+  nodes: {
+    "t.signal": { headline: "Öneri sinyali nitelendi" },
+    "c.valid": {
+      headline: "Öneri hâlâ geçerli mi?",
+      edges: [
+        { label: "Geçerli", detail: "sinyal şirketin tazelik kuralının içinde ve kümedeki en az bir ürün satın alınabilir, izinli ve bu kişide ne mevcut ne de reddedilmiş" },
+        { label: "Zaten satın alınmış", detail: "kişi o zamandan beri sinyalin konusu olan şeyi satın almış" },
+        { label: "Bayat veya boş", detail: "sinyal tazelik kuralını aşmış ya da kümedeki hiçbir ürün stok ve sahiplik kontrolünden geçememiş" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Öneri gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu kişiyi şu anda tutan daha yüksek öncelikli bir teklif akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.recommend": {
+      headline: "Sinyalin ürettiği kümeyi gönder; her ürünü önce stok, uygunluk ve sahiplik açısından yeniden oku ve kişinin zaten sahip olduğu ya da reddettiği hiçbir şeyi kümede bırakma. Rezerve stok, tutulan fiyat ya da indirim iddia etme.",
+    },
+    "w.window": {
+      headline: "satın alma gerçekleşene kadar",
+      detail: "Zaman aşımı: kümeye, ardından gelen bir satın almanın dürüstçe ona bağlanabileceği bir pencere tanınır; pencere kapandığında örnek de kapanır, zamanlanacak ikinci bir küme yoktur. (recommendations.observation_window ayarlanmalı)",
+    },
+    "c.outcome": {
+      headline: "Öneri ilgili bir satın almaya ulaştı mı?",
+      edges: [
+        { label: "Dönüştü", detail: "pencere içinde önerilen kümeden bir ürünün satın alındığına dair yetkili bir kayıt mevcut" },
+        { label: "Reddedildi", detail: "kişi önerilen konuyu istemediğini belirtti" },
+        { label: "Dönüşüm yok", detail: "pencere içinde ne kümeden bir satın alma ne de bir ret kaydı var" },
+      ],
+    },
+    "a.record-no-action": {
+      headline: "Neden öneri gönderilmediğini ve hangi fırsata karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.purchased": {
+      headline: "Dönüştü",
+      detail: "bu kişi için sonraki nitelenmiş sinyal, bekleme süresinden sonra kendi fırsatını açar",
+    },
+    "x.dismissed": {
+      headline: "Reddedildi",
+      detail: "başka bir konuya dair nitelenmiş bir sinyal kendi fırsatını açar; bu konu bir daha önerilmez",
+    },
+    "x.no-conversion": {
+      headline: "Önerildi, dönüşmedi",
+      detail: "bu kişi için sonraki nitelenmiş sinyal, bekleme süresinden sonra kendi fırsatını açar",
+    },
+    "x.no-action": {
+      headline: "Öneri gönderilmedi",
+      detail: "bu kişi için sonraki nitelenmiş sinyal kendi fırsatını açar",
+    },
+  },
+  },
+  "RET-294": {
+  shortName: "Çapraz Satış / Tamamlayıcı Teklif",
+  name: "Tanımlı tamamlayıcısı olan satın alma → olgunlaştı → teklif edildi → alındı, reddedildi veya kapandı",
+  purpose: "Kişinin zaten sahip olduğu bir şeyi gerçekten tamamlayan şeyi, ilk şey kullanılacak kadar zaman geçtikten sonra teklif etmek ve tamamlayıcı eline geçer geçmez susmak.",
+  nodes: {
+    "t.owned": { headline: "Tanımlı tamamlayıcısı olan bir satın alma yapıldı" },
+    "w.maturation": {
+      headline: "sahip olunan şey kullanılacak kadar zaman geçene kadar",
+      detail: "Zaman aşımı: teklif, tamamladığı şeyin makul olarak teslim alınıp kullanıldığı ana kadar bekler; böylece tamamlayıcı, hâlâ yoldaki bir siparişe iliştirilmiş bir ek satış değil, gerçek bir sonraki adım olur. (next_offer.maturation ayarlanmalı)",
+    },
+    "c.opportunity": {
+      headline: "Teklif etmeye değer bir tamamlayıcı sonraki adım hâlâ var mı?",
+      edges: [
+        { label: "Fırsat geçerli", detail: "kişi hâlâ ana ürüne sahip, tamamlayıcıya sahip değil, tanımlı ilişki hâlâ geçerli ve tamamlayıcı bu kişi için satın alınabilir ve izinli" },
+        { label: "Zaten tamamlanmış", detail: "kişi o zamandan beri tamamlayıcıyı herhangi bir yoldan edinmiş" },
+        { label: "Artık geçerli değil", detail: "tanımlı ilişki artık geçerli değil, tamamlayıcı satın alınamaz ya da bu kişi için izinli değil, veya izin geri çekilmiş" },
+      ],
+    },
+    "c.sendable": {
+      headline: "Teklif gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu kişiyi şu anda tutan daha yüksek öncelikli bir akışın bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.offer": {
+      headline: "Teklifi, kişinin zaten sahip olduğu şeyin üzerine kur: tamamlayıcı, neyi tamamladığı ve onu eklemek için izlenecek yol. Rezerve stok, tutulan fiyat ya da indirim iddia etme; tamamlayıcının zorunlu olduğunu asla söyleme.",
+    },
+    "w.response": {
+      headline: "tamamlayıcı satın alınana kadar",
+      detail: "Zaman aşımı: teklife, tek bir hatırlatma düşünülmeden önce üzerine hareket edilebilecek bir pencere tanınır; o hatırlatmadan sonra zamanlanacak başka bir şey yoktur. (next_offer.response_window ayarlanmalı)",
+    },
+    "c.outcome": {
+      headline: "Teklif kabul edildi mi?",
+      edges: [
+        { label: "Kabul edildi", detail: "bu kişinin tamamlayıcıyı satın aldığına dair yetkili bir kayıt mevcut" },
+        { label: "Reddedildi", detail: "kişi tamamlayıcıyı istemediğini belirtti" },
+        { label: "Henüz yanıt yok", detail: "tamamlayıcı hâlâ kişide değil ve reddedilmiş bir şey de yok" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "Tek hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor ve temas bütçesi tükenmemiş" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor ya da bütçe tükenmiş; gerekçe kaydedilir" },
+      ],
+    },
+    "a.remind": {
+      headline: "Aynı sahip olunan ürüne karşı aynı teklifi bir kez hatırlat; ilkinde olmayan hiçbir şey ekleme.",
+    },
+    "a.record-no-action": {
+      headline: "Hiçbir şeyin neden ve hangi aşamada gönderilmediğini kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.complete": {
+      headline: "Tamamlandı",
+      detail: "kendi tanımlı tamamlayıcısı olan başka bir sahip olunan ürün kendi örneğini açar",
+    },
+    "x.declined": {
+      headline: "Reddedildi",
+      detail: "kendi tanımlı tamamlayıcısı olan başka bir sahip olunan ürün kendi örneğini açar; bu tamamlayıcı bir daha teklif edilmez",
+    },
+    "x.offered": {
+      headline: "Teklif edildi ve hatırlatıldı",
+      detail: "aynı tamamlayıcının aynı ürün için ne zaman yeniden teklif edilebileceğini bekleme süresi belirler",
+    },
+    "x.closed": {
+      headline: "Kapandı",
+      detail: "ürün ilişkisi ve izin geri gelirse, sonraki değerlendirmede ürün yeniden uygun hâle gelir",
+    },
+    "x.no-action": {
+      headline: "Hiçbir temas gönderilmedi",
+      detail: "kendi tanımlı tamamlayıcısı olan başka bir sahip olunan ürün kendi örneğini açar",
+    },
+  },
+  },
   "ACQ-287": {
   shortName: "Checkout Tamamlama Kurtarma",
   name: "Ödeme süreci başladı → tamamlanmadı → satın alma veya çıkış",

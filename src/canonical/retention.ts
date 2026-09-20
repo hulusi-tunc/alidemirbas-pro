@@ -4128,4 +4128,1777 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     "reusableRule": "A lapsed paid relationship is invited back at most twice, only after its cancellation's own window has passed and only where reason, history and permission allow, with whatever honestly changed and a long cooldown afterwards."
   },
+  {
+    "id": "RET-290",
+    "slug": "first-purchase-welcome",
+    "category": "retention",
+    "goal": "progression-milestone",
+    "channels": ["email", "in-app", "push"],
+    "name": "First purchase completed → welcomed as a customer → returned, prompted or closed",
+    "shortName": "First Purchase Thank You & Bounceback",
+    "purpose": "Mark the moment a buyer becomes a customer for the first time, and give them one honest reason to come back - without ever speaking over the order's own transactional confirmation.",
+    "objective": "Turn a first purchase into a second one: welcome the person as a customer once the order has settled, and make at most one bounceback offer that the business actually has.",
+    "entity": {
+      "scope": "the new customer relationship - one person, opened by their first purchase",
+      "note": "One instance per person, ever, because a relationship is a first one only once. A second purchase inside the window closes the instance as returned rather than opening another.",
+      "instanceKey": [
+        "person_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A second purchase by the same person supersedes this instance: the relationship is no longer a new one and nothing further is sent under this journey."
+      }
+    },
+    "eligibility": [
+      "an authoritative purchase record for this person that their own purchase history confirms is their first",
+      "the order's own transactional confirmation is owned and sent by the journey whose job that is, not by this one",
+      "no earlier instance of this journey exists for this person",
+      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.transactional",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never carries the order's confirmation and never competes with it. The confirmation answers whether the order was received; this answers what happens now that somebody is a customer, and it waits until the first question has been answered."
+      },
+      {
+        "id": "s.returned",
+        "label": "CANONICAL_RULE",
+        "text": "A second purchase by this person closes the instance as returned. A bounceback sent to somebody who has already come back is the failure this journey exists to prevent, and the bounceback is reached only through a condition that just re-read the purchase record."
+      },
+      {
+        "id": "s.offer",
+        "label": "CANONICAL_RULE",
+        "text": "The bounceback names only an offer the business has actually issued and recorded, for the period the business will honour. Where there is none, nothing is promised and nothing is invented to fill the gap."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for lifecycle communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A post-purchase follow-up on the same person's order outranks this journey in the post-purchase-welcome group; while it holds the person, this journey's touch is deferred and re-evaluated against current state rather than queued blindly (GLB-06)."
+      },
+      {
+        "id": "s.cancelled",
+        "label": "CANONICAL_RULE",
+        "text": "A first purchase cancelled or fully reversed before the welcome goes out is not a first purchase; the instance ends without a touch."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "first_purchase_welcome.touches",
+          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - a welcome and at most one bounceback - and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the plan's own length - a welcome and one optional bounceback"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "first_purchase_welcome.cooldown",
+        "rule": "The instance opens once per person and never reopens, so the cooldown governs only how long the bounceback may sit behind the welcome before the ordinary lifecycle journeys take the relationship over.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "post-purchase-welcome",
+        "scope": "person",
+        "precedence": "below the post-purchase follow-up on the same person's order - what somebody is already holding comes before what they might buy next; above every promotional journey addressed to a person whose relationship is this new",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the touch has to carry the welcome or the offer and survive until the person can act on it - the default for both touches"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is already in a session where the next step can be taken without leaving the product"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the permission covering it still stands, and the touch is short enough to be a nudge"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "welcome",
+          "action": "a.welcome",
+          "gatedBy": "w.settle",
+          "prerequisites": [
+            "c.state",
+            "c.sendable"
+          ],
+          "purpose": "They are a customer now, and this is what that means here: what happens next with what they bought, where to find it, and how to reach a person. No offer unless the business has issued one.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "customer-account",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "a discount that has not been issued",
+              "a benefit the account does not carry",
+              "an expiry the platform does not enforce"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "bounceback",
+          "action": "a.bounceback",
+          "after": "t1",
+          "gatedBy": "w.second",
+          "prerequisites": [
+            "c.second",
+            "c.sendable2"
+          ],
+          "purpose": "One reason to come back, stated as whatever the business has actually issued and for as long as it will honour it - sent only to somebody who has not already come back.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "bounceback-offer",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "an offer that has not been issued",
+              "stock is reserved",
+              "the price is held"
+            ]
+          },
+          "mandatory": false,
+          "label": "OPTIONAL_STRATEGY"
+        }
+      ],
+      "noAction": [
+        "s.transactional",
+        "s.returned",
+        "s.offer",
+        "s.permission",
+        "s.contest",
+        "s.cancelled"
+      ]
+    },
+    "entry": "t.first",
+    "nodes": [
+      {
+        "id": "t.first",
+        "kind": "trigger",
+        "event": "first_purchase_completed",
+        "evidence": {
+          "requires": [
+            "an authoritative purchase record for this person",
+            "the person's own purchase history, confirming that no earlier purchase exists for them"
+          ],
+          "insufficientAlone": [
+            "a purchase by somebody who has bought before - that is an ordinary repeat purchase",
+            "an order placed but not yet accepted by the system of record",
+            "an account created with no purchase behind it",
+            "a purchase attributed to an identity that has not resolved to a person, which may well have a history under another one"
+          ],
+          "source": "authoritative"
+        },
+        "next": "w.settle"
+      },
+      {
+        "id": "w.settle",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.state",
+        "timeout": {
+          "after": {
+            "key": "first_purchase_welcome.settle",
+            "rule": "The welcome waits until the order has settled, so the transactional confirmation has had the moment that belongs to it and the welcome is not a second message about the same thing.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "a welcome that lands beside the order confirmation reads as a duplicate of it",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.state",
+        "recheck": "the purchase record, the order's own state and the person's permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.state",
+        "kind": "condition",
+        "asks": "Now that the order has settled, is a welcome still the right thing?",
+        "branches": [
+          {
+            "label": "Welcome due",
+            "when": "the first purchase stands, no second purchase is recorded, and permission for lifecycle communication still holds",
+            "observes": "purchase record, permission record",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Already returned",
+            "when": "a second purchase by this person is recorded before the welcome went out",
+            "observes": "purchase_completed",
+            "to": "x.returning"
+          },
+          {
+            "label": "Relationship ended",
+            "when": "the person withdrew permission, or the first purchase was cancelled or fully reversed",
+            "observes": "permission_withdrawn",
+            "to": "x.closed"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the welcome go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person",
+            "observes": "send path stages 1-8",
+            "to": "a.welcome"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.welcome",
+        "kind": "action",
+        "does": "Welcome the person as a customer: what happens next with what they bought, where to find it, and how to reach a person here. Name an offer only where one has actually been issued and recorded.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + touch id",
+        "writes": [
+          {
+            "field": "welcome_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.second"
+      },
+      {
+        "id": "w.second",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.second",
+        "timeout": {
+          "after": {
+            "key": "first_purchase_welcome.bounceback_window",
+            "rule": "The bounceback waits long enough that somebody who was going to come back on their own has had the chance to, and no longer than the point at which a first purchase stops being recent.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an offer spent on somebody who was about to buy anyway buys nothing, and one sent long after the first purchase is addressed to a stranger",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.second",
+        "recheck": "the person's purchase record and their permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.second",
+        "kind": "condition",
+        "asks": "Has a second purchase already been made?",
+        "branches": [
+          {
+            "label": "Returned",
+            "when": "an authoritative second purchase by this person is recorded",
+            "observes": "purchase_completed",
+            "to": "x.returning"
+          },
+          {
+            "label": "Not yet",
+            "when": "no purchase since the first one is recorded for this person",
+            "observes": "purchase record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the bounceback go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes, the touch budget is not spent, and the business has an issued offer to name",
+            "observes": "send path stages 1-8, offer record",
+            "to": "a.bounceback"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it, or there is no issued offer to name; the reason is recorded",
+            "observes": "send path stages 1-8, offer record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.bounceback",
+        "kind": "action",
+        "does": "Make one bounceback: the offer the business has issued, the period it will be honoured for, and the route to use it. Nothing invented, and nothing sent to somebody who has already bought again.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + touch id",
+        "writes": [
+          {
+            "field": "welcome_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.prompted"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + touch id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.returning",
+        "kind": "exit",
+        "state": "returned; a second purchase is recorded and the relationship is no longer a new one",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a first purchase happens once per person; the ordinary retention journeys own the relationship from here"
+      },
+      {
+        "id": "x.prompted",
+        "kind": "exit",
+        "state": "welcomed and prompted; the plan ran to its end and this journey's own work is done",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "this instance does not reopen; whether the offer is taken is the ordinary lifecycle's to observe"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a welcome; the relationship ended or the first purchase did not stand",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a reinstated first purchase and a restored permission are re-evaluated against the reinstated record; otherwise nothing reopens"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no touch sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the instance does not reopen; a person whose welcome was suppressed is not welcomed later as if it were new"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "first_purchase_id",
+          "first_purchase_at",
+          "customer_account_destination"
+        ],
+        "optional": [
+          "bounceback_offer_id",
+          "offer_honoured_until",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.returning",
+          "x.prompted",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "purchase_completed",
+        "unit": "person",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "first_purchase_welcome.holdout_share",
+          "rule": "A persistent per-person holdout is required: a share of first-time buyers come back without being asked, and without a holdout this journey claims every one of them.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "permission_withdrawn"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "bounceback_after_second_purchase",
+        "offer_named_without_record"
+      ],
+      "operational": [
+        "entry_volume",
+        "welcome_rate",
+        "bounceback_rate",
+        "no_action_rate_by_reason",
+        "second_purchase_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "first purchase thank you",
+        "new customer welcome",
+        "post-purchase bounceback",
+        "second purchase prompt",
+        "first order thank you"
+      ],
+      "useCases": [
+        "a first-time buyer who should be welcomed as a customer rather than only told their order was received",
+        "a recent first purchase that has not yet become a second one"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "FUL-291",
+        "because": "FUL-291 speaks about the order the person is now holding - how to use it, look after it, or what follows from it. This journey speaks about the relationship that order opened, and it never explains the product."
+      },
+      {
+        "journey": "ACQ-285",
+        "because": "ACQ-285 welcomes somebody who has shown interest and has bought nothing. This opens only on an authoritative first purchase, and its whole subject is the second one."
+      },
+      {
+        "journey": "RET-31",
+        "because": "RET-31 prompts a repeat of something the person's own history says is due. Here there is no history yet - one purchase is not a cadence - so the prompt is an offer rather than a prediction."
+      }
+    ],
+    "guardrails": [
+      "The order's own confirmation is never carried by this journey and never competes with it; the welcome waits until the order has settled.",
+      "A bounceback is never sent to somebody who has already bought again - the purchase record is re-read immediately before it.",
+      "An offer is named only where one has actually been issued and recorded, for the period the business will honour.",
+      "One welcome and at most one bounceback; there is no third touch to time."
+    ],
+    "reusableRule": "Becoming a customer for the first time is a state with its own journey, separate from the transaction that produced it: it waits for the transactional message to have its moment, says one thing about the relationship, and makes at most one offer the business has actually issued."
+  },
+  {
+    "id": "RET-292",
+    "slug": "first-purchase-anniversary",
+    "category": "retention",
+    "goal": "progression-milestone",
+    "channels": ["email", "push", "in-app"],
+    "name": "First-purchase anniversary approaching → eligibility checked → recognised or not sent",
+    "shortName": "First Purchase Anniversary",
+    "purpose": "Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once.",
+    "objective": "Mark how long the relationship has lasted, measured from the first purchase, to somebody who is still in it - without attaching anything the record does not carry.",
+    "entity": {
+      "scope": "the customer relationship dated from its first purchase - one person, one anniversary interval",
+      "note": "The entity is the FIRST PURCHASE date and nothing else: not a sign-up date, not a birthday, not the most recent order. One instance per person per anniversary interval, and an interval that passes unsent is closed rather than made up later.",
+      "instanceKey": [
+        "person_id",
+        "anniversary_cycle"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "The next anniversary interval supersedes the last: an interval that passed unsent is closed, never sent late and never folded into the following one."
+      }
+    },
+    "eligibility": [
+      "a recorded first-purchase date for this person, from which the anniversary interval is computed",
+      "the relationship is still open - the account is not closed and the first purchase still stands",
+      "no instance is already open for this person and this anniversary interval",
+      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.interval",
+        "label": "CANONICAL_RULE",
+        "text": "An anniversary is recognised on its own interval or not at all. An interval that passed without a message is closed; it is never sent late and never merged into the next one."
+      },
+      {
+        "id": "s.date",
+        "label": "CANONICAL_RULE",
+        "text": "The date is the first purchase and nothing else. A sign-up date, a birthday or a most-recent-order date is a different entity with a different journey, and substituting one for another makes the recognition untrue."
+      },
+      {
+        "id": "s.ended",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship that has ended is not congratulated on its length. A closed account, a fully reversed first purchase or a withdrawn permission ends the instance without a message."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No message without purpose-level permission for lifecycle communication and a deliverable destination; absent either, it is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.claim",
+        "label": "CANONICAL_RULE",
+        "text": "The message states only what the record supports - how long the relationship has lasted. It never attaches a reward, a tier or a benefit that has not been issued."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "first_purchase_anniversary.touches",
+          "rule": "One recognition per anniversary interval, fixed when the instance opened; there is no follow-up to time and nothing is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - a single recognition per interval"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "first_purchase_anniversary.cooldown",
+        "rule": "Between one recognition and the next lies a whole anniversary interval; nothing shorter reopens this journey for the same person.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": "none"
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the recognition should be kept rather than glanced at - the default"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the permission covering it still stands"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is already in a session and the recognition belongs where the relationship itself is visible"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "recognition",
+          "action": "a.recognise",
+          "prerequisites": [
+            "c.eligible"
+          ],
+          "purpose": "How long this relationship has lasted, counted from the first purchase, said once and with nothing attached that the record does not carry.",
+          "channelRoles": [
+            "persistent",
+            "low-friction",
+            "in-session"
+          ],
+          "destination": {
+            "target": "customer-account",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "a reward that has not been issued",
+              "a tier the account does not hold",
+              "a benefit tied to the anniversary that does not exist"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.interval",
+        "s.date",
+        "s.ended",
+        "s.permission",
+        "s.claim"
+      ]
+    },
+    "entry": "t.approaching",
+    "nodes": [
+      {
+        "id": "t.approaching",
+        "kind": "trigger",
+        "event": "first_purchase_anniversary_approaching",
+        "evidence": {
+          "requires": [
+            "a recorded first-purchase date for this person",
+            "the anniversary interval the company has configured, and the cycle this occurrence belongs to"
+          ],
+          "insufficientAlone": [
+            "a sign-up or account-creation date, which dates a different relationship entirely",
+            "a birthday or any other date about the person rather than about the relationship",
+            "a most-recent-order date, which measures recency and not length",
+            "an anniversary interval that has already passed without a message"
+          ],
+          "source": "authoritative"
+        },
+        "next": "c.eligible"
+      },
+      {
+        "id": "c.eligible",
+        "kind": "condition",
+        "asks": "Is this anniversary still ours to recognise?",
+        "branches": [
+          {
+            "label": "Recognise",
+            "when": "the relationship is open, the first purchase still stands, this interval has not already been recognised, and the send path passes",
+            "observes": "relationship record, first-purchase record, send path stages 1-8",
+            "to": "a.recognise"
+          },
+          {
+            "label": "Relationship ended",
+            "when": "the account is closed, the first purchase has been fully reversed, or the person withdrew permission for this kind of communication",
+            "observes": "relationship record, permission record",
+            "to": "x.closed"
+          },
+          {
+            "label": "Not sendable",
+            "when": "a send-path gate stops it, or this interval has already been recognised; the reason is recorded",
+            "observes": "send path stages 1-8, recognition record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.recognise",
+        "kind": "action",
+        "does": "State how long the relationship has lasted, counted from the first purchase, and say nothing the record does not support. No reward, tier or benefit unless one has actually been issued.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + anniversary_cycle",
+        "writes": [
+          {
+            "field": "recognition_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.recognised"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no recognition was sent and for which interval, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + anniversary_cycle",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.recognised",
+        "kind": "exit",
+        "state": "recognised; the anniversary was marked once for this interval",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "the next anniversary interval opens its own instance"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a message; the relationship this anniversary would have counted has ended",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a reopened relationship is dated from its own first purchase and is evaluated at the next interval"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no recognition sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the next anniversary interval opens its own instance; this interval is not made up later"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "first_purchase_at",
+          "anniversary_interval",
+          "anniversary_cycle",
+          "customer_account_destination"
+        ],
+        "optional": [
+          "relationship_state",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.recognised",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "recognition_after_relationship_ended",
+        "interval_recognised_twice",
+        "benefit_named_without_record"
+      ],
+      "operational": [
+        "entry_volume",
+        "recognition_rate",
+        "no_action_rate_by_reason"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "first purchase anniversary",
+        "customer anniversary",
+        "relationship anniversary",
+        "years as a customer",
+        "purchase anniversary recognition"
+      ],
+      "useCases": [
+        "a customer reaching a whole interval measured from their first purchase",
+        "a relationship whose length is worth saying out loud without attaching an offer to it"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-290",
+        "because": "RET-290 works at the start of the relationship and is trying to produce a second purchase. This works on the relationship's age and is trying to produce nothing; the recognition is the whole point."
+      },
+      {
+        "journey": "SUB-163",
+        "because": "SUB-163 counts down to an obligation somebody has to act on before a date. An anniversary carries no obligation and no deadline - nothing happens if it is ignored."
+      }
+    ],
+    "guardrails": [
+      "The date is the first purchase; no other date is substituted for it.",
+      "An interval that passed without a message is closed, never sent late.",
+      "A relationship that has ended is not congratulated on its length.",
+      "Nothing is attached that has not been issued - no reward, no tier, no benefit."
+    ],
+    "reusableRule": "A recognition dated from one specific record states only what that record supports, happens on its own interval or not at all, and is never made up afterwards."
+  },
+  {
+    "id": "RET-293",
+    "slug": "personalized-recommendations",
+    "category": "retention",
+    "goal": "progression-milestone",
+    "channels": ["email", "in-app", "push"],
+    "name": "Recommendation signal qualified → still valid → recommended → converted, dismissed or closed",
+    "shortName": "Personalized Recommendations",
+    "purpose": "Show a person a small set of things that follow from what they themselves have done - bought, looked at, saved or stated - and only while every item in it is still something they can actually buy.",
+    "objective": "Turn a recorded signal about this particular person into one relevant set, sent once, with nothing in it they cannot have and nothing in it they already own.",
+    "entity": {
+      "scope": "one recommendation opportunity - the person, the signal it rests on, and the set of items that signal produced",
+      "note": "One instance per person and opportunity. The set is bound to the signal that produced it: where the signal has gone stale, or no item survives the availability and ownership re-read, the instance closes rather than sending a different set.",
+      "instanceKey": [
+        "person_id",
+        "opportunity_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A newer qualified signal for the same person supersedes an open instance: the newer opportunity owns the recommendation from that moment and the older one sends nothing."
+      }
+    },
+    "eligibility": [
+      "a recorded signal about this particular person - a purchase, a browsing record, a saved preference, a stated affinity or a known relationship between products",
+      "a set of items derived from that signal, at least one of which is currently available and permitted for this person",
+      "no instance is already open for this person",
+      "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.broadcast",
+        "label": "CANONICAL_RULE",
+        "text": "Without a recorded signal about this particular person there is no recommendation to make. A set assembled from what is popular, new or discounted is a broadcast, and this journey does not send it."
+      },
+      {
+        "id": "s.unavailable",
+        "label": "CANONICAL_RULE",
+        "text": "Every item is re-read for availability and eligibility immediately before sending. Anything the person cannot buy or may not be shown is dropped, and where nothing survives, nothing is sent."
+      },
+      {
+        "id": "s.owned",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing already bought, already held or already declined by this person is recommended back to them."
+      },
+      {
+        "id": "s.stale",
+        "label": "CANONICAL_RULE",
+        "text": "A signal is worth acting on only while the company can honestly say it is still this person's. Past that point the instance closes without a message rather than producing a different set."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No recommendation without purpose-level permission for commercial communication and a deliverable destination; absent either, it is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A complementary next offer holding the same person outranks this journey in the recommendation-offer group; while it holds them, this one is suppressed for that person rather than queued behind it (GLB-06)."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "recommendations.touches",
+          "rule": "The recommendation runs against a budget fixed when the instance opened; the budget is the journey's own length, and it is not repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - one set per opportunity"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "recommendations.cooldown",
+        "rule": "After a recommendation, a further qualified signal for the same person is tracked but not sent on until the cooldown has passed; a conversion carries no cooldown.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "recommendation-offer",
+        "scope": "person",
+        "precedence": "below the complementary next offer for the same person - a next step that follows from something they already own is a stronger claim on the moment than a set that merely resembles what they liked; while that journey holds the person, this one is suppressed for them",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the set has to be browsable and survive until the person has time for it - the default"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is already in a session where the items can be opened directly"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the permission covering it still stands, and one item carries the whole message"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "recommendation",
+          "action": "a.recommend",
+          "prerequisites": [
+            "c.valid",
+            "c.sendable"
+          ],
+          "purpose": "A small set that follows from something this person actually did, with every item still available to them and the reason it is there plain from the set itself.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "recommended-set",
+            "boundTo": "opportunity_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "that the set was chosen by anyone other than a machine"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.broadcast",
+        "s.unavailable",
+        "s.owned",
+        "s.stale",
+        "s.permission",
+        "s.contest"
+      ]
+    },
+    "entry": "t.signal",
+    "nodes": [
+      {
+        "id": "t.signal",
+        "kind": "trigger",
+        "event": "recommendation_signal_qualified",
+        "evidence": {
+          "requires": [
+            "a recorded signal about this particular person - a purchase, a browsing record, a saved preference, a stated affinity or a known relationship between products",
+            "a set of items derived from that signal",
+            "the recency rule the company uses to say the signal is still this person's"
+          ],
+          "insufficientAlone": [
+            "what is popular, new or discounted, with nothing about this person behind it",
+            "a signal belonging to a segment rather than to this person",
+            "a signal about something the person already owns or has already declined",
+            "an item set assembled with no signal to explain why those items and not others"
+          ],
+          "source": "inferred"
+        },
+        "next": "c.valid"
+      },
+      {
+        "id": "c.valid",
+        "kind": "condition",
+        "asks": "Is the recommendation still valid?",
+        "branches": [
+          {
+            "label": "Valid",
+            "when": "the signal is still inside the company's recency rule, and at least one item in the set is available, permitted, and neither owned nor declined by this person",
+            "observes": "signal record, item availability, ownership record",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Already bought",
+            "when": "the person has since bought the thing the signal was about",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "Stale or empty",
+            "when": "the signal has passed the recency rule, or no item in the set survives the availability and ownership re-read",
+            "observes": "signal record, item availability",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the recommendation go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence offer currently holding this person, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.recommend"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.recommend",
+        "kind": "action",
+        "does": "Send the set the signal produced, with every item re-read for availability, eligibility and ownership first, and nothing in it the person already has or has declined. Claim no reserved stock, no held price and no discount.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + opportunity_id",
+        "writes": [
+          {
+            "field": "recommendation_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.window"
+      },
+      {
+        "id": "w.window",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "interest_dismissed"
+        ],
+        "onEvent": "c.outcome",
+        "timeout": {
+          "after": {
+            "key": "recommendations.observation_window",
+            "rule": "The set is given a window in which a purchase can honestly be read as following from it, after which the instance closes; there is no second set to time.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "past its window a purchase is the person's own doing, and counting it here would be a claim the data does not support",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.outcome",
+        "recheck": "the person's purchase record and any dismissal of the recommended subject re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.outcome",
+        "kind": "condition",
+        "asks": "Did the recommendation reach a relevant purchase?",
+        "branches": [
+          {
+            "label": "Converted",
+            "when": "an authoritative purchase of an item from the recommended set is recorded inside the window",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "Dismissed",
+            "when": "the person signalled that the recommended subject is not wanted",
+            "observes": "interest_dismissed",
+            "to": "x.dismissed"
+          },
+          {
+            "label": "No conversion",
+            "when": "neither a purchase from the set nor a dismissal is recorded inside the window",
+            "observes": "purchase record",
+            "to": "x.no-conversion"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no recommendation was sent and against which opportunity, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + opportunity_id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.purchased",
+        "kind": "exit",
+        "state": "converted; a purchase from the recommended set is recorded",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "the next qualified signal for this person opens its own opportunity, after the cooldown"
+      },
+      {
+        "id": "x.dismissed",
+        "kind": "exit",
+        "state": "dismissed; the person said the recommended subject is not wanted",
+        "class": "suppression",
+        "terminal": false,
+        "reEntry": "a qualified signal about a different subject opens its own opportunity; this subject is not proposed again"
+      },
+      {
+        "id": "x.no-conversion",
+        "kind": "exit",
+        "state": "recommended, not converted; the window closed with no purchase from the set",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "the next qualified signal for this person opens its own opportunity, after the cooldown"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no recommendation sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the next qualified signal for this person opens its own opportunity"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "opportunity_id",
+          "signal_type",
+          "signal_recorded_at",
+          "recommended_item_ids",
+          "recommended_set_destination"
+        ],
+        "optional": [
+          "owned_item_ids",
+          "declined_item_ids",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.purchased",
+          "x.dismissed",
+          "x.no-conversion",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "purchase_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "recommendations.holdout_share",
+          "rule": "A persistent per-person holdout is required: people buy things resembling what they already bought without being shown them, and without a holdout this journey claims all of it.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "interest_dismissed"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "unavailable_item_recommended",
+        "already_owned_item_recommended"
+      ],
+      "operational": [
+        "entry_volume",
+        "signal_type_distribution",
+        "set_survival_rate",
+        "recommendation_rate",
+        "no_action_rate_by_reason"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "personalized recommendations",
+        "recommended for you",
+        "product recommendations",
+        "relevant picks",
+        "behaviour-based recommendations"
+      ],
+      "useCases": [
+        "a person whose purchase or browsing record supports a small set of relevant items",
+        "a saved preference or stated affinity that has not yet been acted on"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-294",
+        "because": "RET-294 starts from something the person already owns and asks what completes it, on a relationship between products the company has declared. This starts from what the person has shown and asks what resembles it - a relationship between a person and a pattern, not between two things."
+      },
+      {
+        "journey": "RET-31",
+        "because": "RET-31 predicts that a specific thing is running out and prompts the same purchase again. This proposes something different and predicts nothing about timing."
+      },
+      {
+        "journey": "ACQ-13",
+        "because": "ACQ-13 acts on attention to one subject that never became a selection. This assembles a set from a record that may be much older and has no single unresolved subject in it."
+      }
+    ],
+    "guardrails": [
+      "Without a recorded signal about this particular person there is no recommendation; popularity is not a signal about anybody.",
+      "Every item is re-read for availability, eligibility and ownership immediately before sending, and a set with nothing left in it is not sent.",
+      "Nothing already bought, held or declined is recommended back.",
+      "The set is bound to the signal that produced it; a stale signal closes the instance rather than producing a different set."
+    ],
+    "reusableRule": "A recommendation is only a recommendation if something the person themselves did produced it, and it is only honest if every item in it is re-read against what they can actually buy at the moment it is sent."
+  },
+  {
+    "id": "RET-294",
+    "slug": "complementary-next-offer",
+    "category": "retention",
+    "goal": "progression-milestone",
+    "channels": ["email", "push", "in-app"],
+    "name": "Purchase with a declared complement → matured → offered → taken, declined or closed",
+    "shortName": "Cross-Sell / Next Best Offer",
+    "purpose": "Offer the thing that genuinely completes something the person already owns, once the first thing has had time to be used, and stop the moment they have it.",
+    "objective": "Get the complementary next step taken by somebody who already owns the thing it completes - never an accessory proposed to a person still waiting for the product it attaches to.",
+    "entity": {
+      "scope": "one complementary opportunity - the person, the subject they own, and the declared product relationship that makes the next thing complementary rather than merely similar",
+      "note": "One instance per person and owned subject. The offer is bound to a relationship the company has declared between two products, not to resemblance: where that relationship no longer holds, or the person already has the complement, the instance closes rather than substituting a different offer.",
+      "instanceKey": [
+        "person_id",
+        "owned_subject_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "Acquiring the complement by any route closes the instance; a further purchase of the same owned subject does not open a second one while this instance is open."
+      }
+    },
+    "eligibility": [
+      "an authoritative record that this person owns the subject the offer would complete",
+      "a relationship between that subject and the complementary product that the company has declared, rather than one inferred from resemblance",
+      "the complement is available and permitted for this person, and they do not already have it",
+      "no instance is already open for this person and this owned subject",
+      "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.owned",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing already owned is offered as a next step. Ownership is re-read immediately before every touch and never trusted from the record that opened the instance."
+      },
+      {
+        "id": "s.relationship",
+        "label": "CANONICAL_RULE",
+        "text": "The offer rests on a declared relationship between two products. Where no such relationship is recorded, what is left is a resemblance, and a resemblance belongs to the recommendation journey rather than to this one."
+      },
+      {
+        "id": "s.premature",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is offered before the thing it completes has plausibly been received and used. An accessory proposed to somebody still waiting for the product it attaches to is the failure this journey exists to prevent."
+      },
+      {
+        "id": "s.segment",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "A segment split is made only where the offer itself genuinely differs by segment. Splitting one offer into branches that send the same thing adds a decision the business does not actually have."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for commercial communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "While this journey holds a person in the recommendation-offer group, the generic recommendation journey is suppressed for them; the two never propose a next purchase to the same person at the same time."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "next_offer.touches",
+          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - an offer and at most one reminder of it - and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the plan's own length - an offer and one optional reminder"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "next_offer.cooldown",
+        "rule": "After an offer closes unaccepted, the same complement is not offered again for the same owned subject until the cooldown has passed; acquiring the complement carries no cooldown.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "recommendation-offer",
+        "scope": "person",
+        "precedence": "above the generic recommendation for the same person - a next step that follows from something they already own outranks a set that merely resembles what they liked; while this journey holds the person, that one is suppressed for them rather than queued behind it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the offer has to carry what it completes and survive until the person can act on it - the default for both touches"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the permission covering it still stands, and the offer is short enough to be a nudge"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the person is already in a session where the complement can be added to what they own without leaving the product"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "offer",
+          "action": "a.offer",
+          "gatedBy": "w.maturation",
+          "prerequisites": [
+            "c.opportunity",
+            "c.sendable"
+          ],
+          "purpose": "The thing that completes what they already own, named against what they own rather than on its own. Nothing about stock, price or a deadline the platform does not enforce.",
+          "channelRoles": [
+            "persistent",
+            "low-friction",
+            "in-session"
+          ],
+          "destination": {
+            "target": "complementary-item",
+            "boundTo": "owned_subject_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "that the complement is required to use what they already own"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "reminder",
+          "action": "a.remind",
+          "after": "t1",
+          "gatedBy": "w.response",
+          "prerequisites": [
+            "c.outcome",
+            "c.sendable2"
+          ],
+          "purpose": "One reminder of the same offer, to somebody who still does not have the complement and has not said they do not want it. Nothing new is added to make it land.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "destination": {
+            "target": "complementary-item",
+            "boundTo": "owned_subject_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies"
+            ]
+          },
+          "mandatory": false,
+          "label": "OPTIONAL_STRATEGY"
+        }
+      ],
+      "noAction": [
+        "s.owned",
+        "s.relationship",
+        "s.premature",
+        "s.segment",
+        "s.permission",
+        "s.contest"
+      ]
+    },
+    "entry": "t.owned",
+    "nodes": [
+      {
+        "id": "t.owned",
+        "kind": "trigger",
+        "event": "purchase_with_known_complement",
+        "evidence": {
+          "requires": [
+            "an authoritative record that this person owns the subject the offer would complete",
+            "a relationship between that subject and a complementary product that the company has declared",
+            "the complement's current availability and eligibility for this person"
+          ],
+          "insufficientAlone": [
+            "a purchase with no declared complementary relationship behind it - a resemblance is not a complement",
+            "a complement the person already owns",
+            "a pairing inferred from what other people bought together, with nothing declared behind it",
+            "an order placed but not yet accepted by the system of record"
+          ],
+          "source": "authoritative"
+        },
+        "next": "w.maturation"
+      },
+      {
+        "id": "w.maturation",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.opportunity",
+        "timeout": {
+          "after": {
+            "key": "next_offer.maturation",
+            "rule": "The offer waits until the thing it completes has plausibly been received and used, so that a complement arrives as a next step rather than as an upsell attached to an order still in transit.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an accessory offered to somebody who has not yet used the product it attaches to interrupts the purchase they already made",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.opportunity",
+        "recheck": "ownership of the subject and of the complement, the declared product relationship and the person's permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.opportunity",
+        "kind": "condition",
+        "asks": "Is there still a complementary next step worth offering?",
+        "branches": [
+          {
+            "label": "Opportunity stands",
+            "when": "the person still owns the subject, does not have the complement, the declared relationship still holds, and the complement is available and permitted for them",
+            "observes": "ownership record, product relationship record, item availability",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Already complete",
+            "when": "the person has since acquired the complement by any route",
+            "observes": "purchase_completed",
+            "to": "x.complete"
+          },
+          {
+            "label": "No longer applicable",
+            "when": "the declared relationship no longer holds, the complement is unavailable or not permitted for this person, or permission was withdrawn",
+            "observes": "permission_withdrawn",
+            "to": "x.closed"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the offer go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence journey currently holding this person, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.offer"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.offer",
+        "kind": "action",
+        "does": "Make the offer against what the person already owns: the complement, what it completes, and the route to add it. Claim no reserved stock, no held price, no discount, and never that the complement is required.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + owned_subject_id + touch id",
+        "writes": [
+          {
+            "field": "offer_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.response"
+      },
+      {
+        "id": "w.response",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "interest_dismissed"
+        ],
+        "onEvent": "c.outcome",
+        "timeout": {
+          "after": {
+            "key": "next_offer.response_window",
+            "rule": "The offer is given a window in which it can be acted on before a single reminder is considered; after that reminder there is nothing further to time.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "a reminder sent before the offer has had time to be read is a repeat, and one sent long afterwards is a new offer pretending to be a reminder",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.outcome",
+        "recheck": "ownership of the complement and any dismissal of the offer re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.outcome",
+        "kind": "condition",
+        "asks": "Was the offer taken?",
+        "branches": [
+          {
+            "label": "Taken",
+            "when": "an authoritative purchase of the complement by this person is recorded",
+            "observes": "purchase_completed",
+            "to": "x.complete"
+          },
+          {
+            "label": "Declined",
+            "when": "the person signalled that the complement is not wanted",
+            "observes": "interest_dismissed",
+            "to": "x.declined"
+          },
+          {
+            "label": "No answer yet",
+            "when": "the complement is still not owned and nothing has been declined",
+            "observes": "ownership record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the single reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and the touch budget is not spent",
+            "observes": "send path stages 1-8, touch budget",
+            "to": "a.remind"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it or the budget is spent; the reason is recorded",
+            "observes": "send path stages 1-8, touch budget",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.remind",
+        "kind": "action",
+        "does": "Remind once of the same offer against the same owned subject, adding nothing that was not in the first one.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + owned_subject_id + touch id",
+        "writes": [
+          {
+            "field": "offer_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.offered"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + owned_subject_id + touch id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.complete",
+        "kind": "exit",
+        "state": "complete; the person has the complementary thing the offer was about",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a different owned subject with its own declared complement opens its own instance"
+      },
+      {
+        "id": "x.declined",
+        "kind": "exit",
+        "state": "declined; the person said the complement is not wanted",
+        "class": "suppression",
+        "terminal": false,
+        "reEntry": "a different owned subject with its own declared complement opens its own instance; this complement is not offered again"
+      },
+      {
+        "id": "x.offered",
+        "kind": "exit",
+        "state": "offered and reminded; the plan ran to its end without the complement being taken",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "the cooldown governs when the same complement may be offered again for the same subject"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed; the relationship the offer rested on no longer holds",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a restored product relationship and a restored permission make the subject eligible again at the next evaluation"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no touch sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a different owned subject with its own declared complement opens its own instance"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "owned_subject_id",
+          "complement_item_id",
+          "product_relationship_id",
+          "owned_since",
+          "complement_destination"
+        ],
+        "optional": [
+          "complement_availability",
+          "permission_state",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.complete",
+          "x.declined",
+          "x.offered",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "purchase_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "next_offer.holdout_share",
+          "rule": "A persistent per-person holdout is required: people buy the obvious complement to what they own without being asked, and without a holdout this journey claims every one of those purchases.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "interest_dismissed"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "offer_for_owned_complement",
+        "offer_before_maturation"
+      ],
+      "operational": [
+        "entry_volume",
+        "maturation_survival_rate",
+        "offer_rate",
+        "reminder_rate",
+        "no_action_rate_by_reason"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "cross-sell",
+        "next best offer",
+        "complementary product offer",
+        "accessory offer",
+        "what goes with what you bought"
+      ],
+      "useCases": [
+        "a product with a declared complementary item its owner does not have",
+        "a completed purchase whose natural next step the company can name rather than guess"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-293",
+        "because": "RET-293 starts from what the person has shown and proposes what resembles it. This starts from what they already own and proposes what completes it, on a relationship between two products the company has declared - which is a different claim, with a different way of being wrong."
+      },
+      {
+        "journey": "RET-31",
+        "because": "RET-31 prompts the same purchase again because the first one is running out. This proposes a different thing, and ownership of the first is exactly what makes it relevant."
+      },
+      {
+        "journey": "ACQ-288",
+        "because": "ACQ-288 recovers a selection the person made and left behind. Here the purchase completed; nothing is being recovered, and the subject of the offer is something they never selected."
+      }
+    ],
+    "guardrails": [
+      "The offer rests on a relationship the company has declared between two products, never on resemblance - resemblance belongs to the recommendation journey.",
+      "Ownership of the complement is re-read immediately before every touch; nothing already owned is offered.",
+      "Nothing is offered before the thing it completes has plausibly been received and used.",
+      "A segment split is made only where the offer itself genuinely differs; a split that sends the same thing down two branches is a decision the business does not have.",
+      "One offer and at most one reminder, and the reminder adds nothing the offer did not have."
+    ],
+    "reusableRule": "A complementary offer is bound to a relationship the company has actually declared between two things and to ownership of the first of them, re-read before every touch - which is what keeps it a next step rather than a second guess at what somebody likes."
+  },
 ];

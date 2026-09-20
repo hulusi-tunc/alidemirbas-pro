@@ -1,7 +1,9 @@
 # Current Checkpoint
 
-Scope: **52 public / 21 excluded / 73 source** — reconciled and verified.
-Phase: executing the approved decision list (`audit/DECISIONS-PENDING.md`).
+Scope: **58 public / 21 excluded / 79 source** — Batch A of the 17 additions shipped.
+Target when all four batches land: **69 public / 21 excluded / 90 source**.
+Phase: Phase 25–33, adding 17 new public journeys, over the approved decision
+list (`audit/DECISIONS-PENDING.md`) which is partly still open.
 
 ## Execution order and status
 
@@ -16,6 +18,7 @@ Phase: executing the approved decision list (`audit/DECISIONS-PENDING.md`).
 | 6 | C — data hygiene | C1 **DONE**; C2–C5 pending |
 | 7 | D — canvas fixes | pending |
 | 8 | Redesign batches over the 52 | pending |
+| 9 | Phase 25–33 — 17 new journeys | Batch A **DONE** (ACQ-289, RET-290, FUL-291, RET-292, RET-293, RET-294); B/C/D pending |
 
 ## Shipped to main
 
@@ -53,13 +56,13 @@ removed, suppressed or given a message.
 | gate | result |
 |---|---|
 | `scripts/validate-public-scope.mjs` | PASS — 15 checks, 0 failures, 3 warnings |
-| `audit/canvas-hygiene.mjs` | PASS — 1363 cards, 0 findings |
-| `audit/guard-display.mjs` | PASS — canonical drift none, G1/G2/G3 0 |
+| `audit/canvas-hygiene.mjs` | PASS — 1457 cards, 0 findings |
+| `audit/guard-display.mjs` | PASS — canonical drift none, G1/G2/G3/G5/G6 0 |
 | `npm run validate:canonical` | PASS — 0 errors |
-| `npm run validate:journey-production` | PASS — 30/30 |
+| `npm run validate:journey-production` | PASS — 30/30, baseline 292/3802 |
 | `npm run validate:seo` | PASS |
 | `tsc` / `build` / `eslint` | clean |
-| route parity | 52 × 200 EN+TR · 21 × 404 EN+TR |
+| route parity | 58 × 200 EN+TR · 21 × 404 EN+TR |
 
 ## After every step — the required loop
 
@@ -105,6 +108,29 @@ console.log(Object.keys(old).filter(id=>now[id]&&old[id].hash!==now[id].hash).jo
 
 Generated files are git-tracked; a stale one shows as a diff.
 
+## The guard's unreachability exception, and what re-closed the hole
+
+G1 used to demand that every canonical ending be drawn. That is wrong once a
+gate legitimately collapses: the gate takes its "record why nothing was sent"
+hop with it, and an exit reached ONLY through that hop has nothing left
+pointing at it. RET-290 and FUL-291 are exactly this; ACQ-11 keeps its
+`x.no-action` because `c.eligible` also points there. So G1/G2 now ask "is it
+drawn IF a drawn node still leads to it".
+
+That relaxation re-opens the hole the guard was written for: a wrongly
+collapsed *business decision* hides, its exits become unreachable, and no
+drawn parent is left to flag it. Two checks close it:
+
+- **G5** — a journey must draw at least one ending (catches total loss).
+- **G6** — a condition may only be missing from the canvas if it matches the
+  one sanctioned gate shape: exactly two branches, exactly one of them an
+  unexecuted hop into a `no-action` exit. Anything else is a decision the
+  reader lost.
+
+G6 is not vacuous: 25 conditions in the 58 public journeys are hidden, and all
+25 match that shape. Forcing `sanctioned = false` reports all 25, which is how
+that was proven.
+
 ## Traps that have already cost time
 
 1. **`validate:canonical`'s channel rule is bidirectional.** Adding or removing
@@ -129,7 +155,6 @@ Generated files are git-tracked; a stale one shows as a diff.
 
 - `SIZE.exit` is 68; the worst Turkish exit wants 103 in a 200px slot. D1 is
   the approved fix (start ~240, validate visually).
-- `CLAUDE.md` still states 73 library journeys and a 284/3690 corpus. Actual:
-  52 public, 286/3732.
+
 - `npm run lint` has 1 pre-existing error in `src/components/ui/MobileNav.tsx:78`,
   unrelated, not build-failing.

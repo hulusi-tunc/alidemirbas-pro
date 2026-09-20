@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 286", journeys.length === 286);
+check(1, "active journey count = 292", journeys.length === 292);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -248,8 +248,8 @@ const requiredGraphFixtures = ["SUB-166", "DOC-216", "RSK-194", "ACQ-10", "RET-2
 const missingGraphFixtures = requiredGraphFixtures.filter((i) => !fixtureIds.has(i));
 check(28, "extreme graph fixtures included", missingGraphFixtures.length === 0);
 
-// 29 — production manifest covers all 286
-check(29, "production manifest covers all 286", manifest.length === 286);
+// 29 — production manifest covers all 292
+check(29, "production manifest covers all 292", manifest.length === 292);
 
 // 30 — canonical source mutation = 0 (checked via node/edge/rule counts matching the last known validate:canonical baseline)
 // Baseline moved from 3674 to 3682 nodes in the operational-workflow production-readiness repair
@@ -289,11 +289,22 @@ check(29, "production manifest covers all 286", manifest.length === 286);
 //                          it is safe: before the second education it re-checks progression,
 //                          permission and deliverability, and a lead that already progressed is
 //                          handed over instead of being spent on (decision B3).
+// Baseline moved from 286/3732 to 292/3802 journeys/nodes (2026-09-20) by BATCH A of the
+// commerce / post-purchase journey additions — six new canonical journeys, ids allocated in
+// audit/new-journey-id-map.md, 70 nodes between them:
+//   ACQ-289 Back-in-Stock Alert            (13 nodes, src/canonical/acquisition.ts)
+//   RET-290 First Purchase Thank You & Bounceback (14 nodes, src/canonical/retention.ts)
+//   FUL-291 Post-Purchase Follow-Up        (10 nodes, src/canonical/fulfillment.ts)
+//   RET-292 First Purchase Anniversary     (7 nodes,  src/canonical/retention.ts)
+//   RET-293 Personalized Recommendations   (11 nodes, src/canonical/retention.ts)
+//   RET-294 Cross-Sell / Next Best Offer   (15 nodes, src/canonical/retention.ts)
+// The public library moved 52 -> 58 with the same batch (src/lib/public-corpus.ts,
+// scripts/public-scope.mjs); rules, global rules and merged redirects are unchanged.
 check(
   30,
-  "canonical source mutation = 0 (286 journeys / 3732 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 286 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3732 &&
+  "canonical source mutation = 0 (292 journeys / 3802 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 292 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3802 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

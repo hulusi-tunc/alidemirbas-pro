@@ -3121,6 +3121,10 @@
         {
           "journey": "ACC-74",
           "because": "ACC-74 ends future use of a lost entitlement. Here the point is the window before that takes effect, which is the only period in which the person can still act."
+        },
+        {
+          "journey": "TIM-274",
+          "because": "TIM-274 tells a holder about a bounded grace window with a fixed end. One unpaid obligation can produce both that window and a restriction, and the two would otherwise say the same thing twice - what stopped, what still works, the deadline and the one condition that lifts it. The restriction is the later and harder state, so this journey owns the message from the moment it is recorded and the grace journey stops."
         }
       ],
       "competition": null,
@@ -3148,7 +3152,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 13,
       "edgeCount": 14,
       "branchNodeCount": 3,
@@ -3162,7 +3166,8 @@
       "behaviors": [
         "wait-timeout",
         "cross-journey-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 45
@@ -5583,6 +5588,30 @@
           "terminal": false
         },
         {
+          "id": "w.first",
+          "kind": "wait",
+          "headline": "until nurture_progression_signal, or permission_withdrawn, or contactability_lost",
+          "detail": "timeout after {'key': 'bounded_education.second_touch', 'rule': \"The gap before the last education is long enough that the first one has been read and acted on in the person's own time, and short enough to sit inside the window fixed at entry.\", 'class': 'response-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.still-open",
+          "kind": "condition",
+          "headline": "Is the lead still the lead this window opened for?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.educate2",
+          "kind": "action",
+          "headline": "Send the last education of the window, on the same entry reason and past what the first one already covered - not a repeat of it, and not sales pressure wearing education's clothes",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "w.window",
           "kind": "wait",
           "headline": "until nurture_progression_signal, or permission_withdrawn, or contactability_lost",
@@ -5679,6 +5708,55 @@
         },
         {
           "from": "a.educate",
+          "to": "w.first",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.first",
+          "to": "c.window-event",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "nurture_progression_signal, permission_withdrawn, contactability_lost"
+        },
+        {
+          "from": "w.first",
+          "to": "c.still-open",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a second education sent before the first has had a chance to work is repetition, and repetition is what a bounded window is supposed to prevent"
+        },
+        {
+          "from": "c.still-open",
+          "to": "h.progressed",
+          "family": "branch",
+          "label": "Progressed meanwhile",
+          "when": "a progression signal is recorded against the lead since the first education - the window has already done its job and the last touch is not spent on it"
+        },
+        {
+          "from": "c.still-open",
+          "to": "a.stop-permission",
+          "family": "branch",
+          "label": "Permission withdrawn",
+          "when": "the lawful basis or permission this nurture relied on no longer covers it"
+        },
+        {
+          "from": "c.still-open",
+          "to": "a.stop-contactability",
+          "family": "branch",
+          "label": "Route lost",
+          "when": "no permitted destination for this person is deliverable any more"
+        },
+        {
+          "from": "c.still-open",
+          "to": "a.educate2",
+          "family": "branch",
+          "label": "Still not ready",
+          "when": "no progression is recorded, the entry reason is still unanswered, the permission still covers this and a destination is still deliverable"
+        },
+        {
+          "from": "a.educate2",
           "to": "w.window",
           "family": "forward",
           "label": null,
@@ -5687,7 +5765,7 @@
         {
           "from": "w.window",
           "to": "c.window-event",
-          "family": "wait-event",
+          "family": "backward",
           "label": "on event",
           "when": "nurture_progression_signal, permission_withdrawn, contactability_lost"
         },
@@ -5756,16 +5834,22 @@
         "h.progressed",
         "x.sunset"
       ],
-      "backwardEdgeIds": [],
+      "backwardEdgeIds": [
+        11
+      ],
       "branchEdgeIds": [
         1,
         2,
         6,
         7,
-        8
+        8,
+        9,
+        13,
+        14,
+        15
       ],
       "handoffEdgeIds": [
-        11
+        18
       ],
       "externalEdgeIds": []
     },
@@ -5780,6 +5864,10 @@
         {
           "journey": "ACQ-07",
           "because": "Decay retires an intent state that has gone stale. This spends a deliberately fixed window trying to advance one, and only then closes it."
+        },
+        {
+          "journey": "ACQ-285",
+          "because": "ACQ-285 owns the initial contact a capture earns - what was asked for, and the first bounded sequence that answers it. This journey is what may follow once that window has closed and the lead is still not ready for a destination, which is why it never starts while ACQ-285 is still open on the capture the lead came from."
         }
       ],
       "competition": null,
@@ -5790,7 +5878,9 @@
         "Nurture does not run forever. The window is bounded at entry and it closes on time.",
         "Engagement inside the window does not extend it. Opening the emails is not progress toward the destination.",
         "Education answers the reason the person entered. A generic sequence sent to everyone is the thing this journey exists instead of.",
-        "No permission, no nurture. The capture is not the consent."
+        "No permission, no nurture. The capture is not the consent.",
+        "The last education is sent only after the lead has been re-read from the system of record; a lead that has already progressed ends the window instead of receiving it.",
+        "The initial contact a capture earns belongs to New Lead Welcome. This window opens after that one has closed, never beside it."
       ],
       "reusableRule": "Nurture should bridge a temporary readiness gap, not become a permanent messaging state.",
       "entityScope": "lead or person, held against the reason they entered",
@@ -5798,7 +5888,7 @@
     },
     "derived": {
       "hasBranches": true,
-      "hasBackwardEdges": false,
+      "hasBackwardEdges": true,
       "hasTrueCycle": false,
       "hasExternalHandoff": false,
       "hasCrossJourneyHandoff": true,
@@ -5808,23 +5898,24 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 13,
-      "edgeCount": 13,
-      "branchNodeCount": 2,
-      "backwardEdgeCount": 0,
+      "nodeCount": 16,
+      "edgeCount": 20,
+      "branchNodeCount": 3,
+      "backwardEdgeCount": 1,
       "handoffCount": 1,
       "exitCount": 4,
-      "maxDepth": 6,
-      "maxFanIn": 1,
-      "maxFanOut": 3,
+      "maxDepth": 8,
+      "maxFanIn": 2,
+      "maxFanOut": 4,
       "primaryStructure": "mixed-termination",
       "behaviors": [
+        "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "simple",
-      "complexityScore": 41
+      "complexityTier": "complex",
+      "complexityScore": 57
     }
   },
   {
@@ -6776,6 +6867,10 @@
         {
           "journey": "SCH-282",
           "because": "SCH-282 follows an availability enquiry that holds nothing. A process has state the person can return to, which is what makes recovery honest."
+        },
+        {
+          "journey": "ACQ-287",
+          "because": "ACQ-287 is this pattern specialised to one process - a checkout - with a stated channel priority per touch and a high-value branch, none of which is true for every resumable process this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the process is a checkout it holds the instance and this one is suppressed for it."
         }
       ],
       "competition": null,
@@ -7341,6 +7436,10 @@
         {
           "journey": "ACQ-13",
           "because": "ACQ-13 works from inferred attention. A selection is a recorded fact the person created, and the touch can show it back to them."
+        },
+        {
+          "journey": "ACQ-288",
+          "because": "ACQ-288 is this pattern specialised to one kind of selection - a cart - with a stated channel priority per touch, a high-value branch and a handoff into checkout recovery, none of which is true for every held selection this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the selection is a cart it holds the instance and this one is suppressed for it."
         }
       ],
       "competition": null,
@@ -8025,6 +8124,10 @@
         {
           "journey": "ACQ-02",
           "because": "ACQ-02 decides which destination a capture justifies and records that decision with its own state. This journey is what the person receives once that decision exists, and it invents no destination of its own."
+        },
+        {
+          "journey": "ACQ-09",
+          "because": "ACQ-09 is the same bounded education on the same declared subject, and one form fill satisfies both triggers. This journey owns the initial contact window the capture earned; ACQ-09 is ineligible while that window is open and may start only once it has closed."
         }
       ],
       "competition": null,
@@ -8106,7 +8209,7 @@
         {
           "id": "w.first",
           "kind": "wait",
-          "headline": "until process_completed",
+          "headline": "until process_completed, or payment_failed",
           "detail": "timeout after {'key': 'checkout_abandonment.first_check', 'rule': 'Give the person time to finish on their own before the first reminder.', 'class': 'recovery-window', 'default': {'value': '45 minutes', 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
           "isEntry": false,
           "terminal": false
@@ -8114,7 +8217,7 @@
         {
           "id": "c.completed1",
           "kind": "condition",
-          "headline": "Is the checkout completed?",
+          "headline": "Is the checkout completed, and is it still this journey's to recover?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8122,7 +8225,7 @@
         {
           "id": "a.router1",
           "kind": "action",
-          "headline": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8138,7 +8241,7 @@
         {
           "id": "w.second",
           "kind": "wait",
-          "headline": "until process_completed",
+          "headline": "until process_completed, or payment_failed",
           "detail": "timeout after {'key': 'checkout_abandonment.second_check', 'rule': 'Give the first reminder real time to work before deciding whether a second, more direct touch is warranted.', 'class': 'recovery-window', 'default': {'value': '6 hours', 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
           "isEntry": false,
           "terminal": false
@@ -8146,7 +8249,7 @@
         {
           "id": "c.completed2",
           "kind": "condition",
-          "headline": "Is the checkout completed?",
+          "headline": "Is the checkout completed, and is it still this journey's to recover?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8162,7 +8265,7 @@
         {
           "id": "a.router2-hv",
           "kind": "action",
-          "headline": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value checkout gets a more direct channel than the first touch, not a repeat of it. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value checkout gets a more direct channel than the first touch, not a repeat of it. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8178,7 +8281,7 @@
         {
           "id": "a.router2-std",
           "kind": "action",
-          "headline": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8194,7 +8297,7 @@
         {
           "id": "w.third",
           "kind": "wait",
-          "headline": "until process_completed",
+          "headline": "until process_completed, or payment_failed",
           "detail": "timeout after {'key': 'checkout_abandonment.final_check', 'rule': 'The last reminder gets a full day to work before the checkout is treated as abandoned.', 'class': 'recovery-window', 'default': {'value': '24 hours', 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
           "isEntry": false,
           "terminal": false
@@ -8202,7 +8305,7 @@
         {
           "id": "c.completed3",
           "kind": "condition",
-          "headline": "Is the checkout completed?",
+          "headline": "At the end of the cascade, what is the checkout?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8222,6 +8325,14 @@
           "detail": "a new checkout_started for this person opens a new instance with its own clock; this one is not reopened",
           "isEntry": false,
           "terminal": false
+        },
+        {
+          "id": "h.payment",
+          "kind": "handoff",
+          "headline": "Payment failure → classify → recover, alternate or exit",
+          "detail": "a payment failure recorded against the checkout - a failed payment is not abandonment, and the money is payment recovery's to talk about",
+          "isEntry": false,
+          "terminal": false
         }
       ],
       "edges": [
@@ -8237,7 +8348,7 @@
           "to": "c.completed1",
           "family": "wait-event",
           "label": "on event",
-          "when": "process_completed"
+          "when": "process_completed, payment_failed"
         },
         {
           "from": "w.first",
@@ -8255,10 +8366,17 @@
         },
         {
           "from": "c.completed1",
+          "to": "h.payment",
+          "family": "branch",
+          "label": "Payment failed",
+          "when": "a payment failure is recorded against this checkout - a failed payment is not abandonment"
+        },
+        {
+          "from": "c.completed1",
           "to": "a.router1",
           "family": "branch",
           "label": "Not completed",
-          "when": "no completion record exists for this checkout instance"
+          "when": "no completion record and no payment failure exists for this checkout instance"
         },
         {
           "from": "a.router1",
@@ -8279,7 +8397,7 @@
           "to": "c.completed2",
           "family": "wait-event",
           "label": "on event",
-          "when": "process_completed"
+          "when": "process_completed, payment_failed"
         },
         {
           "from": "w.second",
@@ -8297,10 +8415,17 @@
         },
         {
           "from": "c.completed2",
+          "to": "h.payment",
+          "family": "backward",
+          "label": "Payment failed",
+          "when": "a payment failure is recorded against this checkout - a failed payment is not abandonment"
+        },
+        {
+          "from": "c.completed2",
           "to": "c.highvalue",
           "family": "branch",
           "label": "Not completed",
-          "when": "no completion record exists for this checkout instance"
+          "when": "no completion record and no payment failure exists for this checkout instance"
         },
         {
           "from": "c.highvalue",
@@ -8349,7 +8474,7 @@
           "to": "c.completed3",
           "family": "wait-event",
           "label": "on event",
-          "when": "process_completed"
+          "when": "process_completed, payment_failed"
         },
         {
           "from": "w.third",
@@ -8367,40 +8492,71 @@
         },
         {
           "from": "c.completed3",
+          "to": "h.payment",
+          "family": "backward",
+          "label": "Payment failed",
+          "when": "a payment failure is recorded against this checkout - a failed payment is not abandonment"
+        },
+        {
+          "from": "c.completed3",
           "to": "x.abandoned",
           "family": "branch",
           "label": "Not completed",
-          "when": "no completion record exists for this checkout instance"
+          "when": "no completion record and no payment failure exists for this checkout instance"
+        },
+        {
+          "from": "h.payment",
+          "to": "FIN-134",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "a payment failure recorded against the checkout - a failed payment is not abandonment, and the money is payment recovery's to talk about"
         }
       ],
       "startNode": "t.started",
       "terminalNodes": [
         "x.purchased",
-        "x.abandoned"
+        "x.abandoned",
+        "h.payment"
       ],
       "backwardEdgeIds": [
-        9,
-        19
+        10,
+        11,
+        21,
+        22
       ],
       "branchEdgeIds": [
         3,
         4,
-        9,
+        5,
         10,
         11,
         12,
-        19,
-        20
+        13,
+        14,
+        21,
+        22,
+        23
       ],
-      "handoffEdgeIds": [],
+      "handoffEdgeIds": [
+        24
+      ],
       "externalEdgeIds": []
     },
     "relationships": {
-      "handoffs": [],
+      "handoffs": [
+        {
+          "to": "FIN-134",
+          "isExternal": false
+        }
+      ],
       "distinctFrom": [
         {
           "journey": "ACQ-11",
-          "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed three-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover."
+          "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed two-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover. It ranks above ACQ-11 in the commerce-recovery group, and while it holds a checkout that pattern is suppressed for it."
+        },
+        {
+          "journey": "ACQ-288",
+          "because": "ACQ-288 recovers a cart before checkout starts; this journey recovers a checkout that has already started. The two never run in parallel on the same items - ACQ-288 hands the cart over the moment checkout starts and suppresses every touch it had queued, and this journey's own clock begins there."
         }
       ],
       "competition": null,
@@ -8408,12 +8564,14 @@
     },
     "governance": {
       "guardrails": [
-        "A reminder is never sent once a.completion is already on record - every reminder step is reached only through a condition that just re-checked completion.",
+        "A reminder is never sent once a completion is already on record - every reminder step is reached only through a condition that just re-checked completion.",
+        "A payment failure ends this journey's ownership: the instance is handed to payment failure recovery and every queued reminder is suppressed, so checkout-abandonment messaging and payment-recovery messaging never run at the same time for the same failed payment.",
         "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
         "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
-        "The high-value threshold is a configured value, never a number this journey asserts."
+        "The high-value threshold is a configured value, never a number this journey asserts.",
+        "While this journey holds a checkout, the generic process-recovery pattern is suppressed for the same process; the two never message the same person about the same checkout."
       ],
-      "reusableRule": "A reminder cascade checks completion immediately before every touch and stops the instant it finds one; channel selection is a priority-with-fallback the router owns, never a chain of permission conditions in the graph, and a higher-value instance earns a more direct channel, not a different structure.",
+      "reusableRule": "A reminder cascade re-reads the instance immediately before every touch and stops or hands ownership on the instant it finds a completion or a failure someone else owns; channel selection is a priority-with-fallback the router owns, never a chain of permission conditions in the graph, and a higher-value instance earns a more direct channel, not a different structure.",
       "entityScope": "one checkout instance - a basket, its items and its resume destination",
       "entityNote": "Started again after abandoning is a new instance, not a reopened one; a new checkout_started resets the clock and any queued reminder from the old instance is dropped, not carried forward."
     },
@@ -8422,30 +8580,32 @@
       "hasBackwardEdges": true,
       "hasTrueCycle": false,
       "hasExternalHandoff": false,
-      "hasCrossJourneyHandoff": false,
+      "hasCrossJourneyHandoff": true,
       "hasWait": true,
       "hasReEntryException": false,
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
-      "nodeCount": 16,
-      "edgeCount": 21,
+      "hasCompetition": true,
+      "nodeCount": 17,
+      "edgeCount": 25,
       "branchNodeCount": 4,
-      "backwardEdgeCount": 2,
-      "handoffCount": 0,
+      "backwardEdgeCount": 4,
+      "handoffCount": 1,
       "exitCount": 2,
       "maxDepth": 12,
       "maxFanIn": 3,
-      "maxFanOut": 2,
-      "primaryStructure": "self-contained",
+      "maxFanOut": 3,
+      "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "multi-exit"
+        "cross-journey-handoff",
+        "multi-exit",
+        "competition"
       ],
-      "complexityTier": "complex",
-      "complexityScore": 63
+      "complexityTier": "extreme",
+      "complexityScore": 73
     }
   },
   {
@@ -8515,7 +8675,7 @@
         {
           "id": "a.router1",
           "kind": "action",
-          "headline": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8563,7 +8723,7 @@
         {
           "id": "a.router2-hv",
           "kind": "action",
-          "headline": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value cart gets a more direct channel than the first touch, not a repeat of it. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value cart gets a more direct channel than the first touch, not a repeat of it. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8579,7 +8739,7 @@
         {
           "id": "a.router2-std",
           "kind": "action",
-          "headline": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8907,7 +9067,7 @@
       "distinctFrom": [
         {
           "journey": "ACQ-12",
-          "because": "ACQ-12 is the general-purpose pattern for any held selection (a cart, a saved list) and stays deliberately generic - one first-check window, two generic touches, no channel priority stated, no high-value branch. This journey is the concrete cart implementation: a fixed three-touch cascade with an explicit channel priority and fallback per touch, a high-value branch that reaches for a more direct channel, and an explicit handoff into Checkout Abandonment (ACQ-287) the moment checkout starts - none of which the generic pattern states, because none of it is true for every held selection it also has to cover."
+          "because": "ACQ-12 is the general-purpose pattern for any held selection (a cart, a saved list) and stays deliberately generic - one first-check window, two generic touches, no channel priority stated, no high-value branch. This journey is the concrete cart implementation: a fixed two-touch cascade with an explicit channel priority and fallback per touch, a high-value branch that reaches for a more direct channel, and an explicit handoff into Checkout Abandonment (ACQ-287) the moment checkout starts - none of which the generic pattern states, because none of it is true for every held selection it also has to cover. It ranks above ACQ-12 in the commerce-recovery group, and while it holds a cart that pattern is suppressed for it."
         },
         {
           "journey": "ACQ-287",
@@ -8924,7 +9084,8 @@
         "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
         "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
         "The high-value threshold is a configured value, never a number this journey asserts.",
-        "Cart Abandonment and Checkout Abandonment never message the same person about the same items at the same time - the handoff on checkout start is immediate and suppresses every queued cart touch."
+        "Cart Abandonment and Checkout Abandonment never message the same person about the same items at the same time - the handoff on checkout start is immediate and suppresses every queued cart touch.",
+        "While this journey holds a cart, the generic held-selection pattern is suppressed for the same selection; the two never message the same person about the same cart."
       ],
       "reusableRule": "A reminder cascade checks purchase, checkout-start and cart-state immediately before every touch and stops or hands off the instant it finds one; channel selection is a priority-with-fallback the router owns, never a chain of permission conditions in the graph, and a higher-value cart earns a more direct channel, not a different structure.",
       "entityScope": "one cart instance - its items, their current availability and price as the platform asserts them",
@@ -8941,7 +9102,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 22,
       "edgeCount": 30,
       "branchNodeCount": 8,
@@ -8956,10 +9117,328 @@
         "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "extreme",
       "complexityScore": 96
+    }
+  },
+  {
+    "identity": {
+      "id": "ACQ-289",
+      "slug": "back-in-stock-alert",
+      "category": "acquisition",
+      "categoryTitle": "Acquisition, intent & qualification",
+      "title": "Interest recorded while unavailable → availability returns → alerted → purchased or closed",
+      "purpose": "Tell a person, once, that the specific item they wanted while it was unavailable can be bought again - and only while that interest is still honestly theirs."
+    },
+    "entry": {
+      "trigger": "Interest recorded while unavailable",
+      "triggerEvidenceClass": "behavioral",
+      "requires": [
+        "an attributable interest signal for one specific item, recorded against a person",
+        "an authoritative record that the item was not purchasable at the moment that interest was recorded",
+        "the availability cycle the item was in when the interest was recorded"
+      ],
+      "insufficientAlone": [
+        "an interest in an item that was purchasable all along - that is ordinary interest, not an unmet one",
+        "an interest in a category rather than in one specific item",
+        "an item withdrawn from the catalogue rather than temporarily unavailable, which never returns to alert on",
+        "an interest attributed to an identity that has not resolved to a person"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.registered",
+          "kind": "trigger",
+          "headline": "Interest recorded while unavailable",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "w.availability",
+          "kind": "wait",
+          "headline": "until item_available_again, or purchase_completed, or interest_dismissed",
+          "detail": "timeout after {'key': 'back_in_stock.interest_lifetime', 'rule': \"An interest in an unavailable item is worth holding only for as long as the company can honestly say it is still this person's; past that the instance ends without an alert.\", 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.relevant",
+          "kind": "condition",
+          "headline": "Is this interest still worth alerting on?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the alert go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.alert",
+          "kind": "action",
+          "headline": "Say that the item this person wanted is purchasable again and give the route straight to it. Claim no reserved stock, no held price, no discount and no deadline the platform does not enforce.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.window",
+          "kind": "wait",
+          "headline": "until purchase_completed, or item_unavailable",
+          "detail": "timeout after {'key': 'back_in_stock.conversion_window', 'rule': 'The alert is given a short window in which a purchase can honestly be read as following from it, after which the instance closes; there is no second alert to time.', 'class': 'response-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.converted",
+          "kind": "condition",
+          "headline": "Did the alert reach a purchase?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why no alert was sent and against which interest, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.purchased",
+          "kind": "exit",
+          "headline": "purchased; the item the alert was about is bought",
+          "detail": "interest recorded against a new unavailable period for this item opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-purchase",
+          "kind": "exit",
+          "headline": "alerted, not bought; the window closed with no purchase",
+          "detail": "interest recorded against a new unavailable period for this item opens its own instance, after the cooldown",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.expired",
+          "kind": "exit",
+          "headline": "interest expired before availability returned; no alert was sent",
+          "detail": "interest recorded against this item again opens a new instance with its own clock",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "headline": "interest closed; the person withdrew it or the item went unavailable again first",
+          "detail": "interest recorded against a new unavailable period for this item opens its own instance, unless the person asked for no further alerts",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no alert sent; the reason is recorded",
+          "detail": "the next return of this item to availability is evaluated on its own gates",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.registered",
+          "to": "w.availability",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.availability",
+          "to": "c.relevant",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "item_available_again, purchase_completed, interest_dismissed"
+        },
+        {
+          "from": "w.availability",
+          "to": "x.expired",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "an alert about something wanted long ago is addressed to a person who has already moved on"
+        },
+        {
+          "from": "c.relevant",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Still wanted",
+          "when": "the item is purchasable again, no purchase of it by this person is recorded, and the interest has not been withdrawn"
+        },
+        {
+          "from": "c.relevant",
+          "to": "x.purchased",
+          "family": "branch",
+          "label": "Already bought",
+          "when": "an authoritative purchase of the item by this person is recorded"
+        },
+        {
+          "from": "c.relevant",
+          "to": "x.closed",
+          "family": "branch",
+          "label": "No longer wanted",
+          "when": "the person withdrew the interest, or the item went unavailable again before the alert could go out"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.alert",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence commerce-recovery journey currently holding this person, and no cooldown in force"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.alert",
+          "to": "w.window",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.window",
+          "to": "c.converted",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "purchase_completed, item_unavailable"
+        },
+        {
+          "from": "w.window",
+          "to": "c.converted",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "the value of the alert lies in the moment availability returned, and that moment does not last"
+        },
+        {
+          "from": "c.converted",
+          "to": "x.purchased",
+          "family": "backward",
+          "label": "Purchased",
+          "when": "an authoritative purchase of the item by this person is recorded after the alert"
+        },
+        {
+          "from": "c.converted",
+          "to": "x.no-purchase",
+          "family": "branch",
+          "label": "Not purchased",
+          "when": "no purchase of the item by this person is recorded inside the window"
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.registered",
+      "terminalNodes": [
+        "x.purchased",
+        "x.no-purchase",
+        "x.expired",
+        "x.closed",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        11
+      ],
+      "branchEdgeIds": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        11,
+        12
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "ACQ-13",
+          "because": "ACQ-13 acts on attention that never became a selection for reasons the library does not claim to know. This journey knows the reason - the item was not purchasable - and does nothing at all until that reason goes away."
+        },
+        {
+          "journey": "ACQ-12",
+          "because": "ACQ-12 recovers a selection the person made and left behind. Here nothing was ever selected, because nothing could be; the wait is on the item, not on the person."
+        },
+        {
+          "journey": "RET-31",
+          "because": "RET-31 prompts a purchase the person's own history says is due. This prompts one they already showed they wanted and were unable to make."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Availability is re-read immediately before the alert; the event that opened the window is not evidence that the item is still there.",
+        "One alert per availability cycle - a second message about the same return of the same item is a repeat, not a reminder.",
+        "No alert once a purchase of the item is on record.",
+        "Nothing is claimed about reserved stock, held prices, discounts or how long availability will last.",
+        "A withdrawn interest ends the instance; it is never treated as a quiet one."
+      ],
+      "reusableRule": "An alert that exists because a condition changed re-reads that condition immediately before it sends, sends once per change, and ends the moment the thing it was about has been bought or is gone again.",
+      "entityScope": "one interest in one unavailable item - the person, the item, and the availability cycle the interest was recorded against",
+      "entityNote": "One instance per person, item and availability cycle. An item that goes unavailable again after the alert does not reopen this instance; interest recorded against the next unavailable period is a new instance with its own clock."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 13,
+      "edgeCount": 14,
+      "branchNodeCount": 3,
+      "backwardEdgeCount": 1,
+      "handoffCount": 0,
+      "exitCount": 5,
+      "maxDepth": 7,
+      "maxFanIn": 2,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "medium",
+      "complexityScore": 47
     }
   },
   {
@@ -9478,7 +9957,12 @@
           "isExternal": false
         }
       ],
-      "distinctFrom": [],
+      "distinctFrom": [
+        {
+          "journey": "ACT-19",
+          "because": "This one advances a path already chosen; ACT-19 is what chooses it. They share an account and a trigger condition - onboarding_active_without_activation is true for both, and stays true for the whole of ACT-19's answer wait - so while a personalization question is outstanding this journey holds its prompts (s.personalizing) rather than pushing the generic next step over the answer that would re-route it."
+        }
+      ],
       "competition": null,
       "preemptedBy": [
         {
@@ -11365,7 +11849,12 @@
           "isExternal": false
         }
       ],
-      "distinctFrom": [],
+      "distinctFrom": [
+        {
+          "journey": "ACT-12",
+          "because": "This one asks the question that decides the route; ACT-12 walks the route once it is decided. While the question is outstanding this journey owns the onboarding conversation on the same channels, and ACT-12's nurture prompts are held until the answer lands or the wait times out - otherwise both are talking about setup at once, and the generic prompt can be for the very step the answer was about to change."
+        }
+      ],
       "competition": null,
       "preemptedBy": []
     },
@@ -35771,6 +36260,10 @@
         {
           "journey": "OPS-124",
           "because": "OPS-124 is a generic technical retry against a transient fault. This makes a business recovery decision: what to ask the customer for, whether an alternative route exists, and what happens to the obligation if none of it works."
+        },
+        {
+          "journey": "TIM-274",
+          "because": "This journey owns what is said about an unpaid obligation while recovery is still the whole of the story. Its own handoff into grace ends that: once a grace state is recorded, the holder needs the window's end date and the one condition that restores the active state, which TIM-274 holds and this journey does not. Recovery messaging about the obligation stops at that handoff rather than running beside it."
         }
       ],
       "competition": null,
@@ -41825,6 +42318,267 @@
       ],
       "complexityTier": "medium",
       "complexityScore": 46
+    }
+  },
+  {
+    "identity": {
+      "id": "FUL-291",
+      "slug": "post-purchase-follow-up",
+      "category": "fulfillment",
+      "categoryTitle": "Orders, fulfillment, delivery & service completion",
+      "title": "Fulfillment completed → the useful next step sent → followed up, superseded or not sent",
+      "purpose": "Once what was owed has actually arrived, send the one thing that makes it useful - how to start with it, how to look after it, what sensibly follows - and nothing else."
+    },
+    "entry": {
+      "trigger": "Authoritative delivery completion",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "an authoritative confirmation that the recipient has what was owed",
+        "the fulfillment record the completion belongs to, and the items or service it covers"
+      ],
+      "insufficientAlone": [
+        "an order placed, paid for or accepted - none of those is a completion",
+        "a carrier or provider status that the system of record has not confirmed",
+        "a final delivery attempt whose outcome has not been recorded",
+        "a completion recorded against a recipient who has not resolved to a person"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.completed",
+          "kind": "trigger",
+          "headline": "Authoritative delivery completion",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "w.settle",
+          "kind": "wait",
+          "headline": "until post_completion_issue_reported, or permission_withdrawn",
+          "detail": "timeout after {'key': 'post_purchase_followup.settle', 'rule': 'The follow-up waits until the person has plausibly had what arrived in their hands, so that guidance about using it is guidance rather than another message about an order.', 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.state",
+          "kind": "condition",
+          "headline": "Is a follow-up still the right thing to send?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the follow-up go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.followup",
+          "kind": "action",
+          "headline": "Send the useful next step for what was received: setting it up, looking after it, or what sensibly follows from it. No status, no request for an opinion, no repeat of the order's own confirmation.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why no follow-up was sent and against which completion, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.followed-up",
+          "kind": "exit",
+          "headline": "followed up; the useful next step for this completion has been sent",
+          "detail": "a later completion for this person opens its own instance; this one does not reopen",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.superseded",
+          "kind": "exit",
+          "headline": "superseded by a problem; the remedy lifecycle owns this completion",
+          "detail": "a later completion for this person opens its own instance; a resolved remedy does not reopen this one",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "headline": "closed without a follow-up; the person is no longer reachable for this kind of message",
+          "detail": "a restored permission makes a later completion eligible again; this instance does not reopen",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no follow-up sent; the reason is recorded",
+          "detail": "a later completion for this person opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.completed",
+          "to": "w.settle",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.settle",
+          "to": "c.state",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "post_completion_issue_reported, permission_withdrawn"
+        },
+        {
+          "from": "w.settle",
+          "to": "c.state",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "guidance that lands before the thing does is advice about something the person cannot see yet"
+        },
+        {
+          "from": "c.state",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Follow-up due",
+          "when": "the completion stands, no problem has been raised against it, and permission for service communication still holds"
+        },
+        {
+          "from": "c.state",
+          "to": "x.superseded",
+          "family": "branch",
+          "label": "A problem is open",
+          "when": "a problem has been raised against this completion"
+        },
+        {
+          "from": "c.state",
+          "to": "x.closed",
+          "family": "branch",
+          "label": "No longer reachable",
+          "when": "the person withdrew permission for this kind of communication"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.followup",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes and something is recorded against what was delivered that is actually worth saying"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Nothing to say, or suppressed",
+          "when": "a gate stops it, or nothing useful is recorded against what was delivered; the reason is recorded"
+        },
+        {
+          "from": "a.followup",
+          "to": "x.followed-up",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.completed",
+      "terminalNodes": [
+        "x.followed-up",
+        "x.superseded",
+        "x.closed",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [],
+      "branchEdgeIds": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "FUL-265",
+          "because": "FUL-265 tells somebody where their order is while it is still moving. This journey opens only once it has stopped moving, and never mentions where it was."
+        },
+        {
+          "journey": "FBK-41",
+          "because": "FBK-41 asks the person for something - their opinion about what happened. This journey gives them something and asks for nothing, so the two are not variants of one message."
+        },
+        {
+          "journey": "RET-290",
+          "because": "RET-290 is about the relationship a first purchase opened and never explains the product. This is about the thing itself, and it opens on every completion rather than only the first."
+        },
+        {
+          "journey": "REM-151",
+          "because": "REM-151 owns the order the moment a problem is raised against it. This journey ends there rather than continuing beside it."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Completion is read from the system of record, never from a carrier status or a final attempt whose outcome has not been recorded.",
+        "A problem raised against the completion ends this journey; guidance never runs beside a remedy.",
+        "No status, no rating request and no repeat of the order confirmation - each belongs to a journey that already owns it.",
+        "Where nothing useful is recorded against what was delivered, nothing is sent."
+      ],
+      "reusableRule": "A completion is a state with a message of its own, and that message is whatever makes the delivered thing useful - never a restatement of the status that produced it, and never a request for the recipient's opinion about it.",
+      "entityScope": "one completed fulfillment - the delivered order or finished service, and the recipient it was completed for",
+      "entityNote": "One instance per completion. A later completion for the same person is its own instance. A problem raised against this completion ends this instance rather than pausing it, because the remedy lifecycle owns the order from that point."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": false,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 10,
+      "edgeCount": 10,
+      "branchNodeCount": 2,
+      "backwardEdgeCount": 0,
+      "handoffCount": 0,
+      "exitCount": 4,
+      "maxDepth": 5,
+      "maxFanIn": 2,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "wait-timeout",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "simple",
+      "complexityScore": 33
     }
   },
   {
@@ -67359,7 +68113,7 @@
         {
           "id": "w.outcome",
           "kind": "wait",
-          "headline": "until retention_offer_accepted, or retention_offer_declined, or relationship_recovered, or intervention_failed",
+          "headline": "until retention_offer_accepted, or retention_offer_declined, or relationship_recovered, or intervention_failed, or cancellation_confirmed, or cancellation_flow_abandoned",
           "detail": "timeout after {'key': 'retention_intervention.outcome', 'rule': 'A bounded decision window.', 'class': 'response-window', 'required': True}",
           "isEntry": false,
           "terminal": false
@@ -67474,7 +68228,7 @@
           "to": "c.outcome",
           "family": "wait-event",
           "label": "on event",
-          "when": "retention_offer_accepted, retention_offer_declined, relationship_recovered, intervention_failed"
+          "when": "retention_offer_accepted, retention_offer_declined, relationship_recovered, intervention_failed, cancellation_confirmed, cancellation_flow_abandoned"
         },
         {
           "from": "w.outcome",
@@ -67510,6 +68264,13 @@
           "family": "branch",
           "label": "Failed to execute",
           "when": "the intervention was accepted or attempted and did not actually apply"
+        },
+        {
+          "from": "c.outcome",
+          "to": "h.proceed",
+          "family": "branch",
+          "label": "Decided meanwhile",
+          "when": "the cancellation was confirmed, or the person left the cancellation flow, without the offer itself being answered - either way the decision is made and it is not this journey's to reopen"
         },
         {
           "from": "a.verify",
@@ -67556,7 +68317,7 @@
         {
           "from": "c.proceed",
           "to": "h.proceed",
-          "family": "branch",
+          "family": "backward",
           "label": "Still cancelling",
           "when": "the customer declined and is continuing to leave"
         },
@@ -67605,27 +68366,29 @@
         "x.cooldown"
       ],
       "backwardEdgeIds": [
-        8,
-        9
+        9,
+        10,
+        14
       ],
       "branchEdgeIds": [
         3,
         4,
         5,
         6,
-        8,
+        7,
         9,
-        13,
+        10,
         14,
-        16,
-        17
+        15,
+        17,
+        18
       ],
       "handoffEdgeIds": [
-        10,
-        15
+        11,
+        16
       ],
       "externalEdgeIds": [
-        11
+        12
       ]
     },
     "relationships": {
@@ -67676,14 +68439,14 @@
       "hasPreemption": false,
       "hasCompetition": true,
       "nodeCount": 14,
-      "edgeCount": 19,
+      "edgeCount": 20,
       "branchNodeCount": 4,
-      "backwardEdgeCount": 2,
+      "backwardEdgeCount": 3,
       "handoffCount": 3,
       "exitCount": 2,
       "maxDepth": 5,
       "maxFanIn": 2,
-      "maxFanOut": 4,
+      "maxFanOut": 5,
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
@@ -67694,7 +68457,7 @@
         "competition"
       ],
       "complexityTier": "complex",
-      "complexityScore": 55
+      "complexityScore": 58
     }
   },
   {
@@ -68512,6 +69275,1206 @@
       ],
       "complexityTier": "complex",
       "complexityScore": 65
+    }
+  },
+  {
+    "identity": {
+      "id": "RET-290",
+      "slug": "first-purchase-welcome",
+      "category": "retention",
+      "categoryTitle": "Engagement, health, retention & churn prevention",
+      "title": "First purchase completed → welcomed as a customer → returned, prompted or closed",
+      "purpose": "Mark the moment a buyer becomes a customer for the first time, and give them one honest reason to come back - without ever speaking over the order's own transactional confirmation."
+    },
+    "entry": {
+      "trigger": "First purchase completed",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "an authoritative purchase record for this person",
+        "the person's own purchase history, confirming that no earlier purchase exists for them"
+      ],
+      "insufficientAlone": [
+        "a purchase by somebody who has bought before - that is an ordinary repeat purchase",
+        "an order placed but not yet accepted by the system of record",
+        "an account created with no purchase behind it",
+        "a purchase attributed to an identity that has not resolved to a person, which may well have a history under another one"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.first",
+          "kind": "trigger",
+          "headline": "First purchase completed",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "w.settle",
+          "kind": "wait",
+          "headline": "until purchase_completed, or permission_withdrawn",
+          "detail": "timeout after {'key': 'first_purchase_welcome.settle', 'rule': 'The welcome waits until the order has settled, so the transactional confirmation has had the moment that belongs to it and the welcome is not a second message about the same thing.', 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.state",
+          "kind": "condition",
+          "headline": "Now that the order has settled, is a welcome still the right thing?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the welcome go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.welcome",
+          "kind": "action",
+          "headline": "Welcome the person as a customer: what happens next with what they bought, where to find it, and how to reach a person here. Name an offer only where one has actually been issued and recorded.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.second",
+          "kind": "wait",
+          "headline": "until purchase_completed, or permission_withdrawn",
+          "detail": "timeout after {'key': 'first_purchase_welcome.bounceback_window', 'rule': 'The bounceback waits long enough that somebody who was going to come back on their own has had the chance to, and no longer than the point at which a first purchase stops being recent.', 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.second",
+          "kind": "condition",
+          "headline": "Has a second purchase already been made?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2",
+          "kind": "condition",
+          "headline": "May the bounceback go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.bounceback",
+          "kind": "action",
+          "headline": "Make one bounceback: the offer the business has issued, the period it will be honoured for, and the route to use it. Nothing invented, and nothing sent to somebody who has already bought again.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.returning",
+          "kind": "exit",
+          "headline": "returned; a second purchase is recorded and the relationship is no longer a new one",
+          "detail": "a first purchase happens once per person; the ordinary retention journeys own the relationship from here",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.prompted",
+          "kind": "exit",
+          "headline": "welcomed and prompted; the plan ran to its end and this journey's own work is done",
+          "detail": "this instance does not reopen; whether the offer is taken is the ordinary lifecycle's to observe",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "headline": "closed without a welcome; the relationship ended or the first purchase did not stand",
+          "detail": "a reinstated first purchase and a restored permission are re-evaluated against the reinstated record; otherwise nothing reopens",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no touch sent; the reason is recorded",
+          "detail": "the instance does not reopen; a person whose welcome was suppressed is not welcomed later as if it were new",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.first",
+          "to": "w.settle",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.settle",
+          "to": "c.state",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "purchase_completed, permission_withdrawn"
+        },
+        {
+          "from": "w.settle",
+          "to": "c.state",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a welcome that lands beside the order confirmation reads as a duplicate of it"
+        },
+        {
+          "from": "c.state",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Welcome due",
+          "when": "the first purchase stands, no second purchase is recorded, and permission for lifecycle communication still holds"
+        },
+        {
+          "from": "c.state",
+          "to": "x.returning",
+          "family": "branch",
+          "label": "Already returned",
+          "when": "a second purchase by this person is recorded before the welcome went out"
+        },
+        {
+          "from": "c.state",
+          "to": "x.closed",
+          "family": "branch",
+          "label": "Relationship ended",
+          "when": "the person withdrew permission, or the first purchase was cancelled or fully reversed"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.welcome",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.welcome",
+          "to": "w.second",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.second",
+          "to": "c.second",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "purchase_completed, permission_withdrawn"
+        },
+        {
+          "from": "w.second",
+          "to": "c.second",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "an offer spent on somebody who was about to buy anyway buys nothing, and one sent long after the first purchase is addressed to a stranger"
+        },
+        {
+          "from": "c.second",
+          "to": "x.returning",
+          "family": "backward",
+          "label": "Returned",
+          "when": "an authoritative second purchase by this person is recorded"
+        },
+        {
+          "from": "c.second",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "Not yet",
+          "when": "no purchase since the first one is recorded for this person"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.bounceback",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes, the touch budget is not spent, and the business has an issued offer to name"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.record-no-action",
+          "family": "backward",
+          "label": "Suppressed",
+          "when": "a gate stops it, or there is no issued offer to name; the reason is recorded"
+        },
+        {
+          "from": "a.bounceback",
+          "to": "x.prompted",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.first",
+      "terminalNodes": [
+        "x.returning",
+        "x.prompted",
+        "x.closed",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        11,
+        14
+      ],
+      "branchEdgeIds": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        11,
+        12,
+        13,
+        14
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "FUL-291",
+          "because": "FUL-291 speaks about the order the person is now holding - how to use it, look after it, or what follows from it. This journey speaks about the relationship that order opened, and it never explains the product."
+        },
+        {
+          "journey": "ACQ-285",
+          "because": "ACQ-285 welcomes somebody who has shown interest and has bought nothing. This opens only on an authoritative first purchase, and its whole subject is the second one."
+        },
+        {
+          "journey": "RET-31",
+          "because": "RET-31 prompts a repeat of something the person's own history says is due. Here there is no history yet - one purchase is not a cadence - so the prompt is an offer rather than a prediction."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "The order's own confirmation is never carried by this journey and never competes with it; the welcome waits until the order has settled.",
+        "A bounceback is never sent to somebody who has already bought again - the purchase record is re-read immediately before it.",
+        "An offer is named only where one has actually been issued and recorded, for the period the business will honour.",
+        "One welcome and at most one bounceback; there is no third touch to time."
+      ],
+      "reusableRule": "Becoming a customer for the first time is a state with its own journey, separate from the transaction that produced it: it waits for the transactional message to have its moment, says one thing about the relationship, and makes at most one offer the business has actually issued.",
+      "entityScope": "the new customer relationship - one person, opened by their first purchase",
+      "entityNote": "One instance per person, ever, because a relationship is a first one only once. A second purchase inside the window closes the instance as returned rather than opening another."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 14,
+      "edgeCount": 17,
+      "branchNodeCount": 4,
+      "backwardEdgeCount": 2,
+      "handoffCount": 0,
+      "exitCount": 4,
+      "maxDepth": 9,
+      "maxFanIn": 2,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "complex",
+      "complexityScore": 56
+    }
+  },
+  {
+    "identity": {
+      "id": "RET-292",
+      "slug": "first-purchase-anniversary",
+      "category": "retention",
+      "categoryTitle": "Engagement, health, retention & churn prevention",
+      "title": "First-purchase anniversary approaching → eligibility checked → recognised or not sent",
+      "purpose": "Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once."
+    },
+    "entry": {
+      "trigger": "First purchase anniversary approaching",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "a recorded first-purchase date for this person",
+        "the anniversary interval the company has configured, and the cycle this occurrence belongs to"
+      ],
+      "insufficientAlone": [
+        "a sign-up or account-creation date, which dates a different relationship entirely",
+        "a birthday or any other date about the person rather than about the relationship",
+        "a most-recent-order date, which measures recency and not length",
+        "an anniversary interval that has already passed without a message"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.approaching",
+          "kind": "trigger",
+          "headline": "First purchase anniversary approaching",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.eligible",
+          "kind": "condition",
+          "headline": "Is this anniversary still ours to recognise?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.recognise",
+          "kind": "action",
+          "headline": "State how long the relationship has lasted, counted from the first purchase, and say nothing the record does not support. No reward, tier or benefit unless one has actually been issued.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why no recognition was sent and for which interval, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.recognised",
+          "kind": "exit",
+          "headline": "recognised; the anniversary was marked once for this interval",
+          "detail": "the next anniversary interval opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "headline": "closed without a message; the relationship this anniversary would have counted has ended",
+          "detail": "a reopened relationship is dated from its own first purchase and is evaluated at the next interval",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no recognition sent; the reason is recorded",
+          "detail": "the next anniversary interval opens its own instance; this interval is not made up later",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.approaching",
+          "to": "c.eligible",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.eligible",
+          "to": "a.recognise",
+          "family": "branch",
+          "label": "Recognise",
+          "when": "the relationship is open, the first purchase still stands, this interval has not already been recognised, and the send path passes"
+        },
+        {
+          "from": "c.eligible",
+          "to": "x.closed",
+          "family": "branch",
+          "label": "Relationship ended",
+          "when": "the account is closed, the first purchase has been fully reversed, or the person withdrew permission for this kind of communication"
+        },
+        {
+          "from": "c.eligible",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Not sendable",
+          "when": "a send-path gate stops it, or this interval has already been recognised; the reason is recorded"
+        },
+        {
+          "from": "a.recognise",
+          "to": "x.recognised",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.approaching",
+      "terminalNodes": [
+        "x.recognised",
+        "x.closed",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [],
+      "branchEdgeIds": [
+        1,
+        2,
+        3
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "RET-290",
+          "because": "RET-290 works at the start of the relationship and is trying to produce a second purchase. This works on the relationship's age and is trying to produce nothing; the recognition is the whole point."
+        },
+        {
+          "journey": "SUB-163",
+          "because": "SUB-163 counts down to an obligation somebody has to act on before a date. An anniversary carries no obligation and no deadline - nothing happens if it is ignored."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "The date is the first purchase; no other date is substituted for it.",
+        "An interval that passed without a message is closed, never sent late.",
+        "A relationship that has ended is not congratulated on its length.",
+        "Nothing is attached that has not been issued - no reward, no tier, no benefit."
+      ],
+      "reusableRule": "A recognition dated from one specific record states only what that record supports, happens on its own interval or not at all, and is never made up afterwards.",
+      "entityScope": "the customer relationship dated from its first purchase - one person, one anniversary interval",
+      "entityNote": "The entity is the FIRST PURCHASE date and nothing else: not a sign-up date, not a birthday, not the most recent order. One instance per person per anniversary interval, and an interval that passes unsent is closed rather than made up later."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": false,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": false,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": false,
+      "nodeCount": 7,
+      "edgeCount": 6,
+      "branchNodeCount": 1,
+      "backwardEdgeCount": 0,
+      "handoffCount": 0,
+      "exitCount": 3,
+      "maxDepth": 3,
+      "maxFanIn": 1,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "multi-exit"
+      ],
+      "complexityTier": "simple",
+      "complexityScore": 21
+    }
+  },
+  {
+    "identity": {
+      "id": "RET-293",
+      "slug": "personalized-recommendations",
+      "category": "retention",
+      "categoryTitle": "Engagement, health, retention & churn prevention",
+      "title": "Recommendation signal qualified → still valid → recommended → converted, dismissed or closed",
+      "purpose": "Show a person a small set of things that follow from what they themselves have done - bought, looked at, saved or stated - and only while every item in it is still something they can actually buy."
+    },
+    "entry": {
+      "trigger": "Recommendation signal qualified",
+      "triggerEvidenceClass": "inferred",
+      "requires": [
+        "a recorded signal about this particular person - a purchase, a browsing record, a saved preference, a stated affinity or a known relationship between products",
+        "a set of items derived from that signal",
+        "the recency rule the company uses to say the signal is still this person's"
+      ],
+      "insufficientAlone": [
+        "what is popular, new or discounted, with nothing about this person behind it",
+        "a signal belonging to a segment rather than to this person",
+        "a signal about something the person already owns or has already declined",
+        "an item set assembled with no signal to explain why those items and not others"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.signal",
+          "kind": "trigger",
+          "headline": "Recommendation signal qualified",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "c.valid",
+          "kind": "condition",
+          "headline": "Is the recommendation still valid?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the recommendation go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.recommend",
+          "kind": "action",
+          "headline": "Send the set the signal produced, with every item re-read for availability, eligibility and ownership first, and nothing in it the person already has or has declined. Claim no reserved stock, no held price and no discount.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.window",
+          "kind": "wait",
+          "headline": "until purchase_completed, or interest_dismissed",
+          "detail": "timeout after {'key': 'recommendations.observation_window', 'rule': 'The set is given a window in which a purchase can honestly be read as following from it, after which the instance closes; there is no second set to time.', 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.outcome",
+          "kind": "condition",
+          "headline": "Did the recommendation reach a relevant purchase?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why no recommendation was sent and against which opportunity, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.purchased",
+          "kind": "exit",
+          "headline": "converted; a purchase from the recommended set is recorded",
+          "detail": "the next qualified signal for this person opens its own opportunity, after the cooldown",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.dismissed",
+          "kind": "exit",
+          "headline": "dismissed; the person said the recommended subject is not wanted",
+          "detail": "a qualified signal about a different subject opens its own opportunity; this subject is not proposed again",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-conversion",
+          "kind": "exit",
+          "headline": "recommended, not converted; the window closed with no purchase from the set",
+          "detail": "the next qualified signal for this person opens its own opportunity, after the cooldown",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no recommendation sent; the reason is recorded",
+          "detail": "the next qualified signal for this person opens its own opportunity",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.signal",
+          "to": "c.valid",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.valid",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Valid",
+          "when": "the signal is still inside the company's recency rule, and at least one item in the set is available, permitted, and neither owned nor declined by this person"
+        },
+        {
+          "from": "c.valid",
+          "to": "x.purchased",
+          "family": "branch",
+          "label": "Already bought",
+          "when": "the person has since bought the thing the signal was about"
+        },
+        {
+          "from": "c.valid",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Stale or empty",
+          "when": "the signal has passed the recency rule, or no item in the set survives the availability and ownership re-read"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.recommend",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence offer currently holding this person, and no cooldown in force"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.recommend",
+          "to": "w.window",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.window",
+          "to": "c.outcome",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "purchase_completed, interest_dismissed"
+        },
+        {
+          "from": "w.window",
+          "to": "c.outcome",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "past its window a purchase is the person's own doing, and counting it here would be a claim the data does not support"
+        },
+        {
+          "from": "c.outcome",
+          "to": "x.purchased",
+          "family": "backward",
+          "label": "Converted",
+          "when": "an authoritative purchase of an item from the recommended set is recorded inside the window"
+        },
+        {
+          "from": "c.outcome",
+          "to": "x.dismissed",
+          "family": "branch",
+          "label": "Dismissed",
+          "when": "the person signalled that the recommended subject is not wanted"
+        },
+        {
+          "from": "c.outcome",
+          "to": "x.no-conversion",
+          "family": "branch",
+          "label": "No conversion",
+          "when": "neither a purchase from the set nor a dismissal is recorded inside the window"
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.signal",
+      "terminalNodes": [
+        "x.purchased",
+        "x.dismissed",
+        "x.no-conversion",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        9
+      ],
+      "branchEdgeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        9,
+        10,
+        11
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "RET-294",
+          "because": "RET-294 starts from something the person already owns and asks what completes it, on a relationship between products the company has declared. This starts from what the person has shown and asks what resembles it - a relationship between a person and a pattern, not between two things."
+        },
+        {
+          "journey": "RET-31",
+          "because": "RET-31 predicts that a specific thing is running out and prompts the same purchase again. This proposes something different and predicts nothing about timing."
+        },
+        {
+          "journey": "ACQ-13",
+          "because": "ACQ-13 acts on attention to one subject that never became a selection. This assembles a set from a record that may be much older and has no single unresolved subject in it."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "Without a recorded signal about this particular person there is no recommendation; popularity is not a signal about anybody.",
+        "Every item is re-read for availability, eligibility and ownership immediately before sending, and a set with nothing left in it is not sent.",
+        "Nothing already bought, held or declined is recommended back.",
+        "The set is bound to the signal that produced it; a stale signal closes the instance rather than producing a different set."
+      ],
+      "reusableRule": "A recommendation is only a recommendation if something the person themselves did produced it, and it is only honest if every item in it is re-read against what they can actually buy at the moment it is sent.",
+      "entityScope": "one recommendation opportunity - the person, the signal it rests on, and the set of items that signal produced",
+      "entityNote": "One instance per person and opportunity. The set is bound to the signal that produced it: where the signal has gone stale, or no item survives the availability and ownership re-read, the instance closes rather than sending a different set."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 11,
+      "edgeCount": 13,
+      "branchNodeCount": 3,
+      "backwardEdgeCount": 1,
+      "handoffCount": 0,
+      "exitCount": 4,
+      "maxDepth": 6,
+      "maxFanIn": 2,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "medium",
+      "complexityScore": 42
+    }
+  },
+  {
+    "identity": {
+      "id": "RET-294",
+      "slug": "complementary-next-offer",
+      "category": "retention",
+      "categoryTitle": "Engagement, health, retention & churn prevention",
+      "title": "Purchase with a declared complement → matured → offered → taken, declined or closed",
+      "purpose": "Offer the thing that genuinely completes something the person already owns, once the first thing has had time to be used, and stop the moment they have it."
+    },
+    "entry": {
+      "trigger": "Purchase with known complement",
+      "triggerEvidenceClass": "authoritative",
+      "requires": [
+        "an authoritative record that this person owns the subject the offer would complete",
+        "a relationship between that subject and a complementary product that the company has declared",
+        "the complement's current availability and eligibility for this person"
+      ],
+      "insufficientAlone": [
+        "a purchase with no declared complementary relationship behind it - a resemblance is not a complement",
+        "a complement the person already owns",
+        "a pairing inferred from what other people bought together, with nothing declared behind it",
+        "an order placed but not yet accepted by the system of record"
+      ]
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "t.owned",
+          "kind": "trigger",
+          "headline": "Purchase with known complement",
+          "detail": null,
+          "isEntry": true,
+          "terminal": false
+        },
+        {
+          "id": "w.maturation",
+          "kind": "wait",
+          "headline": "until purchase_completed, or permission_withdrawn",
+          "detail": "timeout after {'key': 'next_offer.maturation', 'rule': 'The offer waits until the thing it completes has plausibly been received and used, so that a complement arrives as a next step rather than as an upsell attached to an order still in transit.', 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.opportunity",
+          "kind": "condition",
+          "headline": "Is there still a complementary next step worth offering?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable",
+          "kind": "condition",
+          "headline": "May the offer go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.offer",
+          "kind": "action",
+          "headline": "Make the offer against what the person already owns: the complement, what it completes, and the route to add it. Claim no reserved stock, no held price, no discount, and never that the complement is required.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.response",
+          "kind": "wait",
+          "headline": "until purchase_completed, or interest_dismissed",
+          "detail": "timeout after {'key': 'next_offer.response_window', 'rule': 'The offer is given a window in which it can be acted on before a single reminder is considered; after that reminder there is nothing further to time.', 'class': 'response-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.outcome",
+          "kind": "condition",
+          "headline": "Was the offer taken?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2",
+          "kind": "condition",
+          "headline": "May the single reminder go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.remind",
+          "kind": "action",
+          "headline": "Remind once of the same offer against the same owned subject, adding nothing that was not in the first one.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action",
+          "kind": "action",
+          "headline": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.complete",
+          "kind": "exit",
+          "headline": "complete; the person has the complementary thing the offer was about",
+          "detail": "a different owned subject with its own declared complement opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.declined",
+          "kind": "exit",
+          "headline": "declined; the person said the complement is not wanted",
+          "detail": "a different owned subject with its own declared complement opens its own instance; this complement is not offered again",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.offered",
+          "kind": "exit",
+          "headline": "offered and reminded; the plan ran to its end without the complement being taken",
+          "detail": "the cooldown governs when the same complement may be offered again for the same subject",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "headline": "closed; the relationship the offer rested on no longer holds",
+          "detail": "a restored product relationship and a restored permission make the subject eligible again at the next evaluation",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.no-action",
+          "kind": "exit",
+          "headline": "no touch sent; the reason is recorded",
+          "detail": "a different owned subject with its own declared complement opens its own instance",
+          "isEntry": false,
+          "terminal": false
+        }
+      ],
+      "edges": [
+        {
+          "from": "t.owned",
+          "to": "w.maturation",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.maturation",
+          "to": "c.opportunity",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "purchase_completed, permission_withdrawn"
+        },
+        {
+          "from": "w.maturation",
+          "to": "c.opportunity",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "an accessory offered to somebody who has not yet used the product it attaches to interrupts the purchase they already made"
+        },
+        {
+          "from": "c.opportunity",
+          "to": "c.sendable",
+          "family": "branch",
+          "label": "Opportunity stands",
+          "when": "the person still owns the subject, does not have the complement, the declared relationship still holds, and the complement is available and permitted for them"
+        },
+        {
+          "from": "c.opportunity",
+          "to": "x.complete",
+          "family": "branch",
+          "label": "Already complete",
+          "when": "the person has since acquired the complement by any route"
+        },
+        {
+          "from": "c.opportunity",
+          "to": "x.closed",
+          "family": "branch",
+          "label": "No longer applicable",
+          "when": "the declared relationship no longer holds, the complement is unavailable or not permitted for this person, or permission was withdrawn"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.offer",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence journey currently holding this person, and no cooldown in force"
+        },
+        {
+          "from": "c.sendable",
+          "to": "a.record-no-action",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.offer",
+          "to": "w.response",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.response",
+          "to": "c.outcome",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "purchase_completed, interest_dismissed"
+        },
+        {
+          "from": "w.response",
+          "to": "c.outcome",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a reminder sent before the offer has had time to be read is a repeat, and one sent long afterwards is a new offer pretending to be a reminder"
+        },
+        {
+          "from": "c.outcome",
+          "to": "x.complete",
+          "family": "backward",
+          "label": "Taken",
+          "when": "an authoritative purchase of the complement by this person is recorded"
+        },
+        {
+          "from": "c.outcome",
+          "to": "x.declined",
+          "family": "branch",
+          "label": "Declined",
+          "when": "the person signalled that the complement is not wanted"
+        },
+        {
+          "from": "c.outcome",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "No answer yet",
+          "when": "the complement is still not owned and nothing has been declined"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.remind",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes and the touch budget is not spent"
+        },
+        {
+          "from": "c.sendable2",
+          "to": "a.record-no-action",
+          "family": "backward",
+          "label": "Suppressed",
+          "when": "a gate stops it or the budget is spent; the reason is recorded"
+        },
+        {
+          "from": "a.remind",
+          "to": "x.offered",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.record-no-action",
+          "to": "x.no-action",
+          "family": "forward",
+          "label": null,
+          "when": null
+        }
+      ],
+      "startNode": "t.owned",
+      "terminalNodes": [
+        "x.complete",
+        "x.declined",
+        "x.offered",
+        "x.closed",
+        "x.no-action"
+      ],
+      "backwardEdgeIds": [
+        11,
+        15
+      ],
+      "branchEdgeIds": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "handoffEdgeIds": [],
+      "externalEdgeIds": []
+    },
+    "relationships": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "journey": "RET-293",
+          "because": "RET-293 starts from what the person has shown and proposes what resembles it. This starts from what they already own and proposes what completes it, on a relationship between two products the company has declared - which is a different claim, with a different way of being wrong."
+        },
+        {
+          "journey": "RET-31",
+          "because": "RET-31 prompts the same purchase again because the first one is running out. This proposes a different thing, and ownership of the first is exactly what makes it relevant."
+        },
+        {
+          "journey": "ACQ-288",
+          "because": "ACQ-288 recovers a selection the person made and left behind. Here the purchase completed; nothing is being recovered, and the subject of the offer is something they never selected."
+        }
+      ],
+      "competition": null,
+      "preemptedBy": []
+    },
+    "governance": {
+      "guardrails": [
+        "The offer rests on a relationship the company has declared between two products, never on resemblance - resemblance belongs to the recommendation journey.",
+        "Ownership of the complement is re-read immediately before every touch; nothing already owned is offered.",
+        "Nothing is offered before the thing it completes has plausibly been received and used.",
+        "A segment split is made only where the offer itself genuinely differs; a split that sends the same thing down two branches is a decision the business does not have.",
+        "One offer and at most one reminder, and the reminder adds nothing the offer did not have."
+      ],
+      "reusableRule": "A complementary offer is bound to a relationship the company has actually declared between two things and to ownership of the first of them, re-read before every touch - which is what keeps it a next step rather than a second guess at what somebody likes.",
+      "entityScope": "one complementary opportunity - the person, the subject they own, and the declared product relationship that makes the next thing complementary rather than merely similar",
+      "entityNote": "One instance per person and owned subject. The offer is bound to a relationship the company has declared between two products, not to resemblance: where that relationship no longer holds, or the person already has the complement, the instance closes rather than substituting a different offer."
+    },
+    "derived": {
+      "hasBranches": true,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": false,
+      "hasExternalHandoff": false,
+      "hasCrossJourneyHandoff": false,
+      "hasWait": true,
+      "hasReEntryException": false,
+      "hasTerminalExit": false,
+      "hasMultipleExits": true,
+      "hasPreemption": false,
+      "hasCompetition": true,
+      "nodeCount": 15,
+      "edgeCount": 18,
+      "branchNodeCount": 4,
+      "backwardEdgeCount": 2,
+      "handoffCount": 0,
+      "exitCount": 5,
+      "maxDepth": 9,
+      "maxFanIn": 2,
+      "maxFanOut": 3,
+      "primaryStructure": "self-contained",
+      "behaviors": [
+        "backward-edge",
+        "wait-timeout",
+        "multi-exit",
+        "competition"
+      ],
+      "complexityTier": "complex",
+      "complexityScore": 59
     }
   },
   {
@@ -82119,6 +84082,10 @@
         {
           "journey": "SUB-164",
           "because": "This produces a decision. SUB-164 makes the new term exist, which depends on payment, confirmation and eligibility that this journey does not touch. A relationship can be decided-to-renew and still not renew."
+        },
+        {
+          "journey": "TIM-63",
+          "because": "TIM-63 is the generic pre-expiry reminder, and a subscription sits inside its scope - so a term end fires both at the same point in the calendar. This journey owns it: it is the one that knows the renewal terms, the notice period they require and who holds the decision, and the notice it sends is an obligation of the terms rather than outreach. While this cycle's decision window is open, that journey is suppressed for the subscription and owns only the expiries no renewal cycle governs."
         }
       ],
       "competition": null,
@@ -85301,6 +87268,10 @@
         {
           "journey": "TIM-63",
           "because": "A deadline is a moment by which something must be done. An expiry is a moment at which something stops being valid. The first can pass with the obligation intact; the second cannot."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 sends a reminder and an overdue notice about an obligation whose due date governs nothing beyond the sending. Here the deadline governs the obligation's own state, and the reminder is one of the several things the governing rule can produce - which is why the two share an obligation key and this journey holds it. Where a deadline has been assigned, that journey is suppressed for the obligation and reminds only of the ones nothing governs."
         }
       ],
       "competition": null,
@@ -85328,7 +87299,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 14,
       "edgeCount": 18,
       "branchNodeCount": 3,
@@ -85343,7 +87314,8 @@
         "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "complex",
       "complexityScore": 53
@@ -85939,6 +87911,10 @@
         {
           "journey": "TIM-64",
           "because": "This runs while the outcome can still change. TIM-64 runs at the moment it stops being able to. Keeping them apart is what makes expiring and expired different states rather than the same one announced twice."
+        },
+        {
+          "journey": "SUB-163",
+          "because": "A subscription is in this journey's scope and a term end is in SUB-163's, so the same calendar moment fires both. SUB-163 owns it: it is the one that knows the renewal terms, the notice the terms require and who holds the decision, and its notice is a contractual obligation rather than outreach. This journey is the generic fallback for that expiry - it owns a subscription only where no renewal decision window is open on it, alongside every other expiring entity with no renewal cycle."
         }
       ],
       "competition": null,
@@ -85965,7 +87941,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 14,
       "edgeCount": 16,
       "branchNodeCount": 3,
@@ -85980,7 +87956,8 @@
         "wait-timeout",
         "cross-journey-handoff",
         "external-handoff",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 48
@@ -88138,6 +90115,42 @@
         {
           "journey": "REM-153",
           "because": "REM-153 tracks whether the resource actually comes back and holds the states where it might not have. This is the prompt to the person still holding it, and it stops the moment the record says it is no longer outstanding."
+        },
+        {
+          "journey": "TIM-61",
+          "because": "TIM-61 lets the deadline govern the obligation's own state, and its reminder is one of the several things that governing rule can produce. This is the sending and nothing else: where a deadline has been authoritatively assigned, that journey holds the obligation and owns every pre-deadline reminder about it, and this one reminds of an obligation whose due date governs nothing beyond the reminder itself."
+        },
+        {
+          "journey": "TIM-63",
+          "because": "TIM-63 owns a validity about to lapse, where the moment is an expiry the entity does not survive rather than a date by which something must be done. Where an expiry owns the date, that journey sends the message before it and this one is the fallback for obligations no expiry governs."
+        },
+        {
+          "journey": "DOC-215",
+          "because": "DOC-215 owns a signature owed on a specific version by a specific signer, and knows which version is being signed. This journey knows only that something is owed by a date."
+        },
+        {
+          "journey": "REL-284",
+          "because": "REL-284 owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure. This journey would restate that deadline without knowing what the acceptance grants."
+        },
+        {
+          "journey": "ACC-263",
+          "because": "ACC-263 owns whether a granted entitlement is ever used, and names the first action that uses it. An unused entitlement is that journey's obligation, not a generic outstanding one."
+        },
+        {
+          "journey": "RLT-279",
+          "because": "RLT-279 owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks. This journey can only name the prerequisite."
+        },
+        {
+          "journey": "SCH-266",
+          "because": "SCH-266 owns what a booking requires before its occurrence, and its deadline is the occurrence itself. This journey does not hold the occurrence."
+        },
+        {
+          "journey": "ACT-13",
+          "because": "ACT-13 owns a requirement blocking activation, inside an onboarding instance that decides what the next useful step is. The blocker is that journey's obligation, and reminding of it from here would duplicate the step it was about to name."
+        },
+        {
+          "journey": "FBK-49",
+          "because": "FBK-49 owns a blocking data item, and knows which process stalls without it. This journey would ask for the same item without being able to say what it unblocks."
         }
       ],
       "competition": null,
@@ -88166,7 +90179,7 @@
       "hasTerminalExit": true,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 15,
       "edgeCount": 19,
       "branchNodeCount": 4,
@@ -88182,6 +90195,7 @@
         "wait-timeout",
         "external-handoff",
         "multi-exit",
+        "competition",
         "no-re-entry"
       ],
       "complexityTier": "complex",
@@ -88441,6 +90455,18 @@
         {
           "journey": "TIM-65",
           "because": "TIM-65 grants the grace state, records which capabilities continue and decides what happens when the window closes. This journey is what the holder is told across that window, and it sends nothing until that state exists."
+        },
+        {
+          "journey": "FIN-134",
+          "because": "FIN-134 owns what is said about an unpaid obligation while recovery is still the whole of the story - the failure, the corrective action and the consequence ahead. It is that journey's own handoff into grace that starts this one, and the recovery messaging stops there: from the moment a grace state is recorded, the deadline the holder needs is this window's end and this journey is the one that knows it."
+        },
+        {
+          "journey": "ACC-261",
+          "because": "ACC-261 tells the account holder about a restriction that stands on the record in its own right. This journey tells a holder about a bounded window with a fixed end. Where one obligation produces both, the restriction is the later and harder state and that journey owns the message; this one stops rather than sending a second account of what stopped and how to restore it."
+        },
+        {
+          "journey": "TIM-281",
+          "because": "TIM-281 answers a holder who comes back to something already expired and re-derives the route from current rules. This journey runs inside the window before that, holds the one recovery route recorded for it and can name the date the window ends. While grace is open the holder is answered from here; once it closes at x.lost, or where no grace was granted at all, that journey owns the attempt."
         }
       ],
       "competition": null,
@@ -88469,7 +90495,7 @@
       "hasTerminalExit": false,
       "hasMultipleExits": true,
       "hasPreemption": false,
-      "hasCompetition": false,
+      "hasCompetition": true,
       "nodeCount": 13,
       "edgeCount": 14,
       "branchNodeCount": 2,
@@ -88483,7 +90509,8 @@
       "behaviors": [
         "backward-edge",
         "wait-timeout",
-        "multi-exit"
+        "multi-exit",
+        "competition"
       ],
       "complexityTier": "medium",
       "complexityScore": 43
@@ -88753,6 +90780,10 @@
         {
           "journey": "TIM-63",
           "because": "TIM-63 runs before expiry, while the thing is still valid and can simply be kept. This runs after, where a gap exists on the record and the route back is a different mechanism."
+        },
+        {
+          "journey": "TIM-274",
+          "because": "TIM-274 runs inside a bounded grace window with a fixed end it can name, and it holds the one recovery route recorded for that window's duration. This journey runs where no window is open - after grace has closed at its recorded end, or where no grace was granted at all - and re-derives the route from current rules, which is why the two must never answer one holder at once: they would name two routes back to one entity from two different reads of the rules."
         }
       ],
       "competition": null,

@@ -4091,4 +4091,395 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "A substitute is only a substitute if the person it was offered to could have said no.",
   },
+  {
+    "id": "FUL-291",
+    "slug": "post-purchase-follow-up",
+    "category": "fulfillment",
+    "goal": "progression-milestone",
+    "channels": ["email", "in-app", "push"],
+    "name": "Fulfillment completed → the useful next step sent → followed up, superseded or not sent",
+    "shortName": "Post-Purchase Follow-Up",
+    "purpose": "Once what was owed has actually arrived, send the one thing that makes it useful - how to start with it, how to look after it, what sensibly follows - and nothing else.",
+    "objective": "Make what the person received work for them, sent only once completion is authoritative; never a status update, never a request for their opinion, and never while a problem is open against it.",
+    "entity": {
+      "scope": "one completed fulfillment - the delivered order or finished service, and the recipient it was completed for",
+      "note": "One instance per completion. A later completion for the same person is its own instance. A problem raised against this completion ends this instance rather than pausing it, because the remedy lifecycle owns the order from that point.",
+      "instanceKey": [
+        "person_id",
+        "fulfillment_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A problem raised against this completion supersedes the instance: the remedy lifecycle owns the order from that moment and this journey sends nothing further about it."
+      }
+    },
+    "eligibility": [
+      "an authoritative record that the recipient has what was owed",
+      "the completion is attributable to a person we may contact",
+      "no problem is open against this completion",
+      "no instance is already open for this completion",
+      "purpose-level permission for service communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.issue",
+        "label": "CANONICAL_RULE",
+        "text": "A problem raised against this completion ends the instance where it stands. Usage guidance sent to somebody waiting on a remedy is the failure this journey exists to prevent."
+      },
+      {
+        "id": "s.status",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never reports status. Where the order is, whether it is late and whether it arrived belong to the tracking and delay journeys, and they have already said it."
+      },
+      {
+        "id": "s.rating",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never asks for a rating, a review or an opinion. Asking is the feedback journey's own work, on its own timing and its own permission, and a follow-up that ends in a request is that journey wearing this one's name."
+      },
+      {
+        "id": "s.confirmation",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never confirms the order. Whether the order was received is answered at the opening of the fulfillment record, long before this instance exists."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for service communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.substance",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "Where nothing useful is recorded against what was delivered - no setup, no care, no sensible next step - nothing is sent. A follow-up with no substance is a promotional message wearing a service label."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "post_purchase_followup.touches",
+          "rule": "The follow-up runs against a budget fixed when the instance opened; the budget is the journey's own length, and it is not repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - one follow-up and nothing after it"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "post_purchase_followup.cooldown",
+        "rule": "Completions for the same person that land close together produce one follow-up rather than one each; the cooldown is what stops somebody who orders often from being taught the same thing again.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "post-purchase-welcome",
+        "scope": "person",
+        "precedence": "above the first-purchase welcome for the same person - what somebody is already holding comes before what they might buy next; below every remedy journey on the same order, which ends this one rather than queueing it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the guidance has to be kept and returned to - the default for anything the person may need again later"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the next step is taken inside the product and the guidance belongs beside it"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists and the permission covering it still stands, and the step is short enough to be a nudge"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "useful-next-step",
+          "action": "a.followup",
+          "gatedBy": "w.settle",
+          "prerequisites": [
+            "c.state",
+            "c.sendable"
+          ],
+          "purpose": "The one thing that makes what they received work: how to start with it, how to look after it, or what sensibly follows. No status, no request for an opinion, no repeat of the order's own confirmation.",
+          "channelRoles": [
+            "persistent",
+            "in-session",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "fulfillment-guidance",
+            "boundTo": "fulfillment_id",
+            "mustNotClaim": [
+              "a warranty the record does not carry",
+              "a service the person has not bought",
+              "an outcome the product does not produce"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.issue",
+        "s.status",
+        "s.rating",
+        "s.confirmation",
+        "s.permission",
+        "s.substance"
+      ]
+    },
+    "entry": "t.completed",
+    "nodes": [
+      {
+        "id": "t.completed",
+        "kind": "trigger",
+        "event": "authoritative_delivery_completion",
+        "evidence": {
+          "requires": [
+            "an authoritative confirmation that the recipient has what was owed",
+            "the fulfillment record the completion belongs to, and the items or service it covers"
+          ],
+          "insufficientAlone": [
+            "an order placed, paid for or accepted - none of those is a completion",
+            "a carrier or provider status that the system of record has not confirmed",
+            "a final delivery attempt whose outcome has not been recorded",
+            "a completion recorded against a recipient who has not resolved to a person"
+          ],
+          "source": "authoritative"
+        },
+        "next": "w.settle"
+      },
+      {
+        "id": "w.settle",
+        "kind": "wait",
+        "until": [
+          "post_completion_issue_reported",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.state",
+        "timeout": {
+          "after": {
+            "key": "post_purchase_followup.settle",
+            "rule": "The follow-up waits until the person has plausibly had what arrived in their hands, so that guidance about using it is guidance rather than another message about an order.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "guidance that lands before the thing does is advice about something the person cannot see yet",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.state",
+        "recheck": "the fulfillment record, any problem raised against it and the person's permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.state",
+        "kind": "condition",
+        "asks": "Is a follow-up still the right thing to send?",
+        "branches": [
+          {
+            "label": "Follow-up due",
+            "when": "the completion stands, no problem has been raised against it, and permission for service communication still holds",
+            "observes": "fulfillment record, problem record, permission record",
+            "to": "c.sendable"
+          },
+          {
+            "label": "A problem is open",
+            "when": "a problem has been raised against this completion",
+            "observes": "post_completion_issue_reported",
+            "to": "x.superseded"
+          },
+          {
+            "label": "No longer reachable",
+            "when": "the person withdrew permission for this kind of communication",
+            "observes": "permission_withdrawn",
+            "to": "x.closed"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the follow-up go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and something is recorded against what was delivered that is actually worth saying",
+            "observes": "send path stages 1-8, guidance record",
+            "to": "a.followup"
+          },
+          {
+            "label": "Nothing to say, or suppressed",
+            "when": "a gate stops it, or nothing useful is recorded against what was delivered; the reason is recorded",
+            "observes": "send path stages 1-8, guidance record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.followup",
+        "kind": "action",
+        "does": "Send the useful next step for what was received: setting it up, looking after it, or what sensibly follows from it. No status, no request for an opinion, no repeat of the order's own confirmation.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + fulfillment_id",
+        "writes": [
+          {
+            "field": "followup_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.followed-up"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no follow-up was sent and against which completion, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + fulfillment_id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.followed-up",
+        "kind": "exit",
+        "state": "followed up; the useful next step for this completion has been sent",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a later completion for this person opens its own instance; this one does not reopen"
+      },
+      {
+        "id": "x.superseded",
+        "kind": "exit",
+        "state": "superseded by a problem; the remedy lifecycle owns this completion",
+        "class": "suppression",
+        "terminal": false,
+        "reEntry": "a later completion for this person opens its own instance; a resolved remedy does not reopen this one"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a follow-up; the person is no longer reachable for this kind of message",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a restored permission makes a later completion eligible again; this instance does not reopen"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no follow-up sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a later completion for this person opens its own instance"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "fulfillment_id",
+          "completed_at",
+          "fulfilled_items",
+          "guidance_destination"
+        ],
+        "optional": [
+          "service_type",
+          "permission_state",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.followed-up",
+          "x.superseded",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "secondary": [
+        "post_completion_issue_reported"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "followup_during_open_issue",
+        "followup_without_substance",
+        "rating_request_sent"
+      ],
+      "operational": [
+        "entry_volume",
+        "followup_rate",
+        "no_action_rate_by_reason",
+        "issue_supersession_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "post-purchase follow-up",
+        "after delivery follow-up",
+        "product usage guidance",
+        "care instructions message",
+        "what to do next after delivery"
+      ],
+      "useCases": [
+        "a delivered order whose owner would get more out of it with one piece of guidance",
+        "a completed service with a sensible next step the person does not yet know about"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "FUL-265",
+        "because": "FUL-265 tells somebody where their order is while it is still moving. This journey opens only once it has stopped moving, and never mentions where it was."
+      },
+      {
+        "journey": "FBK-41",
+        "because": "FBK-41 asks the person for something - their opinion about what happened. This journey gives them something and asks for nothing, so the two are not variants of one message."
+      },
+      {
+        "journey": "RET-290",
+        "because": "RET-290 is about the relationship a first purchase opened and never explains the product. This is about the thing itself, and it opens on every completion rather than only the first."
+      },
+      {
+        "journey": "REM-151",
+        "because": "REM-151 owns the order the moment a problem is raised against it. This journey ends there rather than continuing beside it."
+      }
+    ],
+    "guardrails": [
+      "Completion is read from the system of record, never from a carrier status or a final attempt whose outcome has not been recorded.",
+      "A problem raised against the completion ends this journey; guidance never runs beside a remedy.",
+      "No status, no rating request and no repeat of the order confirmation - each belongs to a journey that already owns it.",
+      "Where nothing useful is recorded against what was delivered, nothing is sent."
+    ],
+    "reusableRule": "A completion is a state with a message of its own, and that message is whatever makes the delivered thing useful - never a restatement of the status that produced it, and never a request for the recipient's opinion about it."
+  },
 ];

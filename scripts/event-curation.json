@@ -1167,6 +1167,18 @@
   },
   "the change is superseded or withdrawn": {
    "id": "change_withdrawn"
+  },
+  "item_available_again": {
+   "id": "item_available_again",
+   "source": "authoritative",
+   "entity": "the item an unmet interest is held against",
+   "meaning": "the platform asserts that an item which was not purchasable is purchasable again",
+   "commonMappings": [
+    "back_in_stock",
+    "restocked",
+    "inventory_available",
+    "availability_restored"
+   ]
   }
  },
  "measurementEvents": [

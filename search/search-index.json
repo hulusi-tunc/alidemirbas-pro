@@ -14691,7 +14691,8 @@
     "tags": [
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -14721,6 +14722,10 @@
         {
           "targetId": "journey:ACC-78",
           "because": "ACC-78 decides and records the restriction and its release condition. This journey is what the account holder is told about it, and it sends nothing until that decision exists."
+        },
+        {
+          "targetId": "journey:TIM-274",
+          "because": "TIM-274 tells a holder about a bounded grace window with a fixed end. One unpaid obligation can produce both that window and a restriction, and the two would otherwise say the same thing twice - what stopped, what still works, the deadline and the one condition that lifts it. The restriction is the later and harder state, so this journey owns the message from the moment it is recorded and the grace journey stops."
         }
       ]
     }
@@ -15317,6 +15322,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
       "multi-exit"
@@ -15349,6 +15355,10 @@
         {
           "targetId": "journey:ACQ-07",
           "because": "Decay retires an intent state that has gone stale. This spends a deliberately fixed window trying to advance one, and only then closes it."
+        },
+        {
+          "targetId": "journey:ACQ-285",
+          "because": "ACQ-285 owns the initial contact a capture earns - what was asked for, and the first bounded sequence that answers it. This journey is what may follow once that window has closed and the lead is still not ready for a destination, which is why it never starts while ACQ-285 is still open on the capture the lead came from."
         }
       ]
     }
@@ -15521,6 +15531,10 @@
         {
           "targetId": "journey:SCH-282",
           "because": "SCH-282 follows an availability enquiry that holds nothing. A process has state the person can return to, which is what makes recovery honest."
+        },
+        {
+          "targetId": "journey:ACQ-287",
+          "because": "ACQ-287 is this pattern specialised to one process - a checkout - with a stated channel priority per touch and a high-value branch, none of which is true for every resumable process this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the process is a checkout it holds the instance and this one is suppressed for it."
         }
       ]
     }
@@ -15607,6 +15621,10 @@
         {
           "targetId": "journey:ACQ-13",
           "because": "ACQ-13 works from inferred attention. A selection is a recorded fact the person created, and the touch can show it back to them."
+        },
+        {
+          "targetId": "journey:ACQ-288",
+          "because": "ACQ-288 is this pattern specialised to one kind of selection - a cart - with a stated channel priority per touch, a high-value branch and a handoff into checkout recovery, none of which is true for every held selection this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the selection is a cart it holds the instance and this one is suppressed for it."
         }
       ]
     }
@@ -15765,6 +15783,10 @@
         {
           "targetId": "journey:ACQ-02",
           "because": "ACQ-02 decides which destination a capture justifies and records that decision with its own state. This journey is what the person receives once that decision exists, and it invents no destination of its own."
+        },
+        {
+          "targetId": "journey:ACQ-09",
+          "because": "ACQ-09 is the same bounded education on the same declared subject, and one form fill satisfies both triggers. This journey owns the initial contact window the capture earned; ACQ-09 is ineligible while that window is open and may start only once it has closed."
         }
       ]
     }
@@ -15778,7 +15800,7 @@
     "external": false,
     "title": "ACQ-287 Checkout started → not completed → recovered or abandoned",
     "summary": "Return a person who started checkout but did not finish it, with a reminder cascade that reaches for the highest-value checkouts on a more direct channel and never sends once the purchase is already there.",
-    "searchText": "Checkout started → not completed → recovered or abandoned. Return a person who started checkout but did not finish it, with a reminder cascade that reaches for the highest-value checkouts on a more direct channel and never sends once the purchase is already there.. Also known as checkout abandonment recovery, abandoned checkout reminder, checkout reminder cascade, incomplete checkout recovery, high-value checkout reminder. a started checkout with items that has gone quiet and can still be finished. a high-value checkout that warrants a more direct second reminder than the first. Checkout started. Acquisition, intent & qualification. purchased; the checkout the reminders pointed at is complete. checkout abandoned; the reminder cascade ran to its end with no completion",
+    "searchText": "Checkout started → not completed → recovered or abandoned. Return a person who started checkout but did not finish it, with a reminder cascade that reaches for the highest-value checkouts on a more direct channel and never sends once the purchase is already there.. Also known as checkout abandonment recovery, abandoned checkout reminder, checkout reminder cascade, incomplete checkout recovery, high-value checkout reminder. a started checkout with items that has gone quiet and can still be finished. a high-value checkout that warrants a more direct second reminder than the first. Checkout started. Acquisition, intent & qualification. Hands off to FIN-134. purchased; the checkout the reminders pointed at is complete. checkout abandoned; the reminder cascade ran to its end with no completion",
     "keywords": [
       "ACQ-287",
       "checkout abandonment recovery",
@@ -15808,7 +15830,9 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "cross-journey-handoff",
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -15829,11 +15853,19 @@
       ]
     },
     "journeyRelationRefs": {
-      "handoffs": [],
+      "handoffs": [
+        {
+          "targetId": "journey:FIN-134"
+        }
+      ],
       "distinctFrom": [
         {
           "targetId": "journey:ACQ-11",
-          "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed three-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover."
+          "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed two-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover. It ranks above ACQ-11 in the commerce-recovery group, and while it holds a checkout that pattern is suppressed for it."
+        },
+        {
+          "targetId": "journey:ACQ-288",
+          "because": "ACQ-288 recovers a cart before checkout starts; this journey recovers a checkout that has already started. The two never run in parallel on the same items - ACQ-288 hands the cart over the moment checkout starts and suppresses every touch it had queued, and this journey's own clock begins there."
         }
       ]
     }
@@ -15878,7 +15910,8 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -15907,11 +15940,89 @@
       "distinctFrom": [
         {
           "targetId": "journey:ACQ-12",
-          "because": "ACQ-12 is the general-purpose pattern for any held selection (a cart, a saved list) and stays deliberately generic - one first-check window, two generic touches, no channel priority stated, no high-value branch. This journey is the concrete cart implementation: a fixed three-touch cascade with an explicit channel priority and fallback per touch, a high-value branch that reaches for a more direct channel, and an explicit handoff into Checkout Abandonment (ACQ-287) the moment checkout starts - none of which the generic pattern states, because none of it is true for every held selection it also has to cover."
+          "because": "ACQ-12 is the general-purpose pattern for any held selection (a cart, a saved list) and stays deliberately generic - one first-check window, two generic touches, no channel priority stated, no high-value branch. This journey is the concrete cart implementation: a fixed two-touch cascade with an explicit channel priority and fallback per touch, a high-value branch that reaches for a more direct channel, and an explicit handoff into Checkout Abandonment (ACQ-287) the moment checkout starts - none of which the generic pattern states, because none of it is true for every held selection it also has to cover. It ranks above ACQ-12 in the commerce-recovery group, and while it holds a cart that pattern is suppressed for it."
         },
         {
           "targetId": "journey:ACQ-287",
           "because": "ACQ-287 recovers a checkout that has already started; this journey recovers a cart before checkout starts. The two never run in parallel on the same person - this journey hands off to ACQ-287 the moment checkout starts, and every queued cart reminder is suppressed from that point."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:ACQ-289",
+    "type": "journey",
+    "slug": "back-in-stock-alert",
+    "url": "/lab/journeys/back-in-stock-alert",
+    "urlTr": "/tr/lab/journeys/back-in-stock-alert",
+    "external": false,
+    "title": "ACQ-289 Interest recorded while unavailable → availability returns → alerted → purchased or closed",
+    "summary": "Tell a person, once, that the specific item they wanted while it was unavailable can be bought again - and only while that interest is still honestly theirs.",
+    "searchText": "Interest recorded while unavailable → availability returns → alerted → purchased or closed. Tell a person, once, that the specific item they wanted while it was unavailable can be bought again - and only while that interest is still honestly theirs.. Also known as back in stock alert, restock notification, availability alert, notify me when available, waitlist availability notice. an item somebody wanted while it was unavailable that can now be bought again. an interest that never became a selection because the thing was not there to select. Interest recorded while unavailable. Acquisition, intent & qualification. purchased; the item the alert was about is bought. alerted, not bought; the window closed with no purchase. interest expired before availability returned; no alert was sent. interest closed; the person withdrew it or the item went unavailable again first. no alert sent; the reason is recorded",
+    "keywords": [
+      "ACQ-289",
+      "back in stock alert",
+      "restock notification",
+      "availability alert",
+      "notify me when available",
+      "waitlist availability notice"
+    ],
+    "category": [
+      "acquisition"
+    ],
+    "normalizedCategory": [
+      "acquisition-and-onboarding"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "acquisition-qualification"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/back-in-stock-alert",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACQ-13",
+          "because": "ACQ-13 acts on attention that never became a selection for reasons the library does not claim to know. This journey knows the reason - the item was not purchasable - and does nothing at all until that reason goes away."
+        },
+        {
+          "targetId": "journey:ACQ-12",
+          "because": "ACQ-12 recovers a selection the person made and left behind. Here nothing was ever selected, because nothing could be; the wait is on the item, not on the person."
+        },
+        {
+          "targetId": "journey:RET-31",
+          "because": "RET-31 prompts a purchase the person's own history says is due. This prompts one they already showed they wanted and were unable to make."
         }
       ]
     }
@@ -15986,7 +16097,12 @@
           "targetId": "journey:ACT-16"
         }
       ],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-19",
+          "because": "This one advances a path already chosen; ACT-19 is what chooses it. They share an account and a trigger condition - onboarding_active_without_activation is true for both, and stays true for the whole of ACT-19's answer wait - so while a personalization question is outstanding this journey holds its prompts (s.personalizing) rather than pushing the generic next step over the answer that would re-route it."
+        }
+      ]
     }
   },
   {
@@ -16420,7 +16536,12 @@
           "targetId": "journey:ACT-12"
         }
       ],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:ACT-12",
+          "because": "This one asks the question that decides the route; ACT-12 walks the route once it is decided. While the question is outstanding this journey owns the onboarding conversation on the same channels, and ACT-12's nurture prompts are held until the answer lands or the wait times out - otherwise both are talking about setup at once, and the generic prompt can be for the very step the answer was about to change."
+        }
+      ]
     }
   },
   {
@@ -18408,6 +18529,10 @@
         {
           "targetId": "journey:OPS-124",
           "because": "OPS-124 is a generic technical retry against a transient fault. This makes a business recovery decision: what to ask the customer for, whether an alternative route exists, and what happens to the obligation if none of it works."
+        },
+        {
+          "targetId": "journey:TIM-274",
+          "because": "This journey owns what is said about an unpaid obligation while recovery is still the whole of the story. Its own handoff into grace ends that: once a grace state is recorded, the holder needs the window's end date and the one condition that restores the active state, which TIM-274 holds and this journey does not. Recovery messaging about the obligation stops at that handoff rather than running beside it."
         }
       ]
     }
@@ -19260,6 +19385,85 @@
         {
           "targetId": "journey:FUL-149",
           "because": "FUL-149 decides whether acceptance is contractually meaningful and records finalisation. This is the request for that acceptance and the deadline enforced in front of the person who owes it."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:FUL-291",
+    "type": "journey",
+    "slug": "post-purchase-follow-up",
+    "url": "/lab/journeys/post-purchase-follow-up",
+    "urlTr": "/tr/lab/journeys/post-purchase-follow-up",
+    "external": false,
+    "title": "FUL-291 Fulfillment completed → the useful next step sent → followed up, superseded or not sent",
+    "summary": "Once what was owed has actually arrived, send the one thing that makes it useful - how to start with it, how to look after it, what sensibly follows - and nothing else.",
+    "searchText": "Fulfillment completed → the useful next step sent → followed up, superseded or not sent. Once what was owed has actually arrived, send the one thing that makes it useful - how to start with it, how to look after it, what sensibly follows - and nothing else.. Also known as post-purchase follow-up, after delivery follow-up, product usage guidance, care instructions message, what to do next after delivery. a delivered order whose owner would get more out of it with one piece of guidance. a completed service with a sensible next step the person does not yet know about. Authoritative delivery completion. Orders, fulfillment, delivery & service completion. followed up; the useful next step for this completion has been sent. superseded by a problem; the remedy lifecycle owns this completion. closed without a follow-up; the person is no longer reachable for this kind of message. no follow-up sent; the reason is recorded",
+    "keywords": [
+      "FUL-291",
+      "post-purchase follow-up",
+      "after delivery follow-up",
+      "product usage guidance",
+      "care instructions message",
+      "what to do next after delivery"
+    ],
+    "category": [
+      "fulfillment"
+    ],
+    "normalizedCategory": [],
+    "surface": [],
+    "funnelStage": [
+      "cross-lifecycle"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "change-versioning"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/post-purchase-follow-up",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-265",
+          "because": "FUL-265 tells somebody where their order is while it is still moving. This journey opens only once it has stopped moving, and never mentions where it was."
+        },
+        {
+          "targetId": "journey:FBK-41",
+          "because": "FBK-41 asks the person for something - their opinion about what happened. This journey gives them something and asks for nothing, so the two are not variants of one message."
+        },
+        {
+          "targetId": "journey:RET-290",
+          "because": "RET-290 is about the relationship a first purchase opened and never explains the product. This is about the thing itself, and it opens on every completion rather than only the first."
+        },
+        {
+          "targetId": "journey:REM-151",
+          "because": "REM-151 owns the order the moment a problem is raised against it. This journey ends there rather than continuing beside it."
         }
       ]
     }
@@ -21817,6 +22021,311 @@
     }
   },
   {
+    "id": "journey:RET-290",
+    "type": "journey",
+    "slug": "first-purchase-welcome",
+    "url": "/lab/journeys/first-purchase-welcome",
+    "urlTr": "/tr/lab/journeys/first-purchase-welcome",
+    "external": false,
+    "title": "RET-290 First purchase completed → welcomed as a customer → returned, prompted or closed",
+    "summary": "Mark the moment a buyer becomes a customer for the first time, and give them one honest reason to come back - without ever speaking over the order's own transactional confirmation.",
+    "searchText": "First purchase completed → welcomed as a customer → returned, prompted or closed. Mark the moment a buyer becomes a customer for the first time, and give them one honest reason to come back - without ever speaking over the order's own transactional confirmation.. Also known as first purchase thank you, new customer welcome, post-purchase bounceback, second purchase prompt, first order thank you. a first-time buyer who should be welcomed as a customer rather than only told their order was received. a recent first purchase that has not yet become a second one. First purchase completed. Engagement, health, retention & churn prevention. returned; a second purchase is recorded and the relationship is no longer a new one. welcomed and prompted; the plan ran to its end and this journey's own work is done. closed without a welcome; the relationship ended or the first purchase did not stand. no touch sent; the reason is recorded",
+    "keywords": [
+      "RET-290",
+      "first purchase thank you",
+      "new customer welcome",
+      "post-purchase bounceback",
+      "second purchase prompt",
+      "first order thank you"
+    ],
+    "category": [
+      "retention"
+    ],
+    "normalizedCategory": [
+      "retention-and-engagement"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "engagement-retention"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/first-purchase-welcome",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-291",
+          "because": "FUL-291 speaks about the order the person is now holding - how to use it, look after it, or what follows from it. This journey speaks about the relationship that order opened, and it never explains the product."
+        },
+        {
+          "targetId": "journey:ACQ-285",
+          "because": "ACQ-285 welcomes somebody who has shown interest and has bought nothing. This opens only on an authoritative first purchase, and its whole subject is the second one."
+        },
+        {
+          "targetId": "journey:RET-31",
+          "because": "RET-31 prompts a repeat of something the person's own history says is due. Here there is no history yet - one purchase is not a cadence - so the prompt is an offer rather than a prediction."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:RET-292",
+    "type": "journey",
+    "slug": "first-purchase-anniversary",
+    "url": "/lab/journeys/first-purchase-anniversary",
+    "urlTr": "/tr/lab/journeys/first-purchase-anniversary",
+    "external": false,
+    "title": "RET-292 First-purchase anniversary approaching → eligibility checked → recognised or not sent",
+    "summary": "Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once.",
+    "searchText": "First-purchase anniversary approaching → eligibility checked → recognised or not sent. Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once.. Also known as first purchase anniversary, customer anniversary, relationship anniversary, years as a customer, purchase anniversary recognition. a customer reaching a whole interval measured from their first purchase. a relationship whose length is worth saying out loud without attaching an offer to it. First purchase anniversary approaching. Engagement, health, retention & churn prevention. recognised; the anniversary was marked once for this interval. closed without a message; the relationship this anniversary would have counted has ended. no recognition sent; the reason is recorded",
+    "keywords": [
+      "RET-292",
+      "first purchase anniversary",
+      "customer anniversary",
+      "relationship anniversary",
+      "years as a customer",
+      "purchase anniversary recognition"
+    ],
+    "category": [
+      "retention"
+    ],
+    "normalizedCategory": [
+      "retention-and-engagement"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "engagement-retention"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "eligibility-qualification"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "multi-exit"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/first-purchase-anniversary",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-290",
+          "because": "RET-290 works at the start of the relationship and is trying to produce a second purchase. This works on the relationship's age and is trying to produce nothing; the recognition is the whole point."
+        },
+        {
+          "targetId": "journey:SUB-163",
+          "because": "SUB-163 counts down to an obligation somebody has to act on before a date. An anniversary carries no obligation and no deadline - nothing happens if it is ignored."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:RET-293",
+    "type": "journey",
+    "slug": "personalized-recommendations",
+    "url": "/lab/journeys/personalized-recommendations",
+    "urlTr": "/tr/lab/journeys/personalized-recommendations",
+    "external": false,
+    "title": "RET-293 Recommendation signal qualified → still valid → recommended → converted, dismissed or closed",
+    "summary": "Show a person a small set of things that follow from what they themselves have done - bought, looked at, saved or stated - and only while every item in it is still something they can actually buy.",
+    "searchText": "Recommendation signal qualified → still valid → recommended → converted, dismissed or closed. Show a person a small set of things that follow from what they themselves have done - bought, looked at, saved or stated - and only while every item in it is still something they can actually buy.. Also known as personalized recommendations, recommended for you, product recommendations, relevant picks, behaviour-based recommendations. a person whose purchase or browsing record supports a small set of relevant items. a saved preference or stated affinity that has not yet been acted on. Recommendation signal qualified. Engagement, health, retention & churn prevention. converted; a purchase from the recommended set is recorded. dismissed; the person said the recommended subject is not wanted. recommended, not converted; the window closed with no purchase from the set. no recommendation sent; the reason is recorded",
+    "keywords": [
+      "RET-293",
+      "personalized recommendations",
+      "recommended for you",
+      "product recommendations",
+      "relevant picks",
+      "behaviour-based recommendations"
+    ],
+    "category": [
+      "retention"
+    ],
+    "normalizedCategory": [
+      "retention-and-engagement"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "engagement-retention"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "eligibility-qualification"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/personalized-recommendations",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-294",
+          "because": "RET-294 starts from something the person already owns and asks what completes it, on a relationship between products the company has declared. This starts from what the person has shown and asks what resembles it - a relationship between a person and a pattern, not between two things."
+        },
+        {
+          "targetId": "journey:RET-31",
+          "because": "RET-31 predicts that a specific thing is running out and prompts the same purchase again. This proposes something different and predicts nothing about timing."
+        },
+        {
+          "targetId": "journey:ACQ-13",
+          "because": "ACQ-13 acts on attention to one subject that never became a selection. This assembles a set from a record that may be much older and has no single unresolved subject in it."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:RET-294",
+    "type": "journey",
+    "slug": "complementary-next-offer",
+    "url": "/lab/journeys/complementary-next-offer",
+    "urlTr": "/tr/lab/journeys/complementary-next-offer",
+    "external": false,
+    "title": "RET-294 Purchase with a declared complement → matured → offered → taken, declined or closed",
+    "summary": "Offer the thing that genuinely completes something the person already owns, once the first thing has had time to be used, and stop the moment they have it.",
+    "searchText": "Purchase with a declared complement → matured → offered → taken, declined or closed. Offer the thing that genuinely completes something the person already owns, once the first thing has had time to be used, and stop the moment they have it.. Also known as cross-sell, next best offer, complementary product offer, accessory offer, what goes with what you bought. a product with a declared complementary item its owner does not have. a completed purchase whose natural next step the company can name rather than guess. Purchase with known complement. Engagement, health, retention & churn prevention. complete; the person has the complementary thing the offer was about. declined; the person said the complement is not wanted. offered and reminded; the plan ran to its end without the complement being taken. closed; the relationship the offer rested on no longer holds. no touch sent; the reason is recorded",
+    "keywords": [
+      "RET-294",
+      "cross-sell",
+      "next best offer",
+      "complementary product offer",
+      "accessory offer",
+      "what goes with what you bought"
+    ],
+    "category": [
+      "retention"
+    ],
+    "normalizedCategory": [
+      "retention-and-engagement"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "engagement-retention"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "cancellation-termination"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/complementary-next-offer",
+    "searchAliases": [],
+    "boost": {},
+    "source": {
+      "file": [
+        "production/journey-view-model.json"
+      ],
+      "fields": [
+        "identity",
+        "entry.trigger",
+        "graph.nodes[exit]",
+        "relationships.handoffs",
+        "relationships.distinctFrom",
+        "derived.behaviors"
+      ]
+    },
+    "journeyRelationRefs": {
+      "handoffs": [],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-293",
+          "because": "RET-293 starts from what the person has shown and proposes what resembles it. This starts from what they already own and proposes what completes it, on a relationship between two products the company has declared - which is a different claim, with a different way of being wrong."
+        },
+        {
+          "targetId": "journey:RET-31",
+          "because": "RET-31 prompts the same purchase again because the first one is running out. This proposes a different thing, and ownership of the first is exactly what makes it relevant."
+        },
+        {
+          "targetId": "journey:ACQ-288",
+          "because": "ACQ-288 recovers a selection the person made and left behind. Here the purchase completed; nothing is being recovered, and the subject of the offer is something they never selected."
+        }
+      ]
+    }
+  },
+  {
     "id": "journey:RLT-279",
     "type": "journey",
     "slug": "upgrade-blocker-prompt",
@@ -22994,7 +23503,12 @@
           "targetId": "journey:SUB-168"
         }
       ],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-63",
+          "because": "TIM-63 is the generic pre-expiry reminder, and a subscription sits inside its scope - so a term end fires both at the same point in the calendar. This journey owns it: it is the one that knows the renewal terms, the notice period they require and who holds the decision, and the notice it sends is an obligation of the terms rather than outreach. While this cycle's decision window is open, that journey is suppressed for the subscription and owns only the expiries no renewal cycle governs."
+        }
+      ]
     }
   },
   {
@@ -23527,7 +24041,8 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -23557,6 +24072,10 @@
         {
           "targetId": "journey:TIM-63",
           "because": "A deadline is a moment by which something must be done. An expiry is a moment at which something stops being valid. The first can pass with the obligation intact; the second cannot."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 sends a reminder and an overdue notice about an obligation whose due date governs nothing beyond the sending. Here the deadline governs the obligation's own state, and the reminder is one of the several things the governing rule can produce - which is why the two share an obligation key and this journey holds it. Where a deadline has been assigned, that journey is suppressed for the obligation and reminds only of the ones nothing governs."
         }
       ]
     }
@@ -23662,7 +24181,8 @@
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -23684,7 +24204,12 @@
     },
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:SUB-163",
+          "because": "A subscription is in this journey's scope and a term end is in SUB-163's, so the same calendar moment fires both. SUB-163 owns it: it is the one that knows the renewal terms, the notice the terms require and who holds the decision, and its notice is a contractual obligation rather than outreach. This journey is the generic fallback for that expiry - it owns a subscription only where no renewal decision window is open on it, alongside every other expiring entity with no renewal cycle."
+        }
+      ]
     }
   },
   {
@@ -23791,6 +24316,7 @@
       "wait-timeout",
       "external-handoff",
       "multi-exit",
+      "competition",
       "no-re-entry"
     ],
     "language": "en+tr",
@@ -23817,6 +24343,42 @@
         {
           "targetId": "journey:FIN-131",
           "because": "FIN-131 holds what is owed as its own state, independent of anything sent about it. This is the sending, and it reads that state rather than defining it - nothing here changes what is owed."
+        },
+        {
+          "targetId": "journey:TIM-61",
+          "because": "TIM-61 lets the deadline govern the obligation's own state, and its reminder is one of the several things that governing rule can produce. This is the sending and nothing else: where a deadline has been authoritatively assigned, that journey holds the obligation and owns every pre-deadline reminder about it, and this one reminds of an obligation whose due date governs nothing beyond the reminder itself."
+        },
+        {
+          "targetId": "journey:TIM-63",
+          "because": "TIM-63 owns a validity about to lapse, where the moment is an expiry the entity does not survive rather than a date by which something must be done. Where an expiry owns the date, that journey sends the message before it and this one is the fallback for obligations no expiry governs."
+        },
+        {
+          "targetId": "journey:DOC-215",
+          "because": "DOC-215 owns a signature owed on a specific version by a specific signer, and knows which version is being signed. This journey knows only that something is owed by a date."
+        },
+        {
+          "targetId": "journey:REL-284",
+          "because": "REL-284 owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure. This journey would restate that deadline without knowing what the acceptance grants."
+        },
+        {
+          "targetId": "journey:ACC-263",
+          "because": "ACC-263 owns whether a granted entitlement is ever used, and names the first action that uses it. An unused entitlement is that journey's obligation, not a generic outstanding one."
+        },
+        {
+          "targetId": "journey:RLT-279",
+          "because": "RLT-279 owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks. This journey can only name the prerequisite."
+        },
+        {
+          "targetId": "journey:SCH-266",
+          "because": "SCH-266 owns what a booking requires before its occurrence, and its deadline is the occurrence itself. This journey does not hold the occurrence."
+        },
+        {
+          "targetId": "journey:ACT-13",
+          "because": "ACT-13 owns a requirement blocking activation, inside an onboarding instance that decides what the next useful step is. The blocker is that journey's obligation, and reminding of it from here would duplicate the step it was about to name."
+        },
+        {
+          "targetId": "journey:FBK-49",
+          "because": "FBK-49 owns a blocking data item, and knows which process stalls without it. This journey would ask for the same item without being able to say what it unblocks."
         }
       ]
     }
@@ -23858,7 +24420,8 @@
     "tags": [
       "backward-edge",
       "wait-timeout",
-      "multi-exit"
+      "multi-exit",
+      "competition"
     ],
     "language": "en+tr",
     "indexable": true,
@@ -23884,6 +24447,18 @@
         {
           "targetId": "journey:TIM-65",
           "because": "TIM-65 grants the grace state, records which capabilities continue and decides what happens when the window closes. This journey is what the holder is told across that window, and it sends nothing until that state exists."
+        },
+        {
+          "targetId": "journey:FIN-134",
+          "because": "FIN-134 owns what is said about an unpaid obligation while recovery is still the whole of the story - the failure, the corrective action and the consequence ahead. It is that journey's own handoff into grace that starts this one, and the recovery messaging stops there: from the moment a grace state is recorded, the deadline the holder needs is this window's end and this journey is the one that knows it."
+        },
+        {
+          "targetId": "journey:ACC-261",
+          "because": "ACC-261 tells the account holder about a restriction that stands on the record in its own right. This journey tells a holder about a bounded window with a fixed end. Where one obligation produces both, the restriction is the later and harder state and that journey owns the message; this one stops rather than sending a second account of what stopped and how to restore it."
+        },
+        {
+          "targetId": "journey:TIM-281",
+          "because": "TIM-281 answers a holder who comes back to something already expired and re-derives the route from current rules. This journey runs inside the window before that, holds the one recovery route recorded for it and can name the date the window ends. While grace is open the holder is answered from here; once it closes at x.lost, or where no grace was granted at all, that journey owns the attempt."
         }
       ]
     }
@@ -23951,6 +24526,10 @@
         {
           "targetId": "journey:TIM-63",
           "because": "TIM-63 runs before expiry, while the thing is still valid and can simply be kept. This runs after, where a gap exists on the record and the route back is a different mechanism."
+        },
+        {
+          "targetId": "journey:TIM-274",
+          "because": "TIM-274 runs inside a bounded grace window with a fixed end it can name, and it holds the one recovery route recorded for that window's duration. This journey runs where no window is open - after grace has closed at its recorded end, or where no grace was granted at all - and re-derives the route from current rules, which is why the two must never answer one holder at once: they would name two routes back to one entity from two different reads of the rules."
         }
       ]
     }
@@ -25449,12 +26028,12 @@
     "urlTr": "/tr/lab/journeys",
     "external": false,
     "title": "Canonical Journey Library",
-    "summary": "73 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
-    "searchText": "Canonical Journey Library. 73 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 73 journeys, 21 categories",
+    "summary": "79 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.",
+    "searchText": "Canonical Journey Library. 79 domain-neutral lifecycle state machines - trigger, condition, wait, outcome, exit, handoff - with the orchestration rules that decide which one owns a person at a given moment.. CRM, Lifecycle Marketing, 79 journeys, 21 categories",
     "keywords": [
       "CRM",
       "Lifecycle Marketing",
-      "73 journeys",
+      "79 journeys",
       "21 categories"
     ],
     "category": [],
@@ -25470,7 +26049,7 @@
     "tags": [
       "CRM",
       "Lifecycle Marketing",
-      "73 journeys",
+      "79 journeys",
       "21 categories"
     ],
     "language": "en+tr",

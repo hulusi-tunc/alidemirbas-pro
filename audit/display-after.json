@@ -526,6 +526,42 @@
     }
   },
   {
+    "journey_id": "ACQ-289",
+    "slug": "back-in-stock-alert",
+    "locales": {
+      "en": {
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
+        "terminal_instances": 0,
+        "edges": 16,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.alert",
+            "len": 155
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
+        "terminal_instances": 0,
+        "edges": 16,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.alert",
+            "len": 154
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
     "journey_id": "ACQ-09",
     "slug": "bounded-education-progress-or-sunset",
     "locales": {
@@ -833,6 +869,58 @@
             "len": 25
           }
         ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "RET-294",
+    "slug": "complementary-next-offer",
+    "locales": {
+      "en": {
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
+        "terminal_instances": 0,
+        "edges": 15,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "c.opportunity",
+            "len": 112
+          },
+          {
+            "id": "a.offer",
+            "len": 162
+          },
+          {
+            "id": "a.remind",
+            "len": 146
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
+        "terminal_instances": 0,
+        "edges": 15,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "c.opportunity",
+            "len": 122
+          },
+          {
+            "id": "a.offer",
+            "len": 174
+          },
+          {
+            "id": "a.remind",
+            "len": 143
+          }
+        ],
+        "long_branch_labels": [],
         "locale_leaks": []
       }
     }
@@ -1434,6 +1522,77 @@
             "len": 26
           }
         ],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "RET-292",
+    "slug": "first-purchase-anniversary",
+    "locales": {
+      "en": {
+        "display_nodes": 6,
+        "distinct_canonical_nodes": 6,
+        "terminal_instances": 0,
+        "edges": 8,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.recognise",
+            "len": 131
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 6,
+        "distinct_canonical_nodes": 6,
+        "terminal_instances": 0,
+        "edges": 8,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.recognise",
+            "len": 176
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "RET-290",
+    "slug": "first-purchase-welcome",
+    "locales": {
+      "en": {
+        "display_nodes": 8,
+        "distinct_canonical_nodes": 8,
+        "terminal_instances": 0,
+        "edges": 13,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "c.state",
+            "len": 123
+          },
+          {
+            "id": "a.bounceback",
+            "len": 171
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 8,
+        "distinct_canonical_nodes": 8,
+        "terminal_instances": 0,
+        "edges": 13,
+        "internal_cards": 0,
+        "long_cards": [],
+        "long_branch_labels": [],
         "locale_leaks": []
       }
     }
@@ -2066,6 +2225,37 @@
     }
   },
   {
+    "journey_id": "RET-293",
+    "slug": "personalized-recommendations",
+    "locales": {
+      "en": {
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
+        "terminal_instances": 0,
+        "edges": 15,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.recommend",
+            "len": 166
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
+        "terminal_instances": 0,
+        "edges": 15,
+        "internal_cards": 0,
+        "long_cards": [],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
     "journey_id": "REM-151",
     "slug": "post-completion-issue",
     "locales": {
@@ -2086,6 +2276,42 @@
         "edges": 10,
         "internal_cards": 0,
         "long_cards": [],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "FUL-291",
+    "slug": "post-purchase-follow-up",
+    "locales": {
+      "en": {
+        "display_nodes": 6,
+        "distinct_canonical_nodes": 6,
+        "terminal_instances": 0,
+        "edges": 8,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.followup",
+            "len": 176
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 6,
+        "distinct_canonical_nodes": 6,
+        "terminal_instances": 0,
+        "edges": 8,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "a.followup",
+            "len": 155
+          }
+        ],
         "long_branch_labels": [],
         "locale_leaks": []
       }

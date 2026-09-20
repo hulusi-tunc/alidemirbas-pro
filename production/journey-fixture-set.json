@@ -176,7 +176,7 @@
     "reason": "Most simultaneous behaviors (6) - the single hardest journey to render honestly.",
     "category": "retention",
     "nodeCount": 14,
-    "edgeCount": 19,
+    "edgeCount": 20,
     "primaryStructure": "mixed-termination",
     "behaviors": [
       "backward-edge",
