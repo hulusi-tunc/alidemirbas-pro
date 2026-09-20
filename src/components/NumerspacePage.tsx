@@ -1,11 +1,11 @@
 import Image from "next/image";
 import {
-  ArrowRight,
   ArrowUpRight,
   Briefcase,
   Calculator,
   CalendarClock,
   Car,
+  CircleCheck,
   GraduationCap,
   HeartPulse,
   House,
@@ -25,9 +25,8 @@ import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
-import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
+import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, webApplication } from "@/lib/schema";
@@ -191,19 +190,10 @@ function Hero({ c, t, lang, siteHref }: { c: SkillProductContent; t: (typeof T)[
    this one section reads as a note from Ali, not a product claim, and the
    left-aligned heading is the visible signal of that before a reader has
    parsed a single word. */
-function WhySection({ t }: { t: (typeof T)[Lang] }) {
-  // No stat strip here - the 97/13/2/0 numbers already carry the next
-  // section's own headline ("97 calculators across 13 categories"), so a
-  // second, larger rendering of the same four numbers right above it was
-  // pure repetition. This section is copy only.
-  return (
-    <ProductSection tone="paper" space="band">
-      <PortraitContainer>
-        <ProductHeading eyebrow={t.whyEyebrow} title={t.whyTitle} body={t.whyBody} />
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
+/* Since 2026-09-20 (Hulusi's sub-page pass: "remove what is only text")
+   the note is no longer a band of its own: it is the text side of one
+   benefit story whose visual is the catalogue itself - see
+   ProjectSection below. */
 
 /* ---- 03 · The catalogue - every calculator, as cards --------------------
    Hulusi (2026-09-06): "show all of the available calculators for that
@@ -243,34 +233,50 @@ function shortName(name: string) {
   return name.replace(/\s+(Calculators?|Hesaplay[ıi]c[ıi]lar[ıi]?|Hesaplama Araçlar[ıi])$/iu, "");
 }
 
-function CatalogueSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+/** One story in place of two bands (2026-09-20): Ali's note on the left,
+    the catalogue on the right as a soft tile of the 13 real categories
+    with their counts - the chips display only, no per-calculator listing
+    or outbound links (Hulusi, 2026-09-12) - and the formula note as the
+    aside under the text. The "Categories" heading over a bare chip row
+    and the text-only "Why I built it" band are what it replaced. */
+function ProjectSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   const cats = NUMERSPACE_CATALOG[lang];
   return (
-    <ProductSection tone="soft" space="lg">
+    <ProductSection tone="paper" space="lg">
       <PortraitContainer>
-        <ProductHeading eyebrow={t.catEyebrow} title={t.catTitle} body={t.catSub} align="center" />
-
-        {/* The chip row: one per category, with its count. Display only -
-            no per-calculator listing or outbound numerspace.com links
-            below it (Hulusi, 2026-09-12: no need to send someone to
-            numerspace.com from here for every single tool). */}
-        <Reveal delay={80} className="mt-10">
-          <p className="text-center text-[13px] text-ink-500">{t.catBrowse}</p>
-          <ul className="mt-3 flex list-none flex-wrap justify-center gap-2 p-0">
-            {cats.map((c, i) => {
-              const Icon = LOOK_BY_INDEX[i].icon;
-              return (
-                <li key={c.slug}>
-                  <span className="inline-flex h-9 items-center gap-2 rounded-full bg-paper px-3.5 text-[13px] font-medium text-ink-700 shadow-hairline">
-                    <Icon aria-hidden className="size-4 text-ink-400" />
-                    {shortName(c.name)}
-                    <span className="text-ink-400 tabular-nums">{c.count}</span>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </Reveal>
+        <ProductBenefitStory
+          eyebrow={t.whyEyebrow}
+          title={t.whyTitle}
+          body={t.whyBody}
+          side="right"
+          aside={
+            <div className="flex max-w-md items-start gap-3 rounded-2xl bg-paper-soft p-4">
+              <CircleCheck aria-hidden className="mt-0.5 size-5 shrink-0 text-emerald-600" />
+              <p className="text-sm leading-relaxed text-pretty text-ink-600">
+                <span className="font-semibold text-ink-950">{t.verifyCaption}</span> {t.verifyNote}
+              </p>
+            </div>
+          }
+          visual={
+            <div className="rounded-[28px] bg-paper-soft p-6 md:p-8">
+              <p className="text-sm leading-relaxed text-pretty text-ink-600">{t.catSub}</p>
+              <ul className="mt-5 flex list-none flex-wrap gap-2 p-0">
+                {cats.map((c, i) => {
+                  const Icon = LOOK_BY_INDEX[i].icon;
+                  return (
+                    <li key={c.slug}>
+                      <span className="inline-flex h-9 items-center gap-2 rounded-full bg-paper px-3.5 text-[13px] font-medium text-ink-700 shadow-hairline">
+                        <Icon aria-hidden className={clsx("size-4", LOOK_BY_INDEX[i].tint.split(" ")[1])} />
+                        {shortName(c.name)}
+                        <span className="text-ink-400 tabular-nums">{c.count}</span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          }
+        />
       </PortraitContainer>
     </ProductSection>
   );
@@ -302,56 +308,8 @@ function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
    restrained visual keyed to what that project actually is - not a fifth
    repeat of "bordered rectangle, name, one line of grey text". All four
    get the same size and treatment; nothing here is a featured card. */
-/** The other project's own mark - the glyph and tint it carries on
-    every Lab surface (ui/LabProjectIdentity.tsx) - instead of the four
-    abstract "artifact" drawings this card used to invent for them. */
-function ProjectMark({ slug }: { slug: string }) {
-  const accent = labAccent(slug);
-  return (
-    <span className={clsx("grid size-10 place-items-center rounded-lg", accent.tile)}>
-      <LabProjectIcon slug={slug} className="size-5" />
-    </span>
-  );
-}
-
-function OtherProjects({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
-  const items = c.related;
-  if (items.length === 0) return null;
-  return (
-    <ProductSection tone="paper" space="lg">
-      <PortraitContainer>
-        <ProductHeading eyebrow={t.relatedEyebrow} title={c.relatedTitle} align="center" />
-        <div className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
-          {items.map((item, i) => {
-            return (
-              <Reveal key={item.href} delay={i * 70}>
-                <a
-                  href={item.href}
-                  className="group flex h-full flex-col rounded-card border border-line bg-paper p-5 transition-colors hover:border-neutral-400 hover:bg-paper-soft"
-                >
-                  {item.slug ? <ProjectMark slug={item.slug} /> : null}
-                  <p className="mt-4 text-[15px] font-medium tracking-tight text-ink-950">{item.name}</p>
-                  {item.desc ? <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-ink-500">{item.desc}</p> : null}
-                  <div className="mt-4 flex items-center justify-between gap-3">
-                    {item.proof ? (
-                      <span className="font-mono text-[11px] text-ink-400 tabular-nums">{item.proof}</span>
-                    ) : (
-                      <span />
-                    )}
-                    <span className="flex items-center gap-1 text-[12.5px] font-medium text-ink-700 transition-colors group-hover:text-ink-950">
-                      {t.relatedCta}
-                      <ArrowRight aria-hidden className="size-3.5" />
-                    </span>
-                  </div>
-                </a>
-              </Reveal>
-            );
-          })}
-        </div>
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
+/* The "Other Lab projects" cards are gone (2026-09-20): the footer lists
+   the same projects, and no other product page carries them now. */
 
 export default function NumerspacePage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
   const copyT = copy[lang];
@@ -389,10 +347,8 @@ export default function NumerspacePage({ lang, content }: { lang: Lang; content:
       <SiteHeader t={copyT} anchorBase={home} langHref={langHref} />
       <main>
         <Hero c={content} t={t} lang={lang} siteHref={siteHref} />
-        <WhySection t={t} />
-        <CatalogueSection t={t} lang={lang} />
+        <ProjectSection t={t} lang={lang} />
         <Faq c={content} t={t} />
-        <OtherProjects c={content} t={t} />
         <FinalCta t={copyT} />
       </main>
       <SiteFooter t={copyT} lang={lang} />

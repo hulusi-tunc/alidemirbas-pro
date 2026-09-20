@@ -33,6 +33,28 @@ function Chip({ icon, tint, children }: { icon: ReactNode; tint: string; childre
   );
 }
 
+/** The journey's goal and channels as chips - the Info header and the
+    canvas's title popover show the same row. */
+export function JourneyChips({ detail, lang, className = "" }: { detail: JourneyDetail; lang: Lang; className?: string }) {
+  return (
+    <ul className={`flex list-none flex-wrap gap-2 p-0 ${className}`}>
+      <Chip icon={<GoalIcon id={detail.goal} className="size-3.5" />} tint="bg-primary-50 text-primary-700">
+        {GOAL_LABEL[detail.goal][lang]}
+      </Chip>
+      {sortChannels(detail.channels).map((c) => (
+        <Chip key={c} icon={<ChannelIcon id={c} className="size-3.5" />} tint={CHANNEL_HUE[c].tile}>
+          {CHANNEL_LABEL[c][lang]}
+        </Chip>
+      ))}
+    </ul>
+  );
+}
+
+/** The category's id (for its icon and tint) from the detail's title. */
+export function journeyCategoryId(detail: JourneyDetail): string {
+  return CATEGORY_META.find((c) => c.title === detail.categoryTitle)?.id ?? "";
+}
+
 export const PAGE_MEASURE = "max-w-[1180px]";
 
 export function journeyTitle(detail: JourneyDetail): string {
@@ -62,7 +84,7 @@ export default function JourneyInfo({
   if (count("condition")) shape.push({ icon: <GitFork aria-hidden />, label: plural(count("condition"), t.decisionsLabel) });
   if (count("exit")) shape.push({ icon: <LogOut aria-hidden />, label: plural(count("exit"), t.exitsLabel) });
   if (count("handoff")) shape.push({ icon: <ArrowRightLeft aria-hidden />, label: plural(count("handoff"), t.handoffsLabel) });
-  const categoryId = CATEGORY_META.find((c) => c.title === detail.categoryTitle)?.id ?? "";
+  const categoryId = journeyCategoryId(detail);
   const category = categoryAccent(categoryId);
 
   return (
@@ -86,16 +108,7 @@ export default function JourneyInfo({
             <p className="mt-3 max-w-3xl text-base text-ink-subtle">{detail.name}</p>
           ) : null}
           <p className="mt-5 max-w-3xl text-lg leading-relaxed text-pretty text-ink-muted">{detail.purpose}</p>
-          <ul className="mt-6 flex list-none flex-wrap gap-2 p-0">
-            <Chip icon={<GoalIcon id={detail.goal} className="size-3.5" />} tint="bg-primary-50 text-primary-700">
-              {GOAL_LABEL[detail.goal][lang]}
-            </Chip>
-            {sortChannels(detail.channels).map((c) => (
-              <Chip key={c} icon={<ChannelIcon id={c} className="size-3.5" />} tint={CHANNEL_HUE[c].tile}>
-                {CHANNEL_LABEL[c][lang]}
-              </Chip>
-            ))}
-          </ul>
+          <JourneyChips detail={detail} lang={lang} className="mt-6" />
         </header>
 
         {/* The graph, small, and the shape in numbers. */}

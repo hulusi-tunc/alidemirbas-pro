@@ -1,353 +1,338 @@
 import Link from "next/link";
-import { Check, Minus } from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowRight, Ban, CircleCheck, CircleX, Clock, Radio, ShieldCheck } from "lucide-react";
 
-import {
-  Connector, FlowStrip, Fork, ForkArm, JourneyNode, nodeById,
-} from "@/components/ui/JourneyVisuals";
-import {
-  FEATURED_JOURNEY, JOURNEY_CATEGORY_COUNTS, JOURNEY_SCALE, showcaseCards,
-} from "@/lib/journey-marketing";
+import { journeyCanvasProps } from "@/components/JourneyDetailBody";
+import { buttonStyles } from "@/components/ui/Button";
+import { JourneyMiniMap } from "@/components/ui/JourneyMiniMap";
+import { NodeFigure } from "@/components/ui/JourneyNodeFigure";
+import { CategoryIcon, categoryAccent } from "@/components/ui/LibraryChrome";
+import { DOT_STYLE } from "@/lib/canvas-dots";
+import { JOURNEY_ROWS, journeyDetail, type JourneyDetail } from "@/lib/canonical-view";
 import { copy, type Lang } from "@/lib/content";
+import { FEATURED_JOURNEY, JOURNEY_CATEGORY_COUNTS, JOURNEY_SCALE, showcaseCards } from "@/lib/journey-marketing";
+import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
 
-/* Composed journey diagrams. Each one teaches a DIFFERENT thing and uses a
-   DIFFERENT composition - the brief's hardest constraint, and the reason
-   these are hand-built rather than one diagram component reused six times:
+/* THE LANDING PAGE'S FIGURES, on the canvas's own kit (2026-09-20, Hulusi:
+   "update the journey library landing page's visuals - we made such nice
+   updates in the details"). Every figure is the real thing, not a drawing
+   of it: the hero is ACQ-01's canvas exactly as its detail page renders it,
+   the three story figures stand the real trigger, condition and wait cards
+   on the canvas's dot sheet with their real data beside them, and the
+   showcase cards open on each journey's own canvas. The hand-composed kit
+   that drew these before (ui/JourneyVisuals.tsx) is gone.
 
-     VISUAL-J01  hero canvas        the whole graph, at a glance
-     VISUAL-J02  trigger evidence   two facing columns - what counts, what doesn't
-     VISUAL-J03  branch fork        a single fork, enlarged, both arms named
-     VISUAL-J04  wait timeline      a horizontal rail - time, not sequence
-     VISUAL-J05  anatomy            the whole graph again, but annotated
-     VISUAL-J06  handoff inspector  ONE node, zoomed - the scale change
-     VISUAL-J07  library flow cards journeys as flows, cropped
+     hero       ACQ-01, the whole graph, scaled - opens the canvas
+     story 1    the trigger card + what counts / what does not
+     story 2    the condition card + both branches, named
+     story 3    the wait card + its two ends, the window's rule
+     showcase   four journeys, each on its own canvas preview
 
-   All of them read from FEATURED_JOURNEY (ACQ-01) or the corpus counts.
    Every string below that is not a UI label is a real canonical field. */
 
 const J = FEATURED_JOURNEY;
 const nf = (lang: Lang, n: number) => n.toLocaleString(lang === "en" ? "en-US" : "tr-TR");
 
-/* ====================================================================
-   VISUAL-J01 — Hero journey canvas
-   ==================================================================== */
+function detailOf(id: string, lang: Lang): JourneyDetail | null {
+  const d = journeyDetail(id);
+  return d ? localizedJourneyDetail(d, lang) : null;
+}
 
-export function JourneyCanvas({ lang }: { lang: Lang }) {
-  const t = copy[lang].journeyBuilder;
-  const n = (id: string) => nodeById(J.nodes, id);
-  const trigger = n("t.threshold");
-  const cIdentity = n("c.identity");
-  const wIdentity = n("w.identity");
-  const xStale = n("x.stale");
-  const aReconcile = n("a.reconcile");
-  const cEligible = n("c.eligible");
-  const hQual = n("h.qualification");
-  const xKnown = n("x.known-only");
-  if (!trigger || !cIdentity || !wIdentity || !xStale || !aReconcile || !cEligible || !hQual || !xKnown) return null;
+/** A figure: a paper card on the project's plate, its stage on the dot sheet. */
+function Figure({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`overflow-hidden rounded-2xl bg-paper ring-1 ring-ink-950/[0.08] shadow-[0_28px_70px_-30px_rgb(10_16_32/0.5)] ${className}`}>{children}</div>;
+}
 
-  const branchLabel = (nodeId: string, i: number) => n(nodeId)?.edges[i]?.label ?? "";
-
+function Stage({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className="overflow-hidden rounded-card border border-line-soft bg-paper shadow-[0_30px_70px_-30px_rgba(3,17,63,0.3)]">
-      {/* canvas toolbar — real id, category and node count, nothing invented */}
-      <div className="flex items-center justify-between gap-3 border-b border-line-soft bg-paper-soft/70 px-4 py-2.5">
-        <span className="flex min-w-0 items-center gap-2">
-          <span className="font-mono text-[11px] text-ink-400 tabular-nums">{J.id}</span>
-          <span aria-hidden className="text-ink-200">/</span>
-          <span className="truncate text-xs text-ink-600">{J.categoryTitle}</span>
-        </span>
-        <span className="shrink-0 font-mono text-[11px] text-ink-400 tabular-nums">
-          {J.nodeCount} {t.canvas.nodes}
-        </span>
+    <div style={DOT_STYLE} className={`bg-paper-soft px-6 pt-8 pb-6 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+function Tile({ icon, tint, title, children }: { icon: ReactNode; tint: string; title: string; children: ReactNode }) {
+  return (
+    <div className="rounded-2xl bg-paper-soft p-4">
+      <p className="flex items-center gap-2 text-sm font-semibold text-ink-950">
+        <span aria-hidden className={`grid size-7 place-items-center rounded-lg ${tint} [&>svg]:size-3.5`}>{icon}</span>
+        {title}
+      </p>
+      <div className="mt-3">{children}</div>
+    </div>
+  );
+}
+
+/** The fork under a card: a stem, then a rounded bracket into two arms,
+    each ending in an arrowhead - the canvas's own line language in CSS. */
+function ForkLines() {
+  return (
+    <div aria-hidden className="mx-auto w-full max-w-md">
+      <span className="mx-auto block h-5 w-px bg-ink-300" />
+      <div className="flex">
+        <span className="h-5 flex-1 rounded-tl-xl border-t border-l border-ink-300" />
+        <span className="h-5 flex-1 rounded-tr-xl border-t border-r border-ink-300" />
       </div>
-
-      <div className="px-4 py-6 sm:px-7 sm:py-8">
-        <div className="mx-auto flex max-w-lg flex-col">
-          <JourneyNode kind="trigger" title={trigger.label} detail={trigger.detail} lang={lang} />
-          <Connector />
-          <JourneyNode kind="condition" title={cIdentity.label} lang={lang} />
-
-          {/* the identity fork: deterministic rejoins, probabilistic waits */}
-          <Fork>
-            <ForkArm label={branchLabel("c.identity", 0)}>
-              {/* no h-full: Fork is a 2-col grid, so a stretching child here
-                  rendered as a large empty box next to the taller wait arm.
-                  This is a label on the rejoining path, not a node. */}
-              <div className="self-start rounded-md border border-dashed border-line-strong bg-paper-soft/60 px-3 py-2.5">
-                <p className="text-[11px] leading-snug text-ink-500">{t.canvas.rejoins}</p>
-              </div>
-            </ForkArm>
-            <ForkArm label={branchLabel("c.identity", 1)}>
-              <JourneyNode kind="wait" title={wIdentity.label} lang={lang} size="sm" />
-              <Fork nested>
-                <ForkArm label={branchLabel("w.identity", 0)}>
-                  <div className="rounded-md border border-dashed border-line-strong bg-paper-soft/60 px-2.5 py-2">
-                    <p className="text-[10px] leading-snug text-ink-500">{t.canvas.rejoins}</p>
-                  </div>
-                </ForkArm>
-                <ForkArm label={branchLabel("w.identity", 1)}>
-                  <JourneyNode kind="exit" title={xStale.label} lang={lang} size="sm" />
-                </ForkArm>
-              </Fork>
-            </ForkArm>
-          </Fork>
-
-          {/* the converge back into the shared action */}
-          <div aria-hidden className="mx-auto mt-5 h-px w-1/2 bg-line-strong sm:w-2/3" />
-          <Connector height="h-5" />
-          <JourneyNode kind="action" title={aReconcile.label} lang={lang} />
-          <Connector />
-          <JourneyNode kind="condition" title={cEligible.label} lang={lang} />
-          <Fork>
-            <ForkArm label={branchLabel("c.eligible", 0)}>
-              <JourneyNode kind="handoff" title={hQual.label} detail={J.handoff?.toName ?? undefined} lang={lang} size="sm" />
-            </ForkArm>
-            <ForkArm label={branchLabel("c.eligible", 1)}>
-              <JourneyNode kind="exit" title={xKnown.label} lang={lang} size="sm" />
-            </ForkArm>
-          </Fork>
-        </div>
+      <div className="flex justify-between px-px">
+        <Arrow />
+        <Arrow />
       </div>
     </div>
   );
 }
 
-/* ====================================================================
-   VISUAL-J02 — Trigger evidence: two facing columns
-   Teaches: a journey refuses to start on a weak signal. The
-   `insufficientAlone` field is the whole point and has no equivalent
-   anywhere on the A/B page.
-   ==================================================================== */
-
-export function TriggerEvidence({ lang }: { lang: Lang }) {
-  const t = copy[lang].journeyBuilder.story1;
+function Arrow() {
   return (
-    <div className="rounded-card border border-line-soft bg-paper p-5 sm:p-7">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <p className="altor-eyebrow text-ink-400">{t.caption}</p>
-        <span className="font-mono text-[11px] text-ink-400">{J.trigger.source}</span>
-      </div>
+    <svg viewBox="0 0 10 6" className="size-2.5 fill-ink-400" aria-hidden>
+      <path d="M0 0 L10 0 L5 6 Z" />
+    </svg>
+  );
+}
 
-      <div className="mt-4">
-        <JourneyNode kind="trigger" title={J.trigger.event} lang={lang} />
-      </div>
-
-      <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <div>
-          <p className="flex items-center gap-1.5 font-mono text-[10px] tracking-wider text-primary-700 uppercase">
-            <Check aria-hidden className="size-3" />
-            {t.requires}
-          </p>
-          <ul className="mt-2.5 flex flex-col gap-1.5">
-            {J.trigger.requires.map((r) => (
-              <li key={r} className="flex gap-2 text-[12px] leading-snug text-ink-700">
-                <span aria-hidden className="mt-1.5 size-1 shrink-0 rounded-full bg-primary-600" />
-                {r}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="sm:border-l sm:border-line-soft sm:pl-5">
-          <p className="flex items-center gap-1.5 font-mono text-[10px] tracking-wider text-ink-400 uppercase">
-            <Minus aria-hidden className="size-3" />
-            {t.insufficient}
-          </p>
-          <ul className="mt-2.5 flex flex-col gap-1.5">
-            {J.trigger.insufficientAlone.map((r) => (
-              <li key={r} className="flex gap-2 text-[12px] leading-snug text-ink-400 line-through decoration-ink-200">
-                <span aria-hidden className="mt-1.5 size-1 shrink-0 rounded-full bg-ink-200" />
-                {r}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
+function BranchPill({ children, on = false }: { children: ReactNode; on?: boolean }) {
+  return (
+    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${on ? "bg-primary-50 text-primary-700 ring-primary-200" : "bg-paper text-ink-700 ring-ink-950/[0.08]"}`}>
+      {children}
+    </span>
   );
 }
 
 /* ====================================================================
-   VISUAL-J03 — The fork, enlarged. Both arms carry their real `when`.
+   The hero: ACQ-01's canvas, whole, as the detail page draws it.
    ==================================================================== */
 
-export function BranchFork({ lang }: { lang: Lang }) {
-  const t = copy[lang].journeyBuilder.story2;
+export async function JourneyCanvas({ lang }: { lang: Lang }) {
+  const detail = detailOf(J.id, lang);
+  const row = JOURNEY_ROWS.find((r) => r.id === J.id);
+  if (!detail || !row) return null;
+  const page = copy[lang].lab.page;
+  const canvas = await journeyCanvasProps(detail, lang, page);
+  const accent = categoryAccent(row.category);
+  const base = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   return (
-    <div className="rounded-card border border-line-soft bg-paper p-5 sm:p-7">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <p className="altor-eyebrow text-ink-400">{t.caption}</p>
-        <span className="font-mono text-[11px] text-ink-400 tabular-nums">
-          {nf(lang, JOURNEY_SCALE.conditions)} {t.conditionsLabel}
-        </span>
-      </div>
-
-      <div className="mt-4">
-        <JourneyNode kind="condition" title={J.branch.asks} lang={lang} />
-      </div>
-
-      <div aria-hidden className="mx-auto mt-4 flex h-4 justify-center">
-        <span className="w-px bg-line-strong" />
-      </div>
-      <div aria-hidden className="mx-auto h-px w-2/3 bg-line-strong" />
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
-        {J.branch.branches.map((b, i) => (
-          <div key={b.label} className="flex flex-col">
-            <div aria-hidden className="mx-auto flex h-4 justify-center">
-              <span className="w-px bg-line-strong" />
-            </div>
-            <span
-              className={`mx-auto mb-2.5 rounded-full border px-3 py-1 text-[11px] font-medium ${
-                i === 0
-                  ? "border-primary-200 bg-primary-50 text-primary-700"
-                  : "border-line-soft bg-paper-soft text-ink-600"
-              }`}
-            >
-              {b.label}
+    <Link href={`${base}/${detail.slug}#canvas`} className="group block">
+      <Figure className="transition-shadow duration-[var(--duration-fast)] group-hover:shadow-[0_32px_80px_-30px_rgb(10_16_32/0.6)]">
+        <div className="h-[24rem] sm:h-[30rem]">
+          <JourneyMiniMap nodes={canvas.nodes} layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-5 py-3.5">
+          <span className="flex min-w-0 items-center gap-2.5 text-sm">
+            <span aria-hidden className={`grid size-7 shrink-0 place-items-center rounded-full ${accent.tile}`}>
+              <CategoryIcon id={row.category} className="size-3.5" />
             </span>
-            <p className="rounded-md border border-line-soft bg-paper-soft/60 px-3.5 py-3 text-[12px] leading-relaxed text-ink-600">
-              {b.when}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <p className="mt-5 border-t border-line-soft pt-4 text-[12px] text-ink-500">{t.note}</p>
-    </div>
-  );
-}
-
-/* ====================================================================
-   VISUAL-J04 — The wait, as a horizontal time rail.
-   Teaches: TIME. The one dimension the A/B page does not have.
-   ==================================================================== */
-
-export function WaitTimeline({ lang }: { lang: Lang }) {
-  const t = copy[lang].journeyBuilder.story3;
-  const w = J.wait;
-  if (!w) return null;
-  return (
-    <div className="rounded-card border border-line-soft bg-paper p-5 sm:p-7">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <p className="altor-eyebrow text-ink-400">{t.caption}</p>
-        <span className="font-mono text-[11px] text-ink-400 tabular-nums">
-          {nf(lang, JOURNEY_SCALE.waits)} {t.waitsLabel}
-        </span>
-      </div>
-
-      {/* the rail: entry, an open dashed span, and two named ends */}
-      <div className="mt-6">
-        <div className="flex items-center">
-          <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-ink-300" />
-          <span aria-hidden className="h-px flex-1 border-t border-dashed border-ink-300" />
-          <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-ink-300" />
-        </div>
-        <div className="mt-2 flex items-start justify-between gap-4">
-          <span className="max-w-[45%] text-[11px] leading-snug text-ink-500">{t.opens}</span>
-          <span className="max-w-[45%] text-right text-[11px] leading-snug text-ink-500">
-            {w.timeoutAfter}
+            <span className="truncate font-semibold text-ink-950">{detail.shortName ?? detail.name}</span>
+            <span className="hidden text-ink-subtle sm:inline">· {canvas.caption}</span>
+          </span>
+          <span className={buttonStyles({ variant: "primary", size: "sm" })}>
+            {page.openCanvas}
+            <ArrowRight aria-hidden className="size-4" />
           </span>
         </div>
-      </div>
-
-      {/* the two arms, as outcomes of the same pause */}
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-md border border-primary-200 bg-primary-50 px-3.5 py-3">
-          <p className="font-mono text-[10px] tracking-wider text-primary-700 uppercase">{t.onEvent}</p>
-          <p className="mt-1 text-[12px] leading-snug text-ink-800">{w.until.join(", ")}</p>
-        </div>
-        <div className="rounded-md bg-ink-950 px-3.5 py-3">
-          <p className="font-mono text-[10px] tracking-wider text-white/45 uppercase">{t.onTimeout}</p>
-          <p className="mt-1 text-[12px] leading-snug text-white/80">{w.timeoutReason}</p>
-        </div>
-      </div>
-
-      {/* the field that makes the window real rather than nominal */}
-      <p className="mt-5 flex items-center gap-2 border-t border-line-soft pt-4 font-mono text-[11px] text-ink-500">
-        windowExtendsOnEngagement
-        <span className="rounded-xs bg-paper-soft px-1.5 py-0.5 text-ink-700">
-          {String(w.extendsOnEngagement)}
-        </span>
-      </p>
-      <p className="mt-1.5 text-[12px] leading-snug text-ink-500">{t.note}</p>
-    </div>
-  );
-}
-
-/* ====================================================================
-   VISUAL-J07 — Library showcase: journeys as FLOWS.
-   A journey card is a flow object, not an article card - the mini node
-   strip is what makes that read. Used to be five cards cropped at both
-   edges of the measure with a highlighted centre; now four, uncropped
-   (see SHOWCASE_IDS in journey-marketing.ts for why).
-   ==================================================================== */
-
-function JourneyCardTile({
-  card, lang,
-}: {
-  card: ReturnType<typeof showcaseCards>[number];
-  lang: Lang;
-}) {
-  const t = copy[lang].journeyBuilder.library;
-  return (
-    <Link
-      href={card.href}
-      className="flex w-[19rem] shrink-0 snap-center flex-col rounded-card border border-line-soft bg-paper p-5 shadow-[0_10px_30px_-24px_rgba(3,17,63,0.3)] transition-[border-color,box-shadow] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:border-line-strong lg:w-auto"
-    >
-      <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-[11px] text-ink-400 tabular-nums">{card.id}</span>
-        <span
-          title={card.categoryTitle}
-          className="max-w-[11rem] truncate rounded-xs bg-paper-soft px-2 py-0.5 text-[10px] text-ink-500"
-        >
-          {card.categoryTitle}
-        </span>
-      </div>
-      {/* shortName, not the canonical name - the same rule as JourneyIdeaCard:
-          in a row of cards the eye scans titles, and "Onboarding progress ->
-          next best setup step -> activation" is a second title competing
-          with the first. The canonical name leads the detail page. */}
-      <p className="mt-3 min-h-[3.25rem] text-[14px] leading-snug font-medium text-ink-950">{card.shortName}</p>
-      <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-ink-500">{card.purpose}</p>
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-line-soft pt-3.5">
-        <FlowStrip strip={card.strip} lang={lang} />
-        <span className="font-mono text-[10px] whitespace-nowrap text-ink-400 tabular-nums">
-          {card.nodeCount} {t.nodes}
-        </span>
-      </div>
+      </Figure>
     </Link>
   );
 }
 
-export function JourneyLibrarySpread({ lang }: { lang: Lang }) {
-  const cards = showcaseCards(lang);
+/* ====================================================================
+   Story 1 - the trigger: what counts as evidence, what does not.
+   ==================================================================== */
+
+export function TriggerEvidence({ lang }: { lang: Lang }) {
+  const t = copy[lang].journeyBuilder.story1;
+  const page = copy[lang].lab.page;
+  const detail = detailOf(J.id, lang);
+  const trigger = detail?.nodes.find((n) => n.isEntry) ?? detail?.nodes.find((n) => n.kind === "trigger");
+  if (!trigger) return null;
+  return (
+    <Figure>
+      <Stage>
+        <NodeFigure node={trigger} lang={lang} entryLabel={page.canvas.entry} terminalLabel={page.terminalLabel} className="mx-auto max-w-[16rem]" />
+      </Stage>
+      <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2">
+        <Tile icon={<CircleCheck aria-hidden />} tint="bg-emerald-50 text-emerald-700" title={t.requires}>
+          <ul className="flex list-none flex-col gap-2 p-0">
+            {J.trigger.requires.map((r) => (
+              <li key={r} className="flex items-start gap-2 text-sm leading-snug text-ink-700">
+                <CircleCheck aria-hidden className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                {r}
+              </li>
+            ))}
+          </ul>
+        </Tile>
+        <Tile icon={<Ban aria-hidden />} tint="bg-rose-50 text-rose-700" title={t.insufficient}>
+          <ul className="flex list-none flex-col gap-2 p-0">
+            {J.trigger.insufficientAlone.map((r) => (
+              <li key={r} className="flex items-start gap-2 text-sm leading-snug text-ink-subtle line-through decoration-ink-300">
+                <CircleX aria-hidden className="mt-0.5 size-4 shrink-0 text-rose-500" />
+                {r}
+              </li>
+            ))}
+          </ul>
+        </Tile>
+      </div>
+    </Figure>
+  );
+}
+
+/* ====================================================================
+   Story 2 - the fork: one condition, both branches named and written.
+   ==================================================================== */
+
+export function BranchFork({ lang }: { lang: Lang }) {
+  const t = copy[lang].journeyBuilder.story2;
+  const page = copy[lang].lab.page;
+  const detail = detailOf(J.id, lang);
+  const condition = detail?.nodes.find((n) => n.kind === "condition" && n.headline === J.branch.asks) ?? detail?.nodes.find((n) => n.kind === "condition");
+  if (!condition) return null;
+  return (
+    <Figure>
+      <Stage className="pb-4">
+        <NodeFigure node={condition} lang={lang} entryLabel={page.canvas.entry} terminalLabel={page.terminalLabel} className="mx-auto max-w-[17rem]" />
+        <ForkLines />
+        <div className="mx-auto mt-2 grid max-w-md grid-cols-2 gap-3">
+          {J.branch.branches.map((b, i) => (
+            <div key={b.label} className="flex flex-col items-center">
+              <BranchPill on={i === 0}>{b.label}</BranchPill>
+              <p className="mt-2.5 w-full rounded-2xl bg-paper px-3.5 py-3 text-sm leading-snug text-ink-700 ring-1 ring-ink-950/[0.08]">{b.when}</p>
+            </div>
+          ))}
+        </div>
+      </Stage>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-5 py-3.5 text-sm">
+        <span className="text-ink-muted">{t.note}</span>
+        <span className="text-ink-subtle tabular-nums">
+          {nf(lang, JOURNEY_SCALE.conditions)} {t.conditionsLabel}
+        </span>
+      </div>
+    </Figure>
+  );
+}
+
+/* ====================================================================
+   Story 3 - the wait: one pause, two ends, a window that does not stretch.
+   ==================================================================== */
+
+export function WaitTimeline({ lang }: { lang: Lang }) {
+  const t = copy[lang].journeyBuilder.story3;
+  const page = copy[lang].lab.page;
+  const detail = detailOf(J.id, lang);
+  const wait = detail?.nodes.find((n) => n.kind === "wait");
+  const w = J.wait;
+  if (!wait || !w) return null;
+  return (
+    <Figure>
+      <Stage className="pb-4">
+        <NodeFigure node={wait} lang={lang} entryLabel={page.canvas.entry} terminalLabel={page.terminalLabel} className="mx-auto w-fit" />
+        <ForkLines />
+        <div className="mx-auto mt-2 grid max-w-md grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl bg-paper p-3.5 ring-1 ring-ink-950/[0.08]">
+            <p className="flex items-center gap-2 text-sm font-semibold text-ink-950">
+              <span aria-hidden className="grid size-7 place-items-center rounded-lg bg-teal-50 text-teal-700 [&>svg]:size-3.5">
+                <Radio />
+              </span>
+              {t.onEvent}
+            </p>
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              {w.until.map((e) => (
+                <span key={e} className="rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-medium text-teal-800">
+                  {e}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-2xl bg-paper p-3.5 ring-1 ring-ink-950/[0.08]">
+            <p className="flex items-center gap-2 text-sm font-semibold text-ink-950">
+              <span aria-hidden className="grid size-7 place-items-center rounded-lg bg-amber-50 text-amber-700 [&>svg]:size-3.5">
+                <Clock />
+              </span>
+              {t.onTimeout}
+            </p>
+            <p className="mt-2.5 text-sm font-medium text-ink-950 tabular-nums">{w.timeoutAfter}</p>
+            <p className="mt-1 text-sm leading-snug text-ink-muted">{w.timeoutReason}</p>
+          </div>
+        </div>
+      </Stage>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-5 py-3.5 text-sm">
+        <span className="flex items-center gap-2 text-ink-muted">
+          <ShieldCheck aria-hidden className="size-4 text-emerald-600" />
+          {t.note}
+        </span>
+        <span className="text-ink-subtle tabular-nums">
+          {nf(lang, JOURNEY_SCALE.waits)} {t.waitsLabel}
+        </span>
+      </div>
+    </Figure>
+  );
+}
+
+/* ====================================================================
+   The showcase: four journeys, each on its own canvas.
+   ==================================================================== */
+
+export async function JourneyLibrarySpread({ lang }: { lang: Lang }) {
   const t = copy[lang].journeyBuilder.library;
+  const page = copy[lang].lab.page;
+  const cards = await Promise.all(
+    showcaseCards(lang).map(async (card) => {
+      const detail = detailOf(card.id, lang);
+      const row = JOURNEY_ROWS.find((r) => r.id === card.id);
+      if (!detail || !row) return null;
+      const canvas = await journeyCanvasProps(detail, lang, page);
+      return { card, detail, row, canvas };
+    }),
+  );
   return (
     <div>
-      {/* real library categories, real counts — a curated top slice, not all of them */}
+      {/* real library categories, real counts - a curated top slice */}
       <div className="flex flex-wrap justify-center gap-2">
-        {JOURNEY_CATEGORY_COUNTS.slice(0, 6).map((c) => (
-          <span
-            key={c.id}
-            className="max-w-full rounded-full border border-line-soft bg-paper px-3 py-1.5 text-center text-[13px] text-ink-600"
-          >
-            {c.title}
-            <span className="ml-1.5 text-ink-400 tabular-nums">{c.count}</span>
-          </span>
-        ))}
-        <span className="rounded-full border border-dashed border-line-strong px-3 py-1.5 text-[13px] text-ink-400 tabular-nums">
+        {JOURNEY_CATEGORY_COUNTS.slice(0, 6).map((c) => {
+          const accent = categoryAccent(c.id);
+          return (
+            <span key={c.id} className="flex items-center gap-2 rounded-full bg-paper py-1 pr-3 pl-1 text-sm font-medium text-ink-950 ring-1 ring-ink-950/[0.06]">
+              <span aria-hidden className={`grid size-7 place-items-center rounded-full ${accent.tile}`}>
+                <CategoryIcon id={c.id} className="size-3.5" />
+              </span>
+              {c.title}
+              <span className="text-ink-subtle tabular-nums">{c.count}</span>
+            </span>
+          );
+        })}
+        <span className="rounded-full px-3 py-1.5 text-sm text-ink-subtle ring-1 ring-dashed ring-ink-300 tabular-nums">
           +{JOURNEY_SCALE.categories - 6} {t.moreCategories}
         </span>
       </div>
 
-      {/* Below lg: a snap-scrolling row that bleeds to the viewport edge,
-          which is what tells a thumb there is more. At lg and up: a grid
-          inside the measure, so nothing is ever cropped on a screen that
-          has no scroll affordance to explain the crop. */}
       <div className="mt-10 -mx-5 overflow-x-auto sm:-mx-8 lg:mx-0 lg:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex w-max snap-x snap-mandatory gap-5 px-5 sm:px-8 lg:grid lg:w-full lg:grid-cols-2 lg:px-0 xl:grid-cols-4">
-          {cards.map((card) => (
-            <JourneyCardTile key={card.id} card={card} lang={lang} />
-          ))}
+          {cards.map((x) => {
+            if (!x) return null;
+            const accent = categoryAccent(x.row.category);
+            return (
+              <Link
+                key={x.card.id}
+                href={x.card.href}
+                className="group flex w-[19rem] shrink-0 snap-center flex-col overflow-hidden rounded-[24px] bg-paper ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)] lg:w-auto"
+              >
+                <div className="h-44 bg-paper-soft [mask-image:linear-gradient(to_bottom,black_75%,transparent)]">
+                  <JourneyMiniMap nodes={x.canvas.nodes} layout={x.canvas.layout} labels={x.canvas.labels} messageLabels={x.canvas.messageLabels} humanLabels={x.canvas.humanLabels} />
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <p className={`flex items-center gap-2 text-xs font-medium ${accent.ink}`}>
+                    <span aria-hidden className={`grid size-6 place-items-center rounded-md ${accent.tile}`}>
+                      <CategoryIcon id={x.row.category} className="size-3" />
+                    </span>
+                    <span className="truncate">{x.card.categoryTitle}</span>
+                  </p>
+                  <p className="mt-3 text-base leading-snug font-semibold text-balance text-ink-950">{x.card.shortName}</p>
+                  <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-muted">{x.card.purpose}</p>
+                  <p className="mt-auto flex items-center justify-between gap-3 pt-4 text-sm text-ink-subtle tabular-nums">
+                    {x.card.nodeCount} {t.nodes}
+                    <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

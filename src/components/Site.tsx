@@ -198,7 +198,11 @@ function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
        the A/B pair beside it (Hulusi, 2026-09-07: "the A/B image is amazing,
        like how we want; the journey one is not good"): a trigger, an email
        step with its wait, and the fork into the two kinds of exit. Real node
-       kinds, no words. */
+       kinds, no words. The real canvas, small, was tried here for an hour on
+       2026-09-20 and sent back ("the low-fi one in the hero was better"):
+       at tile size the canvas is one blue card and a line, while the sketch
+       tells the whole shape. The Work band below keeps the real canvas,
+       where it has the room. */
     return (
       <div aria-hidden className="mt-5 -mx-2 flex items-center gap-1.5">
         <MiniNode tint="bg-ink-950 text-white" icon={<Radio className="size-3" />}>
@@ -340,7 +344,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
                     <LabProjectIcon slug={project.slug} className="size-5" />
                   </span>
                   <p className="mt-4 text-lg font-semibold text-ink-950">{project.short}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-600">{t.hero.tiles[project.slug as (typeof HERO_TILES)[number]]}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-600">{withJourneyCount(t.hero.tiles[project.slug as (typeof HERO_TILES)[number]])}</p>
                   <TileMini slug={project.slug} lang={lang} />
                   <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium text-ink-950">
                     <span className="tabular-nums">{withJourneyCount(project.proof ?? "")}</span>

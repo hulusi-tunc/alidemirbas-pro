@@ -1,12 +1,12 @@
-import { ArrowRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Store, Terminal } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
-import { ButtonLink, buttonStyles } from "@/components/ui/Button";
-import { CodeTabs } from "@/components/ui/CodeTabs";
-import { InstallationStepper } from "@/components/ui/InstallationStepper";
-import { PixelFill } from "@/components/ui/PixelFill";
+import { ButtonLink } from "@/components/ui/Button";
+import { GitHubMark } from "@/components/ui/BrandIcons";
+import { InstallPanel } from "@/components/ui/InstallPanel";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { PlaybookScene } from "@/components/ui/LabPanels";
+import { labAccent } from "@/components/ui/LabProjectIdentity";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
@@ -14,7 +14,6 @@ import {
   ProductBenefitStory,
   ProductHeading,
   ProductHowItWorks,
-  ProductMetricStrip,
   ProductSection,
 } from "@/components/ui/ProductPage";
 import {
@@ -27,8 +26,11 @@ import {
   StatCalculatorLinks,
   VariantDiff,
 } from "@/components/ui/AbTestVisuals";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { AB_SCALE } from "@/lib/ab-test-marketing";
+import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
+import { breadcrumbList } from "@/lib/schema";
 
 /* Product page for the ab-test-playbook Claude Code plugin.
 
@@ -97,7 +99,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             <h1 className="text-h1 text-ink-950">{c.title}</h1>
           </Reveal>
           <Reveal delay={90} className="mt-6">
-            <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-muted">{c.sub}</p>
+            <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-950/65">{c.sub.replace("{count}", AB_SCALE.scenarios.toLocaleString(lang === "en" ? "en-US" : "tr-TR"))}</p>
           </Reveal>
           <Reveal delay={140} className="mt-9 flex justify-center">
             <ButtonLink href={libraryHref(lang)} variant="primary" size="md">
@@ -142,23 +144,14 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   );
 }
 
-/* ---- 02 · Scale band ------------------------------------------------- */
-function Scale({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const s = t.abTesting.product.scale;
-  const n = (v: number) => v.toLocaleString(lang === "en" ? "en-US" : "tr-TR");
-  return (
-    <ProductSection tone="paper" space="band" className="border-b border-line-soft">
-      <ProductMetricStrip
-        items={[
-          { value: n(AB_SCALE.scenarios), label: s.scenarios },
-          { value: n(AB_SCALE.surfaces), label: s.surfaces },
-          { value: n(AB_SCALE.categories), label: s.categories },
-          { value: n(AB_SCALE.guardrails), label: s.guardrails },
-        ]}
-      />
-    </ProductSection>
-  );
-}
+/* ---- 02 · (gone) ------------------------------------------------------
+   The scale band - four bare numerals with one-word labels - went on
+   2026-09-20 (Hulusi's pass over the sub lab pages; his standing rule: a
+   number never stands alone, it needs a name and a sentence). Each of
+   its four numbers already appears with its sentence further down: the
+   scenario count in the hero and the library title, the pages in the
+   coverage map, the guardrail rules in the ledger, the categories as the
+   library's chips. */
 
 /* ---- 03/04/05 · Benefit stories, sides alternating ------------------- */
 function Stories({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
@@ -274,19 +267,21 @@ function HowItWorks({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
    composition from every other section, which is the point. */
 function Rules({ t }: { t: (typeof copy)[Lang] }) {
   const c = t.abTesting;
+  const accent = labAccent("ab-test-playbook");
+  /* The five rules as the site's tiles (2026-09-20): the number in the
+     product's hue, the rule as the tile's title, the reason under it -
+     in place of the hairline table with grey mono numerals. */
   return (
     <ProductSection tone="soft" space="lg">
       <PortraitContainer>
-        <ProductHeading eyebrow={c.product.rulesEyebrow} title={c.principlesTitle} />
-        <div className="mt-12">
+        <ProductHeading eyebrow={c.product.rulesEyebrow} title={c.principlesTitle} align="center" />
+        <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {c.principles.map((r, i) => (
-            <Reveal key={r.title} delay={i * 60}>
-              <div className="grid grid-cols-1 gap-3 border-t border-line py-7 last:border-b md:grid-cols-[4rem_18rem_1fr] md:gap-8">
-                <span className="font-mono text-sm text-ink-300 tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="text-base font-medium tracking-tight text-ink-950">{r.title}</h3>
-                <p className="max-w-2xl text-base leading-relaxed text-ink-muted">{r.desc}</p>
+            <Reveal key={r.title} delay={i * 60} className={i === c.principles.length - 1 ? "sm:col-span-2 lg:col-span-1" : ""}>
+              <div className="flex h-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                <span className={clsx("grid size-8 place-items-center rounded-full text-sm font-semibold tabular-nums", accent.tile)}>{i + 1}</span>
+                <h3 className="mt-4 text-base font-semibold tracking-tight text-ink-950">{r.title}</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-pretty text-ink-600">{r.desc}</p>
               </div>
             </Reveal>
           ))}
@@ -297,51 +292,32 @@ function Rules({ t }: { t: (typeof copy)[Lang] }) {
 }
 
 /* ---- 09 · Install ---------------------------------------------------- */
+/* The three ways in, in content.ts's order: the plugin marketplace, a
+   clone from GitHub, the skills CLI. */
+const WAY_ICONS = [<Store key="store" aria-hidden />, <GitHubMark key="github" />, <Terminal key="terminal" aria-hidden />];
+
 function Install({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.abTesting;
   const en = lang === "en";
-  /* One numbered rail, two steps (Hulusi, 2026-09-06: install blocks
-     "more minimal and nice", a vertical stepper). The three install
-     options are the repository's own, as tabs on one code block. */
+  /* The shared install panel (ui/InstallPanel): the steps tile beside the
+     terminal on the product's plate. The three ways in are the
+     repository's own, as the terminal's tabs. */
   return (
     <ProductSection tone="paper" space="md">
-      <PortraitContainer className="max-w-2xl">
-        <ProductHeading title={c.install.title} />
-        <Reveal delay={100} className="mt-10">
-          <InstallationStepper
-            steps={[
-              {
-                n: 1,
-                title: en ? "Add the plugin to Claude Code" : "Eklentiyi Claude Code'a ekleyin",
-                content: (
-                  <CodeTabs
-                    tabs={c.install.options.map((opt, i) => ({ id: `opt-${i}`, label: opt.label, code: opt.code }))}
-                    copyLabel={en ? "Copy" : "Kopyala"}
-                    copiedLabel={en ? "Copied" : "Kopyalandı"}
-                  />
-                ),
-              },
-              {
-                n: 2,
-                title: en ? "Read the repository, or try the demo" : "Repoyu okuyun ya da demoyu deneyin",
-                content: (
-                  <div className="flex flex-wrap gap-2">
-                    <a href={REPO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
-                      <PixelFill />
-                      {c.repoLink}
-                      <ArrowUpRight aria-hidden className="size-4" />
-                    </a>
-                    <a href={DEMO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
-                      <PixelFill />
-                      {c.demoLink}
-                      <ArrowUpRight aria-hidden className="size-4" />
-                    </a>
-                  </div>
-                ),
-              },
-            ]}
-          />
-        </Reveal>
+      <PortraitContainer>
+        <InstallPanel
+          slug="ab-test-playbook"
+          title={c.install.title}
+          methodsTitle={en ? "Add the plugin to Claude Code" : "Eklentiyi Claude Code'a ekleyin"}
+          methods={c.install.options.map((opt, i) => ({ id: `opt-${i}`, label: opt.label, code: opt.code, icon: WAY_ICONS[i] }))}
+          linksTitle={en ? "Read the repository, or try the demo" : "Repoyu okuyun ya da demoyu deneyin"}
+          links={[
+            { label: c.repoLink, href: REPO },
+            { label: c.demoLink, href: DEMO },
+          ]}
+          copyLabel={en ? "Copy" : "Kopyala"}
+          copiedLabel={en ? "Copied" : "Kopyalandı"}
+        />
       </PortraitContainer>
     </ProductSection>
   );
@@ -372,12 +348,24 @@ export default function AbTestingPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? "/tr/lab/ab-testing" : "/lab/ab-testing";
+  const path = lang === "en" ? "/lab/ab-testing" : "/tr/lab/ab-testing";
+  /* The breadcrumb trail every other product page carries and this one
+     did not (2026-09-20): Home › Lab › <project name>, per
+     seo/breadcrumb-contract.json's lab-product family. Only the approved
+     type - the contract marks SoftwareApplication as not appropriate for
+     an unrated, free repository. */
+  const projectName = t.lab.projects.find((p) => p.slug === "ab-test-playbook")?.name ?? t.abTesting.title;
+  const jsonLd = breadcrumbList([
+    { name: t.footer.home, url: home },
+    { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+    { name: projectName, url: path },
+  ]);
   return (
     <>
+      <JsonLdScript data={jsonLd} />
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
         <Hero t={t} lang={lang} />
-        <Scale t={t} lang={lang} />
         <Stories t={t} lang={lang} />
         <Library t={t} lang={lang} />
         <HowItWorks t={t} lang={lang} />

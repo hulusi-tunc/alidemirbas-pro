@@ -1,21 +1,22 @@
-import { ArrowRight, ArrowUpRight, Ban, BookOpen, Check, CircleCheck, Info, Lightbulb, Scale, ShieldCheck, TriangleAlert } from "lucide-react";
+import { ArrowUpRight, Ban, BookOpen, Check, CircleCheck, Info, LayoutDashboard, Lightbulb, Presentation, Scale, ShieldCheck, Store, Terminal, TriangleAlert } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { CodeBlock, InstallationStepper } from "@/components/ui/InstallationStepper";
+import { GitHubMark } from "@/components/ui/BrandIcons";
+import { InstallPanel } from "@/components/ui/InstallPanel";
+import { labAccent } from "@/components/ui/LabProjectIdentity";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
-import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
-import { CodeTabs } from "@/components/ui/CodeTabs";
+import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { DashboardHeroWindow } from "@/components/ui/LabProductWindows";
 import { AppBar, AppMeta, AppTitle, Badge, type BadgeTone, codeLabel, KeyValues, Table, Td, Th, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import { RelatedGrid } from "@/components/ui/RelatedGrid";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
-import { breadcrumbList, howTo, softwareApplication } from "@/lib/schema";
+import { breadcrumbList, softwareApplication } from "@/lib/schema";
+import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { DASHBOARD_REAL } from "@/lib/lab-material";
 
@@ -285,7 +286,11 @@ function RegistryGateWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   ];
   return (
     <Window label={w.label} address={w.address} meta={`${REAL.registryLevels.length + REAL.qualityLevels.length} ${w.levels}`}>
-      <div className="grid grid-cols-1 divide-y divide-line-soft md:grid-cols-2 md:divide-x md:divide-y-0">
+      {/* The two panes sit side by side only when the WINDOW is wide
+          enough for two readable columns (a container query, not the
+          viewport): inside a benefit story's column they stack. */}
+      <div className="@container">
+      <div className="grid grid-cols-1 divide-y divide-line-soft @2xl:grid-cols-2 @2xl:divide-x @2xl:divide-y-0">
         {panes.map((pane) => (
           <div key={pane.title} className="min-w-0">
             <AppBar>
@@ -307,6 +312,7 @@ function RegistryGateWindow({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
             </ul>
           </div>
         ))}
+      </div>
       </div>
     </Window>
   );
@@ -406,33 +412,39 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
   );
 }
 
-/* ---- 02 · Pipeline band ---------------------------------------------- */
+/* ---- 02 · Pipeline band ----------------------------------------------
+   The README's own pipeline as a drawn flow (2026-09-20, Hulusi's sub-page
+   pass): the stages as numbered paper tiles on hairline connectors, the
+   two outputs as the product's own tiles at the end, in the homepage's
+   miniature idiom - it was a row of bordered chips before. */
+const OUTPUT_ICON = [<LayoutDashboard key="dashboard" aria-hidden />, <Presentation key="deck" aria-hidden />];
+
 function PipelineSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
+  const accent = labAccent("dashboard-builder");
   return (
-    <ProductSection tone="soft" space="band">
+    <ProductSection tone="soft" space="md">
       <PortraitContainer>
-        <Reveal className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-2.5">
-          {REAL.pipeline.map((step) => (
-            <div key={step.en} className="flex items-center gap-2.5">
-              <span className="rounded-full border border-line-strong bg-paper px-3.5 py-1.5 text-[12.5px] font-medium text-ink-700">
+        <Reveal className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-y-3">
+          {REAL.pipeline.map((step, i) => (
+            <div key={step.en} className="flex items-center">
+              {i > 0 && <span aria-hidden className="h-px w-4 shrink-0 bg-ink-300" />}
+              <span className="flex items-center gap-2.5 rounded-xl bg-paper py-2.5 pr-4 pl-2.5 text-[13px] font-medium text-ink-900 ring-1 ring-ink-950/[0.06]">
+                <span className={clsx("grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold tabular-nums", accent.tile)}>{i + 1}</span>
                 {step[lang]}
               </span>
-              <ArrowRight aria-hidden className="size-3.5 shrink-0 text-ink-300" />
             </div>
           ))}
-          <div className="flex flex-wrap items-center gap-2">
-            {REAL.pipelineOutputs.map((o) => (
-              <span
-                key={o.en}
-                className="rounded-full border border-primary-200 bg-primary-50 px-3.5 py-1.5 text-[12.5px] font-medium text-primary-700"
-              >
+          <div className="flex items-center gap-2 pl-4">
+            {REAL.pipelineOutputs.map((o, i) => (
+              <span key={o.en} className="flex items-center gap-2 rounded-xl bg-ink-950 px-3.5 py-2.5 text-[13px] font-medium text-white [&>svg]:size-4 [&>svg]:text-white/70">
+                {OUTPUT_ICON[i]}
                 {o[lang]}
               </span>
             ))}
           </div>
         </Reveal>
-        <Reveal delay={80} className="mx-auto mt-4 max-w-xl text-center">
-          <p className="text-[12.5px] text-ink-500">{t.pipelineNote}</p>
+        <Reveal delay={80} className="mx-auto mt-6 max-w-xl text-center">
+          <p className="text-sm leading-relaxed text-pretty text-ink-600">{t.pipelineNote}</p>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -455,17 +467,26 @@ function ComparabilityEngineSection({ t, lang }: { t: (typeof T)[Lang]; lang: La
   );
 }
 
-/* ---- 04 · Metric registry + Quality gate ------------------------------ */
+/* ---- 04 · Metric registry + Quality gate ------------------------------
+   The three engine sections used to be three centred headings over three
+   full-width plates in a row. Now the comparability check keeps the wide
+   centred moment (it is the product's core) and the two checks after it
+   alternate sides as benefit stories, the rhythm the A/B page set. */
 function RegistryAndGateSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   return (
     <ProductSection tone="soft" space="lg">
       <PortraitContainer>
-        <ProductHeading eyebrow={t.gateEyebrow} title={t.gateTitle} body={t.gateSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 max-w-4xl text-left">
-          <ProductFrame slug="dashboard-builder" inset="sm">
-            <RegistryGateWindow t={t} lang={lang} />
-          </ProductFrame>
-        </Reveal>
+        <ProductBenefitStory
+          eyebrow={t.gateEyebrow}
+          title={t.gateTitle}
+          body={t.gateSub}
+          side="left"
+          visual={
+            <ProductFrame slug="dashboard-builder" inset="sm">
+              <RegistryGateWindow t={t} lang={lang} />
+            </ProductFrame>
+          }
+        />
       </PortraitContainer>
     </ProductSection>
   );
@@ -476,15 +497,20 @@ function InsightEngineSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) 
   return (
     <ProductSection tone="paper" space="lg">
       <PortraitContainer>
-        <ProductHeading eyebrow={t.insightEyebrow} title={t.insightTitle} body={t.insightSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 max-w-3xl text-left">
-          <ProductFrame slug="dashboard-builder" inset="sm">
-            <InsightGateWindow t={t} lang={lang} />
-          </ProductFrame>
-        </Reveal>
-        <Reveal delay={180} className="mx-auto mt-8 max-w-2xl border-l-2 border-primary-600 py-1 pl-5 text-left">
-          <p className="text-[13px] leading-relaxed text-ink-600 italic">{t.suppressQuote}</p>
-        </Reveal>
+        <ProductBenefitStory
+          eyebrow={t.insightEyebrow}
+          title={t.insightTitle}
+          body={t.insightSub}
+          side="right"
+          aside={
+            <p className="max-w-md border-l-2 border-primary-600 py-1 pl-5 text-[15px] leading-relaxed text-ink-600 italic">{t.suppressQuote}</p>
+          }
+          visual={
+            <ProductFrame slug="dashboard-builder" inset="sm">
+              <InsightGateWindow t={t} lang={lang} />
+            </ProductFrame>
+          }
+        />
       </PortraitContainer>
     </ProductSection>
   );
@@ -496,21 +522,24 @@ function TemplatesSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
     <ProductSection tone="soft" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={t.templatesEyebrow} title={t.templatesTitle} body={t.templatesSub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-2.5 text-left sm:grid-cols-2">
+        {/* The README's eleven templates as the site's tiles - paper on the
+            soft ground, the template's number in the product's hue - in
+            place of the bordered boxes with black mono badges. */}
+        <Reveal delay={100} className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-3 text-left sm:grid-cols-2 lg:grid-cols-3">
           {REAL.templates.map((tpl) => (
-            <div key={tpl.id} className="flex items-start gap-3 rounded-lg border border-line bg-paper p-3.5">
-              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-ink-950 font-mono text-[11px] font-semibold text-white">
+            <div key={tpl.id} className="flex items-start gap-3 rounded-2xl bg-paper p-4 ring-1 ring-ink-950/[0.06]">
+              <span className={clsx("grid size-7 shrink-0 place-items-center rounded-full text-[12px] font-semibold tabular-nums", labAccent("dashboard-builder").tile)}>
                 {tpl.id}
               </span>
-              <div className="min-w-0">
-                <p className="text-[13px] font-medium text-ink-900">{tpl[lang]}</p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-ink-500">{tpl.q[lang]}</p>
+              <div className="min-w-0 pt-0.5">
+                <p className="text-sm font-semibold text-ink-950">{tpl[lang]}</p>
+                <p className="mt-1 text-[13px] leading-relaxed text-pretty text-ink-600">{tpl.q[lang]}</p>
               </div>
             </div>
           ))}
         </Reveal>
-        <Reveal delay={140} className="mx-auto mt-6 max-w-2xl text-center">
-          <p className="text-[12.5px] text-ink-500">{t.templatesFilterNote}</p>
+        <Reveal delay={140} className="mx-auto mt-8 max-w-2xl text-center">
+          <p className="text-sm leading-relaxed text-pretty text-ink-600">{t.templatesFilterNote}</p>
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -520,53 +549,28 @@ function TemplatesSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
 /* ---- 07 · Install -------------------------------------------------------- */
 function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
-  const copyLabel = lang === "en" ? "Copy" : "Kopyala";
-  const copiedLabel = lang === "en" ? "Copied" : "Kopyalandı";
-  /* One numbered rail, three steps, nothing else (Hulusi, 2026-09-06: the
-     install blocks should be "more minimal and nice" - his reference is a
-     vertical stepper: number, title, one line, then the step's own
-     content). Same InstallationStepper the generic template uses. */
+  /* The shared install panel (ui/InstallPanel): the steps tile beside the
+     terminal on the product's plate. The three ways in and the test
+     command are the README's own. */
   return (
     <ProductSection tone="paper" space="lg">
-      <PortraitContainer className="max-w-2xl">
-        <ProductHeading title={t.installTitle} body={t.installSub} />
-        <Reveal delay={100} className="mt-10">
-          <InstallationStepper
-            steps={[
-              {
-                n: 1,
-                title: t.stepAdd,
-                content: (
-                  <CodeTabs
-                    tabs={[
-                      { id: "marketplace", label: t.tabMarketplace, code: MARKETPLACE_CMD },
-                      { id: "local", label: t.tabLocal, code: LOCAL_CMD },
-                      { id: "skills", label: t.tabSkillsCli, code: SKILLS_CLI_CMD },
-                    ]}
-                    copyLabel={copyLabel}
-                    copiedLabel={copiedLabel}
-                  />
-                ),
-              },
-              { n: 2, title: t.stepTest, desc: t.testNote, content: <CodeBlock code={TEST_CMD} copyLabel={copyLabel} copiedLabel={copiedLabel} /> },
-              ...(repo
-                ? [
-                    {
-                      n: 3,
-                      title: t.viewRepo,
-                      content: (
-                        <a href={repo.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
-                          <PixelFill />
-                          {repo.label}
-                          <ArrowUpRight aria-hidden className="size-4" />
-                        </a>
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </Reveal>
+      <PortraitContainer>
+        <InstallPanel
+          slug="dashboard-builder"
+          title={t.installTitle}
+          body={t.installSub}
+          methodsTitle={t.stepAdd}
+          methods={[
+            { id: "marketplace", label: t.tabMarketplace, code: MARKETPLACE_CMD, icon: <Store aria-hidden /> },
+            { id: "local", label: t.tabLocal, code: LOCAL_CMD, icon: <GitHubMark /> },
+            { id: "skills", label: t.tabSkillsCli, code: SKILLS_CLI_CMD, icon: <Terminal aria-hidden /> },
+          ]}
+          then={{ title: t.stepTest, note: t.testNote, code: TEST_CMD }}
+          linksTitle={t.viewRepo}
+          links={repo ? [{ label: repo.label, href: repo.href }] : []}
+          copyLabel={lang === "en" ? "Copy" : "Kopyala"}
+          copiedLabel={lang === "en" ? "Copied" : "Kopyalandı"}
+        />
       </PortraitContainer>
     </ProductSection>
   );
@@ -586,16 +590,9 @@ function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
   );
 }
 
-function Related({ c }: { c: SkillProductContent }) {
-  if (c.related.length === 0) return null;
-  return (
-    <ProductSection tone="paper" space="lg">
-      <PortraitContainer>
-        <RelatedGrid title={c.relatedTitle} items={c.related} />
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
+/* The "Other Lab projects" grid that stood before the closing band is
+   gone (2026-09-20): the footer lists the same projects, and the A/B and
+   Journey Builder pages never carried one. */
 
 export default function DashboardBuilderPage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
   const copyT = copy[lang];
@@ -627,15 +624,10 @@ export default function DashboardBuilderPage({ lang, content }: { lang: Lang; co
       }),
     );
   }
-  if (content.installSteps.length > 0) {
-    jsonLd.push(
-      howTo({
-        name: content.installTitle,
-        description: content.whatItDoes.body,
-        steps: content.installSteps.map((s) => ({ name: s.title, text: s.desc ?? s.title })),
-      }),
-    );
-  }
+  /* No HowTo (2026-09-20): it described the old generic install steps,
+     not the ones the Install panel shows, and Google stopped showing
+     HowTo rich results in 2023 - the site's structured-data contract
+     never asked for it. Breadcrumbs and the application node stay. */
 
   return (
     <>
@@ -650,7 +642,6 @@ export default function DashboardBuilderPage({ lang, content }: { lang: Lang; co
         <TemplatesSection t={t} lang={lang} />
         <Install c={content} t={t} lang={lang} />
         <Faq c={content} t={t} />
-        <Related c={content} />
         <FinalCta t={copy[lang]} />
       </main>
       <SiteFooter t={copyT} lang={lang} />

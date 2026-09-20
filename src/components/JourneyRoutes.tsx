@@ -5,7 +5,8 @@ import JourneyDetailBody, { journeyCanvasProps } from "@/components/JourneyDetai
 import JourneyDetailHeader from "@/components/JourneyDetailHeader";
 import JourneyCanvas from "@/components/JourneyCanvas";
 import { JourneyDetailShell } from "@/components/JourneyDetailShell";
-import JourneyInfo, { journeyTitle } from "@/components/JourneyInfo";
+import JourneyInfo, { JourneyChips, journeyCategoryId, journeyTitle } from "@/components/JourneyInfo";
+import { CategoryIcon, categoryAccent } from "@/components/ui/LibraryChrome";
 import JourneyModal from "@/components/JourneyModal";
 import { resolveDetailSlug } from "@/lib/canonical-view";
 import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
@@ -109,13 +110,17 @@ export async function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string
         </>
       }
       canvas={<JourneyCanvas {...canvas} basePath={basePath} mode="page" />}
-      titleCard={
-        <>
-          <p className="text-xs font-medium text-ink-subtle">{detail.categoryTitle}</p>
-          <p className="mt-1 text-lg leading-snug font-semibold text-balance text-ink-950">{journeyTitle(detail)}</p>
-          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink-muted">{detail.purpose}</p>
-        </>
-      }
+      summary={{
+        mark: (
+          <span aria-hidden className={`grid size-7 shrink-0 place-items-center rounded-full ${categoryAccent(journeyCategoryId(detail)).tile}`}>
+            <CategoryIcon id={journeyCategoryId(detail)} className="size-3.5" />
+          </span>
+        ),
+        category: detail.categoryTitle,
+        title: journeyTitle(detail),
+        purpose: detail.purpose,
+        chips: <JourneyChips detail={detail} lang={lang} />,
+      }}
     />
   );
 }

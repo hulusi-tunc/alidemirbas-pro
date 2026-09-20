@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
-import { ArrowRight, Bot, CircleCheck, CircleSlash, CircleX, Clock, Gavel, Mail, Power, Radio, UserRound, Wallet } from "lucide-react";
+import { ArrowRight, Bot, CircleSlash, Gavel, Power, UserRound, Wallet } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
+import { MiniCanvasView, miniCanvas, type MiniCanvas } from "@/components/ui/MiniCanvas";
 import { ProductFrame } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
@@ -11,6 +12,7 @@ import { PixelHighlight } from "@/components/ui/PixelHighlight";
 import { WorkScroll } from "@/components/ui/WorkScroll";
 import { withJourneyCount } from "@/lib/archive";
 import { copy, type Lang } from "@/lib/content";
+import { FEATURED_JOURNEY } from "@/lib/journey-marketing";
 import { CHANGE_HISTORY_REAL, DASHBOARD_REAL } from "@/lib/lab-material";
 
 /* THE "WHAT I DO" BAND (homepage). Four services with one drawn piece of
@@ -88,48 +90,14 @@ function ComparabilityCard({ lang }: { lang: Lang }) {
   );
 }
 
-function Node({ tint, icon, children, className = "" }: { tint: string; icon: ReactNode; children?: ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-2xl bg-paper-soft p-3.5 ${className}`}>
-      <div className="flex items-center gap-2">
-        <span className={`grid size-6 shrink-0 place-items-center rounded-full ${tint} [&>svg]:size-3.5`}>{icon}</span>
-        <Bar w="w-12" />
-      </div>
-      {children}
-    </div>
-  );
-}
-
-/** A journey as the library defines one: trigger, a step with its wait, the
-    condition, the two kinds of exit. Real node kinds, no words. */
-export function JourneyCard({ proof }: { proof: string }) {
+/** The library's featured journey as the detail page draws it - its real
+    cards, lines and dot sheet, windowed on the entry (ui/MiniCanvas). It
+    replaced a drawn trigger-step-exit sketch once the canvas itself had a
+    design (2026-09-20), the same swap every journey thumbnail on /lab made. */
+export function JourneyCard({ proof, canvas }: { proof: string; canvas: MiniCanvas | null }) {
   return (
     <Card>
-      <div className="flex items-center gap-2">
-        <Node tint="bg-ink-950 text-white" icon={<Radio aria-hidden />} className="flex-1">
-          <Bar className="mt-3" />
-          <Bar className="mt-1.5" w="w-2/3" />
-        </Node>
-        <span className="h-px w-3 shrink-0 bg-ink-300" />
-        <Node tint="bg-primary-600 text-white" icon={<Mail aria-hidden />} className="flex-1">
-          <Bar className="mt-3" />
-          <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-md bg-paper-soft px-2 py-1">
-            <Clock aria-hidden className="size-3.5 text-ink-500" />
-            <Bar w="w-7" />
-          </span>
-        </Node>
-        <span className="h-px w-3 shrink-0 bg-ink-300" />
-        <div className="flex flex-1 flex-col gap-2">
-          <span className="flex items-center gap-2 rounded-2xl bg-paper-soft px-3 py-2.5">
-            <CircleCheck aria-hidden className="size-4 shrink-0 text-emerald-600" />
-            <Bar />
-          </span>
-          <span className="flex items-center gap-2 rounded-2xl bg-paper-soft px-3 py-2.5">
-            <CircleX aria-hidden className="size-4 shrink-0 text-rose-600" />
-            <Bar />
-          </span>
-        </div>
-      </div>
+      <div className="h-56 overflow-hidden rounded-xl bg-paper-soft ring-1 ring-ink-950/[0.06] sm:h-64">{canvas && <MiniCanvasView canvas={canvas} />}</div>
       <p className="mt-4 text-sm font-medium text-ink-950 tabular-nums">{proof}</p>
     </Card>
   );
@@ -211,9 +179,10 @@ export function AbCard({ proof }: { proof: string }) {
 
 /* --- the band --------------------------------------------------------- */
 
-export function Work({ t, lang }: { t: T; lang: Lang }) {
+export async function Work({ t, lang }: { t: T; lang: Lang }) {
   const services = t.home.work.services;
   const projectOf = (slug: string) => t.lab.projects.find((p) => p.slug === slug);
+  const journeyCanvas = await miniCanvas(FEATURED_JOURNEY.id, lang);
   const evidence = (slug: string): ReactNode => {
     const proof = withJourneyCount(projectOf(slug)?.proof ?? "");
     let card: ReactNode = null;
@@ -222,7 +191,7 @@ export function Work({ t, lang }: { t: T; lang: Lang }) {
         card = <ComparabilityCard lang={lang} />;
         break;
       case "lifecycle-card-archive":
-        card = <JourneyCard proof={proof} />;
+        card = <JourneyCard proof={proof} canvas={journeyCanvas} />;
         break;
       case "google-ads-change-history-dashboard":
         card = <ChangeLogCard lang={lang} />;

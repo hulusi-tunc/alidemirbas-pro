@@ -303,8 +303,14 @@ export const copy = {
         proof: ["Domain-neutral", "Branching flows", "No message copy"],
         split: {
           eyebrow: "Where to start",
-          title: "Start with the customer journeys. States and mechanisms open from inside them.",
-          body: "Customer journeys are the flows that message a person or hand work to a team. Each one depends on two things: the silent lifecycle states that hold where a person currently is, and the runtime mechanisms that decide whether a send can go out. Both open from inside a journey, and both can be browsed on their own below.",
+          title: "Start with the customer journeys.",
+          body: "The other two surfaces open from inside them.",
+          lines: {
+            "customer-journeys": "Flows that message a person or hand work to a team.",
+            "lifecycle-states": "Silent records of where a person is. Journeys read them before acting.",
+            "runtime-mechanisms": "The rules every send runs on: who can be contacted, delivery, retries.",
+          },
+          largest: "Largest journeys",
         },
         stories: {
           eyebrow: "Required in every journey",
@@ -519,6 +525,18 @@ export const copy = {
       title: "Journey design from start to finish.",
       sub: "Each journey states what starts it, where it branches, how long it waits and what happens next.",
       proof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
+      /* The Install section - the repository README's own Quickstart, verbatim:
+         three ways in, then the three commands the plugin answers to. */
+      install: {
+        title: "Install",
+        stepAdd: "Add the plugin to Claude Code",
+        tabPlugin: "Plugin",
+        tabLocal: "Local clone",
+        tabSkills: "skills.sh",
+        stepUse: "Then, inside Claude Code",
+        useNote: "Score your data, generate the journey portfolio, then write the channel copy.",
+        stepLinks: "Read the repository, or try the demo",
+      },
       canvas: {
         nodes: "nodes",
         rejoins: "rejoins at Reconcile",
@@ -1080,8 +1098,14 @@ export const copy = {
         proof: ["Sektörden bağımsız", "Dallanan akış", "Mesaj metni yok"],
         split: {
           eyebrow: "Nereden başlamalı",
-          title: "Müşteri journey'lerinden başla. Durumlar ve mekanizmalar onların içinden açılır.",
-          body: "Müşteri journey'leri kişiye mesaj gönderen ya da bir ekibe iş düşüren akışlar. Her biri iki şeye dayanır. Kişinin hangi durumda olduğunu tutan sessiz yaşam döngüsü durumları ve gönderimi mümkün kılan altyapı mekanizmaları. İkisi de journey'nin içinden açılır, aşağıda ayrıca gezilebilir.",
+          title: "Müşteri journey'lerinden başlayın.",
+          body: "Diğer iki yüzey onların içinden açılır.",
+          lines: {
+            "customer-journeys": "Bir kişiye mesaj gönderen ya da işi bir ekibe devreden akışlar.",
+            "lifecycle-states": "Kişinin nerede olduğunu tutan sessiz kayıtlar; journey'ler göndermeden önce bunları okur.",
+            "runtime-mechanisms": "Her gönderimin dayandığı kurallar: ulaşılabilirlik, teslimat, yeniden deneme.",
+          },
+          largest: "En büyük journey'ler",
         },
         stories: {
           eyebrow: "Her journey'de zorunlu olanlar",
@@ -1260,6 +1284,16 @@ export const copy = {
       title: "Baştan sona journey kurgusu.",
       sub: "Her journey neyle başladığını, nerede dallandığını, ne kadar beklediğini ve sonra ne olacağını açıkça tanımlar.",
       proof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
+      install: {
+        title: "Kurulum",
+        stepAdd: "Eklentiyi Claude Code'a ekleyin",
+        tabPlugin: "Eklenti",
+        tabLocal: "Yerel klon",
+        tabSkills: "skills.sh",
+        stepUse: "Sonra, Claude Code'un içinde",
+        useNote: "Verini puanla, journey portföyünü üret, sonra kanal metinlerini yaz.",
+        stepLinks: "Repoyu okuyun ya da demoyu deneyin",
+      },
       canvas: {
         nodes: "düğüm",
         rejoins: "Reconcile'da birleşir",

@@ -6,6 +6,7 @@ import { JourneyWorld, actionSequenceOf, type CanvasLabels } from "@/components/
 import type { ChannelId } from "@/canonical/types";
 import type { FlowNode } from "@/lib/canonical-view";
 import type { CanvasLayout } from "@/lib/journey-canvas-layout";
+import { dotGap, dotSheet } from "@/lib/canvas-dots";
 
 /* THE PREVIEW - the canvas itself, small (Hulusi, 2026-09-20: "make the
    preview real, not wireframe"). The same world the Canvas tab renders -
@@ -39,7 +40,7 @@ export function JourneyMiniMap({
   const actionSequence = useMemo(() => actionSequenceOf(nodes), [nodes]);
   const entry = layout.nodes.find((l) => l.node.isEntry) ?? layout.nodes[0];
   const x0 = entry.x - view.window / 2;
-  const y0 = Math.max(0, entry.y - 36);
+  const y0 = Math.max(0, entry.y - 56); // room for the Entry pin, which grows at the far zoom level
 
   useEffect(() => {
     const el = ref.current;
@@ -56,9 +57,16 @@ export function JourneyMiniMap({
   }, [layout.width]);
 
   return (
-    <div ref={ref} aria-hidden inert className="pointer-events-none relative h-full w-full overflow-hidden select-none">
+    <div
+      ref={ref}
+      aria-hidden
+      inert
+      style={{ backgroundImage: dotSheet(view.scale), backgroundSize: `${dotGap(view.scale) * view.scale}px ${dotGap(view.scale) * view.scale}px`, backgroundPosition: `${-x0 * view.scale}px ${-y0 * view.scale}px` }}
+      className="pointer-events-none relative h-full w-full overflow-hidden select-none"
+    >
       <div
         style={{ width: layout.width, height: layout.height, transform: `translate(${-x0 * view.scale}px, ${-y0 * view.scale}px) scale(${view.scale})`, transformOrigin: "0 0" }}
+        data-lod={view.scale < 0.45 ? "far" : "near"}
         className="absolute top-0 left-0"
       >
         <JourneyWorld

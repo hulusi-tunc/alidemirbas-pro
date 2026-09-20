@@ -244,9 +244,21 @@ export type RuntimeCalcSpec = {
    the original wording on the live page. Scoped override, same pattern
    as the minimum-detectable-effect fix above - calculator-catalog.json
    itself is untouched. */
+const CORRECTED_PLAIN_ENGLISH: Record<string, string> = {
+  "logo-churn": "Customer-count churn (as opposed to revenue churn) - a common SaaS definition of Churn Rate.",
+  /* The catalog's ltv and cr sentences end in "see calculator-architecture.md"
+     and "see calculator-formula-families.json for the 16 industry-naming
+     variants" - authoring notes that pointed a reader of the public card at
+     repository files (Hulusi, 2026-09-20: "clean the calculator copy").
+     Rewritten to say what the notes meant: the two other LTV models are
+     real modes of the same tool, and the conversion-rate formula is the one
+     behind every industry's name for it. */
+  ltv: "Simple model: average order value times annual purchase frequency times customer lifespan in years. A margin-adjusted model and a mobile ARPDAU model sit beside it.",
+  cr: "Share of opportunities (visitors, leads, etc.) that completed the target action. The same formula behind lead, checkout, install and signup conversion rates.",
+};
+
 export function correctedFormulaPlainEnglish(spec: CalcSpec): string {
-  if (spec.slug !== "logo-churn") return spec.formulaPlainEnglish;
-  return "Customer-count churn (as opposed to revenue churn) - a common SaaS definition of Churn Rate.";
+  return CORRECTED_PLAIN_ENGLISH[spec.slug] ?? spec.formulaPlainEnglish;
 }
 
 /* Marks each flat (non-mode) input strictlyPositive when the catalog's

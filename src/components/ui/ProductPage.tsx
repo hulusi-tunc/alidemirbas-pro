@@ -135,8 +135,16 @@ export function ProductBenefitStory({
   side?: "left" | "right";
   aside?: ReactNode;
 }) {
+  /* The wider column follows the visual (2026-09-20): with the visual on
+     the left it used to land in the 0.85fr column, so every left-side
+     window was the narrow one, against the rule above. */
   return (
-    <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
+    <div
+      className={clsx(
+        "grid grid-cols-1 items-center gap-10 lg:gap-16",
+        side === "left" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]" : "lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]",
+      )}
+    >
       <div className={clsx(side === "left" && "lg:order-2")}>
         <ProductHeading eyebrow={eyebrow} title={title} body={body} />
         {aside && (
