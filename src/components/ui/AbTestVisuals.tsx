@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Ban, FlaskConical, Gauge, Layers, Search, ShieldCheck, Target } from "lucide-react";
 
+import { AbScreen } from "@/components/ui/AbScreen";
 import { buttonStyles } from "@/components/ui/Button";
 import { labAccent } from "@/components/ui/LabProjectIdentity";
 import { clsx } from "@/lib/clsx";
@@ -326,52 +327,41 @@ export function GuardrailLedger({ lang }: { lang: Lang }) {
    ==================================================================== */
 
 /* The record drawn small (2026-09-20, Hulusi: the library section "still
-   looks bad" - it was a text-only card rail cropped at both edges under a
-   row of chips that filtered nothing). Each card now carries the house
-   A/B miniature: the two sides as the A ink and B rose badges over
-   skeleton bars, the slot the test is about ringed rose on the B side
-   and, for a control-vs-treatment record, drawn as an absent dashed slot
-   on the A side. The words beside it are the record's own: its page,
-   its category, its title and the KPI it is decided by. The dataset's
-   side texts are Turkish only, so they are not drawn here. */
-function SideSketch({ side, slot }: { side: "A" | "B"; slot: "absent" | "present" | "tested" }) {
-  return (
-    <div className={clsx("rounded-xl bg-paper-soft p-2.5", side === "B" && "ring-1 ring-ink-950/[0.04]")}>
-      <div className="flex items-center gap-1.5">
-        <SideMark side={side} />
-        <span className="h-1.5 w-8 rounded-full bg-ink-950/10" />
-      </div>
-      <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
-      <span className="mt-1.5 block h-1.5 w-2/3 rounded-full bg-ink-950/10" />
-      {slot === "absent" ? (
-        <span className="mt-3 block h-6 rounded-md border border-dashed border-ink-300" />
-      ) : slot === "tested" ? (
-        <span className="mt-3 flex h-6 items-center rounded-md bg-paper px-2 ring-2 ring-rose-300">
-          <span className="h-1.5 w-1/2 rounded-full bg-primary-500" />
-        </span>
-      ) : (
-        <span className="mt-3 flex h-6 items-center rounded-md bg-paper px-2 ring-1 ring-ink-950/[0.06]">
-          <span className="h-1.5 w-1/2 rounded-full bg-ink-950/15" />
-        </span>
-      )}
-    </div>
-  );
-}
-
+   looks bad", then, on a first draft that sketched the same two-tile pair
+   on every card: "all of them repeat each other - in the other branch we
+   made the new style of the 211 A/B screens"). Each card now carries the
+   record's own screen: ui/AbScreen draws the variant side as the page it
+   is on with the tested element as real UI - the coupon field, the CTA,
+   the product images, the pricing plans - the same drawing the record's
+   detail page shows large, classified by the same code. The words beside
+   it are the record's own: its page, its category, its title and the KPI
+   it is decided by. */
 function SpreadCardTile({ card, lang, decidedBy }: { card: ReturnType<typeof spreadCards>[number]; lang: Lang; decidedBy: string }) {
-  const paired = card.setupType === "option-vs-option";
   return (
     <Link
       href={card.href}
-      className="group flex flex-col rounded-[28px] bg-paper p-5 ring-1 ring-ink-950/[0.06] transition-[box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-24px_rgba(3,17,63,0.35)]"
+      className="flex flex-col rounded-[28px] bg-paper p-5 ring-1 ring-ink-950/[0.06] transition-[box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-24px_rgba(3,17,63,0.35)]"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="rounded-full bg-paper-soft px-2.5 py-0.5 text-xs font-medium text-ink-600">{surfaceLabel(card.surface, lang)}</span>
         <span className="font-mono text-[11px] text-ink-400 tabular-nums">{card.id}</span>
       </div>
-      <div aria-hidden className="mt-4 grid grid-cols-2 gap-2">
-        <SideSketch side="A" slot={paired ? "present" : "absent"} />
-        <SideSketch side="B" slot="tested" />
+      {/* The variant side, windowed on its top: the tested element sits in
+          the first screen of every page AbScreen draws. No `group` on the
+          card, so the detail page's hover zoom stays there. */}
+      <div className="mt-4 h-44 overflow-hidden rounded-xl bg-paper-soft [&>div]:h-full [&_figure]:shadow-none">
+        <AbScreen
+          surface={card.surface}
+          element={card.screen.element}
+          kind={card.screen.kind}
+          side="b"
+          presence={card.screen.presence}
+          behavior={card.screen.behavior}
+          slot={card.screen.slot}
+          lang={lang}
+          label={card.title}
+          address={surfaceLabel(card.surface, lang)}
+        />
       </div>
       <p className="mt-4 text-[15px] leading-snug font-semibold text-ink-950">{card.title}</p>
       <p className="mt-1 text-xs text-ink-500">{categoryLabel(card.category, lang)}</p>
