@@ -97,7 +97,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             <h1 className="text-h1 text-ink-950">{c.title}</h1>
           </Reveal>
           <Reveal delay={90} className="mt-6">
-            <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
+            <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-950/65">{c.sub.replace("{count}", AB_SCALE.scenarios.toLocaleString(lang === "en" ? "en-US" : "tr-TR"))}</p>
           </Reveal>
           <Reveal delay={140} className="mt-9 flex justify-center">
             <ButtonLink href={libraryHref(lang)} variant="primary" size="md">

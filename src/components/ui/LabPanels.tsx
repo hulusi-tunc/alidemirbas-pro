@@ -49,9 +49,7 @@ import {
 } from "lucide-react";
 
 import JourneyTopologyPreview from "@/components/ui/JourneyTopologyPreview";
-import { JourneyMiniMap } from "@/components/ui/JourneyMiniMap";
-import { journeyCanvasProps } from "@/components/JourneyDetailBody";
-import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
+import { MiniCanvasView, miniCanvas, type MiniCanvas } from "@/components/ui/MiniCanvas";
 import {
   AppBar,
   Badge,
@@ -82,7 +80,7 @@ import { AB004_TEXT } from "@/components/ui/LabPreviews";
 import { PATTERNS, type Pattern } from "@/components/ui/PatternFlow";
 import { AB_SCALE, FEATURED, SURFACE_COUNTS, canvasRows } from "@/lib/ab-test-marketing";
 import { AB_CATEGORIES, AB_TEST_COUNT, surfaceLabel } from "@/lib/ab-test-view";
-import { LIBRARY_COUNT, LIBRARY_ROWS, journeyDetail, type JourneyRow } from "@/lib/canonical-view";
+import { LIBRARY_COUNT, LIBRARY_ROWS, type JourneyRow } from "@/lib/canonical-view";
 import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
@@ -178,25 +176,8 @@ function PatternBoardPanel({ lang }: { lang: Lang }) {
   );
 }
 
-/* THE REAL CANVAS, SMALL (2026-09-20, Hulusi: "update the Journey Library
-   parts of /lab too - the hero tab and its section - after the detail
-   pages"): every place the index used to draw a journey as a wire
-   thumbnail now shows the journey's own canvas - the same cards, lines and
-   dot sheet the detail page draws, scaled into the frame (ui/JourneyMiniMap).
-   One layout per journey, computed here on the server. */
-type MiniCanvas = Awaited<ReturnType<typeof journeyCanvasProps>>;
-async function miniCanvas(id: string, lang: Lang): Promise<MiniCanvas | null> {
-  const raw = journeyDetail(id);
-  if (!raw) return null;
-  return journeyCanvasProps(localizedJourneyDetail(raw, lang), lang, copy[lang].lab.page);
-}
-function MiniCanvasView({ canvas, className = "" }: { canvas: MiniCanvas; className?: string }) {
-  return (
-    <div className={clsx("h-full w-full", className)}>
-      <JourneyMiniMap nodes={canvas.nodes} layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
-    </div>
-  );
-}
+/* The journeys drawn here are the real canvas, small - ui/MiniCanvas
+   (`miniCanvas` lays one out on the server, `MiniCanvasView` frames it). */
 
 /** The library tab: the browser with its largest journey open - the
     page's real search field and goal select in the app bar, the goals
