@@ -470,11 +470,41 @@ export function actionSequenceOf(nodes: readonly FlowNode[]): ReadonlyMap<string
   return map;
 }
 
+/* An orthogonal route drawn with rounded bends (Hulusi, 2026-09-20: "the
+   lines are so sharp"): every interior corner becomes a quadratic arc of
+   up to 12px, shortened where a segment is too short to carry it. */
+const BEND = 12;
+function roundedEdgePath(points: readonly { x: number; y: number }[]): string {
+  if (points.length < 3) return edgePath(points);
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length - 1; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    const c = points[i + 1];
+    const inLen = Math.hypot(b.x - a.x, b.y - a.y);
+    const outLen = Math.hypot(c.x - b.x, c.y - b.y);
+    const r = Math.min(BEND, inLen / 2, outLen / 2);
+    if (r < 1 || inLen === 0 || outLen === 0) {
+      d += ` L ${b.x} ${b.y}`;
+      continue;
+    }
+    const p1 = { x: b.x - ((b.x - a.x) / inLen) * r, y: b.y - ((b.y - a.y) / inLen) * r };
+    const p2 = { x: b.x + ((c.x - b.x) / outLen) * r, y: b.y + ((c.y - b.y) / outLen) * r };
+    d += ` L ${p1.x} ${p1.y} Q ${b.x} ${b.y} ${p2.x} ${p2.y}`;
+  }
+  const last = points[points.length - 1];
+  return `${d} L ${last.x} ${last.y}`;
+}
+
 function EdgeShape({ edge }: { edge: LaidOutEdge }) {
-  const d = edgePath(edge.points);
+  const d = roundedEdgePath(edge.points);
   return (
     <g data-canvas-edge-from={edge.canonicalFrom} data-canvas-edge-to={edge.canonicalTo} data-canvas-edge-label={edge.label ?? ""}>
-      <path d={d} fill="none" className="stroke-ink-300" strokeWidth={1.5} vectorEffect="non-scaling-stroke" markerEnd="url(#journey-arrow)" />
+      {/* The halo: a ground-coloured stroke under the line, so where two
+          routes cross the one drawn later visibly passes over the other
+          instead of merging into it ("I am not sure where it is going"). */}
+      <path d={d} fill="none" className="stroke-paper-soft" strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      <path d={d} fill="none" className="stroke-ink-300" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" markerEnd="url(#journey-arrow)" />
       {edge.label ? (
         <foreignObject
           x={edge.labelX - 100}
@@ -511,6 +541,7 @@ const LEGEND = {
   handoffs: { icon: <ArrowRightLeft aria-hidden />, tint: "bg-indigo-50 text-indigo-700" },
 } as const;
 
+const DOT_GAP = 24;
 const PAGE_MIN_ZOOM = 0.2;
 const PAGE_MAX_ZOOM = 2;
 
@@ -541,11 +572,18 @@ function FreeCanvas({
   const [zoomPct, setZoomPct] = useState(100);
 
   const apply = () => {
+    const stage = stageRef.current;
     const w = worldRef.current;
     const { x, y, z } = camera.current;
     if (w) {
       w.style.transform = `translate(${x}px, ${y}px) scale(${z})`;
       w.dataset.lod = z < 0.45 ? "far" : "near";
+    }
+    if (stage) {
+      // FigJam's sheet: a fine dot every 24 world px, scaling and moving
+      // with the world (Hulusi, 2026-09-20: "let's add dots like FigJam").
+      stage.style.backgroundSize = `${DOT_GAP * z}px ${DOT_GAP * z}px`;
+      stage.style.backgroundPosition = `${x}px ${y}px`;
     }
     setZoomPct(Math.round(z * 100));
   };
@@ -689,6 +727,7 @@ function FreeCanvas({
     <div className="relative h-full w-full">
       <div
         ref={stageRef}
+        style={{ backgroundImage: "radial-gradient(circle, rgb(10 16 32 / 0.14) 1.1px, transparent 1.6px)" }}
         className="absolute inset-0 cursor-grab touch-none overflow-hidden bg-paper-soft select-none"
         aria-label={caption}
       >
