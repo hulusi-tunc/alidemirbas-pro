@@ -1,94 +1,101 @@
 # Current Checkpoint
 
-Phase: 5 — complete. Final report in `audit/REPORT.md`.
-Current batch: n/a (all shipped changes are single generic transforms, not batches)
-Audited: 73 / 73
-Validated: 73 / 73 (render guard + canonical hash guard, both locales)
-Blocked: 0
+Scope: **52 public / 21 excluded / 73 source** — reconciled and verified.
+Phase: executing the approved decision list (`audit/DECISIONS-PENDING.md`).
 
-## Phase status
+## Execution order and status
 
-- [x] **Phase 0 — Repo discovery.** `audit/repo-map.md`. Key finding: the
-      display-graph layer already exists (`buildDisplayGraph` in
-      `journey-canvas-layout.ts`) but **no display overlay / presentation-metadata
-      layer exists**. Everything shipped below is therefore Phase 2.1 **Level 1**
-      (generic transforms); Level 2 was never needed.
-- [x] **Phase 0.1 — Manifest.** `audit/manifest.json`: **73 found / 73 expected**,
-      no count mismatch, no unknown node types, 20-type taxonomy.
-- [x] **Phase 0.2 — Canonical baseline.** `audit/canonical-baseline.json`, sha256
-      per journey over a key-sorted semantic projection. Re-checked on every
-      guard run since; **73/73 still match**.
-- [x] **Baseline display measurement.** Re-measured with the corrected script —
-      the first run used a dedupe key that double-counted cards whose two canvas
-      mounts clamp differently, so the numbers below replace the earlier ones.
-- [x] **Phase 1 — 73/73 audit.** 6 read-only slices, `audit/journeys/*.yaml`.
-      Severity P0 5 · P1 50 · P2 18; 0 blocked; **0 requiring a canonical change**.
-- [x] **Phase 2 — pattern inventory.** `audit/patterns.md`: 46 ids → 6 families.
-- [x] **Phase 2.1 — reusable display mechanism.** Level 1 only. No rule branches
-      on a journey id; no hand-placed coordinates; ELK untouched.
-- [x] **Phase 2.2 — detail-panel contract.** *Represented canonical steps /
-      Temsil edilen kanonik adımlar*, PR #11.
-- [x] **Phase 2.3 — reference example.** `audit/reference-example.md` (ACQ-11).
-- [x] **Phase 2.4 — glossary.** `audit/glossary.md`.
-- [x] **Phase 3 — implementation.** `absorbableBookkeeping`, `representedSteps`,
-      `cardSummary`, `collapsibleWaitFollowers` (Family B); `collapsibleGates`
-      corrected.
-- [x] **Phase 4 — apply.** Applied corpus-wide by construction: a generic
-      transform needs no per-journey batches.
-- [x] **Phase 5 — full-corpus validation + report.** `audit/REPORT.md`.
-
-## Numbers (measured, not estimated)
-
-| Metric | before | after |
+| # | Step | Status |
 |---|---|---|
-| Journeys rendering without error | 73 / 73 | 73 / 73 |
-| Locale leaks | 0 | 0 |
-| Display nodes, all 73 (EN) | 1065 | **947** (−11.1%) |
-| Display nodes per journey | min 8 / median 14 / max 34 | min 7 / median 13 / max 29 |
-| Journeys over 16 nodes | 15 | **7** |
-| Journeys over 12 nodes | 57 | **41** |
-| Journeys with a card over 110 characters | 52 | **18** |
-| Long cards, both locales | 56 | **25** |
-| Longest card text | 412 chars | **133 chars** |
-| Journeys still showing plain `Internal · NN` cards | 52 | **26** |
+| 0 | Reconcile 52 vs 51 | **DONE** — PR #21 |
+| 1 | A1 — ACQ-287/288 vNext ownership contract | in progress |
+| 2 | A2 + A3 — commerce precedence, payment handoff | in progress (same file) |
+| 3 | A4 — TIM-268 generic fallback | pending |
+| 4 | A5–A9 — remaining ownership rules | pending |
+| 5 | B — contact-count changes | B3/B4 with step 1; B1/B2/B5 pending |
+| 6 | C — data hygiene | C1 with step 1; C2–C5 pending |
+| 7 | D — canvas fixes | pending |
+| 8 | Redesign batches over the 52 | pending |
 
-Family B (`collapsibleWaitFollowers`) alone: **962 → 947** (−15, exactly the
-detector's 15 safe collapses), 7 journeys affected, 0 grew.
+## Shipped to main
 
-## Shared code changed
+| PR | What |
+|---|---|
+| #14 | Family B — wait folded into its exclusive decision |
+| #15 | Public library scoped from 73 → 51 (superseded by #21) |
+| #16 | Canvas: implementation vocabulary off the cards |
+| #17 | Repo map rewritten for this refactor |
+| #18 / #19 | Phase 13 design matrix + its count correction |
+| #20 | `DECISIONS-PENDING.md` |
+| #21 | **Scope reconciled to 52**, `public-scope-validation.md` |
 
-On `main`, all merged through PRs so the commits are owner-authored (Vercel's
-Hobby plan blocks a deploy whose commit author is a collaborator):
+## The scope question, settled
 
-- **#9** `collapsibleGates`, `channelPlan`, handoff shortName, `splitExitState`
-- **#10** the P0 correction to `collapsibleGates`, plus `audit/guard-display.mjs`
-- **#11** `absorbableBookkeeping`, `representedSteps`, `NodeDetailPanel.represents`
-- **#12** `cardSummary`, `audit/patterns.md`
-- **#14** `collapsibleWaitFollowers` (Family B), `ConditionCard.waitNode`,
-  `audit/family-b-detector.mjs`
+RET-24 Churn Risk Escalation was the 52nd journey. It was removed by an
+explicit decision (its channel rule conflict), then **restored** when its own
+`contact.competition` block turned out to already rank it above generic
+retention intervention with `onLoss: suppressed` — the hazard that argued for
+removing it was already solved in its authored data.
 
-## Last successful validation
+It stays public with **one recorded exception** to the channel rule, named and
+reasoned in `scripts/validate-public-scope.mjs`, printed on every run. Full
+account: `audit/public-scope-validation.md`.
 
-- `node audit/guard-display.mjs` — **PASS**, G4 drift none, G1/G2/G3 findings 0
-- `npm run validate:canonical` — PASS, 0 errors, 0 unreviewed vNext warnings
-- `npm run validate:journey-production` — PASS 30/30, canonical mutation 0
-- `npm run validate:seo` — PASS, 0 errors
-- `npx tsc --noEmit` — clean; `npm run build` — exit 0
-- `npm run lint` — 1 error, **pre-existing and unrelated**
-  (`src/components/ui/MobileNav.tsx:78`, `react-hooks/set-state-in-effect`)
+**Rule that came out of it:** any claim that two journeys collide must quote
+the `contact.competition` block of BOTH before proposing that either be
+removed, suppressed or given a message.
 
-## Notes
+## Gates — all green at the last full run
 
-- Shared repo: a second author (Hulusi) commits to the same canvas files.
-  Re-fetch before each change; keep changes additive; never force-push.
-- The canonical corpus has grown since this audit's baseline was taken
-  (`validate:canonical` now reports 286 journeys / 3728 nodes, where
-  `CLAUDE.md` still says 284 / 3690). The **73 public journeys this audit
-  covers are unchanged** — all 73 baseline hashes still match.
+| gate | result |
+|---|---|
+| `scripts/validate-public-scope.mjs` | PASS — 15 checks, 0 failures, 3 warnings |
+| `audit/canvas-hygiene.mjs` | PASS — 1351 cards, 0 findings |
+| `audit/guard-display.mjs` | PASS — canonical drift none, G1/G2/G3 0 |
+| `npm run validate:canonical` | PASS — 0 errors |
+| `npm run validate:journey-production` | PASS — 30/30 |
+| `npm run validate:seo` | PASS |
+| `tsc` / `build` / `eslint` | clean |
+| route parity | 52 × 200 EN+TR · 21 × 404 EN+TR |
 
-## Next action
+## After every step — the required loop
 
-Nothing blocking. The queue, in value order, is in `audit/REPORT.md` §7:
-merged-label budget, then P-STATE-01. Entry eligibility gates are **measured
-and deliberately not shipped** — 3 of the 9 matching conditions are real
-business decisions. Family B shipped (#14).
+```
+npm run dump:canonical
+node scripts/surface-assignment.mjs
+node search/build-search-index.mjs
+node audit/build-manifest.mjs
+npm run validate:canonical
+node scripts/validate-public-scope.mjs
+npm run build && npx next start -p 4511
+node audit/guard-display.mjs 4511
+node audit/canvas-hygiene.mjs 4511
+node audit/measure-display.mjs after 4511      # locale leaks must stay 0
+```
+
+Generated files are git-tracked; a stale one shows as a diff.
+
+## Traps that have already cost time
+
+1. **`validate:canonical`'s channel rule is bidirectional.** Adding or removing
+   a communication action without moving `channels` in the same edit fails the
+   build.
+2. **Card heights must be measured with the slot released to `height: auto`.**
+   The canvas is CSS-transformed, so `getBoundingClientRect` returns the
+   *zoomed* value and reports every card as overflowing.
+3. **`journey-marketing.ts` throws at module load** if any of ACQ-01, ACQ-09,
+   ACT-12, CON-38, TIM-65 is removed. Two are in the 52.
+4. **TR overrides are keyed by node id** — renaming or adding a canonical node
+   silently drops its Turkish back to English. Check `measure-display`'s
+   locale-leak count after any node change.
+5. **Squash-merged branches orphan their history** — branch from a freshly
+   reset `main`, or the next PR diffs against a stale merge-base.
+
+## Open, not blocking
+
+- `SIZE.exit` is 68; the worst Turkish exit wants 103 in a 200px slot. D1 is
+  the approved fix (start ~240, validate visually).
+- `CLAUDE.md` still states 73 library journeys and a 284/3690 corpus. Actual:
+  52 public, 286/3728.
+- `npm run lint` has 1 pre-existing error in `src/components/ui/MobileNav.tsx:78`,
+  unrelated, not build-failing.
