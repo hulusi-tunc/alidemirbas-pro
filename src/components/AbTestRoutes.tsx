@@ -10,7 +10,7 @@ import { AB_CATEGORIES, AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail } fr
 import { pageAlternates } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
-import { copy } from "@/lib/content";
+import { copy, EMAIL } from "@/lib/content";
 
 type Lang = "en" | "tr";
 
@@ -114,13 +114,18 @@ export function AbLibraryDetailPage({ lang, slug }: { lang: Lang; slug: string }
     { name: abLibraryDetailTitle(lang, r), url: `${base}/${slug}` },
   ]);
 
+  const c = copy[lang];
   return (
-    /* The journey detail's bar: the way back to the library on the left,
-       the Lab mark, the language and the CTA - and the page in the journey
-       Info tab's idiom under it (AbTestPlaybookPage). */
-    <LabShell lang={lang} back={{ href: base, label: T[lang].allScenarios }} langHref={`${basePathFor(lang === "en" ? "tr" : "en")}/${slug}`}>
-      <JsonLdScript data={breadcrumb} />
-      <AbTestPlaybookPage test={r} lang={lang} />
-    </LabShell>
+    /* The journey detail page's shape: its own two-tab shell (AbDetailShell,
+       inside AbTestPlaybookPage) rather than LabShell - one bar with the way
+       back to the library, the Lab mark, the Experiment / How to run switch,
+       the language and the CTA. */
+    <AbTestPlaybookPage
+      test={r}
+      lang={lang}
+      labels={{ back: T[lang].allScenarios, lab: "Lab", lang: c.nav.lang, cta: c.nav.cta }}
+      hrefs={{ library: base, lab: c.nav.labHref, lang: `${basePathFor(lang === "en" ? "tr" : "en")}/${slug}`, cta: `mailto:${EMAIL}` }}
+      breadcrumb={breadcrumb}
+    />
   );
 }
