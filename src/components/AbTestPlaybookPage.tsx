@@ -98,6 +98,13 @@ const T = {
 
 const DIFF_SIGN: Record<string, string> = { add: "+", remove: "−", change: "≠", move: "↔" };
 
+/** The photograph behind the screens, and whether it is dark - the role
+    labels and the arrow flip to white on a dark plate. Hulusi went
+    through the path through the meadow and the night photo (2026-09-20)
+    and settled on the plate the homepage's Tools band stands on, the
+    bright meadow under the sky (`numerspace`). */
+const STAGE = { plate: "numerspace", dark: false } as const;
+
 /** A chip with its own tinted icon tile - the journey Info tab's chip. */
 function Chip({ icon, tint, children }: { icon: ReactNode; tint: string; children: ReactNode }) {
   return (
@@ -234,7 +241,7 @@ export default function AbTestPlaybookPage({
            meadow from the nine plates rendered side by side): the product
            page's frame with the photograph as it is, the two screens
            standing on it. */
-        <ProductFrame slug="ab-test-playbook" plate="claude-lifecycle-0" wash={false} inset="none" className="mt-6">
+        <ProductFrame slug="ab-test-playbook" plate={STAGE.plate} wash={false} inset="none" className="mt-6">
         <div className="grid gap-4 p-4 pb-20 sm:p-8 sm:pb-24 md:p-10 md:pb-28 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch">
           <Side
             label={roleLabel(test.sideA!.role, t.roles.control)}
@@ -242,7 +249,7 @@ export default function AbTestPlaybookPage({
             screen={{ surface: test.surface, element, kind, side: "a", presence: presenceOf("a"), lang, address: surfaceLabel(test.surface, lang) }}
           />
           <div className="flex items-center justify-center">
-            <span aria-hidden className="grid size-9 place-items-center rounded-full bg-paper text-ink-500 ring-1 ring-ink-950/[0.06] max-lg:rotate-90">
+            <span aria-hidden className={`grid size-9 place-items-center rounded-full max-lg:rotate-90 ${STAGE.dark ? "bg-white/15 text-white ring-1 ring-white/20" : "bg-paper text-ink-500 ring-1 ring-ink-950/[0.06]"}`}>
               <ArrowRight className="size-4" />
             </span>
           </div>
@@ -255,7 +262,7 @@ export default function AbTestPlaybookPage({
         </div>
         </ProductFrame>
       ) : (
-        <ProductFrame slug="ab-test-playbook" plate="claude-lifecycle-0" wash={false} inset="none" className="mt-6">
+        <ProductFrame slug="ab-test-playbook" plate={STAGE.plate} wash={false} inset="none" className="mt-6">
         <div className="p-4 pb-20 sm:p-8 sm:pb-24 md:p-10 md:pb-28">
         <div className="mx-auto max-w-3xl rounded-[28px] bg-paper p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] sm:p-8">
           <div className="grid gap-6 sm:grid-cols-2 sm:items-center">
@@ -380,8 +387,8 @@ function Side({
        the change pill and the screen itself say what the side is. */
     <div className="flex min-w-0 flex-col">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
-        <span className="flex items-center gap-2.5 text-base font-semibold text-ink-950">
-          <span aria-hidden className={`grid size-7 place-items-center rounded-full text-xs font-semibold ${change ? "bg-primary-600 text-white" : "bg-ink-950 text-white"}`}>
+        <span className={`flex items-center gap-2.5 text-base font-semibold ${STAGE.dark ? "text-white" : "text-ink-950"}`}>
+          <span aria-hidden className={`grid size-7 place-items-center rounded-full text-xs font-semibold ${change ? "bg-primary-600 text-white" : STAGE.dark ? "bg-white text-ink-950" : "bg-ink-950 text-white"}`}>
             {letter}
           </span>
           {label}
