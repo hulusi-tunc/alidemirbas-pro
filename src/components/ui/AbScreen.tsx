@@ -1015,8 +1015,9 @@ export function AbScreen({
           pointer events off. */}
       {/* ZOOM ON HOVER (Hulusi, 2026-09-20: "when I hover the screen, scale
           it up so the user can see it easily"; then "animate it, and hold
-          the position - grow in place, not from the top"): the screen
-          grows to 1.4x about its own centre, so it stays where it was and
+          the position - grow in place, not from the top"; then "it zooms
+          too much, make it less"): the screen grows to 1.2x about its own
+          centre, so it stays where it was and
           swells over the arrow, the other side and the plate's edge, on
           the slow duration with the soft ease-out - the homepage tiles'
           hover. The transition names `scale`, because the scale utility
@@ -1028,7 +1029,7 @@ export function AbScreen({
         aria-label={label}
         className={clsx(
           "pointer-events-none relative m-0 origin-center overflow-hidden rounded-xl border border-line-soft bg-paper text-left select-none shadow-[0_0_0_1px_rgb(0_0_0/0.03),0_30px_70px_-30px_rgb(10_16_32/0.38)]",
-          "transition-[scale,box-shadow] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] group-hover:z-30 group-hover:scale-[1.4] group-hover:shadow-[0_50px_100px_-40px_rgb(10_16_32/0.5)]",
+          "transition-[scale,box-shadow] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] group-hover:z-30 group-hover:scale-[1.2] group-hover:shadow-[0_50px_100px_-40px_rgb(10_16_32/0.5)]",
           phone ? "mx-auto max-w-[20rem]" : "",
           ring && "ring-2 ring-primary-400 ring-offset-2 ring-offset-paper-soft",
         )}

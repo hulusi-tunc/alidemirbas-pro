@@ -1034,6 +1034,30 @@
     mix-blend-mode: overlay;
   }
 
+  /* AN OPEN PLATE (2026-09-20): ProductFrame `clip={false}` - a plate whose
+     children may rise above things outside it (the A/B detail's screens
+     grow on hover and have to clear the glass card that overlaps the
+     plate). That needs the plate NOT to be a stacking context, so the
+     photograph and the grain move onto their own positioned layer at
+     z 0 (`.lab-frame-plate`, drawn by the component) and the pseudo
+     grain is switched off; the content sits above it in tree order. */
+  .lab-frame-open {
+    isolation: auto;
+  }
+  .lab-frame-open::before {
+    content: none;
+  }
+  .lab-frame-open > .lab-frame-plate::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 220px 220px;
+    opacity: 0.3;
+    mix-blend-mode: overlay;
+  }
+
   .lab-frame[data-hue="violet"] {
     --frame-base: #ddd6fe;
     --frame-deep: #a78bfa;

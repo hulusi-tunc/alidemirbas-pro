@@ -236,7 +236,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
            meadow from the nine plates rendered side by side): the product
            page's frame with the photograph as it is, the two screens
            standing on it. */
-        <ProductFrame slug="ab-test-playbook" plate={STAGE.plate} wash={false} clip={false} inset="none" className="mt-6 has-[.group:hover]:z-40">
+        <ProductFrame slug="ab-test-playbook" plate={STAGE.plate} wash={false} clip={false} inset="none" className="mt-6">
         <div className="grid gap-4 p-4 pb-20 sm:p-8 sm:pb-24 md:p-10 md:pb-28 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch">
           <Side
             label={roleLabel(test.sideA!.role, t.roles.control)}
@@ -257,7 +257,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
         </div>
         </ProductFrame>
       ) : (
-        <ProductFrame slug="ab-test-playbook" plate={STAGE.plate} wash={false} clip={false} inset="none" className="mt-6 has-[.group:hover]:z-40">
+        <ProductFrame slug="ab-test-playbook" plate={STAGE.plate} wash={false} clip={false} inset="none" className="mt-6">
         <div className="p-4 pb-20 sm:p-8 sm:pb-24 md:p-10 md:pb-28">
         <div className="mx-auto max-w-3xl rounded-[28px] bg-paper p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] sm:p-8">
           <div className="grid gap-6 sm:grid-cols-2 sm:items-center">

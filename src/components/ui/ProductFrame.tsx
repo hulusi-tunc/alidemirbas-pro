@@ -56,8 +56,13 @@ export function ProductFrame({
 }) {
   const accent = labAccent(slug);
   return (
-    <div data-hue={wash ? accent.hue : undefined} className={clsx("lab-frame relative isolate rounded-[28px]", clip ? "overflow-hidden" : "", className)}>
-      <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden rounded-[inherit]">
+    <div data-hue={wash ? accent.hue : undefined} className={clsx("lab-frame relative rounded-[28px]", clip ? "isolate overflow-hidden" : "lab-frame-open", className)}>
+      {/* Clipped: the photograph sits on a negative layer under the plate's
+          own grain, inside the plate's stacking context. Open: the plate is
+          no stacking context at all (see `.lab-frame-open`), so the layer
+          sits at z 0 with its own grain and the content paints over it in
+          tree order - and a child's z-index reaches the page. */}
+      <div aria-hidden className={clsx("absolute inset-0 overflow-hidden rounded-[inherit]", clip ? "-z-10" : "lab-frame-plate z-0")}>
         <Image
           src={`/lab/frames/${plate ?? slug}.jpg`}
           alt=""
