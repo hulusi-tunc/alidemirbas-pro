@@ -298,7 +298,13 @@ export function ChevronSelect({ icon, children }: { icon?: ReactNode; children: 
 /** A category section's heading: the category's icon in a tile, the title
     on the h3 step, the id prefix (real addressable data - every journey in
     it is ACQ-nn, RET-nn) and the count in tabular figures, the category's
-    purpose sentence under it, held to two lines. */
+    purpose sentence under it, held to two lines.
+
+    Shared with the A/B test library since 2026-09-20: a caller whose
+    categories are not the journey taxonomy's hands in its own `icon` and
+    `tone`, and one whose ids carry no prefix worth printing (every A/B id
+    is AB-nnn) leaves `code` out, so the right-hand figure is the count
+    alone rather than "AB · 22". */
 export function CategoryHeader({
   id,
   code,
@@ -306,28 +312,73 @@ export function CategoryHeader({
   count,
   countLabel,
   purpose,
+  icon,
+  tone,
 }: {
   id: string;
-  code: string;
+  code?: string;
   title: string;
   count: number;
   countLabel: string;
   purpose: string;
+  icon?: ReactNode;
+  tone?: string;
 }) {
   return (
     <div className="flex items-start gap-4">
-      <span className={clsx("grid size-10 shrink-0 place-items-center rounded-xl", categoryAccent(id).tile)}>
-        <CategoryIcon id={id} className="size-5" />
+      <span className={clsx("grid size-10 shrink-0 place-items-center rounded-xl [&>svg]:size-5", tone ?? categoryAccent(id).tile)}>
+        {icon ?? <CategoryIcon id={id} className="size-5" />}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h2 className="text-h3 text-ink-950">{title}</h2>
           <span className="shrink-0 text-sm text-ink-500 tabular-nums">
-            {code} · {count} {countLabel}
+            {code ? `${code} · ` : ""}{count} {countLabel}
           </span>
         </div>
         <p className="mt-1.5 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ink-600">{purpose}</p>
       </div>
     </div>
+  );
+}
+
+/* THE CATEGORY RAIL (2026-09-13). Twenty-one sections make a page nine
+   screens tall; the rail is the way across it - every category with its
+   count, anchored to its section, the one under the reading line held. It
+   only exists in the default view (a filtered result is one flat grid) and
+   only from lg, where there is a column for it; below that the filters
+   are the way in. Moved here from JourneyGallery (2026-09-20) so the A/B
+   test library can run the same rail: an item brings its own glyph, and
+   the anchor is the item's id as the caller sectioned it. */
+export type RailItem = { id: string; anchor: string; label: string; count: number; icon: ReactNode };
+
+export function CategoryRail({ title, items, active }: { title: string; items: readonly RailItem[]; active: string }) {
+  return (
+    <nav aria-label={title} className="hidden lg:block">
+      <div className="sticky top-20 max-h-[calc(100svh-6rem)] overflow-y-auto pr-2">
+        <p className="px-3 text-sm font-semibold text-ink-950">{title}</p>
+        <ol className="mt-2 flex list-none flex-col gap-0.5 p-0">
+          {items.map((c) => (
+            <li key={c.id}>
+              <a
+                href={`#${c.anchor}`}
+                title={c.label}
+                aria-current={active === c.id ? "true" : undefined}
+                className={clsx(
+                  "flex items-center justify-between gap-3 rounded-lg px-3 py-1.5 text-sm transition-colors duration-[var(--duration-fast)]",
+                  active === c.id ? "bg-paper-soft font-medium text-ink-950" : "text-ink-600 hover:bg-paper-soft hover:text-ink-950",
+                )}
+              >
+                <span className="flex min-w-0 items-center gap-2.5 [&>svg]:size-4 [&>svg]:shrink-0">
+                  {c.icon}
+                  <span className="truncate">{c.label}</span>
+                </span>
+                <span className="shrink-0 text-xs text-ink-500 tabular-nums">{c.count}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </nav>
   );
 }

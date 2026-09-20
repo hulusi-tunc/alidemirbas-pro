@@ -5,6 +5,7 @@ import AbTestGallery from "@/components/AbTestGallery";
 import AbTestPlaybookPage from "@/components/AbTestPlaybookPage";
 import LabShell from "@/components/LabShell";
 import { categoryLabel, surfaceLabel } from "@/components/ui/AbTestVisuals";
+import { ProductMark } from "@/components/ui/ProductFrame";
 import { AB_CATEGORIES, AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail } from "@/lib/ab-test-view";
 import { pageAlternates } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
@@ -16,8 +17,8 @@ type Lang = "en" | "tr";
 export const basePathFor = (lang: Lang) => (lang === "en" ? "/lab/ab-testing/library" : "/tr/lab/ab-testing/library");
 
 const T = {
-  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable A/B test scenarios. The variable under test, the primary KPI and the guardrails for each.`, back: "A/B Test Library" },
-  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir A/B test senaryosu. Test edilen değişken, birincil KPI ve her biri için guardrail'ler.`, back: "A/B Test Kütüphanesi" },
+  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable A/B test scenarios. The variable under test, the primary KPI and the guardrails for each.`, back: "A/B Test Library", count: "scenarios" },
+  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir A/B test senaryosu. Test edilen değişken, birincil KPI ve her biri için guardrail'ler.`, back: "A/B Test Kütüphanesi", count: "senaryo" },
 };
 
 /* The gallery is a client component, so the category and surface display
@@ -64,21 +65,29 @@ export function AbLibraryIndexPage({ lang }: { lang: Lang }) {
     { name: t.title, url: base },
   ]);
   return (
-    <LabShell lang={lang}>
+    /* The Journey Library's page, for the A/B archive (Hulusi, 2026-09-20:
+       "here is the journey library UI, now update the A/B Test Library"):
+       the site chrome rather than the slim workspace bar, the same opening
+       the library list pages have - the project's mark, the title on the
+       h1 step, the intro, centred, the count as a pill - and the gallery on
+       the wide container, where a category rail plus three card columns
+       need the 90rem measure. */
+    <LabShell lang={lang} chrome="site" langHref={basePathFor(lang === "en" ? "tr" : "en")}>
       <JsonLdScript data={breadcrumb} />
-      <div className="border-b border-line px-4 py-6 md:px-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-h3 text-ink-950">{t.title}</h1>
-            <span className="border border-line bg-paper-soft px-2 py-0.5 text-xs font-medium text-neutral-600">
-              {AB_TEST_COUNT}
+      <section className="bg-paper pt-14 pb-8 md:pt-16 md:pb-10">
+        <div className="altor-container text-center">
+          <ProductMark slug="ab-test-playbook" lang={lang} className="mb-5" />
+          <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{t.title}</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-950/65">{t.intro}</p>
+          <p className="mt-6">
+            <span className="rounded-full bg-paper-soft px-3 py-1 text-sm font-medium text-ink-700 tabular-nums">
+              {AB_TEST_COUNT} {t.count}
             </span>
-          </div>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-500">{t.intro}</p>
+          </p>
         </div>
-      </div>
-      <div className="px-4 py-6 md:px-8">
-        <div className="mx-auto max-w-6xl">
+      </section>
+      <div className="pt-4 pb-16 md:pb-24">
+        <div className="altor-container-wide">
           <AbTestGallery
             lang={lang}
             rows={AB_TEST_ROWS}
