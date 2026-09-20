@@ -739,6 +739,11 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "OPS-124 is a generic technical retry against a transient fault. This makes a business recovery decision: what to ask the customer for, whether an alternative route exists, and what happens to the obligation if none of it works.",
       },
+      {
+        journey: "TIM-274",
+        because:
+          "This journey owns what is said about an unpaid obligation while recovery is still the whole of the story. Its own handoff into grace ends that: once a grace state is recorded, the holder needs the window's end date and the one condition that restores the active state, which TIM-274 holds and this journey does not. Recovery messaging about the obligation stops at that handoff rather than running beside it.",
+      },
     ],
     objective: "Get the obligation paid by responding to the failure that actually happened, while the obligation stays alive and the relationship's own state is decided elsewhere.",
     eligibility: [
@@ -1292,6 +1297,9 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         carries: [
           "the obligation and the recovery already attempted",
           "the explicit fact that the commercial relationship has not ended - this is a payment problem",
+        ],
+        suppresses: [
+          "every further payment-failure message about this obligation while the grace window runs - the grace journey names the same corrective route against a deadline it can state exactly, and this journey cannot",
         ],
         contract: {
           "requiredFields": [

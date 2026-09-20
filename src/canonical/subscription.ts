@@ -758,6 +758,11 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "This produces a decision. SUB-164 makes the new term exist, which depends on payment, confirmation and eligibility that this journey does not touch. A relationship can be decided-to-renew and still not renew.",
       },
+      {
+        journey: "TIM-63",
+        because:
+          "TIM-63 is the generic pre-expiry reminder, and a subscription sits inside its scope - so a term end fires both at the same point in the calendar. This journey owns it: it is the one that knows the renewal terms, the notice period they require and who holds the decision, and the notice it sends is an obligation of the terms rather than outreach. While this cycle's decision window is open, that journey is suppressed for the subscription and owns only the expiries no renewal cycle governs.",
+      },
     ],
     objective: "Bring a renewal cycle to a recorded decision before the notice deadline: give the notice the terms require, put the decision to whoever holds it where one is needed, and apply what the terms say when none is made.",
     eligibility: [
@@ -828,7 +833,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "relationship-continuity",
         "scope": "subscription",
-        "precedence": "below a cancellation in motion, below an active risk state, and below an open payment recovery process on the same relationship",
+        "precedence": "below a cancellation in motion, below an active risk state, and below an open payment recovery process on the same relationship; above the generic pre-expiry reminder (TIM-63), which is suppressed for a term end that is a renewal decision, because only this journey holds the renewal terms and the notice they oblige",
         "onLoss": "suppressed"
       }
     },

@@ -10,8 +10,8 @@ Phase: executing the approved decision list (`audit/DECISIONS-PENDING.md`).
 | 0 | Reconcile 52 vs 51 | **DONE** — PR #21 |
 | 1 | A1 — ACQ-287/288 vNext ownership contract | **DONE** |
 | 2 | A2 + A3 — commerce precedence, payment handoff | **DONE** |
-| 3 | A4 — TIM-268 generic fallback | pending |
-| 4 | A5–A9 — remaining ownership rules | pending |
+| 3 | A4 — TIM-268 generic fallback | **DONE** |
+| 4 | A5–A9 — remaining ownership rules | A8 + A9 **DONE**; A5, A6✓, A7 — A5/A7 pending |
 | 5 | B — contact-count changes | B3 + B4 **DONE**; B1/B2/B5 pending |
 | 6 | C — data hygiene | C1 **DONE**; C2–C5 pending |
 | 7 | D — canvas fixes | pending |
@@ -28,6 +28,8 @@ Phase: executing the approved decision list (`audit/DECISIONS-PENDING.md`).
 | #18 / #19 | Phase 13 design matrix + its count correction |
 | #20 | `DECISIONS-PENDING.md` |
 | #21 | **Scope reconciled to 52**, `public-scope-validation.md` |
+| #23 | A1 · A2 · A3 · A6 + C1 · B3 · B4 — commerce ownership |
+| #24 | CLAUDE.md corpus/library numbers corrected |
 
 ## The scope question, settled
 
@@ -65,6 +67,11 @@ is the very thing `guard-display.mjs`'s G4 check compares against. Run the
 manifest first and G4 compares the new corpus to a baseline generated from the
 new corpus — it reports "no drift" no matter what changed, which is exactly what
 happened on the A1 step and had to be caught by hand.
+
+Run in the right order it works: on the A4/A8/A9 step G4 named exactly the eight
+journeys the decisions targeted (ACC-261, FIN-134, SUB-163, TIM-61, TIM-63,
+TIM-268, TIM-274, TIM-281) and nothing else, matching an independent diff of the
+dump, *before* the new baseline was adopted.
 
 ```
 npm run dump:canonical

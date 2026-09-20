@@ -157,6 +157,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "A deadline is a moment by which something must be done. An expiry is a moment at which something stops being valid. The first can pass with the obligation intact; the second cannot.",
       },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 sends a reminder and an overdue notice about an obligation whose due date governs nothing beyond the sending. Here the deadline governs the obligation's own state, and the reminder is one of the several things the governing rule can produce - which is why the two share an obligation key and this journey holds it. Where a deadline has been assigned, that journey is suppressed for the obligation and reminds only of the ones nothing governs.",
+      },
     ],
     objective: "Let a deadline govern the state of one obligation, rather than schedule messages around a date.",
     eligibility: [
@@ -184,6 +189,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "Timezone is recorded wherever it changes which day the deadline falls on."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "A deadline assigned to an obligation makes this journey the owner of its pre-deadline reminders. The generic obligation reminder (TIM-268) is suppressed for that obligation while this instance holds it - the two carry the same obligation key, and one obligation is reminded of once, by whoever governs it."
       }
     ],
     contact: {
@@ -208,7 +218,12 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "obligation-reminder",
+        "scope": "communication-purpose",
+        "precedence": "above the generic obligation reminder (TIM-268) - a governing deadline outranks a bare due date, because this journey holds the obligation's own state and its policy-defined thresholds, and that one only sends. Where a deadline has been assigned, this journey holds the obligation and the generic reminder is suppressed for it.",
+        "onLoss": "suppressed"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -271,7 +286,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4"
+        "s.g4",
+        "s.g5"
       ]
     },
     implementation: {
@@ -799,11 +815,17 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "This runs while the outcome can still change. TIM-64 runs at the moment it stops being able to. Keeping them apart is what makes expiring and expired different states rather than the same one announced twice.",
       },
+      {
+        journey: "SUB-163",
+        because:
+          "A subscription is in this journey's scope and a term end is in SUB-163's, so the same calendar moment fires both. SUB-163 owns it: it is the one that knows the renewal terms, the notice the terms require and who holds the decision, and its notice is a contractual obligation rather than outreach. This journey is the generic fallback for that expiry - it owns a subscription only where no renewal decision window is open on it, alongside every other expiring entity with no renewal cycle.",
+      },
     ],
     objective: "Before something expires, tell the person who can actually act what is expiring, the one action that would change the outcome and the point by which it must be taken - or, where nothing can be done, say plainly what will happen; and say nothing where nothing is worth saying.",
     eligibility: [
       "a pre-expiry window has been entered for a time-bound entity with an asserted expiry",
       "the entity is still expiring - not already renewed, replaced or completed - when re-read",
+      "no renewal decision window is open on the entity - a continuing relationship with defined renewal terms is the renewal journey's cycle (SUB-163), and the notice those terms require is an obligation of them rather than a pre-expiry reminder sent from here",
       "hard gates (GLB-31) permit service communication to the responsible actor"
     ],
     suppressions: [
@@ -831,6 +853,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.stale-queue",
         "label": "CANONICAL_RULE",
         "text": "A renewal granted before expiry invalidates the expiry actions queued against the old validity; nothing sent later refers to the old one."
+      },
+      {
+        "id": "s.renewal-cycle",
+        "label": "CANONICAL_RULE",
+        "text": "An entity whose expiry is the end of a renewal cycle is owned by the renewal journey (SUB-163) for the whole of that cycle's decision window, and this journey is suppressed for it - the required notice and a pre-expiry reminder about one subscription are the same message sent twice, and the notice is the one the terms oblige. This journey is the fallback for a subscription expiry no renewal decision owns, and the owner of every expiring entity that has no renewal cycle at all: a document, a credential, an approval, a reservation, a benefit, an agreement with no renewing terms."
       }
     ],
     contact: {
@@ -860,7 +887,12 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "relationship-continuity",
+        "scope": "subscription",
+        "precedence": "below the renewal decision (SUB-163) wherever the expiring entity is a relationship with a renewal cycle - the renewal journey knows the terms, the required notice and the decision holder, and this one knows only the date. Where it holds the cycle this journey is suppressed for that entity; where no renewal cycle exists there is no contest and this journey owns the expiry outright.",
+        "onLoss": "suppressed"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -940,7 +972,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "s.no-actor",
         "s.nothing-to-say",
         "s.no-call-where-no-action",
-        "s.stale-queue"
+        "s.stale-queue",
+        "s.renewal-cycle"
       ]
     },
     implementation: {
@@ -2311,11 +2344,57 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "REM-153 tracks whether the resource actually comes back and holds the states where it might not have. This is the prompt to the person still holding it, and it stops the moment the record says it is no longer outstanding.",
       },
+      {
+        journey: "TIM-61",
+        because:
+          "TIM-61 lets the deadline govern the obligation's own state, and its reminder is one of the several things that governing rule can produce. This is the sending and nothing else: where a deadline has been authoritatively assigned, that journey holds the obligation and owns every pre-deadline reminder about it, and this one reminds of an obligation whose due date governs nothing beyond the reminder itself.",
+      },
+      {
+        journey: "TIM-63",
+        because:
+          "TIM-63 owns a validity about to lapse, where the moment is an expiry the entity does not survive rather than a date by which something must be done. Where an expiry owns the date, that journey sends the message before it and this one is the fallback for obligations no expiry governs.",
+      },
+      {
+        journey: "DOC-215",
+        because:
+          "DOC-215 owns a signature owed on a specific version by a specific signer, and knows which version is being signed. This journey knows only that something is owed by a date.",
+      },
+      {
+        journey: "REL-284",
+        because:
+          "REL-284 owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure. This journey would restate that deadline without knowing what the acceptance grants.",
+      },
+      {
+        journey: "ACC-263",
+        because:
+          "ACC-263 owns whether a granted entitlement is ever used, and names the first action that uses it. An unused entitlement is that journey's obligation, not a generic outstanding one.",
+      },
+      {
+        journey: "RLT-279",
+        because:
+          "RLT-279 owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks. This journey can only name the prerequisite.",
+      },
+      {
+        journey: "SCH-266",
+        because:
+          "SCH-266 owns what a booking requires before its occurrence, and its deadline is the occurrence itself. This journey does not hold the occurrence.",
+      },
+      {
+        journey: "ACT-13",
+        because:
+          "ACT-13 owns a requirement blocking activation, inside an onboarding instance that decides what the next useful step is. The blocker is that journey's obligation, and reminding of it from here would duplicate the step it was about to name.",
+      },
+      {
+        journey: "FBK-49",
+        because:
+          "FBK-49 owns a blocking data item, and knows which process stalls without it. This journey would ask for the same item without being able to say what it unblocks.",
+      },
     ],
     objective: "Remind somebody of what they owe while there is still time to do it, from the state the obligation is in at the moment of sending - because a reminder for something already done costs more than the reminder that was never sent.",
     eligibility: [
       "an authoritative record that a defined action is owed by a named person",
       "a due date recorded against it",
+      "no journey scoped to this obligation's own type already owns the reminder for it - a governing deadline is TIM-61's, an expiring validity TIM-63's, a signature DOC-215's, an invitation REL-284's, first use of an entitlement ACC-263's, a change prerequisite RLT-279's, a booking prerequisite SCH-266's, an activation requirement ACT-13's and a blocking data item FBK-49's; this journey is what reminds a person of an obligation nothing more specific owns",
       "no instance of this journey is already open for the the outstanding obligation",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
@@ -2344,6 +2423,16 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g5",
         "label": "CANONICAL_RULE",
         "text": "What is still owed is named, not what was originally owed."
+      },
+      {
+        "id": "s.g6",
+        "label": "CANONICAL_RULE",
+        "text": "A type-specific journey owns the obligation wherever one exists. This journey starts only where no more specific public journey already owns the reminder for that obligation's own type, and it is suppressed for any obligation one of them holds. The record decides what is owed; whoever owns the type decides what is said about it; this is the sending for everything left over, and a person never receives the specific reminder and the generic one about the same obligation."
+      },
+      {
+        "id": "s.g7",
+        "label": "CANONICAL_RULE",
+        "text": "A deadline assigned to the obligation is TIM-61's state to govern and its reminders to send; this journey is the sending for a due date that governs nothing else. Where a governing deadline exists, this journey is suppressed for that obligation, and the two never send a pre-deadline reminder about one obligation on overlapping channels."
       }
     ],
     contact: {
@@ -2374,7 +2463,12 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "obligation-reminder",
+        "scope": "communication-purpose",
+        "precedence": "lowest in the group - this is the generic fallback, and it ranks below every journey scoped to the obligation's own type, Deadline Tracking (TIM-61) among them. Where any of them holds the obligation this journey is suppressed for it rather than queued behind it, because a reminder that arrives after the specific one is not a later touch but a second sender.",
+        "onLoss": "suppressed"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -2463,7 +2557,9 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g2",
         "s.g3",
         "s.g4",
-        "s.g5"
+        "s.g5",
+        "s.g6",
+        "s.g7"
       ]
     },
     implementation: {
@@ -2775,12 +2871,28 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "TIM-65 grants the grace state, records which capabilities continue and decides what happens when the window closes. This journey is what the holder is told across that window, and it sends nothing until that state exists.",
       },
+      {
+        journey: "FIN-134",
+        because:
+          "FIN-134 owns what is said about an unpaid obligation while recovery is still the whole of the story - the failure, the corrective action and the consequence ahead. It is that journey's own handoff into grace that starts this one, and the recovery messaging stops there: from the moment a grace state is recorded, the deadline the holder needs is this window's end and this journey is the one that knows it.",
+      },
+      {
+        journey: "ACC-261",
+        because:
+          "ACC-261 tells the account holder about a restriction that stands on the record in its own right. This journey tells a holder about a bounded window with a fixed end. Where one obligation produces both, the restriction is the later and harder state and that journey owns the message; this one stops rather than sending a second account of what stopped and how to restore it.",
+      },
+      {
+        journey: "TIM-281",
+        because:
+          "TIM-281 answers a holder who comes back to something already expired and re-derives the route from current rules. This journey runs inside the window before that, holds the one recovery route recorded for it and can name the date the window ends. While grace is open the holder is answered from here; once it closes at x.lost, or where no grace was granted at all, that journey owns the attempt.",
+      },
     ],
     objective: "Tell the holder that validity has lapsed into a bounded period with reduced function, what still works, when that period ends and the one route back - so grace is a state they are in knowingly rather than one they discover when something stops.",
     eligibility: [
       "an authoritative grace state recorded against the entity after its primary validity ended",
       "a fixed end date for that grace period",
       "a recorded condition that would recover the active state",
+      "no access restriction stands on its own on the same obligation - once capability is authoritatively restricted, the restriction notice (ACC-261) owns what the holder is told and this journey sends nothing further about what stopped or how to restore it",
       "no instance of this journey is already open for the the entity whose primary validity ended",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
@@ -2809,6 +2921,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g5",
         "label": "CANONICAL_RULE",
         "text": "Both endings are stated. Silence after a recovery and silence after an expiry are indistinguishable to the person living in the window."
+      },
+      {
+        "id": "s.g6",
+        "label": "CANONICAL_RULE",
+        "text": "One narrator per state, in order. Payment failure recovery (FIN-134) owns what is said about an unpaid obligation until a grace state is recorded; from that moment this journey owns what the holder is told and the recovery journey stops. Where capability is then restricted on its own record, the restriction notice (ACC-261) owns it and this journey stops in turn. What has stopped, what still works, the deadline and the single condition that restores it is one message from whichever journey owns the state, never the same account of it from two."
       }
     ],
     contact: {
@@ -2839,7 +2956,12 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "access-consequence-narration",
+        "scope": "account",
+        "precedence": "below the restriction notice (ACC-261) - a recorded restriction is the later and harder consequence of the same unpaid obligation, and where it stands this journey is overtaken rather than merely quietened; above payment failure recovery (FIN-134), whose messaging ends where the grace state begins, because from that point the deadline the holder needs is this window's end.",
+        "onLoss": "superseded"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -2952,7 +3074,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g2",
         "s.g3",
         "s.g4",
-        "s.g5"
+        "s.g5",
+        "s.g6"
       ]
     },
     implementation: {
@@ -3221,12 +3344,18 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "TIM-63 runs before expiry, while the thing is still valid and can simply be kept. This runs after, where a gap exists on the record and the route back is a different mechanism.",
       },
+      {
+        journey: "TIM-274",
+        because:
+          "TIM-274 runs inside a bounded grace window with a fixed end it can name, and it holds the one recovery route recorded for that window's duration. This journey runs where no window is open - after grace has closed at its recorded end, or where no grace was granted at all - and re-derives the route from current rules, which is why the two must never answer one holder at once: they would name two routes back to one entity from two different reads of the rules.",
+      },
     ],
     objective: "Give somebody who has come back to something that expired the one route that actually restores it, at the moment they are asking - because naming the wrong route spends the only intent this ever gets.",
     eligibility: [
       "an authoritative expiry recorded against the entity",
       "an attempt by the holder to use, renew or ask about it after that expiry",
       "the holder being the party the entity belonged to",
+      "no grace period is open on the entity - while an authoritative grace state stands, the grace journey (TIM-274) owns the window, its end date and the route back, and a holder acting inside it is answered by that journey rather than by a second one",
       "no instance of this journey is already open for the the expired entity and the holder's attempt to act on it",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
@@ -3250,6 +3379,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "A dead end is said once, clearly, with whatever alternative exists - not softened into a route that does not work."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "An open grace period owns the holder. This journey starts only once grace has closed at its recorded end, or where no grace period was granted at all - a holder hitting the reduced function mid-window is how grace is normally discovered, and answering that from here is what tells somebody to renew a thing that can only be replaced."
       }
     ],
     contact: {
@@ -3407,7 +3541,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4"
+        "s.g4",
+        "s.g5"
       ]
     },
     implementation: {
