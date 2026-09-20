@@ -49,6 +49,9 @@ import {
 } from "lucide-react";
 
 import JourneyTopologyPreview from "@/components/ui/JourneyTopologyPreview";
+import { JourneyMiniMap } from "@/components/ui/JourneyMiniMap";
+import { journeyCanvasProps } from "@/components/JourneyDetailBody";
+import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
 import {
   AppBar,
   Badge,
@@ -79,7 +82,7 @@ import { AB004_TEXT } from "@/components/ui/LabPreviews";
 import { PATTERNS, type Pattern } from "@/components/ui/PatternFlow";
 import { AB_SCALE, FEATURED, SURFACE_COUNTS, canvasRows } from "@/lib/ab-test-marketing";
 import { AB_CATEGORIES, AB_TEST_COUNT, surfaceLabel } from "@/lib/ab-test-view";
-import { JOURNEY_ROWS, type JourneyRow } from "@/lib/canonical-view";
+import { JOURNEY_ROWS, LIBRARY_COUNT, journeyDetail, type JourneyRow } from "@/lib/canonical-view";
 import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
@@ -175,16 +178,37 @@ function PatternBoardPanel({ lang }: { lang: Lang }) {
   );
 }
 
+/* THE REAL CANVAS, SMALL (2026-09-20, Hulusi: "update the Journey Library
+   parts of /lab too - the hero tab and its section - after the detail
+   pages"): every place the index used to draw a journey as a wire
+   thumbnail now shows the journey's own canvas - the same cards, lines and
+   dot sheet the detail page draws, scaled into the frame (ui/JourneyMiniMap).
+   One layout per journey, computed here on the server. */
+type MiniCanvas = Awaited<ReturnType<typeof journeyCanvasProps>>;
+async function miniCanvas(id: string, lang: Lang): Promise<MiniCanvas | null> {
+  const raw = journeyDetail(id);
+  if (!raw) return null;
+  return journeyCanvasProps(localizedJourneyDetail(raw, lang), lang, copy[lang].lab.page);
+}
+function MiniCanvasView({ canvas, className = "" }: { canvas: MiniCanvas; className?: string }) {
+  return (
+    <div className={clsx("h-full w-full", className)}>
+      <JourneyMiniMap nodes={canvas.nodes} layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
+    </div>
+  );
+}
+
 /** The library tab: the browser with its largest journey open - the
     page's real search field and goal select in the app bar, the goals
     with their live counts in the rail, and the journey's own facts over
     its graph, drawn by the same layout engine as the detail page. */
-function LibraryGraphPanel({ journey, lang }: { journey: HeroJourney; lang: Lang }) {
+async function LibraryGraphPanel({ journey, lang }: { journey: HeroJourney; lang: Lang }) {
   const t = T[lang];
   const w = WT[lang];
   const p = copy[lang].lab.page;
   const shown = GOAL_COUNTS.slice(0, 9);
   const rest = GOAL_COUNTS.length - shown.length;
+  const canvas = await miniCanvas(journey.id, lang);
   return (
     <div className="flex h-full flex-col text-left">
       <AppBar>
@@ -210,10 +234,16 @@ function LibraryGraphPanel({ journey, lang }: { journey: HeroJourney; lang: Lang
             <Badge hue="primary">{journey.categoryTitle}</Badge>
             <span className="ml-auto text-ink-500 tabular-nums">{t.nodes(journey.nodeCount)}</span>
           </div>
-          <div className="min-h-0 flex-1 px-4 pt-4 sm:px-5">
-            <div className="aspect-[1000/440] w-full">
-              <JourneyTopologyPreview preview={journey.preview} />
-            </div>
+          {/* The journey's own canvas - cards, lines and dot sheet as the
+              detail page draws them - windowed on the entry. */}
+          <div className="min-h-0 flex-1 bg-paper-soft">
+            {canvas ? (
+              <MiniCanvasView canvas={canvas} />
+            ) : (
+              <div className="aspect-[1000/440] w-full px-4 pt-4 sm:px-5">
+                <JourneyTopologyPreview preview={journey.preview} />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1536,7 +1566,7 @@ export function BuilderScene({ lang, view = 0 }: { lang: Lang; view?: number }) 
 }
 
 /** A journey as a small card: its id and short name over its real graph. */
-function JourneyMiniCard({ journey, lang, className }: { journey: (typeof LARGEST_JOURNEYS)[number]; lang: Lang; className?: string }) {
+function JourneyMiniCard({ journey, canvas, lang, className }: { journey: (typeof LARGEST_JOURNEYS)[number]; canvas: MiniCanvas | null; lang: Lang; className?: string }) {
   const t = T[lang];
   return (
     <div className={clsx("w-[15rem] overflow-hidden rounded-xl bg-paper text-left ring-1 ring-ink-950/[0.06] shadow-[0_24px_60px_-28px_rgb(10_16_32/0.5)]", className)}>
@@ -1545,10 +1575,14 @@ function JourneyMiniCard({ journey, lang, className }: { journey: (typeof LARGES
         <span className="min-w-0 flex-1 truncate font-medium text-ink-950">{journey.shortName ?? journey.name}</span>
         <span className="shrink-0 text-ink-500 tabular-nums">{t.nodes(journey.nodeCount)}</span>
       </div>
-      <div className="px-3 py-3">
-        <div className="aspect-[1000/440] w-full">
-          <JourneyTopologyPreview preview={journey.preview} />
-        </div>
+      <div className="h-28 bg-paper-soft">
+        {canvas ? (
+          <MiniCanvasView canvas={canvas} />
+        ) : (
+          <div className="aspect-[1000/440] w-full px-3 py-3">
+            <JourneyTopologyPreview preview={journey.preview} />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1562,7 +1596,7 @@ function JourneyMiniCard({ journey, lang, className }: { journey: (typeof LARGES
          its own real graph, the count in the corner;
       2  find the one you need - the browser's search, its goal facets
          with live counts, three real results. */
-export function LibraryScene({ lang, view = 0 }: { lang: Lang; view?: number }) {
+export async function LibraryScene({ lang, view = 0 }: { lang: Lang; view?: number }) {
   const w = WT[lang];
   const t = T[lang];
   const p = copy[lang].lab.page;
@@ -1572,6 +1606,7 @@ export function LibraryScene({ lang, view = 0 }: { lang: Lang; view?: number }) 
        top, the fan below it, symmetric about the frame's middle (Hulusi,
        2026-09-06: "make it centred"). */
     const fan = LARGEST_JOURNEYS.slice(1, 4);
+    const canvases = await Promise.all(fan.map((j) => miniCanvas(j.id, lang)));
     const tilt = ["-rotate-6", "rotate-1", "rotate-6"];
     const place = ["top-4 left-0", "top-1 left-[3rem]", "top-5 left-[6rem]"];
     return (
@@ -1580,7 +1615,8 @@ export function LibraryScene({ lang, view = 0 }: { lang: Lang; view?: number }) 
           <SceneCard flow>
             <span className="flex items-center gap-2 px-3 py-2">
               <LibraryBig aria-hidden className="size-4 text-primary-600" />
-              <span className="text-[13px] font-semibold text-ink-950 tabular-nums">{JOURNEY_ROWS.length}</span>
+              {/* The library's stated size (73), not every public journey. */}
+              <span className="text-[13px] font-semibold text-ink-950 tabular-nums">{LIBRARY_COUNT}</span>
               <span className="text-[12.5px] text-ink-500">{p.results}</span>
             </span>
           </SceneCard>
@@ -1589,7 +1625,7 @@ export function LibraryScene({ lang, view = 0 }: { lang: Lang; view?: number }) 
           <div className="relative h-[12rem] w-[21rem]">
             {fan.map((journey, i) => (
               <SceneCard key={journey.id} bare className={place[i]}>
-                <JourneyMiniCard journey={journey} lang={lang} className={tilt[i]} />
+                <JourneyMiniCard journey={journey} canvas={canvases[i]} lang={lang} className={tilt[i]} />
               </SceneCard>
             ))}
           </div>
@@ -1604,6 +1640,7 @@ export function LibraryScene({ lang, view = 0 }: { lang: Lang; view?: number }) 
        facets - "type, and the right journey appears". */
     const query = "abandoned";
     const hits = JOURNEY_ROWS.filter((j) => (j.shortName ?? j.name).toLowerCase().includes(query)).slice(0, 3);
+    const thumbs = await Promise.all(hits.map((j) => miniCanvas(j.id, lang)));
     const mark = (name: string) => {
       const at = name.toLowerCase().indexOf(query);
       if (at < 0) return name;
@@ -1629,12 +1666,16 @@ export function LibraryScene({ lang, view = 0 }: { lang: Lang; view?: number }) 
             </span>
           </div>
           <ul className="m-0 list-none p-0">
-            {hits.map((j) => (
+            {hits.map((j, i) => (
               <li key={j.id} className="flex items-center gap-3 border-b border-line-soft px-3 py-2.5 last:border-b-0">
-                <span className="w-24 shrink-0 rounded-md bg-paper-soft px-2 py-1.5">
-                  <span className="block aspect-[1000/440]">
-                    <JourneyTopologyPreview preview={j.preview} />
-                  </span>
+                <span className="h-14 w-24 shrink-0 overflow-hidden rounded-md bg-paper-soft">
+                  {thumbs[i] ? (
+                    <MiniCanvasView canvas={thumbs[i]} />
+                  ) : (
+                    <span className="block aspect-[1000/440] px-2 py-1.5">
+                      <JourneyTopologyPreview preview={j.preview} />
+                    </span>
+                  )}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="line-clamp-2 block text-[13px] leading-snug font-medium text-ink-950">{mark(j.shortName ?? j.name)}</span>
@@ -1649,18 +1690,25 @@ export function LibraryScene({ lang, view = 0 }: { lang: Lang; view?: number }) 
   }
 
   const journey = LARGEST_JOURNEYS[0];
+  const canvas = await miniCanvas(journey.id, lang);
   return (
     <Scene label={w.labels.library}>
+      {/* The largest journey's own canvas, cut by the frame's right and
+          bottom edges - a journey is a graph you can read. */}
       <SceneCard className="top-6 left-6 w-[125%] md:top-8 md:left-8">
         <div className="flex items-center gap-2 border-b border-line-soft px-3.5 py-2.5 text-[12.5px]">
           <span className="text-ink-400">{journey.id}</span>
           <span className="min-w-0 truncate font-medium text-ink-950">{journey.shortName ?? journey.name}</span>
           <span className="ml-auto shrink-0 text-ink-500 tabular-nums">{t.nodes(journey.nodeCount)}</span>
         </div>
-        <div className="px-3 py-3">
-          <div className="aspect-[1000/440] w-full">
-            <JourneyTopologyPreview preview={journey.preview} />
-          </div>
+        <div className="h-[16rem] bg-paper-soft">
+          {canvas ? (
+            <MiniCanvasView canvas={canvas} />
+          ) : (
+            <div className="aspect-[1000/440] w-full px-3 py-3">
+              <JourneyTopologyPreview preview={journey.preview} />
+            </div>
+          )}
         </div>
       </SceneCard>
     </Scene>
