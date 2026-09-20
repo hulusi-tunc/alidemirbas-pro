@@ -4,12 +4,11 @@ import { SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { CodeBlock, InstallationStepper } from "@/components/ui/InstallationStepper";
+import { InstallPanel } from "@/components/ui/InstallPanel";
 import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductHeading, ProductSection } from "@/components/ui/ProductPage";
-import { CodeTabs } from "@/components/ui/CodeTabs";
 import { DashboardHeroWindow } from "@/components/ui/LabProductWindows";
 import { AppBar, AppMeta, AppTitle, Badge, type BadgeTone, codeLabel, KeyValues, Table, Td, Th, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
@@ -521,53 +520,28 @@ function TemplatesSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
 /* ---- 07 · Install -------------------------------------------------------- */
 function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
-  const copyLabel = lang === "en" ? "Copy" : "Kopyala";
-  const copiedLabel = lang === "en" ? "Copied" : "Kopyalandı";
-  /* One numbered rail, three steps, nothing else (Hulusi, 2026-09-06: the
-     install blocks should be "more minimal and nice" - his reference is a
-     vertical stepper: number, title, one line, then the step's own
-     content). Same InstallationStepper the generic template uses. */
+  /* The shared install panel (ui/InstallPanel): the steps tile beside the
+     terminal on the product's plate. The three ways in and the test
+     command are the README's own. */
   return (
     <ProductSection tone="paper" space="lg">
-      <PortraitContainer className="max-w-2xl">
-        <ProductHeading title={t.installTitle} body={t.installSub} />
-        <Reveal delay={100} className="mt-10">
-          <InstallationStepper
-            steps={[
-              {
-                n: 1,
-                title: t.stepAdd,
-                content: (
-                  <CodeTabs
-                    tabs={[
-                      { id: "marketplace", label: t.tabMarketplace, code: MARKETPLACE_CMD },
-                      { id: "local", label: t.tabLocal, code: LOCAL_CMD },
-                      { id: "skills", label: t.tabSkillsCli, code: SKILLS_CLI_CMD },
-                    ]}
-                    copyLabel={copyLabel}
-                    copiedLabel={copiedLabel}
-                  />
-                ),
-              },
-              { n: 2, title: t.stepTest, desc: t.testNote, content: <CodeBlock code={TEST_CMD} copyLabel={copyLabel} copiedLabel={copiedLabel} /> },
-              ...(repo
-                ? [
-                    {
-                      n: 3,
-                      title: t.viewRepo,
-                      content: (
-                        <a href={repo.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
-                          <PixelFill />
-                          {repo.label}
-                          <ArrowUpRight aria-hidden className="size-4" />
-                        </a>
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </Reveal>
+      <PortraitContainer>
+        <InstallPanel
+          slug="dashboard-builder"
+          title={t.installTitle}
+          body={t.installSub}
+          methodsTitle={t.stepAdd}
+          methods={[
+            { id: "marketplace", label: t.tabMarketplace, code: MARKETPLACE_CMD },
+            { id: "local", label: t.tabLocal, code: LOCAL_CMD },
+            { id: "skills", label: t.tabSkillsCli, code: SKILLS_CLI_CMD },
+          ]}
+          then={{ title: t.stepTest, note: t.testNote, code: TEST_CMD }}
+          linksTitle={t.viewRepo}
+          links={repo ? [{ label: repo.label, href: repo.href }] : []}
+          copyLabel={lang === "en" ? "Copy" : "Kopyala"}
+          copiedLabel={lang === "en" ? "Copied" : "Kopyalandı"}
+        />
       </PortraitContainer>
     </ProductSection>
   );

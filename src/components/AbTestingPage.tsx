@@ -1,10 +1,8 @@
-import { ArrowRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
-import { ButtonLink, buttonStyles } from "@/components/ui/Button";
-import { CodeTabs } from "@/components/ui/CodeTabs";
-import { InstallationStepper } from "@/components/ui/InstallationStepper";
-import { PixelFill } from "@/components/ui/PixelFill";
+import { ButtonLink } from "@/components/ui/Button";
+import { InstallPanel } from "@/components/ui/InstallPanel";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { PlaybookScene } from "@/components/ui/LabPanels";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
@@ -300,48 +298,25 @@ function Rules({ t }: { t: (typeof copy)[Lang] }) {
 function Install({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.abTesting;
   const en = lang === "en";
-  /* One numbered rail, two steps (Hulusi, 2026-09-06: install blocks
-     "more minimal and nice", a vertical stepper). The three install
-     options are the repository's own, as tabs on one code block. */
+  /* The shared install panel (ui/InstallPanel): the steps tile beside the
+     terminal on the product's plate. The three ways in are the
+     repository's own, as the terminal's tabs. */
   return (
     <ProductSection tone="paper" space="md">
-      <PortraitContainer className="max-w-2xl">
-        <ProductHeading title={c.install.title} />
-        <Reveal delay={100} className="mt-10">
-          <InstallationStepper
-            steps={[
-              {
-                n: 1,
-                title: en ? "Add the plugin to Claude Code" : "Eklentiyi Claude Code'a ekleyin",
-                content: (
-                  <CodeTabs
-                    tabs={c.install.options.map((opt, i) => ({ id: `opt-${i}`, label: opt.label, code: opt.code }))}
-                    copyLabel={en ? "Copy" : "Kopyala"}
-                    copiedLabel={en ? "Copied" : "Kopyalandı"}
-                  />
-                ),
-              },
-              {
-                n: 2,
-                title: en ? "Read the repository, or try the demo" : "Repoyu okuyun ya da demoyu deneyin",
-                content: (
-                  <div className="flex flex-wrap gap-2">
-                    <a href={REPO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
-                      <PixelFill />
-                      {c.repoLink}
-                      <ArrowUpRight aria-hidden className="size-4" />
-                    </a>
-                    <a href={DEMO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
-                      <PixelFill />
-                      {c.demoLink}
-                      <ArrowUpRight aria-hidden className="size-4" />
-                    </a>
-                  </div>
-                ),
-              },
-            ]}
-          />
-        </Reveal>
+      <PortraitContainer>
+        <InstallPanel
+          slug="ab-test-playbook"
+          title={c.install.title}
+          methodsTitle={en ? "Add the plugin to Claude Code" : "Eklentiyi Claude Code'a ekleyin"}
+          methods={c.install.options.map((opt, i) => ({ id: `opt-${i}`, label: opt.label, code: opt.code }))}
+          linksTitle={en ? "Read the repository, or try the demo" : "Repoyu okuyun ya da demoyu deneyin"}
+          links={[
+            { label: c.repoLink, href: REPO },
+            { label: c.demoLink, href: DEMO },
+          ]}
+          copyLabel={en ? "Copy" : "Kopyala"}
+          copiedLabel={en ? "Copied" : "Kopyalandı"}
+        />
       </PortraitContainer>
     </ProductSection>
   );

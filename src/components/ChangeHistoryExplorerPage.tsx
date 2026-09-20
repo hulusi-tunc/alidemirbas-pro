@@ -4,12 +4,11 @@ import { SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { CodeBlock, InstallationStepper } from "@/components/ui/InstallationStepper";
+import { InstallPanel } from "@/components/ui/InstallPanel";
 import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
-import { CodeTabs } from "@/components/ui/CodeTabs";
 import { ChangeCell, explorerTabLabel, explorerTabs, ExplorerWindow, explorerDelta } from "@/components/ui/LabProductWindows";
 import { AppBar, AppMeta, AppTitle, Badge, CheckRow, Field, FormLabel, Rail, Table, TabStrip, Td, Th, Toggle, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
@@ -627,52 +626,30 @@ function OneFileSection({ t }: { t: (typeof T)[Lang] }) {
 /* ---- 08 · Install -------------------------------------------------------- */
 function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lang: Lang }) {
   const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
-  const copyLabel = lang === "en" ? "Copy" : "Kopyala";
-  const copiedLabel = lang === "en" ? "Copied" : "Kopyalandı";
-  /* One numbered rail, three steps (Hulusi, 2026-09-06: install blocks
-     "more minimal and nice", a vertical stepper). The tool's own
-     behaviour note stays as the third step's line. */
+  /* The shared install panel (ui/InstallPanel): the steps tile beside the
+     terminal on the product's plate. Two ways in - the plugin, or the
+     script run directly - and the self-test; the tool's own behaviour
+     note stays on the last step. */
   return (
     <ProductSection tone="soft" space="md">
-      <PortraitContainer className="max-w-2xl">
-        <ProductHeading title={t.installTitle} body={t.installSub} />
-        <Reveal delay={100} className="mt-10">
-          <InstallationStepper
-            steps={[
-              {
-                n: 1,
-                title: t.stepInstall,
-                content: (
-                  <CodeTabs
-                    tabs={[
-                      { id: "claude", label: t.claudeTab, code: CLAUDE_CODE_CMD },
-                      { id: "python", label: t.pythonTab, code: PYTHON_CMD },
-                    ]}
-                    copyLabel={copyLabel}
-                    copiedLabel={copiedLabel}
-                  />
-                ),
-              },
-              { n: 2, title: t.stepTest, desc: t.selfTestNote, content: <CodeBlock code={SELF_TEST_CMD} copyLabel={copyLabel} copiedLabel={copiedLabel} /> },
-              ...(repo
-                ? [
-                    {
-                      n: 3,
-                      title: t.viewRepo,
-                      desc: `${t.reliabilityTitle} ${t.reliabilityBody}`,
-                      content: (
-                        <a href={repo.href} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "outline", size: "sm" })}>
-                          <PixelFill />
-                          {t.ctaGithub}
-                          <ArrowUpRight aria-hidden className="size-4" />
-                        </a>
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </Reveal>
+      <PortraitContainer>
+        <InstallPanel
+          slug="google-ads-change-history-dashboard"
+          tone="soft"
+          title={t.installTitle}
+          body={t.installSub}
+          methodsTitle={t.stepInstall}
+          methods={[
+            { id: "claude", label: t.claudeTab, code: CLAUDE_CODE_CMD },
+            { id: "python", label: t.pythonTab, code: PYTHON_CMD },
+          ]}
+          then={{ title: t.stepTest, note: t.selfTestNote, code: SELF_TEST_CMD }}
+          linksTitle={t.viewRepo}
+          linksNote={`${t.reliabilityTitle} ${t.reliabilityBody}`}
+          links={repo ? [{ label: t.ctaGithub, href: repo.href }] : []}
+          copyLabel={lang === "en" ? "Copy" : "Kopyala"}
+          copiedLabel={lang === "en" ? "Copied" : "Kopyalandı"}
+        />
       </PortraitContainer>
     </ProductSection>
   );
