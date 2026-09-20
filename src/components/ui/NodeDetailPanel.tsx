@@ -19,7 +19,7 @@ import { springSnap } from "@/lib/motion";
    any of the seven kinds because the data shape is already uniform. */
 
 const PRIORITY_LABEL: Record<Lang, string> = { en: "Channel priority", tr: "Kanal önceliği" };
-const ROUTING_LABEL: Record<Lang, string> = { en: "Routing logic", tr: "Yönlendirme mantığı" };
+const REPRESENTS_LABEL: Record<Lang, string> = { en: "Represented canonical steps", tr: "Temsil edilen kanonik adımlar" };
 
 const KIND_LABEL: Record<FlowNode["kind"], Record<Lang, string>> = {
   trigger: { en: "Trigger", tr: "Tetikleyici" },
@@ -52,20 +52,23 @@ export type PanelLabels = {
 
 export function NodeDetailPanel({
   node,
-  collapsedRouter,
+  represents,
   basePath,
   labels,
   onClose,
 }: {
   node: FlowNode | null;
-  /** The channel-selecting action this node's own card absorbed on the
-      canvas (see journey-canvas-layout.ts's display-graph collapse) - still
-      a real, full FlowNode, just drawn as one card with `node` instead of
-      two. Null for a node that collapsed nothing, which is every kind but a
-      collapsed message/human action. Renders as an extra section below
-      `node`'s own, so the router's full priority/fallback prose stays
-      reachable exactly as the collapse's own contract requires. */
-  collapsedRouter?: FlowNode | null;
+  /** The canonical steps this node's own card stands in for on the canvas -
+      a channel-selecting action it absorbed, a permission gate and the
+      "record why nothing was sent" hop behind it, the journey's own
+      bookkeeping - in canonical order. Each is still a real, full FlowNode;
+      the display graph just draws one card instead of several
+      (journey-canvas-layout.ts's `representedSteps`, the same detection the
+      layout itself uses). Null or empty for a card that stands only for
+      itself. This section is the collapse's own contract: the canvas gets
+      simpler, and the implementation stays one click away, traceable step
+      by step rather than summarised. */
+  represents?: readonly FlowNode[] | null;
   basePath: string;
   labels: PanelLabels;
   onClose: () => void;
@@ -177,10 +180,25 @@ export function NodeDetailPanel({
               </div>
             ) : null}
 
-            {collapsedRouter ? (
+            {represents?.length ? (
               <div className="border-t border-line-soft pt-4">
-                <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-ink-400 uppercase">{ROUTING_LABEL[lang]}</p>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-ink-600">{collapsedRouter.headline}</p>
+                <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-ink-400 uppercase">{REPRESENTS_LABEL[lang]}</p>
+                <ol className="mt-2 space-y-2.5">
+                  {represents.map((step, i) => (
+                    <li key={step.id} className="flex gap-2.5">
+                      <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-paper-soft font-mono text-[10px] font-semibold text-ink-600 tabular-nums">
+                        {i + 1}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="flex flex-wrap items-baseline gap-x-2">
+                          <span className="font-mono text-[11px] text-ink-500">{step.id}</span>
+                          <span className="text-[11px] text-ink-400">{kindLabel(step)}</span>
+                        </span>
+                        <span className="mt-0.5 block text-[13px] leading-relaxed text-ink-600">{step.headline}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
               </div>
             ) : null}
 

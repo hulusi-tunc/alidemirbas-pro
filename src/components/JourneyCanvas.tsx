@@ -5,7 +5,7 @@ import { ArrowRightLeft, LogOut, Maximize2, Minus, Plus, RotateCcw, Split, Workf
 
 import type { FlowNode } from "@/lib/canonical-view";
 import type { ChannelId } from "@/canonical/types";
-import { collapsibleRouters, edgePath, type CanvasLayout, type LaidOutEdge } from "@/lib/journey-canvas-layout";
+import { representedSteps, edgePath, type CanvasLayout, type LaidOutEdge } from "@/lib/journey-canvas-layout";
 import {
   ActionCard,
   ConditionCard,
@@ -122,22 +122,15 @@ export default function JourneyCanvas({
 }) {
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
   const actionSequence = useMemo(() => actionSequenceOf(nodes), [nodes]);
-  /* The channel-selecting action a message/human card absorbed on the
-     canvas (see journey-canvas-layout.ts's own collapse - same detection,
-     reused rather than re-derived) - still a real FlowNode, just not laid
-     out as its own box. Keyed by the MESSAGE's id, so opening that card can
-     hand the detail panel the router's own full priority/fallback prose
-     alongside its own, which is the "still reachable from the detail
-     panel" half of the collapse. */
-  const collapsedRouterOf = useMemo(() => {
-    const collapsed = collapsibleRouters(nodes, byId);
-    const inverse = new Map<string, FlowNode>();
-    for (const [routerId, messageId] of collapsed) {
-      const router = byId.get(routerId);
-      if (router) inverse.set(messageId, router);
-    }
-    return inverse;
-  }, [nodes, byId]);
+  /* Everything a drawn card stands in for: the channel-selecting action a
+     message absorbed, the permission gate and its "record why nothing was
+     sent" hop, the journey's own bookkeeping steps. All still real
+     FlowNodes, just not laid out as their own boxes - so opening the card
+     that absorbed them hands the detail panel each one's full canonical
+     prose in canonical order. Same detection as the layout's own collapse
+     (representedSteps reuses it rather than re-deriving), which is what
+     keeps the drawing and its traceability from ever disagreeing. */
+  const representedOf = useMemo(() => representedSteps(nodes), [nodes]);
 
   /* Computed during render from `layout`, which is deterministic for a given
      journey - so the server and the first client paint agree on the frame's
@@ -152,7 +145,7 @@ export default function JourneyCanvas({
   const [zoom, setZoom] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedNode = selectedId ? (byId.get(selectedId) ?? null) : null;
-  const selectedRouter = selectedId ? (collapsedRouterOf.get(selectedId) ?? null) : null;
+  const selectedRepresents = selectedId ? (representedOf.get(selectedId) ?? null) : null;
 
   const isMobile = () => (containerRef.current?.clientWidth ?? 0) < MOBILE_BREAKPOINT;
 
@@ -324,7 +317,7 @@ export default function JourneyCanvas({
         flyTo={flyTo}
         basePath={basePath}
         selectedNode={selectedNode}
-        selectedRouter={selectedRouter}
+        selectedRepresents={selectedRepresents}
         onClose={() => setSelectedId(null)}
       />
     );
@@ -370,7 +363,7 @@ export default function JourneyCanvas({
             changed that element's own scrollable bounds, and the browser
             committed the clamped value). Positioned against the stage that
             wraps them both, it still overlays exactly the same visible area. */}
-        <NodeDetailPanel node={selectedNode} collapsedRouter={selectedRouter} basePath={basePath} labels={labels} onClose={() => setSelectedId(null)} />
+        <NodeDetailPanel node={selectedNode} represents={selectedRepresents} basePath={basePath} labels={labels} onClose={() => setSelectedId(null)} />
       </div>
 
       {/* The caption bar. It states what the figure contains and carries the
@@ -652,7 +645,7 @@ function FreeCanvas({
   flyTo,
   basePath,
   selectedNode,
-  selectedRouter,
+  selectedRepresents,
   onClose,
 }: {
   layout: CanvasLayout;
@@ -667,7 +660,7 @@ function FreeCanvas({
   flyTo: { key: string; x: number; y: number } | null;
   basePath: string;
   selectedNode: FlowNode | null;
-  selectedRouter: FlowNode | null;
+  selectedRepresents: readonly FlowNode[] | null;
   onClose: () => void;
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -861,7 +854,7 @@ function FreeCanvas({
           {world}
         </div>
       </div>
-      <NodeDetailPanel node={selectedNode} collapsedRouter={selectedRouter} basePath={basePath} labels={labels} onClose={onClose} />
+      <NodeDetailPanel node={selectedNode} represents={selectedRepresents} basePath={basePath} labels={labels} onClose={onClose} />
       {/* The legend: the journey's shape as icon tiles with counts, in the
           kinds' own colours - a key to the drawing, centred at the bottom
           where a map keeps its key. */}

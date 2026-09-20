@@ -322,6 +322,123 @@ export function collapsibleGates(
   return { hidden, into };
 }
 
+/* A journey's own bookkeeping - "open the instance and start the clock",
+   "record the return and re-arm the wait", "read what they currently hold"
+   - is real implementation work and stays in the canonical graph, but it is
+   not a step in the story the canvas tells. Drawn as full cards these are
+   both the most numerous boxes on the canvas and the longest text on it
+   (audited across all 73 library journeys: the single biggest source of
+   clutter, and every card over 110 characters is one of them).
+
+   Three conditions, all structural or authored - never a journey or node id:
+
+   1. `execution` is unset. A communication or human action reaches a
+      person and is always its own step.
+   2. It is a pass-through: exactly one node points at it, and it points at
+      exactly one node. Anything a branch converges on, or that forks, is
+      load-bearing on the drawing.
+   3. It writes nothing, or writes ONLY the corpus's own journal fields
+      (`*_log`, `*_history`, `suppressed_sends`). This is the line between
+      bookkeeping and work: measured across the library, 103 of 117
+      pass-through internal actions journal or write nothing, while the 14
+      that write real state are exactly the ones a reader needs - the
+      channel routers (`selected_channel_*`, already collapsed by
+      `collapsibleRouters`), and steps like "resolve the existing account"
+      (`commercial_entity_link`), "identify the exact requirement"
+      (`blocking_requirement`) or "assemble the signals" (`risk_evidence`),
+      whose output later steps depend on. Those keep their card.
+
+   The absorbed node keeps everything: it is still in `FlowNode[]`, still
+   carries its full prose, and JourneyCanvas hands it to the detail panel
+   of the card that absorbed it, so a reader who opens that card sees every
+   canonical step it represents. Nothing is deleted, only un-boxed. */
+const JOURNAL_WRITE = /(_log$|_history$|_trail$|_audit$|^suppressed_sends$)/;
+
+export function absorbableBookkeeping(
+  nodes: readonly FlowNode[],
+  byId: ReadonlyMap<string, FlowNode>,
+): ReadonlyMap<string, string> {
+  const inDegree = new Map<string, number>();
+  for (const n of nodes) {
+    for (const e of n.edges) {
+      if (e.kind === "node") inDegree.set(e.to, (inDegree.get(e.to) ?? 0) + 1);
+    }
+  }
+  const absorbed = new Map<string, string>();
+  for (const n of nodes) {
+    if (n.kind !== "action" || n.execution || n.isEntry) continue;
+    if ((inDegree.get(n.id) ?? 0) !== 1) continue;
+    const out = n.edges.filter((e) => e.kind === "node");
+    if (out.length !== 1) continue;
+    const host = byId.get(out[0].to);
+    if (!host) continue;
+    /* `meta` carries the writes as "writes <field> (<mode>)" - the same
+       projection canonical-view.ts already builds - so the test reads the
+       authored field names without this module needing the canonical node. */
+    const writes = n.meta.filter((m) => m.startsWith("writes "));
+    const journalOnly = writes.every((m) => {
+      const field = m.slice("writes ".length).split(" ")[0];
+      return JOURNAL_WRITE.test(field);
+    });
+    if (!journalOnly) continue;
+    absorbed.set(n.id, out[0].to);
+  }
+  return absorbed;
+}
+
+/** Drawn node id -> the canonical nodes it stands in for, in canonical
+    order. The traceability half of every collapse this module makes: a card
+    that represents more than itself must be able to say so, and the detail
+    panel renders this list as "represented canonical steps" so the
+    simplification never costs a reader the implementation. Covers all three
+    collapses (channel router, permission gate and its bookkeeping hop,
+    absorbed bookkeeping). */
+export function representedSteps(nodes: readonly FlowNode[]): ReadonlyMap<string, readonly FlowNode[]> {
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const routers = collapsibleRouters(nodes, byId);
+  const gates = collapsibleGates(nodes, byId);
+  const bookkeeping = absorbableBookkeeping(nodes, byId);
+
+  const order = new Map(nodes.map((n, i) => [n.id, i]));
+  const hostOf = new Map<string, string>();
+  for (const [absorbed, host] of routers) hostOf.set(absorbed, host);
+  for (const [gate, host] of gates.into) hostOf.set(gate, host);
+  for (const [absorbed, host] of bookkeeping) hostOf.set(absorbed, host);
+  /* A gate's own hidden bookkeeping hop has no `into` of its own; it belongs
+     to whatever that gate collapsed into. */
+  for (const hidden of gates.hidden) {
+    if (hostOf.has(hidden)) continue;
+    const parent = nodes.find((n) => n.edges.some((e) => e.kind === "node" && e.to === hidden && gates.into.has(n.id)));
+    const host = parent ? gates.into.get(parent.id) : undefined;
+    if (host) hostOf.set(hidden, host);
+  }
+
+  /* Resolve chains so an absorbed node whose host was itself absorbed lands
+     on the card actually drawn. Bounded, like `resolve` below. */
+  const resolveHost = (id: string): string => {
+    let at = id;
+    for (let i = 0; i < 4; i++) {
+      const next = hostOf.get(at);
+      if (!next || next === at) break;
+      at = next;
+    }
+    return at;
+  };
+
+  const out = new Map<string, FlowNode[]>();
+  for (const absorbed of hostOf.keys()) {
+    const host = resolveHost(absorbed);
+    if (host === absorbed) continue;
+    const node = byId.get(absorbed);
+    if (!node) continue;
+    const list = out.get(host) ?? [];
+    list.push(node);
+    out.set(host, list);
+  }
+  for (const list of out.values()) list.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+  return out;
+}
+
 /* ---------------------------------------------------------------- display graph */
 
 export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
@@ -329,12 +446,13 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
   const entry = nodes.find((n) => n.isEntry) ?? nodes[0];
   const routers = collapsibleRouters(nodes, byId);
   const gates = collapsibleGates(nodes, byId);
+  const bookkeeping = absorbableBookkeeping(nodes, byId);
   /* Both collapses answer the same question - "what does an edge pointing
      at this node actually reach on the canvas?" - so they share one
      resolver. Chained (a gate whose continuation is itself a collapsed
      router) resolves through in a bounded loop rather than one hop; the
      bound is what keeps a pathological cycle of collapses from spinning. */
-  const hop = (id: string): string => routers.get(id) ?? gates.into.get(id) ?? id;
+  const hop = (id: string): string => routers.get(id) ?? gates.into.get(id) ?? bookkeeping.get(id) ?? id;
   const resolve = (id: string): string => {
     let at = id;
     for (let i = 0; i < 4; i++) {
@@ -344,7 +462,7 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
     }
     return at;
   };
-  const hiddenNodes = new Set<string>([...routers.keys(), ...gates.hidden]);
+  const hiddenNodes = new Set<string>([...routers.keys(), ...gates.hidden, ...bookkeeping.keys()]);
 
   /* Internal edges only - an edge to another journey or an external system
      is where this journey's drawing ends. A collapsed router contributes
