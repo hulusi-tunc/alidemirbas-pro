@@ -1,5 +1,14 @@
 # Public scope validation — the 52/21/73 reconciliation
 
+> **Superseded as a statement of the current scope.** This file records how the
+> library was reconciled to **52/21/73** at the end of Phases 0–24, and the
+> RET-24 question it settled is still live and still correct. The scope itself
+> has since moved: Phases 25–33 added seventeen journeys, so the library is
+> **69 public / 21 excluded / 90 source**. `audit/public-journey-scope.md` is
+> the current statement; `src/lib/public-corpus.ts` is the decision itself.
+> Every "52" and "73" below is the figure as it stood then. The 21 exclusions
+> are unchanged.
+
 Written because the audit was running at **51 public journeys** while the
 approved scope is **52**. This records which journey the difference was, how it
 got there, what reversed it, and the state now.

@@ -74,8 +74,15 @@ The wider canonical corpus goes 286 → 303 journeys.
 |---|---|---|---:|
 | A — commerce / post-purchase | ACQ-289, RET-290, FUL-291, RET-292, RET-293, RET-294 | yes | 52 → 58 |
 | B — relationship / loyalty | RET-295, SUB-296, SUB-297, SUB-298, SUB-299 | yes | 58 → **63** |
-| C — communication hygiene / transaction | CON-300, FUL-301, FIN-302 | pending | 63 → 66 |
-| D — scheduling / service | SCH-303, SCH-304, REM-305 | pending | 66 → 69 |
+| C — communication hygiene / transaction | CON-300, FUL-301, FIN-302 | yes | → **69** |
+| D — scheduling / service | SCH-303, SCH-304, REM-305 | yes | → **69** |
+
+All seventeen have landed. **B, C and D were authored in PARALLEL against the
+same base**, so the per-batch "public library" arithmetic above is each batch's
+own view in isolation and does not chain: B saw 58 → 63, C saw 58 → 61 and D
+saw 58 → 61. The merge reconciled them to 58 + 5 + 3 + 3 = **69**, and the
+canonical corpus to 292/3802 + 5/52 + 3/47 + 3/58 = **303/3959**. Read each
+batch's notes file the same way — its counts are true for that batch alone.
 
 Batch B's ownership boundaries (the reciprocal `date-recognition` pair between
 RET-295 and RET-292, and the four-member `membership-standing` group), its

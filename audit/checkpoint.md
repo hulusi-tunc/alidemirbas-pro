@@ -107,7 +107,7 @@ node audit/canvas-hygiene.mjs 4511
 node audit/measure-display.mjs after 4511      # locale leaks must stay 0
 npm run validate:journey-production            # frozen node-count baseline
 node seo/seo-validator.mjs                     # check 18 hardcodes the journey count
-node audit/locale-sweep.mjs 4511               # whole-page TR leak sweep (161 routes)
+node audit/locale-sweep.mjs 4511               # whole-page TR leak sweep (172 routes)
 ```
 
 `seo/seo-validator.mjs` check 18 is in this list for a reason. It hardcodes

@@ -185,13 +185,31 @@ const CHANNEL_RULE_EXCEPTIONS = new Map([
 {
   const dangling = [];
   const textOnly = [];
+  /* The routed public corpus: what `isPublicJourneyId` tests, read from the
+     same surface-assignment artifact every plain-Node script here uses. */
+  const routedPublicIds = new Set(
+    rj("production/surface-assignment.json")
+      .journeys.filter((r) => r.surface !== "operational" && !r.excludedFromPublic)
+      .map((r) => r.id),
+  );
   for (const id of PUBLIC_LIBRARY_IDS) {
     const j = byId.get(id);
     if (!j) continue;
     for (const n of j.nodes) {
       if (n.kind !== "handoff" || n.to.startsWith("external:")) continue;
       if (!byId.has(n.to)) dangling.push(`${id}.${n.id} -> ${n.to}`);
-      else if (!PUBLIC_LIBRARY_IDS.has(n.to)) textOnly.push(`${id}.${n.id} -> ${n.to}`);
+      /* COMPARE AGAINST THE ROUTED SET, NOT THE LIBRARY. The renderer decides
+         link-vs-text with `isPublicJourneyId`, which tests PUBLIC_IDS - every
+         journey that is ROUTED (surface is not operational AND not on the
+         exclusion list), currently 158. It is not the 69-journey library:
+         lifecycle states and runtime mechanisms are routed and do render as
+         links, they are simply not counted in the library's stated size.
+         Comparing against the library here claimed 54 handoffs rendered as
+         text when 21 do, and the 33 it invented all pointed at routed public
+         journeys (ACQ-03, ACT-16, SUB-167, CON-38, TIM-62 ...). Nothing on the
+         site was ever wrong; the warning was, by 2.5x - which is how a warning
+         teaches people to stop reading it. */
+      else if (!routedPublicIds.has(n.to)) textOnly.push(`${id}.${n.id} -> ${n.to}`);
     }
   }
   dangling.length === 0
