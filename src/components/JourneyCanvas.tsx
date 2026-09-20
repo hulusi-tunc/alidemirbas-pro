@@ -261,6 +261,42 @@ export default function JourneyCanvas({
      this same block; only the camera around it differs - and the Info
      page's preview (ui/JourneyMiniMap.tsx) renders the very same block,
      so the preview IS the canvas, not a drawing of it. */
+  /* THE LEGEND AS A NAVIGATOR (Hulusi, 2026-09-20: "is the thing at the
+     bottom necessary? if we keep it, make it useful"): pressing a kind in
+     the legend spotlights every node of that kind - the rest sit back -
+     and flies the camera to the first one; pressing again steps to the
+     next, with the count shown as "2/5"; pressing "nodes" clears the
+     spotlight and returns home. */
+  const [spot, setSpot] = useState<{ kind: LegendKind; index: number } | null>(null);
+  /* The spotlit nodes of a kind, one per canonical node: a shared exit is
+     drawn once per parent, so the step count would otherwise say 15 where
+     the legend says 5. The first drawn instance stands for each. */
+  const spotNodes = useMemo(() => {
+    if (!spot || spot.kind === "nodes") return [];
+    const nodeKind = SPOT_KIND[spot.kind];
+    const seen = new Set<string>();
+    return layout.nodes.filter((l) => {
+      if (l.node.kind !== nodeKind || seen.has(l.canonicalNodeId)) return false;
+      seen.add(l.canonicalNodeId);
+      return true;
+    });
+  }, [spot, layout]);
+  const spotKind = spot && spot.kind !== "nodes" ? SPOT_KIND[spot.kind] : null;
+  const flyTo = useMemo(() => {
+    if (!spot) return null;
+    if (spot.kind === "nodes") return { key: "home", x: 0, y: 0 };
+    const l = spotNodes[spot.index];
+    return l ? { key: `${spot.kind}-${spot.index}`, x: l.x, y: l.y + l.height / 2 } : null;
+  }, [spot, spotNodes]);
+  const onLegend = (kind: LegendKind) => {
+    if (kind === "nodes") {
+      setSpot({ kind, index: 0 });
+      return;
+    }
+    const count = new Set(layout.nodes.filter((l) => l.node.kind === SPOT_KIND[kind]).map((l) => l.canonicalNodeId)).size;
+    setSpot((prev) => (prev && prev.kind === kind ? { kind, index: (prev.index + 1) % count } : { kind, index: 0 }));
+  };
+
   const world: ReactNode = (
     <JourneyWorld
       layout={layout}
@@ -270,6 +306,7 @@ export default function JourneyCanvas({
       humanLabels={humanLabels}
       onOpen={(canonicalNodeId) => setSelectedId(canonicalNodeId)}
       focusId={selectedId}
+      spotKind={spotKind}
     />
   );
 
@@ -281,6 +318,9 @@ export default function JourneyCanvas({
         labels={labels}
         caption={caption}
         shape={shape}
+        spot={spot ? { kind: spot.kind, index: spot.index, count: spotNodes.length } : null}
+        onLegend={onLegend}
+        flyTo={flyTo}
         basePath={basePath}
         selectedNode={selectedNode}
         selectedRouter={selectedRouter}
@@ -396,6 +436,7 @@ export function JourneyWorld({
   humanLabels = [],
   onOpen,
   focusId = null,
+  spotKind = null,
 }: {
   layout: CanvasLayout;
   actionSequence: ReadonlyMap<string, number>;
@@ -405,6 +446,8 @@ export function JourneyWorld({
   onOpen: (canonicalNodeId: string) => void;
   /** A node whose routes stay lit while its detail panel is open. */
   focusId?: string | null;
+  /** A kind to spotlight: every other card and every line sit back. */
+  spotKind?: FlowNode["kind"] | null;
 }) {
   /* TRACING (Hulusi, 2026-09-20: "two lines come in and we cannot
      understand which one goes where"): resting the pointer on a card - or
@@ -418,7 +461,8 @@ export function JourneyWorld({
       <svg
         width={layout.width}
         height={layout.height}
-        className="pointer-events-none absolute inset-0"
+        style={{ opacity: spotKind ? 0.3 : 1 }}
+        className="pointer-events-none absolute inset-0 transition-opacity duration-[var(--duration-fast)]"
         aria-hidden
       >
         {layout.edges.map((e) => (
@@ -435,8 +479,8 @@ export function JourneyWorld({
             data-canvas-node-id={n.id}
             data-canvas-layout-id={l.layoutId}
             data-canvas-node-kind={n.kind}
-            style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
-            className="absolute"
+            style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height, opacity: spotKind && n.kind !== spotKind ? 0.25 : 1 }}
+            className="absolute transition-opacity duration-[var(--duration-fast)]"
             onPointerEnter={() => setHoverId(l.canonicalNodeId)}
             onPointerLeave={() => setHoverId(null)}
           >
@@ -468,7 +512,7 @@ export function JourneyWorld({
 
       {/* The arrowheads, on a layer above the cards: a route's end used to
           hide under the card it entered. */}
-      <svg width={layout.width} height={layout.height} className="pointer-events-none absolute inset-0 z-10" aria-hidden>
+      <svg width={layout.width} height={layout.height} style={{ opacity: spotKind ? 0.3 : 1 }} className="pointer-events-none absolute inset-0 z-10 transition-opacity duration-[var(--duration-fast)]" aria-hidden>
         {layout.edges.map((e) => (
           <EdgeArrow key={e.id} edge={e} hi={hi(e)} />
         ))}
@@ -583,6 +627,9 @@ function EdgeArrow({ edge, hi }: { edge: LaidOutEdge; hi?: "on" | "off" }) {
    the click that would have opened it); the wheel pans, ctrl/meta + wheel
    - which is how a trackpad pinch arrives - zooms about the cursor. Fit is
    the default view: the whole graph, centred, with breathing room. */
+type LegendKind = "nodes" | "decisions" | "exits" | "handoffs";
+const SPOT_KIND: Record<Exclude<LegendKind, "nodes">, FlowNode["kind"]> = { decisions: "condition", exits: "exit", handoffs: "handoff" };
+
 const LEGEND = {
   nodes: { icon: <Workflow aria-hidden />, tint: "bg-paper-soft text-ink-700" },
   decisions: { icon: <Split aria-hidden />, tint: "bg-violet-50 text-violet-700" },
@@ -600,6 +647,9 @@ function FreeCanvas({
   labels,
   caption,
   shape,
+  spot,
+  onLegend,
+  flyTo,
   basePath,
   selectedNode,
   selectedRouter,
@@ -609,7 +659,12 @@ function FreeCanvas({
   world: ReactNode;
   labels: CanvasLabels;
   caption?: string;
-  shape: readonly { kind: "nodes" | "decisions" | "exits" | "handoffs"; label: string }[];
+  shape: readonly { kind: LegendKind; label: string }[];
+  spot: { kind: LegendKind; index: number; count: number } | null;
+  onLegend: (kind: LegendKind) => void;
+  /** Where the legend asked the camera to go: a world point to centre, or
+      "home". */
+  flyTo: { key: string; x: number; y: number } | null;
   basePath: string;
   selectedNode: FlowNode | null;
   selectedRouter: FlowNode | null;
@@ -693,6 +748,21 @@ function FreeCanvas({
     if (!stage) return;
     zoomAt(factor, stage.clientWidth / 2, stage.clientHeight / 2);
   };
+
+  // The legend's request: centre the spotlit node at a readable zoom, or go
+  // home when the spotlight clears.
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!flyTo || !stage) return;
+    if (flyTo.key === "home") {
+      home();
+      return;
+    }
+    const z = Math.max(camera.current.z, 0.7);
+    camera.current = { x: stage.clientWidth / 2 - flyTo.x * z, y: stage.clientHeight / 2 - flyTo.y * z, z };
+    apply();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flyTo]);
 
   useLayoutEffect(() => {
     const raf = requestAnimationFrame(home);
@@ -802,14 +872,26 @@ function FreeCanvas({
           kinds' own colours - a key to the drawing, centred at the bottom
           where a map keeps its key. */}
       {shape.length > 0 && (
-        <ul className="pointer-events-none absolute bottom-4 left-1/2 flex -translate-x-1/2 list-none items-center gap-1 rounded-full bg-paper/95 p-1 pr-3 shadow-[0_12px_30px_-16px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06]">
-          {shape.map((item) => (
-            <li key={item.kind} className="flex items-center gap-1.5 pl-1 text-sm text-ink-700 tabular-nums">
-              <span aria-hidden className={`grid size-7 place-items-center rounded-full ${LEGEND[item.kind].tint} [&>svg]:size-3.5`}>{LEGEND[item.kind].icon}</span>
-              {item.label}
-            </li>
-          ))}
-        </ul>
+        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-paper/95 p-1 shadow-[0_12px_30px_-16px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06]">
+          {shape.map((item) => {
+            const on = spot?.kind === item.kind && item.kind !== "nodes";
+            return (
+              <button
+                key={item.kind}
+                type="button"
+                onClick={() => onLegend(item.kind)}
+                aria-pressed={on}
+                className={`flex h-9 items-center gap-1.5 rounded-full py-1 pr-3 pl-1 text-sm tabular-nums transition-colors duration-[var(--duration-fast)] ${
+                  on ? "bg-ink-950 text-white" : "text-ink-700 hover:bg-paper-soft hover:text-ink-950"
+                }`}
+              >
+                <span aria-hidden className={`grid size-7 place-items-center rounded-full ${on ? "bg-white/15 text-white" : LEGEND[item.kind].tint} [&>svg]:size-3.5`}>{LEGEND[item.kind].icon}</span>
+                {item.label}
+                {on && spot ? <span className="text-white/70">{spot.index + 1}/{spot.count}</span> : null}
+              </button>
+            );
+          })}
+        </div>
       )}
       <div className="absolute right-4 bottom-4 flex items-center gap-0.5 rounded-full bg-paper/95 p-1 ring-1 ring-ink-950/[0.06] shadow-[0_12px_30px_-16px_rgb(10_16_32/0.35)]">
         <button type="button" onClick={() => zoomCentre(1 / 1.25)} aria-label={labels.zoomOut} className={control}>
