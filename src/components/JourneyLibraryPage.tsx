@@ -1,27 +1,25 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Bookmark, Check } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { ButtonLink } from "@/components/ui/Button";
 import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
+import { CategoryIcon, SURFACE_ICON, categoryAccent } from "@/components/ui/LibraryChrome";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductMetricStrip, ProductSection } from "@/components/ui/ProductPage";
 import { BranchFork, JourneyCanvas, JourneyLibrarySpread, TriggerEvidence, WaitTimeline } from "@/components/ui/JourneyFlows";
-import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import {
   PRESET_ROWS,
   SURFACE_PATH,
   SURFACE_ROWS,
-  isHumanRoutingRow,
   type SurfaceKey,
   withLibraryCount,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
-import { sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
 
@@ -138,148 +136,110 @@ function Scale({ lang }: { lang: Lang }) {
   );
 }
 
-/* ---- 03 · The split - the hub's actual job --------------------------
-   Two facing halves. Each previews its three LARGEST graphs by node
-   count - a computed ordering, not an editorial "featured" pick - and
-   every card carries its own node count so the rule is visible on the
-   cards themselves. A half is a window-card in the grammar's sense: a
-   label, a count, prose, three real journeys and a route, not a fence
-   around a link. */
-function Half({
-  lang,
-  surfaceKey,
-  tone,
-  delay,
-}: {
-  lang: Lang;
-  surfaceKey: SurfaceKey;
-  tone: "dark" | "outline";
-  delay: number;
-}) {
-  const t = copy[lang];
-  const rows = SURFACE_ROWS[surfaceKey];
-  const label = t.lab.journeysSplit.surfaceLabels[surfaceKey];
-  const blurb = t.lab.journeysSplit.surfaceBlurbs[surfaceKey];
-  const href = P(lang, SURFACE_PATH[surfaceKey]);
-  const emptyChannelLabel =
-    surfaceKey === "lifecycle-states" ? t.lab.journeysSplit.silentBadge : surfaceKey === "runtime-mechanisms" ? t.lab.journeysSplit.mechanismBadge : t.lab.journeysSplit.internalBadge;
-  // Customer Journeys only - see isHumanRoutingRow in canonical-view.ts.
-  const humanRoutingLabel = surfaceKey === "customer-journeys" ? t.lab.journeysSplit.humanRoutingBadge : undefined;
-  const preview = [...rows].sort((a, b) => b.nodeCount - a.nodeCount).slice(0, 3);
-  const basePath = P(lang, "/lab/journeys");
-  return (
-    <Reveal
-      delay={delay}
-      className="flex h-full flex-col rounded-card border border-line bg-paper p-6 shadow-[0_0_0_1px_rgb(0_0_0/0.04),0_8px_24px_-16px_rgb(10_16_32/0.15)] sm:p-7"
-    >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h3 className="text-h3 text-ink-950">{label}</h3>
-        <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
-          {rows.length} {t.lab.page.results}
-        </span>
-      </div>
-      <p className="mt-2 text-[15px] leading-relaxed text-ink-950/65">{blurb}</p>
-      {surfaceKey === "customer-journeys" ? (
-        <p className="mt-3 flex flex-wrap gap-1.5">
-          {PRESET_ROWS.map((p) => (
-            <Link key={p.id} href={`${basePath}/${p.slug}`} className="rounded border border-line bg-paper-soft px-2 py-0.5 text-[12px] font-medium text-ink-700 transition-colors hover:border-neutral-400">
-              {p.name}
-            </Link>
-          ))}
-        </p>
-      ) : null}
-      <div className="mt-6 flex flex-1 flex-col gap-3">
-        {preview.map((j) => (
-          <JourneyIdeaCard
-            key={j.id}
-            href={`${basePath}/${j.slug}`}
-            id={j.id}
-            lang={lang}
-            category={j.category}
-            title={j.shortName ?? j.name}
-            categoryTitle={j.categoryTitle}
-            purpose={j.purpose}
-            nodeCount={j.nodeCount}
-            nodesLabel={t.lab.page.nodesLabel}
-            channels={sortChannels(j.channels)}
-            internalLabel={emptyChannelLabel}
-            typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
-          />
-        ))}
-      </div>
-      <div className="mt-7">
-        <Pill href={href} tone={tone}>
-          {t.lab.journeysSplit.browseAll.replace("{count}", String(rows.length))}
-        </Pill>
-      </div>
-    </Reveal>
-  );
-}
-
-/* The one primary destination - what a first-time visitor opens the
-   library into. The split used to carry two surfaces; the audit the library
-   runs on - see research/journey-library-user-taxonomy-audit.md.
-
-   Until 2026-09-05 this list had a second primary, "operational-workflows"
-   (Operations, 124 journeys). That surface was removed from the public site
-   and archived - archive/operational-workflows/README.md - so the split
-   below renders one primary card at full width. */
-const PRIMARY_SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys"];
+/* ---- 03 · Where to start - the three surfaces as tiles ------------------
+   Was a paragraph, a card with a blurb, a preset row, three full cards and
+   two more blurbs (Hulusi, 2026-09-20: "so ugly, so much text, I don't
+   understand anything"). Now the homepage's bento: the customer journeys
+   as the large tile - icon, the count large, one line, the three largest
+   journeys as compact rows, the presets as chips, the way in - and the two
+   supporting surfaces as small tiles beside it, each with its icon, its
+   count, one line and a link. Every count is read from the rows. */
 const SECONDARY_SURFACE_KEYS: readonly SurfaceKey[] = ["lifecycle-states", "runtime-mechanisms"];
 
-/* A secondary surface's own compact card - label, count, its own blurb,
-   one link. No preview cards: these are reference material a practitioner
-   is told exists and can open, not something to browse from the hub. */
-function ReferenceCard({ lang, surfaceKey, delay }: { lang: Lang; surfaceKey: SurfaceKey; delay: number }) {
+function SurfaceTile({ surfaceKey, lang, delay }: { surfaceKey: SurfaceKey; lang: Lang; delay: number }) {
   const t = copy[lang];
+  const c = t.lab.journeysHub.split;
   const rows = SURFACE_ROWS[surfaceKey];
-  const label = t.lab.journeysSplit.surfaceLabels[surfaceKey];
-  const blurb = t.lab.journeysSplit.surfaceBlurbs[surfaceKey];
-  const href = P(lang, SURFACE_PATH[surfaceKey]);
   return (
-    <Reveal delay={delay} className="flex flex-col gap-2 rounded-card border border-line bg-paper-soft p-5">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h4 className="text-[15px] font-medium tracking-tight text-ink-950">{label}</h4>
-        <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
-          {rows.length} {t.lab.page.results}
-        </span>
-      </div>
-      <p className="text-sm leading-relaxed text-ink-950/65">{blurb}</p>
-      <Link href={href} className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-ink-700 transition-colors hover:text-ink-950">
+    <Reveal delay={delay} className="flex flex-col rounded-[28px] bg-paper-soft p-6">
+      <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-paper text-ink-700 ring-1 ring-ink-950/[0.06]">
+        {SURFACE_ICON[surfaceKey]}
+      </span>
+      <p className="mt-4 text-h3 text-ink-950 tabular-nums">{nf(lang, rows.length)}</p>
+      <h3 className="mt-0.5 text-base font-semibold text-ink-950">{t.lab.journeysSplit.surfaceLabels[surfaceKey]}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{c.lines[surfaceKey]}</p>
+      <Link
+        href={P(lang, SURFACE_PATH[surfaceKey])}
+        className="mt-auto flex w-fit items-center gap-1.5 pt-5 text-sm font-medium text-ink-950 transition-colors duration-[var(--duration-fast)] hover:text-primary-600"
+      >
         {t.lab.journeysSplit.browseAll.replace("{count}", String(rows.length))}
-        <ArrowRight aria-hidden className="size-3.5" />
+        <ArrowRight aria-hidden className="size-4" />
       </Link>
     </Reveal>
-  );
-}
-
-function ReferenceStrip({ lang }: { lang: Lang }) {
-  const c = copy[lang].lab.journeysSplit.referenceStrip;
-  return (
-    <div className="mt-10">
-      <p className="text-sm font-medium text-ink-500">{c}</p>
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {SECONDARY_SURFACE_KEYS.map((k, i) => (
-          <ReferenceCard key={k} lang={lang} surfaceKey={k} delay={200 + i * 60} />
-        ))}
-      </div>
-    </div>
   );
 }
 
 function Split({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const c = t.lab.journeysHub.split;
+  const s = t.lab.journeysSplit;
+  const rows = SURFACE_ROWS["customer-journeys"];
+  const largest = [...rows].sort((a, b) => b.nodeCount - a.nodeCount).slice(0, 3);
+  const basePath = P(lang, "/lab/journeys");
   return (
     <ProductSection tone="paper" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={c.eyebrow} title={c.title} body={c.body} align="center" />
-        <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-6">
-          {PRIMARY_SURFACE_KEYS.map((k, i) => (
-            <Half key={k} lang={lang} surfaceKey={k} tone="dark" delay={80 + i * 60} />
-          ))}
+        <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <Reveal delay={60} className="flex flex-col rounded-[28px] bg-paper-soft p-6 md:p-8 lg:col-span-2">
+            <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-primary-50 text-primary-700">
+              {SURFACE_ICON["customer-journeys"]}
+            </span>
+            <p className="mt-4 text-h2 text-ink-950 tabular-nums">{nf(lang, rows.length)}</p>
+            <h3 className="mt-0.5 text-lg font-semibold text-ink-950">{s.surfaceLabels["customer-journeys"]}</h3>
+            <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-pretty text-ink-muted">{c.lines["customer-journeys"]}</p>
+
+            <p className="mt-6 text-xs font-medium text-ink-subtle">{c.largest}</p>
+            <ul className="mt-2 grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-3">
+              {largest.map((j) => {
+                const accent = categoryAccent(j.category);
+                return (
+                  <li key={j.id}>
+                    <Link
+                      href={`${basePath}/${j.slug}`}
+                      className="flex items-center gap-2.5 rounded-2xl bg-paper px-3.5 py-3 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_12px_30px_-18px_rgb(10_16_32/0.35)]"
+                    >
+                      <span aria-hidden className={`grid size-8 shrink-0 place-items-center rounded-lg ${accent.tile}`}>
+                        <CategoryIcon id={j.category} className="size-3.5" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium text-ink-950">{j.shortName ?? j.name}</span>
+                        <span className="block text-xs text-ink-subtle tabular-nums">
+                          {j.nodeCount} {t.lab.page.nodesLabel}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <p className="mt-5 flex flex-wrap items-center gap-1.5">
+              <span className="mr-1 text-xs font-medium text-ink-subtle">{s.presetsTitle}</span>
+              {PRESET_ROWS.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`${basePath}/${p.slug}`}
+                  className="flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 text-xs font-medium text-ink-700 ring-1 ring-ink-950/[0.06] transition-colors duration-[var(--duration-fast)] hover:text-ink-950"
+                >
+                  <Bookmark aria-hidden className="size-3 text-primary-600" />
+                  {p.name}
+                </Link>
+              ))}
+            </p>
+
+            <div className="mt-auto pt-7">
+              <Pill href={P(lang, SURFACE_PATH["customer-journeys"])} tone="dark">
+                {s.browseAll.replace("{count}", String(rows.length))}
+              </Pill>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            {SECONDARY_SURFACE_KEYS.map((k, i) => (
+              <SurfaceTile key={k} surfaceKey={k} lang={lang} delay={140 + i * 60} />
+            ))}
+          </div>
         </div>
-        <ReferenceStrip lang={lang} />
       </PortraitContainer>
     </ProductSection>
   );

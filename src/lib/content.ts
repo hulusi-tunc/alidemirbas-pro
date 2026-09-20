@@ -303,8 +303,14 @@ export const copy = {
         proof: ["Domain-neutral", "Branching flows", "No message copy"],
         split: {
           eyebrow: "Where to start",
-          title: "Start with the customer journeys. States and mechanisms open from inside them.",
-          body: "Customer journeys are the flows that message a person or hand work to a team. Each one depends on two things: the silent lifecycle states that hold where a person currently is, and the runtime mechanisms that decide whether a send can go out. Both open from inside a journey, and both can be browsed on their own below.",
+          title: "Start with the customer journeys.",
+          body: "The other two surfaces open from inside them.",
+          lines: {
+            "customer-journeys": "Flows that message a person or hand work to a team.",
+            "lifecycle-states": "Silent records of where a person is. Journeys read them before acting.",
+            "runtime-mechanisms": "The rules every send runs on: who can be contacted, delivery, retries.",
+          },
+          largest: "Largest journeys",
         },
         stories: {
           eyebrow: "Required in every journey",
@@ -1082,8 +1088,14 @@ export const copy = {
         proof: ["Sektörden bağımsız", "Dallanan akış", "Mesaj metni yok"],
         split: {
           eyebrow: "Nereden başlamalı",
-          title: "Müşteri journey'lerinden başla. Durumlar ve mekanizmalar onların içinden açılır.",
-          body: "Müşteri journey'leri kişiye mesaj gönderen ya da bir ekibe iş düşüren akışlar. Her biri iki şeye dayanır. Kişinin hangi durumda olduğunu tutan sessiz yaşam döngüsü durumları ve gönderimi mümkün kılan altyapı mekanizmaları. İkisi de journey'nin içinden açılır, aşağıda ayrıca gezilebilir.",
+          title: "Müşteri journey'lerinden başlayın.",
+          body: "Diğer iki yüzey onların içinden açılır.",
+          lines: {
+            "customer-journeys": "Bir kişiye mesaj gönderen ya da işi bir ekibe devreden akışlar.",
+            "lifecycle-states": "Kişinin nerede olduğunu tutan sessiz kayıtlar; journey'ler göndermeden önce bunları okur.",
+            "runtime-mechanisms": "Her gönderimin dayandığı kurallar: ulaşılabilirlik, teslimat, yeniden deneme.",
+          },
+          largest: "En büyük journey'ler",
         },
         stories: {
           eyebrow: "Her journey'de zorunlu olanlar",

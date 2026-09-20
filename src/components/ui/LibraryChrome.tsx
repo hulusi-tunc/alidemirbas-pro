@@ -72,7 +72,7 @@ import type { SurfaceKey } from "@/lib/canonical-view";
    the category heading. Words are sans, numbers are tabular, nothing under
    12px, nothing uppercase - the rules every Lab window already keeps. */
 
-const SURFACE_ICON: Record<SurfaceKey, ReactNode> = {
+export const SURFACE_ICON: Record<SurfaceKey, ReactNode> = {
   "customer-journeys": <Send aria-hidden className="size-4" />,
   "lifecycle-states": <Layers aria-hidden className="size-4" />,
   "runtime-mechanisms": <Cog aria-hidden className="size-4" />,
