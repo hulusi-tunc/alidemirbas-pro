@@ -7,9 +7,9 @@ import { categoryLabel, setupLabel, surfaceLabel } from "@/components/ui/AbTestV
 import { InfoTile } from "@/components/ui/InfoTile";
 import { ProductFrame } from "@/components/ui/ProductFrame";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
-import { VariableDiagram } from "@/components/ui/VariableDiagram";
-import { abPlaybookText, abSetupMode, abVariableKind } from "@/lib/ab-test-playbook";
-import type { AbVariableKind } from "@/lib/ab-test-playbook";
+import { AbScreen } from "@/components/ui/AbScreen";
+import { abElementKind, abPlaybookText, abSetupMode, abVariableKind } from "@/lib/ab-test-playbook";
+import type { AbElementKind, AbVariableKind } from "@/lib/ab-test-playbook";
 import type { AbTestDetail } from "@/lib/ab-test-view";
 import { primaryKpiLabel } from "@/lib/ab-test-view";
 
@@ -138,6 +138,8 @@ export default function AbTestPlaybookPage({
      attribute so the classification can be audited against the rendered
      page rather than against a copy of the rule. */
   const kind = abVariableKind(test);
+  /* Which interface element the screens draw as real UI (ui/AbScreen.tsx). */
+  const element = abElementKind(test);
   /* The one behaviour whose two sides the data fixes: on `add` the control
      lacks the element and the variant has it, on `remove` the reverse. Any
      other kind draws the same diagram on both sides. */
@@ -159,7 +161,7 @@ export default function AbTestPlaybookPage({
   const diffSign = DIFF_SIGN[test.differenceBehavior];
 
   const header = (
-    <header data-ab-variable={kind} data-ab-mode={mode}>
+    <header data-ab-variable={kind} data-ab-element={element} data-ab-mode={mode}>
       <JsonLdScript data={breadcrumb} />
       <p className={`flex items-center gap-2 text-sm font-medium ${accent.ink}`}>
         <span aria-hidden className={`grid size-7 place-items-center rounded-lg ${accent.tile}`}>
@@ -233,11 +235,7 @@ export default function AbTestPlaybookPage({
             label={roleLabel(test.sideA!.role, t.roles.control)}
             letter="A"
             side={test.sideA!}
-            kind={kind}
-            presence={presenceOf("a")}
-            testedSlot={test.testedSlot}
-            testedElementLabel={t.testedElement}
-            lang={lang}
+            screen={{ surface: test.surface, element, kind, side: "a", presence: presenceOf("a"), lang }}
           />
           <div className="flex items-center justify-center">
             <span aria-hidden className="grid size-9 place-items-center rounded-full bg-paper text-ink-500 ring-1 ring-ink-950/[0.06] max-lg:rotate-90">
@@ -248,11 +246,7 @@ export default function AbTestPlaybookPage({
             label={roleLabel(test.sideB!.role, t.roles.variant)}
             letter="B"
             side={test.sideB!}
-            kind={kind}
-            presence={presenceOf("b")}
-            testedSlot={test.testedSlot}
-            testedElementLabel={t.testedElement}
-            lang={lang}
+            screen={{ surface: test.surface, element, kind, side: "b", presence: presenceOf("b"), lang }}
             change={diffWord && test.testedSlot ? { sign: diffSign, word: diffWord, slot: test.testedSlot } : undefined}
           />
         </div>
@@ -261,7 +255,7 @@ export default function AbTestPlaybookPage({
         <ProductFrame slug="ab-test-playbook" wash={false} className="mt-6">
         <div className="mx-auto max-w-3xl rounded-[28px] bg-paper p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] sm:p-8">
           <div className="grid gap-6 sm:grid-cols-2 sm:items-center">
-            <VariableDiagram kind={kind} testedSlot={test.testedSlot} label={t.testedElement} lang={lang} />
+            <AbScreen surface={test.surface} element={element} kind={kind} side="solo" lang={lang} />
             <div className="flex flex-col gap-4">
               <div>
                 <p className="text-xs font-medium text-ink-subtle">{t.whatChanges}</p>
@@ -353,21 +347,13 @@ function Side({
   label,
   letter,
   side,
-  kind,
-  presence,
-  testedSlot,
-  testedElementLabel,
-  lang,
+  screen,
   change,
 }: {
   label: string;
   letter: string;
   side: { role: string; label: string | null; sourceBasis: string | null };
-  kind: AbVariableKind;
-  presence: "absent" | "present" | null;
-  testedSlot: string | null;
-  testedElementLabel: string;
-  lang: Lang;
+  screen: { surface: string; element: AbElementKind; kind: AbVariableKind; side: "a" | "b"; presence: "absent" | "present" | null; lang: Lang };
   change?: { sign: string; word: string; slot: string };
 }) {
   return (
@@ -387,7 +373,7 @@ function Side({
         ) : null}
       </div>
       <div className="mt-5 flex-1">
-        <VariableDiagram kind={kind} testedSlot={testedSlot} label={testedElementLabel} lang={lang} presence={presence} />
+        <AbScreen {...screen} />
       </div>
       <p className="mt-5 text-base leading-relaxed text-pretty text-ink-900">{side.label ?? "—"}</p>
     </div>
