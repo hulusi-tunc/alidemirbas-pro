@@ -31,7 +31,8 @@ Blocked: 0
 - [x] **Phase 2.3 — reference example.** `audit/reference-example.md` (ACQ-11).
 - [x] **Phase 2.4 — glossary.** `audit/glossary.md`.
 - [x] **Phase 3 — implementation.** `absorbableBookkeeping`, `representedSteps`,
-      `cardSummary`; `collapsibleGates` corrected.
+      `cardSummary`, `collapsibleWaitFollowers` (Family B); `collapsibleGates`
+      corrected.
 - [x] **Phase 4 — apply.** Applied corpus-wide by construction: a generic
       transform needs no per-journey batches.
 - [x] **Phase 5 — full-corpus validation + report.** `audit/REPORT.md`.
@@ -42,14 +43,17 @@ Blocked: 0
 |---|---|---|
 | Journeys rendering without error | 73 / 73 | 73 / 73 |
 | Locale leaks | 0 | 0 |
-| Display nodes, all 73 (EN) | 1065 | **962** (−9.7%) |
+| Display nodes, all 73 (EN) | 1065 | **947** (−11.1%) |
 | Display nodes per journey | min 8 / median 14 / max 34 | min 7 / median 13 / max 29 |
-| Journeys over 16 nodes | 15 | **9** |
-| Journeys over 12 nodes | 57 | **44** |
+| Journeys over 16 nodes | 15 | **7** |
+| Journeys over 12 nodes | 57 | **41** |
 | Journeys with a card over 110 characters | 52 | **18** |
 | Long cards, both locales | 56 | **25** |
 | Longest card text | 412 chars | **133 chars** |
 | Journeys still showing plain `Internal · NN` cards | 52 | **26** |
+
+Family B (`collapsibleWaitFollowers`) alone: **962 → 947** (−15, exactly the
+detector's 15 safe collapses), 7 journeys affected, 0 grew.
 
 ## Shared code changed
 
@@ -60,6 +64,8 @@ Hobby plan blocks a deploy whose commit author is a collaborator):
 - **#10** the P0 correction to `collapsibleGates`, plus `audit/guard-display.mjs`
 - **#11** `absorbableBookkeeping`, `representedSteps`, `NodeDetailPanel.represents`
 - **#12** `cardSummary`, `audit/patterns.md`
+- **#14** `collapsibleWaitFollowers` (Family B), `ConditionCard.waitNode`,
+  `audit/family-b-detector.mjs`
 
 ## Last successful validation
 
@@ -83,6 +89,6 @@ Hobby plan blocks a deploy whose commit author is a collaborator):
 ## Next action
 
 Nothing blocking. The queue, in value order, is in `audit/REPORT.md` §7:
-merged-label budget, the 15 provable wait+condition merges, and P-STATE-01.
-Entry eligibility gates are **measured and deliberately not shipped** — 3 of the
-9 matching conditions are real business decisions.
+merged-label budget, then P-STATE-01. Entry eligibility gates are **measured
+and deliberately not shipped** — 3 of the 9 matching conditions are real
+business decisions. Family B shipped (#14).

@@ -1,0 +1,1081 @@
+{
+  "generated": "2026-09-20T16:51:17.113Z",
+  "summary": {
+    "total_wait_nodes_scanned": 105,
+    "same_target_event_timeout_candidates": 19,
+    "safe_collapses": 15,
+    "rejected_candidates": 90,
+    "rejection_reason_breakdown": {
+      "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden": 86,
+      "condition has other incoming sources: w.resumed": 1,
+      "condition has other incoming sources: w.second": 1,
+      "target is kind \"action\", not a condition": 2
+    },
+    "affected_journey_count": 7,
+    "affected_journeys": [
+      "ACC-261",
+      "ACQ-11",
+      "ACQ-12",
+      "ACQ-287",
+      "ACQ-288",
+      "RET-31",
+      "RSK-273"
+    ]
+  },
+  "candidates": [
+    {
+      "journey_id": "ACQ-09",
+      "wait_node_id": "w.window",
+      "on_event_target": "c.window-event",
+      "on_timeout_target": "a.sunset",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACQ-285",
+      "wait_node_id": "w.nurture",
+      "on_event_target": "c.progressed",
+      "on_timeout_target": "x.sunset",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACQ-11",
+      "wait_node_id": "w.abandon",
+      "on_event_target": "c.state",
+      "on_timeout_target": "c.state",
+      "condition_node_id": "c.state",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-11",
+      "wait_node_id": "w.second",
+      "on_event_target": "c.state2",
+      "on_timeout_target": "c.state2",
+      "condition_node_id": "c.state2",
+      "other_incoming_sources": [
+        "w.resumed"
+      ],
+      "safe_to_collapse": false,
+      "reason": "condition has other incoming sources: w.resumed"
+    },
+    {
+      "journey_id": "ACQ-11",
+      "wait_node_id": "w.resumed",
+      "on_event_target": "c.state2",
+      "on_timeout_target": "c.state2",
+      "condition_node_id": "c.state2",
+      "other_incoming_sources": [
+        "w.second"
+      ],
+      "safe_to_collapse": false,
+      "reason": "condition has other incoming sources: w.second"
+    },
+    {
+      "journey_id": "ACQ-11",
+      "wait_node_id": "w.final",
+      "on_event_target": "c.state3",
+      "on_timeout_target": "c.state3",
+      "condition_node_id": "c.state3",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-11",
+      "wait_node_id": "w.close",
+      "on_event_target": "c.close",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACQ-12",
+      "wait_node_id": "w.settle",
+      "on_event_target": "c.state",
+      "on_timeout_target": "c.state",
+      "condition_node_id": "c.state",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-12",
+      "wait_node_id": "w.second",
+      "on_event_target": "c.state2",
+      "on_timeout_target": "c.state2",
+      "condition_node_id": "c.state2",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-12",
+      "wait_node_id": "w.final",
+      "on_event_target": "c.state3",
+      "on_timeout_target": "c.state3",
+      "condition_node_id": "c.state3",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-13",
+      "wait_node_id": "w.settle",
+      "on_event_target": "x.resolved",
+      "on_timeout_target": "c.state",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACQ-13",
+      "wait_node_id": "w.after",
+      "on_event_target": "x.resolved",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACQ-287",
+      "wait_node_id": "w.first",
+      "on_event_target": "c.completed1",
+      "on_timeout_target": "c.completed1",
+      "condition_node_id": "c.completed1",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-287",
+      "wait_node_id": "w.second",
+      "on_event_target": "c.completed2",
+      "on_timeout_target": "c.completed2",
+      "condition_node_id": "c.completed2",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-287",
+      "wait_node_id": "w.third",
+      "on_event_target": "c.completed3",
+      "on_timeout_target": "c.completed3",
+      "condition_node_id": "c.completed3",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-288",
+      "wait_node_id": "w.first",
+      "on_event_target": "c.active1",
+      "on_timeout_target": "c.active1",
+      "condition_node_id": "c.active1",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-288",
+      "wait_node_id": "w.second",
+      "on_event_target": "c.purchased2",
+      "on_timeout_target": "c.purchased2",
+      "condition_node_id": "c.purchased2",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACQ-288",
+      "wait_node_id": "w.third",
+      "on_event_target": "c.purchased3",
+      "on_timeout_target": "c.purchased3",
+      "condition_node_id": "c.purchased3",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACT-12",
+      "wait_node_id": "w.progress",
+      "on_event_target": "c.what-happened",
+      "on_timeout_target": "c.window",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACT-13",
+      "wait_node_id": "w.resolve",
+      "on_event_target": "a.stop-reminders",
+      "on_timeout_target": "c.unresolved",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACT-14",
+      "wait_node_id": "w.response",
+      "on_event_target": "c.what-happened",
+      "on_timeout_target": "c.final-option",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACT-14",
+      "wait_node_id": "w.session",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "x.no-outcome",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACT-17",
+      "wait_node_id": "w.observe",
+      "on_event_target": "a.measure",
+      "on_timeout_target": "h.stall",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACT-18",
+      "wait_node_id": "w.recover",
+      "on_event_target": "h.adoption",
+      "on_timeout_target": "h.monitor",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACT-19",
+      "wait_node_id": "w.answer",
+      "on_event_target": "a.persist",
+      "on_timeout_target": "a.default",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACT-20",
+      "wait_node_id": "w.return",
+      "on_event_target": "a.inspect",
+      "on_timeout_target": "x.sunset",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "RET-28",
+      "wait_node_id": "w.answer",
+      "on_event_target": "c.answered",
+      "on_timeout_target": "a.no-reason",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "RET-28",
+      "wait_node_id": "w.decision",
+      "on_event_target": "c.decision",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "RET-30",
+      "wait_node_id": "w.outcome",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "c.followup",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "RET-31",
+      "wait_node_id": "w.lead",
+      "on_event_target": "c.state",
+      "on_timeout_target": "c.state",
+      "condition_node_id": "c.state",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "RET-31",
+      "wait_node_id": "w.window",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "c.outcome",
+      "condition_node_id": "c.outcome",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "RET-31",
+      "wait_node_id": "w.final",
+      "on_event_target": "c.final",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "RET-32",
+      "wait_node_id": "w.response",
+      "on_event_target": "x.won",
+      "on_timeout_target": "c.second",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "RET-32",
+      "wait_node_id": "w.final",
+      "on_event_target": "x.won",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "CON-264",
+      "wait_node_id": "w.confirm",
+      "on_event_target": "c.resolution",
+      "on_timeout_target": "a.remind",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "CON-264",
+      "wait_node_id": "w.last",
+      "on_event_target": "a.activate",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "CON-272",
+      "wait_node_id": "w.corrected",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "x.suppressed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "CON-283",
+      "wait_node_id": "w.cycle",
+      "on_event_target": "c.settled",
+      "on_timeout_target": "x.holding",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-41",
+      "wait_node_id": "w.completion",
+      "on_event_target": "c.open-issue",
+      "on_timeout_target": "x.never-completed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-41",
+      "wait_node_id": "w.response",
+      "on_event_target": "x.received",
+      "on_timeout_target": "x.no-response",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-42",
+      "wait_node_id": "w.response",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "x.no-response",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-43",
+      "wait_node_id": "w.outcome",
+      "on_event_target": "c.promise",
+      "on_timeout_target": "x.open",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-43",
+      "wait_node_id": "w.followup",
+      "on_event_target": "x.closed",
+      "on_timeout_target": "h.promise",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-46",
+      "wait_node_id": "w.resolution",
+      "on_event_target": "c.confirmation",
+      "on_timeout_target": "a.escalate",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-46",
+      "wait_node_id": "w.confirm",
+      "on_event_target": "c.confirmed",
+      "on_timeout_target": "a.close-unconfirmed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-47",
+      "wait_node_id": "w.review",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "h.deadline",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-47",
+      "wait_node_id": "w.more-info",
+      "on_event_target": "w.review",
+      "on_timeout_target": "h.deadline",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FBK-49",
+      "wait_node_id": "w.received",
+      "on_event_target": "c.valid",
+      "on_timeout_target": "c.criticality",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "TIM-61",
+      "wait_node_id": "w.tracking",
+      "on_event_target": "c.what",
+      "on_timeout_target": "c.consequence",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "TIM-63",
+      "wait_node_id": "w.resolution",
+      "on_event_target": "a.invalidate",
+      "on_timeout_target": "h.expiry",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "TIM-268",
+      "wait_node_id": "w.due",
+      "on_event_target": "a.recheck",
+      "on_timeout_target": "a.recheck",
+      "condition_node_id": "a.recheck",
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "target is kind \"action\", not a condition"
+    },
+    {
+      "journey_id": "TIM-268",
+      "wait_node_id": "w.deadline",
+      "on_event_target": "c.settled",
+      "on_timeout_target": "a.overdue",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "TIM-274",
+      "wait_node_id": "w.grace",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "a.last-call",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "TIM-274",
+      "wait_node_id": "w.final",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "a.lost",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "TIM-281",
+      "wait_node_id": "w.act",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "x.still-expired",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACC-261",
+      "wait_node_id": "w.resolve",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "c.outcome",
+      "condition_node_id": "c.outcome",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "ACC-263",
+      "wait_node_id": "w.first-use",
+      "on_event_target": "c.used",
+      "on_timeout_target": "c.remind",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "ACC-263",
+      "wait_node_id": "w.last-chance",
+      "on_event_target": "x.activated",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "IDN-81",
+      "wait_node_id": "w.evidence",
+      "on_event_target": "a.validate",
+      "on_timeout_target": "x.expired",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "IDN-85",
+      "wait_node_id": "w.auth",
+      "on_event_target": "c.result",
+      "on_timeout_target": "x.timeout",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "IDN-270",
+      "wait_node_id": "w.proof",
+      "on_event_target": "c.proof",
+      "on_timeout_target": "c.remind",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "IDN-270",
+      "wait_node_id": "w.final",
+      "on_event_target": "c.proof",
+      "on_timeout_target": "x.closed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "IDN-271",
+      "wait_node_id": "w.verify",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "a.standing",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "REL-284",
+      "wait_node_id": "w.response",
+      "on_event_target": "c.response",
+      "on_timeout_target": "c.remind",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "REL-284",
+      "wait_node_id": "w.final",
+      "on_event_target": "c.response",
+      "on_timeout_target": "x.expired",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "TRM-106",
+      "wait_node_id": "w.blockers",
+      "on_event_target": "c.recheck",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "TRM-275",
+      "wait_node_id": "w.verify",
+      "on_event_target": "w.decision",
+      "on_timeout_target": "a.unverified",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "TRM-275",
+      "wait_node_id": "w.decision",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "h.overdue",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "INT-269",
+      "wait_node_id": "w.revalidate",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "a.unreconnected",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "INT-278",
+      "wait_node_id": "w.retry",
+      "on_event_target": "c.retry",
+      "on_timeout_target": "x.abandoned",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FIN-134",
+      "wait_node_id": "w.alternate-choice",
+      "on_event_target": "a.use-alternate",
+      "on_timeout_target": "c.next",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FIN-134",
+      "wait_node_id": "w.recovery",
+      "on_event_target": "c.recovered",
+      "on_timeout_target": "c.reminder",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FIN-134",
+      "wait_node_id": "w.final",
+      "on_event_target": "c.recovered",
+      "on_timeout_target": "c.next",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FIN-137",
+      "wait_node_id": "w.decision",
+      "on_event_target": "c.decision",
+      "on_timeout_target": "h.escalate",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FUL-146",
+      "wait_node_id": "w.decision",
+      "on_event_target": "c.decision",
+      "on_timeout_target": "w.resume",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FUL-146",
+      "wait_node_id": "w.resume",
+      "on_event_target": "h.resume",
+      "on_timeout_target": "h.escalate",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FUL-148",
+      "wait_node_id": "w.correction",
+      "on_event_target": "c.budget",
+      "on_timeout_target": "h.return",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FUL-148",
+      "wait_node_id": "w.route-choice",
+      "on_event_target": "c.route-answer",
+      "on_timeout_target": "a.reattempt",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FUL-265",
+      "wait_node_id": "w.delivery",
+      "on_event_target": "c.delivery",
+      "on_timeout_target": "a.no-arrival",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FUL-265",
+      "wait_node_id": "w.acceptance",
+      "on_event_target": "c.response",
+      "on_timeout_target": "a.finalize",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FUL-276",
+      "wait_node_id": "w.decision",
+      "on_event_target": "c.answer",
+      "on_timeout_target": "a.remind",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "FUL-276",
+      "wait_node_id": "w.final",
+      "on_event_target": "c.answer",
+      "on_timeout_target": "a.lapse",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "REM-152",
+      "wait_node_id": "w.decision",
+      "on_event_target": "c.decision",
+      "on_timeout_target": "h.escalate",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "REM-157",
+      "wait_node_id": "w.selection",
+      "on_event_target": "c.route",
+      "on_timeout_target": "a.default",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SUB-163",
+      "wait_node_id": "w.decision",
+      "on_event_target": "c.decision",
+      "on_timeout_target": "a.default",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SUB-163",
+      "wait_node_id": "w.review",
+      "on_event_target": "c.decision",
+      "on_timeout_target": "h.escalate",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SUB-262",
+      "wait_node_id": "w.window",
+      "on_event_target": "c.withdrawn",
+      "on_timeout_target": "a.ending",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SCH-266",
+      "wait_node_id": "w.prereq",
+      "on_event_target": "c.prereq",
+      "on_timeout_target": "a.revalidate",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SCH-266",
+      "wait_node_id": "w.prestart",
+      "on_event_target": "a.revalidate",
+      "on_timeout_target": "a.revalidate",
+      "condition_node_id": "a.revalidate",
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "target is kind \"action\", not a condition"
+    },
+    {
+      "journey_id": "SCH-277",
+      "wait_node_id": "w.outcome",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "a.lapse",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SCH-277",
+      "wait_node_id": "w.choice",
+      "on_event_target": "c.choice",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SCH-280",
+      "wait_node_id": "w.rebook",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "x.closed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SCH-282",
+      "wait_node_id": "w.settle",
+      "on_event_target": "c.settled",
+      "on_timeout_target": "a.recheck",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SCH-282",
+      "wait_node_id": "w.waitlist",
+      "on_event_target": "x.waitlisted",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "SCH-282",
+      "wait_node_id": "w.respond",
+      "on_event_target": "x.booked",
+      "on_timeout_target": "x.lapsed",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "DEC-184",
+      "wait_node_id": "w.info",
+      "on_event_target": "c.received",
+      "on_timeout_target": "a.deadline",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "DEC-267",
+      "wait_node_id": "w.remediate",
+      "on_event_target": "c.corrected",
+      "on_timeout_target": "a.expired",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "RSK-273",
+      "wait_node_id": "w.capacity",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "c.outcome",
+      "condition_node_id": "c.outcome",
+      "other_incoming_sources": [],
+      "safe_to_collapse": true,
+      "reason": "both wait outcomes converge to one exclusive condition"
+    },
+    {
+      "journey_id": "DOC-214",
+      "wait_node_id": "w.distribution",
+      "on_event_target": "c.outcome",
+      "on_timeout_target": "a.unknown",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "DOC-215",
+      "wait_node_id": "w.signatures",
+      "on_event_target": "c.event",
+      "on_timeout_target": "c.reminder-useful",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "DOC-215",
+      "wait_node_id": "w.expiry",
+      "on_event_target": "c.event",
+      "on_timeout_target": "a.expired",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "DOC-286",
+      "wait_node_id": "w.first-use",
+      "on_event_target": "c.what-happened",
+      "on_timeout_target": "c.still-in-force",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "DOC-286",
+      "wait_node_id": "w.dormancy",
+      "on_event_target": "x.used",
+      "on_timeout_target": "x.dormant",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "RLT-279",
+      "wait_node_id": "w.clear",
+      "on_event_target": "c.cleared",
+      "on_timeout_target": "c.last-call",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    },
+    {
+      "journey_id": "RLT-279",
+      "wait_node_id": "w.final",
+      "on_event_target": "h.resume",
+      "on_timeout_target": "x.unprepared",
+      "condition_node_id": null,
+      "other_incoming_sources": null,
+      "safe_to_collapse": false,
+      "reason": "onEvent and onTimeout target different nodes - different business meaning, collapse forbidden"
+    }
+  ]
+}

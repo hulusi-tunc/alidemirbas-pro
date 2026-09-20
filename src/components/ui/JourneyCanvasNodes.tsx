@@ -615,10 +615,35 @@ export function ActionCard({ node, sequence, onOpen, messageLabels, humanLabels,
   );
 }
 
-export function ConditionCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
+export function ConditionCard({
+  node,
+  waitNode,
+  onOpen,
+  lang = "en",
+}: {
+  node: FlowNode;
+  /** Family B (`collapsibleWaitFollowers`, journey-canvas-layout.ts): the
+      wait this condition is the sole, exclusive successor of - both its
+      "on event" and "on timeout" arms land here and nothing else points at
+      it, so "wait, then read what happened" is one reading unit and gets
+      one card rather than two. The wait's own canonical node is absorbed
+      exactly like a permission gate or a bookkeeping step (full prose kept,
+      reachable from the detail panel's "Represented canonical steps") - this
+      component only draws its duration as a compact strip above the
+      question. Undefined for every ordinary condition. */
+  waitNode?: FlowNode;
+  onOpen: () => void;
+  lang?: Lang;
+}) {
   const w = CARD_TEXT[lang];
   return (
     <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.condition} py-2.5`}>
+      {waitNode ? (
+        <span className="mb-2 flex items-center gap-1.5 border-b border-line-soft pb-2 text-[11px] font-medium text-teal-700 [[data-lod=far]_&]:hidden">
+          <Clock aria-hidden className="size-3 shrink-0" />
+          <span className="line-clamp-1">{waitLabel(waitNode)}</span>
+        </span>
+      ) : null}
       <KindRow kind={KIND.condition} icon={<Split aria-hidden />}>
         {w.decision}
       </KindRow>

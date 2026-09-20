@@ -490,7 +490,7 @@ export function JourneyWorld({
                 lang={labels.lang}
               />
             ) : n.kind === "condition" ? (
-              <ConditionCard node={n} onOpen={open} lang={labels.lang} />
+              <ConditionCard node={n} waitNode={l.mergedWait} onOpen={open} lang={labels.lang} />
             ) : n.kind === "wait" ? (
               <WaitCard node={n} onOpen={open} />
             ) : n.kind === "handoff" ? (

@@ -4,10 +4,10 @@
     "slug": "abandoned-process-recovery",
     "locales": {
       "en": {
-        "display_nodes": 21,
-        "distinct_canonical_nodes": 21,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 58,
+        "edges": 56,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -31,10 +31,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 21,
-        "distinct_canonical_nodes": 21,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 58,
+        "edges": 56,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -72,10 +72,10 @@
     "slug": "abandoned-selection-recovery",
     "locales": {
       "en": {
-        "display_nodes": 17,
-        "distinct_canonical_nodes": 17,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 42,
+        "edges": 39,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -87,10 +87,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 17,
-        "distinct_canonical_nodes": 17,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 42,
+        "edges": 39,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
@@ -103,10 +103,10 @@
     "slug": "access-restriction-route-back",
     "locales": {
       "en": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -118,10 +118,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -685,20 +685,20 @@
     "slug": "cart-abandonment",
     "locales": {
       "en": {
-        "display_nodes": 19,
-        "distinct_canonical_nodes": 19,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 39,
+        "edges": 36,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 19,
-        "distinct_canonical_nodes": 19,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 39,
+        "edges": 36,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -720,20 +720,20 @@
     "slug": "checkout-abandonment",
     "locales": {
       "en": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 10,
+        "distinct_canonical_nodes": 10,
         "terminal_instances": 0,
-        "edges": 23,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 10,
+        "distinct_canonical_nodes": 10,
         "terminal_instances": 0,
-        "edges": 23,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
@@ -2211,10 +2211,10 @@
     "slug": "predicted-need-replenishment",
     "locales": {
       "en": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 32,
+        "edges": 30,
         "internal_cards": 1,
         "long_cards": [
           {
@@ -2226,10 +2226,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 32,
+        "edges": 30,
         "internal_cards": 1,
         "long_cards": [],
         "long_branch_labels": [],
@@ -2759,20 +2759,20 @@
     "slug": "usage-limit-capacity-path",
     "locales": {
       "en": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 23,
+        "edges": 22,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 23,
+        "edges": 22,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [

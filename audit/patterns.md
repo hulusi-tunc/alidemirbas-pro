@@ -62,7 +62,7 @@ arms a wait" (P-SETUP-01 generalised, 53 nodes across 42 journeys) — was
 
 ---
 
-## Family B — wait + follower condition · **NOT IMPLEMENTED (small)**
+## Family B — wait + follower condition · **IMPLEMENTED**
 
 | id | journeys | what the slice called it |
 |---|---|---|
@@ -73,12 +73,15 @@ arms a wait" (P-SETUP-01 generalised, 53 nodes across 42 journeys) — was
 
 The four ids describe the same shape and read, from the slice write-ups, like
 the single largest remaining win. **Measuring the canonical graph does not
-support that.** Across the 105 waits in the public corpus:
+support that.** Across the 105 waits in the public corpus
+(`audit/family-b-detector.mjs`):
 
 - 86 waits send `onEvent` and `onTimeout` to **different** nodes. Those two arms
   are real, distinct information; merging them would erase a branch.
 - 19 send both arms to the same node. 2 of those land on something that is not a
-  condition, and 2 land on a condition several nodes share.
+  condition, and 2 land on a condition another wait also converges on (ACQ-11's
+  `w.second` and `w.resumed` both reach `c.state2` — the resumed-then-still-open
+  loop is a second, real way in, so neither collapses).
 - That leaves **15 waits across 7 journeys** where the wait has exactly one
   successor, that successor is a condition, and nothing else reaches it — the
   only case where the merge provably loses nothing.
@@ -88,10 +91,22 @@ cases) was tested for the signal that would make it safe — every branch's
 `observes` value being one of the wait's own `until` events, which would prove
 the condition is only naming which event fired. **Exactly 1 of the 43 passes.**
 The corpus does not populate `observes` with event ids, so there is no honest
-way to tell a demultiplexer from a real decision at those 43 sites.
+way to tell a demultiplexer from a real decision at those 43 sites, and the
+looser reading was not shipped.
 
-Conclusion: Family B is worth **15 nodes**, not the ~28 journeys the id counts
-suggested. Queued, not shipped, and explicitly capped at the provable case.
+**Shipped** as `collapsibleWaitFollowers()` in `src/lib/journey-canvas-layout.ts`.
+Unlike Families A/C/E, this one is not absorbed invisibly: the condition keeps
+its own card, drawn taller by a compact duration strip
+(`ConditionCard`'s `waitNode` prop, `JourneyCanvasNodes.tsx`) so "wait, then read
+what happened" reads as one unit — *"30 minutes–60 minutes / What is the process
+now?"* — instead of two boxes joined by a one-hop connector. The wait's own
+canonical node is preserved exactly like every other collapse and listed under
+*Represented canonical steps* when the card is opened.
+
+Measured against a real render, both locales, all 73 journeys: **962 → 947
+display nodes (−15, exactly the detector's 15 safe collapses)**, 7 journeys
+affected (ACC-261 −1, ACQ-11 −2, ACQ-12 −3, ACQ-287 −3, ACQ-288 −3, RET-31 −2,
+RSK-273 −1). `guard-display.mjs` PASS: canonical drift none, G1/G2/G3 findings 0.
 
 ---
 
@@ -210,12 +225,11 @@ than a measurement.
 
 1. **Family F labels** — a 120-character budget on merged branch labels. Same
    shape as Family E, low risk, 38 journeys.
-2. **Family B** — the provable 15 waits. Small, safe, mechanical.
-3. **Family D handoff affordance** — say on the card why an archived target is
+2. **Family D handoff affordance** — say on the card why an archived target is
    not a link.
-4. **Family F / P-STATE-01** — one form for a repeated state question. Design
+3. **Family F / P-STATE-01** — one form for a repeated state question. Design
    work, not a transform.
 
 Nothing on that list requires touching `src/canonical/`, and nothing on it can
 be implemented by branching on a journey id — the constraint from Phase 2.1
-holds for all four.
+holds for all three.
