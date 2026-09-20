@@ -140,7 +140,7 @@ export function SiteHeader({
             className={clsx(buttonStyles({ variant: "ink", size: "sm" }), "max-sm:hidden")}
           >
             {t.nav.cta}
-          </ButtonLink>
+          </a>
           <MobileNav
             items={navItems}
             langHref={langHref ?? t.nav.langHref}

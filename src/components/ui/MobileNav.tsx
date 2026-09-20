@@ -6,10 +6,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { clsx } from "@/lib/clsx";
-import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 
 type NavItem = { label: string; href: string };
 type LabProject = { name: string; href: string; slug?: string };

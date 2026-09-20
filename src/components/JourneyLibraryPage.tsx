@@ -5,7 +5,6 @@ import { ArrowRight, Check } from "lucide-react";
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { ButtonLink } from "@/components/ui/Button";
-import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductMetricStrip, ProductSection } from "@/components/ui/ProductPage";

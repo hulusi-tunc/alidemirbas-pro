@@ -445,14 +445,9 @@ export const copy = {
           year: "2021",
           co: "Wingie Enuygun Group",
           logo: "/logos/enuygun.png",
-          span: "Full-time · 2 yrs",
-          roles: [
-            {
-              role: "Experienced Lifecycle Marketing Specialist (Growth)",
-              period: "Sep 2021 – Aug 2023",
-              desc: "Built and ran lifecycle marketing and CRM programs across the group's travel brands.",
-            },
-          ],
+          role: "Experienced Lifecycle Marketing Specialist (Growth)",
+          period: "Sep 2021 – Aug 2023",
+          desc: "Built and ran lifecycle marketing and CRM programs across the group's travel brands.",
         },
         {
           kind: "single",
@@ -1198,14 +1193,9 @@ export const copy = {
           year: "2021",
           co: "Wingie Enuygun Group",
           logo: "/logos/enuygun.png",
-          span: "Tam zamanlı · 2 yıl",
-          roles: [
-            {
-              role: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
-              period: "Eyl 2021 – Ağu 2023",
-              desc: "Grubun seyahat markalarında yaşam döngüsü pazarlaması ve CRM programlarını kurdum ve yürüttüm.",
-            },
-          ],
+          role: "Kıdemli Yaşam Döngüsü Pazarlama Uzmanı (Büyüme)",
+          period: "Eyl 2021 – Ağu 2023",
+          desc: "Grubun seyahat markalarında yaşam döngüsü pazarlaması ve CRM programlarını kurdum ve yürüttüm.",
         },
         {
           kind: "single",
