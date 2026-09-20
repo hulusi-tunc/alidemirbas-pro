@@ -285,7 +285,7 @@ export type AbElementKind =
      records turned out to name. */
   | "pagination" | "sizeguide" | "delivery" | "faq" | "section" | "topbar"
   | "banner" | "chat" | "onboarding" | "recent" | "meter" | "empty" | "sort"
-  | "urgency" | "bundle" | "steps" | "tabs" | "dashboard" | "generic";
+  | "urgency" | "bundle" | "steps" | "tabs" | "dashboard" | "resume" | "map" | "generic";
 
 export function abElementKind(test: { testedSlot: string | null; question: string }): AbElementKind {
   const slot = fold(test.testedSlot);
@@ -316,9 +316,9 @@ export function abElementKind(test: { testedSlot: string | null; question: strin
   if (has("widget siras")) return "dashboard";
   if (has("bildirim isareti")) return "badge";
   if (has("baglanti hedef", "dis baglanti")) return "nav";
-  if (has("harita gorunum")) return "grid";
+  if (has("harita gorunum")) return "map";
   if (has("vergi gosterim")) return "price";
-  if (has("kullanici tipine gore anasayfa")) return "section";
+  if (has("kullanici tipine gore anasayfa")) return "resume";
   if (has("reddetme secenegi")) return "popup";
   if (has("servis ikonu")) return "section";
   if (has("kupon", "indirim kodu", "promosyon")) return "coupon";
