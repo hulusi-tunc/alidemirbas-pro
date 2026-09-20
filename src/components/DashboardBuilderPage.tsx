@@ -1,9 +1,10 @@
-import { ArrowRight, ArrowUpRight, Ban, BookOpen, Check, CircleCheck, Info, Lightbulb, Scale, ShieldCheck, TriangleAlert } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Ban, BookOpen, Check, CircleCheck, Info, Lightbulb, Scale, ShieldCheck, Store, Terminal, TriangleAlert } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
+import { GitHubMark } from "@/components/ui/BrandIcons";
 import { InstallPanel } from "@/components/ui/InstallPanel";
 import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
@@ -532,9 +533,9 @@ function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; 
           body={t.installSub}
           methodsTitle={t.stepAdd}
           methods={[
-            { id: "marketplace", label: t.tabMarketplace, code: MARKETPLACE_CMD },
-            { id: "local", label: t.tabLocal, code: LOCAL_CMD },
-            { id: "skills", label: t.tabSkillsCli, code: SKILLS_CLI_CMD },
+            { id: "marketplace", label: t.tabMarketplace, code: MARKETPLACE_CMD, icon: <Store aria-hidden /> },
+            { id: "local", label: t.tabLocal, code: LOCAL_CMD, icon: <GitHubMark /> },
+            { id: "skills", label: t.tabSkillsCli, code: SKILLS_CLI_CMD, icon: <Terminal aria-hidden /> },
           ]}
           then={{ title: t.stepTest, note: t.testNote, code: TEST_CMD }}
           linksTitle={t.viewRepo}

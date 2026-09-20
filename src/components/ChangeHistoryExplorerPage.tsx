@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, Check, Clock, Power, ShieldAlert, Users, Wallet } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Blocks, Check, Clock, FileCode2, Power, ShieldAlert, Users, Wallet } from "lucide-react";
 
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
@@ -640,8 +640,8 @@ function Install({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; 
           body={t.installSub}
           methodsTitle={t.stepInstall}
           methods={[
-            { id: "claude", label: t.claudeTab, code: CLAUDE_CODE_CMD },
-            { id: "python", label: t.pythonTab, code: PYTHON_CMD },
+            { id: "claude", label: t.claudeTab, code: CLAUDE_CODE_CMD, icon: <Blocks aria-hidden /> },
+            { id: "python", label: t.pythonTab, code: PYTHON_CMD, icon: <FileCode2 aria-hidden /> },
           ]}
           then={{ title: t.stepTest, note: t.selfTestNote, code: SELF_TEST_CMD }}
           linksTitle={t.viewRepo}

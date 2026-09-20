@@ -1,7 +1,8 @@
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Store, Terminal } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { ButtonLink } from "@/components/ui/Button";
+import { GitHubMark } from "@/components/ui/BrandIcons";
 import { InstallPanel } from "@/components/ui/InstallPanel";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { PlaybookScene } from "@/components/ui/LabPanels";
@@ -295,6 +296,10 @@ function Rules({ t }: { t: (typeof copy)[Lang] }) {
 }
 
 /* ---- 09 · Install ---------------------------------------------------- */
+/* The three ways in, in content.ts's order: the plugin marketplace, a
+   clone from GitHub, the skills CLI. */
+const WAY_ICONS = [<Store key="store" aria-hidden />, <GitHubMark key="github" />, <Terminal key="terminal" aria-hidden />];
+
 function Install({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.abTesting;
   const en = lang === "en";
@@ -308,7 +313,7 @@ function Install({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           slug="ab-test-playbook"
           title={c.install.title}
           methodsTitle={en ? "Add the plugin to Claude Code" : "Eklentiyi Claude Code'a ekleyin"}
-          methods={c.install.options.map((opt, i) => ({ id: `opt-${i}`, label: opt.label, code: opt.code }))}
+          methods={c.install.options.map((opt, i) => ({ id: `opt-${i}`, label: opt.label, code: opt.code, icon: WAY_ICONS[i] }))}
           linksTitle={en ? "Read the repository, or try the demo" : "Repoyu okuyun ya da demoyu deneyin"}
           links={[
             { label: c.repoLink, href: REPO },

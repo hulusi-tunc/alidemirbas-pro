@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Check, Copy } from "lucide-react";
 
 import { buttonStyles } from "@/components/ui/Button";
@@ -19,7 +19,10 @@ import { clsx } from "@/lib/clsx";
    `›` is Claude Code's own prompt, so a `/plugin` line is typed there; `$`
    is the shell. Every line is the repository's own command. */
 
-export type InstallMethod = { id: string; label: string; code: string };
+/** `icon` is the way's glyph on its tab (Hulusi, 2026-09-20: "can we use
+    a logo or icon for the pills"): a Lucide glyph, or one of the site's
+    brand marks (ui/BrandIcons) where the way really is that brand. */
+export type InstallMethod = { id: string; label: string; code: string; icon?: ReactNode };
 
 const prompt = (line: string) => (line.startsWith("/") ? "›" : "$");
 
@@ -76,10 +79,12 @@ export function InstallTerminal({
                   setCopied(false);
                 }}
                 className={clsx(
-                  "h-9 rounded-full px-4 text-sm font-medium whitespace-nowrap transition-colors duration-[var(--duration-fast)]",
+                  "inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm font-medium whitespace-nowrap transition-colors duration-[var(--duration-fast)] [&>svg]:size-4 [&>svg]:shrink-0",
                   on ? "bg-ink-950 text-white" : "bg-paper text-ink-600 ring-1 ring-ink-950/[0.08] hover:text-ink-950",
+                  m.icon && "pl-3.5",
                 )}
               >
+                {m.icon}
                 {m.label}
               </button>
             );
