@@ -204,11 +204,14 @@ export default function AbTestPlaybookPage({
           </span>
           {stageTitle}
         </h2>
-        <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+        {/* Label over value, one column per fact, a hairline between them
+            (Hulusi, 2026-09-20: inline "Changed geri sayım sayacı · Page
+            Category listing" ran together and was hard to read). */}
+        <dl className="flex flex-wrap gap-y-3 divide-x divide-line-soft">
           {facts.map((f) => (
-            <div key={f.label} className="flex items-baseline gap-1.5">
-              <dt className="text-ink-subtle">{f.label}</dt>
-              <dd className="font-medium text-ink-900">{f.value}</dd>
+            <div key={f.label} className="px-5 first:pl-0 last:pr-0">
+              <dt className="text-xs font-medium text-ink-subtle">{f.label}</dt>
+              <dd className="mt-0.5 text-sm font-semibold text-ink-950">{f.value}</dd>
             </div>
           ))}
         </dl>
