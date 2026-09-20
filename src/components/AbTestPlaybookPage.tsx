@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { ArrowRight, Ban, Eye, FlaskConical, Hash, Lightbulb, Quote, ShieldCheck, Target } from "lucide-react";
+import { ArrowRight, Ban, ClipboardList, Eye, FlaskConical, Hash, Lightbulb, Quote, ShieldCheck, Target } from "lucide-react";
 
-import { AbDetailShell } from "@/components/AbDetailShell";
 import { AbCategoryIcon, SurfaceIcon, abCategoryAccent } from "@/components/ui/AbLibraryIdentity";
 import { categoryLabel, setupLabel, surfaceLabel } from "@/components/ui/AbTestVisuals";
+import { CardCarousel } from "@/components/ui/CardCarousel";
 import { InfoTile } from "@/components/ui/InfoTile";
 import { ProductFrame } from "@/components/ui/ProductFrame";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
@@ -20,10 +20,13 @@ import { primaryKpiLabel } from "@/lib/ab-test-view";
    understand; a multi-tab layout, or more compact, or direct the reader
    where to look").
 
-   So, two tabs under one shared header, as the journey page has (ui:
-   AbDetailShell). The header is the record as a person meets it: the
-   category as an eyebrow with its glyph, the question on the h1 step, the
-   lede, one row of chips (the page, the primary KPI, the id).
+   It was two tabs for a day (Experiment / How to run, the journey page's
+   shape); Hulusi cancelled them the same evening - "put the four cards
+   under the main page as a horizontal carousel" - so it is one page: the
+   header, the experiment, the run notes as a row of cards. The header is
+   the record as a person meets it: the category as an eyebrow with its
+   glyph, the question on the h1 step, the lede, one row of chips (the
+   page, the primary KPI, the id).
 
    EXPERIMENT - the subject, at the page's full width. The two sides stand
    side by side with the A → B arrow between them, each a card with its
@@ -39,7 +42,7 @@ import { primaryKpiLabel } from "@/lib/ab-test-view";
 
    HOW TO RUN - the primary KPI, the guardrail metrics, what to watch, the
    never-do rules and, where the record's own hypothesis ends in one, the
-   reusable rule, as InfoTiles.
+   reusable rule, as InfoTiles in a snap-scrolling row (ui/CardCarousel).
 
    What did NOT change is the content rule this page has always kept: every
    cell is a real field or a clause of the record's own hypothesis, and a
@@ -51,8 +54,10 @@ type Lang = "en" | "tr";
 
 const T = {
   en: {
-    tabExperiment: "Experiment",
-    tabRun: "How to run",
+    run: "How to run this test",
+    runStrip: "Run notes",
+    prev: "Previous card",
+    next: "Next card",
     controlVariant: "Control vs Variant",
     optionVsOption: "Option A vs Option B",
     variantVsVariant: "Variant A vs Variant B",
@@ -73,8 +78,10 @@ const T = {
     reusableRule: "Reusable rule",
   },
   tr: {
-    tabExperiment: "Deney",
-    tabRun: "Nasıl yürütülür",
+    run: "Bu test nasıl yürütülür",
+    runStrip: "Yürütme notları",
+    prev: "Önceki kart",
+    next: "Sonraki kart",
     controlVariant: "Kontrol / Varyant",
     optionVsOption: "Seçenek A / Seçenek B",
     variantVsVariant: "Varyant A / Varyant B",
@@ -125,19 +132,7 @@ function Note({ label, note }: { label: string; note: string }) {
   );
 }
 
-export default function AbTestPlaybookPage({
-  test,
-  lang,
-  labels,
-  hrefs,
-  breadcrumb,
-}: {
-  test: AbTestDetail;
-  lang: Lang;
-  labels: { back: string; lab: string; lang: string; cta: string };
-  hrefs: { library: string; lab: string; lang: string; cta: string };
-  breadcrumb: object;
-}) {
+export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: AbTestDetail; lang: Lang; breadcrumb: object }) {
   const t = T[lang];
   const { lede, hypothesis, takeaway } = abPlaybookText(test.hypothesis);
   const mode = abSetupMode(test);
@@ -308,58 +303,84 @@ export default function AbTestPlaybookPage({
     </section>
   );
 
+  /* The run notes as a row of cards under the stage (Hulusi, 2026-09-20:
+     "cancel the tabs, put the four cards under the main page as a
+     horizontal carousel"): the primary KPI, the guardrail metrics, what to
+     watch, the never-do rules - and the reusable rule as a fifth card
+     where the record's own hypothesis ends in one. */
+  const card = "flex w-[min(22rem,85vw)] shrink-0 snap-start";
   const run = (
-    <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <InfoTile icon={<Target />} title={t.primaryKpi}>
-        <p className="text-2xl font-semibold tracking-tight text-ink-950">{kpi}</p>
-        <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{test.primaryKpi.explanation}</p>
-      </InfoTile>
-
-      <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailMetrics}>
-        <ul className="flex list-none flex-col gap-3 p-0">
-          {test.otherKpis.map((k) => (
-            <Note key={k.label} label={k.label} note={k.explanation} />
-          ))}
-        </ul>
-      </InfoTile>
-
-      <InfoTile icon={<Eye />} tint="bg-amber-50 text-amber-700" title={t.whatToTest}>
-        <ul className="flex list-none flex-col gap-3 p-0">
-          {test.whatToTest.map((w) => (
-            <Note key={w.label} label={w.label} note={w.explanation} />
-          ))}
-        </ul>
-      </InfoTile>
-
-      <InfoTile icon={<Ban />} tint="bg-rose-50 text-rose-700" title={t.neverDo}>
-        <ol className="flex list-none flex-col gap-3 p-0">
-          {test.guardrails.map((g, i) => (
-            <li key={g} className="flex gap-3 text-sm leading-relaxed text-pretty text-ink-700">
-              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper-soft text-xs font-semibold text-ink-700 tabular-nums">
-                {i + 1}
-              </span>
-              {g}
-            </li>
-          ))}
-        </ol>
-      </InfoTile>
-
-      {takeaway && (
-        <InfoTile icon={<Lightbulb />} title={t.reusableRule} className="sm:col-span-2">
-          <p className="max-w-4xl text-lg leading-relaxed font-medium text-balance text-ink-950 md:text-xl">{takeaway}</p>
-        </InfoTile>
-      )}
-    </div>
+    <section className="mt-14">
+      <CardCarousel
+        label={t.runStrip}
+        prevLabel={t.prev}
+        nextLabel={t.next}
+        heading={
+          <h2 className="flex items-center gap-3 text-base font-semibold text-ink-950">
+            <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-700 [&>svg]:size-5">
+              <ClipboardList />
+            </span>
+            {t.run}
+          </h2>
+        }
+      >
+        <div data-card className={card}>
+          <InfoTile icon={<Target />} title={t.primaryKpi} className="w-full">
+            <p className="text-2xl font-semibold tracking-tight text-ink-950">{kpi}</p>
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{test.primaryKpi.explanation}</p>
+          </InfoTile>
+        </div>
+        <div data-card className={card}>
+          <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailMetrics} className="w-full">
+            <ul className="flex list-none flex-col gap-3 p-0">
+              {test.otherKpis.map((k) => (
+                <Note key={k.label} label={k.label} note={k.explanation} />
+              ))}
+            </ul>
+          </InfoTile>
+        </div>
+        <div data-card className={card}>
+          <InfoTile icon={<Eye />} tint="bg-amber-50 text-amber-700" title={t.whatToTest} className="w-full">
+            <ul className="flex list-none flex-col gap-3 p-0">
+              {test.whatToTest.map((w) => (
+                <Note key={w.label} label={w.label} note={w.explanation} />
+              ))}
+            </ul>
+          </InfoTile>
+        </div>
+        <div data-card className={card}>
+          <InfoTile icon={<Ban />} tint="bg-rose-50 text-rose-700" title={t.neverDo} className="w-full">
+            <ol className="flex list-none flex-col gap-3 p-0">
+              {test.guardrails.map((g, i) => (
+                <li key={g} className="flex gap-3 text-sm leading-relaxed text-pretty text-ink-700">
+                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper-soft text-xs font-semibold text-ink-700 tabular-nums">
+                    {i + 1}
+                  </span>
+                  {g}
+                </li>
+              ))}
+            </ol>
+          </InfoTile>
+        </div>
+        {takeaway && (
+          <div data-card className={card}>
+            <InfoTile icon={<Lightbulb />} title={t.reusableRule} className="w-full">
+              <p className="text-lg leading-relaxed font-medium text-balance text-ink-950">{takeaway}</p>
+            </InfoTile>
+          </div>
+        )}
+      </CardCarousel>
+    </section>
   );
 
   return (
-    <AbDetailShell
-      labels={{ ...labels, experiment: t.tabExperiment, run: t.tabRun }}
-      hrefs={hrefs}
-      header={header}
-      experiment={experiment}
-      run={run}
-    />
+    <div className="px-4 py-10 md:px-8 md:py-14">
+      <div className="mx-auto max-w-[1180px]">
+        {header}
+        {experiment}
+        {run}
+      </div>
+    </div>
   );
 }
 
