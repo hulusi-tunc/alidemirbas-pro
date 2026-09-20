@@ -221,10 +221,10 @@ export default function AbTestPlaybookPage({
            the variant's pill names the change from the two fields that
            fix it. */
         /* On the project's own plate (Hulusi, 2026-09-20: "I want the photo
-           behind the A/B test screens"): the product page's frame - the
-           meadow photograph in the playbook's rose - with the two screens
-           standing on it. */
-        <ProductFrame slug="ab-test-playbook" className="mt-6">
+           behind the A/B test screens", then "not red, no colour overlay"):
+           the product page's frame with the meadow photograph as it is,
+           the two screens standing on it. */
+        <ProductFrame slug="ab-test-playbook" wash={false} className="mt-6">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch">
           <Side
             label={roleLabel(test.sideA!.role, t.roles.control)}
@@ -255,7 +255,7 @@ export default function AbTestPlaybookPage({
         </div>
         </ProductFrame>
       ) : (
-        <ProductFrame slug="ab-test-playbook" className="mt-6">
+        <ProductFrame slug="ab-test-playbook" wash={false} className="mt-6">
         <div className="mx-auto max-w-3xl rounded-[28px] bg-paper p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] sm:p-8">
           <div className="grid gap-6 sm:grid-cols-2 sm:items-center">
             <VariableDiagram kind={kind} testedSlot={test.testedSlot} label={t.testedElement} lang={lang} />

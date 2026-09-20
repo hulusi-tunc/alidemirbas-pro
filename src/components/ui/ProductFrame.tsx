@@ -33,6 +33,7 @@ export function ProductFrame({
   slug,
   plate,
   inset = "md",
+  wash = true,
   className,
   children,
 }: {
@@ -41,24 +42,28 @@ export function ProductFrame({
       three: `claude-lifecycle-0/1/2`). */
   plate?: string;
   inset?: "none" | "sm" | "md";
+  /** `false` shows the photograph as it is - no hue wash, no tinted
+      ground under it (the A/B detail page, 2026-09-20: "not red, no
+      colour overlay"). The grain stays. */
+  wash?: boolean;
   className?: string;
   children: ReactNode;
 }) {
   const accent = labAccent(slug);
   return (
-    <div data-hue={accent.hue} className={clsx("lab-frame relative isolate overflow-hidden rounded-[28px]", className)}>
+    <div data-hue={wash ? accent.hue : undefined} className={clsx("lab-frame relative isolate overflow-hidden rounded-[28px]", className)}>
       <Image
         src={`/lab/frames/${plate ?? slug}.jpg`}
         alt=""
         aria-hidden
         fill
         sizes="(min-width: 1280px) 1120px, 100vw"
-        className="-z-10 origin-bottom scale-[1.3] object-cover object-bottom opacity-80"
+        className={clsx("-z-10 origin-bottom scale-[1.3] object-cover object-bottom", wash ? "opacity-80" : "opacity-100")}
       />
       {/* The wash: the hue over the photograph, luminosity from the photo,
           colour from the project. Later in DOM than the image, same
           negative layer, so it paints over the image and under the grain. */}
-      <div aria-hidden className={clsx("absolute inset-0 -z-10 opacity-70 mix-blend-color", WASH[accent.hue] ?? WASH.neutral)} />
+      {wash ? <div aria-hidden className={clsx("absolute inset-0 -z-10 opacity-70 mix-blend-color", WASH[accent.hue] ?? WASH.neutral)} /> : null}
       <div className={clsx("relative", inset === "md" ? "p-4 sm:p-8 md:p-10" : inset === "sm" ? "p-3 sm:p-5 md:p-6" : "")}>{children}</div>
     </div>
   );
