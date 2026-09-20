@@ -224,9 +224,25 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
       internal.set(n.id, []);
       continue;
     }
-    const out = n.edges
+    const raw = n.edges
       .filter((e) => e.kind === "node" && byId.has(e.to))
       .map((e) => (collapsed.has(e.to) ? { ...e, to: resolve(e.to) } : e));
+    /* Twin routes (Hulusi, 2026-09-20: "why do two lines leave here?"): a
+       wait whose "on event" and "on timeout" both lead to the same node -
+       ACQ-11's second wait feeds one decision either way - drew two
+       identical lines. They become one line carrying both labels ("on
+       event · on timeout"), which says the same thing once. The canonical
+       graph keeps both edges; only the drawing merges them. */
+    const out: FlowEdge[] = [];
+    for (const e of raw) {
+      const twin = out.find((o) => o.to === e.to);
+      if (twin) {
+        const labels = [twin.label, e.label].filter((l): l is string => Boolean(l));
+        twin.label = labels.length ? [...new Set(labels)].join(" · ") : twin.label;
+        continue;
+      }
+      out.push({ ...e });
+    }
     internal.set(n.id, out);
     for (const e of out) {
       const set = parents.get(e.to) ?? new Set<string>();

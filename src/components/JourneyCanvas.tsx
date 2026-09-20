@@ -788,7 +788,12 @@ function FreeCanvas({
         className="absolute inset-0 cursor-grab touch-none overflow-hidden bg-paper-soft select-none"
         aria-label={caption}
       >
-        <div ref={worldRef} style={{ width: layout.width, height: layout.height, transformOrigin: "0 0" }} className="absolute top-0 left-0 will-change-transform">
+        {/* No `will-change: transform` here on purpose: it pins the world to a
+            raster made at 100% and merely scales that bitmap, which is why
+            zooming in read as blurry (Hulusi, 2026-09-20). Without it the
+            browser re-rasterises at the current zoom once the camera settles,
+            so text and edges stay crisp at 200%. */}
+        <div ref={worldRef} style={{ width: layout.width, height: layout.height, transformOrigin: "0 0" }} className="absolute top-0 left-0">
           {world}
         </div>
       </div>
