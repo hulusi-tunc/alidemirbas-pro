@@ -16,6 +16,7 @@ import {
   WaitCard,
 } from "@/components/ui/JourneyCanvasNodes";
 import { NodeDetailPanel, type PanelLabels } from "@/components/ui/NodeDetailPanel";
+import { dotGap, dotSheet } from "@/components/ui/JourneyMiniMap";
 
 /* The graph canvas itself: pan is native scroll (so trackpad, touch and
    scrollbar dragging all work for free, on any screen size, without a
@@ -637,7 +638,6 @@ const LEGEND = {
   handoffs: { icon: <ArrowRightLeft aria-hidden />, tint: "bg-indigo-50 text-indigo-700" },
 } as const;
 
-const DOT_GAP = 24;
 const PAGE_MIN_ZOOM = 0.2;
 const PAGE_MAX_ZOOM = 2;
 
@@ -684,18 +684,13 @@ function FreeCanvas({
       w.dataset.lod = z < 0.45 ? "far" : "near";
     }
     if (stage) {
-      // FigJam's sheet: a fine dot every 24 world px, scaling and moving
-      // with the world (Hulusi, 2026-09-20: "let's add dots like FigJam").
-      // As the world zooms out the grid coarsens by powers of two so the
-      // dots never crowd below ~18px on screen ("when we zoom out the dots
-      // don't adapt, it looks so dense"), and they fade a step at the
-      // coarser levels so the sheet stays quieter than the drawing.
-      let gap = DOT_GAP;
-      while (gap * z < 18) gap *= 2;
-      const level = Math.log2(gap / DOT_GAP);
-      stage.style.backgroundSize = `${gap * z}px ${gap * z}px`;
+      // FigJam's sheet: one fine dot every 24 world px, moving with the
+      // world, doubling its gap as the world zooms out so it never crowds
+      // (Hulusi, 2026-09-20). Drawn as an SVG pattern so it stays crisp on
+      // a 2x display - see dotSheet in ui/JourneyMiniMap.tsx.
+      stage.style.backgroundImage = dotSheet(z);
+      stage.style.backgroundSize = `${dotGap(z) * z}px ${dotGap(z) * z}px`;
       stage.style.backgroundPosition = `${x}px ${y}px`;
-      stage.style.backgroundImage = `radial-gradient(circle, rgb(10 16 32 / ${(0.14 - level * 0.03).toFixed(2)}) 1.1px, transparent 1.6px)`;
     }
     setZoomPct(Math.round(z * 100));
   };
@@ -854,7 +849,6 @@ function FreeCanvas({
     <div className="relative h-full w-full">
       <div
         ref={stageRef}
-        style={{ backgroundImage: "radial-gradient(circle, rgb(10 16 32 / 0.14) 1.1px, transparent 1.6px)" }}
         className="absolute inset-0 cursor-grab touch-none overflow-hidden bg-paper-soft select-none"
         aria-label={caption}
       >

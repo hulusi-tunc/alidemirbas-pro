@@ -18,6 +18,24 @@ import type { CanvasLayout } from "@/lib/journey-canvas-layout";
 
 const WINDOW = 1240; // world px the tile shows across
 
+/* The canvas's dot sheet, drawn as an SVG pattern rather than a CSS radial
+   gradient: a gradient dot is rasterised at CSS-pixel size and reads soft
+   and fat on a 2x display, an SVG circle is drawn at the device's own
+   resolution (Hulusi, 2026-09-20: "the dots don't look high quality, they
+   look so big"). One world dot every 24px, doubling whenever the preview's
+   scale would bring them closer than 18px on screen, same as the canvas. */
+export function dotGap(scale: number): number {
+  let gap = 24;
+  while (gap * scale < 18) gap *= 2;
+  return gap;
+}
+export function dotSheet(scale: number): string {
+  const size = dotGap(scale) * scale;
+  const r = Math.min(1, Math.max(0.6, 0.9 * scale)).toFixed(2);
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'><circle cx='${(size / 2).toFixed(2)}' cy='${(size / 2).toFixed(2)}' r='${r}' fill='rgb(10 16 32 / 0.22)'/></svg>`;
+  return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+}
+
 export function JourneyMiniMap({
   nodes,
   layout,
@@ -60,13 +78,7 @@ export function JourneyMiniMap({
       ref={ref}
       aria-hidden
       inert
-      style={{
-        // The canvas's own dots (24 world px, moving with the world), so the
-        // preview is the same sheet as the canvas it opens.
-        backgroundImage: "radial-gradient(circle, rgb(10 16 32 / 0.14) 1.1px, transparent 1.6px)",
-        backgroundSize: `${24 * view.scale}px ${24 * view.scale}px`,
-        backgroundPosition: `${-x0 * view.scale}px ${-y0 * view.scale}px`,
-      }}
+      style={{ backgroundImage: dotSheet(view.scale), backgroundSize: `${dotGap(view.scale) * view.scale}px ${dotGap(view.scale) * view.scale}px`, backgroundPosition: `${-x0 * view.scale}px ${-y0 * view.scale}px` }}
       className="pointer-events-none relative h-full w-full overflow-hidden select-none"
     >
       <div
