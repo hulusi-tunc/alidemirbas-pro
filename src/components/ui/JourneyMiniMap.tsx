@@ -1,84 +1,75 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { JourneyWorld, actionSequenceOf, type CanvasLabels } from "@/components/JourneyCanvas";
+import type { ChannelId } from "@/canonical/types";
 import type { FlowNode } from "@/lib/canonical-view";
-import { edgePath, layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
+import type { CanvasLayout } from "@/lib/journey-canvas-layout";
 
-/* THE MINI MAP - the canvas, drawn small (Hulusi, 2026-09-14: "the preview
-   of the canvas looks disgusting"). The real layout the canvas uses, the
-   same orientation, the same kinds in the same colours, each card as the
-   homepage's drawn miniature: a tinted plate, the icon tile as a square,
-   the sentence as skeleton bars. It shows the beginning of the journey at
-   a readable size - a window around the entry, cut at the bottom with a
-   fade - rather than the whole graph shrunk to confetti. Server-rendered
-   SVG, no client code. */
+/* THE PREVIEW - the canvas itself, small (Hulusi, 2026-09-20: "make the
+   preview real, not wireframe"). The same world the Canvas tab renders -
+   the same laid-out cards with their words, icons and pills, the same
+   edges and branch labels - scaled to the tile's width and windowed on the
+   beginning of the journey, cut with a fade at the bottom. Nothing in it
+   responds: it is a picture of the canvas that opens the canvas. The
+   scale follows the tile's real width (ResizeObserver), so the window
+   always shows the same stretch of the graph. */
 
-const KIND_FILL: Record<FlowNode["kind"], { plate: string; tile: string; stroke: string }> = {
-  trigger: { plate: "fill-primary-600", tile: "fill-white/25", stroke: "stroke-primary-700" },
-  action: { plate: "fill-paper", tile: "fill-ink-200", stroke: "stroke-ink-200" },
-  condition: { plate: "fill-violet-50", tile: "fill-violet-300", stroke: "stroke-violet-200" },
-  wait: { plate: "fill-teal-50", tile: "fill-teal-300", stroke: "stroke-teal-200" },
-  handoff: { plate: "fill-indigo-50", tile: "fill-indigo-300", stroke: "stroke-indigo-200" },
-  outcome: { plate: "fill-emerald-50", tile: "fill-emerald-300", stroke: "stroke-emerald-200" },
-  exit: { plate: "fill-paper", tile: "fill-ink-200", stroke: "stroke-ink-300" },
-};
+const WINDOW = 1240; // world px the tile shows across
 
-const ACTION_TILE: Record<string, string> = {
-  communication: "fill-primary-300",
-  human: "fill-amber-300",
-};
-
-export async function JourneyMiniMap({ nodes, className = "" }: { nodes: readonly FlowNode[]; className?: string }) {
-  const layout = await layoutJourneyCanvas(nodes);
+export function JourneyMiniMap({
+  nodes,
+  layout,
+  labels,
+  messageLabels,
+  humanLabels,
+}: {
+  nodes: readonly FlowNode[];
+  layout: CanvasLayout;
+  labels: CanvasLabels;
+  messageLabels?: readonly { id: ChannelId; label: string }[];
+  humanLabels?: readonly { id: ChannelId; label: string }[];
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  // Window width in world px and the scale that fits it: a narrow tile (a
+  // phone) shows less of the graph at a readable size rather than the whole
+  // window shrunk to specks.
+  const [view, setView] = useState({ window: WINDOW, scale: 0.6 });
+  const actionSequence = useMemo(() => actionSequenceOf(nodes), [nodes]);
   const entry = layout.nodes.find((l) => l.node.isEntry) ?? layout.nodes[0];
-  const W = Math.min(layout.width, 1440);
-  const H = Math.round(W * 0.34);
-  const x0 = Math.max(0, Math.min(entry.x - W / 2, layout.width - W));
+  const x0 = entry.x - view.window / 2;
+  const y0 = Math.max(0, entry.y - 36);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const width = el.clientWidth;
+      const win = Math.min(Math.max(layout.width, 760), Math.max(760, Math.round(width * 1.6)), WINDOW);
+      setView({ window: win, scale: width / win });
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    measure();
+    return () => ro.disconnect();
+  }, [layout.width]);
+
   return (
-    <svg
-      viewBox={`${x0} 0 ${W} ${H}`}
-      preserveAspectRatio="xMidYMin slice"
-      aria-hidden
-      focusable="false"
-      className={`block h-full w-full ${className}`}
-    >
-      {layout.edges.map((e) => (
-        <path
-          key={e.id}
-          d={edgePath(e.points)}
-          fill="none"
-          className="stroke-ink-300"
-          strokeWidth={2}
-          strokeLinejoin="round"
+    <div ref={ref} aria-hidden inert className="pointer-events-none relative h-full w-full overflow-hidden select-none">
+      <div
+        style={{ width: layout.width, height: layout.height, transform: `translate(${-x0 * view.scale}px, ${-y0 * view.scale}px) scale(${view.scale})`, transformOrigin: "0 0" }}
+        className="absolute top-0 left-0"
+      >
+        <JourneyWorld
+          layout={layout}
+          actionSequence={actionSequence}
+          labels={labels}
+          messageLabels={messageLabels}
+          humanLabels={humanLabels}
+          onOpen={() => {}}
         />
-      ))}
-      {layout.nodes.map((l) => {
-        const kind = l.node.kind;
-        const look = KIND_FILL[kind];
-        const tile = kind === "action" ? (ACTION_TILE[l.node.execution ?? ""] ?? look.tile) : look.tile;
-        const x = l.x - l.width / 2;
-        const y = l.y;
-        const r = kind === "wait" ? l.height / 2 : 18;
-        const bars = kind === "wait" ? 1 : kind === "exit" ? 1 : kind === "action" ? 3 : 2;
-        const pad = 16;
-        const tileSize = 26;
-        const textX = kind === "wait" ? x + pad + tileSize + 10 : x + pad;
-        const textY0 = kind === "wait" ? l.y + l.height / 2 - 4 : y + pad + tileSize + 14;
-        return (
-          <g key={l.layoutId}>
-            <rect x={x} y={y} width={l.width} height={l.height} rx={r} className={`${look.plate} ${look.stroke}`} strokeWidth={kind === "exit" ? 2 : 1.5} strokeDasharray={kind === "exit" ? "6 5" : undefined} />
-            <rect x={x + pad} y={kind === "wait" ? l.y + (l.height - tileSize) / 2 : y + pad} width={tileSize} height={tileSize} rx={8} className={tile} />
-            {Array.from({ length: bars }).map((_, i) => (
-              <rect
-                key={i}
-                x={textX}
-                y={textY0 + i * 16}
-                width={Math.max(40, (l.width - (textX - x) - pad) * (i === bars - 1 ? 0.6 : 1))}
-                height={7}
-                rx={3.5}
-                className={kind === "trigger" ? "fill-white/40" : "fill-ink-950/10"}
-              />
-            ))}
-          </g>
-        );
-      })}
-    </svg>
+      </div>
+    </div>
   );
 }

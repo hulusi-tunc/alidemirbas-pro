@@ -120,12 +120,7 @@ export default function JourneyCanvas({
   humanLabels?: readonly { id: ChannelId; label: string }[];
 }) {
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
-  const actionSequence = useMemo(() => {
-    const map = new Map<string, number>();
-    let i = 0;
-    for (const n of nodes) if (n.kind === "action") map.set(n.id, ++i);
-    return map;
-  }, [nodes]);
+  const actionSequence = useMemo(() => actionSequenceOf(nodes), [nodes]);
   /* The channel-selecting action a message/human card absorbed on the
      canvas (see journey-canvas-layout.ts's own collapse - same detection,
      reused rather than re-derived) - still a real FlowNode, just not laid
@@ -263,63 +258,18 @@ export default function JourneyCanvas({
   };
 
   /* The world: edges and node cards in layout coordinates. Both modes scale
-     this same block; only the camera around it differs. */
+     this same block; only the camera around it differs - and the Info
+     page's preview (ui/JourneyMiniMap.tsx) renders the very same block,
+     so the preview IS the canvas, not a drawing of it. */
   const world: ReactNode = (
-    <>
-      <svg
-        width={layout.width}
-        height={layout.height}
-        className="pointer-events-none absolute inset-0"
-        aria-hidden
-      >
-        <defs>
-          <marker id="journey-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-            <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-400" />
-          </marker>
-        </defs>
-        {layout.edges.map((e) => (
-          <EdgeShape key={e.id} edge={e} />
-        ))}
-      </svg>
-
-      {layout.nodes.map((l) => {
-        const n = l.node;
-        const onOpen = () => setSelectedId(l.canonicalNodeId);
-        return (
-          <div
-            key={l.layoutId}
-            data-canvas-node-id={n.id}
-            data-canvas-layout-id={l.layoutId}
-            data-canvas-node-kind={n.kind}
-            style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
-            className="absolute"
-          >
-            {n.kind === "trigger" ? (
-              <TriggerCard node={n} onOpen={onOpen} entryLabel={labels.entry} lang={labels.lang} />
-            ) : n.kind === "action" ? (
-              <ActionCard
-                node={n}
-                sequence={actionSequence.get(n.id) ?? 1}
-                onOpen={onOpen}
-                messageLabels={messageLabels}
-                humanLabels={humanLabels}
-                lang={labels.lang}
-              />
-            ) : n.kind === "condition" ? (
-              <ConditionCard node={n} onOpen={onOpen} lang={labels.lang} />
-            ) : n.kind === "wait" ? (
-              <WaitCard node={n} onOpen={onOpen} />
-            ) : n.kind === "handoff" ? (
-              <HandoffCard node={n} onOpen={onOpen} lang={labels.lang} />
-            ) : n.kind === "outcome" ? (
-              <OutcomeCard node={n} onOpen={onOpen} lang={labels.lang} />
-            ) : (
-              <ExitCard node={n} onOpen={onOpen} terminalLabel={labels.terminal} lang={labels.lang} />
-            )}
-          </div>
-        );
-      })}
-    </>
+    <JourneyWorld
+      layout={layout}
+      actionSequence={actionSequence}
+      labels={labels}
+      messageLabels={messageLabels}
+      humanLabels={humanLabels}
+      onOpen={(canonicalNodeId) => setSelectedId(canonicalNodeId)}
+    />
   );
 
   if (mode === "page") {
@@ -432,6 +382,92 @@ export default function JourneyCanvas({
       </figcaption>
     </figure>
   );
+}
+
+/** The graph itself - the edges as one SVG and a positioned card per laid-out
+    node - in layout coordinates, with no camera. Exported so the Info page's
+    preview can show the real thing. */
+export function JourneyWorld({
+  layout,
+  actionSequence,
+  labels,
+  messageLabels = [],
+  humanLabels = [],
+  onOpen,
+}: {
+  layout: CanvasLayout;
+  actionSequence: ReadonlyMap<string, number>;
+  labels: CanvasLabels;
+  messageLabels?: readonly { id: ChannelId; label: string }[];
+  humanLabels?: readonly { id: ChannelId; label: string }[];
+  onOpen: (canonicalNodeId: string) => void;
+}) {
+  return (
+    <>
+      <svg
+        width={layout.width}
+        height={layout.height}
+        className="pointer-events-none absolute inset-0"
+        aria-hidden
+      >
+        <defs>
+          <marker id="journey-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-400" />
+          </marker>
+        </defs>
+        {layout.edges.map((e) => (
+          <EdgeShape key={e.id} edge={e} />
+        ))}
+      </svg>
+
+      {layout.nodes.map((l) => {
+        const n = l.node;
+        const open = () => onOpen(l.canonicalNodeId);
+        return (
+          <div
+            key={l.layoutId}
+            data-canvas-node-id={n.id}
+            data-canvas-layout-id={l.layoutId}
+            data-canvas-node-kind={n.kind}
+            style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
+            className="absolute"
+          >
+            {n.kind === "trigger" ? (
+              <TriggerCard node={n} onOpen={open} entryLabel={labels.entry} lang={labels.lang} />
+            ) : n.kind === "action" ? (
+              <ActionCard
+                node={n}
+                sequence={actionSequence.get(n.id) ?? 1}
+                onOpen={open}
+                messageLabels={messageLabels}
+                humanLabels={humanLabels}
+                lang={labels.lang}
+              />
+            ) : n.kind === "condition" ? (
+              <ConditionCard node={n} onOpen={open} lang={labels.lang} />
+            ) : n.kind === "wait" ? (
+              <WaitCard node={n} onOpen={open} />
+            ) : n.kind === "handoff" ? (
+              <HandoffCard node={n} onOpen={open} lang={labels.lang} />
+            ) : n.kind === "outcome" ? (
+              <OutcomeCard node={n} onOpen={open} lang={labels.lang} />
+            ) : (
+              <ExitCard node={n} onOpen={open} terminalLabel={labels.terminal} lang={labels.lang} />
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+/** The action numbering the cards show ("Message · 03"): the order the
+    journey lists its actions in. Shared with the preview. */
+export function actionSequenceOf(nodes: readonly FlowNode[]): ReadonlyMap<string, number> {
+  const map = new Map<string, number>();
+  let i = 0;
+  for (const n of nodes) if (n.kind === "action") map.set(n.id, ++i);
+  return map;
 }
 
 function EdgeShape({ edge }: { edge: LaidOutEdge }) {

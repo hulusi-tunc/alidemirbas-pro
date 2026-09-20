@@ -105,7 +105,7 @@ export async function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string
       info={
         <>
           {breadcrumb && <JsonLdScript data={breadcrumb} />}
-          <JourneyInfo detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} />
+          <JourneyInfo detail={detail} merged={merged} basePath={basePath} lang={lang} t={t} canvas={canvas} />
         </>
       }
       canvas={<JourneyCanvas {...canvas} basePath={basePath} mode="page" />}

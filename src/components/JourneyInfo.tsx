@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowRightLeft, GitFork, LogOut, Workflow } from "lucide-react";
 import type { ReactNode } from "react";
 
-import JourneyDetailBody from "@/components/JourneyDetailBody";
+import JourneyDetailBody, { type journeyCanvasProps } from "@/components/JourneyDetailBody";
 import { JourneyMiniMap } from "@/components/ui/JourneyMiniMap";
 import { CategoryIcon, ChannelIcon, GoalIcon, categoryAccent } from "@/components/ui/LibraryChrome";
 import { buttonStyles } from "@/components/ui/Button";
@@ -45,12 +45,16 @@ export default function JourneyInfo({
   basePath,
   lang,
   t,
+  canvas,
 }: {
   detail: JourneyDetail;
   merged: MergedRedirect | null;
   basePath: string;
   lang: Lang;
   t: (typeof copy)[Lang]["lab"]["page"];
+  /** The laid-out canvas, as the Canvas tab receives it - the preview
+      renders the same thing. */
+  canvas: Awaited<ReturnType<typeof journeyCanvasProps>>;
 }) {
   const count = (kind: JourneyDetail["nodes"][number]["kind"]) => detail.nodes.filter((n) => n.kind === kind).length;
   const plural = (n: number, forms: readonly [string, string]) => `${n} ${forms[n === 1 ? 0 : 1]}`;
@@ -97,9 +101,11 @@ export default function JourneyInfo({
         {/* The graph, small, and the shape in numbers. */}
         <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <section className="relative overflow-hidden rounded-[28px] bg-paper ring-1 ring-ink-950/[0.06]">
-            <div className="relative h-64 w-full bg-paper-soft sm:h-72 [mask-image:linear-gradient(to_bottom,black_70%,transparent)]">
-              <JourneyMiniMap nodes={detail.nodes} />
-            </div>
+            {/* The picture is the canvas; clicking it opens the Canvas tab
+                (a plain anchor, so the shell's hashchange listener fires). */}
+            <a href="#canvas" aria-label={t.openCanvas} className="block h-64 w-full bg-paper-soft sm:h-80 [mask-image:linear-gradient(to_bottom,black_72%,transparent)]">
+              <JourneyMiniMap nodes={canvas.nodes} layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
+            </a>
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-6 py-4">
               <p className="text-sm text-ink-muted">{shape.map((s) => s.label).join(" · ")}</p>
               {/* Plain anchor, not ButtonLink/next/link: this is a same-page
