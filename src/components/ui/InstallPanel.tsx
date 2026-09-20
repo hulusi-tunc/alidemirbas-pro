@@ -19,8 +19,9 @@ import { clsx } from "@/lib/clsx";
    steps; Hulusi: "people are going to think this is an image, not
    clickable - everything on a plate looks the same as the other parts".
    The plate is this site's word for a picture, so the terminal left it
-   and sits in the steps as the control it is. `tone` is the section's
-   ground: the tile takes the other paper so it always reads as a tile. */
+   and sits in the steps as the control it is. The tile ground the steps
+   first had went the same day ("remove the grey box"); `tone` is the
+   section's ground, so the test-command row takes the other paper. */
 
 export function InstallPanel({
   slug,
@@ -66,7 +67,7 @@ export function InstallPanel({
             title: then.title,
             note: then.note,
             content: (
-              <div className={clsx("flex items-start gap-2 rounded-xl py-1 pr-1 pl-4", soft ? "bg-paper-soft" : "bg-paper ring-1 ring-ink-950/[0.06]")}>
+              <div className={clsx("flex items-start gap-2 rounded-xl py-1 pr-1 pl-4", soft ? "bg-paper ring-1 ring-ink-950/[0.06]" : "bg-paper-soft")}>
                 <span aria-hidden className="py-2 font-mono text-xs leading-5 text-ink-400 select-none">$</span>
                 <code className="min-w-0 flex-1 py-2 font-mono text-xs leading-5 whitespace-pre-wrap text-ink-950 [overflow-wrap:anywhere]">{then.code}</code>
                 <CopyPill value={then.code} label={copyLabel} copiedLabel={copiedLabel} />
@@ -96,10 +97,13 @@ export function InstallPanel({
       : []),
   ];
 
+  /* Centred on the page, on the section's own ground (Hulusi, 2026-09-20:
+     "make the section centred and remove the grey box"): the heading
+     centred, the rail in a centred column. */
   return (
-    <div className="max-w-3xl">
-      <ProductHeading title={title} body={body} />
-      <Reveal delay={80} className={clsx("mt-10 rounded-[28px] p-4 sm:p-6 md:p-8", soft ? "bg-paper ring-1 ring-ink-950/[0.06]" : "bg-paper-soft")}>
+    <div className="mx-auto max-w-3xl">
+      <ProductHeading title={title} body={body} align="center" />
+      <Reveal delay={80} className="mt-12">
         <ol className="flex flex-col">
           {steps.map((step, i) => {
             const last = i === steps.length - 1;
