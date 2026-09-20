@@ -2545,7 +2545,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "An operational failure to apply an accepted offer is never recorded as a retention success."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     contact: {
       "defaultPriority": "lifecycle",
@@ -2979,7 +2985,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.incentive",
         "label": "OPTIONAL_STRATEGY",
         "text": "If the company enables an incentive (replenishment.incentive_policy), it appears only on the last enabled touch, once, and its issuance is recorded per person. The library recommends none by default."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "promotional",
@@ -3636,7 +3648,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.incentive",
         "label": "OPTIONAL_STRATEGY",
         "text": "If the company enables a win-back incentive (winback.incentive_policy), it appears only on the last enabled touch, once, and its issuance is recorded per person so it cannot be re-issued on the next lapse."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "promotional",
@@ -4191,7 +4209,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.cancelled",
         "label": "CANONICAL_RULE",
         "text": "A first purchase cancelled or fully reversed before the welcome goes out is not a first purchase; the instance ends without a touch."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "lifecycle",
@@ -4703,7 +4727,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.contest",
         "label": "CANONICAL_RULE",
         "text": "A personal milestone recognition addressed to the same person outranks this one in the date-recognition group; while it holds the person's window this interval is suppressed and closes unsent rather than being queued to arrive after the date it was about."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "lifecycle",
@@ -5032,7 +5062,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.contest",
         "label": "CANONICAL_RULE",
         "text": "A complementary next offer holding the same person outranks this journey in the recommendation-offer group; while it holds them, this one is suppressed for that person rather than queued behind it (GLB-06)."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "promotional",
@@ -5468,7 +5504,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.contest",
         "label": "CANONICAL_RULE",
         "text": "While this journey holds a person in the recommendation-offer group, the generic recommendation journey is suppressed for them; the two never propose a next purchase to the same person at the same time."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "promotional",
@@ -5996,7 +6038,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.contest",
         "label": "CANONICAL_RULE",
         "text": "Where a higher-precedence journey already holds this person's window, the recognition is suppressed and its cycle closes with it; nothing is queued behind another journey to arrive after the date it was about."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "lifecycle",

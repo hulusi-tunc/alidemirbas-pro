@@ -79,11 +79,11 @@
     },
     {
       "field": "guardrails (per item)",
-      "n": 1219,
+      "n": 1223,
       "min": 20,
       "median": 78,
-      "p90": 138,
-      "p95": 169,
+      "p90": 139,
+      "p95": 170,
       "max": 999,
       "maxRecordId": "OPS-130",
       "singleLineAssumptionRisk": "DANGEROUS as single-line — median 71, max 497 chars (RET-27)"
@@ -105,7 +105,7 @@
       "min": 39,
       "median": 217,
       "p90": 302,
-      "p95": 346,
+      "p95": 347,
       "max": 835,
       "maxRecordId": "CMS-201",
       "singleLineAssumptionRisk": "DANGEROUS — this is the node's HEADLINE with no secondary field, median 214, max 483 chars (OWN-54). A one-line node-headline assumption fails on the majority of action nodes."

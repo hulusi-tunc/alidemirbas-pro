@@ -53,6 +53,29 @@ account: `audit/public-scope-validation.md`.
 the `contact.competition` block of BOTH before proposing that either be
 removed, suppressed or given a message.
 
+## The sunset suppression P0, fixed
+
+The collision review over the seventeen additions found that
+`CON-300.a.suppress` wrote `marketing_suppression` and **nothing in 303
+journeys read it**, so a person the business had decided to stop marketing to
+kept receiving the birthday, the tier announcement, the membership welcome, the
+anniversary and the recommendation. CON-300 also described its own scope two
+contradictory ways. The broad reading was taken; GLB-31 now names the
+sender-side suppression as a hard gate, `CMS-203.a.evaluate` performs it at
+send-path step 6, and all 29 promotional/lifecycle journeys carry an `s.sunset`
+suppression naming it. No node added — 303/3959 unchanged.
+
+Account, read-side list and before/after evidence:
+`audit/sunset-suppression-fix.md`.
+Re-runnable proof: `node scripts/sunset-suppression-evidence.mjs` (exits 1 if a
+promotional/lifecycle journey stops reading it, or if a transactional one
+starts).
+
+**Rule that came out of it:** a cross-journey state is only enforced where the
+journeys it binds READ it. A `suppresses` array on a handoff is what the writer
+believes; it binds nobody. State the gate at the send path AND from each bound
+journey's own side.
+
 ## Gates — all green at the last full run
 
 | gate | result |
@@ -103,6 +126,7 @@ node audit/build-manifest.mjs
 node search/build-search-index.mjs
 
 node scripts/validate-public-scope.mjs
+node scripts/sunset-suppression-evidence.mjs      # writer-with-no-readers guard
 node audit/canvas-hygiene.mjs 4511
 node audit/measure-display.mjs after 4511      # locale leaks must stay 0
 npm run validate:journey-production            # frozen node-count baseline

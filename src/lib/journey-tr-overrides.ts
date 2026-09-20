@@ -1912,7 +1912,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   nodes: {
     "t.resolved": { headline: "Alıcı ve hedefler çözümlendi" },
     "a.purpose": { headline: "İletişimin amacını sınıflandır - işlemsel, güvenlik, hizmet, zorunlu bildirim, operasyonel, pazarlama veya tanımlı başka bir amaç. Hangi izin kurallarının uygulanacağına amaç karar verir; yanlış sınıflandırma, bir güvenlik uyarısının bir pazarlama tercihi altında bastırılmasına yol açan şeydir" },
-    "a.evaluate": { headline: "Geçerli izni, onayı, kanal tercihini, zorunlu teslim kurallarını ve bastırma durumunu bu amaca göre değerlendir. Burada okunan, yetkili izin durumudur - bu akış onu yalnızca tek bir mesaj için değerlendirir, asla belirlemez" },
+    "a.evaluate": { headline: "Geçerli izni, onayı, kanal tercihini, zorunlu teslim kurallarını ve bastırma durumunu bu amaca göre değerlendir. Bastırma durumu, gönderen tarafında tutulanı da kapsar; izinle birlikte burada okunmasının nedeni budur: sonlandırma bastırması (CON-300, CON-38 tarafından tutulur) kişinin izin kaydı hâlâ evet derken kendi gönderimimize karşı kaydedilir, bu nedenle tanıtım ve yaşam döngüsü amaçlarını kapatır, hizmet, işlemsel, güvenlik ve zorunlu amaçları açık bırakır - amaç kontrolünde yalnızca izne bakan bir mesaj bu bastırmanın içinden doğruca geçip gider. Burada okunan, yetkili izin durumudur - bu akış onu yalnızca tek bir mesaj için değerlendirir, asla belirlemez" },
     "c.rules": { headline: "Bu amaç ve bu kanallar için izin kuralları tanımlı mı?", edges: [{ label: "Tanımlı", detail: "kurallar, hangi kanalların bu amacı taşıyabileceğini ve herhangi bir teslimin zorunlu olup olmadığını belirtir" }, { label: "Tanımlı değil", detail: "bu amacın bu kanalları kullanıp kullanamayacağına dair hiçbir şey belirtilmemiş" }] },
     "c.per-channel": { headline: "Değerlendirme sonucunda ne kullanılabilir kalıyor?", edges: [{ label: "En az bir kanala izin veriliyor", detail: "bir kanal bu amacı bu alıcıya taşıyabilir" }, { label: "Tercih edilen kanala izin verilmiyor ve iletişim zorunlu", detail: "alıcının tercihi olağan yolu kapatıyor, ancak bir kural yine de teslimi zorunlu kılıyor" }, { label: "İzin verilen hiçbir yol yok", detail: "bu amaç için tüm kanallar kapalı" }] },
     "h.review": { headline: "Karar talebi → doğrula → yönlendir, reddet veya beklet", detail: "izin kuralları tanımlanmamış bir iletişim amacı" },
@@ -4592,7 +4592,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.suppress": {
-      headline: "Bu kişi için pazarlama iletişimini gönderen tarafta durdur; kapsamı yalnızca ticari iletişimle sınırlı tut ve gerekçeyi, okunduğu dönemi ve durdurmayı kaldıracak koşulu birlikte kaydet. Kişinin kendi izin kaydına dokunulmaz: sessizlik bir çıkış talebi değildir ve buraya öyle yazmak, kişinin hiç vermediği bir kararı kaydına geçirmek olur.",
+      headline: "Bu kişi için pazarlama iletişimini gönderen tarafta durdur - kendisine gönderilen her tanıtım ve yaşam döngüsü mesajını kapsar, bunun ötesine geçmez - ve gerekçeyi, okunduğu dönemi ve durdurmayı kaldıracak koşulu birlikte kaydet. Kişinin kendi izin kaydına dokunulmaz: sessizlik bir çıkış talebi değildir ve buraya öyle yazmak, kişinin hiç vermediği bir kararı kaydına geçirmek olur.",
     },
     "c.notify": {
       headline: "Sonlandırma kişiye bildirilebilir mi?",

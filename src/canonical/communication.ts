@@ -601,7 +601,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.evaluate",
         kind: "action",
-        does: "Evaluate the applicable permission, consent, channel preference, mandatory-delivery rules and suppression state against that purpose. What is read is the authoritative permission state - this journey evaluates it for one message and never sets it",
+        does: "Evaluate the applicable permission, consent, channel preference, mandatory-delivery rules and suppression state against that purpose. Suppression state includes the sender-side kind, which is why it is read here as well as permission: a sunset suppression (CON-300, held by CON-38) is recorded against our own sending while the person's consent record still says yes, so it closes the promotional and lifecycle purposes and leaves service, transactional, security and mandatory ones open - a message whose purpose check reads only permission passes straight through it. What is read is the authoritative permission state - this journey evaluates it for one message and never sets it",
         next: "c.rules",
       },
       {
@@ -750,6 +750,7 @@ export const COMMUNICATION_JOURNEYS: readonly CanonicalJourney[] = [
       "Consent requirements are never invented, in either direction.",
       "This journey reads permission state and never writes it.",
       "A requirement to evaluate content-handling policy is not a permission flag. It governs what the message may say and on which surface; it neither grants nor withholds the right to send.",
+      "A sender-side suppression is not an absent permission, and a purpose check that reads only the consent record will not see one. Both are read here, for every purpose, rather than duplicated into each promotional and lifecycle journey's own graph.",
     ],
     reusableRule:
       "Channel eligibility depends on both technical contactability and whether that channel may be used for the communication's actual purpose.",

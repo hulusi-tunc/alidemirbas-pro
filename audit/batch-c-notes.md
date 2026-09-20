@@ -211,6 +211,19 @@ reads engagement with our *messages*, and the two are routinely opposite.
 
 ### 6. The sunset's outcome is reachable from its data, not implied in prose
 
+> **CORRECTED 2026-09-20 — this section was wrong, and it was the P0.** The
+> `suppresses` array quoted below is a statement the *writing* journey makes
+> about what ought to happen; no reading journey was obliged to have heard it.
+> `marketing_suppression` was written by `CON-300.a.suppress` and read by
+> **nothing** in 303 journeys, so the sunset suppressed nothing and every
+> promotional and lifecycle journey kept sending. The scope was also stated two
+> contradictory ways (`a.suppress.does` and `h.enforce.carries` said "commercial
+> communication only"; `h.enforce.suppresses` said "promotional and lifecycle").
+> Both are fixed — the broad reading was taken, GLB-31 now names the gate,
+> CMS-203 performs it and all 29 promotional/lifecycle journeys read it from
+> their own side. Full account and evidence: `audit/sunset-suppression-fix.md`.
+> What follows is the original text.
+
 The requirement was that a sunset which ends marketing contact must actually
 suppress marketing sends. It does, structurally:
 

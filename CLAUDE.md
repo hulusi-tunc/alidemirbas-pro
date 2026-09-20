@@ -28,6 +28,12 @@ npm run dump:canonical                # regenerates production/canonical-dump.js
 npm run validate:journey-production   # asserts production/ artifacts against frozen baselines
 npm run validate:seo                  # title/description corpus + cannibalization clustering
 
+node scripts/sunset-suppression-evidence.mjs  # every promotional/lifecycle journey
+                                      # READS the sender-side suppression CON-300 writes.
+                                      # Exits 1 if a new one does not - which is the whole
+                                      # point: a cross-journey state is only enforced where
+                                      # the journeys it binds read it, and CON-300 shipped
+                                      # once with a writer and no readers at all.
 node scripts/validate-public-scope.mjs # 15 checks: the 69/21 partition, channel taxonomy, search
                                       # and surface artifacts free of excluded ids, no renderer
                                       # hack, every journey terminal, every wait bounded

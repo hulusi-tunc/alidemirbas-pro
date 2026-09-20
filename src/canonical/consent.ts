@@ -1210,7 +1210,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         journey: "CON-300",
         because:
-          "CON-300 decides that continued marketing contact is no longer warranted and hands the result here. What it produces is the sender-side kind of suppression this journey keeps apart from a permission the person withdrew: it is recorded against our own sending, it is scoped to commercial communication, and this journey releases it by asking for permission again rather than by switching sending back on.",
+          "CON-300 decides that continued marketing contact is no longer warranted and hands the result here. What it produces is the sender-side kind of suppression this journey keeps apart from a permission the person withdrew: it is recorded against our own sending, it is scoped to every promotional and lifecycle send addressed to that person and to nothing they hold, owe or are owed, and this journey releases it by asking for permission again rather than by switching sending back on.",
       },
     ],
     objective: "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
@@ -1244,6 +1244,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g5",
         "label": "CANONICAL_RULE",
         "text": "Releasing a sender-side suppression asks for permission again rather than switching sending back on. Silence long enough to suppress for is not consent that survived it."
+      },
+      {
+        "id": "s.g6",
+        "label": "CANONICAL_RULE",
+        "text": "A suppression is held here and read out there. The scope recorded at a.record is what the journeys it binds gate on, so a scope nothing reads is not a suppression at all - it is a log line. The sunset scope CON-300 hands over covers every promotional and lifecycle send addressed to the person, and each of those journeys names that state from its own side; what they hold, owe or are owed is outside it and keeps running."
       }
     ],
     implementation: {
@@ -1403,7 +1408,8 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       "Release is not replay. What was held is discarded and current eligibility is recalculated.",
       "Different reasons carry different scopes, and a suppression without its scope cannot be released correctly.",
       "Suppression we impose on ourselves is a separate state from permission the person gave us. A sender-side hold is not an unsubscribe, it is recorded against our own sending rather than against their consent, and nobody may read it as a decision they made.",
-      "Releasing a sender-side suppression asks for permission again rather than switching sending back on. Silence long enough to suppress for is not consent that survived it."
+      "Releasing a sender-side suppression asks for permission again rather than switching sending back on. Silence long enough to suppress for is not consent that survived it.",
+      "A scope nothing downstream reads is a log line, not a suppression. The journeys a scope binds name that state themselves."
     ],
     reusableRule:
       "Suppression should be explicit, scoped and reversible only when its underlying reason is no longer valid.",
@@ -2968,6 +2974,16 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         "text": "Silence is not an opt-out. What this journey reaches is a sender-side suppression recorded against our own sending, never a withdrawal recorded against the person's consent, and it is released by asking for permission again rather than by switching sending back on (CON-38)."
       },
       {
+        "id": "s.scope",
+        "label": "CANONICAL_RULE",
+        "text": "Marketing contact means every promotional and lifecycle send addressed to this person, not promotions alone. The narrow reading - stop the offers, keep the birthday, the anniversary, the membership welcome and the tier announcement - defeats the journey and is worse than not having it, because the business believes it has stopped while the same person keeps hearing from us on the same evidence of disinterest. The line is drawn at the send's declared purpose class, which is the only thing a gate can read: promotional and lifecycle stop, service, transactional, security and mandatory do not."
+      },
+      {
+        "id": "s.enforced",
+        "label": "CANONICAL_RULE",
+        "text": "The suppression has to be read by the journeys it binds, or it has ended nothing. Every journey in the library whose sends are promotional or lifecycle class stands down while it stands - the recoveries, the nurtures, the offers, the recognitions and the membership announcements - and each says so from its own side. It is carried as a hard gate under GLB-31 and evaluated at the send path's purpose stage (CMS-203) rather than declared in this journey's contactability-question group, because it is a standing state and not a contest: it decides who may be sent to afterwards, where a competition group decides only who asks the question now, and it outlives every send window either of them could share."
+      },
+      {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
         "text": "A contact repair or a frequency change already running for this person outranks this journey in the contactability-question group; while either holds the person, this journey is suppressed for them rather than queued behind it (GLB-06). A route that broke is why nothing was engaged with, not evidence that nothing was wanted."
@@ -3344,7 +3360,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.suppress",
         "kind": "action",
-        "does": "Record a sender-side suppression of marketing contact for this person, scoped to commercial communication and to nothing else, with the reason, the window it was read from and the condition that would release it. The person's own permission record is left exactly as it was: silence is not an opt-out, and writing one here would put a decision on their record that they never made.",
+        "does": "Record a sender-side suppression of marketing contact for this person - every promotional and lifecycle send addressed to them, and nothing beyond that - with the reason, the window it was read from and the condition that would release it. The person's own permission record is left exactly as it was: silence is not an opt-out, and writing one here would put a decision on their record that they never made.",
         "idempotencyKey": "person_id + unengaged_window",
         "writes": [
           {
@@ -3394,7 +3410,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         "on": "marketing contact ended for this person, with the suppression now needing to be held, scoped and released by the mechanism that owns suppression states",
         "carries": [
           "person_id",
-          "the suppression scope - commercial communication only, and nothing the person holds, owes or is owed",
+          "the suppression scope - every promotional and lifecycle send addressed to this person, and nothing they hold, owe or are owed",
           "the reason and the unengaged window it was read from",
           "the release condition: permission given afresh, never the passing of time"
         ],
@@ -3594,6 +3610,8 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       "A reduced cadence is offered before contact is ended, and taking it hands the person to the journey that owns the reduction.",
       "What the person holds, owes or is owed is never affected - a sunset ends marketing contact and nothing else.",
       "The ending is recorded as a sender-side suppression, never as an opt-out on the person's own consent record.",
+      "Ending marketing contact ends the promotional and the lifecycle sends alike; keeping the birthday, the anniversary or the tier announcement running is the narrow reading, and it makes the ending untrue.",
+      "The suppression is read by every promotional and lifecycle journey in the library and by nothing transactional, service, security or mandatory; one that only this journey knows about has stopped nothing.",
       "No offer, no incentive and no argument for the relationship appears in any of the touches."
     ],
     "reusableRule": "Deciding whether to keep contacting somebody is a separate question from whether to keep them, and it is answered by asking once, offering less before none, and recording the ending against our own sending rather than against their consent."

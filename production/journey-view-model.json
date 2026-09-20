@@ -12955,7 +12955,7 @@
         {
           "id": "a.evaluate",
           "kind": "action",
-          "headline": "Evaluate the applicable permission, consent, channel preference, mandatory-delivery rules and suppression state against that purpose. What is read is the authoritative permission state - this journey evaluates it for one message and never sets it",
+          "headline": "Evaluate the applicable permission, consent, channel preference, mandatory-delivery rules and suppression state against that purpose. Suppression state includes the sender-side kind, which is why it is read here as well as permission: a sunset suppression (CON-300, held by CON-38) is recorded against our own sending while the person's consent record still says yes, so it closes the promotional and lifecycle purposes and leaves service, transactional, security and mandatory ones open - a message whose purpose check reads only permission passes straight through it. What is read is the authoritative permission state - this journey evaluates it for one message and never sets it",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -13236,7 +13236,8 @@
         "Marketing consent does not control mandatory security notices unless governing rules say so.",
         "Consent requirements are never invented, in either direction.",
         "This journey reads permission state and never writes it.",
-        "A requirement to evaluate content-handling policy is not a permission flag. It governs what the message may say and on which surface; it neither grants nor withholds the right to send."
+        "A requirement to evaluate content-handling policy is not a permission flag. It governs what the message may say and on which surface; it neither grants nor withholds the right to send.",
+        "A sender-side suppression is not an absent permission, and a purpose check that reads only the consent record will not see one. Both are read here, for every purpose, rather than duplicated into each promotional and lifecycle journey's own graph."
       ],
       "reusableRule": "Channel eligibility depends on both technical contactability and whether that channel may be used for the communication's actual purpose.",
       "entityScope": "the obligation, the recipient's destinations, and the purpose being evaluated against them",
@@ -16782,7 +16783,7 @@
         },
         {
           "journey": "CON-300",
-          "because": "CON-300 decides that continued marketing contact is no longer warranted and hands the result here. What it produces is the sender-side kind of suppression this journey keeps apart from a permission the person withdrew: it is recorded against our own sending, it is scoped to commercial communication, and this journey releases it by asking for permission again rather than by switching sending back on."
+          "because": "CON-300 decides that continued marketing contact is no longer warranted and hands the result here. What it produces is the sender-side kind of suppression this journey keeps apart from a permission the person withdrew: it is recorded against our own sending, it is scoped to every promotional and lifecycle send addressed to that person and to nothing they hold, owe or are owed, and this journey releases it by asking for permission again rather than by switching sending back on."
         }
       ],
       "competition": null,
@@ -16794,7 +16795,8 @@
         "Release is not replay. What was held is discarded and current eligibility is recalculated.",
         "Different reasons carry different scopes, and a suppression without its scope cannot be released correctly.",
         "Suppression we impose on ourselves is a separate state from permission the person gave us. A sender-side hold is not an unsubscribe, it is recorded against our own sending rather than against their consent, and nobody may read it as a decision they made.",
-        "Releasing a sender-side suppression asks for permission again rather than switching sending back on. Silence long enough to suppress for is not consent that survived it."
+        "Releasing a sender-side suppression asks for permission again rather than switching sending back on. Silence long enough to suppress for is not consent that survived it.",
+        "A scope nothing downstream reads is a log line, not a suppression. The journeys a scope binds name that state themselves."
       ],
       "reusableRule": "Suppression should be explicit, scoped and reversible only when its underlying reason is no longer valid.",
       "entityScope": "the person, message or journey instance the suppression applies to, at the scope recorded with it",
@@ -18371,7 +18373,7 @@
         {
           "id": "a.suppress",
           "kind": "action",
-          "headline": "Record a sender-side suppression of marketing contact for this person, scoped to commercial communication and to nothing else, with the reason, the window it was read from and the condition that would release it. The person's own permission record is left exactly as it was: silence is not an opt-out, and writing one here would put a decision on their record that they never made.",
+          "headline": "Record a sender-side suppression of marketing contact for this person - every promotional and lifecycle send addressed to them, and nothing beyond that - with the reason, the window it was read from and the condition that would release it. The person's own permission record is left exactly as it was: silence is not an opt-out, and writing one here would put a decision on their record that they never made.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -18757,6 +18759,8 @@
         "A reduced cadence is offered before contact is ended, and taking it hands the person to the journey that owns the reduction.",
         "What the person holds, owes or is owed is never affected - a sunset ends marketing contact and nothing else.",
         "The ending is recorded as a sender-side suppression, never as an opt-out on the person's own consent record.",
+        "Ending marketing contact ends the promotional and the lifecycle sends alike; keeping the birthday, the anniversary or the tier announcement running is the narrow reading, and it makes the ending untrue.",
+        "The suppression is read by every promotional and lifecycle journey in the library and by nothing transactional, service, security or mandatory; one that only this journey knows about has stopped nothing.",
         "No offer, no incentive and no argument for the relationship appears in any of the touches."
       ],
       "reusableRule": "Deciding whether to keep contacting somebody is a separate question from whether to keep them, and it is answered by asking once, offering less before none, and recording the ending against our own sending rather than against their consent.",

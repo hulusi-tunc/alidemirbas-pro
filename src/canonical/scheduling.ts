@@ -4568,7 +4568,13 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g5",
         "label": "CANONICAL_RULE",
         "text": "The delay before the offer is bounded and never extended by the person browsing again."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     contact: {
       "defaultPriority": "promotional",
