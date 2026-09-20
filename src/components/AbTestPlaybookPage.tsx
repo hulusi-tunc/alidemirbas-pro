@@ -228,11 +228,13 @@ export default function AbTestPlaybookPage({
            in the data as prose, so it is stated in each side's own words;
            the variant's pill names the change from the two fields that
            fix it. */
-        /* On the project's own plate (Hulusi, 2026-09-20: "I want the photo
-           behind the A/B test screens", then "not red, no colour overlay"):
-           the product page's frame with the meadow photograph as it is,
-           the two screens standing on it. */
-        <ProductFrame slug="ab-test-playbook" wash={false} inset="none" className="mt-6">
+        /* On the plate (Hulusi, 2026-09-20: "I want the photo behind the
+           A/B test screens", then "not red, no colour overlay", then "can
+           we change the bg image" - picked the builder's path-through-the-
+           meadow from the nine plates rendered side by side): the product
+           page's frame with the photograph as it is, the two screens
+           standing on it. */
+        <ProductFrame slug="ab-test-playbook" plate="claude-lifecycle-0" wash={false} inset="none" className="mt-6">
         <div className="grid gap-4 p-4 pb-20 sm:p-8 sm:pb-24 md:p-10 md:pb-28 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch">
           <Side
             label={roleLabel(test.sideA!.role, t.roles.control)}
@@ -253,7 +255,7 @@ export default function AbTestPlaybookPage({
         </div>
         </ProductFrame>
       ) : (
-        <ProductFrame slug="ab-test-playbook" wash={false} inset="none" className="mt-6">
+        <ProductFrame slug="ab-test-playbook" plate="claude-lifecycle-0" wash={false} inset="none" className="mt-6">
         <div className="p-4 pb-20 sm:p-8 sm:pb-24 md:p-10 md:pb-28">
         <div className="mx-auto max-w-3xl rounded-[28px] bg-paper p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] sm:p-8">
           <div className="grid gap-6 sm:grid-cols-2 sm:items-center">
