@@ -11,7 +11,7 @@ Phase: executing the approved decision list (`audit/DECISIONS-PENDING.md`).
 | 1 | A1 — ACQ-287/288 vNext ownership contract | **DONE** |
 | 2 | A2 + A3 — commerce precedence, payment handoff | **DONE** |
 | 3 | A4 — TIM-268 generic fallback | **DONE** |
-| 4 | A5–A9 — remaining ownership rules | A8 + A9 **DONE**; A5, A6✓, A7 — A5/A7 pending |
+| 4 | A5–A9 — remaining ownership rules | **DONE** (A5, A6, A7, A8, A9) |
 | 5 | B — contact-count changes | B3 + B4 **DONE**; B1/B2/B5 pending |
 | 6 | C — data hygiene | C1 **DONE**; C2–C5 pending |
 | 7 | D — canvas fixes | pending |
@@ -30,6 +30,7 @@ Phase: executing the approved decision list (`audit/DECISIONS-PENDING.md`).
 | #21 | **Scope reconciled to 52**, `public-scope-validation.md` |
 | #23 | A1 · A2 · A3 · A6 + C1 · B3 · B4 — commerce ownership |
 | #24 | CLAUDE.md corpus/library numbers corrected |
+| #25 | A4 · A8 · A9 — obligation, grace and access chains |
 
 ## The scope question, settled
 

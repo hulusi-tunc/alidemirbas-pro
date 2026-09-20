@@ -170,7 +170,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACT-12": {
-    "hash": "sha256:15cac9991d363d6abcd66f698cab8c0323bb4aa563ee2f161784bc15f273f3d0",
+    "hash": "sha256:06a27b7d46879eee52077ab4aa2255697e2b7c0d0fb532786fde6786c9cc4b14",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -220,12 +220,12 @@
     "schema_version": "vNext-2026-09"
   },
   "RET-30": {
-    "hash": "sha256:b169c4b5d094881442364ca272b09fad1e1dfe1e3085d3fb0ad37ee570f238be",
+    "hash": "sha256:6dc1f9f3789997f18bf6937f38371ca136ae6f28ecb7cd45ebdc36bde4a0ee41",
     "source": "src/canonical/retention.ts",
     "schema_version": "vNext-2026-09"
   },
   "ACT-19": {
-    "hash": "sha256:fecfeffe0a903254d217aeb02088748ff30135570e2a9e021402eb82c98bc0ee",
+    "hash": "sha256:e162adf5d913072b0c008ad4835d238932d97f63a77ca755b4b65eb8f167a8c3",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },

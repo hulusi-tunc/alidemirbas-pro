@@ -379,6 +379,13 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     shortName: "Onboarding Nurture",
     purpose:
       "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
+    distinctFrom: [
+      {
+        journey: "ACT-19",
+        because:
+          "This one advances a path already chosen; ACT-19 is what chooses it. They share an account and a trigger condition - onboarding_active_without_activation is true for both, and stays true for the whole of ACT-19's answer wait - so while a personalization question is outstanding this journey holds its prompts (s.personalizing) rather than pushing the generic next step over the answer that would re-route it.",
+      },
+    ],
     entity: {
       scope: "person or account plus the onboarding instance",
       note: "Progress is held against the instance. A second onboarding for a different product does not inherit the first one's completed steps.",
@@ -394,6 +401,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "the product's own record of setup milestones is readable",
       "no nurture instance is already open for this onboarding instance",
       "no ACT-14 assisted-help session is open (booked and not yet resolved) for this account",
+      "no ACT-19 personalization question is outstanding (asked at a.ask, not yet answered) for this onboarding instance",
       "hard gates (GLB-31) permit lifecycle communication"
     ],
     suppressions: [
@@ -426,6 +434,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.assisted",
         "label": "CANONICAL_RULE",
         "text": "An open ACT-14 assisted-help session (booked at a.confirm, not yet resolved) on the same account takes ownership from this journey's generic next-step prompts; nurture steps pause until ACT-14's w.session resolves (assisted_session_outcome_recorded or booking_cancelled) or exits, and resume against the milestone record as it then stands."
+      },
+      {
+        "id": "s.personalizing",
+        "label": "CANONICAL_RULE",
+        "text": "An outstanding ACT-19 personalization question (asked at a.ask, not yet answered) on the same onboarding instance takes ownership from this journey's generic next-step prompts, exactly as an assisted session does. The two are indistinguishable from the account's side - onboarding_active_without_activation stays true for the whole of ACT-19's w.answer, so without this rule this journey pushes the generic next step on the same channels while the answer that would re-route it is still in flight, and may push the very step that answer was about to make wrong. Nurture steps pause until w.answer resolves (question_answered) or times out, and resume against the route as it then stands."
       },
       {
         "id": "s.permission",
@@ -520,6 +533,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.window",
         "s.contest",
         "s.assisted",
+        "s.personalizing",
         "s.permission"
       ]
     },
@@ -2751,6 +2765,13 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     shortName: "Onboarding Personalization",
     purpose:
       "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
+    distinctFrom: [
+      {
+        journey: "ACT-12",
+        because:
+          "This one asks the question that decides the route; ACT-12 walks the route once it is decided. While the question is outstanding this journey owns the onboarding conversation on the same channels, and ACT-12's nurture prompts are held until the answer lands or the wait times out - otherwise both are talking about setup at once, and the generic prompt can be for the very step the answer was about to change.",
+      },
+    ],
     entity: {
       scope: "person or account plus the onboarding context being decided",
       note: "The declared value belongs to the context it was given for; a different product's onboarding asks its own question rather than reusing this answer.",

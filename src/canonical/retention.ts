@@ -2702,11 +2702,23 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "w.outcome",
         kind: "wait",
+        /* `cancellation_confirmed` and `cancellation_flow_abandoned` were
+           missing, and their absence was the bug: a customer who ignored the
+           offer and simply completed the cancellation triggered none of the
+           four events below, so the wait ran to its timeout and sent a
+           retention follow-up into the middle of SUB-262's wind-down notice -
+           the re-litigation SUB-262's own s.g1 forbids. RET-28 watches for
+           the same event in both of its waits; this journey never inherited
+           it. The abandoned-flow event is here for the mirror case: the
+           person walked out of cancelling, which is an answer to the offer
+           and not a reason to ask again. */
         until: [
           "retention_offer_accepted",
           "retention_offer_declined",
           "relationship_recovered",
-          "intervention_failed"
+          "intervention_failed",
+          "cancellation_confirmed",
+          "cancellation_flow_abandoned"
         ],
         onEvent: "c.outcome",
         timeout: {
@@ -2743,6 +2755,19 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             label: "Failed to execute",
             when: "the intervention was accepted or attempted and did not actually apply",
             to: "h.fix",
+          },
+          /* Decided meanwhile - the customer answered the offer by acting on
+             the cancellation instead of on the offer. Routed to the handoff
+             this journey already has for "declined and still leaving"
+             (h.proceed -> SUB-167), because that is exactly the state: the
+             wind-down owns the person from here, and this journey has nothing
+             further to say. Without this branch the same customer reached the
+             timeout and got a follow-up alongside the wind-down notice. */
+          {
+            label: "Decided meanwhile",
+            when: "the cancellation was confirmed, or the person left the cancellation flow, without the offer itself being answered - either way the decision is made and it is not this journey's to reopen",
+            observes: "cancellation_confirmed",
+            to: "h.proceed",
           },
         ],
       },
