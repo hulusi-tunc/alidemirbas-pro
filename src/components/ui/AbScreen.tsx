@@ -267,6 +267,9 @@ type Ctx = {
   surface: string;
   side: AbSide;
   present: boolean;
+  /** A "remove" record runs the other way: the control has the more, the
+      bigger, the louder, and the variant takes it away. */
+  invert: boolean;
   lang: Lang;
   phone: boolean;
 };
@@ -276,7 +279,8 @@ type Ctx = {
 function diff<T>(ctx: Ctx, kinds: AbVariableKind | AbVariableKind[], a: T, b: T, normal: T): T {
   const ks = Array.isArray(kinds) ? kinds : [kinds];
   if (!ks.includes(ctx.kind) || ctx.side === "solo") return normal;
-  return ctx.side === "b" ? b : a;
+  const onB = ctx.side === "b";
+  return onB !== ctx.invert ? b : a;
 }
 
 /** A promo strip with a live countdown - the digits are bars. */
@@ -732,29 +736,33 @@ function Footer() {
 }
 
 /** The tested element in its slot, ringed - or its dashed ghost when this
-    side does not have it. Every other slot draws its skeleton. */
-function useSlots(ctx: Ctx) {
+    side does not have it. Every other slot draws its skeleton. A body
+    names its slots up front so `rest()` - the place for an element the
+    page has no slot of its own for - can tell, wherever it sits in the
+    markup, whether the element already has a home; and `at()` draws the
+    element once, whatever else names the same slot. */
+function useSlots(ctx: Ctx, slots: readonly AbElementKind[]) {
   const moved = diff(ctx, "placement", false, true, false);
   let placed = false;
-  const at = (name: AbElementKind, skeleton: ReactNode, alt = false): ReactNode => {
-    const mine = ctx.element === name && (moved ? alt : !alt);
-    if (!mine) return alt ? null : skeleton;
+  const draw = (tall: boolean): ReactNode => {
     placed = true;
-    if (!ctx.present) return <Ghost lang={ctx.lang} className={name === "form" || name === "grid" || name === "plans" ? "h-40" : "h-14"} />;
+    if (!ctx.present) return <Ghost lang={ctx.lang} className={tall ? "h-40" : "h-14"} />;
     return <Spot><Element ctx={ctx} /></Spot>;
   };
-  /** Somewhere for an element the page has no slot of its own for. */
+  const at = (name: AbElementKind, skeleton: ReactNode, alt = false): ReactNode => {
+    const mine = ctx.element === name && (moved ? alt : !alt);
+    if (!mine || placed) return alt ? null : skeleton;
+    return draw(name === "form" || name === "grid" || name === "plans");
+  };
   const rest = (): ReactNode => {
-    if (placed || ctx.element === "popup") return null;
-    placed = true;
-    if (!ctx.present) return <Ghost lang={ctx.lang} />;
-    return <Spot><Element ctx={ctx} /></Spot>;
+    if (placed || ctx.element === "popup" || slots.includes(ctx.element)) return null;
+    return draw(false);
   };
   return { at, rest };
 }
 
 function Pdp({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx);
+  const { at, rest } = useSlots(ctx, ["nav", "media", "text", "reviews", "price", "selector", "cta", "shipping", "badge", "countdown", "coupon"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-8">
@@ -785,7 +793,7 @@ function Pdp({ ctx }: { ctx: Ctx }) {
 }
 
 function Plp({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx);
+  const { at, rest } = useSlots(ctx, ["nav", "search", "filters", "countdown", "text", "badge", "media", "logos", "grid"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-6">
@@ -805,7 +813,7 @@ function Plp({ ctx }: { ctx: Ctx }) {
 }
 
 function Checkout({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx);
+  const { at, rest } = useSlots(ctx, ["nav", "selector", "coupon", "shipping", "countdown", "price", "badge", "stepper", "form", "payment", "text", "cta"]);
   const l = ctx.lang;
   const summary = (
     <span className="flex flex-col gap-4 rounded-xl bg-paper-soft p-6">
@@ -843,7 +851,7 @@ function Checkout({ ctx }: { ctx: Ctx }) {
 }
 
 function FormPage({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx);
+  const { at, rest } = useSlots(ctx, ["nav", "stepper", "text", "payment", "form", "selector", "cta", "badge"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-8">
@@ -866,7 +874,7 @@ function FormPage({ ctx }: { ctx: Ctx }) {
 }
 
 function Home({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx);
+  const { at, rest } = useSlots(ctx, ["nav", "text", "cta", "badge", "media", "logos", "countdown", "reviews", "search", "plans", "form", "price", "grid"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-8">
@@ -891,7 +899,7 @@ function Home({ ctx }: { ctx: Ctx }) {
 }
 
 function PricingPage({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx);
+  const { at, rest } = useSlots(ctx, ["nav", "text", "plans", "price", "badge", "cta", "selector", "logos"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-8">
@@ -968,6 +976,7 @@ export function AbScreen({
   kind,
   side,
   presence,
+  behavior,
   lang,
   label,
   address,
@@ -981,6 +990,9 @@ export function AbScreen({
   side: AbSide;
   /** On a presence test the data fixes each side; elsewhere null. */
   presence?: "absent" | "present" | null;
+  /** The record's differenceBehavior: on "remove" the sides run the other
+      way round. */
+  behavior?: string;
   lang: Lang;
   /** What a screen reader gets instead of the picture. */
   label: string;
@@ -992,7 +1004,7 @@ export function AbScreen({
   className?: string;
 }) {
   const phone = surface === "mobile";
-  const ctx: Ctx = { kind, element, surface, side, present: presence !== "absent", lang, phone };
+  const ctx: Ctx = { kind, element, surface, side, present: presence !== "absent", invert: behavior === "remove", lang, phone };
   const popup = element === "popup" && ctx.present;
   return (
     <div className={clsx("min-w-0", className)}>
@@ -1001,12 +1013,20 @@ export function AbScreen({
           lives INSIDE the scaled page, so the tab bar is as small as a tab
           bar is in a screenshot. A picture, not a control: role="img",
           pointer events off. */}
+      {/* ZOOM ON HOVER (Hulusi, 2026-09-20: "when I hover the screen, scale
+          it up so the user can see it easily"): the screen grows to 1.4x
+          from its top corner nearest the page's edge, so it swings in
+          over the arrow and the other side and sits above everything on
+          the plate. The hover is the side's, not the figure's (a picture
+          takes no pointer events), so `group` sits on the Side. */}
       <figure
         role="img"
         aria-label={label}
         className={clsx(
-          "pointer-events-none m-0 overflow-hidden rounded-xl border border-line-soft bg-paper text-left select-none shadow-[0_0_0_1px_rgb(0_0_0/0.03),0_30px_70px_-30px_rgb(10_16_32/0.38)]",
-          phone ? "mx-auto max-w-[20rem]" : "",
+          "pointer-events-none relative m-0 overflow-hidden rounded-xl border border-line-soft bg-paper text-left select-none shadow-[0_0_0_1px_rgb(0_0_0/0.03),0_30px_70px_-30px_rgb(10_16_32/0.38)]",
+          "transition-[transform,box-shadow] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] group-hover:z-30 group-hover:scale-[1.4] group-hover:shadow-[0_50px_100px_-40px_rgb(10_16_32/0.5)]",
+          side === "b" ? "origin-top-right" : "origin-top-left",
+          phone ? "mx-auto max-w-[20rem] origin-top" : "",
           ring && "ring-2 ring-primary-400 ring-offset-2 ring-offset-paper-soft",
         )}
       >

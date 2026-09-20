@@ -34,6 +34,7 @@ export function ProductFrame({
   plate,
   inset = "md",
   wash = true,
+  clip = true,
   className,
   children,
 }: {
@@ -46,24 +47,30 @@ export function ProductFrame({
       ground under it (the A/B detail page, 2026-09-20: "not red, no
       colour overlay"). The grain stays. */
   wash?: boolean;
+  /** `false` lets children spill past the plate's edge (the A/B detail's
+      screens grow on hover); the photograph and the wash are clipped to
+      the corner on their own layer instead of by the plate. */
+  clip?: boolean;
   className?: string;
   children: ReactNode;
 }) {
   const accent = labAccent(slug);
   return (
-    <div data-hue={wash ? accent.hue : undefined} className={clsx("lab-frame relative isolate overflow-hidden rounded-[28px]", className)}>
-      <Image
-        src={`/lab/frames/${plate ?? slug}.jpg`}
-        alt=""
-        aria-hidden
-        fill
-        sizes="(min-width: 1280px) 1120px, 100vw"
-        className={clsx("-z-10 origin-bottom scale-[1.3] object-cover object-bottom", wash ? "opacity-80" : "opacity-100")}
-      />
-      {/* The wash: the hue over the photograph, luminosity from the photo,
-          colour from the project. Later in DOM than the image, same
-          negative layer, so it paints over the image and under the grain. */}
-      {wash ? <div aria-hidden className={clsx("absolute inset-0 -z-10 opacity-70 mix-blend-color", WASH[accent.hue] ?? WASH.neutral)} /> : null}
+    <div data-hue={wash ? accent.hue : undefined} className={clsx("lab-frame relative isolate rounded-[28px]", clip ? "overflow-hidden" : "", className)}>
+      <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden rounded-[inherit]">
+        <Image
+          src={`/lab/frames/${plate ?? slug}.jpg`}
+          alt=""
+          aria-hidden
+          fill
+          sizes="(min-width: 1280px) 1120px, 100vw"
+          className={clsx("origin-bottom scale-[1.3] object-cover object-bottom", wash ? "opacity-80" : "opacity-100")}
+        />
+        {/* The wash: the hue over the photograph, luminosity from the photo,
+            colour from the project. Later in DOM than the image, same
+            layer, so it paints over the image and under the grain. */}
+        {wash ? <div className={clsx("absolute inset-0 opacity-70 mix-blend-color", WASH[accent.hue] ?? WASH.neutral)} /> : null}
+      </div>
       <div className={clsx("relative", inset === "md" ? "p-4 sm:p-8 md:p-10" : inset === "sm" ? "p-3 sm:p-5 md:p-6" : "")}>{children}</div>
     </div>
   );
