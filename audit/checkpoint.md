@@ -8,12 +8,12 @@ Phase: executing the approved decision list (`audit/DECISIONS-PENDING.md`).
 | # | Step | Status |
 |---|---|---|
 | 0 | Reconcile 52 vs 51 | **DONE** — PR #21 |
-| 1 | A1 — ACQ-287/288 vNext ownership contract | in progress |
-| 2 | A2 + A3 — commerce precedence, payment handoff | in progress (same file) |
+| 1 | A1 — ACQ-287/288 vNext ownership contract | **DONE** |
+| 2 | A2 + A3 — commerce precedence, payment handoff | **DONE** |
 | 3 | A4 — TIM-268 generic fallback | pending |
 | 4 | A5–A9 — remaining ownership rules | pending |
-| 5 | B — contact-count changes | B3/B4 with step 1; B1/B2/B5 pending |
-| 6 | C — data hygiene | C1 with step 1; C2–C5 pending |
+| 5 | B — contact-count changes | B3 + B4 **DONE**; B1/B2/B5 pending |
+| 6 | C — data hygiene | C1 **DONE**; C2–C5 pending |
 | 7 | D — canvas fixes | pending |
 | 8 | Redesign batches over the 52 | pending |
 
@@ -50,7 +50,7 @@ removed, suppressed or given a message.
 | gate | result |
 |---|---|
 | `scripts/validate-public-scope.mjs` | PASS — 15 checks, 0 failures, 3 warnings |
-| `audit/canvas-hygiene.mjs` | PASS — 1351 cards, 0 findings |
+| `audit/canvas-hygiene.mjs` | PASS — 1363 cards, 0 findings |
 | `audit/guard-display.mjs` | PASS — canonical drift none, G1/G2/G3 0 |
 | `npm run validate:canonical` | PASS — 0 errors |
 | `npm run validate:journey-production` | PASS — 30/30 |
@@ -60,17 +60,39 @@ removed, suppressed or given a message.
 
 ## After every step — the required loop
 
+**Order matters.** `build-manifest.mjs` rewrites `canonical-baseline.json`, which
+is the very thing `guard-display.mjs`'s G4 check compares against. Run the
+manifest first and G4 compares the new corpus to a baseline generated from the
+new corpus — it reports "no drift" no matter what changed, which is exactly what
+happened on the A1 step and had to be caught by hand.
+
 ```
 npm run dump:canonical
 node scripts/surface-assignment.mjs
-node search/build-search-index.mjs
-node audit/build-manifest.mjs
 npm run validate:canonical
-node scripts/validate-public-scope.mjs
 npm run build && npx next start -p 4511
+
+#  G4 FIRST, against the COMMITTED baseline, so intended drift is listed by id
 node audit/guard-display.mjs 4511
+#  ... confirm the journeys it names are the ones this step was supposed to
+#  change, and nothing else. THEN adopt the new baseline:
+node audit/build-manifest.mjs
+node search/build-search-index.mjs
+
+node scripts/validate-public-scope.mjs
 node audit/canvas-hygiene.mjs 4511
 node audit/measure-display.mjs after 4511      # locale leaks must stay 0
+npm run validate:journey-production            # frozen node-count baseline
+```
+
+Cross-check the intended drift independently, which does not depend on run
+order:
+
+```bash
+node -e 'const {execSync}=require("child_process");
+const old=JSON.parse(execSync("git show HEAD:audit/canonical-baseline.json").toString());
+const now=require("./audit/canonical-baseline.json");
+console.log(Object.keys(old).filter(id=>now[id]&&old[id].hash!==now[id].hash).join(", ")||"none");'
 ```
 
 Generated files are git-tracked; a stale one shows as a diff.
@@ -85,9 +107,13 @@ Generated files are git-tracked; a stale one shows as a diff.
    *zoomed* value and reports every card as overflowing.
 3. **`journey-marketing.ts` throws at module load** if any of ACQ-01, ACQ-09,
    ACT-12, CON-38, TIM-65 is removed. Two are in the 52.
-4. **TR overrides are keyed by node id** — renaming or adding a canonical node
-   silently drops its Turkish back to English. Check `measure-display`'s
-   locale-leak count after any node change.
+4. **TR overrides are keyed by node id** — adding a canonical node ships its
+   English sentence to the TR route verbatim, under a correct Turkish kind
+   label. The locale check only looked for English CHROME words, so it could
+   not see this and reported 0 while two cards were English; it now also flags
+   English function words (`the`, `and`, `that`, `still`, …), two or more in
+   one card. Every new canonical node needs a `journey-tr-overrides.ts` entry
+   in the same commit.
 5. **Squash-merged branches orphan their history** — branch from a freshly
    reset `main`, or the next PR diffs against a stale merge-base.
 
@@ -96,6 +122,6 @@ Generated files are git-tracked; a stale one shows as a diff.
 - `SIZE.exit` is 68; the worst Turkish exit wants 103 in a 200px slot. D1 is
   the approved fix (start ~240, validate visually).
 - `CLAUDE.md` still states 73 library journeys and a 284/3690 corpus. Actual:
-  52 public, 286/3728.
+  52 public, 286/3732.
 - `npm run lint` has 1 pre-existing error in `src/components/ui/MobileNav.tsx:78`,
   unrelated, not build-failing.

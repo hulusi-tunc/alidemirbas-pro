@@ -17,6 +17,24 @@ await page.setViewport({ width: 1440, height: 1200, deviceScaleFactor: 1 });
 
 const EN_CHROME = ["Trigger", "Decision", "Wait", "Exit", "Handoff", "Outcome", "Internal", "Human", "Channel selection", "Primary", "Fallback", "Entry"];
 const TR_CHROME = ["Tetikleyici", "Karar", "Bekleme", "Çıkış", "Devir", "Sonuç", "İç işlem", "İnsan", "Kanal seçimi", "Öncelikli", "Yedek", "Giriş"];
+
+/* UNTRANSLATED CANONICAL PROSE on the TR route - a different failure from a
+   chrome leak, and the one that actually happens.
+
+   The chrome lists above catch a card whose KIND LABEL rendered in the wrong
+   language, which only breaks when a label table is missed. What breaks far
+   more often is a new canonical node reaching TR with no entry in
+   journey-tr-overrides.ts, so its English sentence renders verbatim under a
+   correct Turkish kind label - "Karar · Is the lead still the lead this
+   window opened for?". The chrome check cannot see that: every chrome word on
+   the card is right.
+
+   These are English function words with no Turkish homograph, so a Turkish
+   sentence cannot contain one. Two or more in a single card is prose, not a
+   product name - the threshold is what keeps "In-app" and a bare "Push" from
+   being mistaken for a sentence. */
+const EN_FUNCTION_WORDS = /\b(the|and|with|that|this|for|from|already|still|before|after|not|what|which|when|where|because|its|their|been|have|has|does|are|were)\b/gi;
+const EN_PROSE_THRESHOLD = 2;
 /* Locale lint allowlist: channel/product names and code identifiers are the
    same word on both routes by design (glossary), so a bare English-token
    check would flag them. */
@@ -66,10 +84,20 @@ for (const j of manifest.journeys) {
       const blocked = lang === "tr" ? EN_CHROME : TR_CHROME;
       const localeLeaks = [];
       for (const n of data.nodes) {
+        let flagged = false;
         for (const w of blocked) {
           if (new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(n.text) && !ALLOW.test(w)) {
             localeLeaks.push({ id: n.layoutId, word: w });
+            flagged = true;
             break;
+          }
+        }
+        // Untranslated canonical prose - see EN_FUNCTION_WORDS above. TR only:
+        // the EN route is the language these sentences are authored in.
+        if (!flagged && lang === "tr") {
+          const hits = [...new Set((n.text.match(EN_FUNCTION_WORDS) ?? []).map((w) => w.toLowerCase()))];
+          if (hits.length >= EN_PROSE_THRESHOLD) {
+            localeLeaks.push({ id: n.layoutId, word: `untranslated prose (${hits.slice(0, 4).join(", ")})` });
           }
         }
       }

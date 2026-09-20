@@ -11518,7 +11518,12 @@
     "title": "ACQ-287 Checkout started → not completed → recovered or abandoned",
     "summary": "Return a person who started checkout but did not finish it, with a reminder cascade that reaches for the highest-value checkouts on a more direct channel and never sends once the purchase is already there.",
     "keywords": [
-      "ACQ-287"
+      "ACQ-287",
+      "checkout abandonment recovery",
+      "abandoned checkout reminder",
+      "checkout reminder cascade",
+      "incomplete checkout recovery",
+      "high-value checkout reminder"
     ],
     "category": [
       "acquisition"
@@ -11568,7 +11573,12 @@
     "title": "ACQ-288 Item added to cart → checkout not started → recovered, handed to checkout, or abandoned",
     "summary": "Return a person who added an item to their cart but did not start checkout, with a reminder cascade that reaches for the highest-value carts on a more direct channel, hands off to Checkout Abandonment the instant checkout starts, and never sends once the purchase is already there.",
     "keywords": [
-      "ACQ-288"
+      "ACQ-288",
+      "cart abandonment recovery",
+      "abandoned cart reminder",
+      "cart reminder cascade",
+      "basket abandonment recovery",
+      "high-value cart reminder"
     ],
     "category": [
       "acquisition"

@@ -271,15 +271,29 @@ check(29, "production manifest covers all 286", manifest.length === 286);
 // (still used by the quote-abandonment, application-abandonment and incomplete-registration presets).
 // Baseline moved again from 285/3706 to 286/3728 journeys/nodes (2026-09-18, same day): ACQ-288
 // "Cart Abandonment Recovery" added the same way - freed from ACQ-12's discovery.presets (which
-// carried the "cart-abandonment" slug as a zero-override preset) so its own fixed three-touch
-// cascade, channel-router priorities, high-value branch and explicit handoff into ACQ-287 on
-// checkout start could be authored without disturbing ACQ-12 (still used by the
-// saved-item-reminder preset).
+// carried the "cart-abandonment" slug as a zero-override preset) so its own two-touch cascade,
+// channel-router priorities, high-value branch and explicit handoff into ACQ-287 on checkout
+// start could be authored without disturbing ACQ-12 (still used by the saved-item-reminder
+// preset).
+// Baseline moved to 3732 nodes (2026-09-20), journeys unchanged at 286. FOUR nodes, all required
+// by approved ownership decisions, none of them a new journey:
+//   ACQ-287 h.payment    - a payment failure on the checkout hands the instance to FIN-134 and
+//                          stops reminder messaging, so checkout-abandonment and payment-recovery
+//                          can never message the same failed payment (decision A3). ACQ-287 had
+//                          zero handoff nodes before this; ACQ-11 already carried the same
+//                          mechanism and this mirrors it.
+//   ACQ-09  w.first, c.still-open, a.educate2
+//                        - Lead Nurture was a single email that then waited out its whole window
+//                          while its own objective promised "a window of useful education". It is
+//                          now a bounded TWO-touch nurture, and the added condition is the reason
+//                          it is safe: before the second education it re-checks progression,
+//                          permission and deliverability, and a lead that already progressed is
+//                          handed over instead of being spent on (decision B3).
 check(
   30,
-  "canonical source mutation = 0 (286 journeys / 3728 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (286 journeys / 3732 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 286 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3728 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3732 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

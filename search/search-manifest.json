@@ -514,9 +514,9 @@
       "src/data/ab-tests.json": 635240,
       "production/journey-view-model.json": 3205289
     },
-    "searchIndexSizeBytes": 924899,
-    "searchIndexLightSizeBytes": 576351,
-    "averageDocumentSizeBytes": 1964,
+    "searchIndexSizeBytes": 925864,
+    "searchIndexLightSizeBytes": 576708,
+    "averageDocumentSizeBytes": 1967,
     "maxDocumentSizeBytes": 3523,
     "minDocumentSizeBytes": 992
   }

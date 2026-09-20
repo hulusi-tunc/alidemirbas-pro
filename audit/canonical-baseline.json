@@ -1,11 +1,11 @@
 {
   "ACQ-11": {
-    "hash": "sha256:1ec49c093ca6afaab9df42b956192ac047674757be33a40418d978e908dc4b2e",
+    "hash": "sha256:997d94f67a581d855e3a6e64b4e2b403c4ac7c45de2b7bc67b05eb22e36d0d85",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
   "ACQ-12": {
-    "hash": "sha256:a702dfa987da662e529810b26441640bc7770992a416ac25ee98b1dec8191450",
+    "hash": "sha256:b92b641249af7b926fc0b1331b19b5cf7a0342582a2accb98707414918b975d9",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -40,7 +40,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACQ-09": {
-    "hash": "sha256:e17283a8a64f922ddd8676f8c33920d1e04e14417f90606e001ad16933a4b64d",
+    "hash": "sha256:72ef9b32eb5668f49485c69e35c7c1728c5fa5abf597c0d86111b8198a6788de",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -55,17 +55,17 @@
     "schema_version": "vNext-2026-09"
   },
   "ACQ-285": {
-    "hash": "sha256:6cb27f5cba3b9ec38f6c7b60396c980aab87dcf6b3eef4da304e6bc528da9977",
+    "hash": "sha256:48675d4659dea2c890b7259641f05143a0aa746107d1229ce696bc743663f4ae",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
   "ACQ-288": {
-    "hash": "sha256:4c10ef9b60e2caf169564fee01d4220f2553635817b91119bdbc1d4e750e2763",
+    "hash": "sha256:b3829806e7976abe9965f693f7b95b16e9a613cd54ddbdf148684a7f8c70a706",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
   "ACQ-287": {
-    "hash": "sha256:6d2f91c2454560ff07048d1d6bfedcaf37a26d2c14fd2989fd9d29c91a39525a",
+    "hash": "sha256:6fe4723b3318dc517fe4d43af132f543ca2da10f1bb290fc5805e74e44f2f004",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },

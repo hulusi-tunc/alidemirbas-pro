@@ -530,25 +530,34 @@
     "slug": "bounded-education-progress-or-sunset",
     "locales": {
       "en": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 16,
+        "edges": 31,
         "internal_cards": 0,
-        "long_cards": [],
+        "long_cards": [
+          {
+            "id": "a.educate2",
+            "len": 151
+          }
+        ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 16,
+        "edges": 31,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.educate",
             "len": 129
+          },
+          {
+            "id": "a.educate2",
+            "len": 151
           }
         ],
         "long_branch_labels": [],
@@ -709,7 +718,7 @@
           },
           {
             "id": "a.reminder2-hv",
-            "len": 161
+            "len": 152
           },
           {
             "id": "a.reminder2-std",
@@ -729,10 +738,6 @@
           {
             "id": "a.reminder1",
             "len": 135
-          },
-          {
-            "id": "a.reminder2-hv",
-            "len": 114
           },
           {
             "id": "a.reminder2-std",
@@ -758,20 +763,20 @@
     "slug": "checkout-abandonment",
     "locales": {
       "en": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
         "terminal_instances": 0,
-        "edges": 20,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
         "terminal_instances": 0,
-        "edges": 20,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -780,7 +785,7 @@
           },
           {
             "id": "a.reminder2-hv",
-            "len": 120
+            "len": 114
           },
           {
             "id": "a.reminder2-std",
@@ -788,6 +793,46 @@
           }
         ],
         "long_branch_labels": [],
+        "locale_leaks": []
+      }
+    }
+  },
+  {
+    "journey_id": "RET-24",
+    "slug": "churn-risk-escalation",
+    "locales": {
+      "en": {
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
+        "terminal_instances": 0,
+        "edges": 23,
+        "internal_cards": 0,
+        "long_cards": [
+          {
+            "id": "c.operational",
+            "len": 122
+          },
+          {
+            "id": "a.owner-task",
+            "len": 123
+          }
+        ],
+        "long_branch_labels": [],
+        "locale_leaks": []
+      },
+      "tr": {
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
+        "terminal_instances": 0,
+        "edges": 22,
+        "internal_cards": 0,
+        "long_cards": [],
+        "long_branch_labels": [
+          {
+            "label": "Belirtilmiş bir niyet yok",
+            "len": 25
+          }
+        ],
         "locale_leaks": []
       }
     }
