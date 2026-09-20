@@ -312,6 +312,30 @@
     ]
   },
   {
+    "id": "ACQ-287",
+    "slug": "checkout-abandonment",
+    "title": "Checkout started → not completed → recovered or abandoned",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Checkout started",
+    "searchableAliases": [
+      "ACQ-287",
+      "checkout-abandonment"
+    ]
+  },
+  {
+    "id": "ACQ-288",
+    "slug": "cart-abandonment",
+    "title": "Item added to cart → checkout not started → recovered, handed to checkout, or abandoned",
+    "category": "acquisition",
+    "categoryTitle": "Acquisition, intent & qualification",
+    "triggerLabel": "Item added to cart",
+    "searchableAliases": [
+      "ACQ-288",
+      "cart-abandonment"
+    ]
+  },
+  {
     "id": "ACT-11",
     "slug": "onboarding-route-selection",
     "title": "New entry → onboarding route → appropriate path",

@@ -126,6 +126,61 @@ for (const { slug, data } of content) {
   if (data.seo.canonicalPath !== `/calculators/${slug}`) err(`${slug}: content.seo.canonicalPath "${data.seo.canonicalPath}" doesn't match the actual route`);
   if (/calculator\s+calculator/i.test(data.seo.seoTitle)) err(`${slug}: seoTitle duplicates "Calculator"`);
 
+  // --- TR editorial content (calc-content.ts's CalcContent.tr) - covers
+  // exactly the fields CalculatorDetailTemplate/CalculatorRoutes render in
+  // Turkish: page, faq, and the two seo strings used for TR metadata.
+  // heroTitle is only required in tr when the EN record has one (it
+  // overrides the H1, so a TR page needs its own or the H1 stays English).
+  {
+    const tr = data.tr;
+    if (!tr) {
+      err(`${slug}: missing "tr" content - every live calculator needs full TR page/faq/seo`);
+    } else {
+      if (data.heroTitle && !tr.heroTitle) err(`${slug}: tr.heroTitle missing even though the EN record overrides heroTitle (the TR H1 would fall back to English)`);
+      const p = tr.page;
+      if (!p) {
+        err(`${slug}: tr.page missing`);
+      } else {
+        for (const field of ["tagline", "takeaway", "whenToUse", "misleads"]) {
+          if (!p[field] || typeof p[field] !== "string" || p[field].trim().length === 0) err(`${slug}: tr.page.${field} missing or empty`);
+        }
+        if (!Array.isArray(p.meaning) || p.meaning.length === 0 || p.meaning.some((m) => typeof m !== "string" || m.trim().length === 0)) {
+          err(`${slug}: tr.page.meaning must be a non-empty array of non-empty strings`);
+        }
+        // workedExample is optional in EN (ltv, sample-size-calculator carry
+        // none) - tr should match that shape rather than inventing one.
+        if (Boolean(data.page.workedExample) !== Boolean(p.workedExample)) {
+          warn(`${slug}: tr.page.workedExample presence doesn't match the EN record's (one has it, the other doesn't)`);
+        }
+      }
+      if (!Array.isArray(tr.faq) || tr.faq.length === 0) {
+        err(`${slug}: tr.faq must be a non-empty array`);
+      } else {
+        if (tr.faq.length !== data.faq.length) warn(`${slug}: tr.faq has ${tr.faq.length} entries, EN faq has ${data.faq.length} - same questions expected in both languages`);
+        const trFaqIds = tr.faq.map((f) => f.id);
+        const dupTrFaqIds = trFaqIds.filter((id, i) => trFaqIds.indexOf(id) !== i);
+        if (dupTrFaqIds.length) err(`${slug}: duplicate tr.faq ids: ${dupTrFaqIds.join(", ")}`);
+        for (const f of tr.faq) {
+          if (!f.id || !f.q || !f.a) err(`${slug}: tr.faq entry missing id/q/a`);
+        }
+      }
+      if (!tr.seo || !tr.seo.seoTitle || !tr.seo.seoDescription) {
+        err(`${slug}: tr.seo.seoTitle/seoDescription missing`);
+      } else {
+        if (/hesaplayıcı\s+hesaplayıcı/i.test(tr.seo.seoTitle)) err(`${slug}: tr.seo.seoTitle duplicates "Hesaplayıcı"`);
+      }
+      // Same placeholder/untranslated-marker scan as the EN content below,
+      // run separately here so a hit is attributed to the tr fields.
+      const trText = [
+        tr.heroTitle,
+        p?.tagline, ...(p?.meaning ?? []), p?.takeaway, p?.whenToUse, p?.misleads, p?.workedExample,
+        ...((tr.faq ?? []).flatMap((f) => [f.q, f.a])),
+        tr.seo?.seoTitle, tr.seo?.seoDescription,
+      ].filter(Boolean).join("\n");
+      for (const pat of PLACEHOLDER_PATTERNS) if (pat.test(trText)) err(`${slug}: tr content matches placeholder pattern ${pat}`);
+    }
+  }
+
   const slotRec = slotsBySlug.get(slug);
   if (slotRec && slotRec.contentDepth !== data.contentDepth) {
     err(`${slug}: content.contentDepth "${data.contentDepth}" doesn't match Phase 3's classification "${slotRec.contentDepth}"`);
@@ -229,6 +284,15 @@ for (const { slug, data } of content) {
   titleOwner.set(data.seo.seoTitle, slug);
   if (descOwner.has(data.seo.seoDescription)) err(`Duplicate seoDescription: ${slug} and ${descOwner.get(data.seo.seoDescription)}`);
   descOwner.set(data.seo.seoDescription, slug);
+}
+const trTitleOwner = new Map(), trDescOwner = new Map();
+for (const { slug, data } of content) {
+  if (!data.tr?.seo) continue;
+  const { seoTitle, seoDescription } = data.tr.seo;
+  if (trTitleOwner.has(seoTitle)) err(`Duplicate tr.seo.seoTitle "${seoTitle}": ${slug} and ${trTitleOwner.get(seoTitle)}`);
+  trTitleOwner.set(seoTitle, slug);
+  if (trDescOwner.has(seoDescription)) err(`Duplicate tr.seo.seoDescription: ${slug} and ${trDescOwner.get(seoDescription)}`);
+  trDescOwner.set(seoDescription, slug);
 }
 
 // --- similarity report (Phase 4 §39) ---

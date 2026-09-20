@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import IdeaCard from "@/components/ui/IdeaCard";
-import { surfaceLabel, type AbCategory, type AbTestRow, type Surface } from "@/lib/ab-test-view";
+import type { AbCategory, AbTestRow, Surface } from "@/lib/ab-test-view";
+import { primaryKpiLabel } from "@/lib/ab-test-kpi-labels";
 
 /* The A/B test library as a browsable gallery: category sections over a
    grid of cards, with search and two filters above the whole thing.
@@ -41,12 +42,12 @@ const T = {
     search: "Search by question, category or KPI",
     category: "Category",
     allCategories: "All categories",
-    surface: "Page / surface",
-    allSurfaces: "All surfaces",
-    results: "tests",
-    testsLabel: ["test", "tests"],
+    surface: "Page",
+    allSurfaces: "All pages",
+    results: "scenario",
+    testsLabel: ["scenario", "scenarios"],
     clear: "Clear filters",
-    empty: "No tests match these filters.",
+    empty: "No scenario matches these filters.",
     showMore: "Show more ({count})",
     showLess: "Show less",
     primaryKpi: "Primary KPI",
@@ -55,13 +56,13 @@ const T = {
     search: "Soru, kategori veya KPI'ya göre ara",
     category: "Kategori",
     allCategories: "Tüm kategoriler",
-    surface: "Sayfa / yüzey",
-    allSurfaces: "Tüm yüzeyler",
-    results: "test",
+    surface: "Sayfa",
+    allSurfaces: "Tüm sayfalar",
+    results: "senaryo",
     // Turkish takes no plural after a numeral - both forms identical on purpose.
-    testsLabel: ["test", "test"],
+    testsLabel: ["senaryo", "senaryo"],
     clear: "Filtreleri temizle",
-    empty: "Bu filtrelere uyan test yok.",
+    empty: "Bu filtrelere uyan senaryo yok.",
     showMore: "Daha fazla göster ({count})",
     showLess: "Daha az göster",
     primaryKpi: "Birincil KPI",
@@ -70,17 +71,39 @@ const T = {
 
 type Lang = keyof typeof T;
 
-function TestCard({ row, basePath, t }: { row: AbTestRow; basePath: string; t: (typeof T)[Lang] }) {
+/* The dataset's `category` and `surface` values are stored in English and
+   are never rewritten. The display labels come from CATEGORY_LABEL and
+   SURFACE_LABEL in ui/AbTestVisuals.tsx and are resolved on the server,
+   then handed down as plain id -> label maps: importing that module here
+   would drag the whole 211-record marketing read model into the client
+   bundle. */
+type LabelMap = Readonly<Record<string, string>>;
+
+function TestCard({
+  row,
+  basePath,
+  t,
+  lang,
+  categoryLabels,
+  surfaceLabels,
+}: {
+  row: AbTestRow;
+  basePath: string;
+  t: (typeof T)[Lang];
+  lang: Lang;
+  categoryLabels: LabelMap;
+  surfaceLabels: LabelMap;
+}) {
   return (
     <IdeaCard
       href={`${basePath}/${row.slug}`}
       title={row.question}
       badges={[
-        { label: surfaceLabel(row.surface), tone: "accent" },
-        { label: row.primaryKpi, tone: "muted", title: `${t.primaryKpi}: ${row.primaryKpi}` },
+        { label: surfaceLabels[row.surface] ?? row.surface, tone: "accent" },
+        { label: primaryKpiLabel(row.primaryKpi, lang), tone: "muted", title: `${t.primaryKpi}: ${primaryKpiLabel(row.primaryKpi, lang)}` },
       ]}
       body={row.hypothesis}
-      footLeft={row.category}
+      footLeft={categoryLabels[row.category] ?? row.category}
       footRight={row.id}
     />
   );
@@ -91,11 +114,17 @@ function CategorySection({
   items,
   basePath,
   t,
+  lang,
+  categoryLabels,
+  surfaceLabels,
 }: {
   category: AbCategory;
   items: readonly AbTestRow[];
   basePath: string;
   t: (typeof T)[Lang];
+  lang: Lang;
+  categoryLabels: LabelMap;
+  surfaceLabels: LabelMap;
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, SECTION_PREVIEW_COUNT);
@@ -104,7 +133,9 @@ function CategorySection({
   return (
     <section>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 className="text-base font-semibold tracking-tight text-ink-950">{category.id}</h2>
+        <h2 className="text-base font-semibold tracking-tight text-ink-950">
+          {categoryLabels[category.id] ?? category.id}
+        </h2>
         <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
           {items.length} {t.testsLabel[items.length === 1 ? 0 : 1]}
         </span>
@@ -112,12 +143,12 @@ function CategorySection({
       {/* the category's real surfaces, in the mono rail this site labels
           things with - the closest honest thing to a purpose sentence */}
       <p className="mt-1 font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase">
-        {category.surfaces.map(surfaceLabel).join(" · ")}
+        {category.surfaces.map((s) => surfaceLabels[s] ?? s).join(" · ")}
       </p>
 
       <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {visible.map((r) => (
-          <TestCard key={r.id} row={r} basePath={basePath} t={t} />
+          <TestCard key={r.id} row={r} basePath={basePath} t={t} lang={lang} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
         ))}
       </div>
 
@@ -140,12 +171,16 @@ export default function AbTestGallery({
   categories,
   surfaces,
   basePath,
+  categoryLabels,
+  surfaceLabels,
 }: {
   lang: Lang;
   rows: readonly AbTestRow[];
   categories: readonly AbCategory[];
   surfaces: readonly Surface[];
   basePath: string;
+  categoryLabels: LabelMap;
+  surfaceLabels: LabelMap;
 }) {
   const t = T[lang];
   const [query, setQuery] = useState("");
@@ -155,11 +190,19 @@ export default function AbTestGallery({
   const haystack = useMemo(
     () =>
       allRows.map((r) =>
-        [r.id, r.question, r.category, r.primaryKpi, r.surface, surfaceLabel(r.surface)]
+        [
+          r.id,
+          r.question,
+          r.category,
+          categoryLabels[r.category] ?? "",
+          r.primaryKpi,
+          r.surface,
+          surfaceLabels[r.surface] ?? "",
+        ]
           .join(" ")
           .toLocaleLowerCase(lang),
       ),
-    [allRows, lang],
+    [allRows, categoryLabels, surfaceLabels, lang],
   );
 
   const q = query.trim().toLocaleLowerCase(lang);
@@ -231,7 +274,7 @@ export default function AbTestGallery({
             <option value="">{t.allCategories}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.id}
+                {categoryLabels[c.id] ?? c.id}
               </option>
             ))}
           </select>
@@ -246,7 +289,7 @@ export default function AbTestGallery({
             <option value="">{t.allSurfaces}</option>
             {presentSurfaces.map((s) => (
               <option key={s} value={s}>
-                {surfaceLabel(s)}
+                {surfaceLabels[s] ?? s}
               </option>
             ))}
           </select>
@@ -274,7 +317,16 @@ export default function AbTestGallery({
       {isDefault ? (
         <div className="mt-8 flex flex-col gap-12">
           {sections.map((s) => (
-            <CategorySection key={s.category.id} category={s.category} items={s.items} basePath={basePath} t={t} />
+            <CategorySection
+              key={s.category.id}
+              category={s.category}
+              items={s.items}
+              basePath={basePath}
+              t={t}
+              lang={lang}
+              categoryLabels={categoryLabels}
+              surfaceLabels={surfaceLabels}
+            />
           ))}
         </div>
       ) : filtered.length === 0 ? (
@@ -297,7 +349,7 @@ export default function AbTestGallery({
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((r) => (
-            <TestCard key={r.id} row={r} basePath={basePath} t={t} />
+            <TestCard key={r.id} row={r} basePath={basePath} t={t} lang={lang} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
           ))}
         </div>
       )}

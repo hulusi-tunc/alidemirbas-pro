@@ -33,7 +33,7 @@ const DEK = withLibraryCount(
 );
 
 export const metadata: Metadata = {
-  title: "Inside the Canonical Journey Library",
+  title: "Inside the Journey Library",
   description: DEK,
 };
 
@@ -130,9 +130,9 @@ export default function ExperimentBPage() {
       <section className="altor-container pt-16 pb-14 sm:pt-24 sm:pb-16">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
           <div>
-            <Kicker>Lab · Canonical Journey Library</Kicker>
+            <Kicker>Lab · Journey Library</Kicker>
             <h1 className="mt-4 text-display-xl text-balance">
-              Inside the Canonical Journey Library
+              Inside the Journey Library
             </h1>
             <p className="mt-6 max-w-[55ch] text-lg leading-relaxed text-ink-500">{DEK}</p>
           </div>

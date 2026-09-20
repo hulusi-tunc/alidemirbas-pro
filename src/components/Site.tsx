@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, CircleCheck, CircleX, Clock, Mail, MapPin, Radio } from "lucide-react";
 
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
+import { clsx } from "@/lib/clsx";
 import { CtaBand } from "@/components/ui/CtaBand";
 import { CtaBurst } from "@/components/ui/CtaBurst";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
@@ -19,8 +20,8 @@ import { Work } from "@/components/HomeWork";
 import { withJourneyCount } from "@/lib/archive";
 import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 import {
+  ALL_TOOL_SLUGS,
   getFeaturedCalcEntries,
-  LIVE_CALCULATOR_SLUGS,
 } from "@/lib/calc-catalog";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 
@@ -134,18 +135,10 @@ export function SiteHeader({
           <Link href={langHref ?? t.nav.langHref} className={NAV_LINK}>
             {t.nav.lang}
           </Link>
-          {/* THE SYSTEM'S BUTTON, not a hand-rolled one. Until 2026-09-06 this
-              was a bare <a> carrying its own pill (`rounded-full bg-ink-950
-              hover:bg-primary-600`) - written before Button.tsx existed and
-              never migrated, so it silently missed the 2026-09-04 squared
-              corner, the pixel-fill hover and the `--duration-*` timing every
-              other CTA on the site got. `ink` is the variant the component
-              documents for "a second solid CTA" beside a page's own primary
-              one - which is exactly what a header CTA is on every page whose
-              hero already carries a `primary` button. `sm` is the 40px tier
-              that fits a 64px bar; `max-sm:hidden` yields to MobileNav's
-              own copy of the same control below the `sm` breakpoint. */}
-          <ButtonLink href={`mailto:${EMAIL}`} variant="ink" size="sm" className="max-sm:hidden">
+          <a
+            href={`mailto:${EMAIL}`}
+            className={clsx(buttonStyles({ variant: "ink", size: "sm" }), "max-sm:hidden")}
+          >
             {t.nav.cta}
           </ButtonLink>
           <MobileNav
@@ -419,7 +412,7 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
     (e): BioRow => ({ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period }),
   );
   return (
-    <section id="bio" className="bg-paper py-16 md:py-20">
+    <section id="bio" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
         {/* The statement takes the full measure (a 30ch column wrapped it to
             three lines at 1440 - the heading rule). The paragraph and its
@@ -446,36 +439,39 @@ function Bio({ t }: { t: (typeof copy)[Lang] }) {
             drawing itself once the band is in view, the rows arriving one
             after another behind it, a pulse on the node of the role he
             holds today (globals.css, THE BIO TIMELINE; off under reduced
-            motion). */}
-        <div className="mt-14">
-          <p className="text-sm font-medium text-ink-500">{t.about.experience}</p>
-          <div className="mt-6 hidden lg:block">
-            <BioTrack rows={[...rows].reverse()} />
-          </div>
-          <Reveal delay={80} className="lg:hidden">
-            <ol className="relative mt-4 flex list-none flex-col p-0 [--bio-rail:0.375rem] md:[--bio-rail:11rem]">
-              <span aria-hidden className="bio-rail absolute top-3 bottom-3 left-[var(--bio-rail)] w-px" />
-              {rows.map((r, i) => (
-                <li
-                  key={r.key}
-                  className="bio-row relative grid grid-cols-[minmax(0,1fr)] gap-y-1.5 py-5 pl-8 md:grid-cols-[9.5rem_minmax(0,1fr)] md:gap-x-10 md:pl-0"
-                  style={{ "--i": i } as React.CSSProperties}
-                >
-                  <span
-                    aria-hidden
-                    className={`absolute top-[1.65rem] left-[calc(var(--bio-rail)-0.3125rem)] size-2.5 rounded-full ring-4 ring-paper ${i === 0 ? "bio-node-live bg-primary-600" : "bg-ink-300"}`}
-                  />
-                  <span className="text-sm whitespace-nowrap text-ink-500 tabular-nums md:pt-1 md:text-right">{r.period}</span>
-                  <div className="min-w-0">
-                    <Image src={r.logo} alt={r.co} width={140} height={28} className="h-7 w-auto max-w-[9rem] object-contain object-left" />
-                    <span className="mt-2.5 block text-lg leading-snug font-semibold text-balance text-ink-950">{r.role}</span>
-                    <span className="mt-0.5 block text-sm text-ink-600">{r.co}</span>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </Reveal>
+            motion). It sits in the wide container, not the page's: seven
+            roles side by side were cramped on the 78rem measure (Hulusi,
+            2026-09-07: "looks so compressed, it can be wider, break the max
+            width there"). */}
+      </div>
+      <div className="altor-container-wide mt-16">
+        <p className="text-sm font-medium text-ink-500">{t.about.experience}</p>
+        <div className="mt-6 hidden lg:block">
+          <BioTrack rows={[...rows].reverse()} />
         </div>
+        <Reveal delay={80} className="lg:hidden">
+          <ol className="relative mt-4 flex list-none flex-col p-0 [--bio-rail:0.375rem] md:[--bio-rail:11rem]">
+            <span aria-hidden className="bio-rail absolute top-3 bottom-3 left-[var(--bio-rail)] w-px" />
+            {rows.map((r, i) => (
+              <li
+                key={r.key}
+                className="bio-row relative grid grid-cols-[minmax(0,1fr)] gap-y-1.5 py-5 pl-8 md:grid-cols-[9.5rem_minmax(0,1fr)] md:gap-x-10 md:pl-0"
+                style={{ "--i": i } as React.CSSProperties}
+              >
+                <span
+                  aria-hidden
+                  className={`absolute top-[1.65rem] left-[calc(var(--bio-rail)-0.3125rem)] size-2.5 rounded-full ring-4 ring-paper ${i === 0 ? "bio-node-live bg-primary-600" : "bg-ink-300"}`}
+                />
+                <span className="text-sm whitespace-nowrap text-ink-500 tabular-nums md:pt-1 md:text-right">{r.period}</span>
+                <div className="min-w-0">
+                  <Image src={r.logo} alt={r.co} width={140} height={28} className="h-7 w-auto max-w-[9rem] object-contain object-left" />
+                  <span className="mt-2.5 block text-lg leading-snug font-semibold text-balance text-ink-950">{r.role}</span>
+                  <span className="mt-0.5 block text-sm text-ink-600">{r.co}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
       </div>
     </section>
   );
@@ -494,7 +490,7 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const entries = getFeaturedCalcEntries(lang, 6);
 
   return (
-    <section id="calculators" className="bg-paper py-16 md:py-20">
+    <section id="calculators" className="bg-paper py-20 md:py-28">
       <div className="altor-container">
         <SectionHeading
           eyebrow={t.home.calc.eyebrow}
@@ -502,7 +498,7 @@ function Calculators({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           intro={t.home.calc.intro}
         />
         <p className="mt-6 text-sm text-ink-500">
-          <span className="tnum">{LIVE_CALCULATOR_SLUGS.length}</span> {t.home.calc.countSuffix}
+          <span className="tnum">{ALL_TOOL_SLUGS.length}</span> {t.home.calc.countSuffix}
         </p>
 
         <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -683,7 +679,9 @@ export default function Site({ lang }: { lang: Lang }) {
             <Expertise t={t} />, <StatsBand t={t} /> and/or <Experience
             t={t} /> here to bring any of them back. */}
         <Calculators t={t} lang={lang} />
-        <StackShowcase lang={lang} />
+        {/* The bales, not the track: the About page's Tools band already
+            stands on the track (Hulusi, 2026-09-07). */}
+        <StackShowcase lang={lang} plate="numerspace" />
         <FinalCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />

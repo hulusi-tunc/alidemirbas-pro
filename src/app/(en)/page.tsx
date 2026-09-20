@@ -7,7 +7,7 @@ import { pageAlternates } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Ali Demirbaş - Growth Marketer",
   description:
-    "Data-driven growth for mobile products. Mobile App Growth Lead at Aksigorta; previously Vodafone, Getir and Wingie Enuygun Group.",
+    "Mobile App Growth Lead at Aksigorta. Previously Vodafone, Getir and Wingie Enuygun Group. User acquisition, CRM and measurement for mobile products.",
   alternates: pageAlternates("", "en"),
 };
 

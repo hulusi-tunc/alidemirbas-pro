@@ -1,4 +1,10 @@
-import IdeaCard from "@/components/ui/IdeaCard";
+import { Cog, UserRound } from "lucide-react";
+
+import IdeaCard, { type IdeaCardBadge } from "@/components/ui/IdeaCard";
+import { CategoryIcon, ChannelIcon, categoryAccent } from "@/components/ui/LibraryChrome";
+import { CHANNEL_LABEL } from "@/lib/journey-channels";
+import type { Lang } from "@/lib/content";
+import type { ChannelId } from "@/canonical/types";
 
 /* One journey in the gallery grid, as opposed to JourneyRowCard's full-width
    row (still the shape the A/B library settled for scan-everything archives).
@@ -29,43 +35,51 @@ import IdeaCard from "@/components/ui/IdeaCard";
 export default function JourneyIdeaCard({
   href,
   id,
+  lang,
   title,
+  category,
   categoryTitle,
   purpose,
   nodeCount,
   nodesLabel,
-  channelLabels,
+  channels,
   internalLabel,
   typeLabel,
 }: {
   href: string;
   id: string;
+  lang: Lang;
   /** The journey's plain-language name (CanonicalJourney.shortName). */
   title: string;
+  /** The category id - the card's icon tile comes from it. */
+  category: string;
   categoryTitle: string;
   purpose: string;
   nodeCount: number;
   nodesLabel: string;
-  /** The journey's real execution channels, localised and ordered. Empty on
-      an internal journey, which gets `internalLabel` instead - the two must
+  /** The journey's real execution channels, in canonical order; each
+      becomes an accent badge with the channel's own glyph. Empty on an
+      internal journey, which gets `internalLabel` instead - the two must
       not look alike, because one can reach a person and the other cannot. */
-  channelLabels: readonly string[];
+  channels: readonly ChannelId[];
   internalLabel: string;
   /** A fact about the entry, not a channel - the muted badge Sales/Task
       cards already earn under Customer Journeys (isHumanRoutingRow). Not a
-      channel, so it is prepended rather than mixed into `channelLabels`. */
+      channel, so it is prepended rather than mixed into the channels. */
   typeLabel?: string;
 }) {
-  const badges = [
-    ...(typeLabel ? [{ label: typeLabel, tone: "muted" as const }] : []),
-    ...(channelLabels.length === 0
-      ? [{ label: internalLabel, tone: "muted" as const }]
-      : channelLabels.map((label) => ({ label, tone: "accent" as const }))),
+  const badges: IdeaCardBadge[] = [
+    ...(typeLabel ? [{ label: typeLabel, tone: "muted" as const, icon: <UserRound aria-hidden /> }] : []),
+    ...(channels.length === 0
+      ? [{ label: internalLabel, tone: "muted" as const, icon: <Cog aria-hidden /> }]
+      : channels.map((c) => ({ label: CHANNEL_LABEL[c][lang], tone: "accent" as const, icon: <ChannelIcon id={c} /> }))),
   ];
 
   return (
     <IdeaCard
       href={href}
+      icon={<CategoryIcon id={category} />}
+      iconTone={categoryAccent(category).tile}
       title={title}
       badges={badges}
       body={purpose}

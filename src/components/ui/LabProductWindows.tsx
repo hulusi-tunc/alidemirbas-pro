@@ -41,7 +41,6 @@ import {
   type BadgeTone,
   CheckRow,
   Chip,
-  codeLabel,
   Count,
   Field,
   FormLabel,
@@ -160,10 +159,10 @@ const PW = {
     goals: ["Kilo ver", "Kilo koru", "Kilo al"] as const,
     bmr: "BMR",
     labels: {
-      builder: (name: string) => `Journey Builder'ın tuvali: ${name} deseni adımlardan oluşan bir akış olarak, desen rayı ve ilk adımın denetçisiyle.`,
-      explorer: "Change History Explorer'ın panosu: bölüm sekmeleri, filtreler ve demo veri seti üzerindeki değişiklik tablosu.",
+      builder: (name: string) => `Journey Oluşturucu'nun tuvali: ${name} deseni adımlardan oluşan bir akış olarak, desen rayı ve ilk adımın denetçisiyle.`,
+      explorer: "Google Ads Değişiklik Geçmişi'nin dashboard'u: bölüm sekmeleri, filtreler ve demo veri seti üzerindeki değişiklik tablosu.",
       numerspace: "Numerspace'in Günlük Kalori Hesaplayıcı sayfası, örnek değerler girilmiş ve sonucu görünür halde.",
-      dashboard: "Dashboard Builder'ın pipeline'ı karşılaştırılabilirlik motorunda durmuş; kaynağa göre gelir, reddettiği toplam ve gerçek toplam.",
+      dashboard: "Dashboard Oluşturucu'nun pipeline'ı karşılaştırılabilirlik kontrolünde durmuş: kaynağa göre gelir, reddettiği toplam ve gerçek toplam.",
     },
   },
 } as const;
@@ -256,7 +255,7 @@ export function BuilderCanvasWindow({
                       <>
                         <span className="flex items-center gap-1 rounded-md bg-paper px-2 py-0.5 text-[12px] text-ink-600 shadow-hairline">
                           <GitBranch aria-hidden className="size-3 text-ink-400" />
-                          {step.branch}
+                          {step.branch[lang]}
                         </span>
                         <span aria-hidden className="h-3 w-px bg-line-strong" />
                       </>
@@ -275,7 +274,7 @@ export function BuilderCanvasWindow({
                           <span className="text-[13px] font-semibold text-ink-950">{CHANNEL_NAME[step.channel]}</span>
                           <span className="font-mono text-[12px] text-ink-500 tabular-nums">{step.wait}</span>
                         </span>
-                        <span className="block truncate text-[12.5px] text-ink-600">{step.intent}</span>
+                        <span className="block truncate text-[12.5px] text-ink-600">{step.intent[lang]}</span>
                       </span>
                       <span className="shrink-0 text-[12px] text-ink-400 tabular-nums">{i + 1}</span>
                     </div>
@@ -303,8 +302,8 @@ export function BuilderCanvasWindow({
               className="mt-3"
               rows={[
                 [w.wait, <span key="w" className="font-mono text-[12.5px] tabular-nums">{selected.wait}</span>],
-                [w.intent, selected.intent],
-                [w.branch, selected.branch ?? w.none],
+                [w.intent, selected.intent[lang]],
+                [w.branch, selected.branch?.[lang] ?? w.none],
               ]}
             />
           </div>
@@ -320,15 +319,32 @@ export function BuilderCanvasWindow({
 
 /* The dashboard's own sections, as its README lists them (six of the
    nine, so the strip fits one row; the open one is the Explorer), each
-   with an icon that says what the section is. */
-export const EXPLORER_TABS: readonly TabItem[] = [
-  { label: "Summary", icon: <LayoutDashboard aria-hidden /> },
-  { label: "Activity Timeline", icon: <Activity aria-hidden /> },
-  { label: "User Activity", icon: <Users aria-hidden /> },
-  { label: "Category Distribution", icon: <PieChart aria-hidden /> },
-  { label: "Rule Matches", icon: <ShieldAlert aria-hidden /> },
-  { label: "Change Explorer", icon: <Table2 aria-hidden /> },
-];
+   with an icon that says what the section is. The key on the left is the
+   product's own section name and never changes - it is what `active` is
+   addressed by; only the rendered label is localised. */
+const EXPLORER_TAB_TEXT = {
+  Summary: { en: "Summary", tr: "Özet" },
+  "Activity Timeline": { en: "Activity Timeline", tr: "Zaman çizelgesi" },
+  "User Activity": { en: "User Activity", tr: "Kullanıcı aktivitesi" },
+  "Category Distribution": { en: "Category Distribution", tr: "Kategori dağılımı" },
+  "Rule Matches": { en: "Rule Matches", tr: "Kural eşleşmeleri" },
+  "Change Explorer": { en: "Change Explorer", tr: "Değişiklik gezgini" },
+} as const;
+export type ExplorerTabKey = keyof typeof EXPLORER_TAB_TEXT;
+const EXPLORER_TAB_ICON: Record<ExplorerTabKey, ReactNode> = {
+  Summary: <LayoutDashboard aria-hidden />,
+  "Activity Timeline": <Activity aria-hidden />,
+  "User Activity": <Users aria-hidden />,
+  "Category Distribution": <PieChart aria-hidden />,
+  "Rule Matches": <ShieldAlert aria-hidden />,
+  "Change Explorer": <Table2 aria-hidden />,
+};
+const EXPLORER_TAB_ORDER = ["Summary", "Activity Timeline", "User Activity", "Category Distribution", "Rule Matches", "Change Explorer"] as const;
+export const explorerTabs = (lang: Lang): readonly TabItem[] =>
+  EXPLORER_TAB_ORDER.map((k) => ({ label: EXPLORER_TAB_TEXT[k][lang], icon: EXPLORER_TAB_ICON[k] }));
+/** The visible label for one section, for callers that address a tab by
+    its stable key when setting `active`. */
+export const explorerTabLabel = (key: ExplorerTabKey, lang: Lang) => EXPLORER_TAB_TEXT[key][lang];
 
 type ExplorerRow = (typeof CHANGE_HISTORY_REAL.explorerRows)[number];
 
@@ -349,12 +365,21 @@ const CATEGORY_ICON: Record<string, ReactNode> = {
   Bidding: <Gavel aria-hidden />,
   Keyword: <Tag aria-hidden />,
 };
+/* The category is a fixed English id (also the demo's own filter/rule
+   key); only the shown label is per-language, matching how Google Ads'
+   own Turkish interface names these same change types. */
+const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
+  Status: { en: "Status", tr: "Durum" },
+  Budget: { en: "Budget", tr: "Bütçe" },
+  Bidding: { en: "Bidding", tr: "Teklif verme" },
+  Keyword: { en: "Keyword", tr: "Anahtar kelime" },
+};
 
 /** A category badge, the explorer's own: hue and icon by category. */
-export function CategoryBadge({ category, tone = "light" }: { category: string; tone?: WindowTone }) {
+export function CategoryBadge({ category, lang, tone = "light" }: { category: string; lang: Lang; tone?: WindowTone }) {
   return (
     <Badge tone={tone} hue={CATEGORY_HUE[category] ?? "neutral"} icon={CATEGORY_ICON[category]}>
-      {category}
+      {CATEGORY_LABEL[category]?.[lang] ?? category}
     </Badge>
   );
 }
@@ -441,11 +466,11 @@ export function ExplorerTable({
               {row.adGroup !== "—" && <span className={clsx("block truncate text-[12px]", dark ? "text-white/50" : "text-ink-500")}>{row.adGroup}</span>}
               {/* On a phone the category sits under the name instead of in its own column. */}
               <span className="mt-1.5 block @sm:hidden">
-                <CategoryBadge category={row.category} tone={tone} />
+                <CategoryBadge category={row.category} lang={lang} tone={tone} />
               </span>
             </Td>
             <Td className="hidden whitespace-nowrap @sm:table-cell">
-              <CategoryBadge category={row.category} tone={tone} />
+              <CategoryBadge category={row.category} lang={lang} tone={tone} />
             </Td>
             <Td className="whitespace-nowrap">
               <ChangeCell row={row} lang={lang} tone={tone} />
@@ -485,7 +510,7 @@ export function ExplorerWindow({
   const section = clsx("text-[12px] font-semibold", dark ? "text-white/55" : "text-ink-600");
   return (
     <Window label={w.labels.explorer} address="dashboard.html" tone={tone} meta={`${w.changes(R.totalChanges)} · ${R.period[lang]}`} className={className}>
-      <TabStrip tone={tone} items={EXPLORER_TABS} active="Change Explorer" />
+      <TabStrip tone={tone} items={explorerTabs(lang)} active={explorerTabLabel("Change Explorer", lang)} />
       <div className="flex">
         <Rail tone={tone} title={w.filters} icon={<Filter aria-hidden />} className={clsx("hidden md:block", detail ? "w-52" : "w-56")}>
           <div className="px-3.5 pb-3.5">
@@ -501,7 +526,7 @@ export function ExplorerWindow({
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {EXPLORER_CATEGORIES.map((c) => (
                 <Chip key={c.category} tone={tone} icon={CATEGORY_ICON[c.category]}>
-                  {c.category}
+                  {CATEGORY_LABEL[c.category]?.[lang] ?? c.category}
                   <Count tone={tone}>{c.count}</Count>
                 </Chip>
               ))}
@@ -534,7 +559,7 @@ export function ExplorerWindow({
             <div className="px-3.5 pb-3.5">
               <p className={clsx("text-[14px] font-semibold", dark ? "text-white" : "text-ink-950")}>{open.campaign}</p>
               <div className="mt-2">
-                <CategoryBadge category={open.category} tone={tone} />
+                <CategoryBadge category={open.category} lang={lang} tone={tone} />
               </div>
               <KeyValues
                 tone={tone}
@@ -623,7 +648,7 @@ export function DashboardHeroWindow({
             </Badge>
             <span className="ml-auto">
               <Badge hue="rose" icon={<Ban aria-hidden />} code>
-                {codeLabel("NOT_COMPARABLE")}
+                {D.comparabilityStates.find((c) => c.id === "NOT_COMPARABLE")!.label[lang]}
               </Badge>
             </span>
           </AppBar>

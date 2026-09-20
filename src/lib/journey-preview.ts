@@ -1,15 +1,17 @@
-import type { FlowNode } from "@/lib/canonical-view";
-import { layoutJourneyCanvas, type CanvasNodeKind } from "@/lib/journey-canvas-layout";
+import type { CanvasLayout, CanvasNodeKind } from "@/lib/journey-canvas-layout";
 
 /* Topology thumbnails for the Journey Library cards.
 
    This is NOT a second graph engine. Every thumbnail's structure comes from
-   `layoutJourneyCanvas` - the same layout the journey's own detail page
-   renders - so a card and the Canvas it opens are the same graph: same
-   longest-path rows, same branch fan-out, same merges, same back-edges.
-   Only the PRESENTATION is reduced for card scale: no labels, no node text,
-   no interactivity, and each node drawn as its Canvas silhouette rather than
-   its full card.
+   the CanvasLayout `layoutJourneyCanvas` (ELK) produced for the journey's
+   own detail page - the caller passes that layout in - so a card and the
+   Canvas it opens are the same graph: same layers, same branch fan-out,
+   same merges, same back-edges, same per-parent exit instances. Only the
+   PRESENTATION is reduced for card scale: no labels, no node text, no
+   interactivity, and each node drawn as its Canvas silhouette rather than
+   its full card. Type-only import: this module is reachable from client
+   code (JourneyTopologyPreview reads its constants) and must never pull
+   the layout engine into the browser bundle.
 
    Two deliberate reductions, both documented rather than silently invented:
 
@@ -98,9 +100,8 @@ export type JourneyPreview = {
 
 const round = (v: number) => Math.round(v);
 
-/** The horizontal mirror of `elbowPath` in journey-canvas-layout.ts: across,
-    down/up, across. Same orthogonal geometry, transposed with the rest of
-    the thumbnail. */
+/** An orthogonal elbow in the thumbnail's own transposed frame: across,
+    down/up, across. */
 function previewElbow(x1: number, y1: number, x2: number, y2: number, midX: number): string {
   if (Math.abs(y1 - y2) < 1) return `M${x1} ${y1}H${x2}`;
   return `M${x1} ${y1}H${midX}V${y2}H${x2}`;
@@ -117,9 +118,7 @@ function previewBackEdge(x1: number, y1: number, x2: number, y2: number, bow: nu
   return `M${x1} ${y1}Q${midX} ${cy} ${x2} ${y2}`;
 }
 
-export function buildJourneyPreview(nodes: readonly FlowNode[]): JourneyPreview {
-  const layout = layoutJourneyCanvas(nodes);
-
+export function buildJourneyPreview(layout: CanvasLayout): JourneyPreview {
   // Transposed grid extents: depth (row) runs across, branch fan (col) runs down.
   const rows = layout.nodes.map((l) => l.row);
   const cols = layout.nodes.map((l) => l.col);
@@ -168,7 +167,7 @@ export function buildJourneyPreview(nodes: readonly FlowNode[]): JourneyPreview 
 
   const placed = new Map<string, { x: number; y: number; kind: CanvasNodeKind }>();
   for (const l of layout.nodes) {
-    placed.set(l.node.id, { x: xOf(l.row), y: yOf(l.col), kind: l.node.kind });
+    placed.set(l.layoutId, { x: xOf(l.row), y: yOf(l.col), kind: l.node.kind });
   }
 
   const subpaths: string[] = [];

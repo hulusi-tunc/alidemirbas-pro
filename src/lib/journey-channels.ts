@@ -58,3 +58,18 @@ export function messageChannels(channels: readonly ChannelId[]): ChannelId[] {
 export function humanChannels(channels: readonly ChannelId[]): ChannelId[] {
   return sortChannels(channels.filter((c) => HUMAN_ROUTES.has(c)));
 }
+
+/** One tint per channel, in the Lab identity's own form (a -50 ground under a
+    -700 glyph), so a channel reads the same on the Info page's chips, the
+    canvas's Message cards and the product page (JourneyBuilderPage already
+    used violet/teal/sky/amber for Email/SMS/Push/In-app). Literal class
+    strings - Tailwind cannot see a tint composed at runtime. */
+export const CHANNEL_HUE: Record<ChannelId, { tile: string; pill: string }> = {
+  email: { tile: "bg-violet-50 text-violet-700", pill: "bg-violet-50 text-violet-800" },
+  push: { tile: "bg-sky-50 text-sky-700", pill: "bg-sky-50 text-sky-800" },
+  sms: { tile: "bg-teal-50 text-teal-700", pill: "bg-teal-50 text-teal-800" },
+  "in-app": { tile: "bg-amber-50 text-amber-700", pill: "bg-amber-50 text-amber-800" },
+  whatsapp: { tile: "bg-emerald-50 text-emerald-700", pill: "bg-emerald-50 text-emerald-800" },
+  sales: { tile: "bg-rose-50 text-rose-700", pill: "bg-rose-50 text-rose-800" },
+  task: { tile: "bg-orange-50 text-orange-700", pill: "bg-orange-50 text-orange-800" },
+};

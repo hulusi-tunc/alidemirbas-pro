@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 import { BlogCover, COVERS, categoryAccent, type CoverSpec } from "./BlogCover";
 import type { BlogPost } from "@/lib/blog";
+import { CATEGORY_TAB_LABEL } from "@/lib/blog-category-labels";
 
 /* Editorial article card — REFINEMENT ROUND. Replaces the old pastel
    gradient placeholder rectangle (read as a missing image) with the
@@ -26,7 +27,8 @@ export function fallbackCover(category: string): CoverSpec {
   // before someone writes its own cover spec) still gets a real,
   // non-empty cover rather than a blank rectangle - the category name
   // itself, in that category's real accent, with no invented diagram.
-  return { lines: [category.split(" ")[0].toUpperCase()], tag: category, accent: categoryAccent(category), diagram: "ratio" };
+  const tag = CATEGORY_TAB_LABEL[category] ?? { en: category, tr: category };
+  return { lines: [category.split(" ")[0].toUpperCase()], tag, accent: categoryAccent(category), diagram: "ratio" };
 }
 
 function formatDate(iso: string, lang: "en" | "tr") {
@@ -74,14 +76,14 @@ export function BlogCard({
             featured ? "aspect-[16/10] md:w-[52%]" : "aspect-[16/10]"
           }`}
         >
-          <BlogCover spec={spec} size={featured ? "featured" : "grid"} />
+          <BlogCover spec={spec} size={featured ? "featured" : "grid"} lang={lang} />
         </span>
         <span
           className={`flex flex-1 flex-col gap-2 ${featured ? "p-6 sm:p-8 md:justify-center" : "p-5"}`}
         >
           <span className="flex items-center gap-1.5 text-xs text-ink-500">
             <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${dotClass}`} />
-            {post.category}
+            {CATEGORY_TAB_LABEL[post.category]?.[lang] ?? post.category}
           </span>
           <span
             className={`font-semibold tracking-tight text-ink-950 transition-colors duration-[var(--duration-fast)] group-hover:text-primary-700 ${

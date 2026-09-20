@@ -3910,23 +3910,6 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       "presets": [
         {
-          "id": "checkout-abandonment",
-          "name": "Checkout Abandonment",
-          "applicableWhen": {
-            "id": "p.checkout",
-            "label": "CANONICAL_RULE",
-            "text": "The resumable process is a checkout with a basket: it has items, a resume destination and, usually, a platform-asserted expiry."
-          },
-          "overrides": {},
-          "destination": "checkout-session",
-          "aliases": [
-            "cart recovery (checkout stage)",
-            "abandoned cart checkout",
-            "checkout abandonment",
-            "begin checkout recovery"
-          ]
-        },
-        {
           "id": "quote-abandonment",
           "name": "Quote Abandonment",
           "applicableWhen": {
@@ -4746,23 +4729,6 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       "presets": [
         {
-          "id": "cart-abandonment",
-          "name": "Cart Abandonment",
-          "applicableWhen": {
-            "id": "p.cart",
-            "label": "CANONICAL_RULE",
-            "text": "The selection is a shopping cart or basket the person filled without starting checkout; the platform asserts item availability and price."
-          },
-          "overrides": {},
-          "destination": "the cart",
-          "aliases": [
-            "cart abandonment",
-            "abandoned cart",
-            "abandoned basket",
-            "add-to-cart abandonment"
-          ]
-        },
-        {
           "id": "saved-item-reminder",
           "name": "Saved Item Reminder",
           "applicableWhen": {
@@ -5357,5 +5323,455 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "A selection or process for the subject hands ownership to its own journey immediately."
     ],
     "reusableRule": "Inferred interest is acted on only after it qualifies against a stated rule and is re-read as still unresolved; the touch shows the subject as it stands and nothing more, and no-action is the outcome that is measured most."
+  },
+  {
+    "id": "ACQ-287",
+    "slug": "checkout-abandonment",
+    "category": "acquisition",
+    "goal": "recovery-retry",
+    "channels": ["push", "email", "whatsapp", "sms"],
+    "name": "Checkout started → not completed → recovered or abandoned",
+    "shortName": "Checkout Abandonment Recovery",
+    "purpose": "Return a person who started checkout but did not finish it, with a reminder cascade that reaches for the highest-value checkouts on a more direct channel and never sends once the purchase is already there.",
+    "entity": {
+      "scope": "one checkout instance - a basket, its items and its resume destination",
+      "note": "Started again after abandoning is a new instance, not a reopened one; a new checkout_started resets the clock and any queued reminder from the old instance is dropped, not carried forward."
+    },
+    "distinctFrom": [
+      {
+        "journey": "ACQ-11",
+        "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed three-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover."
+      }
+    ],
+    "entry": "t.started",
+    "nodes": [
+      {
+        "id": "t.started",
+        "kind": "trigger",
+        "event": "checkout_started",
+        "evidence": {
+          "requires": ["an authoritative checkout record opened for the person with at least one item and a resume destination"],
+          "insufficientAlone": ["a product page view or an item added while no checkout has been opened"],
+          "source": "authoritative"
+        },
+        "next": "w.first"
+      },
+      {
+        "id": "w.first",
+        "kind": "wait",
+        "until": ["process_completed"],
+        "onEvent": "c.completed1",
+        "timeout": {
+          "after": {
+            "key": "checkout_abandonment.first_check",
+            "rule": "Give the person time to finish on their own before the first reminder.",
+            "class": "recovery-window",
+            "default": { "value": "45 minutes", "confidence": "low", "basis": "example-only" },
+            "required": false
+          },
+          "reason": "long enough that a person mid-payment or mid-form is not interrupted, short enough that the checkout is still warm",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.completed1",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.completed1",
+        "kind": "condition",
+        "asks": "Is the checkout completed?",
+        "branches": [
+          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "to": "x.purchased" },
+          { "label": "Not completed", "when": "no completion record exists for this checkout instance", "to": "a.router1" }
+        ]
+      },
+      {
+        "id": "a.router1",
+        "kind": "action",
+        "does": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t1", "mode": "set" }],
+        "next": "a.reminder1"
+      },
+      {
+        "id": "a.reminder1",
+        "kind": "action",
+        "does": "Send the first checkout reminder on the channel just selected, pointing the person back to the exact checkout they started with its state as it stands.",
+        "execution": "communication",
+        "next": "w.second"
+      },
+      {
+        "id": "w.second",
+        "kind": "wait",
+        "until": ["process_completed"],
+        "onEvent": "c.completed2",
+        "timeout": {
+          "after": {
+            "key": "checkout_abandonment.second_check",
+            "rule": "Give the first reminder real time to work before deciding whether a second, more direct touch is warranted.",
+            "class": "recovery-window",
+            "default": { "value": "6 hours", "confidence": "low", "basis": "example-only" },
+            "required": false
+          },
+          "reason": "enough of the day for the first reminder to be seen and acted on before a second touch is considered",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.completed2",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.completed2",
+        "kind": "condition",
+        "asks": "Is the checkout completed?",
+        "branches": [
+          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "to": "x.purchased" },
+          { "label": "Not completed", "when": "no completion record exists for this checkout instance", "to": "c.highvalue" }
+        ]
+      },
+      {
+        "id": "c.highvalue",
+        "kind": "condition",
+        "asks": "Is this a high-value checkout?",
+        "branches": [
+          { "label": "High-value", "when": "the checkout's value is at or above the adopting company's configured high-value threshold - no value is asserted here", "observes": "checkout_value", "to": "a.router2-hv" },
+          { "label": "Standard", "when": "the checkout's value is below the configured threshold", "observes": "checkout_value", "to": "a.router2-std" }
+        ]
+      },
+      {
+        "id": "a.router2-hv",
+        "kind": "action",
+        "does": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value checkout gets a more direct channel than the first touch, not a repeat of it. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
+        "next": "a.reminder2-hv"
+      },
+      {
+        "id": "a.reminder2-hv",
+        "kind": "action",
+        "does": "Send the second checkout reminder on the channel just selected, using the more direct register a high-value checkout warrants.",
+        "execution": "communication",
+        "next": "w.third"
+      },
+      {
+        "id": "a.router2-std",
+        "kind": "action",
+        "does": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
+        "next": "a.reminder2-std"
+      },
+      {
+        "id": "a.reminder2-std",
+        "kind": "action",
+        "does": "Send the second checkout reminder on the channel just selected, pointing the person back to the exact checkout they started with its state as it stands.",
+        "execution": "communication",
+        "next": "w.third"
+      },
+      {
+        "id": "w.third",
+        "kind": "wait",
+        "until": ["process_completed"],
+        "onEvent": "c.completed3",
+        "timeout": {
+          "after": {
+            "key": "checkout_abandonment.final_check",
+            "rule": "The last reminder gets a full day to work before the checkout is treated as abandoned.",
+            "class": "recovery-window",
+            "default": { "value": "24 hours", "confidence": "low", "basis": "example-only" },
+            "required": false
+          },
+          "reason": "a full day past the second reminder is the point past which a checkout this old is read as abandoned rather than merely delayed",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.completed3",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.completed3",
+        "kind": "condition",
+        "asks": "Is the checkout completed?",
+        "branches": [
+          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "to": "x.purchased" },
+          { "label": "Not completed", "when": "no completion record exists for this checkout instance", "to": "x.abandoned" }
+        ]
+      },
+      {
+        "id": "x.purchased",
+        "kind": "exit",
+        "state": "purchased; the checkout the reminders pointed at is complete",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a new checkout for this person opens its own instance; nothing about this one is reopened"
+      },
+      {
+        "id": "x.abandoned",
+        "kind": "exit",
+        "state": "checkout abandoned; the reminder cascade ran to its end with no completion",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "a new checkout_started for this person opens a new instance with its own clock; this one is not reopened"
+      }
+    ],
+    "guardrails": [
+      "A reminder is never sent once a.completion is already on record - every reminder step is reached only through a condition that just re-checked completion.",
+      "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
+      "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
+      "The high-value threshold is a configured value, never a number this journey asserts."
+    ],
+    "reusableRule": "A reminder cascade checks completion immediately before every touch and stops the instant it finds one; channel selection is a priority-with-fallback the router owns, never a chain of permission conditions in the graph, and a higher-value instance earns a more direct channel, not a different structure."
+  },
+  {
+    "id": "ACQ-288",
+    "slug": "cart-abandonment",
+    "category": "acquisition",
+    "goal": "recovery-retry",
+    "channels": ["push", "email", "whatsapp", "sms"],
+    "name": "Item added to cart → checkout not started → recovered, handed to checkout, or abandoned",
+    "shortName": "Cart Abandonment Recovery",
+    "purpose": "Return a person who added an item to their cart but did not start checkout, with a reminder cascade that reaches for the highest-value carts on a more direct channel, hands off to Checkout Abandonment the instant checkout starts, and never sends once the purchase is already there.",
+    "entity": {
+      "scope": "one cart instance - its items, their current availability and price as the platform asserts them",
+      "note": "Cleared or emptied then refilled is a new instance, not a reopened one; a new item_added_to_cart resets the clock and any queued reminder from the old instance is dropped, not carried forward."
+    },
+    "distinctFrom": [
+      {
+        "journey": "ACQ-12",
+        "because": "ACQ-12 is the general-purpose pattern for any held selection (a cart, a saved list) and stays deliberately generic - one first-check window, two generic touches, no channel priority stated, no high-value branch. This journey is the concrete cart implementation: a fixed three-touch cascade with an explicit channel priority and fallback per touch, a high-value branch that reaches for a more direct channel, and an explicit handoff into Checkout Abandonment (ACQ-287) the moment checkout starts - none of which the generic pattern states, because none of it is true for every held selection it also has to cover."
+      },
+      {
+        "journey": "ACQ-287",
+        "because": "ACQ-287 recovers a checkout that has already started; this journey recovers a cart before checkout starts. The two never run in parallel on the same person - this journey hands off to ACQ-287 the moment checkout starts, and every queued cart reminder is suppressed from that point."
+      }
+    ],
+    "entry": "t.added",
+    "nodes": [
+      {
+        "id": "t.added",
+        "kind": "trigger",
+        "event": "item_added_to_cart",
+        "evidence": {
+          "requires": ["an authoritative record that at least one item was added to a cart for this person", "the items, their current availability and current price as the platform asserts them"],
+          "insufficientAlone": ["a product page view with nothing added to a cart", "an item added and removed inside the same session", "a cart already carried into checkout - that is Checkout Abandonment's subject"],
+          "source": "authoritative"
+        },
+        "next": "w.first"
+      },
+      {
+        "id": "w.first",
+        "kind": "wait",
+        "until": ["selection_cleared", "process_completed", "checkout_started"],
+        "onEvent": "c.active1",
+        "timeout": {
+          "after": {
+            "key": "cart_abandonment.first_check",
+            "rule": "Give the person time to return to the cart on their own before the first reminder.",
+            "class": "recovery-window",
+            "default": { "value": "2 hours", "confidence": "low", "basis": "example-only" },
+            "required": false
+          },
+          "reason": "long enough that a person still browsing or mid-session is not interrupted, short enough that the cart is still warm",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.active1",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.active1",
+        "kind": "condition",
+        "asks": "Is the cart still active?",
+        "branches": [
+          { "label": "Active", "when": "the cart still holds at least one item the platform asserts as available, and has not been deleted", "to": "c.purchased1" },
+          { "label": "Cleared or expired", "when": "the person removed every item, deleted the cart, or the cart's hold or session expired", "to": "x.cleared" }
+        ]
+      },
+      {
+        "id": "c.purchased1",
+        "kind": "condition",
+        "asks": "Is the purchase completed?",
+        "branches": [
+          { "label": "Completed", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "to": "x.purchased" },
+          { "label": "Not completed", "when": "no completion record exists for this cart", "to": "c.checkout1" }
+        ]
+      },
+      {
+        "id": "c.checkout1",
+        "kind": "condition",
+        "asks": "Has checkout started?",
+        "branches": [
+          { "label": "Started", "when": "an authoritative checkout record has been opened from this cart", "to": "h.checkout" },
+          { "label": "Not started", "when": "no checkout has been opened from this cart", "to": "a.router1" }
+        ]
+      },
+      {
+        "id": "a.router1",
+        "kind": "action",
+        "does": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t1", "mode": "set" }],
+        "next": "a.reminder1"
+      },
+      {
+        "id": "a.reminder1",
+        "kind": "action",
+        "does": "Send the first cart reminder on the channel just selected, showing the cart as it currently stands - only the items the platform still asserts as available, at their current price - and the link back to it. Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
+        "execution": "communication",
+        "next": "w.second"
+      },
+      {
+        "id": "w.second",
+        "kind": "wait",
+        "until": ["process_completed", "checkout_started"],
+        "onEvent": "c.purchased2",
+        "timeout": {
+          "after": {
+            "key": "cart_abandonment.second_check",
+            "rule": "Give the first reminder real time to work before deciding whether a second, more direct touch is warranted.",
+            "class": "recovery-window",
+            "default": { "value": { "min": "20 hours", "max": "24 hours" }, "confidence": "low", "basis": "example-only" },
+            "required": false
+          },
+          "reason": "close to a full day for the first reminder to be seen and acted on before a second touch is considered",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.purchased2",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.purchased2",
+        "kind": "condition",
+        "asks": "Is the purchase completed?",
+        "branches": [
+          { "label": "Completed", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "to": "x.purchased" },
+          { "label": "Not completed", "when": "no completion record exists for this cart", "to": "c.checkout2" }
+        ]
+      },
+      {
+        "id": "c.checkout2",
+        "kind": "condition",
+        "asks": "Has checkout started?",
+        "branches": [
+          { "label": "Started", "when": "an authoritative checkout record has been opened from this cart", "to": "h.checkout" },
+          { "label": "Not started", "when": "no checkout has been opened from this cart", "to": "c.highvalue" }
+        ]
+      },
+      {
+        "id": "c.highvalue",
+        "kind": "condition",
+        "asks": "Is this a high-value cart?",
+        "branches": [
+          { "label": "High-value", "when": "the cart's value is at or above the adopting company's configured high-value threshold - no value is asserted here", "observes": "cart_value", "to": "a.router2-hv" },
+          { "label": "Standard", "when": "the cart's value is below the configured threshold", "observes": "cart_value", "to": "a.router2-std" }
+        ]
+      },
+      {
+        "id": "a.router2-hv",
+        "kind": "action",
+        "does": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value cart gets a more direct channel than the first touch, not a repeat of it. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
+        "next": "a.reminder2-hv"
+      },
+      {
+        "id": "a.reminder2-hv",
+        "kind": "action",
+        "does": "Send the second cart reminder on the channel just selected, using the more direct register a high-value cart warrants, showing the cart as it currently stands and nothing the system does not assert.",
+        "execution": "communication",
+        "next": "w.third"
+      },
+      {
+        "id": "a.router2-std",
+        "kind": "action",
+        "does": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
+        "next": "a.reminder2-std"
+      },
+      {
+        "id": "a.reminder2-std",
+        "kind": "action",
+        "does": "Send the second cart reminder on the channel just selected, showing the cart as it currently stands - only the items the platform still asserts as available, at their current price - and the link back to it.",
+        "execution": "communication",
+        "next": "w.third"
+      },
+      {
+        "id": "w.third",
+        "kind": "wait",
+        "until": ["process_completed", "selection_cleared"],
+        "onEvent": "c.purchased3",
+        "timeout": {
+          "after": {
+            "key": "cart_abandonment.final_check",
+            "rule": "The last reminder gets two full days to work before the cart is treated as abandoned.",
+            "class": "recovery-window",
+            "default": { "value": "48 hours", "confidence": "low", "basis": "example-only" },
+            "required": false
+          },
+          "reason": "two full days past the second reminder is the point past which a cart this old is read as abandoned rather than merely delayed",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.purchased3",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.purchased3",
+        "kind": "condition",
+        "asks": "Is the purchase completed?",
+        "branches": [
+          { "label": "Completed", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "to": "x.purchased" },
+          { "label": "Not completed", "when": "no completion record exists for this cart", "to": "c.active2" }
+        ]
+      },
+      {
+        "id": "c.active2",
+        "kind": "condition",
+        "asks": "Is the cart still active?",
+        "branches": [
+          { "label": "Active", "when": "the cart still holds at least one item the platform asserts as available, and has not been deleted", "to": "x.abandoned" },
+          { "label": "Cleared or expired", "when": "the person removed every item, deleted the cart, or the cart's hold or session expired", "to": "x.cleared" }
+        ]
+      },
+      {
+        "id": "x.purchased",
+        "kind": "exit",
+        "state": "purchased; an order including at least one item from this cart is recorded",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a new cart for this person opens its own instance; nothing about this one is reopened"
+      },
+      {
+        "id": "x.cleared",
+        "kind": "exit",
+        "state": "the cart is no longer active - cleared, emptied, or its hold or session expired",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a new item_added_to_cart for this person opens a new instance"
+      },
+      {
+        "id": "x.abandoned",
+        "kind": "exit",
+        "state": "cart abandoned; the reminder cascade ran to its end with the cart still active and no completion",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "a new item_added_to_cart for this person opens a new instance with its own clock; this one is not reopened"
+      },
+      {
+        "id": "h.checkout",
+        "kind": "handoff",
+        "to": "ACQ-287",
+        "on": "checkout started from this cart - Checkout Abandonment owns recovery from that moment",
+        "carries": [
+          "the cart and its items",
+          "the cart reminder touches already sent, so the checkout journey's plan counts them against the person"
+        ],
+        "suppresses": [
+          "every queued cart reminder for this cart"
+        ],
+        "contract": {
+          "requiredFields": ["cart_id", "person_id", "checkout_id"]
+        }
+      }
+    ],
+    "guardrails": [
+      "A reminder is never sent once a purchase or a checkout start is already on record - every reminder step is reached only through conditions that just re-checked both.",
+      "Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
+      "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
+      "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
+      "The high-value threshold is a configured value, never a number this journey asserts.",
+      "Cart Abandonment and Checkout Abandonment never message the same person about the same items at the same time - the handoff on checkout start is immediate and suppresses every queued cart touch."
+    ],
+    "reusableRule": "A reminder cascade checks purchase, checkout-start and cart-state immediately before every touch and stops or hands off the instant it finds one; channel selection is a priority-with-fallback the router owns, never a chain of permission conditions in the graph, and a higher-value cart earns a more direct channel, not a different structure."
   },
 ];

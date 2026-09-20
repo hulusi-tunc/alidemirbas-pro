@@ -3,12 +3,12 @@
 import { useState } from "react";
 
 const LIMITS = [
-  { label: "Google Ads headline", limit: 30 },
-  { label: "Google Ads description", limit: 90 },
-  { label: "Meta primary text (recommended)", limit: 125 },
-  { label: "X / Twitter post", limit: 280 },
-  { label: "SEO title tag", limit: 60 },
-  { label: "Meta description", limit: 155 },
+  { en: "Google Ads headline", tr: "Google Ads başlığı", limit: 30 },
+  { en: "Google Ads description", tr: "Google Ads açıklaması", limit: 90 },
+  { en: "Meta primary text (recommended)", tr: "Meta ana metni (önerilen)", limit: 125 },
+  { en: "X / Twitter post", tr: "X / Twitter gönderisi", limit: 280 },
+  { en: "SEO title tag", tr: "SEO başlık etiketi", limit: 60 },
+  { en: "Meta description", tr: "Meta açıklama etiketi", limit: 155 },
 ];
 
 export default function CharacterCounter({ lang }: { lang: "en" | "tr" }) {
@@ -37,8 +37,8 @@ export default function CharacterCounter({ lang }: { lang: "en" | "tr" }) {
         <p className="mb-3 text-sm text-neutral-600">{lang === "en" ? "Common limits" : "Yaygın limitler"}</p>
         <div className="flex flex-col gap-2">
           {LIMITS.map((l) => (
-            <div key={l.label} className="flex items-center justify-between text-sm">
-              <span className="text-neutral-600">{l.label}</span>
+            <div key={l.en} className="flex items-center justify-between text-sm">
+              <span className="text-neutral-600">{lang === "en" ? l.en : l.tr}</span>
               <span className={`font-mono tabular-nums ${chars > l.limit ? "text-red-600" : "text-ink-950"}`}>
                 {chars}/{l.limit}
               </span>

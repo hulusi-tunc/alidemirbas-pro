@@ -120,5 +120,51 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing definition/formula/margin-boundaries/interpretation prose and both original common-mistakes items - genuinely good prior content, addressing the cannibalization risk vs contribution-margin/profit-margin already noted in the SEO map. Added worked-example, a dedicated 'gross margin vs gross profit' section (dollar amount vs percentage) per instruction, markup-vs-margin and COGS-leakage common mistakes, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good gross margin' benchmark stated. External source: CFI's Gross Margin page, verified live (formula and margin-vs-profit-margin distinction confirmed). Related calculators verified live: contribution-margin, profit-margin, break-even-point."
+  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing definition/formula/margin-boundaries/interpretation prose and both original common-mistakes items - genuinely good prior content, addressing the cannibalization risk vs contribution-margin/profit-margin already noted in the SEO map. Added worked-example, a dedicated 'gross margin vs gross profit' section (dollar amount vs percentage) per instruction, markup-vs-margin and COGS-leakage common mistakes, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good gross margin' benchmark stated. External source: CFI's Gross Margin page, verified live (formula and margin-vs-profit-margin distinction confirmed). Related calculators verified live: contribution-margin, profit-margin, break-even-point.",
+  "tr": {
+    "heroTitle": "Brüt Marj Hesaplayıcısı",
+    "page": {
+      "tagline": "Doğrudan satılan malın maliyeti düşüldükten sonra gelirin ne kadarının kaldığını gör.",
+      "meaning": [
+        "Brüt marj yalnızca SMM'yi (satılan malın maliyeti), yani satılanı üretmenin veya tedarik etmenin doğrudan maliyetini düşer. Kargo, ödeme işlemi, iade süreçleri ve diğer her işletme gideri bilinçli olarak dışarıda bırakılır.",
+        "Bunu ürün ekonomisi için doğru sayı yapan da budur: sattığınız şey, üretim maliyetine göre iyi fiyatlanmış mı. İşletmenin kârlı olup olmadığının sayısı değildir, çünkü işletmeyi yürütmenin maliyetini hesaba katmamıştır.",
+        "Bir tutar yerine yüzde olarak ifade edildiğinde farklı büyüklükler arasında kıyaslama yapılabilir. 60.000 dolarlık bir brüt kâr, ister 100.000 dolarlık gelirden ister 600.000 dolarlık gelirden gelsin aynı rakamdır; ama marjlar, %60 ve %10, çok farklı iki işletmeyi anlatır."
+      ],
+      "takeaway": "Brüt marj SMM'de durur. Bir ürün kararıdır, bir işletme kararı değil.",
+      "whenToUse": "Bir ürünü fiyatlarken, bir tedarikçi veya kaynak değişikliğini değerlendirirken ya da ürün hatlarını birim ekonomisi açısından kıyaslarken kullanın. Ayrıca başka hesaplamaların girdisidir: örneğin CAC geri ödemesi, kendisine beslenen marj kadar iyidir.",
+      "misleads": "Kargo, işlem veya lojistik giderlerini SMM'ye katmak, bunu sessizce her zaman daha düşük çıkan farklı bir sayıya, katkı marjına dönüştürür. Ve marj markup değildir: aynı dolar kâr, payda gelir mi maliyet mi olduğuna bağlı olarak iki farklı yüzde üretir.",
+      "workedExample": "(gelir − SMM) ÷ gelir → ($100.000 − $40.000) ÷ $100.000 = %60,00"
+    },
+    "faq": [
+      {
+        "id": "what-is-gross-margin",
+        "q": "Brüt marj nedir?",
+        "a": "Brüt marj, satılan malın maliyeti (SMM) düşüldükten sonra gelirin kalan yüzdesidir: satılanı üretmek veya tedarik etmekle doğrudan ilgili malzemeler, bileşenler ve doğrudan işçilik. (Gelir − SMM) ÷ Gelir olarak hesaplanır ve yüzde olarak ifade edilir; bu da onu çok farklı büyüklükteki ürünler, siparişler veya şirketler arasında kıyaslanabilir yapar. Brüt marj bilinçli olarak SMM'de durur; kargo, ödeme işlemi, pazarlama, maaşlar, kira veya başka herhangi bir işletme giderini düşmez; onu katkı marjından ve kâr marjından ayıran da budur. Belirli, dar bir soruyu yanıtlar: satılan şey, üretim veya tedarik maliyetine göre iyi fiyatlanmış mı; işletmenin genel olarak kârlı olup olmadığını değil."
+      },
+      {
+        "id": "how-to-calculate-gross-margin",
+        "q": "Brüt marj nasıl hesaplanır?",
+        "a": "Satılan malın maliyetini gelirden çıkarın, sonra gelire bölün: Brüt Marj = (Gelir − SMM) ÷ Gelir. 40.000 dolarlık bir SMM'ye karşı 100.000 dolarlık bir gelir, (100.000 − 40.000) ÷ 100.000 = %60 verir. İki rakam da aynı dönemi ve aynı SMM tanımını yansıtmalı: yalnızca doğrudan ürün maliyetleri, kargo, ödeme ücretleri veya genel giderler değil; bunlar katkı marjına veya kâr marjına ait. SMM gelirden fazlaysa, sonuç geçerli bir negatif yüzdedir, bir hata değil; başka hiçbir işletme maliyeti sayılmadan bile malın kendisinin zararına satıldığı anlamına gelir. Herhangi bir tek hesaplamada hassasiyetten çok, SMM'ye neyin dahil olduğunda tutarlılık önemlidir."
+      },
+      {
+        "id": "gross-margin-vs-gross-profit-faq",
+        "q": "Brüt marj brüt kârla aynı şey mi?",
+        "a": "İkisi yakından ilişkili ama aynı değil. Brüt kâr bir tutardır: gelir eksi SMM, başka hesaplama yok. Brüt marj bu aynı rakamı alıp gelire bölerek yüzde olarak ifade eder. 60.000 dolarlık bir brüt kâr, 100.000 dolarlık gelirde %60'lık bir brüt marj anlamına gelebileceği gibi 1.000.000 dolarlık gelirde %6'lık bir brüt marj da anlamına gelebilir; tutar tek başına hangisi olduğunu söylemez. Bu hesaplayıcı yüzdeyi, yani brüt marjı verir, çünkü ürünler, dönemler veya farklı büyüklükteki işletmeler arasında kıyaslanabilir olan versiyon budur; gerçekten gerekiyorsa marjı gelirle çarpmak brüt kâr tutarını geri verir."
+      },
+      {
+        "id": "gross-margin-vs-contribution-margin-faq",
+        "q": "Brüt marj katkı marjından nasıl farklıdır?",
+        "a": "Brüt marj SMM'de durur; satılanı üretmenin veya satın almanın maliyeti, başka hiçbir şey değil. Katkı marjı SMM'ye ek olarak her satışla ölçeklenen diğer değişken maliyetleri de düşer: kargo, ödeme işlem ücretleri veya sipariş başına lojistik masrafları gibi. Katkı marjı daha geniş bir maliyet dilimini saydığı için, aynı sipariş veya ürün için her zaman brüt marja eşit veya ondan düşüktür. Hiçbiri kira veya maaş gibi sabit maliyetleri hesaba katmaz; bunun için kâr marjı vardır. Bunları bir yönde karıştırmak (kargoyu 'brüt marj' etiketli rakama katmak) gerçek brüt marjı olduğundan düşük gösterir; diğer yönde karıştırmak ise birim ekonomisinde gerçekte ne kadar alan olduğunu olduğundan fazla gösterir."
+      },
+      {
+        "id": "good-gross-margin",
+        "q": "İyi bir brüt marj kaçtır?",
+        "a": "Tek bir iyi brüt marj yoktur. Sektöre ve iş modeline bağlıdır, çünkü bir yazılım ürünü, üretilmiş fiziksel bir mal ve yeniden satılan bir emtia ürünü arasında maliyet yapıları muazzam ölçüde değişir. Bir dijital ürün için endişe verici derecede düşük olan bir marj, düşük markup'lı bir perakendeci için tamamen normal olabilir ve hiçbiri tek başına 'yanlış' değildir. Brüt marj ayrıca genel kârlılık hakkında tek başına hiçbir şey söylemez, çünkü SMM'de durur ve diğer tüm işletme giderlerini görmezden gelir. Kendi brüt marjınızı aynı ürün karması için zaman içinde okuyun, sektörler arası bir sayıya bakmak yerine; oradaki bir değişim bir fiyatlama veya maliyet değişikliğini yansıtır, şirketten şirkete farklı bir maliyet yapısını değil."
+      }
+    ],
+    "seo": {
+      "seoTitle": "Brüt Marj Hesaplayıcısı",
+      "seoDescription": "Gelir ve satılan malın maliyetinden brüt marjı hesaplayın, katkı marjı ve kâr marjından nasıl farklılaştığını görün."
+    }
+  }
 }

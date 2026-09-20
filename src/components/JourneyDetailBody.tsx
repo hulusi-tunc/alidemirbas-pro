@@ -1,10 +1,55 @@
 import Link from "next/link";
 import PractitionerView from "@/components/PractitionerView";
 
+import { Box, Plus, Quote, Scale, ShieldCheck, Split, Zap } from "lucide-react";
+
 import JourneyCanvas from "@/components/JourneyCanvas";
-import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
+import { InfoTile } from "@/components/ui/InfoTile";
 import type { JourneyDetail, MergedRedirect } from "@/lib/canonical-view";
+import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
+import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
 import type { copy, Lang } from "@/lib/content";
+
+/** Everything the canvas needs from a journey, composed once so the figure
+    inside the notes and the full-page canvas tab (JourneyRoutes) cannot
+    disagree: the laid-out graph, the localised labels, the caption in
+    counts, the channel names per node kind. Async because the layout is
+    (ELK) - computed here on the server, shipped to the client island as a
+    prop. Moved here from the now-retired JourneyVisualBody.tsx, whose only
+    other content (a linear-chain-only "Recommended flow" card list) was a
+    partial, duplicate rendering of the same `practitioner.timeline`/
+    `.stopsWhen` data PractitionerView already covers in full - see
+    JourneyDetailBody's own comment on the technical-details disclosure. */
+export async function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof copy)[Lang]["lab"]["page"]) {
+  const layout = await layoutJourneyCanvas(detail.nodes);
+  const messageLabels = messageChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
+  const humanLabels = humanChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
+  const count = (kind: JourneyDetail["nodes"][number]["kind"]) => detail.nodes.filter((n) => n.kind === kind).length;
+  const plural = (n: number, forms: readonly [string, string]) => `${n} ${forms[n === 1 ? 0 : 1]}`;
+  const shape: { kind: "nodes" | "decisions" | "exits" | "handoffs"; label: string }[] = [{ kind: "nodes", label: `${detail.nodes.length} ${t.nodesLabel}` }];
+  if (count("condition")) shape.push({ kind: "decisions", label: plural(count("condition"), t.decisionsLabel) });
+  if (count("exit")) shape.push({ kind: "exits", label: plural(count("exit"), t.exitsLabel) });
+  if (count("handoff")) shape.push({ kind: "handoffs", label: plural(count("handoff"), t.handoffsLabel) });
+  const caption = shape.map((x) => x.label).join(" · ");
+  const labels = {
+    entry: t.canvas.entry,
+    zoomIn: t.canvas.zoomIn,
+    zoomOut: t.canvas.zoomOut,
+    fitToView: t.canvas.fitToView,
+    reset: t.canvas.reset,
+    close: t.close,
+    terminal: t.terminalLabel,
+    lang,
+  };
+  return { nodes: detail.nodes, layout, labels, caption, shape, messageLabels, humanLabels };
+}
+
+/* Connector word for the Competes note's inline "on loss: <state>" clause.
+   Everything else in that line (exclusionGroup, scope, onLoss) is canonical
+   technical vocabulary and stays English on both locales, same as every
+   other note column here (entityScope, guardrails, ...) - only this one
+   word is UI-authored prose, so only it needs a TR counterpart. */
+const ON_LOSS_PREFIX: Record<Lang, string> = { en: "on loss:", tr: "kaybedince:" };
 
 /* The body of one journey, shared by the full page and the modal that
    intercepts it. A server component: it takes one journey's detail and hands
@@ -12,12 +57,29 @@ import type { copy, Lang } from "@/lib/content";
    other.
 
    Composition, top to bottom: the canvas as a captioned figure, the reusable
-   rule as the figure's stated takeaway, then the supporting notes in columns.
-   The rule sits directly under the graph rather than last because it is what
+   rule as the figure's stated takeaway, then the supporting notes in tiles
+   (Reusable rule / Entity / Guardrails / Distinct from / Competes /
+   Pre-empted by - every field here is base schema, present on any journey
+   whether or not it has migrated to vNext, so this is the ONE default body
+   every journey gets, not a fallback for journeys lacking richer data). The
+   rule sits directly under the graph rather than last because it is what
    the graph is FOR - the one sentence a reader should leave with - and at the
-   bottom of a long single column it read as a footnote. The notes below it
-   are reference material and are laid out as such: hairline-separated
-   columns, not cards. */
+   bottom of a long single column it read as a footnote.
+
+   A migrated (vNext) journey ALSO carries `detail.practitioner`: the full
+   trigger/eligibility/suppression/touch-plan/measurement write-up
+   PractitionerView renders. That used to lead the page, open, above the
+   graph - correct as documentation but wrong as a first screen: a reader
+   met a wall of ruled technical sections (Trigger, Who enters, Suppressed
+   when, Configure, Required data, Recommended flow, Channel roles, Stops
+   when, Collision & priority, Measurement...) before ever seeing the one
+   paragraph and three cards every other journey leads with, and the
+   two-thirds of journeys that qualified for the old JourneyVisualBody
+   shortcut (a partial, duplicate rendering of the same timeline/stopsWhen
+   data, retired along with it - see journeyCanvasProps's comment above)
+   got a DIFFERENT default layout again. Nothing in that write-up is lost:
+   it now sits under one native <details> disclosure, closed by default,
+   after the notes tiles - reachable by every reader, imposed on none. */
 
 /* Journey Canvas is now the single journey-detail renderer for every
    canonical journey - CanonicalFlow's old vertical-list rendering is gone
@@ -119,186 +181,124 @@ export const JOURNEY_CANVAS_REGRESSION_FIXTURE: ReadonlySet<string> = new Set([
   "ACC-73",
 ]);
 
-export default function JourneyDetailBody({
+export default async function JourneyDetailBody({
   detail,
   merged,
   basePath,
   lang,
   t,
+  showCanvas = true,
 }: {
   detail: JourneyDetail;
   merged: MergedRedirect | null;
   basePath: string;
   lang: Lang;
   t: (typeof copy)[Lang]["lab"]["page"];
+  /** The full page shows the graph on its own tab; the modal keeps it here. */
+  showCanvas?: boolean;
 }) {
   /* Localised once here rather than inside the canvas, which is a client
      island: the labels are static copy, so resolving them on the server
-     keeps the channel vocabulary out of the browser bundle. */
-  const messageLabels = messageChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
-  const humanLabels = humanChannels(detail.channels).map((c) => CHANNEL_LABEL[c][lang]);
-
-  /* The caption: the journey's shape stated in counts. Only the parts that
-     exist are named - a journey with no handoff says nothing about handoffs
-     rather than "0 handoffs", which would be four words spent on an absence.
-     Composed here rather than in the canvas for the same reason as the
-     channel labels above: it is static copy, and the client island should
-     not be carrying two locales' count words. */
-  const count = (kind: JourneyDetail["nodes"][number]["kind"]) =>
-    detail.nodes.filter((n) => n.kind === kind).length;
-  const plural = (n: number, forms: readonly [string, string]) => `${n} ${forms[n === 1 ? 0 : 1]}`;
-  const caption = [
-    `${detail.nodes.length} ${t.nodesLabel}`,
-    count("condition") ? plural(count("condition"), t.decisionsLabel) : null,
-    count("exit") ? plural(count("exit"), t.exitsLabel) : null,
-    count("handoff") ? plural(count("handoff"), t.handoffsLabel) : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
+     keeps the channel vocabulary out of the browser bundle. The layout
+     comes with them - laid out here, on the server, for the same reason. */
+  const canvas = showCanvas ? await journeyCanvasProps(detail, lang, t) : null;
   return (
     <div>
       {/* A retired id resolves here rather than 404ing, and says so before
           anything else - the journey below is the survivor, not the id in
           the address bar. */}
       {merged ? (
-        <p className="mb-6 border border-line bg-paper-soft px-4 py-3 text-[13px] leading-snug text-ink-600">
+        <p className="mb-6 rounded-2xl bg-paper px-5 py-4 text-sm leading-snug text-ink-muted ring-1 ring-ink-950/[0.06]">
           {t.mergedNote.replace("{from}", merged.from).replace("{to}", merged.to)}
         </p>
       ) : null}
 
-      {/* vNext: the practitioner's view leads on a migrated journey - what
-          triggers it, who enters, the touch plan with its timing and roles,
-          what stops it, what to configure, what to measure. The graph
-          follows as the technical logic behind it. Nothing in the view is
-          hand-written; it is projected from the journey's own fields. */}
-      {detail.practitioner ? (
-        <>
-          <PractitionerView view={detail.practitioner} lang={lang} t={t.practitioner} basePath={basePath} />
-          <h2 className="mt-12 mb-4 border-t border-ink-900 pt-6 text-base font-semibold tracking-tight text-ink-950">{t.practitioner.technical}</h2>
-        </>
-      ) : null}
+      {canvas && <JourneyCanvas {...canvas} basePath={basePath} />}
 
-      <JourneyCanvas
-        nodes={detail.nodes}
-        basePath={basePath}
-        labels={{
-          entry: t.canvas.entry,
-          zoomIn: t.canvas.zoomIn,
-          zoomOut: t.canvas.zoomOut,
-          fitToView: t.canvas.fitToView,
-          reset: t.canvas.reset,
-          close: t.close,
-          terminal: t.terminalLabel,
-        }}
-        caption={caption}
-        messageLabels={messageLabels}
-        humanLabels={humanLabels}
-      />
+      {/* The takeaway, then the notes - as tiles with icons (Hulusi,
+          2026-09-14), the rule first and full width because it is the one
+          sentence to take away. */}
+      <div className={`${showCanvas ? "mt-10" : ""} grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3`}>
+        <InfoTile icon={<Quote />} title={t.ruleLabel} className="sm:col-span-2 lg:col-span-3">
+          <p className="max-w-4xl text-xl leading-snug font-medium text-balance text-ink-950">{detail.reusableRule}</p>
+        </InfoTile>
 
-      {/* The takeaway, stated at the size of a takeaway. Ruled top and bottom
-          so it reads as a pulled statement rather than another paragraph -
-          the heavier top rule ties it to the figure it belongs to, the
-          lighter bottom rule hands off to the notes. */}
-      <section className="mt-10 border-t border-ink-900 border-b border-b-line pt-6 pb-7">
-        <p className="font-mono text-[11px] tracking-[0.1em] text-ink-400 uppercase">{t.ruleLabel}</p>
-        <p className="mt-3 max-w-4xl text-[clamp(1.125rem,0.95rem+0.85vw,1.6rem)] leading-[1.32] font-medium tracking-[-0.01em] text-balance text-ink-950">
-          {detail.reusableRule}
-        </p>
-      </section>
+        <InfoTile icon={<Box />} tint="bg-teal-50 text-teal-700" title={t.entityLabel}>
+          <p className="text-sm font-medium text-ink-950">{detail.entityScope}</p>
+          <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{detail.entityNote}</p>
+        </InfoTile>
 
-      {/* The notes, as columns rather than one narrow stack. Each cell is
-          separated by a hairline on its leading edge and nothing else: no
-          card, no fill, no radius - the rules do the dividing and the type
-          does the ranking. Competes and Pre-empted by are rare (a handful of
-          journeys carry either) and flow into the same grid where they exist,
-          so they are separated the same way instead of getting a treatment of
-          their own. */}
-      <div className="mt-8 grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-10">
-        <NoteColumn label={t.entityLabel}>
-          <p className="font-mono text-[13px] leading-snug text-ink-900">{detail.entityScope}</p>
-          <p className="mt-3 text-sm leading-relaxed text-pretty text-ink-600">{detail.entityNote}</p>
-        </NoteColumn>
+        <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailsLabel}>
+          <ol className="flex list-none flex-col gap-3 p-0">
+            {detail.guardrails.map((g, i) => (
+              <li key={g} className="flex gap-3">
+                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper-soft text-xs font-semibold text-ink-700 tabular-nums">{i + 1}</span>
+                <span className="text-sm leading-relaxed text-pretty text-ink-muted">{g}</span>
+              </li>
+            ))}
+          </ol>
+        </InfoTile>
 
         {detail.distinctFrom.length ? (
-          <NoteColumn label={t.distinctLabel}>
-            <ul className="space-y-3.5">
+          <InfoTile icon={<Split />} tint="bg-violet-50 text-violet-700" title={t.distinctLabel}>
+            <ul className="flex list-none flex-col gap-3.5 p-0">
               {detail.distinctFrom.map((d) => (
-                <li key={d.journey} className="text-sm leading-relaxed text-pretty text-ink-600">
+                <li key={d.journey} className="text-sm leading-relaxed text-pretty text-ink-muted">
                   {d.slug ? (
-                    <Link
-                      href={`${basePath}/${d.slug}`}
-                      className="font-mono text-[13px] text-blue-700 hover:underline"
-                    >
-                      {d.journey}
+                    <Link href={`${basePath}/${d.slug}`} className="font-medium text-ink-950 underline decoration-ink-300 underline-offset-4 hover:decoration-ink-950">
+                      {d.name ?? d.journey}
                     </Link>
                   ) : (
-                    <span className="font-mono text-[13px] text-ink-900">{d.journey}</span>
+                    <span className="font-medium text-ink-950">{d.name ?? d.journey}</span>
                   )}
-                  {d.name ? <span className="text-ink-800"> {d.name}</span> : null}
                   <span className="mt-1 block">{d.because}</span>
                 </li>
               ))}
             </ul>
-          </NoteColumn>
+          </InfoTile>
         ) : null}
-
-        {/* Numbered because guardrails are a checklist a reader works
-            through, not a paragraph - and the numbers give the longest
-            column in the grid something to scan by. */}
-        <NoteColumn label={t.guardrailsLabel}>
-          <ol className="space-y-3.5">
-            {detail.guardrails.map((g, i) => (
-              <li key={g} className="flex gap-3">
-                <span className="shrink-0 pt-0.5 font-mono text-[11px] text-ink-300 tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="text-sm leading-relaxed text-pretty text-ink-600">{g}</span>
-              </li>
-            ))}
-          </ol>
-        </NoteColumn>
 
         {detail.competition ? (
-          <NoteColumn label={t.competesLabel}>
-            <p className="font-mono text-[13px] leading-snug text-ink-900">
-              {detail.competition.exclusionGroup} · {detail.competition.scope} · on loss:{" "}
-              {detail.competition.onLoss}
+          <InfoTile icon={<Scale />} tint="bg-amber-50 text-amber-700" title={t.competesLabel}>
+            <p className="text-sm font-medium text-ink-950">
+              {detail.competition.exclusionGroup} · {detail.competition.scope} · {ON_LOSS_PREFIX[lang]} {detail.competition.onLoss}
             </p>
-            <p className="mt-3 text-sm leading-relaxed text-pretty text-ink-600">
-              {detail.competition.precedence}
-            </p>
-          </NoteColumn>
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{detail.competition.precedence}</p>
+          </InfoTile>
         ) : null}
 
-        {/* Two journeys in the library carry this. It is rendered where it
-            exists and shipped nowhere else. */}
         {detail.preemptedBy.length ? (
-          <NoteColumn label={t.preemptedLabel}>
-            <ul className="space-y-3.5">
+          <InfoTile icon={<Zap />} tint="bg-amber-50 text-amber-700" title={t.preemptedLabel}>
+            <ul className="flex list-none flex-col gap-3.5 p-0">
               {detail.preemptedBy.map((p) => (
-                <li key={p.event} className="text-sm leading-relaxed text-pretty text-ink-600">
-                  <span className="font-mono text-[13px] text-ink-900">{p.event}</span>
+                <li key={p.event} className="text-sm leading-relaxed text-pretty text-ink-muted">
+                  <span className="font-medium text-ink-950">{p.event}</span>
                   <span className="mt-1 block">{p.then}</span>
                 </li>
               ))}
             </ul>
-          </NoteColumn>
+          </InfoTile>
         ) : null}
       </div>
-    </div>
-  );
-}
 
-/* One cell of the notes grid. The hairline sits on the leading edge at every
-   breakpoint including mobile, where the grid is a single column - a rule
-   above each stacked note would read as a section divider and re-introduce
-   exactly the undifferentiated vertical list this layout replaces. */
-function NoteColumn({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <section className="border-l border-line pl-5">
-      <p className="mb-3 font-mono text-[11px] tracking-[0.1em] text-ink-400 uppercase">{label}</p>
-      {children}
-    </section>
+      {/* vNext only: the practitioner's full write-up - trigger, eligibility,
+          suppressions, touch plan, measurement - closed by default. Native
+          <details>, same zero-client-JS disclosure FaqAccordion already
+          uses elsewhere on the site, so opening it costs nothing on every
+          other journey's page weight. */}
+      {detail.practitioner ? (
+        <details className="group mt-10 rounded-2xl bg-paper ring-1 ring-ink-950/[0.06]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 text-sm font-medium text-ink-950 marker:content-none">
+            {t.practitioner.technical}
+            <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-paper-soft text-ink-500 transition-transform duration-200 group-open:rotate-45">
+              <Plus className="size-4" />
+            </span>
+          </summary>
+          <div className="border-t border-line-soft px-6 pb-6">
+            <PractitionerView view={detail.practitioner} lang={lang} t={t.practitioner} basePath={basePath} />
+          </div>
+        </details>
+      ) : null}
+    </div>
   );
 }

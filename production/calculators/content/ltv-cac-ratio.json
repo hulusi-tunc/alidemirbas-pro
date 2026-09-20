@@ -137,5 +137,50 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "No universal 'good LTV:CAC ratio' number stated anywhere on the page, including the FAQ - the commonly-repeated 3:1 figure was found during research (even on otherwise-authoritative sources) but deliberately excluded per instruction 12's claim policy. The margin-adjusted-vs-simple LTV model warning comes from the calculator's own validationRules, not invented. External source: CFI's lifetime value calculation methodology (revenue-based vs. profit-adjusted), supporting the 'use margin-adjusted LTV here' claim. Related Calculators authored here, verified live: ltv, cac, cac-payback-period."
+  "qaNotes": "No universal 'good LTV:CAC ratio' number stated anywhere on the page, including the FAQ - the commonly-repeated 3:1 figure was found during research (even on otherwise-authoritative sources) but deliberately excluded per instruction 12's claim policy. The margin-adjusted-vs-simple LTV model warning comes from the calculator's own validationRules, not invented. External source: CFI's lifetime value calculation methodology (revenue-based vs. profit-adjusted), supporting the 'use margin-adjusted LTV here' claim. Related Calculators authored here, verified live: ltv, cac, cac-payback-period.",
+  "tr": {
+    "heroTitle": "LTV:CAC Oranı Hesaplayıcısı",
+    "page": {
+      "tagline": "Bir müşterinin yaşam boyu ürettiği değeri, onu kazanmanın maliyetiyle kıyasla.",
+      "meaning": [
+        "Oran, ancak arkasındaki LTV'nin hangisi olduğunu bildiğinizde göründüğü gibi bir anlam ifade eder. Gelir bazlı bir LTV ile marj ayarlı bir LTV, aynı müşteriden farklı oranlar üretir; çünkü biri müşteriye hizmet vermenin maliyetini içerir, diğeri içermez.",
+        "1x'in üstü, sadece girilen LTV'nin girilen CAC'yi aştığı anlamına gelir. Kârlılığı kanıtlamaz ve bu değeri gerçekleştirmenin ne kadar sürdüğü hakkında hiçbir şey söylemez; çok uzun bir geri ödemeye sahip güçlü bir oran, yine de nakit üzerinde baskı yaratabilir."
+      ],
+      "takeaway": "Oran, ancak arkasındaki LTV tanımı kadar anlamlıdır. Hangi modeli kullandığınızı belirtin.",
+      "whenToUse": "Kazanım ekonomisinin tüm müşteri ilişkisi boyunca ayakta kalıp kalmadığını değerlendirirken, ve aynı şekilde ölçülmüş segment veya kanalları kıyaslarken kullanın. Geri ödeme süresinin yerine değil, yanında okuyun.",
+      "misleads": "Uyuşmayan kapsamlar, hiçbir şey gerçekte değişmeden oranı oynatır: tam yüklü bir CAC'yi dar tanımlı bir LTV'ye karşı koymak, ya da yeni bir kohortun CAC'sini daha eski bir kohorttan modellenmiş bir LTV'ye karşı koymak gibi.",
+      "workedExample": "LTV ÷ CAC → $720 ÷ $240 = 3,00x"
+    },
+    "faq": [
+      {
+        "id": "what-is-ltv-cac-ratio",
+        "q": "LTV:CAC oranı nedir?",
+        "a": "LTV:CAC oranı, bir müşterinin yaşam boyu değerini, onu kazanmanın maliyetiyle kıyaslar; LTV'nin CAC'ye bölünmesiyle hesaplanır ve bir çarpan olarak ifade edilir. 3,00x'lik bir oran, kullanılan LTV ve CAC rakamlarına göre, müşterinin kazanılması için harcanandan üç kat daha değerli olduğu anlamına gelir. Kazanım harcamasının, teoride kendisinden daha değerli bir şeyi satın alıp almadığını tek bir sayıda özetlemeyi amaçlar; ama bu soruyu ancak beslediği LTV ve CAC rakamları ne kadar iyi tanımlanmışsa o kadar iyi yanıtlar. Oran, bu değerin ne kadar hızlı gerçekleştiği hakkında hiçbir şey söylemez; bu, bu metriğin yanıtlamaya çalışmadığı ayrı bir sorudur ve bunun yerine CAC geri ödeme süresi bunu kapsamak için tasarlanmıştır."
+      },
+      {
+        "id": "how-to-calculate-ltv-cac-ratio",
+        "q": "LTV:CAC oranı nasıl hesaplanır?",
+        "a": "LTV'yi CAC'ye bölün: LTV:CAC = LTV ÷ CAC. 240 dolarlık bir CAC'ye bölünen 720 dolarlık bir LTV, 720 ÷ 240 = 3,00x oranını verir. İki girdi de karşılaştırılabilir bir dönem üzerinden aynı müşteri grubunu tanımlamalı: bir kohorttan modellenmiş bir LTV'nin tamamen farklı bir kohorttan ölçülmüş bir CAC'ye bölünmesi, ikisi hakkında da bir anlam ifade eden bir oran üretmez. LTV rakamının da bilinen, tutarlı bir tanımı olmalı: gelir bazlı bir LTV'nin CAC'ye bölünmesi, aynı CAC'ye bölünen marj ayarlı bir LTV'den farklı bir soruyu yanıtlar, çünkü sadece biri müşteriye hizmet vermenin maliyetini düşer ve iki sonuç doğrudan kıyaslanabilir değildir."
+      },
+      {
+        "id": "which-ltv-for-ratio",
+        "q": "Bu oran için hangi LTV'yi kullanmalıyım?",
+        "a": "Tek bir zorunlu model yoktur; önemli olan hangisinin oranı beslediğini bilmek ve sonucu buna göre okumaktır. Basit, gelir bazlı LTV modelinden kurulmuş bir oran, gelir bazlı müşteri değerini CAC'ye karşı kıyaslar; marj ayarlı modelden kurulmuş bir oran ise marj ayarlı müşteri değerini CAC'ye karşı kıyaslar, çünkü o model bölmeden önce brüt marjı hesaba katar. Bunlar aynı sayıyı hesaplamanın iki yolu değil, iki farklı ekonomik kıyaslamadır ve hiçbiri tek başına yanlış değildir. Hata, ikisini karıştırmaktır: gelir bazlı bir oranı sanki satılan malın maliyetini zaten hesaba katmış gibi okumak, ya da bir dönemden gelir bazlı bir oranı başka bir dönemden marj ayarlı bir oranla kıyaslamak. Hangi LTV modeli kullanılırsa kullanılsın, önemli olan bunu belirtmek ve tutarlı tutmaktır."
+      },
+      {
+        "id": "good-ltv-cac-ratio",
+        "q": "İyi bir LTV:CAC oranı kaçtır?",
+        "a": "İşletmeler arasında geçerli tek bir hedef yoktur. Doğru oran; LTV ve CAC'nin her birinin nasıl tanımlandığına, işletmenin marj yapısına, büyüme stratejisine ve kazanım maliyetini nakit olarak ne kadar hızlı geri kazanması gerektiğine bağlıdır. Büyümenin önünde bilinçli olarak yatırım yapan bir işletme bir süre için daha düşük bir oranı kabul edebilir; kısa vadeli verimlilik için optimize eden bir işletme ise daha yüksek bir oran isteyecektir. İnternette evrensel bir hedef olarak sıkça tekrarlanan sayılar bu bağlamın hiçbirini hesaba katmaz ve gelir bazlı bir LTV ile hesaplanan bir oran, zaten en baştan marj ayarlı bir LTV ile hesaplanan bir oranla kıyaslanabilir değildir. Oranı CAC geri ödeme süresiyle birlikte okumak, tek başına orana göre daha eksiksiz bir resim verir."
+      },
+      {
+        "id": "ratio-vs-payback",
+        "q": "LTV:CAC oranı, CAC geri ödeme süresinden nasıl farklıdır?",
+        "a": "LTV:CAC oranı, bir müşterinin işletmeyle tüm ilişkisi boyunca maliyetinden daha değerli olup olmadığını sorar. CAC geri ödeme süresi ise daha dar, daha hızlı bir soru sorar: sonrasında ne olursa olsun, yalnızca kazanım maliyetini geri kazanmanın kaç ay sürdüğünü. Bir müşteri her ikisinde de iyi, birinde iyi diğerinde kötü, ya da her ikisinde de kötü not alabilir. Uzun bir müşteri ömrü üzerine kurulu yüksek bir LTV:CAC oranı, uzun vadeli ekonomi güçlü görünse bile kısa vadede nakit akışını zorlayan bir geri ödeme süresiyle bir arada olabilir. İki metrik farklı soruları yanıtlar ve birbirinin yerine değil, birlikte okunmak üzere tasarlanmıştır."
+      }
+    ],
+    "seo": {
+      "seoTitle": "LTV:CAC Oranı Hesaplayıcısı",
+      "seoDescription": "LTV:CAC oranını hesaplayın ve bu kıyaslamaya hangi LTV modelinin uyduğunu görün."
+    }
+  }
 }

@@ -17,7 +17,7 @@ import {
   getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS,
   correctedFormulaPlainEnglish, LIBRARY_GROUP, LIBRARY_GROUP_ORDER, TEXT_TOOL_GROUP,
   type LibraryGroup,
-  GROUP_LABEL,
+  GROUP_LABEL, displayName, displayNameForSlug, shortDescription,
 } from "@/lib/calc-catalog";
 import { getContent, type CalcContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
@@ -41,20 +41,20 @@ export const basePathFor = (lang: Lang) => (lang === "en" ? "/calculators" : "/t
 // this codebase already draws elsewhere (a calculator detail page's
 // `heroTitle` override vs. its own `seoTitle`).
 const T = {
-  en: { title: "Free Marketing & Growth Calculators", intro: "Free marketing calculators for ROAS, CAC, CPC, CPM, retention, conversion rates, A/B testing and unit economics. No signup required." },
-  tr: { title: "Ücretsiz Pazarlama & Growth Hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, retention, dönüşüm oranı, A/B testleri ve birim ekonomisi için ücretsiz pazarlama ve growth hesaplama araçları. Üyelik gerekmez." },
+  en: { title: "Marketing calculators", intro: "Free calculators for ROAS, CAC, CPC, CPM, retention, conversion rate, A/B tests and unit economics. No account needed." },
+  tr: { title: "Pazarlama hesaplayıcıları", intro: "ROAS, CAC, CPC, CPM, elde tutma, dönüşüm oranı, A/B test ve birim ekonomisi için ücretsiz hesaplayıcılar. Üyelik gerekmiyor." },
 };
 
 const HERO = {
   en: {
-    eyebrow: "Free Marketing & Growth Calculators",
-    title: "Calculate what drives growth.",
-    sub: "Free calculators for acquisition, retention, experimentation and unit economics: ROAS, CAC, conversion rates, A/B significance and more. No signup, no tracking.",
+    eyebrow: "Calculators",
+    title: "Calculators for the marketing metrics you use most.",
+    sub: "Free tools for advertising, user acquisition, retention, A/B testing and unit economics. No account, no tracking.",
   },
   tr: {
-    eyebrow: "Ücretsiz Pazarlama & Growth Hesaplayıcıları",
-    title: "Büyümeyi etkileyen metrikleri hesaplayın.",
-    sub: "Reklam, edinim, elde tutma, deney ve birim ekonomisi için ücretsiz hesaplama araçları: ROAS, CAC, dönüşüm oranı, A/B testi ve daha fazlası. Üyelik yok, takip yok.",
+    eyebrow: "Hesaplayıcılar",
+    title: "Sık kullanılan pazarlama metrikleri için hesaplayıcılar.",
+    sub: "Reklam, kullanıcı kazanımı, elde tutma, A/B test ve birim ekonomisi için ücretsiz araçlar. Üyelik gerekmiyor, veri toplanmıyor.",
   },
 };
 
@@ -69,9 +69,10 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
   if (!spec && !textTool) return {};
   const content = getContent(slug, lang);
   // Phase 4 content carries its own editorially-written seoTitle/
-  // seoDescription (EN only, 13 calculators) - prefer it over the
+  // seoDescription, in both languages for all 19 live calculators
+  // (getContent(slug, "tr") returns the TR versions) - prefer it over the
   // Phase 2 fallback (spec name + formulaPlainEnglish) when present.
-  const title = content ? content.seo.seoTitle : spec ? spec.name : textTool!.title[lang];
+  const title = content ? content.seo.seoTitle : spec ? displayName(spec, lang) : textTool!.title[lang];
   const description = content ? content.seo.seoDescription : spec ? correctedFormulaPlainEnglish(spec) : textTool!.desc[lang];
   return {
     title: `${title} - Ali Demirbaş`,
@@ -127,14 +128,15 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
   const calcEntries: CalcEntry[] = specs.map((spec) => {
     const group = groupOf(spec.slug);
     const categoryLabel = GROUP_LABEL[group][lang];
-    const description = correctedFormulaPlainEnglish(spec);
+    const name = displayName(spec, lang);
+    const description = shortDescription(spec, lang);
     return {
       slug: spec.slug,
-      name: spec.name,
+      name,
       description,
       categoryLabel,
       categoryKey: group,
-      searchText: calcSearchText(spec.name, description, categoryLabel, spec.aliases),
+      searchText: calcSearchText(name, description, categoryLabel, spec.aliases),
       href: `${base}/${spec.slug}`,
     };
   });
@@ -294,13 +296,14 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
   }
 
   const runtime = toRuntimeSpec(spec!);
-  /* EN-only editorial content, same as before. TR falls back to an
-     English-derived page rather than showing a half-translated one, which
-     is the existing convention (see getContent's own note); the template
-     itself is fully localised, so a TR page differs only in that its prose
-     is the same English the catalog holds. */
+  /* All 19 live calculators now carry full TR editorial content (see each
+     content JSON's own `tr` key and calc-content.ts's getContent), so this
+     returns a fully Turkish page/faq/seo for lang === "tr" - no English
+     prose falls through. The `?? getContent(slug, "en")!` is a defensive
+     fallback only, for a calculator whose content file has no `tr` object
+     yet; there should be none of those among the live 19. */
   const content = getContent(slug, lang) ?? getContent(slug, "en")!;
-  const title = content.heroTitle ?? spec!.name;
+  const title = content.heroTitle ?? displayName(spec!, lang);
 
   /* Authored related links first, catalog-derived as the fallback - both
      re-checked against the live library so a retired slug can never render
@@ -309,8 +312,8 @@ export function CalculatorDetailPage({ lang, slug }: { lang: Lang; slug: string 
   const authored = (content.related ?? []).filter((r) => LIVE_CALCULATOR_SLUGS.includes(r.slug));
   const relatedItems = (
     authored.length > 0
-      ? authored.map((r) => ({ href: `${base}/${r.slug}`, name: r.name }))
-      : runtime.related.map((r) => ({ href: `${base}/${r.slug}`, name: r.name }))
+      ? authored.map((r) => ({ href: `${base}/${r.slug}`, name: displayNameForSlug(r.slug, r.name, lang) }))
+      : runtime.related.map((r) => ({ href: `${base}/${r.slug}`, name: displayNameForSlug(r.slug, r.name, lang) }))
   ).slice(0, 4);
 
   const tool =

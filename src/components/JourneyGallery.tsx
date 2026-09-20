@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import IdeaCard from "@/components/ui/IdeaCard";
+import { Button } from "@/components/ui/Button";
+import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, CategoryIcon, ChannelIcon, GoalIcon, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { FilterMenu } from "@/components/ui/FilterMenu";
+import { clsx } from "@/lib/clsx";
 import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNELS, CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
@@ -43,6 +46,7 @@ function CategorySection({
   t,
   basePath,
   labels,
+  surface,
   emptyChannelLabel,
   humanRoutingLabel,
 }: {
@@ -52,6 +56,10 @@ function CategorySection({
   t: (typeof copy)[Lang]["lab"]["page"];
   basePath: string;
   labels: (typeof copy)[Lang]["lab"]["journeysSplit"];
+  /** Which surface these cards belong to - picks the right noun
+      ("journey"/"journeys" vs "durum"/"mekanizma") out of
+      `labels.journeysLabel`, which is keyed per surface. */
+  surface: SurfaceKey;
   emptyChannelLabel: string;
   /** Customer Journeys surface only - the badge for the 3 journeys that
       reach a customer by routing to a person rather than by message
@@ -63,41 +71,34 @@ function CategorySection({
   const remaining = items.length - visible.length;
 
   return (
-    <section>
-      <div className="flex items-start gap-3">
-        {/* The visual marker is the category's own id prefix, which is real
-            addressable data (every journey in here is ACQ-nn, RET-nn, ...)
-            rather than an icon invented for 26 categories nobody could
-            verify the meaning of. */}
-        <span
-          aria-hidden
-          className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-md bg-paper-soft font-mono text-[10px] font-semibold tracking-tight text-ink-500"
-        >
-          {items[0]?.id.split("-")[0] ?? ""}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="text-base font-semibold tracking-tight text-ink-950">{meta.title}</h2>
-            <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">
-              {items.length} {labels.journeysLabel[items.length === 1 ? 0 : 1]}
-            </span>
-          </div>
-          <p className="mt-1 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ink-500">{meta.purpose}</p>
-        </div>
-      </div>
+    <section id={`cat-${meta.id}`} data-cat={meta.id} className="scroll-mt-24">
+      {/* The visual marker is the category's own id prefix, which is real
+          addressable data (every journey in here is ACQ-nn, RET-nn, ...)
+          rather than an icon invented for 26 categories nobody could
+          verify the meaning of. */}
+      <CategoryHeader
+        id={meta.id}
+        code={items[0]?.id.split("-")[0] ?? ""}
+        title={lang === "en" ? meta.title : meta.titleTr}
+        count={items.length}
+        countLabel={labels.journeysLabel[surface][items.length === 1 ? 0 : 1]}
+        purpose={lang === "en" ? meta.purpose : meta.descriptionTr}
+      />
 
-      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {visible.map((j) => (
           <JourneyIdeaCard
             key={j.id}
             href={`${basePath}/${j.slug}`}
             id={j.id}
+            lang={lang}
             title={j.shortName ?? j.name}
+            category={j.category}
             categoryTitle={j.categoryTitle}
             purpose={j.purpose}
             nodeCount={j.nodeCount}
             nodesLabel={t.nodesLabel}
-            channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+            channels={sortChannels(j.channels)}
             internalLabel={emptyChannelLabel}
             typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
           />
@@ -105,15 +106,60 @@ function CategorySection({
       </div>
 
       {remaining > 0 || expanded ? (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-3 border border-line bg-paper px-3 py-1.5 text-sm font-medium text-ink-700 transition-colors hover:border-neutral-400 hover:bg-paper-soft"
-        >
+        <Button type="button" variant="outline" size="sm" className="mt-4" onClick={() => setExpanded((v) => !v)}>
           {expanded ? labels.showLess : labels.showMore.replace("{count}", String(remaining))}
-        </button>
+        </Button>
       ) : null}
     </section>
+  );
+}
+
+/* THE CATEGORY RAIL (2026-09-13). Twenty-one sections make a page nine
+   screens tall; the rail is the way across it - every category with its
+   count, anchored to its section, the one under the reading line held. It
+   only exists in the default view (a filtered result is one flat grid) and
+   only from lg, where there is a column for it; below that the selects
+   are the way in. */
+function CategoryRail({
+  title,
+  presets,
+  sections,
+  active,
+}: {
+  title: string;
+  presets?: { label: string; count: number };
+  sections: readonly { id: string; title: string; count: number }[];
+  active: string;
+}) {
+  const item = (id: string, label: string, count: number) => (
+    <li key={id}>
+      <a
+        href={`#${id === "presets" ? "presets" : `cat-${id}`}`}
+        title={label}
+        aria-current={active === id ? "true" : undefined}
+        className={clsx(
+          "flex items-center justify-between gap-3 rounded-lg px-3 py-1.5 text-sm transition-colors duration-[var(--duration-fast)]",
+          active === id ? "bg-paper-soft font-medium text-ink-950" : "text-ink-600 hover:bg-paper-soft hover:text-ink-950",
+        )}
+      >
+        <span className="flex min-w-0 items-center gap-2.5">
+          <CategoryIcon id={id} className={clsx("size-4 shrink-0", categoryAccent(id).ink)} />
+          <span className="truncate">{label}</span>
+        </span>
+        <span className="shrink-0 text-xs text-ink-500 tabular-nums">{count}</span>
+      </a>
+    </li>
+  );
+  return (
+    <nav aria-label={title} className="hidden lg:block">
+      <div className="sticky top-20 max-h-[calc(100svh-6rem)] overflow-y-auto pr-2">
+        <p className="px-3 text-sm font-semibold text-ink-950">{title}</p>
+        <ol className="mt-2 flex list-none flex-col gap-0.5 p-0">
+          {presets ? item("presets", presets.label, presets.count) : null}
+          {sections.map((c) => item(c.id, c.title, c.count))}
+        </ol>
+      </div>
+    </nav>
   );
 }
 
@@ -152,33 +198,27 @@ export default function JourneyGallery({
     useJourneyFilters(allRows, merged, lang);
 
   const labels = copy[lang].lab.journeysSplit;
-  const [category, setCategory] = useState<string>("");
+  // No category filter here: the category rail is the way to a category,
+  // and a select over 23 long titles was a second, worse one (Hulusi,
+  // 2026-09-14).
   const [channel, setChannel] = useState<string>("");
   /* The Operations surface used to swap Goal for its own coarser Type
      filter here (archive/operational-workflows/taxonomy/). That surface is
      archived, so every remaining surface filters by Goal. */
 
   // Only offer a filter value that some real row on this page actually has.
-  const presentCategories = useMemo(() => {
-    const present = new Set(allRows.map((j) => j.category));
-    return categories.filter((c) => present.has(c.id));
-  }, [allRows, categories]);
   const presentChannels = useMemo(() => {
     const present = new Set(allRows.flatMap((j) => j.channels));
     return CHANNELS.filter((c) => present.has(c));
   }, [allRows]);
   const localFiltered = useMemo(
     () =>
-      rows.filter(
-        (j) =>
-          (!category || j.category === category) &&
-          (!channel || j.channels.includes(channel as ChannelId)),
-      ),
-    [rows, category, channel],
+      rows.filter((j) => !channel || j.channels.includes(channel as ChannelId)),
+    [rows, channel],
   );
 
-  const isDefault = isDefaultView && !category && !channel;
-  const totalActive = activeCount + (category ? 1 : 0) + (channel ? 1 : 0);
+  const isDefault = isDefaultView && !channel;
+  const totalActive = activeCount + (channel ? 1 : 0);
 
   const sections = useMemo(() => {
     if (!isDefault) return [];
@@ -196,111 +236,98 @@ export default function JourneyGallery({
   // Presets answer to their own names and aliases; a category or channel
   // filter does not apply to them (they are cards over a parent, not rows).
   const matchingPresets = useMemo(() => {
-    if (!presets.length || category || channel || goal) return isDefault ? presets : [];
+    if (!presets.length || channel || goal) return isDefault ? presets : [];
     const q = query.trim().toLowerCase();
     if (!q) return presets;
     return presets.filter((p) => [p.name, p.parentName, ...p.aliases].some((x) => x.toLowerCase().includes(q)));
-  }, [presets, query, category, channel, goal, isDefault]);
+  }, [presets, query, channel, goal, isDefault]);
 
   const clearEverything = () => {
-    setCategory("");
     setChannel("");
     clearAll();
   };
 
+  // Which section sits under the reading line - the last one whose top has
+  // passed it. Read on a frame, written only when it changes.
+  const [activeCat, setActiveCat] = useState<string>("");
+  useEffect(() => {
+    if (!isDefault) return;
+    const els = Array.from(document.querySelectorAll<HTMLElement>("[data-cat]"));
+    if (!els.length) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const line = 128;
+      let best = els[0].dataset.cat ?? "";
+      for (const el of els) if (el.getBoundingClientRect().top <= line) best = el.dataset.cat ?? best;
+      setActiveCat(best);
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [isDefault, sections]);
+
   // Customer Journeys only - see isHumanRoutingRow.
   const humanRoutingLabel = surface === "customer-journeys" ? labels.humanRoutingBadge : undefined;
 
-  const selectClass =
-    "w-full border border-line bg-paper px-3 py-2 text-sm text-ink-900 outline-none transition-colors focus:border-blue-600 sm:w-auto";
-
   return (
     <div>
-      {/* Surface: the public surfaces are routes, so this is a link row rather
-          than a select - it changes the page, its title and its metadata,
-          not just the rows. */}
-      <div className="flex flex-wrap gap-2">
-        {surfaceLinks.map((l) =>
-          l.key === surface ? (
-            <span key={l.key} className="border border-ink-950 bg-ink-950 px-3 py-1.5 text-sm font-medium text-paper">
-              {l.label}
-            </span>
-          ) : (
-            <Link
-              key={l.key}
-              href={l.href}
-              className="border border-line bg-paper px-3 py-1.5 text-sm font-medium text-ink-700 transition-colors hover:border-neutral-400 hover:bg-paper-soft"
-            >
-              {l.label}
-            </Link>
-          ),
-        )}
+      {/* Surface: the public surfaces are routes, so this is navigation
+          rather than a select - it changes the page, its title and its
+          metadata, not just the rows. */}
+      <div className="flex justify-center">
+        <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
       </div>
 
-      <div className="mt-3 flex items-center gap-3 border border-line bg-paper px-4 py-2.5 focus-within:border-blue-600">
-        <Search aria-hidden className="size-4 shrink-0 text-neutral-500" />
+      <div className={TOOLBAR_ROW}>
+      <div className={`${SEARCH_SHELL} min-w-0 lg:flex-1`}>
+        <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t.searchPlaceholder}
-          className="w-full bg-transparent text-sm text-ink-900 outline-none placeholder:text-neutral-500"
+          className="w-full bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-500"
         />
         {query ? (
           <button
             type="button"
             onClick={() => setQuery("")}
             aria-label={t.clearAll}
-            className="shrink-0 text-neutral-400 transition-colors hover:text-ink-700"
+            className="shrink-0 text-ink-500 transition-colors duration-[var(--duration-fast)] hover:text-ink-950"
           >
             <X aria-hidden className="size-4" />
           </button>
         ) : null}
       </div>
 
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        <label className="block">
-          <span className="sr-only">{labels.categoryFilterLabel}</span>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className={selectClass}>
-            <option value="">{labels.allCategories}</option>
-            {presentCategories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-        </label>
-
         {presentChannels.length > 0 ? (
-          <label className="block">
-            <span className="sr-only">{labels.channelFilterLabel}</span>
-            <select value={channel} onChange={(e) => setChannel(e.target.value)} className={selectClass}>
-              <option value="">{labels.allChannels}</option>
-              {presentChannels.map((c) => (
-                <option key={c} value={c}>
-                  {CHANNEL_LABEL[c][lang]}
-                </option>
-              ))}
-            </select>
-          </label>
+          <FilterMenu
+            label={labels.channelFilterLabel}
+            all={{ label: labels.allChannels, icon: ALL_CHANNELS_ICON }}
+            options={presentChannels.map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang], icon: <ChannelIcon id={c} className="size-4" /> }))}
+            value={channel}
+            onChange={setChannel}
+            align="end"
+          />
         ) : null}
-
-        <label className="block">
-          <span className="sr-only">{t.goalLabel}</span>
-          <select
-            value={goal ?? ""}
-            onChange={(e) => setGoal(e.target.value ? (e.target.value as typeof goal) : null)}
-            className={selectClass}
-          >
-            <option value="">{t.allGoals}</option>
-            {[...new Set(allRows.map((j) => j.goal))]
-              .sort((a, b) => GOAL_LABEL[a][lang].localeCompare(GOAL_LABEL[b][lang], lang))
-              .map((g) => (
-                <option key={g} value={g}>
-                  {GOAL_LABEL[g][lang]}
-                </option>
-              ))}
-          </select>
-        </label>
+        <FilterMenu
+          label={t.goalLabel}
+          all={{ label: t.allGoals, icon: ALL_GOALS_ICON }}
+          options={[...new Set(allRows.map((j) => j.goal))]
+            .sort((a, b) => GOAL_LABEL[a][lang].localeCompare(GOAL_LABEL[b][lang], lang))
+            .map((g) => ({ id: g, label: GOAL_LABEL[g][lang], icon: <GoalIcon id={g} /> }))}
+          value={goal ?? ""}
+          onChange={(id) => setGoal(id ? (id as typeof goal) : null)}
+          align="end"
+        />
       </div>
 
       {!isDefault ? (
@@ -312,7 +339,7 @@ export default function JourneyGallery({
             <button
               type="button"
               onClick={clearEverything}
-              className="flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+              className="flex items-center gap-1.5 text-sm font-medium text-primary-600 transition-colors duration-[var(--duration-fast)] hover:text-primary-700"
             >
               <X aria-hidden className="size-3.5" />
               {t.clearAll}
@@ -322,23 +349,35 @@ export default function JourneyGallery({
       ) : null}
 
       {mergedHit ? (
-        <p className="mt-4 border border-line bg-paper-soft px-4 py-3 text-[13px] leading-snug text-ink-600">
+        <p className="mt-4 rounded-xl bg-paper-soft px-4 py-3 text-sm leading-snug text-ink-600">
           {t.mergedNote.replace("{from}", mergedHit.from).replace("{to}", mergedHit.to)}
         </p>
       ) : null}
 
+      <div className={clsx("mt-10", isDefault && "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10")}>
+      {isDefault ? (
+        <CategoryRail
+          title={labels.railTitle}
+          presets={matchingPresets.length ? { label: labels.presetsTitle, count: matchingPresets.length } : undefined}
+          sections={sections.map((s) => ({ id: s.meta.id, title: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr), count: s.items.length }))}
+          active={activeCat}
+        />
+      ) : null}
+      <div className="min-w-0">
       {matchingPresets.length ? (
-        <section className="mt-8">
+        <section id="presets" data-cat="presets" className="scroll-mt-24">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="text-base font-semibold tracking-tight text-ink-950">{labels.presetsTitle}</h2>
-            <span className="shrink-0 font-mono text-xs text-ink-400 tabular-nums">{matchingPresets.length}</span>
+            <h2 className="text-h3 text-ink-950">{labels.presetsTitle}</h2>
+            <span className="shrink-0 text-sm text-ink-500 tabular-nums">{matchingPresets.length}</span>
           </div>
-          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-ink-500">{labels.presetsIntro}</p>
-          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-ink-600">{labels.presetsIntro}</p>
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {matchingPresets.map((p) => (
               <IdeaCard
                 key={p.id}
                 href={`${basePath}/${p.slug}`}
+                icon={<CategoryIcon id="presets" />}
+                iconTone={categoryAccent("presets").tile}
                 title={p.name}
                 badges={[{ label: labels.presetBadge, tone: "accent" }]}
                 body={p.applicableWhen}
@@ -351,7 +390,7 @@ export default function JourneyGallery({
       ) : null}
 
       {isDefault ? (
-        <div className="mt-8 flex flex-col gap-12">
+        <div className={clsx("flex flex-col gap-14", matchingPresets.length ? "mt-14" : "")}>
           {sections.map((s) => (
             <CategorySection
               key={s.meta.id}
@@ -361,45 +400,44 @@ export default function JourneyGallery({
               t={t}
               basePath={basePath}
               labels={labels}
+              surface={surface}
               emptyChannelLabel={emptyChannelLabel}
               humanRoutingLabel={humanRoutingLabel}
             />
           ))}
         </div>
       ) : localFiltered.length === 0 && matchingPresets.length === 0 ? (
-        <div className="mt-5 border-t border-b border-line py-16 text-center">
-          <p className="font-mono text-[11px] tracking-[0.12em] text-ink-400 uppercase tabular-nums">
-            0 / {allRows.length}
-          </p>
-          <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-ink-700">{t.empty}</p>
-          <button
-            type="button"
-            onClick={clearEverything}
-            className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-          >
-            <X aria-hidden className="size-3.5" />
+        <div className="rounded-2xl bg-paper-soft px-6 py-16 text-center">
+          <p className="text-sm text-ink-500 tabular-nums">0 / {allRows.length}</p>
+          <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-ink-700">{t.empty}</p>
+          <Button type="button" variant="outline" size="sm" className="mt-6" onClick={clearEverything}>
+            <X aria-hidden className="size-4" />
             {t.clearAll}
-          </button>
+          </Button>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className={clsx("grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3", matchingPresets.length ? "mt-14" : "")}>
           {localFiltered.map((j) => (
             <JourneyIdeaCard
               key={j.id}
               href={`${basePath}/${j.slug}`}
               id={j.id}
+              lang={lang}
               title={j.shortName ?? j.name}
+              category={j.category}
               categoryTitle={j.categoryTitle}
               purpose={j.purpose}
               nodeCount={j.nodeCount}
               nodesLabel={t.nodesLabel}
-              channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+              channels={sortChannels(j.channels)}
               internalLabel={emptyChannelLabel}
               typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
             />
           ))}
         </div>
       )}
+      </div>
+      </div>
     </div>
   );
 }

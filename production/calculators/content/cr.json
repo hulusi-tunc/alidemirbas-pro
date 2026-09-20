@@ -119,5 +119,50 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing 'one equation, many names' framing and both original common-mistakes items - genuinely good prior content. Added worked-example, metric-specific 'what counts as a conversion' section covering denominator/action flexibility per instruction, CR vs CTR comparison-note, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good CR' benchmark stated, including in the good-cr FAQ despite it being a listed SEO secondary keyword. External source: CFI's Customer Conversion Rate page, verified live. Related calculators verified live: ctr, activation-rate, funnel-analysis-multistep."
+  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing 'one equation, many names' framing and both original common-mistakes items - genuinely good prior content. Added worked-example, metric-specific 'what counts as a conversion' section covering denominator/action flexibility per instruction, CR vs CTR comparison-note, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good CR' benchmark stated, including in the good-cr FAQ despite it being a listed SEO secondary keyword. External source: CFI's Customer Conversion Rate page, verified live. Related calculators verified live: ctr, activation-rate, funnel-analysis-multistep.",
+  "tr": {
+    "heroTitle": "Dönüşüm Oranı Hesaplayıcısı",
+    "page": {
+      "tagline": "Fırsatların ne kadarının, saydığınız eylemi tamamladığını gör.",
+      "meaning": [
+        "Tek bir denklem, birçok isim. Ziyaretçileri kayıtlara çeviren bir açılış sayfası, sepetleri siparişe çeviren bir ödeme akışı, lead'leri müşteriye çeviren bir satış ekibi: hepsi aynı bölme işlemi, sadece iki tarafında farklı kelimelerle.",
+        "Belirli bir fırsat kümesinin, o dönemde tanımlı bir eylemi ne kadarının tamamladığını söyler. Nedenini, tamamlanan eylemin ne değer ürettiğini ya da gelen fırsatların doğru fırsatlar olup olmadığını söylemez. Daha az ama daha nitelikli ziyaretçi gönderen bir kanal, toplam değer olarak daha düşük olsa bile daha yüksek bir oran gösterebilir."
+      ],
+      "takeaway": "Bir dönüşüm oranı, ancak aynı paydayla ölçülmüş başka bir oranla kıyaslanabilir.",
+      "whenToUse": "Belirli bir adımı belirli bir fırsat kümesine karşı ölçerken (bir sayfa, bir ödeme akışı, bir kampanya) ve o adımın varyantlarını iki tanım da sabit tutularak birbiriyle kıyaslarken kullanın.",
+      "misleads": "Fırsat sayısındaki bot trafiği, gerçekte hiçbir şey değişmemişken oranı sulandırır. Görünüşte iyileşen bir oranın altında dönüşüm tanımının veya trafik karmasının değişmesi de aynı şeyi yapar.",
+      "workedExample": "dönüşüm ÷ fırsat → 340 ÷ 8.000 = %4,25"
+    },
+    "faq": [
+      {
+        "id": "what-is-cr",
+        "q": "Dönüşüm oranı nedir?",
+        "a": "Dönüşüm oranı, tanımlı bir fırsat grubunun (ziyaretçiler, lead'ler, oturumlar veya sayılabilir başka bir kitle) tanımlı bir eylemi tamamlayan yüzdesidir; dönüşümlerin fırsatlara bölünmesiyle hesaplanır. Çok farklı bağlamlarda kullanılan tek bir formüldür: ziyaretçi başına satın almayı takip eden bir e-ticaret sitesi, lead başına deneme kaydını takip eden bir SaaS şirketi veya mağaza görüntülenmesi başına yüklemeyi takip eden bir mobil uygulama, aynı oranı her iki tarafta farklı etiketlerle hesaplar. Sayı, ancak hem eylem hem de ölçüldüğü kitle net biçimde tanımlandığında bir anlam ifade eder; çünkü ikisinden birini değiştirmek, altta yatan davranış hiç değişmese bile oranın gerçekte neyi tanımladığını değiştirir."
+      },
+      {
+        "id": "how-to-calculate-cr",
+        "q": "Dönüşüm oranı nasıl hesaplanır?",
+        "a": "Dönüşümü fırsata bölüp 100 ile çarpın: Dönüşüm Oranı = (Dönüşüm ÷ Fırsat) × 100. 8.000 fırsattan 340 dönüşüm, 340 ÷ 8.000 = %4,25 verir. İki sayı da aynı zaman aralığından ve aynı kitle tanımından gelmeli: bir dönemde sayılan dönüşümlerin farklı bir dönemde sayılan fırsatlara bölünmesi, hiçbir dönemi doğru tanımlamayan bir oran üretir. Çoğu analitik ve CRM platformu bu oranın iki tarafını da otomatik raporlar, ama altta yatan formül sayıyı neyin oynattığını anlamak için önemlidir: bir oran değişimi daha fazla dönüşümden, daha az fırsattan veya ikisinin aynı anda ters yönde hareketinden gelebilir."
+      },
+      {
+        "id": "what-counts-as-a-conversion-faq",
+        "q": "Neyi 'dönüşüm' sayılır?",
+        "a": "İşletmenin o belirli huni için hedef olarak tanımladığı her ne ise; sabit bir liste yoktur. Bir satın alma, tamamlanmış bir kayıt formu, nitelikli bir lead, bir deneme başlangıcı, bir uygulama yüklemesi veya bir özellik aktivasyon olayı, neyin ölçüldüğüne bağlı olarak hepsi geçerli 'dönüşüm'lerdir; aynı web sitesi veya ürün, farklı huniler için aynı anda birkaç farklı dönüşüm tanımını takip edebilir. Önemli olan 'doğru' tanımı seçmek değil, çünkü öyle bir şey yoktur. Önemli olan, oranı okumadan önce hangi eylemin sayıldığını açıkça belirtmek ve oran zaman içinde, kanallar arasında veya sayfalar arasında kıyaslandığında bu tanımı aynı tutmaktır."
+      },
+      {
+        "id": "cr-vs-ctr-faq",
+        "q": "Dönüşüm oranı TO ile aynı şey mi?",
+        "a": "TO, bir şeyi görenlerin ne sıklıkla ona tıkladığını ölçer: tıklamanın gösterime bölünmesi. Dönüşüm oranı ise, tıklamadan çok sonra veya hiç tıklama olmadan da gerçekleşebilecek, tanımlı bir hedefi ne sıklıkla tamamladıklarını ölçer; örneğin bir açılış sayfasında doğrudan gelen bir ziyaretçinin dönüşmesi gibi. Reklam tıklama kazandırıyor ama açılış sayfası bunu bir şeye dönüştüremiyorsa bir kampanyanın TO'su güçlü, dönüşüm oranı zayıf olabilir; ya da tıklayan az sayıdaki kişi çok nitelikliyse zayıf bir TO ile güçlü bir dönüşüm oranı görülebilir. İki metrik, aynı ölçümün iki versiyonu değil, aynı huninin farklı aşamalarını ölçer."
+      },
+      {
+        "id": "good-cr",
+        "q": "İyi bir dönüşüm oranı kaçtır?",
+        "a": "Sabit bir iyi sayı yoktur. Dönüşüm tanımına, trafik kaynağına, sektöre, cihaza ve 'fırsat' tarafının huninin ne kadar aşağısında ölçüldüğüne bağlıdır. 'Satın alma yapan tüm ziyaretçiler' için bir oran, tamamen aynı mağazada aynı günde bile 'satın alma yapan ödeme başlatanlar' için bir orandan her zaman daha düşük görünür, çünkü paydalar farklı popülasyonları tanımlar. Dönüşüm oranını yayımlanmış bir ortalamaya değil, aynı huni adımı, trafik kaynağı ve dönüşüm tanımı için kendi geçmiş performansınıza karşı kıyaslayın. O kıyaslamadaki bir değişim bir şey ifade eder; dış bir kıyaslamaya karşı bir fark genelde etmez."
+      }
+    ],
+    "seo": {
+      "seoTitle": "Dönüşüm Oranı Hesaplayıcısı",
+      "seoDescription": "Dönüşüm ve toplam fırsattan dönüşüm oranını hesaplayın; lead, ödeme, yükleme ve kayıt dönüşüm oranlarının arkasındaki aynı formül."
+    }
+  }
 }

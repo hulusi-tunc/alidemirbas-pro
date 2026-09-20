@@ -116,5 +116,50 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "STANDARD depth (Final Expansion round). Formula/example independently verified against the array-based canonical example: stepConversions [1800/10000=18.00%, 900/1800=50.00%, 620/900=68.89%], dropOffByStage [82.00%, 50.00%, 31.11%], overallConversion 620/10000=6.20% - all match calculator-catalog.json's exampleOutput exactly. Runtime already live (funnel-analysis-multistep compute function and FunnelInputs/FunnelResults UI pre-existing, unchanged) - only content/SEO layer was missing, EXCEPT one real UI gap found and fixed this round: the catalog's own validationRule ('a stage count higher than the previous stage is allowed but should be visually flagged as a likely data error, not silently accepted') was not implemented - FunnelResults previously rendered a >100% step conversion with no visual distinction from a normal rate. Fixed in CalculatorTool.tsx: a step where the conversion rate exceeds 100% now shows an inline amber flag next to the percentage. Metric-specific section (reading-a-stage-that-rises) documents this exact behavior, sourced against Amplitude's own funnel drop-off definition for the base formulas (amplitude.com/explore/analytics/funnel-drop-off - Amplitude's own page did not address the rises-above-previous-stage case directly, so that specific claim is derived from the catalog's own validationRule, not attributed to Amplitude). Comparison-note (Funnel Analysis vs Cart Abandonment) explains the genuine relationship (this tool can model cart-abandonment's own single boundary as one step among several) without duplicating cart-abandonment.json's own content - no shared sentences. common-mistakes item 4 (mixed measurement windows across stages) is a real, calculator-specific data-integrity risk. Worked-example section uses the schema's existing inputs[]/output shape adapted for 4 stages plus overall conversion as the headline output, consistent with how other array-input calculators in this corpus (none currently published) would need to represent worked examples. Related Calculators verified live: cart-abandonment, cr, revenue-per-visitor (catalog's own relatedCalculators list: cr, cart-abandonment - both used; revenue-per-visitor added as a third genuinely relevant live calculator). 5 FAQs, 100-150 words each, independently word-counted."
+  "qaNotes": "STANDARD depth (Final Expansion round). Formula/example independently verified against the array-based canonical example: stepConversions [1800/10000=18.00%, 900/1800=50.00%, 620/900=68.89%], dropOffByStage [82.00%, 50.00%, 31.11%], overallConversion 620/10000=6.20% - all match calculator-catalog.json's exampleOutput exactly. Runtime already live (funnel-analysis-multistep compute function and FunnelInputs/FunnelResults UI pre-existing, unchanged) - only content/SEO layer was missing, EXCEPT one real UI gap found and fixed this round: the catalog's own validationRule ('a stage count higher than the previous stage is allowed but should be visually flagged as a likely data error, not silently accepted') was not implemented - FunnelResults previously rendered a >100% step conversion with no visual distinction from a normal rate. Fixed in CalculatorTool.tsx: a step where the conversion rate exceeds 100% now shows an inline amber flag next to the percentage. Metric-specific section (reading-a-stage-that-rises) documents this exact behavior, sourced against Amplitude's own funnel drop-off definition for the base formulas (amplitude.com/explore/analytics/funnel-drop-off - Amplitude's own page did not address the rises-above-previous-stage case directly, so that specific claim is derived from the catalog's own validationRule, not attributed to Amplitude). Comparison-note (Funnel Analysis vs Cart Abandonment) explains the genuine relationship (this tool can model cart-abandonment's own single boundary as one step among several) without duplicating cart-abandonment.json's own content - no shared sentences. common-mistakes item 4 (mixed measurement windows across stages) is a real, calculator-specific data-integrity risk. Worked-example section uses the schema's existing inputs[]/output shape adapted for 4 stages plus overall conversion as the headline output, consistent with how other array-input calculators in this corpus (none currently published) would need to represent worked examples. Related Calculators verified live: cart-abandonment, cr, revenue-per-visitor (catalog's own relatedCalculators list: cr, cart-abandonment - both used; revenue-per-visitor added as a third genuinely relevant live calculator). 5 FAQs, 100-150 words each, independently word-counted.",
+  "tr": {
+    "heroTitle": "Çok Adımlı Huni Analizi Hesaplayıcısı",
+    "page": {
+      "tagline": "Bir huniyi adımlara böl, her adım arasındaki dönüşümü ve kaybı gör.",
+      "meaning": [
+        "Genel oran, yalnızca ilk aşama ile son aşama arasındaki orandır. Adım adım kırılım, insanların gerçekte nerede ayrıldığını gösteren kısımdır ve tek bir dönüşüm oranı yerine bunu kullanmanın nedeni de budur.",
+        "%100'ün üzerinde dönüşen bir adım, sonraki bir aşamanın öncekinden daha fazla varlık saydığı anlamına gelir. Hesaplayıcı bunu normal bir oran gibi göstermek yerine işaretler: tek kohortlu bir huninde bu genelde çift sayım, o aşamada daha geniş bir tarih aralığı veya iki farklı olay tanımı anlamına gelir."
+      ],
+      "takeaway": "Genel sayı ne kadar kaybettiğinizi söyler. Yalnızca adımlar nerede kaybettiğinizi söyler.",
+      "whenToUse": "Bir huninin nerede sızdırdığını teşhis ederken, aynı huniyi dönemler veya segmentler arasında kıyaslarken ya da tek bir dönüşüm oranı hareket ettiğinde hangi aşamanın onu oynattığını bilmeniz gerektiğinde kullanın.",
+      "misleads": "Farklı aşama sayısına veya farklı aşama tanımlarına sahip hunilerden gelen adım oranları, uç noktalar benzer görünse bile kıyaslanabilir değildir. Ve öncekinden daha fazla sayan bir aşama, raporlanacak bir sonuç değil, araştırılacak bir veri sorunudur.",
+      "workedExample": "10.000 → 1.800 → 900 → 620 ziyaretten satın almaya = %6,20 genel"
+    },
+    "faq": [
+      {
+        "id": "what-is-funnel-analysis",
+        "q": "Çok adımlı huni analizi nedir?",
+        "a": "Çok adımlı huni analizi, bir kullanıcı yolculuğunu bir aşamalar dizisine böler (ziyaret, sepete ekleme, ödeme, satın alma) ve ardışık her çift arasındaki dönüşüm oranını ve kaybı, artı ilk aşamadan sona genel dönüşümü ölçer. Yalnızca iki uç noktayı kıyaslayan tek bir dönüşüm oranının aksine, çok adımlı bir huni, sadece kaç kişinin genel olarak geçtiğini değil, yolun tam olarak neresinde insanların kaybedildiğini gösterir. Bu hesaplayıcı 2 ila 10 aşamayı destekler, bu yüzden basit iki adımlı bir kayıt akışından daha uzun bir e-ticaret veya katılım yolculuğuna kadar her şeyi modelleyebilir."
+      },
+      {
+        "id": "how-to-calculate-funnel-conversion",
+        "q": "Adım dönüşümü ve kaybı nasıl hesaplanır?",
+        "a": "Adım dönüşümü, mevcut aşamanın sayısının önceki aşamanın sayısına bölünmesidir. Adım kaybı, bu aynı oranın birden çıkarılmasıdır. Genel dönüşüm, son aşamanın sayısının ilk aşamanın sayısına bölünmesidir. Örnekte, 'Ziyaret'e ulaşan 10.000 kişiden 1.800'ünün 'Sepete Ekleme'ye ulaşması, o adım için %18,00'lik bir dönüşüm ve %82,00'lik bir kayıp verir. Her adımın oranı yalnızca kendisine bitişik iki aşamaya bağlıdır; huninin başka hiçbir aşamasına referans vermez, bu yüzden daha yukarıda veya aşağıda bir değişiklik o tek adımın kendi sayısını doğrudan oynatmaz."
+      },
+      {
+        "id": "stage-count-rises",
+        "q": "Bir sonraki aşama öncekinden daha fazla kişi içeriyorsa ne anlama gelir?",
+        "a": "Genelde bir veri sorununa işaret eder: çift sayım, sonraki aşamaya uygulanan daha geniş bir tarih aralığı, veya aynı huni içinde olsa da gerçekte farklı olayları ölçen iki aşama. Hesaplayıcı, %100'ün üzerinde bir dönüşüm oranını sıradan bir şeymiş gibi sessizce göstermek yerine bunu doğrudan etkilenen adımda işaretler. Yine de her zaman bir hata değildir: aşamalar arasında farklı kohort tanımları veya ölçüm pencereleri bunu bazen meşru biçimde üretebilir. Ne olursa olsun, hesaplayıcı her aşama için girilen ne varsa onu hesaplar; sonraki bir aşamanın sayısının gerçekten öncekinin bir alt kümesi olduğunu bağımsız olarak doğrulamaz."
+      },
+      {
+        "id": "minimum-stages",
+        "q": "Bu hesaplayıcı kaç aşamaya ihtiyaç duyar?",
+        "a": "En az iki, en fazla on. İki aşama, işlevsel olarak basit bir dönüşüm oranı hesaplamasıyla aynı şekildedir: başlangıç sayısı ile bitiş sayısı arasında tek bir oran. Çok adımlı bir huninin değeri, araya daha fazla aşama eklemekten gelir, çünkü asıl toplam ilk-son sayısı yerine tam olarak hangi geçişin en çok kişiyi kaybettirdiğini ortaya çıkaran şey budur. Gerçek bir yolculuğun sahip olduğu her aşamayı kullanma zorunluluğu yoktur; teşhis için en önemli 3 veya 4 aşamayı içeren bir huni, alttaki veride kayıtlı her mikro adımdan genelde daha kullanışlıdır. Hiçbir zaman anlamlı bir kayıp görmeyen aşamalar eklemek, teşhis değeri katmadan tabloya çoğunlukla gürültü katar."
+      },
+      {
+        "id": "zero-at-a-stage",
+        "q": "Bir aşamanın sayısı sıfırsa ne olur?",
+        "a": "O adımın dönüşümü tanımsız hale gelir, çünkü sıfır sayılı bir önceki aşamaya bölmenin anlamlı bir sonucu yoktur; hesaplayıcı bunu gerçek bir yüzde olarak göstermez. Sıfır sayılı bir aşamanın altında yer alan herhangi bir adım da genelde anlamlı biçimde hesaplanamaz, çünkü huni etkin biçimde o daha önceki noktada kırılmıştır. Bir huninin ortasında sıfır bir sayı, genelde kendisi araştırılması gereken bulgudur; gerçekten kimsenin o aşamaya ulaşmadığı anlamına gelebilir ya da aşamanın o dönem için izlenmediği anlamına gelebilir; bunlar aralarında ayrım yapılması gereken çok farklı iki açıklamadır. Çok ilk aşamada sıfır ayrı bir özel durumdur: aşağıda bölünecek hiçbir şey olmadığı için huninin hiçbir oranı hesaplanamaz."
+      }
+    ],
+    "seo": {
+      "seoTitle": "Çok Adımlı Huni Analizi Hesaplayıcısı",
+      "seoDescription": "Bir huniyi aşamalara bölün, adım dönüşümünü, kaybı ve genel dönüşümü hesaplayın; en büyük kaybın gerçekte nerede olduğunu görün."
+    }
+  }
 }

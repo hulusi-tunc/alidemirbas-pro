@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 284", journeys.length === 284);
+check(1, "active journey count = 286", journeys.length === 286);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -248,8 +248,8 @@ const requiredGraphFixtures = ["SUB-166", "DOC-216", "RSK-194", "ACQ-10", "RET-2
 const missingGraphFixtures = requiredGraphFixtures.filter((i) => !fixtureIds.has(i));
 check(28, "extreme graph fixtures included", missingGraphFixtures.length === 0);
 
-// 29 — production manifest covers all 284
-check(29, "production manifest covers all 284", manifest.length === 284);
+// 29 — production manifest covers all 286
+check(29, "production manifest covers all 286", manifest.length === 286);
 
 // 30 — canonical source mutation = 0 (checked via node/edge/rule counts matching the last known validate:canonical baseline)
 // Baseline moved from 3674 to 3682 nodes in the operational-workflow production-readiness repair
@@ -263,11 +263,23 @@ check(29, "production manifest covers all 284", manifest.length === 284);
 // a.reconcile-terms), TRM-101/TRM-102 (+1 net: c.origin added, x.resolved removed and replaced
 // by h.resume), OPS-130 (+1 net: x.reconciliation removed and replaced by a.reconcile + h.escalate).
 // See research/cross-library-integration-readiness/INTEGRATION-CANONICAL-CHANGES.md.
+// Baseline moved again from 284/3690 to 285/3706 journeys/nodes (2026-09-18): ACQ-287 "Checkout
+// Abandonment Recovery" added as its own standalone journey (16 nodes) with slug
+// "checkout-abandonment", freed from ACQ-11's discovery.presets (which carried that slug as a
+// zero-override preset - name and destination only, no distinct business logic of its own) so the
+// journey's real channel-router/high-value-branch flow could be authored without disturbing ACQ-11
+// (still used by the quote-abandonment, application-abandonment and incomplete-registration presets).
+// Baseline moved again from 285/3706 to 286/3728 journeys/nodes (2026-09-18, same day): ACQ-288
+// "Cart Abandonment Recovery" added the same way - freed from ACQ-12's discovery.presets (which
+// carried the "cart-abandonment" slug as a zero-override preset) so its own fixed three-touch
+// cascade, channel-router priorities, high-value branch and explicit handoff into ACQ-287 on
+// checkout start could be authored without disturbing ACQ-12 (still used by the
+// saved-item-reminder preset).
 check(
   30,
-  "canonical source mutation = 0 (284 journeys / 3690 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 284 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3690 &&
+  "canonical source mutation = 0 (286 journeys / 3728 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 286 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3728 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

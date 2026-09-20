@@ -126,7 +126,7 @@ export const AB004_TEXT = {
       whatToTestLabel: "What to test",
       whatToTest: "Does moving the coupon field behind a link reduce abandonment?",
       kpiLabel: "KPI to track",
-      kpi: "Revenue Per Visitor — the primary metric",
+      kpi: "Revenue Per Visitor, the primary metric",
       avoidLabel: "What not to do",
       avoid: "Don't change both the position and the copy in the same test.",
     },
@@ -136,9 +136,9 @@ export const AB004_TEXT = {
       whatToTestLabel: "Neyi test et",
       whatToTest: "Kupon alanını bağlantı arkasına almak terk oranını düşürüyor mu?",
       kpiLabel: "Takip edilecek KPI",
-      kpi: "Ziyaretçi Başına Gelir (RPV) — birincil metrik",
+      kpi: "Ziyaretçi Başına Gelir (RPV), birincil metrik",
       avoidLabel: "Ne yapılmamalı",
-      avoid: "Aynı testte hem konumu hem metni değiştirmeyin.",
+      avoid: "Aynı testte hem konumu hem metni değiştirme.",
     },
 } as const;
 

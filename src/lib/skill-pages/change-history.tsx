@@ -53,10 +53,10 @@ const T = {
     eyebrow: "Lab",
     whatItDoesTitle: "What it does",
     whatItDoesBody:
-      "Takes a Google Ads change-history export - CSV, TSV, or pre-flattened ChangeEvent JSON - and turns it into a single-file HTML dashboard you can open offline: who changed what, in which account, campaign and ad group, the old value and the new one, and which category the change falls into.",
+      "Turns a Google Ads change history export (CSV, TSV or flattened ChangeEvent JSON) into a single-file HTML dashboard that opens offline. Who changed what, in which account, campaign and ad group, what the old and new values were, and which category the change falls into.",
     howItWorksTitle: "What it will and won't tell you",
     howItWorksBody:
-      "The tool reports; it does not grade. It will say a campaign hasn't changed in 23 days. It will not say that neglecting it was a mistake - judging whether a change was good, risky or overdue is explicitly out of scope, and the dashboard has no severity colours or bare badges for that reason.",
+      "The tool reports, it doesn't grade. It will say a campaign hasn't changed in 23 days; it won't say that's neglect. Deciding whether a change is good, risky or overdue is deliberately out of scope, which is why the dashboard has no severity colors and no unexplained badges.",
     bullets: [
       "Answers who changed this campaign's budget last week, and what it was before.",
       "Shows which campaigns haven't been touched in 30+ days, and which category of change is most common right now.",
@@ -82,7 +82,7 @@ const T = {
       {
         id: "live-api",
         q: "Does it read my Google Ads account directly?",
-        a: "Not by default, and that is deliberate: the skill reads a file you export, which is what keeps it dependency-free and runnable offline. If you do have API access, tools/fetch_live_data.py in the repository is a separate optional script that pulls change history live and writes it in the exact shape the skill reads, so you can skip the manual export step without changing how the skill itself works.",
+        a: "Not by default. The plugin reads the file you export, which is what keeps it dependency-free and offline. If you have API access, the fetch_live_data.py script in the repo pulls change history live and writes it in the same format. That skips the export step; the plugin itself works the same way.",
       },
       {
         id: "formats",
@@ -97,7 +97,7 @@ const T = {
       {
         id: "sharing",
         q: "Can I share it without exposing who did what?",
-        a: "Pass --mask-users. Human user names and emails become User A, User B and so on, and the labels persist across runs so the same person keeps the same label between reports. Account and campaign names are never masked - that is your own data, not someone else's identity.",
+        a: "Pass --mask-users. People's names and emails become User A, User B, and the labels are kept stable across runs, so the same person carries the same label in every report. Account and campaign names are never masked. They're your own data, not someone's identity.",
       },
     ],
     relatedTitle: "Other Lab projects",
@@ -106,27 +106,27 @@ const T = {
     eyebrow: "Lab",
     whatItDoesTitle: "Ne işe yarar",
     whatItDoesBody:
-      "Google Ads değişiklik geçmişi dışa aktarımını (CSV, TSV ya da düzleştirilmiş ChangeEvent JSON) çevrimdışı açabileceğin tek dosyalık bir HTML dashboard'a dönüştürür: kim neyi değiştirmiş, hangi hesap, kampanya ve reklam grubunda, eski değer neydi yeni değer ne oldu, değişiklik hangi kategoriye giriyor.",
+      "Google Ads değişiklik geçmişi dışa aktarımını (CSV, TSV ya da düzleştirilmiş ChangeEvent JSON) çevrimdışı açılan tek dosyalık bir HTML dashboard'a çevirir. Kim neyi değiştirmiş, hangi hesap, kampanya ve reklam grubunda, eski değer neydi, yeni değer ne oldu, hangi kategoriye giriyor.",
     howItWorksTitle: "Ne söyler, ne söylemez",
     howItWorksBody:
-      "Araç raporlar, not vermez. Bir kampanyanın 23 gündür değişmediğini söyler; bunun bir ihmal olduğunu söylemez. Bir değişikliğin iyi, riskli ya da gecikmiş olduğuna karar vermek bilinçli olarak kapsam dışı; dashboard bu yüzden ne önem derecesi rengi ne de açıklamasız bir rozet kullanıyor.",
+      "Araç raporlar, not vermez. Bir kampanyanın 23 gündür değişmediğini söyler; bunun ihmal olduğunu söylemez. Bir değişikliğin iyi, riskli ya da gecikmiş olduğuna karar vermek bilinçli olarak kapsam dışı. Bu yüzden dashboard'da ne önem rengi ne de açıklamasız rozet var.",
     bullets: [
-      "Bu kampanyanın bütçesini geçen hafta kim değiştirmiş, öncesinde neydi: cevaplar.",
+      "Bu kampanyanın bütçesini geçen hafta kimin değiştirdiğini ve önceki değerin ne olduğunu gösterir.",
       "30+ gündür dokunulmamış kampanyaları ve şu an en sık görülen değişiklik kategorisini gösterir.",
-      "Varsayılan olarak kapalı olan Rule Matches, kendi büyüklük eşiklerini tarayıcıda ayarlamanı sağlar; bir eşleşme \"belirlediğin eşiği aştı\" demektir ve her zaman tam sayısıyla birlikte görünür.",
-      "Tahmin etmek yerine durur: tanınmayan bir sütun, 03/04/2026 gibi belirsiz bir tarih ya da kategorize edilemeyen bir değişiklik bileşimi, hangi bayrakla yeniden çalıştıracağını söyleyen yapılandırılmış bir durum çıktısıyla sonlanır.",
+      "Kural eşleşmeleri varsayılan olarak kapalı. Kendi büyüklük eşiklerini tarayıcıda ayarlarsın; bir eşleşme \"belirlediğin eşiği aştı\" demektir ve her zaman tam sayısıyla görünür.",
+      "Tahmin etmek yerine durur. Tanınmayan bir sütun, 03/04/2026 gibi belirsiz bir tarih ya da kategorize edilemeyen bir değişiklik, hangi bayrakla yeniden çalıştıracağını söyleyen bir durum çıktısıyla sonlanır.",
       "--mask-users, dışarıyla paylaşım için kişi adlarını User A / User B ile değiştirir ve aynı kişiye çalıştırmalar arasında aynı etiketi verir.",
     ],
     installTitle: "Kurulum",
     toolStepTitle: "AI aracını seç",
-    toolStepDesc: "Bugün Claude Code için geliştirildi ve test edildi - diğer editörler için destek gelebilir.",
+    toolStepDesc: "Bugün Claude Code için geliştirildi ve test edildi. Diğer editörler için destek gelebilir.",
     step1Title: "Claude Code eklentisi olarak",
     step1Desc: "Önce marketplace'i ekle, sonra eklentiyi kur.",
-    step2Title: "Ya da doğrudan çalıştırın, Claude gerekmez",
-    step2Desc: "Tek gereksinim Python 3 ve standart kütüphanesi - kurulacak hiçbir bağımlılık yok.",
-    step3Title: "Kendi fixture'larıyla doğrula",
+    step2Title: "Ya da doğrudan çalıştır, Claude gerekmez",
+    step2Desc: "Tek gereksinim Python 3 ve standart kütüphanesi. Kurulacak bağımlılık yok.",
+    step3Title: "Kendi test verisiyle doğrula",
     step3Desc:
-      "Yerleşik test paketi tüm hattı sentetik veri üzerinde baştan sona çalıştırır. Mevcut sürümde 57 kontrol geçiyor.",
+      "Yerleşik test paketi tüm akışı sentetik veri üzerinde baştan sona çalıştırır. Mevcut sürümde 57 test geçiyor.",
     viewRepo: "Repoyu oku",
     copyLabel: "Kopyala",
     copiedLabel: "Kopyalandı",
@@ -135,7 +135,7 @@ const T = {
       {
         id: "live-api",
         q: "Google Ads hesabımı doğrudan okuyor mu?",
-        a: "Varsayılan olarak hayır ve bu bilinçli: skill senin dışa aktardığın dosyayı okur, onu bağımlılıksız ve çevrimdışı çalışabilir kılan da bu. API erişimin varsa repodaki tools/fetch_live_data.py ayrı ve isteğe bağlı bir script; değişiklik geçmişini canlı çeker ve skill'in okuduğu biçimde yazar, böylece manuel dışa aktarma adımını atlarsın; skill'in kendi çalışma şekli değişmez.",
+        a: "Varsayılan olarak hayır. Eklenti senin dışa aktardığın dosyayı okur; bağımlılıksız ve çevrimdışı çalışmasının sebebi bu. API erişimin varsa repodaki fetch_live_data.py betiği değişiklik geçmişini canlı çekip aynı biçimde yazar. Böylece dışa aktarma adımını atlarsın, eklentinin çalışma şekli değişmez.",
       },
       {
         id: "formats",
@@ -145,12 +145,12 @@ const T = {
       {
         id: "offline",
         q: "Dashboard'un çevrimiçi olması gerekiyor mu?",
-        a: "Hayır. CDN bağlantısı olmayan tek bir HTML dosyası; tamamen çevrimdışı çalışır ve birine tek ek olarak gönderilebilir. Filtreler, aktivite zaman çizelgesi, hesap ve kampanya kırılımı, kategori dağılımı ve aranabilir değişiklik gezgini - hepsi o dosyanın içindeki veriden tarayıcıda çalışır.",
+        a: "Hayır. CDN bağlantısı olmayan tek bir HTML dosyası; tamamen çevrimdışı çalışır ve tek ek olarak gönderilebilir. Filtreler, zaman çizelgesi, hesap ve kampanya kırılımı, kategori dağılımı ve aranabilir değişiklik listesi, hepsi dosyanın içindeki veriden tarayıcıda çalışır.",
       },
       {
         id: "sharing",
         q: "Kimin ne yaptığını göstermeden paylaşabilir miyim?",
-        a: "--mask-users ver. Kişi adları ve e-postaları User A, User B şeklinde etiketlenir ve etiketler çalıştırmalar arasında korunur, böylece aynı kişi raporlar arası aynı etiketi taşır. Hesap ve kampanya adları hiçbir zaman maskelenmez - onlar sizin kendi verinizdir, başkasının kimliği değil.",
+        a: "--mask-users ver. Kişi adları ve e-postaları User A, User B diye etiketlenir; etiketler çalıştırmalar arasında korunur, aynı kişi her raporda aynı etiketi taşır. Hesap ve kampanya adları hiçbir zaman maskelenmez. Onlar senin kendi verin, başkasının kimliği değil.",
       },
     ],
     relatedTitle: "Diğer Lab projeleri",

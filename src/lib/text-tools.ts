@@ -9,7 +9,7 @@ export const TEXT_TOOLS: readonly { slug: string; title: { en: string; tr: strin
   {
     slug: "utm-builder",
     title: { en: "UTM Builder", tr: "UTM Oluşturucu" },
-    desc: { en: "Append source, medium, campaign and content parameters to any URL.", tr: "Herhangi bir URL'ye source, medium, campaign ve content parametreleri ekler." },
+    desc: { en: "Append source, medium, campaign and content parameters to any URL.", tr: "Bir bağlantıya kaynak, mecra, kampanya ve içerik parametrelerini ekler." },
   },
   {
     slug: "character-counter",

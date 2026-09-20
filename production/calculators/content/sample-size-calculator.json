@@ -88,5 +88,35 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "MDE convention (relative, e.g. 10 = 10% relative lift) matches exactly what Phase 2's calc-registry.ts implements - verified against the same test-calculators.mjs case (29,827) rather than re-deriving independently. Excluded 'what is a good sample size' - there is no universal good number, it's fully determined by the other three inputs, so the SEO map's auto-generated interpretation keyword for this page was intentionally not targeted (Phase 4 §21)."
+  "qaNotes": "MDE convention (relative, e.g. 10 = 10% relative lift) matches exactly what Phase 2's calc-registry.ts implements - verified against the same test-calculators.mjs case (29,827) rather than re-deriving independently. Excluded 'what is a good sample size' - there is no universal good number, it's fully determined by the other three inputs, so the SEO map's auto-generated interpretation keyword for this page was intentionally not targeted (Phase 4 §21).",
+  "tr": {
+    "heroTitle": "Örneklem Büyüklüğü Hesaplayıcısı",
+    "page": {
+      "tagline": "Bir testin önemsediğiniz artışı tespit edebilmesi için kaç ziyaretçiye ihtiyacı olduğunu hesapla.",
+      "meaning": [
+        "Bir testi çok az ziyaretçi üzerinde çalıştırırsanız gerçek bir etki fark edilmeden geçebilir; gerçek bir artışı gürültüden ayırmak için yeterli veri olmamıştır. Bu hesaplayıcı dört girdiden geriye doğru çalışarak, bir testin gerçek bir etkiyi yakalama şansını makul kılan örneklem büyüklüğünü bulur.",
+        "Buradaki MDE göreli bir değerdir, mutlak bir yüzde puanı hareketi değil. 10 girmek, %10'luk göreli bir iyileşmeyi tespit etmek demektir: %5'lik bir taban için bu %5,5'e bir hareket demektir, %15'e değil. %2'lik bir tabanda bu yaklaşık %2,2 demektir; %40'ta ise yaklaşık %44.",
+        "Sonuç, durulacak bir hedef değil bir gerekliliktir. O sayıya kadar çalıştırın, sonra anlamlılığı bir kez kontrol edin."
+      ],
+      "takeaway": "Örneklem büyüklüğü test çalışmadan önce belirlenir. İyi göründüğünde durmak farklı bir deneydir.",
+      "whenToUse": "Testin trafiğinizde mümkün olup olmadığını görmek için başlatmadan önce kullanın. Sayı makul bir pencerede ulaşılamazsa, bu MDE'yi yükseltmek veya testi yeniden düşünmek için bir sinyaldir.",
+      "misleads": "MDE'yi bir kararı değiştirecek en küçük etki yerine umduğunuz artışa ayarlamak, muazzam bir örneklem gerektirir. Ve başka bir araç bu sonuçla uyuşmuyorsa, ikisinden birinin yanlış olduğunu varsaymadan önce MDE'yi göreli mi mutlak mı ele aldığını kontrol edin."
+    },
+    "faq": [
+      {
+        "id": "power-choice",
+        "q": "%80 mi yoksa %90 güç mü kullanmalıyım?",
+        "a": "%80, geleneksel varsayılan değerdir ve ulaşmak için daha az trafik gerektirir. %90, gerçek bir etkiyi kaçırma şansını düşürür, ama oraya ulaşmak anlamlı ölçüde daha fazla örneklem büyüklüğüne mal olur; kaçırılan bir etkinin pahalıya patlayacağı kararlar için buna değer, daha düşük riskli testler için ise o kadar gerekli değildir."
+      },
+      {
+        "id": "not-enough-traffic",
+        "q": "Bu örneklem büyüklüğüne ulaşacak kadar trafiğim yoksa ne yaparım?",
+        "a": "MDE'yi yükseltebilirsiniz (yalnızca daha büyük bir artışın tespit edilebilir olacağını kabul ederek), istatistiksel gücü düşürebilirsiniz veya test süresini uzatabilirsiniz; örneklem büyüklüğünün gerçek trafik düzeyinizde takvim zamanına nasıl dönüştüğünü görmek için test süresi tahmincisine bakın."
+      }
+    ],
+    "seo": {
+      "seoTitle": "Örneklem Büyüklüğü Hesaplayıcısı",
+      "seoDescription": "Taban oranı, tespit edilecek minimum artış, güç ve anlamlılık düzeyinden bir A/B testinin varyant başına ihtiyaç duyduğu örneklem büyüklüğünü hesaplayın."
+    }
+  }
 }

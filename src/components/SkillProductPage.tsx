@@ -160,13 +160,18 @@ function Install({ c }: { c: SkillProductContent }) {
   );
 }
 
-function Faq({ c }: { c: SkillProductContent }) {
+function Faq({ c, lang }: { c: SkillProductContent; lang: Lang }) {
   if (!c.faq || c.faq.length === 0) return null;
+  // Every current caller supplies its own faqTitle in both languages (see
+  // skill-pages/*.tsx), so this fallback is never hit today - but it stays
+  // locale-aware rather than a bare "FAQ" so a future TR caller that omits
+  // it doesn't get English copy on a TR route.
+  const fallbackTitle = lang === "en" ? "FAQ" : "Sık sorulan sorular";
   return (
     <section className="bg-paper-soft py-24 md:py-32">
       <div className="altor-container max-w-2xl">
         <Reveal>
-          <FaqAccordion title={c.faqTitle ?? "FAQ"} items={c.faq} />
+          <FaqAccordion title={c.faqTitle ?? fallbackTitle} items={c.faq} />
         </Reveal>
       </div>
     </section>
@@ -246,7 +251,7 @@ export default function SkillProductPage({ lang, content }: { lang: Lang; conten
         <WhatItDoes c={content} />
         <HowItWorks c={content} />
         <Install c={content} />
-        <Faq c={content} />
+        <Faq c={content} lang={lang} />
         <Related c={content} />
         <FinalCta t={t} />
       </main>

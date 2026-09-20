@@ -553,6 +553,49 @@
     "productionReady": true
   },
   {
+    "id": "ACQ-287",
+    "slug": "checkout-abandonment",
+    "category": "acquisition",
+    "primaryStructure": "self-contained",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "multi-exit"
+    ],
+    "complexityTier": "complex",
+    "complexityScore": 63,
+    "nodeCount": 16,
+    "edgeCount": 21,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
+    "id": "ACQ-288",
+    "slug": "cart-abandonment",
+    "category": "acquisition",
+    "primaryStructure": "mixed-termination",
+    "behaviors": [
+      "backward-edge",
+      "wait-timeout",
+      "cross-journey-handoff",
+      "multi-exit"
+    ],
+    "complexityTier": "extreme",
+    "complexityScore": 96,
+    "nodeCount": 22,
+    "edgeCount": 30,
+    "hasTrueCycle": false,
+    "semanticReady": true,
+    "graphValid": true,
+    "renderContractSupported": true,
+    "contentComplete": true,
+    "productionReady": true
+  },
+  {
     "id": "ACT-11",
     "slug": "onboarding-route-selection",
     "category": "activation",

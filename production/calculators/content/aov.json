@@ -118,5 +118,50 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept existing definition/formula/interpretation prose and both original common-mistakes items. Added worked-example, 'what AOV actually tells you' metric-specific section (order-level vs customer-level, links to LTV), related calculators, and 5-question FAQ (all 100-150 words) including AOV vs LTV. No universal 'good AOV' benchmark stated. External source: CFI's Average Order Value page, verified live (revenue/orders formula confirmed verbatim). Related calculators verified live: revenue-per-visitor, ltv, gross-margin. No separate AOV-vs-LTV comparison-note added - the metric-specific section already covers that boundary, avoiding a redundant section."
+  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept existing definition/formula/interpretation prose and both original common-mistakes items. Added worked-example, 'what AOV actually tells you' metric-specific section (order-level vs customer-level, links to LTV), related calculators, and 5-question FAQ (all 100-150 words) including AOV vs LTV. No universal 'good AOV' benchmark stated. External source: CFI's Average Order Value page, verified live (revenue/orders formula confirmed verbatim). Related calculators verified live: revenue-per-visitor, ltv, gross-margin. No separate AOV-vs-LTV comparison-note added - the metric-specific section already covers that boundary, avoiding a redundant section.",
+  "tr": {
+    "heroTitle": "AOV Hesaplayıcısı",
+    "page": {
+      "tagline": "Bir müşterinin tamamlanan bir sipariş başına ortalama harcadığı tutarı gör.",
+      "meaning": [
+        "AOV, satın alma davranışının tek bir boyutunu tanımlar: ortalama tamamlanan siparişin ne kadar gelir ürettiğini. Sipariş düzeyinde bir metriktir, müşteri düzeyinde değil; birinin ne sıklıkla sipariş verdiği veya tüm ilişkinin ne değer ürettiği hakkında hiçbir şey söylemez.",
+        "Daha yüksek bir AOV otomatik olarak daha kârlı bir sipariş demek değildir, çünkü içeriğine bağlıdır. Düşük marjlı bir ek ürünle şişirilmiş bir sipariş AOV'yi yükseltirken kârı neredeyse hiç oynatmaz; yüksek marjlı ürünlerden oluşan daha küçük bir sepet, indirimli stokla dolu daha büyük bir sepetten daha değerli olabilir."
+      ],
+      "takeaway": "AOV bir gelir metriğidir. Daha büyük bir sipariş mutlaka daha iyi bir sipariş değildir.",
+      "whenToUse": "Merchandising, paketleme, fiyatlama veya kargo eşiği değişikliklerinin sepet büyüklüğüne etkisini ölçerken kullanın. Sabit bir gelir tanımına karşı zaman içinde okuyun, tek bir sayı olarak değil.",
+      "misleads": "Dönemler arasında brüt ve net geliri karıştırmak, davranışta hiçbir değişiklik olmadan AOV'yi kaydırır. Bir yükselişi, marjın onunla birlikte hareket edip etmediğini kontrol etmeden iyi haber gibi okumak da aynı hataya düşer.",
+      "workedExample": "toplam gelir ÷ sipariş → $45.000 ÷ 900 = $50,00"
+    },
+    "faq": [
+      {
+        "id": "what-is-aov",
+        "q": "AOV nedir?",
+        "a": "AOV (ortalama sipariş değeri), bir işletmenin tamamlanan sipariş başına topladığı ortalama gelirdir; aynı dönemdeki toplam gelirin sipariş sayısına bölünmesiyle hesaplanır. 900 sipariş üzerinden 45.000 dolarlık bir gelir dönemi, 50 dolarlık bir AOV verir. Ortalama sepet büyüklüğü veya sipariş başına gelir olarak da bilinir; farklı isimler altında aynı hesaplamadır. AOV yalnızca sipariş düzeyinde geliri tanımlar; kârı, müşteri değerini veya bir müşterinin ne sıklıkla satın aldığını ölçmez. Ortalama işlemin zaman içinde büyüyüp küçülmediğini takip etmek, ya da kanalları, kampanyaları ve segmentleri kıyaslamak için kullanılır."
+      },
+      {
+        "id": "how-to-calculate-aov",
+        "q": "AOV nasıl hesaplanır?",
+        "a": "Toplam geliri sipariş sayısına bölün: AOV = Gelir ÷ Sipariş. 900 siparişten gelen 45.000 dolarlık gelir, 45.000 ÷ 900 = 50,00 dolar verir. İki rakam da aynı dönemden ve aynı sipariş tanımından gelmeli: vergi veya kargoyu içeren bir gelirin, içermeyen bir sipariş sayısına bölünmesi (ya da tam tersi), dönemler arasında gerçekten kıyaslanabilir olmayan bir sayı üretir. İade edilen ve iptal edilen siparişler en sık karşılaşılan tutarsızlıktır: bunların hem gelire hem sipariş toplamına dahil olup olmayacağına bir kere karar verin ve AOV her hesaplandığında aynı kuralı uygulayın; böylece dönemden döneme değişimler, muhasebe uygulamasındaki bir değişimi değil davranıştaki gerçek bir kaymayı yansıtır."
+      },
+      {
+        "id": "aov-vs-basket-size",
+        "q": "Ortalama sepet büyüklüğü AOV ile aynı şey mi?",
+        "a": "'Ortalama sepet büyüklüğü' ve 'sipariş başına gelir', platforma, sektöre veya bölgeye bağlı olarak farklı isimler altında AOV ile aynı hesaplamadır (toplam gelirin sipariş sayısına bölünmesi). E-ticaret platformları genelde 'ortalama sepet büyüklüğü' der; B2B ve abonelik raporları daha çok 'sipariş başına gelir' der. Etiket formülde hiçbir şeyi değiştirmez. Kontrol edilmesi gereken, iade, vergi ve kargonun diğer AOV rakamlarınızla aynı şekilde ele alınıp alınmadığıdır."
+      },
+      {
+        "id": "aov-vs-ltv-faq",
+        "q": "AOV, LTV'den nasıl farklıdır?",
+        "a": "AOV tek bir tamamlanmış siparişten gelen ortalama geliri ölçer. LTV (yaşam boyu değer) ise bir müşterinin işletmeyle tüm ilişkisi boyunca verdiği her siparişte ürettiği toplam değeri ölçer. Her ay sipariş veren, mütevazı bir AOV'ye sahip bir müşteri, LTV açısından yalnızca bir kez sipariş verip bir daha dönmeyen yüksek AOV'li bir müşteriden çok daha değerli olabilir. AOV tek başına bu iki müşteriyi ayırt edemez, çünkü yalnızca tek bir işlem içinde ne olduğunu tanımlar, müşterinin sonrasında kaç işlem daha yapacağını değil. İki metrik birbirinin yerine geçmez, birbirini tamamlar: AOV bazı LTV modellerine birden fazla girdiden biri olarak dahil olur, ama yaşam boyu değeri doğrudan ölçmenin yerini tutmaz."
+      },
+      {
+        "id": "good-aov",
+        "q": "İyi bir AOV kaçtır?",
+        "a": "Evrensel olarak iyi bir AOV yoktur. Fiyat noktasına, ürün kategorisine ve sepet içeriğine bağlıdır; bunlar örneğin hızlı moda bir perakendeci ile bir mobilya mağazası arasında muazzam ölçüde değişir. 50 dolarlık bir AOV, bir kategori için sıradanken, çok daha ucuz ürünler satan başka bir kategori için olağanüstü bir uç değer olabilir. AOV kârlılık konusunda da sessizdir: düşük marjlı ek ürünler üzerine kurulu yükselen bir AOV, daha düşük ama daha yüksek marjlı bir AOV'den işletmeyi daha kötü durumda bırakabilir. AOV'yi yayımlanmış bir kıyaslama yerine kendi geçmişinize karşı takip edin: aynı katalog ve müşteri tabanı için bir değişim bir şey ifade eder; ilgisiz bir sektör ortalamasına karşı bir fark genelde etmez."
+      }
+    ],
+    "seo": {
+      "seoTitle": "AOV Hesaplayıcısı",
+      "seoDescription": "Gelir ve siparişten ortalama sipariş değerini hesaplayın; aynı formül ortalama sepet büyüklüğü ve sipariş başına gelir için de geçerlidir."
+    }
+  }
 }

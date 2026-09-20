@@ -46,7 +46,9 @@ const routes = [
   ...JOURNEY_ROWS.map((j) => `/lab/journeys/${j.slug}`),
   // Presets are their own pages: a parent journey with the preset applied.
   ...PRESET_ROWS.map((p) => `/lab/journeys/${p.slug}`),
-  // Blog posts are EN-only (see lib/blog.ts) - no /tr/blog/{slug} entries.
+  // Every blog post is real in both languages (lib/blog.ts /
+  // lib/blog-posts.ts) - each gets both a /blog and a /tr/blog entry
+  // through the normal bilingual path below.
   ...getAllBlogPosts("en").map((p) => `/blog/${p.slug}`),
 ];
 
@@ -54,18 +56,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
   // Each route is published in both languages: English at the root, Turkish
-  // under /tr, cross-referenced with hreflang alternates - except individual
-  // blog posts, which are EN-only (see lib/blog.ts) and have no real /tr
-  // counterpart to list.
+  // under /tr, cross-referenced with hreflang alternates - blog posts
+  // included now that every post has a real /tr counterpart.
   return routes.flatMap((path) => {
     const en = `${SITE_URL}${path}`;
     const priority = path === "" ? 1 : path.startsWith("/lab/journeys/") ? 0.4 : 0.7;
-    const isEnOnlyPost = path.startsWith("/blog/");
-
-    if (isEnOnlyPost) {
-      return [{ url: en, lastModified: now, changeFrequency: "monthly" as const, priority }];
-    }
-
     const tr = `${SITE_URL}/tr${path}`;
     const alternates = { languages: { en, tr } };
     return [

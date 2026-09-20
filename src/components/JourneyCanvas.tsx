@@ -1,10 +1,11 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Maximize2, Minus, Plus, RotateCcw } from "lucide-react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { ArrowRightLeft, LogOut, Maximize2, Minus, Plus, RotateCcw, Split, Workflow } from "lucide-react";
 
 import type { FlowNode } from "@/lib/canonical-view";
-import { elbowPath, layoutJourneyCanvas, type LaidOutEdge } from "@/lib/journey-canvas-layout";
+import type { ChannelId } from "@/canonical/types";
+import { collapsibleRouters, edgePath, type CanvasLayout, type LaidOutEdge } from "@/lib/journey-canvas-layout";
 import {
   ActionCard,
   ConditionCard,
@@ -80,15 +81,33 @@ function clamp(v: number, min: number, max: number) {
 
 export default function JourneyCanvas({
   nodes,
+  layout,
   basePath,
   labels,
   caption,
   messageLabels = [],
   humanLabels = [],
+  mode = "figure",
+  shape = [],
 }: {
   nodes: readonly FlowNode[];
+  /** The graph as laid out by the server (`layoutJourneyCanvas`, ELK) -
+      the layout engine is asynchronous and server-only, so the client
+      island receives coordinates, never computes them. A laid-out node is
+      keyed by its `layoutId` (a shared exit is drawn once per parent) and
+      opens the detail panel by its `canonicalNodeId`. */
+  layout: CanvasLayout;
   basePath: string;
   labels: CanvasLabels;
+  /** The journey's shape in counts, one entry per kind present, for the
+      page canvas's legend. */
+  shape?: readonly { kind: "nodes" | "decisions" | "exits" | "handoffs"; label: string }[];
+  /** `figure` (default): the framed, scrolling plate inside a document.
+      `page`: the free canvas - fills whatever box it is given, pans by
+      dragging or wheel, zooms about the cursor with ctrl/pinch, the dot grid
+      moving with the world (Hulusi, 2026-09-13: "a full-page free canvas
+      like FigJam"). Same nodes, same edges, same detail panel. */
+  mode?: "figure" | "page";
   /** The figure's caption - the journey's own shape in counts, composed and
       localised by the server. Optional so a caller with nothing to say (the
       QA sweep route) gets a bare control bar rather than an empty line. */
@@ -97,17 +116,27 @@ export default function JourneyCanvas({
       and ordered by the server. Each is named only on the node kind it
       applies to; both default to none, so a caller with no channels to pass
       is a valid caller rather than a type error. */
-  messageLabels?: readonly string[];
-  humanLabels?: readonly string[];
+  messageLabels?: readonly { id: ChannelId; label: string }[];
+  humanLabels?: readonly { id: ChannelId; label: string }[];
 }) {
-  const layout = useMemo(() => layoutJourneyCanvas(nodes), [nodes]);
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
-  const actionSequence = useMemo(() => {
-    const map = new Map<string, number>();
-    let i = 0;
-    for (const n of nodes) if (n.kind === "action") map.set(n.id, ++i);
-    return map;
-  }, [nodes]);
+  const actionSequence = useMemo(() => actionSequenceOf(nodes), [nodes]);
+  /* The channel-selecting action a message/human card absorbed on the
+     canvas (see journey-canvas-layout.ts's own collapse - same detection,
+     reused rather than re-derived) - still a real FlowNode, just not laid
+     out as its own box. Keyed by the MESSAGE's id, so opening that card can
+     hand the detail panel the router's own full priority/fallback prose
+     alongside its own, which is the "still reachable from the detail
+     panel" half of the collapse. */
+  const collapsedRouterOf = useMemo(() => {
+    const collapsed = collapsibleRouters(nodes, byId);
+    const inverse = new Map<string, FlowNode>();
+    for (const [routerId, messageId] of collapsed) {
+      const router = byId.get(routerId);
+      if (router) inverse.set(messageId, router);
+    }
+    return inverse;
+  }, [nodes, byId]);
 
   /* Computed during render from `layout`, which is deterministic for a given
      journey - so the server and the first client paint agree on the frame's
@@ -122,6 +151,7 @@ export default function JourneyCanvas({
   const [zoom, setZoom] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedNode = selectedId ? (byId.get(selectedId) ?? null) : null;
+  const selectedRouter = selectedId ? (collapsedRouterOf.get(selectedId) ?? null) : null;
 
   const isMobile = () => (containerRef.current?.clientWidth ?? 0) < MOBILE_BREAKPOINT;
 
@@ -227,6 +257,38 @@ export default function JourneyCanvas({
     });
   };
 
+  /* The world: edges and node cards in layout coordinates. Both modes scale
+     this same block; only the camera around it differs - and the Info
+     page's preview (ui/JourneyMiniMap.tsx) renders the very same block,
+     so the preview IS the canvas, not a drawing of it. */
+  const world: ReactNode = (
+    <JourneyWorld
+      layout={layout}
+      actionSequence={actionSequence}
+      labels={labels}
+      messageLabels={messageLabels}
+      humanLabels={humanLabels}
+      onOpen={(canonicalNodeId) => setSelectedId(canonicalNodeId)}
+      focusId={selectedId}
+    />
+  );
+
+  if (mode === "page") {
+    return (
+      <FreeCanvas
+        layout={layout}
+        world={world}
+        labels={labels}
+        caption={caption}
+        shape={shape}
+        basePath={basePath}
+        selectedNode={selectedNode}
+        selectedRouter={selectedRouter}
+        onClose={() => setSelectedId(null)}
+      />
+    );
+  }
+
   return (
     /* The figure: one framed plate carrying the graph, with a caption bar
        ruled off underneath it. The stage below is its own positioning
@@ -237,7 +299,7 @@ export default function JourneyCanvas({
         <div
           ref={containerRef}
           style={{ height: frameHeight }}
-          className="altor-dot-grid relative max-h-[78vh] min-h-[380px] w-full overflow-auto bg-paper-soft"
+          className="relative max-h-[78vh] min-h-[380px] w-full overflow-auto bg-paper-soft"
         >
           {/* The scroll spacer, sized to the graph's own scaled bounds so the
               scrollable area always matches what is actually drawn. Centred
@@ -256,57 +318,7 @@ export default function JourneyCanvas({
               style={{ width: layout.width, height: layout.height, transform: `scale(${zoom})`, transformOrigin: "top left" }}
               className="relative"
             >
-              <svg
-                width={layout.width}
-                height={layout.height}
-                className="pointer-events-none absolute inset-0"
-                aria-hidden
-              >
-                <defs>
-                  <marker id="journey-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-                    <path d="M0,0 L7,3.5 L0,7 Z" className="fill-ink-300" />
-                  </marker>
-                </defs>
-                {layout.edges.map((e) => (
-                  <EdgeShape key={e.id} edge={e} />
-                ))}
-              </svg>
-
-              {layout.nodes.map((l) => {
-                const n = l.node;
-                const onOpen = () => setSelectedId(n.id);
-                return (
-                  <div
-                    key={n.id}
-                    data-canvas-node-id={n.id}
-                    data-canvas-node-kind={n.kind}
-                    style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
-                    className="absolute"
-                  >
-                    {n.kind === "trigger" ? (
-                      <TriggerCard node={n} onOpen={onOpen} entryLabel={labels.entry} />
-                    ) : n.kind === "action" ? (
-                      <ActionCard
-                        node={n}
-                        sequence={actionSequence.get(n.id) ?? 1}
-                        onOpen={onOpen}
-                        messageLabels={messageLabels}
-                        humanLabels={humanLabels}
-                      />
-                    ) : n.kind === "condition" ? (
-                      <ConditionCard node={n} onOpen={onOpen} />
-                    ) : n.kind === "wait" ? (
-                      <WaitCard node={n} onOpen={onOpen} />
-                    ) : n.kind === "handoff" ? (
-                      <HandoffCard node={n} onOpen={onOpen} />
-                    ) : n.kind === "outcome" ? (
-                      <OutcomeCard node={n} onOpen={onOpen} />
-                    ) : (
-                      <ExitCard node={n} onOpen={onOpen} terminalLabel={labels.terminal} />
-                    )}
-                  </div>
-                );
-              })}
+              {world}
             </div>
           </div>
         </div>
@@ -317,7 +329,7 @@ export default function JourneyCanvas({
             changed that element's own scrollable bounds, and the browser
             committed the clamped value). Positioned against the stage that
             wraps them both, it still overlays exactly the same visible area. */}
-        <NodeDetailPanel node={selectedNode} basePath={basePath} labels={labels} onClose={() => setSelectedId(null)} />
+        <NodeDetailPanel node={selectedNode} collapsedRouter={selectedRouter} basePath={basePath} labels={labels} onClose={() => setSelectedId(null)} />
       </div>
 
       {/* The caption bar. It states what the figure contains and carries the
@@ -373,11 +385,156 @@ export default function JourneyCanvas({
   );
 }
 
-function EdgeShape({ edge }: { edge: LaidOutEdge }) {
-  const d = elbowPath(edge.x1, edge.y1, edge.x2, edge.y2, edge.labelY, edge.detourX);
+/** The graph itself - the edges as one SVG and a positioned card per laid-out
+    node - in layout coordinates, with no camera. Exported so the Info page's
+    preview can show the real thing. */
+export function JourneyWorld({
+  layout,
+  actionSequence,
+  labels,
+  messageLabels = [],
+  humanLabels = [],
+  onOpen,
+  focusId = null,
+}: {
+  layout: CanvasLayout;
+  actionSequence: ReadonlyMap<string, number>;
+  labels: CanvasLabels;
+  messageLabels?: readonly { id: ChannelId; label: string }[];
+  humanLabels?: readonly { id: ChannelId; label: string }[];
+  onOpen: (canonicalNodeId: string) => void;
+  /** A node whose routes stay lit while its detail panel is open. */
+  focusId?: string | null;
+}) {
+  /* TRACING (Hulusi, 2026-09-20: "two lines come in and we cannot
+     understand which one goes where"): resting the pointer on a card - or
+     opening it - lights every route into and out of it in brand blue and
+     sits the rest back, so a line is followed by pointing at either end. */
+  const [hoverId, setHoverId] = useState<string | null>(null);
+  const focus = hoverId ?? focusId;
+  const hi = (e: LaidOutEdge) => (focus ? (e.canonicalFrom === focus || e.canonicalTo === focus ? "on" : "off") : undefined);
   return (
-    <g data-canvas-edge-from={edge.from} data-canvas-edge-to={edge.to} data-canvas-edge-label={edge.label ?? ""}>
-      <path d={d} fill="none" className="stroke-ink-200" strokeWidth={1.4} markerEnd="url(#journey-arrow)" />
+    <>
+      <svg
+        width={layout.width}
+        height={layout.height}
+        className="pointer-events-none absolute inset-0"
+        aria-hidden
+      >
+        {layout.edges.map((e) => (
+          <EdgeShape key={e.id} edge={e} hi={hi(e)} />
+        ))}
+      </svg>
+
+      {layout.nodes.map((l) => {
+        const n = l.node;
+        const open = () => onOpen(l.canonicalNodeId);
+        return (
+          <div
+            key={l.layoutId}
+            data-canvas-node-id={n.id}
+            data-canvas-layout-id={l.layoutId}
+            data-canvas-node-kind={n.kind}
+            style={{ left: l.x - l.width / 2, top: l.y, width: l.width, height: l.height }}
+            className="absolute"
+            onPointerEnter={() => setHoverId(l.canonicalNodeId)}
+            onPointerLeave={() => setHoverId(null)}
+          >
+            {n.kind === "trigger" ? (
+              <TriggerCard node={n} onOpen={open} entryLabel={labels.entry} lang={labels.lang} />
+            ) : n.kind === "action" ? (
+              <ActionCard
+                node={n}
+                sequence={actionSequence.get(n.id) ?? 1}
+                onOpen={open}
+                messageLabels={messageLabels}
+                humanLabels={humanLabels}
+                lang={labels.lang}
+              />
+            ) : n.kind === "condition" ? (
+              <ConditionCard node={n} onOpen={open} lang={labels.lang} />
+            ) : n.kind === "wait" ? (
+              <WaitCard node={n} onOpen={open} />
+            ) : n.kind === "handoff" ? (
+              <HandoffCard node={n} onOpen={open} lang={labels.lang} />
+            ) : n.kind === "outcome" ? (
+              <OutcomeCard node={n} onOpen={open} lang={labels.lang} />
+            ) : (
+              <ExitCard node={n} onOpen={open} terminalLabel={labels.terminal} lang={labels.lang} />
+            )}
+          </div>
+        );
+      })}
+
+      {/* The arrowheads, on a layer above the cards: a route's end used to
+          hide under the card it entered. */}
+      <svg width={layout.width} height={layout.height} className="pointer-events-none absolute inset-0 z-10" aria-hidden>
+        {layout.edges.map((e) => (
+          <EdgeArrow key={e.id} edge={e} hi={hi(e)} />
+        ))}
+      </svg>
+    </>
+  );
+}
+
+/** The action numbering the cards show ("Message · 03"): the order the
+    journey lists its actions in. Shared with the preview. */
+export function actionSequenceOf(nodes: readonly FlowNode[]): ReadonlyMap<string, number> {
+  const map = new Map<string, number>();
+  let i = 0;
+  for (const n of nodes) if (n.kind === "action") map.set(n.id, ++i);
+  return map;
+}
+
+/* An orthogonal route drawn with rounded bends (Hulusi, 2026-09-20: "the
+   lines are so sharp"): every interior corner becomes a quadratic arc of
+   up to 12px, shortened where a segment is too short to carry it. */
+const BEND = 12;
+function roundedEdgePath(points: readonly { x: number; y: number }[]): string {
+  if (points.length < 3) return edgePath(points);
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length - 1; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    const c = points[i + 1];
+    const inLen = Math.hypot(b.x - a.x, b.y - a.y);
+    const outLen = Math.hypot(c.x - b.x, c.y - b.y);
+    const r = Math.min(BEND, inLen / 2, outLen / 2);
+    if (r < 1 || inLen === 0 || outLen === 0) {
+      d += ` L ${b.x} ${b.y}`;
+      continue;
+    }
+    const p1 = { x: b.x - ((b.x - a.x) / inLen) * r, y: b.y - ((b.y - a.y) / inLen) * r };
+    const p2 = { x: b.x + ((c.x - b.x) / outLen) * r, y: b.y + ((c.y - b.y) / outLen) * r };
+    d += ` L ${p1.x} ${p1.y} Q ${b.x} ${b.y} ${p2.x} ${p2.y}`;
+  }
+  const last = points[points.length - 1];
+  return `${d} L ${last.x} ${last.y}`;
+}
+
+function EdgeShape({ edge, hi }: { edge: LaidOutEdge; hi?: "on" | "off" }) {
+  const d = roundedEdgePath(edge.points);
+  return (
+    <g
+      data-canvas-edge-from={edge.canonicalFrom}
+      data-canvas-edge-to={edge.canonicalTo}
+      data-canvas-edge-label={edge.label ?? ""}
+      data-hi={hi}
+      className="group transition-opacity duration-[var(--duration-fast)] data-[hi=off]:opacity-25"
+    >
+      {/* The halo: a ground-coloured stroke under the line, so where two
+          routes cross the one drawn later visibly passes over the other
+          instead of merging into it ("I am not sure where it is going"). */}
+      <path d={d} fill="none" className="stroke-paper-soft" strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      <path
+        d={d}
+        fill="none"
+        className="stroke-ink-300 transition-[stroke] duration-[var(--duration-fast)] group-data-[hi=on]:stroke-primary-600"
+        strokeWidth={hi === "on" ? 2.5 : 1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
       {edge.label ? (
         <foreignObject
           x={edge.labelX - 100}
@@ -386,13 +543,285 @@ function EdgeShape({ edge }: { edge: LaidOutEdge }) {
           height={24}
           className="overflow-visible"
         >
-          <div className="flex justify-center">
-            <span className="rounded-full border border-badge-border bg-paper px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap text-badge-ink">
+          <div className="flex justify-center [[data-lod=far]_&]:hidden">
+            <span className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-medium whitespace-nowrap text-ink-700 ring-1 ring-ink-950/[0.08] group-data-[hi=on]:text-primary-700 group-data-[hi=on]:ring-primary-300">
               {edge.label}
             </span>
           </div>
         </foreignObject>
       ) : null}
     </g>
+  );
+}
+
+/** The arrowhead alone, at a route's end, pointed along its last segment -
+    drawn on the layer above the cards. */
+function EdgeArrow({ edge, hi }: { edge: LaidOutEdge; hi?: "on" | "off" }) {
+  const pts = edge.points;
+  if (pts.length < 2) return null;
+  const end = pts[pts.length - 1];
+  const prev = pts[pts.length - 2];
+  const angle = (Math.atan2(end.y - prev.y, end.x - prev.x) * 180) / Math.PI;
+  return (
+    <g data-canvas-edge-from={edge.canonicalFrom} data-canvas-edge-to={edge.canonicalTo} data-hi={hi} className="group transition-opacity duration-[var(--duration-fast)] data-[hi=off]:opacity-25">
+      <path
+        d="M -8 -4.5 L 1 0 L -8 4.5 Z"
+        transform={`translate(${end.x} ${end.y}) rotate(${angle})`}
+        className="fill-ink-400 transition-[fill] duration-[var(--duration-fast)] group-data-[hi=on]:fill-primary-600"
+      />
+    </g>
+  );
+}
+
+
+/* THE FREE CANVAS. The world layer carries one transform - translate then
+   scale - and the camera lives in a ref, written straight to the DOM on
+   every move; React state changes only for the zoom readout. The dot grid
+   sits on the stage's own background but moves and scales with the world,
+   which is what makes it read as an endless sheet rather than a framed
+   plate. Drag anywhere to pan (a drag over a card pans too, and swallows
+   the click that would have opened it); the wheel pans, ctrl/meta + wheel
+   - which is how a trackpad pinch arrives - zooms about the cursor. Fit is
+   the default view: the whole graph, centred, with breathing room. */
+const LEGEND = {
+  nodes: { icon: <Workflow aria-hidden />, tint: "bg-paper-soft text-ink-700" },
+  decisions: { icon: <Split aria-hidden />, tint: "bg-violet-50 text-violet-700" },
+  exits: { icon: <LogOut aria-hidden />, tint: "bg-paper-soft text-ink-500" },
+  handoffs: { icon: <ArrowRightLeft aria-hidden />, tint: "bg-indigo-50 text-indigo-700" },
+} as const;
+
+const DOT_GAP = 24;
+const PAGE_MIN_ZOOM = 0.2;
+const PAGE_MAX_ZOOM = 2;
+
+function FreeCanvas({
+  layout,
+  world,
+  labels,
+  caption,
+  shape,
+  basePath,
+  selectedNode,
+  selectedRouter,
+  onClose,
+}: {
+  layout: CanvasLayout;
+  world: ReactNode;
+  labels: CanvasLabels;
+  caption?: string;
+  shape: readonly { kind: "nodes" | "decisions" | "exits" | "handoffs"; label: string }[];
+  basePath: string;
+  selectedNode: FlowNode | null;
+  selectedRouter: FlowNode | null;
+  onClose: () => void;
+}) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const worldRef = useRef<HTMLDivElement>(null);
+  const camera = useRef({ x: 0, y: 0, z: 1 });
+  const [zoomPct, setZoomPct] = useState(100);
+
+  const apply = () => {
+    const stage = stageRef.current;
+    const w = worldRef.current;
+    const { x, y, z } = camera.current;
+    if (w) {
+      w.style.transform = `translate(${x}px, ${y}px) scale(${z})`;
+      w.dataset.lod = z < 0.45 ? "far" : "near";
+    }
+    if (stage) {
+      // FigJam's sheet: a fine dot every 24 world px, scaling and moving
+      // with the world (Hulusi, 2026-09-20: "let's add dots like FigJam").
+      // As the world zooms out the grid coarsens by powers of two so the
+      // dots never crowd below ~18px on screen ("when we zoom out the dots
+      // don't adapt, it looks so dense"), and they fade a step at the
+      // coarser levels so the sheet stays quieter than the drawing.
+      let gap = DOT_GAP;
+      while (gap * z < 18) gap *= 2;
+      const level = Math.log2(gap / DOT_GAP);
+      stage.style.backgroundSize = `${gap * z}px ${gap * z}px`;
+      stage.style.backgroundPosition = `${x}px ${y}px`;
+      stage.style.backgroundImage = `radial-gradient(circle, rgb(10 16 32 / ${(0.14 - level * 0.03).toFixed(2)}) 1.1px, transparent 1.6px)`;
+    }
+    setZoomPct(Math.round(z * 100));
+  };
+
+  /* Fit: the whole graph, centred, with breathing room - the "show me
+     everything" press. */
+  const fit = () => {
+    const stage = stageRef.current;
+    if (!stage || !stage.clientWidth) return;
+    const pad = 64;
+    const z = clamp(Math.min((stage.clientWidth - pad * 2) / layout.width, (stage.clientHeight - pad * 2) / layout.height, 1), PAGE_MIN_ZOOM, PAGE_MAX_ZOOM);
+    camera.current = {
+      x: (stage.clientWidth - layout.width * z) / 2,
+      y: Math.max(pad, (stage.clientHeight - layout.height * z) / 2),
+      z,
+    };
+    apply();
+  };
+
+  /* The default view, and Reset: a READABLE zoom with the entry card at the
+     top centre, the rest reachable by panning - a fit-to-contain of a tall
+     graph lands at 20% and reads as confetti. Phones get the figure mode's
+     own fixed zoom; desktops a fit floored well above unreadable. */
+  const home = () => {
+    const stage = stageRef.current;
+    if (!stage || !stage.clientWidth) return;
+    const mobile = stage.clientWidth < MOBILE_BREAKPOINT;
+    const fitZ = Math.min((stage.clientWidth - 48) / layout.width, (stage.clientHeight - 48) / layout.height);
+    const z = mobile ? MOBILE_ZOOM : clamp(fitZ, 0.6, 1);
+    const entry = layout.nodes.find((l) => l.node.isEntry) ?? layout.nodes[0];
+    // 6rem down: clear of the floating bar the page shell lays over the top.
+    camera.current = {
+      x: stage.clientWidth / 2 - entry.x * z,
+      y: 96 - entry.y * z,
+      z,
+    };
+    apply();
+  };
+
+  const zoomAt = (factor: number, px: number, py: number) => {
+    const { x, y, z } = camera.current;
+    const next = clamp(z * factor, PAGE_MIN_ZOOM, PAGE_MAX_ZOOM);
+    const k = next / z;
+    camera.current = { x: px - (px - x) * k, y: py - (py - y) * k, z: next };
+    apply();
+  };
+
+  const zoomCentre = (factor: number) => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    zoomAt(factor, stage.clientWidth / 2, stage.clientHeight / 2);
+  };
+
+  useLayoutEffect(() => {
+    const raf = requestAnimationFrame(home);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layout]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    /* The canvas lives on a tab: at mount it may be `hidden` (zero size),
+       so the first real size it gets is when the tab opens - home then. */
+    let hadSize = stage.clientWidth > 0;
+    const ro = new ResizeObserver(() => {
+      const has = stage.clientWidth > 0;
+      if (has && !hadSize) home();
+      hadSize = has;
+    });
+    ro.observe(stage);
+    let dragging = false;
+    let moved = false;
+    let lastX = 0;
+    let lastY = 0;
+    const onDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      moved = false;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add("cursor-grabbing");
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      camera.current = { ...camera.current, x: camera.current.x + dx, y: camera.current.y + dy };
+      apply();
+    };
+    const onUp = () => {
+      dragging = false;
+      stage.classList.remove("cursor-grabbing");
+    };
+    // A drag that ends over a card must not open it.
+    const onClick = (e: MouseEvent) => {
+      if (moved) {
+        e.stopPropagation();
+        e.preventDefault();
+        moved = false;
+      }
+    };
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      if (e.ctrlKey || e.metaKey) {
+        zoomAt(Math.exp(-e.deltaY * 0.01), e.clientX - rect.left, e.clientY - rect.top);
+      } else {
+        camera.current = { ...camera.current, x: camera.current.x - e.deltaX, y: camera.current.y - e.deltaY };
+        apply();
+      }
+    };
+    const onResize = () => home();
+    stage.addEventListener("pointerdown", onDown);
+    stage.addEventListener("pointermove", onMove);
+    stage.addEventListener("pointerup", onUp);
+    stage.addEventListener("pointercancel", onUp);
+    stage.addEventListener("click", onClick, true);
+    stage.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("resize", onResize);
+    return () => {
+      ro.disconnect();
+      stage.removeEventListener("pointerdown", onDown);
+      stage.removeEventListener("pointermove", onMove);
+      stage.removeEventListener("pointerup", onUp);
+      stage.removeEventListener("pointercancel", onUp);
+      stage.removeEventListener("click", onClick, true);
+      stage.removeEventListener("wheel", onWheel);
+      window.removeEventListener("resize", onResize);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layout]);
+
+  const control = "grid size-9 place-items-center rounded-full text-ink-600 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft hover:text-ink-950";
+
+  return (
+    <div className="relative h-full w-full">
+      <div
+        ref={stageRef}
+        style={{ backgroundImage: "radial-gradient(circle, rgb(10 16 32 / 0.14) 1.1px, transparent 1.6px)" }}
+        className="absolute inset-0 cursor-grab touch-none overflow-hidden bg-paper-soft select-none"
+        aria-label={caption}
+      >
+        <div ref={worldRef} style={{ width: layout.width, height: layout.height, transformOrigin: "0 0" }} className="absolute top-0 left-0 will-change-transform">
+          {world}
+        </div>
+      </div>
+      <NodeDetailPanel node={selectedNode} collapsedRouter={selectedRouter} basePath={basePath} labels={labels} onClose={onClose} />
+      {/* The legend: the journey's shape as icon tiles with counts, in the
+          kinds' own colours - a key to the drawing, centred at the bottom
+          where a map keeps its key. */}
+      {shape.length > 0 && (
+        <ul className="pointer-events-none absolute bottom-4 left-1/2 flex -translate-x-1/2 list-none items-center gap-1 rounded-full bg-paper/95 p-1 pr-3 shadow-[0_12px_30px_-16px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06]">
+          {shape.map((item) => (
+            <li key={item.kind} className="flex items-center gap-1.5 pl-1 text-sm text-ink-700 tabular-nums">
+              <span aria-hidden className={`grid size-7 place-items-center rounded-full ${LEGEND[item.kind].tint} [&>svg]:size-3.5`}>{LEGEND[item.kind].icon}</span>
+              {item.label}
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="absolute right-4 bottom-4 flex items-center gap-0.5 rounded-full bg-paper/95 p-1 ring-1 ring-ink-950/[0.06] shadow-[0_12px_30px_-16px_rgb(10_16_32/0.35)]">
+        <button type="button" onClick={() => zoomCentre(1 / 1.25)} aria-label={labels.zoomOut} className={control}>
+          <Minus aria-hidden className="size-4" />
+        </button>
+        <span className="min-w-[3.25rem] text-center text-sm text-ink-600 tabular-nums">{zoomPct}%</span>
+        <button type="button" onClick={() => zoomCentre(1.25)} aria-label={labels.zoomIn} className={control}>
+          <Plus aria-hidden className="size-4" />
+        </button>
+        <span aria-hidden className="mx-1 h-5 w-px bg-line" />
+        <button type="button" onClick={fit} aria-label={labels.fitToView} className={control}>
+          <Maximize2 aria-hidden className="size-4" />
+        </button>
+        <button type="button" onClick={home} aria-label={labels.reset} className={control}>
+          <RotateCcw aria-hidden className="size-4" />
+        </button>
+      </div>
+    </div>
   );
 }

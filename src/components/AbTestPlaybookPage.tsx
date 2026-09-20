@@ -1,9 +1,11 @@
 import Link from "next/link";
 
+import { categoryLabel, setupLabel, surfaceLabel } from "@/components/ui/AbTestVisuals";
 import { VariableDiagram } from "@/components/ui/VariableDiagram";
 import { abPlaybookText, abSetupMode, abVariableKind } from "@/lib/ab-test-playbook";
 import type { AbVariableKind } from "@/lib/ab-test-playbook";
-import { surfaceLabel, type AbTestDetail } from "@/lib/ab-test-view";
+import type { AbTestDetail } from "@/lib/ab-test-view";
+import { primaryKpiLabel } from "@/lib/ab-test-view";
 
 /* The A/B test detail page, built to the AB001_Detail_Page_v5 reference.
 
@@ -43,7 +45,7 @@ const T = {
     control: "Control",
     variant: "Variant",
     changed: "Changed",
-    surface: "Surface",
+    surface: "Page",
     testedElement: "Tested element",
     conceptNote:
       "This record defines the element to test, not a prescribed control and variant.",
@@ -51,7 +53,7 @@ const T = {
     howToRun: "How to run this test",
     primaryKpi: "Primary KPI",
     guardrailMetrics: "Guardrail metrics",
-    whatToTest: "What to test",
+    whatToTest: "What to watch during the test",
     neverDo: "Never do",
     reusableRule: "Reusable rule",
   },
@@ -64,7 +66,7 @@ const T = {
     control: "Kontrol",
     variant: "Varyant",
     changed: "Değişen",
-    surface: "Yüzey",
+    surface: "Sayfa",
     testedElement: "Test edilen öğe",
     conceptNote:
       "Bu kayıt test edilecek öğeyi tanımlar; hazır bir kontrol ve varyant önermez.",
@@ -72,7 +74,7 @@ const T = {
     howToRun: "Bu test nasıl yürütülür",
     primaryKpi: "Birincil KPI",
     guardrailMetrics: "Guardrail metrikleri",
-    whatToTest: "Test edilecekler",
+    whatToTest: "Test sırasında bakılacaklar",
     neverDo: "Yapılmaması gerekenler",
     reusableRule: "Yeniden kullanılabilir kural",
   },
@@ -128,7 +130,7 @@ export default function AbTestPlaybookPage({
             fields; the mockup's "CTA" segment came from the tested element,
             which already has its own cell in the spec strip below. */}
         <p className={RAIL}>
-          {test.id} · {test.category} · {test.differenceBehavior}
+          {test.id} · {categoryLabel(test.category, lang)} · {setupLabel(test.differenceBehavior, lang)}
         </p>
         <h1 className="mt-5 max-w-3xl text-h2 text-pretty text-ink-950">
           {test.question}
@@ -212,14 +214,14 @@ export default function AbTestPlaybookPage({
             </div>
             <div className="border-t border-line p-6 sm:border-t-0 sm:border-l sm:p-7">
               <p className={RAIL}>{t.surface}</p>
-              <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface)}</p>
+              <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface, lang)}</p>
             </div>
           </div>
         )}
         {mode === "concept" && (
           <div className="mt-10 border border-line-strong bg-paper p-6 sm:p-7">
             <p className={RAIL}>{t.surface}</p>
-            <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface)}</p>
+            <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface, lang)}</p>
           </div>
         )}
       </section>
@@ -245,7 +247,7 @@ export default function AbTestPlaybookPage({
           <RunCell>
             <p className={RAIL}>{t.primaryKpi}</p>
             <p className="mt-3.5 text-[clamp(1.5rem,1.2rem+1vw,2rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-ink-950">
-              {test.primaryKpi.label}
+              {primaryKpiLabel(test.primaryKpi.label, lang)}
             </p>
             <p className="mt-2 max-w-[40ch] text-sm leading-relaxed text-ink-600">
               {test.primaryKpi.explanation}

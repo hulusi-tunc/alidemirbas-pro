@@ -160,5 +160,51 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "Replaces the eight single-metric email calculators (open-rate, ctor, delivery-rate, bounce-rate-email, unsubscribe-rate, complaint-rate, list-growth-rate, revenue-per-recipient), whose content files were deleted with them. Every formula is carried over unchanged from those calculators' own catalog specs; the only rename is revenue-per-recipient's `emailsSent` input, which becomes `sent` because it was always the same quantity delivery-rate already asked for. Worked-example figures are internally consistent (delivered 9,800 + bounced 200 = sent 10,000) and each of the eight results was checked by hand against its formula. contentDepth is a DEPTH_OVERRIDES entry in _generate-seo-map.mjs, not the family heuristic's own answer: the rate-ratio family rule returns \"light\", which prohibits the FAQ and interpretation slots this page needs. seo.index/seo.follow are retained for accuracy but are no longer honoured at runtime - the site is noindex site-wide (see the root layouts)."
+  "qaNotes": "Replaces the eight single-metric email calculators (open-rate, ctor, delivery-rate, bounce-rate-email, unsubscribe-rate, complaint-rate, list-growth-rate, revenue-per-recipient), whose content files were deleted with them. Every formula is carried over unchanged from those calculators' own catalog specs; the only rename is revenue-per-recipient's `emailsSent` input, which becomes `sent` because it was always the same quantity delivery-rate already asked for. Worked-example figures are internally consistent (delivered 9,800 + bounced 200 = sent 10,000) and each of the eight results was checked by hand against its formula. contentDepth is a DEPTH_OVERRIDES entry in _generate-seo-map.mjs, not the family heuristic's own answer: the rate-ratio family rule returns \"light\", which prohibits the FAQ and interpretation slots this page needs. seo.index/seo.follow are retained for accuracy but are no longer honoured at runtime - the site is noindex site-wide (see the root layouts).",
+  "tr": {
+    "heroTitle": "E-posta Performansı Hesaplayıcısı",
+    "page": {
+      "tagline": "Tek bir gönderim setinden sekiz kampanya metriği.",
+      "meaning": [
+        "Sekiz metrik dört gruba ayrılır. Teslim edilebilirlik (Teslim Oranı ve Geri Dönüş Oranı) e-postanın ulaşıp ulaşmadığını sorar. Etkileşim (Açılma Oranı ve Açılmadan Tıklama Oranı) ulaştıktan sonra ne olduğunu sorar. Liste sağlığı (Abonelikten Çıkma, Şikayet ve Liste Büyüme Oranı) gönderimin size kitle açısından neye mal olduğunu sorar. Alıcı Başına Gelir ise bir e-postanın ne değer ürettiğini sorar.",
+        "Bu metrikler paydaları paylaşır; bir sayfada toplanmalarının nedeni de budur: teslim edilen sayısı dördünü, gönderilen sayısı üçünü besler. Aynı kampanyanın rakamlarını sekiz kez ayrı ayrı girmek, birbiriyle uyuşmayan metriklerle sonuçlanmanın yoludur.",
+        "Bunları birlikte görmek, onları okunur kılan şeydir. Yüksek bir Geri Dönüş Oranının yanındaki düşük bir Açılma Oranı bir liste sorunudur, bir konu satırı sorunu değil. Sağlıklı bir Açılma Oranının yanındaki zayıf bir Açılmadan Tıklama Oranı teklife işaret eder. Yükselen bir Şikayet Oranının yanındaki güçlü bir Alıcı Başına Gelir, kampanyanın şu anda kazandığı ama bunun için gönderici itibarından harcadığı anlamına gelir."
+      ],
+      "takeaway": "Burada hiçbir alan zorunlu değildir. Veriniz olmayan bir metrik, sıfır raporlamak yerine boş kalır.",
+      "whenToUse": "Bir gönderimden sonra tek bir kampanyayı bir metrik yerine bütün olarak okumak için, ve gönderimler arasında bir başlık sayısı değiştiğinde dört gruptan hangisinin hareket ettiğini görmek için kullanın.",
+      "misleads": "Apple Mail Privacy Protection görselleri önceden getirir ve kimsenin yapmadığı açılmaları kaydeder; bu yüzden Açılma Oranı mutlak bir sayıdan çok kendine karşı bir eğilimdir. Ve Açılmadan Tıklama Oranı tıklamanın açılmaya bölümüdür; bunu tıklamanın teslim edilene bölündüğü e-posta TO'su gibi raporlamak tamamen farklı bir soruyu yanıtlar.",
+      "workedExample": "10.000 gönderildi · 9.800 teslim edildi · 2.450 açılma → %98,00 teslim · %25,00 açılma oranı"
+    },
+    "faq": [
+      {
+        "id": "why-blank",
+        "q": "Metriklerden biri neden boş görünüyor?",
+        "a": "Kendi girdileri henüz doldurulmadığı ya da paydası sıfır olduğu için. Her metrik bağımsız hesaplanır; bu yüzden gelir veya şikayet rakamlarınız olsun olmasın, açılma ve teslim edilen sayısını girer girmez Açılma Oranı belirir. Boş bir sonuç, sorunun girdiklerinizden yanıtlanamadığı anlamına gelir; değerin sıfır olduğu anlamına gelmez."
+      },
+      {
+        "id": "open-rate-trustworthy",
+        "q": "Açılma Oranı hâlâ ölçmeye değer mi?",
+        "a": "Kendine karşı bir eğilim olarak evet; mutlak bir sayı olarak eskisi kadar değil. Apple Mail Privacy Protection ve benzer özellikler görselleri önceden getirir, hiçbir kişinin yapmadığı açılmaları kaydeder. Bu şişme bir kitle içinde oldukça sabit kaldığından, dönemden döneme kıyaslamalar hâlâ sinyal taşır; ama Açılma Oranınızı farklı bir kitle karışımından yayımlanmış bir kıyaslamayla karşılaştırmak, iki farklı miktarda yapaylığı kıyaslamak demektir."
+      },
+      {
+        "id": "rpr-sent-or-delivered",
+        "q": "Alıcı Başına Gelir, gönderilen mi teslim edilen mi kullanmalı?",
+        "a": "Bu hesaplayıcı gönderileni kullanır. Bu daha muhafazakâr okumadır: kampanya, geri dönenler de dahil denediği her adresten sorumlu tutulur. Teslim edilene bölmek daha yüksek bir sayı verir ve daha dar bir soruyu yanıtlar: ulaşılabilir bir alıcı ne değer üretti. Hiçbiri yanlış değildir, ama raporlar arasında ikisini karıştırmak yanlıştır."
+      },
+      {
+        "id": "delivered-vs-sent",
+        "q": "Teslim edilen sayım gönderilen sayımdan yüksek. Ne yanlış gitti?",
+        "a": "Bu olağandışı bir sonuç değil, bir veri hatasıdır; bir e-posta gönderilmeden teslim edilemez. Genelde bunun nedeni, iki rakamı farklı tarih aralıklarından veya aynı kampanyanın farklı segmentlerinden çekmiş olmaktır. Sayfada başka bir şeyi okumadan önce iki sayının da aynı gönderimi tanımladığını kontrol edin."
+      },
+      {
+        "id": "good-complaint-rate",
+        "q": "Kabul edilebilir bir Şikayet Oranı nedir?",
+        "a": "Sıkça belirtilen eşik %0,1'dir; bunun üzerinde büyük posta kutusu sağlayıcıları göndericiyi bir itibar riski olarak görmeye başlar. Bu, yaklaşılacak bir hedef değil, kesinlikle altında kalınması gereken bir eşiktir; sonuç haftalar sonra bozulmuş teslim edilebilirlik olarak ortaya çıktığından, yükselen bir Şikayet Oranı, Teslim Oranı bunu yansıtmadan önce üzerine gidilmeye değer."
+      }
+    ],
+    "seo": {
+      "seoTitle": "E-posta Performansı Hesaplayıcısı",
+      "seoDescription": "Tek bir kampanya veri setinden açılma oranı, açılmadan tıklama oranı, teslim, geri dönüş, abonelikten çıkma, şikayet, liste büyümesi ve alıcı başına geliri hesaplayın."
+    }
+  }
 }

@@ -4,6 +4,8 @@ import { ArrowRight, Check } from "lucide-react";
 
 import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
+import { ButtonLink } from "@/components/ui/Button";
+import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductMetricStrip, ProductSection } from "@/components/ui/ProductPage";
@@ -19,10 +21,9 @@ import {
   withLibraryCount,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
-import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
+import { sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
-import { clsx } from "@/lib/clsx";
 
 /* The Canonical Journey Library's HUB - /lab/journeys.
 
@@ -65,22 +66,15 @@ function Pill({
   tone: "dark" | "outline" | "light" | "ghost";
   children: ReactNode;
 }) {
+  // The four tones this page names, on the site's one button family. The
+  // page's main action is the brand blue (Hulusi, 2026-09-14: "they have to
+  // be blue"); black is the header's, not a page's.
+  const variant = tone === "dark" ? "primary" : tone === "light" ? "inverted" : tone === "ghost" ? "outlineInverted" : "outline";
   return (
-    <Link
-      href={href}
-      className={clsx(
-        "inline-flex h-12 items-center gap-2 rounded-full px-6 text-sm font-medium transition-colors duration-[var(--duration-fast)]",
-        {
-          "bg-ink-950 text-white hover:bg-primary-600": tone === "dark",
-          "border border-line-strong text-ink-700 hover:border-ink-300 hover:text-ink-950": tone === "outline",
-          "bg-white text-ink-950 hover:bg-primary-50": tone === "light",
-          "border border-white/25 text-white hover:border-white/50": tone === "ghost",
-        },
-      )}
-    >
+    <ButtonLink href={href} variant={variant} size="md">
       {children}
       <ArrowRight aria-hidden className="size-4" />
-    </Link>
+    </ButtonLink>
   );
 }
 
@@ -202,12 +196,14 @@ function Half({
             key={j.id}
             href={`${basePath}/${j.slug}`}
             id={j.id}
+            lang={lang}
+            category={j.category}
             title={j.shortName ?? j.name}
             categoryTitle={j.categoryTitle}
             purpose={j.purpose}
             nodeCount={j.nodeCount}
             nodesLabel={t.lab.page.nodesLabel}
-            channelLabels={sortChannels(j.channels).map((c) => CHANNEL_LABEL[c][lang])}
+            channels={sortChannels(j.channels)}
             internalLabel={emptyChannelLabel}
             typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
           />

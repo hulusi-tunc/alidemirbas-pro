@@ -31,20 +31,20 @@ import type { Lang } from "@/lib/content";
 
 const T = {
   en: {
-    back: "Marketing Calculators",
+    back: "Calculators",
     workedExample: "Worked example",
-    meaning: "What this number means",
+    meaning: "What this number tells you",
     whenToUse: "When to use it",
-    misleads: "What can mislead you",
+    misleads: "Where it misleads",
     related: "Related calculators",
     faq: "Frequently asked questions",
   },
   tr: {
-    back: "Pazarlama Hesaplayıcıları",
+    back: "Hesaplayıcılar",
     workedExample: "Örnek hesap",
-    meaning: "Bu sayı ne anlama geliyor",
+    meaning: "Bu sayı ne söyler",
     whenToUse: "Ne zaman kullanılır",
-    misleads: "Sizi ne yanıltabilir",
+    misleads: "Nerede yanıltır",
     related: "İlgili hesaplayıcılar",
     faq: "Sık sorulan sorular",
   },

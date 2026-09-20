@@ -123,5 +123,51 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing definition and cohort-retention interpretation prose - genuinely good prior content. Split the original combined formula+example section into a formula section (explicit about why retention+churn=100% holds here specifically, not as a universal identity) and a separate worked-example. Added the required customer-retention-vs-revenue-retention boundary (logo churn != revenue churn), 2 more common mistakes, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good retention rate' benchmark stated, including in the good-retention-rate FAQ despite it being a listed SEO secondary keyword. External source: CFI's Customer Churn vs Revenue Churn page, verified live. Related calculators verified live: nrr, d1-retention, ltv."
+  "qaNotes": "STANDARD depth, Content Standard rebuild (Batch 02). Kept the existing definition and cohort-retention interpretation prose - genuinely good prior content. Split the original combined formula+example section into a formula section (explicit about why retention+churn=100% holds here specifically, not as a universal identity) and a separate worked-example. Added the required customer-retention-vs-revenue-retention boundary (logo churn != revenue churn), 2 more common mistakes, related calculators, and 5-question FAQ (all 100-150 words). No universal 'good retention rate' benchmark stated, including in the good-retention-rate FAQ despite it being a listed SEO secondary keyword. External source: CFI's Customer Churn vs Revenue Churn page, verified live. Related calculators verified live: nrr, d1-retention, ltv.",
+  "tr": {
+    "heroTitle": "Elde Tutma Oranı Hesaplayıcısı",
+    "page": {
+      "tagline": "Mevcut müşterilerinizin dönem sonunda ne kadarının hâlâ müşteri olduğunu gör.",
+      "meaning": [
+        "Yeni müşterileri son sayıdan çıkarmak, bunu bir elde tutma sayısı yapan şeyin ta kendisidir. Bu çıkarma olmadan, yeni kayıtlar zaten sahip olduğunuz müşteriler arasındaki churn'ü, yani ölçülmeye çalışılan şeyi, maskeler.",
+        "Bu, tek bir müşteri hakkında veya elde tutmanın bir ömür boyunca nasıl davrandığı hakkında değil, tüm bir kohort genelinde dönem düzeyinde bir ortalamadır. Ortak bir başlangıç noktasından tek bir grubu takip eden kohort elde tutma, bu daha ince soruyu yanıtlar.",
+        "Yanında gösterilen churn oranı, aynı popülasyon ve dönem için onun tamamlayıcısıdır; ikisi aynı ölçümün iki ucundan görünüşüdür."
+      ],
+      "takeaway": "Çoğu müşterinizi tutmak ile çoğu gelirinizi tutmak farklı sonuçlardır.",
+      "whenToUse": "Mevcut tabanın dayanıp dayanmadığını değerlendirirken kullanın; churn'ün gerçekten görülebileceği kadar uzun bir dönem üzerinden ölçülmüş olsun. Gelir başlık sayısından daha önemli olduğunda NRR ile birlikte okuyun.",
+      "misleads": "Yeni müşterileri çıkarmayı unutmak, yepyeni kayıtları elde tutulmuş gibi sayarak oranı şişirir. Aylık bir rakamı çeyreklik bir rakamla kıyaslamak da iki farklı ölçümü aynı sayı gibi ele almaktır.",
+      "workedExample": "(son − kazanılan) ÷ başlangıç → (1.050 − 150) ÷ 1.000 = %90,00"
+    },
+    "faq": [
+      {
+        "id": "what-is-retention-rate",
+        "q": "Elde tutma oranı nedir?",
+        "a": "Elde tutma oranı, bir işletmenin dönem başında zaten sahip olduğu müşterilerden dönem sonunda hâlâ müşteri olanların payıdır; yeni kazanılan müşteriler, mevcut tabandaki churn'ü maskelemesinler diye sayımın dışında tutulur. (Dönem sonundaki müşteriler − dönem içinde kazanılan müşteriler) ÷ dönem başındaki müşteriler olarak hesaplanır ve yüzde olarak raporlanır. 1.000 müşteriyle başlayıp 150 yeni müşteri kazandıktan sonra 1.050'ye ulaşmak, %90 elde tutma verir: orijinal 1.000 müşterinin 900'ü dönem sonunda hâlâ aktifti. Bu hesaplayıcı, aynı müşteri sayılarından türetildiği için churn oranını da tamamlayıcısı olarak, 1 − elde tutma oranı şeklinde raporlar."
+      },
+      {
+        "id": "how-to-calculate-retention-rate",
+        "q": "Elde tutma oranı nasıl hesaplanır?",
+        "a": "Dönem içinde kazanılan müşterileri dönem sonundaki müşterilerden çıkarın, sonra dönem başındaki müşterilere bölün: Elde Tutma = (Son − Kazanılan) ÷ Başlangıç. 1.000 müşteriyle başlayıp 1.050'ye ulaşıp 150 yeni müşteri kazanıldıysa, bu (1.050 − 150) ÷ 1.000 = %90 eder. Yeni müşterileri çıkarmak, çoğu elle yapılan hesaplamanın atladığı adımdır; atlanması, yepyeni kayıtları zaten orada olan müşterilere ne olduğunu izole etmek yerine elde tutulmuş müşteriler gibi sayarak sonucu şişirir. Üç girdi de aynı müşteri popülasyonunu ve aynı zaman dilimini tanımlamalı, aksi halde sonuç gerçek, kıyaslanabilir bir elde tutma rakamını tanımlamaz."
+      },
+      {
+        "id": "retention-vs-churn-faq",
+        "q": "Elde tutma oranı churn oranıyla nasıl ilişkilidir?",
+        "a": "Churn oranı, elde tutma oranının tamamlayıcısıdır: churn = 1 − elde tutma. %90 elde tutma oranı, %10 churn oranına karşılık gelir; bu hesaplayıcı ikisini de tek bir hesaplamada aynı girdi sayılardan raporlar. Bu özdeşlik, iki rakamın da tam olarak aynı müşteri popülasyonundan ve aynı zaman diliminden türetilmiş olmasından kaynaklanır; herhangi iki elde tutma ve churn sayısının %100'e toplanacağına dair evrensel bir kural değildir. Kıyaslandığı elde tutma oranından bağımsız olarak, farklı bir dönem veya farklı bir müşteri segmenti için ölçülmüş bir churn oranının onun tamamlayıcısı olması garanti değildir; öyle davranmak, gerçekte neyin değiştiğine dair yanıltıcı bir resim verir."
+      },
+      {
+        "id": "customer-vs-revenue-retention-faq",
+        "q": "Müşteri elde tutma, gelir elde tutmayla aynı şey mi?",
+        "a": "Bu hesaplayıcının ölçtüğü müşteri elde tutma, her müşteriyi ne harcadığından bağımsız olarak eşit sayarak kaçının kaldığını sayar. Gelir elde tutma ise ne kadar gelirin kaldığını takip eder; bu da teknik olarak aktif kalan ama artık daha az ödeyen müşterilerden gelen düşüşleri de yakalar. Churn eden veya küçülen müşteriler orantısız biçimde en çok harcayan hesaplarsa, bir işletme yüksek gelir kaybederken hâlâ güçlü bir %90 müşteri elde tutma oranı gösterebilir. Net Gelir Elde Tutma, özellikle gelir bazlı soru için tasarlanmış metriktir ve bu hesaplayıcının müşteri sayısına dayalı elde tutma oranıyla birbirinin yerine geçmez; birinde sağlıklı bir sayı, diğerinde sağlıklı bir sayıyı garanti etmez."
+      },
+      {
+        "id": "good-retention-rate",
+        "q": "İyi bir elde tutma oranı kaçtır?",
+        "a": "Evrensel olarak iyi bir elde tutma oranı yoktur. Ürün kategorisine, abonelik modeline, dönem uzunluğuna ve o işletme için 'elde tutulan'ın tam olarak nasıl tanımlandığına göre değişir. Aynı müşteriler için aylık bir elde tutma oranı ile yıllık bir elde tutma oranı, altta yatan churn örüntüsünde hiçbir şey değişmemiş olsa bile çok farklı görünür; çünkü daha uzun bir dönem, müşterilerin ayrılması için daha fazla zaman tanır. Bir tüketici mobil uygulaması ile bir kurumsal B2B sözleşmesi de, hangi işletmenin elde tutmayı daha iyi yönettiğinden değil, ürünün nasıl satın alındığı ve kullanıldığından kaynaklanan temelden farklı doğal elde tutma örüntülerine sahiptir. Daha güvenilir kıyaslama, ilgisiz bir şirket veya kategoriden çekilmiş bir sayı yerine, aynı dönem uzunluğu ve müşteri tanımı için bu işletmenin kendi elde tutma oranının zaman içindeki seyridir."
+      }
+    ],
+    "seo": {
+      "seoTitle": "Elde Tutma Oranı Hesaplayıcısı",
+      "seoDescription": "Dönem başı, dönem sonu ve yeni kazanılan müşteri sayılarından müşteri elde tutma ve churn oranını birlikte hesaplayın."
+    }
+  }
 }

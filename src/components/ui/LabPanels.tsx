@@ -357,9 +357,23 @@ const TABLE_TONE = {
 
 type TableTone = keyof typeof TABLE_TONE;
 
-function CategoryBadge({ category, tone }: { category: string; tone: TableTone }) {
+/* The category is a fixed English id (also the demo's own filter/rule
+   key); only the shown label is per-language, matching how Google Ads'
+   own Turkish interface names these same change types. */
+const CATEGORY_LABEL: Record<string, { en: string; tr: string }> = {
+  Status: { en: "Status", tr: "Durum" },
+  Budget: { en: "Budget", tr: "Bütçe" },
+  Bidding: { en: "Bidding", tr: "Teklif verme" },
+  Keyword: { en: "Keyword", tr: "Anahtar kelime" },
+};
+
+function CategoryBadge({ category, lang, tone }: { category: string; lang: Lang; tone: TableTone }) {
   const badge: Record<string, string> = TABLE_TONE[tone].badge;
-  return <span className={`rounded px-1.5 py-0.5 text-[12px] font-medium ${badge[category] ?? badge.other}`}>{category}</span>;
+  return (
+    <span className={`rounded px-1.5 py-0.5 text-[12px] font-medium ${badge[category] ?? badge.other}`}>
+      {CATEGORY_LABEL[category]?.[lang] ?? category}
+    </span>
+  );
 }
 
 /** The change-history explorer: its real table over its real demo rows.
@@ -412,7 +426,7 @@ export function ChangeTable({
               </td>
               <td className={`hidden px-3 py-2.5 sm:table-cell ${s.account}`}>{row.account}</td>
               <td className="px-3 py-2.5">
-                <CategoryBadge category={row.category} tone={tone} />
+                <CategoryBadge category={row.category} lang={lang} tone={tone} />
               </td>
               <td className="px-3 py-2.5">
                 <span className={`inline-flex items-center gap-1.5 ${/^[\d.,]+$/.test(row[lang].old) ? "font-mono text-[12.5px] tabular-nums" : "text-[12.5px]"}`}>
@@ -559,7 +573,7 @@ const WT = {
       builder: "The Journey Builder's canvas: the Abandoned cart pattern as a flow of five steps, with its pattern rail and an inspector on the first step.",
       builderPattern: (name: string, n: number) =>
         `The Journey Builder's canvas: the ${name} pattern as a flow of ${n} steps, with its pattern rail and an inspector on the first step.`,
-      library: "The Canonical Journey Library's browser: search field, goal filter and a table of the largest journeys with category, channels and node count.",
+      library: "The Journey Library's browser: search field, goal filter and a table of the largest journeys with category, channels and node count.",
       playbook: "The A/B Test Playbook's library: surface facets, result rows and the AB-004 record open in a detail pane.",
       dashboard: "The Dashboard Builder's pipeline at the comparability engine, with the four comparability classes and a refused comparison.",
       explorer: "The Change History Explorer's dashboard: its section tabs, filters and the change table over the demo dataset.",
@@ -579,10 +593,10 @@ const WT = {
     category: "Kategori",
     channels: "Kanallar",
     more: (n: number) => `+ ${n} daha`,
-    surface: "Yüzey",
+    surface: "Sayfa",
     scenarios: (n: number) => `${n} senaryo`,
     searchScenarios: "211 senaryoda ara…",
-    pipeline: "Pipeline",
+    pipeline: "Akış",
     outputs: "Çıktılar",
     templates: (n: number) => `${n} şablon`,
     check: "Karşılaştırılabilirlik kontrolü",
@@ -605,13 +619,13 @@ const WT = {
     goals: ["Kilo ver", "Kilo koru", "Kilo al"] as const,
     bmr: "BMR",
     labels: {
-      builder: "Journey Builder'ın tuvali: Terk edilmiş sepet deseni beş adımlık bir akış olarak, desen rayı ve ilk adımın denetçisiyle.",
+      builder: "Journey Oluşturucu'nun tuvali: Terk edilmiş sepet deseni beş adımlık bir akış olarak, desen rayı ve ilk adımın denetçisiyle.",
       builderPattern: (name: string, n: number) =>
-        `Journey Builder'ın tuvali: ${name} deseni ${n} adımlık bir akış olarak, desen rayı ve ilk adımın denetçisiyle.`,
-      library: "Canonical Journey Kütüphanesi'nin tarayıcısı: arama alanı, hedef filtresi ve en büyük journey'lerin kategori, kanal ve düğüm sayısıyla tablosu.",
+        `Journey Oluşturucu'nun tuvali: ${name} deseni ${n} adımlık bir akış olarak, desen rayı ve ilk adımın denetçisiyle.`,
+      library: "Journey Kütüphanesi'nin tarayıcısı: arama alanı, hedef filtresi ve en büyük journey'lerin kategori, kanal ve düğüm sayısıyla tablosu.",
       playbook: "A/B Test Playbook kütüphanesi: yüzey filtreleri, sonuç satırları ve detay panelinde açık AB-004 kaydı.",
-      dashboard: "Dashboard Builder'ın pipeline'ı karşılaştırılabilirlik motorunda, dört karşılaştırılabilirlik sınıfı ve reddedilen bir karşılaştırmayla.",
-      explorer: "Change History Explorer'ın panosu: bölüm sekmeleri, filtreler ve demo veri seti üzerindeki değişiklik tablosu.",
+      dashboard: "Dashboard Oluşturucu'nun akışı karşılaştırılabilirlik kontrolünde, dört karşılaştırılabilirlik sınıfı ve reddedilen bir karşılaştırmayla.",
+      explorer: "Google Ads Değişiklik Geçmişi'nin dashboard'u: bölüm sekmeleri, filtreler ve demo veri seti üzerindeki değişiklik tablosu.",
       numerspace: "Numerspace'in Günlük Kalori Hesaplayıcı sayfası, örnek değerler girilmiş ve sonucu görünür halde.",
     },
   },
@@ -672,7 +686,7 @@ function BuilderCanvas({ pattern, lang, selected, wide = false }: { pattern: Pat
                   <>
                     <span className="flex items-center gap-1 rounded-md bg-paper px-2 py-0.5 text-[12px] text-ink-600 shadow-hairline">
                       <GitBranch aria-hidden className="size-3 text-ink-400" />
-                      {step.branch}
+                      {step.branch[lang]}
                     </span>
                     <span aria-hidden className="h-2.5 w-px bg-line-strong" />
                   </>
@@ -691,7 +705,7 @@ function BuilderCanvas({ pattern, lang, selected, wide = false }: { pattern: Pat
                       <span className="text-[12px] font-medium text-ink-950">{CHANNEL_NAME[step.channel]}</span>
                       <span className="font-mono text-[12px] text-ink-500 tabular-nums">{step.wait}</span>
                     </span>
-                    <span className="block truncate text-[12px] text-ink-600">{step.intent}</span>
+                    <span className="block truncate text-[12px] text-ink-600">{step.intent[lang]}</span>
                   </span>
                   <span className="shrink-0 pr-1 text-[12px] text-ink-400 tabular-nums">{i + 1}</span>
                 </div>
@@ -742,8 +756,8 @@ function BuilderBody({ lang, pattern: patternIndex = 0 }: { lang: Lang; pattern?
             className="mt-2.5"
             rows={[
               [w.wait, <span key="w" className="font-mono text-[12.5px] tabular-nums">{selected.wait}</span>],
-              [w.intent, selected.intent],
-              [w.branch, selected.branch ?? w.none],
+              [w.intent, selected.intent[lang]],
+              [w.branch, selected.branch?.[lang] ?? w.none],
             ]}
           />
         </div>
@@ -1020,8 +1034,20 @@ export function DashboardWindow({ lang }: { lang: Lang }) {
 }
 
 /* The dashboard's own sections, as its README lists them (six of the
-   nine, so the strip fits one row; the open one is the Explorer). */
-const EXPLORER_TABS = ["Summary", "Activity Timeline", "User Activity", "Category Distribution", "Rule Matches", "Change Explorer"] as const;
+   nine, so the strip fits one row; the open one is the Explorer). The
+   key on the left is the product's own section name and never changes -
+   it is what `active` is addressed by; only the rendered label is
+   localised. */
+const EXPLORER_TAB_TEXT = {
+  Summary: { en: "Summary", tr: "Özet" },
+  "Activity Timeline": { en: "Activity Timeline", tr: "Zaman çizelgesi" },
+  "User Activity": { en: "User Activity", tr: "Kullanıcı aktivitesi" },
+  "Category Distribution": { en: "Category Distribution", tr: "Kategori dağılımı" },
+  "Rule Matches": { en: "Rule Matches", tr: "Kural eşleşmeleri" },
+  "Change Explorer": { en: "Change Explorer", tr: "Değişiklik gezgini" },
+} as const;
+const EXPLORER_TAB_ORDER = ["Summary", "Activity Timeline", "User Activity", "Category Distribution", "Rule Matches", "Change Explorer"] as const;
+const explorerTabs = (lang: Lang): readonly string[] => EXPLORER_TAB_ORDER.map((k) => EXPLORER_TAB_TEXT[k][lang]);
 
 /* Category counts over the demo rows, in first-appearance order. */
 const EXPLORER_CATEGORIES = CHANGE_HISTORY_REAL.explorerRows.reduce<{ category: string; count: number }[]>((acc, row) => {
@@ -1043,7 +1069,7 @@ function ExplorerBody({ lang, tone = "light" }: { lang: Lang; tone?: "light" | "
   const label = dark ? "text-[12px] font-medium text-white/50" : "text-[12px] font-medium text-ink-500";
   return (
     <>
-      <TabStrip tone={tone} items={EXPLORER_TABS} active="Change Explorer" />
+      <TabStrip tone={tone} items={explorerTabs(lang)} active={EXPLORER_TAB_TEXT["Change Explorer"][lang]} />
       <div className="flex">
         <Rail tone={tone} title={w.filters} icon={<Filter aria-hidden />} className="hidden w-52 md:block">
           <div className="px-3.5 pb-3">
@@ -1312,7 +1338,7 @@ const ST = {
     latest: "Son değişiklikler",
     filters: "Filtreler",
     searchChanges: "Değişikliklerde ara…",
-    zeroDeps: "Sıfır bağımlılık",
+    zeroDeps: "Bağımlılık yok",
     outputFile: "dashboard.html",
   },
 } as const;

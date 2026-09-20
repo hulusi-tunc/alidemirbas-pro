@@ -65,83 +65,59 @@ import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 const T = {
   en: {
     eyebrow: "Lab",
-    heroTitle: "97 calculators. No signup. No data stored.",
-    heroSub: "Free calculators for everyday questions - from money and health to work, time and marketing. No account required.",
+    heroTitle: "97 calculators. No account. Nothing stored.",
+    heroSub: "Free calculators for everyday questions, from money and health to work, time and marketing.",
     ctaVisit: "Open numerspace.com",
     heroStats: ["97 calculators", "13 categories", "Turkish + English"],
-    verifyCaption: "Results you can verify.",
+    verifyCaption: "You can check the result yourself.",
     verifyNote: "Where a calculator uses a standard formula, the formula is shown alongside the result.",
 
     whyEyebrow: "Project",
     whyTitle: "A calculator should answer the question, then get out of the way.",
-    whyBody: "I built Numerspace as a fast, bilingual collection of practical calculators. Open a tool, enter what you know and get the result - without creating an account or sending your calculation inputs to a server.",
+    whyBody: "I built Numerspace as a collection of fast, bilingual, practical calculators. Open a tool, enter what you know, get the result. No account, and the numbers you enter don't go to a server.",
 
     catEyebrow: "Categories",
-    catTitle: "97 calculators across 13 categories.",
-    catSub: "From finance and health to work, travel and everyday calculations.",
-    catCount: (n: number) => `${n} calculator${n === 1 ? "" : "s"}`,
-    catExploreAll: "Explore all 13 categories",
+    catTitle: "Categories",
+    catSub: "From finance and health to work, travel and everyday sums. 97 calculators in 13 categories.",
+    catExploreAll: "See all 13 categories",
     catBrowse: "Browse by category",
-    catOpen: "Open on numerspace.com",
-    catTotal: (n: number, k: number) => `${n} calculators in ${k} categories, all on numerspace.com`,
     heroShotAlt: "numerspace.com's homepage: a search field over category sections of calculator cards.",
-
-    privacyEyebrow: "Privacy by design",
-    privacyTitle: "Your numbers stay in your browser.",
-    privacySub: "Most calculations run locally on your device - inputs aren't sent to Numerspace for calculation or stored in an account.",
-    privacyInput: "Input",
-    privacyBrowser: "Your browser",
-    privacyResult: "Result",
-    privacyStays: "Stays on your device",
-    privacyPoints: ["No account", "No calculation database", "Calculated on your device"],
 
     faqEyebrow: "FAQ",
 
     relatedEyebrow: "Also in the Lab",
     relatedCta: "Explore",
 
-    ctaEyebrow: "Free, no sign-up",
-    ctaTitle: "Try a calculator you can check yourself.",
+    ctaEyebrow: "Free, no account",
+    ctaTitle: "Try a calculator and check the result yourself.",
   },
   tr: {
     eyebrow: "Lab",
-    heroTitle: "97 hesaplayıcı. Üyelik yok. Veri saklanmıyor.",
-    heroSub: "Paradan sağlığa, işten zamana ve pazarlamaya kadar günlük sorular için ücretsiz hesaplayıcılar. Hesap gerekmez.",
+    heroTitle: "97 hesaplayıcı. Üyelik gerekmiyor. Veri saklanmıyor.",
+    heroSub: "Paradan sağlığa, işten zamana ve pazarlamaya kadar günlük sorular için ücretsiz hesaplayıcılar.",
     ctaVisit: "numerspace.com'u aç",
     heroStats: ["97 hesaplayıcı", "13 kategori", "Türkçe + İngilizce"],
-    verifyCaption: "Kendiniz de kontrol edebileceğiniz sonuçlar.",
+    verifyCaption: "Sonucu kendin kontrol edebilirsin.",
     verifyNote: "Bir hesaplayıcı standart bir formül kullandığında, formül sonuçla birlikte gösterilir.",
 
     whyEyebrow: "Proje",
     whyTitle: "Bir hesaplayıcı soruyu yanıtlamalı, sonra yoldan çekilmeli.",
-    whyBody: "Numerspace'i hızlı, iki dilli, pratik hesaplayıcılardan oluşan bir koleksiyon olarak kurdum. Bir aracı açın, bildiğinizi girin ve sonucu alın - hesap oluşturmadan ya da hesaplama girdilerinizi bir sunucuya göndermeden.",
+    whyBody: "Numerspace'i hızlı, iki dilli ve pratik hesaplayıcılardan oluşan bir koleksiyon olarak kurdum. Aracı aç, bildiklerini gir, sonucu al. Hesap açmak gerekmiyor, girdiğin sayılar sunucuya gitmiyor.",
 
     catEyebrow: "Kategoriler",
-    catTitle: "13 kategoride 97 hesaplayıcı.",
-    catSub: "Finans ve sağlıktan işe, seyahate ve gündelik hesaplamalara.",
-    catCount: (n: number) => `${n} hesaplayıcı`,
-    catExploreAll: "13 kategorinin tamamını keşfet",
+    catTitle: "Kategoriler",
+    catSub: "Finans ve sağlıktan işe, seyahate ve gündelik hesaplamalara. 13 kategoride 97 hesaplayıcı.",
+    catExploreAll: "13 kategorinin tamamını gör",
     catBrowse: "Kategoriye göre göz at",
-    catOpen: "numerspace.com'da aç",
-    catTotal: (n: number, k: number) => `${k} kategoride ${n} hesaplayıcı, hepsi numerspace.com'da`,
     heroShotAlt: "numerspace.com'un ana sayfası: hesaplayıcı kartlarından oluşan kategori bölümlerinin üstünde bir arama alanı.",
-
-    privacyEyebrow: "Tasarımdan gelen gizlilik",
-    privacyTitle: "Sayılarınız tarayıcınızda kalır.",
-    privacySub: "Hesaplamaların çoğu cihazınızda, yerel olarak çalışır - girdiler hesaplama için Numerspace'e gönderilmez ya da bir hesapta saklanmaz.",
-    privacyInput: "Girdi",
-    privacyBrowser: "Tarayıcınız",
-    privacyResult: "Sonuç",
-    privacyStays: "Cihazınızda kalır",
-    privacyPoints: ["Hesap yok", "Hesaplama veritabanı yok", "Cihazınızda hesaplanır"],
 
     faqEyebrow: "SSS",
 
     relatedEyebrow: "Lab'de ayrıca",
     relatedCta: "Keşfet",
 
-    ctaEyebrow: "Ücretsiz, üyelik yok",
-    ctaTitle: "Kendiniz de kontrol edebileceğiniz bir hesaplayıcı deneyin.",
+    ctaEyebrow: "Ücretsiz, üyelik gerekmiyor",
+    ctaTitle: "Bir hesaplayıcı dene, sonucu kendin kontrol et.",
   },
 } as const;
 
@@ -269,13 +245,15 @@ function shortName(name: string) {
 
 function CatalogueSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
   const cats = NUMERSPACE_CATALOG[lang];
-  const total = cats.reduce((n, c) => n + c.count, 0);
   return (
     <ProductSection tone="soft" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={t.catEyebrow} title={t.catTitle} body={t.catSub} align="center" />
 
-        {/* The chip row: one per category, with its count - in-page jumps. */}
+        {/* The chip row: one per category, with its count. Display only -
+            no per-calculator listing or outbound numerspace.com links
+            below it (Hulusi, 2026-09-12: no need to send someone to
+            numerspace.com from here for every single tool). */}
         <Reveal delay={80} className="mt-10">
           <p className="text-center text-[13px] text-ink-500">{t.catBrowse}</p>
           <ul className="mt-3 flex list-none flex-wrap justify-center gap-2 p-0">
@@ -283,127 +261,15 @@ function CatalogueSection({ t, lang }: { t: (typeof T)[Lang]; lang: Lang }) {
               const Icon = LOOK_BY_INDEX[i].icon;
               return (
                 <li key={c.slug}>
-                  <a
-                    href={`#ns-${c.slug}`}
-                    className="inline-flex h-9 items-center gap-2 rounded-full bg-paper px-3.5 text-[13px] font-medium text-ink-700 shadow-hairline transition-colors hover:bg-blue-50 hover:text-primary-700"
-                  >
+                  <span className="inline-flex h-9 items-center gap-2 rounded-full bg-paper px-3.5 text-[13px] font-medium text-ink-700 shadow-hairline">
                     <Icon aria-hidden className="size-4 text-ink-400" />
                     {shortName(c.name)}
                     <span className="text-ink-400 tabular-nums">{c.count}</span>
-                  </a>
+                  </span>
                 </li>
               );
             })}
           </ul>
-        </Reveal>
-
-        {/* The groups: a heading with the category's mark and count, then
-            its calculators as cards, three across. */}
-        <div className="mt-14 flex flex-col gap-14">
-          {cats.map((c, i) => {
-            const look = LOOK_BY_INDEX[i];
-            const Icon = look.icon;
-            return (
-              <section key={c.slug} id={`ns-${c.slug}`} className="scroll-mt-24">
-                <Reveal className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-                  <h3 className="flex items-center gap-3 text-h3 text-ink-950">
-                    <span aria-hidden className={clsx("grid size-9 shrink-0 place-items-center rounded-full", look.tint)}>
-                      <Icon className="size-4.5" />
-                    </span>
-                    {shortName(c.name)}
-                    <span className="text-[14px] font-normal text-ink-500 tabular-nums">{t.catCount(c.count)}</span>
-                  </h3>
-                  <a
-                    href={c.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary-600 transition-colors hover:text-primary-700"
-                  >
-                    {t.catOpen}
-                    <ArrowUpRight aria-hidden className="size-3.5" />
-                  </a>
-                </Reveal>
-                <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {c.items.map((item, j) => (
-                    <Reveal key={item.slug} delay={Math.min(j, 5) * 50}>
-                      <a
-                        href={item.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="group flex h-full gap-4 rounded-card bg-paper p-4 transition-colors hover:bg-blue-50 sm:flex-col sm:gap-2.5 sm:p-5"
-                      >
-                        <span aria-hidden className={clsx("grid size-10 shrink-0 place-items-center rounded-full sm:mb-1", look.tint)}>
-                          <Icon className="size-5" />
-                        </span>
-                        <span className="flex min-w-0 flex-1 flex-col sm:contents">
-                          <span className="text-[15px] font-semibold tracking-tight text-ink-950">{item.name}</span>
-                          <span className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-ink-600 sm:mt-0">{item.description}</span>
-                          <span className="mt-2 flex items-center justify-between gap-2 sm:mt-auto sm:pt-1.5">
-                            <span className="text-[12px] text-ink-400">numerspace.com</span>
-                            <ArrowUpRight aria-hidden className="size-3.5 shrink-0 text-ink-300 transition-colors group-hover:text-primary-600" />
-                          </span>
-                        </span>
-                      </a>
-                    </Reveal>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
-
-        <Reveal delay={60} className="mt-12 text-center text-[13px] text-ink-500 tabular-nums">
-          {t.catTotal(total, cats.length)}
-        </Reveal>
-      </PortraitContainer>
-    </ProductSection>
-  );
-}
-
-/* ---- 04 · Privacy - horizontal product explanation ---------------------
-   One real flow (input -> your browser -> result), drawn as part of the
-   product rather than a slide: a single bordered panel instead of loose
-   pills over the page background, with the crossed-out "sent to a server"
-   pill from the prior pass gone - the honest claim is what stays local,
-   not a struck-through claim about what doesn't happen. */
-function PrivacySection({ t }: { t: (typeof T)[Lang] }) {
-  return (
-    // soft, not paper: keeps the paper/soft rhythm varied now that Faq
-    // (right after this one) needs to be paper for its own cards to read -
-    // the flow panel below is a bordered bg-paper card either way, the
-    // same "card on a tinted ground" pattern Categories already uses.
-    <ProductSection tone="soft" space="md">
-      <PortraitContainer>
-        <ProductHeading eyebrow={t.privacyEyebrow} title={t.privacyTitle} body={t.privacySub} align="center" />
-        <Reveal delay={100} className="mx-auto mt-10 max-w-xl overflow-hidden rounded-card border border-line bg-paper">
-          <div className="flex flex-col items-stretch sm:flex-row">
-            {[t.privacyInput, t.privacyBrowser, t.privacyResult].map((step, i) => (
-              <div key={step} className="relative flex flex-1 items-center justify-center gap-3 px-5 py-6">
-                {i === 1 ? (
-                  <span className="absolute inset-x-2 top-2 rounded-full bg-emerald-50 px-2 py-0.5 text-center font-mono text-[9.5px] font-medium tracking-wide text-emerald-700 uppercase sm:inset-x-3">
-                    {t.privacyStays}
-                  </span>
-                ) : null}
-                <span className={clsx("mt-3 text-[13.5px] font-medium", i === 1 ? "text-emerald-700" : "text-ink-800")}>
-                  {step}
-                </span>
-                {i < 2 && (
-                  <ArrowRight
-                    aria-hidden
-                    className="absolute top-1/2 right-0 hidden size-4 -translate-y-1/2 translate-x-1/2 text-ink-300 sm:block"
-                  />
-                )}
-                {i < 2 && (
-                  <span aria-hidden className="mt-2 block h-px w-8 bg-line sm:hidden" />
-                )}
-              </div>
-            ))}
-          </div>
-        </Reveal>
-        <Reveal delay={150} className="mx-auto mt-5 flex max-w-xl flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[12.5px] text-ink-500">
-          {t.privacyPoints.map((p) => (
-            <span key={p}>{p}</span>
-          ))}
         </Reveal>
       </PortraitContainer>
     </ProductSection>
@@ -525,7 +391,6 @@ export default function NumerspacePage({ lang, content }: { lang: Lang; content:
         <Hero c={content} t={t} lang={lang} siteHref={siteHref} />
         <WhySection t={t} />
         <CatalogueSection t={t} lang={lang} />
-        <PrivacySection t={t} />
         <Faq c={content} t={t} />
         <OtherProjects c={content} t={t} />
         <FinalCta t={copyT} />

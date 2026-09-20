@@ -69,5 +69,35 @@
     "follow": true
   },
   "qaStatus": "ready",
-  "qaNotes": "No SaaS NRR benchmark stated (Phase 4 §16, §8 - no universal claim without sourcing). NRR-vs-GRR is explained within this one page's content, not spun out into a separate comparison page, per the Phase 3 decision that a comparison page would just re-explain the same calculator."
+  "qaNotes": "No SaaS NRR benchmark stated (Phase 4 §16, §8 - no universal claim without sourcing). NRR-vs-GRR is explained within this one page's content, not spun out into a separate comparison page, per the Phase 3 decision that a comparison page would just re-explain the same calculator.",
+  "tr": {
+    "heroTitle": "Net Gelir Elde Tutma (NRR) Hesaplayıcısı",
+    "page": {
+      "tagline": "Genişleme, daralma ve churn sayıldıktan sonra mevcut müşterilerinizin tekrarlayan gelirinin nasıl hareket ettiğini gör.",
+      "meaning": [
+        "Dört girdi, iki cevap. NRR genişlemeyi sayar; GRR saymaz. Birlikte raporlandıklarında, tabanın gelirinin ne kadarının hayatta kaldığını ve büyümenin ne kadarının zaten sahip olduğunuz müşterilerden geldiğini gösterirler.",
+        "Genişleme, daralma ve churn'ün toplamını aştığında NRR %100'ün üzerine çıkar: taban, tek bir yeni müşteri olmadan kendi gelirini büyütmüştür. Bunu yeni müşteri gelirinden ayırmanın tüm amacı budur."
+      ],
+      "takeaway": "%100'ün üzerindeki NRR, satın almanıza gerek kalmayan büyümedir, ama yalnızca kapsadığı dönem için.",
+      "whenToUse": "Bir abonelik tabanının sağlığını değerlendirirken, genişleme geliri modelin gerçek bir parçası olduğunda ve müşteri sayısına dayalı bir elde tutma rakamı gelire ne olduğunu gizlediğinde kullanın.",
+      "misleads": "Dönemi belirtilmeden raporlanan bir NRR hiçbir şeyle kıyaslanamaz: aynı işletmeden aylık ve yıllık bir rakam farklı sayılardır. Daralmayı dışarıda bırakıp yalnızca tam churn'ü saymak, elde tutmayı olduğundan yüksek gösterir.",
+      "workedExample": "(başlangıç + genişleme − daralma − churn) ÷ başlangıç"
+    },
+    "faq": [
+      {
+        "id": "nrr-aliases",
+        "q": "Net Dolar Elde Tutma, NRR ile aynı şey mi?",
+        "a": "Net Dolar Elde Tutma (NDR), bazı şirket ve analistlerin kullandığı farklı bir isim altında NRR ile aynı hesaplamadır."
+      },
+      {
+        "id": "revenue-churn-definition",
+        "q": "Buradaki 'Gelir Churn'ü' nedir?",
+        "a": "Gelir churn'ü, GRR'nin tamamlayıcısıdır (1 − GRR): herhangi bir genişleme sayılmadan önce, başlangıç MRR'sinden daralma ve churn'e kaybedilen payıdır."
+      }
+    ],
+    "seo": {
+      "seoTitle": "Net Gelir Elde Tutma (NRR) Hesaplayıcısı",
+      "seoDescription": "Başlangıç MRR'si, genişleme, daralma ve churn'den NRR ve GRR'yi birlikte hesaplayın, NRR'nin neden %100'ü aşabildiğini görün."
+    }
+  }
 }

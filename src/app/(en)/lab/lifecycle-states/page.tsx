@@ -12,7 +12,7 @@ const t = copy.en.lab.journeysSplit.surfaces[KEY];
 const intro = t.intro.replace("{count}", String(SURFACE_ROWS[KEY].length)).replace("{presets}", String(PRESET_ROWS.length));
 
 export const metadata: Metadata = {
-  title: `${t.title} - Canonical Journey Library`,
+  title: `${t.title} - Journey Library`,
   description: intro,
   alternates: pageAlternates("/lab/lifecycle-states", "en"),
 };

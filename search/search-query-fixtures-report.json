@@ -614,8 +614,8 @@
       "isKnownGap": false,
       "top3": [
         "journey:ACQ-12",
-        "journey:ACQ-11",
-        "ab-test:AB-001"
+        "ab-test:AB-001",
+        "ab-test:AB-002"
       ],
       "reason": "exact calculator title-token match should outrank the broader ab-test/journey matches on the same concept"
     },

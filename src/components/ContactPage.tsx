@@ -4,6 +4,7 @@ import { CalEmbed } from "@/components/CalEmbed";
 import { ContactForm } from "@/components/ContactForm";
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import { Section } from "@/components/ui/Section";
+import { buttonStyles } from "@/components/ui/Button";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
 import { Reveal } from "@/components/ui/Reveal";
@@ -105,7 +106,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
             <div className="mt-6 flex flex-wrap gap-2.5">
               <a
                 href={`mailto:${EMAIL}`}
-                className="inline-flex items-center gap-2 rounded-md bg-paper-soft px-4 py-2 text-label text-ink-muted transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:bg-surface-brand-subtle hover:text-ink-brand"
+                className={buttonStyles({ variant: "outline", size: "sm" })}
               >
                 <Mail aria-hidden className="size-4" />
                 {c.emailPill}
@@ -114,7 +115,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
                 href={LINKEDIN}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-md bg-paper-soft px-4 py-2 text-label text-ink-muted transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:bg-surface-brand-subtle hover:text-ink-brand"
+                className={buttonStyles({ variant: "outline", size: "sm" })}
               >
                 <LinkedInMark className="size-4" />
                 LinkedIn
@@ -123,7 +124,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
                 href={GITHUB}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-md bg-paper-soft px-4 py-2 text-label text-ink-muted transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:bg-surface-brand-subtle hover:text-ink-brand"
+                className={buttonStyles({ variant: "outline", size: "sm" })}
               >
                 <GitHubMark className="size-4" />
                 GitHub

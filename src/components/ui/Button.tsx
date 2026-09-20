@@ -17,12 +17,14 @@ export type ButtonSize = "sm" | "md" | "lg";
  * One button. Seven variants, three sizes — the API is unchanged; the geometry
  * and the interaction are the reference's.
  *
- * THE SHAPE. A squared corner (`rounded-md`, the token's 8px "controls" step -
- * see globals.css § Radii), 56px tall at `md` and `lg`, label in 16px Medium.
- * Nothing here is raised, glowing or scaled - the softness is in the corner,
- * not in a shadow. `sm` survives at 40px as the compact tier for table rows
- * and toolbars, where a 56px control would set the row height of a whole
- * data table.
+ * THE SHAPE (2026-09-14, Hulusi: "we have to use pill buttons everywhere ...
+ * they are a bit quite big"). A pill (`rounded-full`), 44px tall at `md` with
+ * a 14px Medium label, 36px at `sm` for toolbars, cards and the header, 48px
+ * with a 16px label at `lg` for the one place a hero wants weight. Nothing
+ * here is raised, glowing or scaled - the softness is in the shape, not in a
+ * shadow. Every button on the site is this one family; the header's CTA,
+ * the phone menu's pair and the library's link pills were hand-drawn pills
+ * before and now come from here.
  *
  * THE MOTION. One interaction, shared by every variant: on hover the fill
  * renders in as a field of 3px pixels, each lighting up on its own delay so the
@@ -97,30 +99,20 @@ export type ButtonSize = "sm" | "md" | "lg";
  * reference.
  */
 
-/* THE BUTTON IS SQUARED (2026-09-04, by explicit request: match the corner
-   geometry of a reference button, shape only - no colour or typography
-   change). It spent 2026-08-30 through today as a pill (`rounded-full`,
-   `--radius-pill`); before that it was the system's one deliberately
-   SQUARE component, `rounded-none`, edges landing on the editorial grid's
-   rules so a pair of CTAs read as one segmented bar. This is a third
-   position, not a revert to either: this ramp's "controls" step - the same
-   one inputs and selects use - rather than 0 or 9999px, so a button
-   carries the same corner as an input or a select instead of opting out of
-   the numbered scale entirely.
-
-   READS `rounded-md`, NOT `rounded-sm` (2026-09-04, brand guideline
-   adoption, same day): the guideline that moved this component's colors
-   also renumbered the radius scale itself, and its "controls = 8px" spec
-   now lands on `--radius-md`, not `--radius-sm` (6px) - see globals.css
-   § Radii for the full renumbering. `focus-visible:rounded-md` keeps the
-   focus ring tracing the same shape, and the pixel-dissolve canvas is
-   clipped by the control's own `overflow: hidden`, so it follows the
-   corner for free regardless of which shape this becomes next. */
+/* THE BUTTON IS A PILL (2026-09-14, Hulusi). Its fourth shape: `rounded-none`
+   on the editorial grid, then a pill (2026-08-30), then the ramp's 8px
+   "controls" corner (2026-09-04, to match a reference button), now the pill
+   again because the site had drifted into two families - the header, the
+   phone menu and the Lab's link pills were round while every CTA was
+   squared - and one family is worth more than either corner.
+   `focus-visible:rounded-full` keeps the focus ring tracing the shape, and
+   the pixel-dissolve canvas is clipped by the control's own
+   `overflow: hidden`, so it follows the corner for free. */
 const base =
-  "btn-fill relative inline-flex items-center justify-center gap-2 rounded-md font-medium " +
+  "btn-fill relative inline-flex items-center justify-center gap-2 rounded-full font-medium " +
   "tracking-[-0.01em] whitespace-nowrap select-none " +
   "transition-[background-color,color] duration-[var(--duration-base)] ease-[var(--ease-in-out-quad)] " +
-  "focus-visible:rounded-md " +
+  "focus-visible:rounded-full " +
   "disabled:pointer-events-none disabled:opacity-45 aria-disabled:pointer-events-none aria-disabled:opacity-45";
 
 const variants: Record<ButtonVariant, string> = {
@@ -156,15 +148,14 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 /**
- * `md` and `lg` are one height, because the reference geometry is one height:
- * a 56px block. They stay distinct names so the ~90 call sites that pick one or
- * the other keep compiling, and so the two can diverge again later without a
- * sweep.
+ * Three heights (2026-09-14). `md` is the default CTA; `sm` is the compact
+ * tier for toolbars, cards and the header; `lg` keeps a 16px label for a
+ * hero that wants it. The glyph beside a label is 16px at every size.
  */
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-10 px-4 text-[0.875rem]",
-  md: "h-14 px-6 text-[1rem] leading-5",
-  lg: "h-14 px-6 text-[1rem] leading-5",
+  sm: "h-9 px-4 text-sm [&>svg]:size-4",
+  md: "h-11 px-5 text-sm [&>svg]:size-4",
+  lg: "h-12 px-6 text-base [&>svg]:size-4",
 };
 
 /**
