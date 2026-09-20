@@ -36,10 +36,16 @@ import { primaryKpiLabel } from "@/lib/ab-test-kpi-labels";
    - Each category and each page has a glyph and a tint of its own
      (ui/AbLibraryIdentity.tsx), the way the journey taxonomy has, so the
      rail and the cards can be scanned before they are read.
-   - The card's accent badge is the page with its glyph; its muted badge is
-     the primary KPI - the playbook's own first rule ("one primary metric
-     decides the winner") made visible on every card. The body is the
-     hypothesis.
+   - The card is a QUESTION CARD (2026-09-20, Hulusi: "the texts are so
+     long it looks ugly"): a scenario's title is a three-line question
+     where a journey's name is two words, so inside a section the card
+     drops its glyph tile (the section heading carries it) and the title
+     takes the whole width, held to three balanced lines; the page and the
+     primary KPI - the playbook's own first rule, "one primary metric
+     decides the winner" - sit on one quiet meta line under it rather than
+     as two pills that never shared a row; the hypothesis runs to three
+     lines so the card fills the height the grid gives it. In the filtered
+     flat grid, where there is no section heading, the tile comes back.
    - One filter, Page. Category is the rail's job (a menu over twelve
      titles would be a second, worse way to the same place - the journey
      page dropped its own for that reason). The primary KPI is deliberately
@@ -102,6 +108,7 @@ function TestCard({
   lang,
   categoryLabels,
   surfaceLabels,
+  inSection,
 }: {
   row: AbTestRow;
   basePath: string;
@@ -109,19 +116,23 @@ function TestCard({
   lang: Lang;
   categoryLabels: LabelMap;
   surfaceLabels: LabelMap;
+  /** Under a category heading (which carries the glyph) or in the flat
+      filtered grid (where the card carries it). */
+  inSection: boolean;
 }) {
   const kpi = primaryKpiLabel(row.primaryKpi, lang);
   return (
     <IdeaCard
       href={`${basePath}/${row.slug}`}
-      icon={<AbCategoryIcon id={row.category} />}
+      icon={inSection ? undefined : <AbCategoryIcon id={row.category} />}
       iconTone={abCategoryAccent(row.category).tile}
       title={row.question}
-      badges={[
-        { label: surfaceLabels[row.surface] ?? row.surface, tone: "accent", icon: <SurfaceIcon id={row.surface} className="size-3.5" /> },
-        { label: kpi, tone: "muted", title: `${t.primaryKpi}: ${kpi}`, icon: <Target aria-hidden /> },
+      meta={[
+        { label: surfaceLabels[row.surface] ?? row.surface, icon: <SurfaceIcon id={row.surface} /> },
+        { label: kpi, icon: <Target aria-hidden />, title: `${t.primaryKpi}: ${kpi}` },
       ]}
       body={row.hypothesis}
+      bodyLines={3}
       footLeft={categoryLabels[row.category] ?? row.category}
       footRight={row.id}
     />
@@ -148,6 +159,10 @@ function CategorySection({
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, SECTION_PREVIEW_COUNT);
   const remaining = items.length - visible.length;
+  const title = categoryLabels[category.id] ?? category.id;
+  // The category's real page set - unless it is one page that is the
+  // category itself ("Pricing" under "Pricing"), which says nothing.
+  const pages = category.surfaces.map((s) => surfaceLabels[s] ?? s).join(" · ");
 
   return (
     <section id={anchorOf(category.id)} data-cat={category.id} className="scroll-mt-24">
@@ -155,15 +170,15 @@ function CategorySection({
         id={category.id}
         icon={<AbCategoryIcon id={category.id} />}
         tone={abCategoryAccent(category.id).tile}
-        title={categoryLabels[category.id] ?? category.id}
+        title={title}
         count={items.length}
         countLabel={t.testsLabel[items.length === 1 ? 0 : 1]}
-        purpose={category.surfaces.map((s) => surfaceLabels[s] ?? s).join(" · ")}
+        purpose={pages.toLocaleLowerCase(lang) === title.toLocaleLowerCase(lang) ? undefined : pages}
       />
 
       <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {visible.map((r) => (
-          <TestCard key={r.id} row={r} basePath={basePath} t={t} lang={lang} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
+          <TestCard key={r.id} row={r} basePath={basePath} t={t} lang={lang} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} inSection />
         ))}
       </div>
 
@@ -369,7 +384,7 @@ export default function AbTestGallery({
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filtered.map((r) => (
-                <TestCard key={r.id} row={r} basePath={basePath} t={t} lang={lang} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} />
+                <TestCard key={r.id} row={r} basePath={basePath} t={t} lang={lang} categoryLabels={categoryLabels} surfaceLabels={surfaceLabels} inSection={false} />
               ))}
             </div>
           )}

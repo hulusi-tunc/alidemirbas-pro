@@ -320,7 +320,9 @@ export function CategoryHeader({
   title: string;
   count: number;
   countLabel: string;
-  purpose: string;
+  /** The line under the title; a caller leaves it out when it would only
+      repeat the title (an A/B category whose one page is itself). */
+  purpose?: string;
   icon?: ReactNode;
   tone?: string;
 }) {
@@ -336,7 +338,7 @@ export function CategoryHeader({
             {code ? `${code} · ` : ""}{count} {countLabel}
           </span>
         </div>
-        <p className="mt-1.5 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ink-600">{purpose}</p>
+        {purpose ? <p className="mt-1.5 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ink-600">{purpose}</p> : null}
       </div>
     </div>
   );
