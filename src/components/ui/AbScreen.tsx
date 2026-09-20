@@ -1,22 +1,34 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import {
+  ArrowRight,
+  Bell,
   Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
+  Download,
+  Flame,
+  Gift,
+  Globe,
   Lock,
   CreditCard,
   Heart,
   Landmark,
+  LayoutGrid,
+  Mail,
+  MapPin,
   Menu,
+  MessageCircle,
   MoreHorizontal,
   Minus,
   Play,
   Plus,
   RotateCcw,
+  Ruler,
   Search,
+  SearchX,
   Share,
   ShieldCheck,
   ShoppingBag,
@@ -143,6 +155,70 @@ const UI = {
   createAccount: { en: "Create your account", tr: "Hesabını oluştur" },
   trustedBy: { en: "Trusted by", tr: "Güvenenler" },
   results: { en: "results", tr: "sonuç" },
+  viewAll: { en: "View all", tr: "Tümünü gör" },
+  // the second wave
+  loadMore: { en: "Load more", tr: "Daha fazla yükle" },
+  page: { en: "Page", tr: "Sayfa" },
+  sizeGuide: { en: "Size guide", tr: "Beden tablosu" },
+  modelWears: { en: "Model wears size M", tr: "Manken M beden giyiyor" },
+  trueToSize: { en: "Fits true to size", tr: "Kalıbı tam" },
+  findMySize: { en: "Find my size", tr: "Bedenimi bul" },
+  deliveryBy: { en: "Delivery", tr: "Teslimat" },
+  madeIn: { en: "Made in", tr: "Menşe" },
+  returnsIn: { en: "Free returns within 30 days", tr: "30 gün içinde ücretsiz iade" },
+  faq: { en: "Frequently asked questions", tr: "Sık sorulan sorular" },
+  howItWorks: { en: "How it works", tr: "Nasıl çalışır" },
+  useCases: { en: "Use cases", tr: "Kullanım senaryoları" },
+  meetTheTeam: { en: "Meet the team", tr: "Ekip" },
+  learnMore: { en: "Learn more", tr: "Daha fazla" },
+  getTheApp: { en: "Get the app", tr: "Uygulamayı indir" },
+  downloadGuide: { en: "Download the guide", tr: "Rehberi indir" },
+  inviteFriends: { en: "Invite friends", tr: "Arkadaşlarını davet et" },
+  createAccountCta: { en: "Create an account", tr: "Hesap oluştur" },
+  chatWithUs: { en: "Chat with us", tr: "Bize yazın" },
+  welcome: { en: "Welcome", tr: "Hoş geldin" },
+  skip: { en: "Skip", tr: "Geç" },
+  next: { en: "Next", tr: "İleri" },
+  gotIt: { en: "Got it", tr: "Anladım" },
+  whyWeAsk: { en: "Why we ask", tr: "Neden istiyoruz" },
+  recentlyViewed: { en: "Recently viewed", tr: "Son gezilenler" },
+  viewed: { en: "Viewed", tr: "Görüldü" },
+  profileComplete: { en: "Profile completion", tr: "Profil tamamlanma" },
+  youSave: { en: "You save", tr: "Kazancın" },
+  noResults: { en: "No results", tr: "Sonuç yok" },
+  tryAgain: { en: "Try another search", tr: "Başka bir arama dene" },
+  clearFilters: { en: "Clear filters", tr: "Filtreleri temizle" },
+  recommended: { en: "Recommended", tr: "Önerilen" },
+  newest: { en: "Newest", tr: "En yeni" },
+  priceLowHigh: { en: "Price: low to high", tr: "Fiyat: artan" },
+  sellingFast: { en: "Selling fast", tr: "Hızla tükeniyor" },
+  onlyLeft: { en: "Only a few left", tr: "Son birkaç adet" },
+  viewingNow: { en: "people viewing now", tr: "kişi şu an bakıyor" },
+  single: { en: "Single", tr: "Tekli" },
+  pack: { en: "Pack", tr: "Paket" },
+  customise: { en: "Customise", tr: "Özelleştir" },
+  engraving: { en: "Add engraving", tr: "Yazı ekle" },
+  startTrial: { en: "Start free trial", tr: "Ücretsiz denemeyi başlat" },
+  days7: { en: "7 days", tr: "7 gün" },
+  days14: { en: "14 days", tr: "14 gün" },
+  days30: { en: "30 days", tr: "30 gün" },
+  workEmail: { en: "Work email", tr: "İş e-postası" },
+  benefits: { en: "Benefits", tr: "Avantajlar" },
+  specs: { en: "Specs", tr: "Özellikler" },
+  contact: { en: "Contact", tr: "İletişim" },
+  overview: { en: "Overview", tr: "Genel" },
+  thankYou: { en: "Thank you for your order", tr: "Siparişin için teşekkürler" },
+  orderConfirmed: { en: "Order confirmed", tr: "Sipariş onaylandı" },
+  orderNumber: { en: "Order number", tr: "Sipariş numarası" },
+  trackOrder: { en: "Track order", tr: "Siparişi takip et" },
+  continueShopping: { en: "Continue shopping", tr: "Alışverişe devam et" },
+  dashboard: { en: "Dashboard", tr: "Panel" },
+  revenue: { en: "Revenue", tr: "Gelir" },
+  orders: { en: "Orders", tr: "Siparişler" },
+  visitors: { en: "Visitors", tr: "Ziyaretçiler" },
+  conversion: { en: "Conversion", tr: "Dönüşüm" },
+  resultsFor: { en: "Results for", tr: "Arama sonuçları" },
+  notifications: { en: "Notifications", tr: "Bildirimler" },
 } as const;
 
 const CAPTION: Record<AbVariableKind, Record<Lang, string>> = {
@@ -270,9 +346,15 @@ type Ctx = {
   /** A "remove" record runs the other way: the control has the more, the
       bigger, the louder, and the variant takes it away. */
   invert: boolean;
+  /** The record's testedSlot, diacritics folded - so a family that holds
+      several things (a delivery note or an origin line; the app banner or
+      a guide download) can tell which one it is drawing. */
+  slotFold: string;
   lang: Lang;
   phone: boolean;
 };
+
+const fold = (s: string) => s.toLowerCase().replace(/[ıİ]/g, "i").replace(/[şŞ]/g, "s").replace(/[ğĞ]/g, "g").replace(/[üÜ]/g, "u").replace(/[öÖ]/g, "o").replace(/[çÇ]/g, "c").replace(/â/g, "a");
 
 /** `a` on side A, `b` on side B, `normal` when the kind is not this one
     (or on a solo drawing). */
@@ -666,6 +748,328 @@ function Logos({ ctx }: { ctx: Ctx }) {
   );
 }
 
+/* ---- the second wave -------------------------------------------------- */
+
+/** Numbered pages, or a "load more" button under the grid. */
+function Pagination({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const loadMore = diff(ctx, ["options", "format"], false, true, false);
+  if (loadMore) return <span className="flex justify-center"><Btn tone="outline" size="md">{UI.loadMore[l]}</Btn></span>;
+  return (
+    <span className="flex items-center justify-center gap-1.5">
+      <span className="grid size-9 place-items-center rounded-md text-ink-400"><ChevronLeft className="size-4" /></span>
+      {[1, 2, 3, 4].map((n) => <span key={n} className={clsx("grid size-9 place-items-center rounded-md text-[13px] font-medium", n === 1 ? "bg-ink-950 text-white" : "text-ink-700 ring-1 ring-ink-950/[0.12]")}>{n}</span>)}
+      <span className="text-[13px] text-ink-400">…</span>
+      <span className="grid size-9 place-items-center rounded-md text-ink-700 ring-1 ring-ink-950/[0.12]"><ChevronRight className="size-4" /></span>
+    </span>
+  );
+}
+
+/** Size help beside the size selector: a link, a "find my size" button,
+    the model's size, or the fit feedback line. */
+function SizeGuide({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const asButton = diff(ctx, ["options", "format"], false, true, false);
+  const modelLine = diff(ctx, "presence", false, true, true) && ctx.present;
+  return (
+    <span className="flex flex-col gap-2.5">
+      {asButton ? <Btn tone="outline" size="sm" className="w-fit"><Ruler className="size-4" />{UI.findMySize[l]}</Btn> : <span className="inline-flex items-center gap-1.5 text-[13px] text-primary-700 underline underline-offset-2"><Ruler className="size-4" />{UI.sizeGuide[l]}</span>}
+      {modelLine ? <span className="flex flex-col gap-1 text-[12px] text-ink-600"><span>{UI.modelWears[l]}</span><span className="flex items-center gap-1.5 text-emerald-700"><Check className="size-3.5" />{UI.trueToSize[l]}</span></span> : null}
+    </span>
+  );
+}
+
+/** Delivery, returns and origin as a small fact list. */
+function Delivery({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const loud = diff(ctx, "emphasis", false, true, false);
+  const origin = ctx.element === "delivery" && /mense/.test(ctx.slotFold);
+  const rows: { icon: ReactNode; label: string; value?: ReactNode }[] = origin
+    ? [{ icon: <Globe />, label: UI.madeIn[l], value: <Bar w="w-16" /> }]
+    : [{ icon: <Truck />, label: UI.deliveryBy[l], value: <Bar w="w-20" /> }, { icon: <RotateCcw />, label: UI.returnsIn[l] }];
+  return (
+    <span className={clsx("flex flex-col gap-2.5 rounded-lg", loud ? "bg-emerald-50 p-4" : "")}>
+      {rows.map((r) => (
+        <span key={r.label} className={clsx("flex items-center gap-2.5 text-[13px] [&>svg]:size-4", loud ? "text-emerald-800 [&>svg]:text-emerald-600" : "text-ink-700 [&>svg]:text-ink-400")}>
+          {r.icon}<span className="font-medium">{r.label}</span>{r.value}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** An accordion of questions, the first open. */
+function Faq({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  return (
+    <span className="block">
+      <span className="block text-[15px] font-semibold text-ink-950">{UI.faq[l]}</span>
+      <span className="mt-3 flex flex-col divide-y divide-line-soft border-y border-line-soft">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="block py-3">
+            <span className="flex items-center justify-between"><Bar w={i === 0 ? "w-3/5" : i === 1 ? "w-1/2" : "w-2/3"} className="h-2.5" /><ChevronDown className={clsx("size-4 text-ink-400", i === 0 && "rotate-180")} /></span>
+            {i === 0 ? <><Bar className="mt-3" /><Bar className="mt-2" w="w-4/5" /></> : null}
+          </span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
+/** A content section: "how it works", use cases, the team, a closing CTA
+    - drawn as a titled block whose shape the test varies. */
+function Section({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const f = ctx.slotFold;
+  const title = /nasil calisir/.test(f) ? UI.howItWorks[l] : /kullanim/.test(f) ? UI.useCases[l] : /uzman|kurucu/.test(f) ? UI.meetTheTeam[l] : /onay/.test(f) ? UI.orderConfirmed[l] : UI.learnMore[l];
+  const team = /uzman|kurucu/.test(f);
+  const zig = diff(ctx, "layout", false, true, false);
+  const longer = diff(ctx, "options", false, true, false) && /uzunlug/.test(f);
+  const bigIcons = diff(ctx, "size", false, true, false);
+  const personal = diff(ctx, "personalization", false, true, false);
+  const cols = team ? 3 : 3;
+  return (
+    <span className="block">
+      <span className="flex items-baseline justify-between"><span className="text-[18px] font-semibold text-ink-950">{title}</span>{personal ? <span className="rounded bg-primary-50 px-2 py-0.5 text-[11px] font-medium text-primary-700">{UI.forYou[l]}</span> : null}</span>
+      {zig ? (
+        <span className="mt-4 flex flex-col gap-4">{[0, 1].map((i) => <span key={i} className={clsx("grid grid-cols-2 items-center gap-6", i % 2 ? "[&>*:first-child]:order-2" : "")}><Img className="h-28" /><span><Title w="w-2/3" /><Bar className="mt-3" /><Bar className="mt-2" w="w-3/4" /></span></span>)}</span>
+      ) : (
+        <span className="mt-4 grid gap-4" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+          {Array.from({ length: cols }, (_, i) => (
+            <span key={i} className="block rounded-lg bg-paper-soft p-4">
+              {team ? <span className="mx-auto block size-14 rounded-full bg-gradient-to-br from-stone-200 to-stone-300" /> : <span className={clsx("grid place-items-center rounded-lg bg-primary-50 text-primary-700", bigIcons ? "size-14 [&>svg]:size-7" : "size-9 [&>svg]:size-4")}><Check /></span>}
+              <Title size="sm" w="w-1/2" className={clsx("mt-3", team && "mx-auto")} /><Bar className={clsx("mt-2", team && "mx-auto")} w="w-4/5" />
+            </span>
+          ))}
+        </span>
+      )}
+      {longer ? <span className="mt-4 grid grid-cols-3 gap-4">{[0, 1, 2].map((i) => <span key={i} className="block rounded-lg bg-paper-soft p-4"><Title size="sm" w="w-1/2" /><Bar className="mt-2" w="w-4/5" /></span>)}</span> : null}
+    </span>
+  );
+}
+
+/** The thin announcement bar above the nav. */
+function TopBar({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  return (
+    <span className="-mx-10 -mt-2 flex h-9 items-center justify-center gap-2 bg-ink-950 text-[12px] font-medium text-white">
+      <Truck className="size-3.5" />{UI.freeShipping[l]}<span className="mx-1 text-white/40">·</span><RotateCcw className="size-3.5" />{UI.freeReturns[l]}
+    </span>
+  );
+}
+
+/** An offer banner: the app, a downloadable guide, an invitation. */
+function Banner({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const f = ctx.slotFold;
+  const app = /uygulama/.test(f); const guide = /indirilebilir/.test(f); const invite = /arkadas/.test(f);
+  const icon = app ? <Smartphone /> : guide ? <Download /> : invite ? <Gift /> : <UserRound />;
+  const cta = app ? UI.getTheApp[l] : guide ? UI.downloadGuide[l] : invite ? UI.inviteFriends[l] : UI.createAccountCta[l];
+  return (
+    <span className="flex items-center gap-4 rounded-xl bg-primary-50 p-4 ring-1 ring-primary-100">
+      <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary-600 text-white [&>svg]:size-5">{icon}</span>
+      <span className="min-w-0 flex-1"><Title size="sm" w="w-1/2" /><Bar className="mt-2" w="w-3/4" /></span>
+      <Btn tone="primary" size="md">{cta}</Btn>
+    </span>
+  );
+}
+
+/** The live-chat launcher, bottom right. */
+function Chat({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const labelled = diff(ctx, ["options", "format"], false, true, true);
+  return (
+    <span className="flex justify-end">
+      <span className={clsx("inline-flex h-12 items-center gap-2 rounded-full bg-ink-950 text-[13px] font-semibold text-white shadow-[0_16px_40px_-16px_rgb(10_16_32/0.5)]", labelled ? "px-5" : "w-12 justify-center")}>
+        <MessageCircle className="size-5" />{labelled ? UI.chatWithUs[l] : null}
+      </span>
+    </span>
+  );
+}
+
+/** A first-run screen: welcome, a coach-mark tip, a permission rationale,
+    a next-step suggestion. */
+function Onboarding({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const f = ctx.slotFold;
+  const tip = /ipuc/.test(f); const why = /gerekce/.test(f); const nextStep = /sonraki/.test(f);
+  if (tip) {
+    return (
+      <span className="relative block rounded-xl bg-ink-950 p-4 text-white">
+        <span aria-hidden className="absolute -top-2 left-8 size-4 rotate-45 bg-ink-950" />
+        <Bar w="w-3/4" className="bg-white/25" /><Bar className="mt-2 bg-white/25" w="w-1/2" />
+        <span className="mt-3 flex items-center justify-between"><span className="flex gap-1">{[0, 1, 2].map((i) => <span key={i} className={clsx("size-1.5 rounded-full", i === 0 ? "bg-white" : "bg-white/30")} />)}</span><span className="text-[12px] font-semibold">{UI.gotIt[l]}</span></span>
+      </span>
+    );
+  }
+  if (nextStep) {
+    return (
+      <span className="flex items-center gap-3 rounded-xl bg-paper-soft p-4">
+        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary-50 text-primary-700"><ArrowRight className="size-4" /></span>
+        <span className="min-w-0 flex-1"><Title size="sm" w="w-2/3" /><Bar className="mt-2" w="w-1/2" /></span>
+        <Btn tone="primary" size="sm">{UI.next[l]}</Btn>
+      </span>
+    );
+  }
+  return (
+    <span className="flex flex-col items-center gap-4 rounded-2xl bg-paper p-6 text-center ring-1 ring-ink-950/[0.08]">
+      <span className="grid size-14 place-items-center rounded-full bg-primary-50 text-primary-700">{why ? <Bell className="size-6" /> : <Check className="size-6" />}</span>
+      <span className="text-[17px] font-semibold text-ink-950">{why ? UI.whyWeAsk[l] : UI.welcome[l]}</span>
+      <Bar w="w-4/5" /><Bar w="w-3/5" />
+      <span className="mt-1 flex w-full gap-2"><Btn tone="outline" size="md" className="flex-1">{UI.skip[l]}</Btn><Btn tone="primary" size="md" className="flex-1">{why ? UI.allow[l] : UI.next[l]}</Btn></span>
+    </span>
+  );
+}
+
+/** A strip of recently viewed products, or a "viewed" mark on a card. */
+function Recent({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const mark = /gorulen/.test(ctx.slotFold);
+  if (mark) {
+    return (
+      <span className="grid grid-cols-4 gap-4">
+        {[0, 1, 2, 3].map((i) => <ProductCard key={i} lang={l} badge={i < 2 ? <span className="absolute top-4 left-4 inline-flex items-center gap-1 rounded bg-paper/95 px-1.5 py-0.5 text-[10px] font-medium text-ink-600 ring-1 ring-ink-950/[0.08]"><Check className="size-3" />{UI.viewed[l]}</span> : null} />)}
+      </span>
+    );
+  }
+  return (
+    <span className="block">
+      <span className="flex items-center justify-between"><span className="text-[15px] font-semibold text-ink-950">{UI.recentlyViewed[l]}</span><span className="text-[12px] text-ink-500">{UI.viewAll[l]}</span></span>
+      <span className="mt-3 flex gap-3 overflow-hidden">{[0, 1, 2, 3, 4, 5].map((i) => <span key={i} className="block w-24 shrink-0"><Img className="aspect-square w-full" /><Bar className="mt-2" w="w-4/5" /></span>)}</span>
+    </span>
+  );
+}
+
+/** A progress meter: profile completion, or the value of a pack. */
+function Meter({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const value = /paket/.test(ctx.slotFold);
+  return (
+    <span className="block rounded-lg bg-paper-soft p-4">
+      <span className="flex items-center justify-between text-[13px] font-medium text-ink-900">{value ? UI.youSave[l] : UI.profileComplete[l]}<span className="block h-3.5 w-10 rounded bg-ink-950/80" /></span>
+      <span className="relative mt-3 block h-2 rounded-full bg-ink-950/10"><span className="absolute inset-y-0 left-0 w-[64%] rounded-full bg-primary-600" /></span>
+      {!value ? <span className="mt-2 flex gap-1.5">{[0, 1, 2, 3].map((i) => <span key={i} className={clsx("size-5 rounded-full grid place-items-center", i < 3 ? "bg-primary-600 text-white" : "bg-paper ring-1 ring-ink-950/[0.12]")}>{i < 3 ? <Check className="size-3" /> : null}</span>)}</span> : null}
+    </span>
+  );
+}
+
+/** The zero-results page. */
+function Empty({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const helpful = diff(ctx, "presence", false, true, true) && ctx.present;
+  return (
+    <span className="flex flex-col items-center gap-3 rounded-xl bg-paper-soft px-6 py-10 text-center">
+      <span className="grid size-12 place-items-center rounded-full bg-paper text-ink-400 ring-1 ring-ink-950/[0.08]"><SearchX className="size-5" /></span>
+      <span className="text-[16px] font-semibold text-ink-950">{UI.noResults[l]}</span>
+      <Bar w="w-1/2" />
+      {helpful ? <><span className="mt-1 flex gap-2"><Btn tone="outline" size="sm">{UI.clearFilters[l]}</Btn><Btn tone="primary" size="sm">{UI.tryAgain[l]}</Btn></span><span className="mt-3 grid w-full grid-cols-4 gap-3">{[0, 1, 2, 3].map((i) => <span key={i} className="block"><Img className="aspect-square w-full" /><Bar className="mt-2" w="w-4/5" /></span>)}</span></> : null}
+    </span>
+  );
+}
+
+/** The sort control with its default reading. */
+function Sort({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const opts = [UI.recommended[l], UI.newest[l], UI.priceLowHigh[l]];
+  const chosen = diff(ctx, ["ordering", "default", "options"], 0, 1, 0);
+  return (
+    <span className="inline-flex h-10 items-center gap-2 rounded-md bg-paper px-3 text-[13px] font-medium text-ink-800 ring-1 ring-ink-950/[0.14]">
+      <span className="text-ink-500">{UI.sortBy[l]}:</span>{opts[chosen]}<ChevronDown className="size-4 text-ink-400" />
+    </span>
+  );
+}
+
+/** An urgency line: stock, or people looking. */
+function Urgency({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const social = diff(ctx, ["options", "format"], false, true, false);
+  return social ? (
+    <span className="inline-flex items-center gap-2 text-[13px] text-ink-700"><span className="flex -space-x-1.5">{[0, 1, 2].map((i) => <span key={i} className="size-5 rounded-full bg-gradient-to-br from-stone-200 to-stone-300 ring-2 ring-paper" />)}</span><span className="block h-3 w-5 rounded bg-ink-950/80" />{UI.viewingNow[l]}</span>
+  ) : (
+    <span className="inline-flex items-center gap-2 rounded-md bg-rose-50 px-3 py-1.5 text-[12px] font-medium text-rose-700"><Flame className="size-4" />{UI.onlyLeft[l]}</span>
+  );
+}
+
+/** Pack sizes side by side, or a customise option. */
+function Bundle({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const custom = /ozellestir/.test(ctx.slotFold);
+  if (custom) {
+    return (
+      <span className="flex items-center justify-between rounded-lg p-3 ring-1 ring-ink-950/[0.12]">
+        <span className="flex items-center gap-3"><span className="size-5 rounded border-2 border-ink-300" /><span className="text-[13px] font-medium text-ink-900">{UI.engraving[l]}</span></span>
+        <PriceBar />
+      </span>
+    );
+  }
+  return (
+    <span className="grid grid-cols-3 gap-2">
+      {[UI.single[l], `${UI.pack[l]} ×3`, `${UI.pack[l]} ×5`].map((o, i) => (
+        <span key={o} className={clsx("flex flex-col items-center gap-1.5 rounded-lg p-3 ring-1", i === 1 ? "bg-primary-50 text-primary-800 ring-primary-300" : "text-ink-800 ring-ink-950/[0.12]")}>
+          <span className="text-[12px] font-semibold">{o}</span><PriceBar />{i === 1 ? <span className="rounded bg-primary-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">%</span> : null}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** The trial's terms on a SaaS sign-up: its length, the email it asks for. */
+function Steps({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const emailRule = /e-posta/.test(ctx.slotFold);
+  if (emailRule) {
+    const work = diff(ctx, ["options", "format"], false, true, false);
+    return <Field label={work ? UI.workEmail[l] : UI.email[l]} placeholder={work ? "name@company.com" : "name@example.com"} />;
+  }
+  const days = diff(ctx, ["options", "format", "quantity"], UI.days7[l], UI.days30[l], UI.days14[l]);
+  return (
+    <span className="flex flex-col gap-3">
+      <Btn tone="primary" size="lg" className="w-full">{UI.startTrial[l]}<span className="rounded bg-white/20 px-1.5 py-0.5 text-[11px]">{days}</span></Btn>
+      <span className="flex items-center justify-center gap-4 text-[11px] text-ink-500"><span className="flex items-center gap-1"><Check className="size-3.5 text-emerald-600" /><Bar w="w-14" /></span><span className="flex items-center gap-1"><Check className="size-3.5 text-emerald-600" /><Bar w="w-16" /></span></span>
+    </span>
+  );
+}
+
+/** Product information as tabs, or as an open list. */
+function Tabs({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const f = ctx.slotFold;
+  const contactRow = /iletisim/.test(f);
+  const asList = diff(ctx, ["options", "format", "hierarchy"], false, true, false);
+  const loud = diff(ctx, "emphasis", false, true, false);
+  if (contactRow) {
+    return <span className={clsx("flex items-center gap-4 rounded-lg p-3 text-[12px] text-ink-700 [&>span>svg]:size-4", loud ? "bg-paper-soft" : "")}><span className="flex items-center gap-1.5"><Mail className="text-ink-400" /><Bar w="w-24" /></span><span className="flex items-center gap-1.5"><MessageCircle className="text-ink-400" /><Bar w="w-16" /></span><span className="flex items-center gap-1.5"><MapPin className="text-ink-400" /><Bar w="w-20" /></span></span>;
+  }
+  const names = [UI.overview[l], UI.benefits[l], UI.specs[l]];
+  if (asList) {
+    return <span className="flex flex-col gap-3">{names.map((n) => <span key={n} className="block"><span className="text-[13px] font-semibold text-ink-950">{n}</span><Bar className="mt-2" /><Bar className="mt-1.5" w="w-3/4" /></span>)}</span>;
+  }
+  return (
+    <span className="block">
+      <span className="flex gap-6 border-b border-line-soft">{names.map((n, i) => <span key={n} className={clsx("pb-2 text-[13px] font-medium", i === (loud ? 1 : 0) ? "border-b-2 border-ink-950 text-ink-950" : "text-ink-500")}>{n}</span>)}</span>
+      <span className={clsx("mt-3 block", loud && "rounded-lg bg-emerald-50 p-3")}>{loud ? <span className="flex flex-col gap-2">{[0, 1, 2].map((i) => <span key={i} className="flex items-center gap-2 text-emerald-800"><Check className="size-4 text-emerald-600" /><Bar w={i ? "w-1/2" : "w-2/3"} /></span>)}</span> : <><Bar /><Bar className="mt-2" w="w-3/4" /></>}</span>
+    </span>
+  );
+}
+
+/** A dashboard's widgets; the order is the variable. */
+function Dashboard({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  let tiles = [UI.revenue[l], UI.orders[l], UI.visitors[l], UI.conversion[l]];
+  if (diff(ctx, "ordering", false, true, false)) tiles = [tiles[3], tiles[0], tiles[1], tiles[2]];
+  return (
+    <span className="grid grid-cols-4 gap-3">
+      {tiles.map((t, i) => (
+        <span key={t} className={clsx("block rounded-lg p-4 ring-1", i === 0 ? "bg-ink-950 text-white ring-ink-950" : "bg-paper text-ink-900 ring-ink-950/[0.08]")}>
+          <span className={clsx("text-[11px] font-medium", i === 0 ? "text-white/60" : "text-ink-500")}>{t}</span>
+          <span className={clsx("mt-2 block h-6 w-16 rounded", i === 0 ? "bg-white/85" : "bg-ink-950/85")} />
+          <span className="mt-3 flex items-end gap-1">{[4, 7, 5, 9, 6, 10, 8].map((h, k) => <span key={k} className={clsx("w-2 rounded-sm", i === 0 ? "bg-white/30" : "bg-primary-200")} style={{ height: h * 2 }} />)}</span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function Generic({ ctx }: { ctx: Ctx }) {
   const loud = diff(ctx, "emphasis", false, true, false);
   const big = diff(ctx, "size", false, true, false);
@@ -693,6 +1097,24 @@ function Element({ ctx }: { ctx: Ctx }) {
     case "selector": return <Selector ctx={ctx} />;
     case "text": return <Text ctx={ctx} />;
     case "logos": return <Logos ctx={ctx} />;
+    case "pagination": return <Pagination ctx={ctx} />;
+    case "sizeguide": return <SizeGuide ctx={ctx} />;
+    case "delivery": return <Delivery ctx={ctx} />;
+    case "faq": return <Faq ctx={ctx} />;
+    case "section": return <Section ctx={ctx} />;
+    case "topbar": return <TopBar ctx={ctx} />;
+    case "banner": return <Banner ctx={ctx} />;
+    case "chat": return <Chat ctx={ctx} />;
+    case "onboarding": return <Onboarding ctx={ctx} />;
+    case "recent": return <Recent ctx={ctx} />;
+    case "meter": return <Meter ctx={ctx} />;
+    case "empty": return <Empty ctx={ctx} />;
+    case "sort": return <Sort ctx={ctx} />;
+    case "urgency": return <Urgency ctx={ctx} />;
+    case "bundle": return <Bundle ctx={ctx} />;
+    case "steps": return <Steps ctx={ctx} />;
+    case "tabs": return <Tabs ctx={ctx} />;
+    case "dashboard": return <Dashboard ctx={ctx} />;
     default: return <Generic ctx={ctx} />;
   }
 }
@@ -762,11 +1184,13 @@ function useSlots(ctx: Ctx, slots: readonly AbElementKind[]) {
 }
 
 function Pdp({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx, ["nav", "media", "text", "reviews", "price", "selector", "cta", "shipping", "badge", "countdown", "coupon"]);
+  const { at, rest } = useSlots(ctx, ["nav", "media", "text", "reviews", "price", "selector", "sizeguide", "cta", "shipping", "badge", "countdown", "coupon", "urgency", "bundle", "delivery", "tabs", "faq", "banner", "topbar", "recent"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-8">
+      {at("topbar", null)}
       {at("nav", <ShopNav ctx={ctx} />)}
+      {at("banner", null)}
       <span className={clsx("grid gap-10", ctx.phone ? "grid-cols-1" : "grid-cols-[1.1fr_1fr]")}>
         <span className="flex flex-col gap-3">
           {at("media", <Img className="aspect-[4/5] w-full" />)}
@@ -776,37 +1200,51 @@ function Pdp({ ctx }: { ctx: Ctx }) {
           {at("text", <><Title size="lg" w="w-5/6" /><Bar w="w-1/2" className="mt-1" /></>)}
           {at("reviews", <span className="flex items-center gap-2"><span className="flex items-center gap-0.5 text-amber-500">{[0, 1, 2, 3, 4].map((i) => <Star key={i} className="size-4" />)}</span><Bar w="w-16" /></span>)}
           {at("price", <PriceBar big />)}
+          {at("urgency", null)}
           <span className="block"><span className="mb-2 block text-[12px] font-medium text-ink-700">{UI.size[l]}</span>{at("selector", <span className="flex gap-2">{["S", "M", "L", "XL"].map((o) => <span key={o} className="grid h-10 min-w-10 place-items-center rounded-md px-3 text-[13px] font-medium text-ink-700 ring-1 ring-ink-950/[0.12]">{o}</span>)}</span>)}</span>
+          {at("sizeguide", <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-500"><Ruler className="size-4" />{UI.sizeGuide[l]}</span>)}
+          {at("bundle", null)}
           {at("cta", <Btn tone="ink" size="lg" className="w-full"><ShoppingBag className="size-4" />{UI.addToCart[l]}</Btn>)}
           {at("shipping", null)}
+          {at("delivery", <span className="flex items-center gap-2.5 text-[13px] text-ink-700"><Truck className="size-4 text-ink-400" /><span className="font-medium">{UI.deliveryBy[l]}</span><Bar w="w-20" /></span>)}
           {at("badge", <span className="flex gap-6 text-[12px] text-ink-600 [&>span>svg]:size-4 [&>span>svg]:text-ink-400"><span className="flex items-center gap-2"><Truck />{UI.freeShipping[l]}</span><span className="flex items-center gap-2"><RotateCcw />{UI.freeReturns[l]}</span><span className="flex items-center gap-2"><ShieldCheck />{UI.securePayment[l]}</span></span>)}
           {at("countdown", null)}{at("coupon", null)}
           {rest()}
-          {at("cta", null, true)}{at("badge", null, true)}{at("price", null, true)}{at("reviews", null, true)}{at("text", null, true)}{at("media", null, true)}{at("selector", null, true)}
-          <span className="mt-2 block border-t border-line-soft pt-5"><span className="block text-[14px] font-semibold text-ink-950">{UI.description[l]}</span><Bar className="mt-3" /><Bar className="mt-2" /><Bar className="mt-2" w="w-3/4" /></span>
+          {at("cta", null, true)}{at("badge", null, true)}{at("price", null, true)}{at("reviews", null, true)}{at("text", null, true)}{at("media", null, true)}{at("selector", null, true)}{at("urgency", null, true)}{at("sizeguide", null, true)}{at("bundle", null, true)}{at("delivery", null, true)}
+          {at("tabs", <span className="mt-2 block border-t border-line-soft pt-5"><span className="block text-[14px] font-semibold text-ink-950">{UI.description[l]}</span><Bar className="mt-3" /><Bar className="mt-2" /><Bar className="mt-2" w="w-3/4" /></span>)}
         </span>
       </span>
-      {at("nav", null, true)}
+      {at("faq", null)}{at("recent", null)}
+      {at("nav", null, true)}{at("faq", null, true)}{at("recent", null, true)}{at("tabs", null, true)}{at("banner", null, true)}{at("topbar", null, true)}
       {!ctx.phone ? <Footer /> : null}
     </span>
   );
 }
 
 function Plp({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx, ["nav", "search", "filters", "countdown", "text", "badge", "media", "logos", "grid"]);
+  const { at, rest } = useSlots(ctx, ["nav", "search", "filters", "sort", "countdown", "text", "badge", "media", "logos", "grid", "recent", "pagination", "empty", "topbar", "banner"]);
   const l = ctx.lang;
+  const searching = ctx.surface === "search";
+  const empty = ctx.element === "empty";
   return (
     <span className="flex flex-col gap-6">
+      {at("topbar", null)}
       {at("nav", <ShopNav ctx={ctx} />)}
+      {at("banner", null)}
       <span className={clsx("flex gap-3", ctx.phone ? "flex-col" : "items-center")}>
-        <span className="min-w-0 flex-1">{at("search", <span className="flex h-10 items-center gap-2.5 rounded-md bg-paper px-3 text-[13px] text-ink-400 ring-1 ring-ink-950/[0.14]"><Search className="size-4 text-ink-500" />{UI.searchProducts[l]}</span>)}</span>
-        {at("filters", <span className="flex gap-2">{[UI.size[l], UI.colour[l], UI.priceFilter[l], UI.sortBy[l]].map((c) => <span key={c} className="inline-flex h-10 items-center gap-1.5 rounded-md px-3 text-[12px] font-medium text-ink-700 ring-1 ring-ink-950/[0.14]">{c}<ChevronDown className="size-3.5 text-ink-400" /></span>)}</span>)}
+        <span className="min-w-0 flex-1">{at("search", <span className="flex h-10 items-center gap-2.5 rounded-md bg-paper px-3 text-[13px] ring-1 ring-ink-950/[0.14]"><Search className="size-4 text-ink-500" />{searching ? <Bar w="w-24" className="h-2.5" /> : <span className="text-ink-400">{UI.searchProducts[l]}</span>}</span>)}</span>
+        {at("filters", <span className="flex gap-2">{[UI.size[l], UI.colour[l], UI.priceFilter[l]].map((c) => <span key={c} className="inline-flex h-10 items-center gap-1.5 rounded-md px-3 text-[12px] font-medium text-ink-700 ring-1 ring-ink-950/[0.14]">{c}<ChevronDown className="size-3.5 text-ink-400" /></span>)}</span>)}
+        {at("sort", <span className="inline-flex h-10 items-center gap-1.5 rounded-md px-3 text-[12px] font-medium text-ink-700 ring-1 ring-ink-950/[0.14]">{UI.sortBy[l]}<ChevronDown className="size-3.5 text-ink-400" /></span>)}
       </span>
       {at("countdown", null)}{at("text", null)}{at("badge", null)}{at("media", null)}{at("logos", null)}
       {rest()}
-      <SectionTitle meta={<><Bar w="w-6" className="mr-1 inline-block align-middle" />{UI.results[l]}</>}>{UI.newArrivals[l]}</SectionTitle>
-      {at("grid", <span className={clsx("grid gap-4", ctx.phone ? "grid-cols-2" : "grid-cols-4")}>{Array.from({ length: ctx.phone ? 4 : 8 }, (_, i) => <ProductCard key={i} lang={l} />)}</span>)}
-      {at("countdown", null, true)}{at("text", null, true)}{at("badge", null, true)}{at("search", null, true)}{at("filters", null, true)}{at("nav", null, true)}{at("media", null, true)}{at("logos", null, true)}
+      {empty ? at("empty", null) : <>
+        <SectionTitle meta={<><Bar w="w-6" className="mr-1 inline-block align-middle" />{UI.results[l]}</>}>{searching ? UI.resultsFor[l] : UI.newArrivals[l]}</SectionTitle>
+        {at("recent", null)}
+        {at("grid", <span className={clsx("grid gap-4", ctx.phone ? "grid-cols-2" : "grid-cols-4")}>{Array.from({ length: ctx.phone ? 4 : 8 }, (_, i) => <ProductCard key={i} lang={l} />)}</span>)}
+        {at("pagination", <span className="flex items-center justify-center gap-1.5">{[1, 2, 3].map((n) => <span key={n} className={clsx("grid size-9 place-items-center rounded-md text-[13px] font-medium", n === 1 ? "bg-ink-950 text-white" : "text-ink-500")}>{n}</span>)}</span>)}
+      </>}
+      {at("countdown", null, true)}{at("text", null, true)}{at("badge", null, true)}{at("search", null, true)}{at("filters", null, true)}{at("nav", null, true)}{at("media", null, true)}{at("logos", null, true)}{at("sort", null, true)}{at("recent", null, true)}{at("pagination", null, true)}{at("topbar", null, true)}{at("banner", null, true)}
       {!ctx.phone ? <Footer /> : null}
     </span>
   );
@@ -851,7 +1289,7 @@ function Checkout({ ctx }: { ctx: Ctx }) {
 }
 
 function FormPage({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx, ["nav", "stepper", "text", "payment", "form", "selector", "cta", "badge"]);
+  const { at, rest } = useSlots(ctx, ["nav", "stepper", "text", "payment", "form", "selector", "cta", "badge", "steps", "onboarding"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-8">
@@ -860,55 +1298,107 @@ function FormPage({ ctx }: { ctx: Ctx }) {
         {at("stepper", null)}
         {at("text", <><span className="block text-[22px] font-semibold text-ink-950">{UI.createAccount[l]}</span><Bar w="w-1/2" /></>)}
         {at("payment", null)}
-        {at("form", <span className="grid gap-4"><Field label={UI.fullName[l]} /><Field label={UI.email[l]} /></span>)}
-        {at("selector", null)}
+        {at("form", <span className="grid gap-4"><Field label={UI.fullName[l]} />{at("steps", <Field label={UI.email[l]} />)}</span>)}
+        {at("selector", null)}{at("onboarding", null)}
         {at("cta", <Btn tone="primary" size="lg" className="w-full">{UI.continue[l]}</Btn>)}
         <Btn tone="outline" size="lg" className="w-full">{UI.continueWithGoogle[l]}</Btn>
         {at("badge", null)}
         {rest()}
-        {at("form", null, true)}{at("cta", null, true)}{at("text", null, true)}{at("badge", null, true)}{at("stepper", null, true)}{at("payment", null, true)}
+        {at("form", null, true)}{at("cta", null, true)}{at("text", null, true)}{at("badge", null, true)}{at("stepper", null, true)}{at("payment", null, true)}{at("steps", null, true)}{at("onboarding", null, true)}
       </span>
       {at("nav", null, true)}
     </span>
   );
 }
 
-function Home({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx, ["nav", "text", "cta", "badge", "media", "logos", "countdown", "reviews", "search", "plans", "form", "price", "grid"]);
+/** The order confirmation. */
+function ThankYou({ ctx }: { ctx: Ctx }) {
+  const { at, rest } = useSlots(ctx, ["nav", "section", "banner", "cta", "recent", "grid", "text"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-8">
       {at("nav", <ShopNav ctx={ctx} />)}
+      {at("section", <span className="flex flex-col items-center gap-3 text-center"><span className="grid size-16 place-items-center rounded-full bg-emerald-50 text-emerald-600"><Check className="size-8" /></span><span className="text-[26px] font-semibold text-ink-950">{UI.thankYou[l]}</span><span className="flex items-center gap-2 text-[13px] text-ink-600">{UI.orderNumber[l]}<span className="block h-3 w-16 rounded bg-ink-950/80" /></span></span>)}
+      {at("text", null)}
+      <span className={clsx("mx-auto flex w-full flex-col gap-4 rounded-2xl bg-paper-soft p-6", ctx.phone ? "" : "max-w-[34rem]")}>
+        {[0, 1].map((i) => <span key={i} className="flex items-center gap-4"><Img className="size-14 shrink-0" /><span className="flex-1"><Bar w="w-3/4" /><Bar className="mt-2" w="w-1/3" /></span><PriceBar /></span>)}
+        <span className="flex justify-between border-t border-line-soft pt-3 text-[14px] font-semibold text-ink-950">{UI.total[l]}<PriceBar big /></span>
+      </span>
+      {at("banner", null)}
+      {at("cta", <span className="flex justify-center gap-3"><Btn tone="outline" size="md">{UI.trackOrder[l]}</Btn><Btn tone="ink" size="md">{UI.continueShopping[l]}</Btn></span>)}
+      {rest()}
+      {at("recent", null)}{at("grid", null)}
+      {at("nav", null, true)}{at("section", null, true)}{at("banner", null, true)}{at("cta", null, true)}{at("recent", null, true)}{at("grid", null, true)}{at("text", null, true)}
+      {!ctx.phone ? <Footer /> : null}
+    </span>
+  );
+}
+
+/** A SaaS dashboard: a rail, the widget row, a table. */
+function DashboardPage({ ctx }: { ctx: Ctx }) {
+  const { at, rest } = useSlots(ctx, ["nav", "dashboard", "onboarding", "banner", "meter", "chat", "text", "cta", "badge"]);
+  const l = ctx.lang;
+  return (
+    <span className="flex flex-col gap-6">
+      {at("nav", <span className="flex h-12 items-center gap-6 border-b border-line-soft"><Image src={BRAND} alt="" aria-hidden width={110} height={22} className="h-5 w-auto" /><span className="text-[13px] font-medium text-ink-950">{UI.dashboard[l]}</span><Bar w="w-12" /><Bar w="w-12" /><span className="ml-auto flex items-center gap-4 text-ink-500"><Search className="size-4" /><Bell className="size-4" /><span className="size-7 rounded-full bg-gradient-to-br from-stone-200 to-stone-300" /></span></span>)}
+      {at("onboarding", null)}{at("banner", null)}{at("meter", null)}
+      {at("dashboard", <span className="grid grid-cols-4 gap-3">{[UI.revenue[l], UI.orders[l], UI.visitors[l], UI.conversion[l]].map((t) => <span key={t} className="block rounded-lg bg-paper p-4 ring-1 ring-ink-950/[0.08]"><span className="text-[11px] font-medium text-ink-500">{t}</span><span className="mt-2 block h-6 w-16 rounded bg-ink-950/85" /></span>)}</span>)}
+      {at("text", null)}{at("cta", null)}{at("badge", null)}
+      {rest()}
+      <span className="block rounded-lg ring-1 ring-ink-950/[0.08]">
+        <span className="flex items-center gap-4 border-b border-line-soft px-4 py-3"><LayoutGrid className="size-4 text-ink-400" /><Bar w="w-24" className="h-2.5" /><span className="ml-auto"><Bar w="w-16" /></span></span>
+        {[0, 1, 2, 3].map((i) => <span key={i} className="flex items-center gap-6 border-b border-line-soft px-4 py-3 last:border-0"><span className="size-7 rounded-full bg-gradient-to-br from-stone-200 to-stone-300" /><Bar w="w-1/4" /><Bar w="w-1/6" /><span className="ml-auto"><Bar w="w-12" /></span></span>)}
+      </span>
+      {at("chat", null)}
+      {at("nav", null, true)}{at("dashboard", null, true)}{at("onboarding", null, true)}{at("banner", null, true)}{at("meter", null, true)}{at("text", null, true)}{at("cta", null, true)}{at("badge", null, true)}
+    </span>
+  );
+}
+
+function Home({ ctx }: { ctx: Ctx }) {
+  const { at, rest } = useSlots(ctx, ["nav", "text", "cta", "badge", "media", "logos", "countdown", "reviews", "search", "plans", "form", "price", "grid", "topbar", "banner", "section", "recent", "onboarding", "chat", "meter", "steps", "faq", "tabs", "dashboard", "urgency"]);
+  const l = ctx.lang;
+  return (
+    <span className="flex flex-col gap-8">
+      {at("topbar", null)}
+      {at("nav", <ShopNav ctx={ctx} />)}
+      {at("onboarding", null)}
+      {at("banner", null)}
       <span className={clsx("grid items-center gap-10 rounded-2xl bg-paper-soft p-10", ctx.phone ? "grid-cols-1" : "grid-cols-[1.1fr_1fr]")}>
         <span className="flex flex-col gap-5">
           {at("text", <><Title size="lg" w="w-5/6" /><Title size="lg" w="w-3/5" /><Bar className="mt-2" /><Bar w="w-2/3" /></>)}
           {at("cta", <Btn tone="primary" size="lg" className="w-fit">{UI.getStarted[l]}</Btn>)}
-          {at("badge", null)}
+          {at("steps", null)}
+          {at("badge", null)}{at("urgency", null)}
         </span>
         {at("media", <Img className="aspect-[4/3] w-full" />)}
       </span>
-      {at("logos", null)}
-      {at("countdown", null)}{at("reviews", null)}{at("search", null)}{at("plans", null)}{at("form", null)}{at("price", null)}
+      {at("logos", null)}{at("meter", null)}{at("dashboard", null)}
+      {at("countdown", null)}{at("reviews", null)}{at("search", null)}{at("plans", null)}{at("form", null)}{at("price", null)}{at("recent", null)}
       {rest()}
+      {at("section", <><SectionTitle>{UI.howItWorks[l]}</SectionTitle><span className="grid grid-cols-3 gap-4">{[0, 1, 2].map((i) => <span key={i} className="block rounded-lg bg-paper-soft p-4"><span className="grid size-9 place-items-center rounded-lg bg-primary-50 text-primary-700"><Check className="size-4" /></span><Title size="sm" w="w-1/2" className="mt-3" /><Bar className="mt-2" w="w-4/5" /></span>)}</span></>)}
       <SectionTitle>{UI.newArrivals[l]}</SectionTitle>
       {at("grid", <span className={clsx("grid gap-4", ctx.phone ? "grid-cols-2" : "grid-cols-4")}>{Array.from({ length: ctx.phone ? 2 : 4 }, (_, i) => <ProductCard key={i} lang={l} />)}</span>)}
-      {at("nav", null, true)}{at("text", null, true)}{at("cta", null, true)}{at("badge", null, true)}{at("media", null, true)}{at("countdown", null, true)}{at("reviews", null, true)}{at("grid", null, true)}{at("search", null, true)}{at("plans", null, true)}{at("form", null, true)}{at("price", null, true)}{at("logos", null, true)}
+      {at("faq", null)}{at("tabs", null)}
+      {at("nav", null, true)}{at("text", null, true)}{at("cta", null, true)}{at("badge", null, true)}{at("media", null, true)}{at("countdown", null, true)}{at("reviews", null, true)}{at("grid", null, true)}{at("search", null, true)}{at("plans", null, true)}{at("form", null, true)}{at("price", null, true)}{at("logos", null, true)}{at("section", null, true)}{at("topbar", null, true)}{at("banner", null, true)}{at("onboarding", null, true)}{at("meter", null, true)}{at("steps", null, true)}{at("faq", null, true)}{at("tabs", null, true)}{at("dashboard", null, true)}{at("recent", null, true)}{at("urgency", null, true)}
+      {at("chat", null)}
       {!ctx.phone ? <Footer /> : null}
     </span>
   );
 }
 
 function PricingPage({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx, ["nav", "text", "plans", "price", "badge", "cta", "selector", "logos"]);
+  const { at, rest } = useSlots(ctx, ["nav", "text", "plans", "price", "badge", "cta", "selector", "logos", "meter", "faq", "steps"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-8">
       {at("nav", <ShopNav ctx={ctx} />)}
       {at("text", <span className="block text-center"><span className="block text-[28px] font-semibold text-ink-950">{UI.choosePlan[l]}</span><Bar className="mx-auto mt-3 w-1/3" /></span>)}
       {at("plans", <span className={clsx("grid gap-4", ctx.phone ? "grid-cols-1" : "grid-cols-3")}>{[0, 1, 2].map((i) => <span key={i} className={clsx("flex flex-col gap-3 rounded-xl p-6 ring-1", i === 1 ? "bg-ink-950 ring-ink-950" : "bg-paper ring-ink-950/[0.1]")}><Title size="sm" w="w-16" className={i === 1 ? "bg-white/85" : ""} /><span className={clsx("block h-7 w-24 rounded", i === 1 ? "bg-white/85" : "bg-ink-950/85")} /><Bar className={clsx("mt-2", i === 1 ? "bg-white/20" : "")} w="w-4/5" /><Bar className={i === 1 ? "bg-white/20" : ""} w="w-2/3" /><Btn tone={i === 1 ? "primary" : "outline"} size="md" className="mt-3 w-full">{UI.choose[l]}</Btn></span>)}</span>)}
-      {at("price", null)}{at("badge", null)}{at("cta", null)}{at("selector", null)}{at("logos", null)}
+      {at("price", null)}{at("badge", null)}{at("cta", null)}{at("selector", null)}{at("logos", null)}{at("meter", null)}{at("steps", null)}
       {rest()}
-      {at("plans", null, true)}{at("text", null, true)}{at("price", null, true)}{at("badge", null, true)}{at("cta", null, true)}{at("nav", null, true)}{at("logos", null, true)}
+      {at("faq", null)}
+      {at("plans", null, true)}{at("text", null, true)}{at("price", null, true)}{at("badge", null, true)}{at("cta", null, true)}{at("nav", null, true)}{at("logos", null, true)}{at("meter", null, true)}{at("steps", null, true)}{at("faq", null, true)}
       {!ctx.phone ? <Footer /> : null}
     </span>
   );
@@ -921,6 +1411,8 @@ function Body({ ctx }: { ctx: Ctx }) {
     case "cart": case "checkout": return <Checkout ctx={ctx} />;
     case "form": return <FormPage ctx={ctx} />;
     case "pricing": return <PricingPage ctx={ctx} />;
+    case "thankyou": return <ThankYou ctx={ctx} />;
+    case "dashboard": return <DashboardPage ctx={ctx} />;
     default: return <Home ctx={ctx} />;
   }
 }
@@ -977,6 +1469,7 @@ export function AbScreen({
   side,
   presence,
   behavior,
+  slot,
   lang,
   label,
   address,
@@ -993,6 +1486,8 @@ export function AbScreen({
   /** The record's differenceBehavior: on "remove" the sides run the other
       way round. */
   behavior?: string;
+  /** The record's testedSlot, for the families that hold several things. */
+  slot?: string | null;
   lang: Lang;
   /** What a screen reader gets instead of the picture. */
   label: string;
@@ -1004,7 +1499,7 @@ export function AbScreen({
   className?: string;
 }) {
   const phone = surface === "mobile";
-  const ctx: Ctx = { kind, element, surface, side, present: presence !== "absent", invert: behavior === "remove", lang, phone };
+  const ctx: Ctx = { kind, element, surface, side, present: presence !== "absent", invert: behavior === "remove", slotFold: fold(slot ?? ""), lang, phone };
   const popup = element === "popup" && ctx.present;
   return (
     <div className={clsx("min-w-0", className)}>

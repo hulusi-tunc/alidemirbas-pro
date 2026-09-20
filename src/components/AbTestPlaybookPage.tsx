@@ -241,7 +241,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
           <Side
             label={roleLabel(test.sideA!.role, t.roles.control)}
             letter="A"
-            screen={{ surface: test.surface, element, kind, side: "a", presence: presenceOf("a"), behavior: test.differenceBehavior, lang, address: surfaceLabel(test.surface, lang) }}
+            screen={{ surface: test.surface, element, kind, side: "a", presence: presenceOf("a"), behavior: test.differenceBehavior, slot: test.testedSlot, lang, address: surfaceLabel(test.surface, lang) }}
           />
           <div className="flex items-center justify-center">
             <span aria-hidden className={`grid size-9 place-items-center rounded-full max-lg:rotate-90 ${STAGE.dark ? "bg-white/15 text-white ring-1 ring-white/20" : "bg-paper text-ink-500 ring-1 ring-ink-950/[0.06]"}`}>
@@ -251,7 +251,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
           <Side
             label={roleLabel(test.sideB!.role, t.roles.variant)}
             letter="B"
-            screen={{ surface: test.surface, element, kind, side: "b", presence: presenceOf("b"), behavior: test.differenceBehavior, lang, address: surfaceLabel(test.surface, lang) }}
+            screen={{ surface: test.surface, element, kind, side: "b", presence: presenceOf("b"), behavior: test.differenceBehavior, slot: test.testedSlot, lang, address: surfaceLabel(test.surface, lang) }}
             change={diffWord && test.testedSlot ? { sign: diffSign, word: diffWord, slot: test.testedSlot } : undefined}
           />
         </div>
@@ -261,7 +261,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
         <div className="p-4 pb-20 sm:p-8 sm:pb-24 md:p-10 md:pb-28">
         <div className="mx-auto max-w-3xl rounded-[28px] bg-paper p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] sm:p-8">
           <div className="grid gap-6 sm:grid-cols-2 sm:items-center">
-            <AbScreen surface={test.surface} element={element} kind={kind} side="solo" lang={lang} label={t.testConcept} address={surfaceLabel(test.surface, lang)} />
+            <AbScreen surface={test.surface} element={element} kind={kind} side="solo" slot={test.testedSlot} lang={lang} label={t.testConcept} address={surfaceLabel(test.surface, lang)} />
             <div className="flex flex-col gap-4">
               <div>
                 <p className="text-xs font-medium text-ink-subtle">{t.whatChanges}</p>
@@ -401,7 +401,7 @@ function Side({
 }: {
   label: string;
   letter: string;
-  screen: { surface: string; element: AbElementKind; kind: AbVariableKind; side: "a" | "b"; presence: "absent" | "present" | null; behavior: string; lang: Lang; address: string };
+  screen: { surface: string; element: AbElementKind; kind: AbVariableKind; side: "a" | "b"; presence: "absent" | "present" | null; behavior: string; slot: string | null; lang: Lang; address: string };
   change?: { sign: string; word: string; slot: string };
 }) {
   return (

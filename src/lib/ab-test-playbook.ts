@@ -280,7 +280,12 @@ export function abVariableKind(test: {
 export type AbElementKind =
   | "cta" | "coupon" | "countdown" | "shipping" | "badge" | "price" | "payment"
   | "stepper" | "form" | "nav" | "search" | "filters" | "popup" | "media"
-  | "reviews" | "grid" | "plans" | "selector" | "text" | "logos" | "generic";
+  | "reviews" | "grid" | "plans" | "selector" | "text" | "logos"
+  /* The second wave (2026-09-20), the families the first fifty "generic"
+     records turned out to name. */
+  | "pagination" | "sizeguide" | "delivery" | "faq" | "section" | "topbar"
+  | "banner" | "chat" | "onboarding" | "recent" | "meter" | "empty" | "sort"
+  | "urgency" | "bundle" | "steps" | "tabs" | "dashboard" | "generic";
 
 export function abElementKind(test: { testedSlot: string | null; question: string }): AbElementKind {
   const slot = fold(test.testedSlot);
@@ -290,6 +295,32 @@ export function abElementKind(test: { testedSlot: string | null; question: strin
 
   if (has("sosyal medya")) return "reviews";
   if (has("geri sayim", "sayac")) return "countdown";
+  // The second wave - each before the broader rule that used to swallow it.
+  if (has("sayfalama")) return "pagination";
+  if (has("beden yardim", "beden secim kabi", "beden geri bildirim", "model beden", "beden bilgi")) return "sizeguide";
+  if (has("teslimat bilgisi", "kargo ve iade", "mense")) return "delivery";
+  if (has("sss")) return "faq";
+  if (has("nasil calisir", "kullanim senaryo", "bolum yerlesim", "sayfa uzunlug", "sayfa sonu", "uzman ve kurucu", "kurgu")) return "section";
+  if (has("ust fayda cubugu", "fayda cubugu")) return "topbar";
+  if (has("uygulama indirme", "indirilebilir kaynak", "davet", "arkadas")) return "banner";
+  if (has("canli destek")) return "chat";
+  if (has("karsilama ekrani", "arayuz ipuc", "izin gerekce", "sonraki adim oneri")) return "onboarding";
+  if (has("son gezilen", "gorulen urun")) return "recent";
+  if (has("profil tamamlama", "paket degeri")) return "meter";
+  if (has("sifir sonuc")) return "empty";
+  if (has("varsayilan siralama")) return "sort";
+  if (has("aciliyet bildirim")) return "urgency";
+  if (has("coklu paket", "urun ozellestirme")) return "bundle";
+  if (has("deneme suresi", "is e-postasi")) return "steps";
+  if (has("bilgi sunum bicimi", "avantaj bilgisi", "fayda vurgu", "iletisim bilgisi")) return "tabs";
+  if (has("widget siras")) return "dashboard";
+  if (has("bildirim isareti")) return "badge";
+  if (has("baglanti hedef", "dis baglanti")) return "nav";
+  if (has("harita gorunum")) return "grid";
+  if (has("vergi gosterim")) return "price";
+  if (has("kullanici tipine gore anasayfa")) return "section";
+  if (has("reddetme secenegi")) return "popup";
+  if (has("servis ikonu")) return "section";
   if (has("kupon", "indirim kodu", "promosyon")) return "coupon";
   if (has("kargo cubugu", "kargo esig", "ucretsiz kargo")) return "shipping";
   if (has("logolar", "logo")) return "logos";
