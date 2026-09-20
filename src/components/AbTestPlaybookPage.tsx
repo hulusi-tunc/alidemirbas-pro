@@ -309,15 +309,13 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
      watch, the never-do rules - and the reusable rule as a fifth card
      where the record's own hypothesis ends in one. */
   const card = "flex w-[min(22rem,85vw)] shrink-0 snap-start";
+  const tile = "w-full bg-paper-soft ring-0";
   const run = (
-    /* On a grey band (Hulusi, 2026-09-20: "add a grey background"): the
-       site's one soft surface, bled to the viewport edges the way the
-       strip is, running to the bottom of the page. The white cards sit on
-       it with their hairline. */
-    <section
-      className="mt-14 -mb-10 w-screen bg-paper-soft py-12 md:-mb-14 md:py-14"
-      style={{ marginLeft: "calc(50% - 50vw)", paddingLeft: "calc(50vw - 50%)", paddingRight: "calc(50vw - 50%)" }}
-    >
+    /* The cards are grey, the page stays white (Hulusi, 2026-09-20: "add a
+       grey background" - then "not the section, the cards"): each card on
+       the site's soft surface with no hairline, the way the phone menu's
+       rows and the calculator cards sit. */
+    <section className="mt-14">
       <CardCarousel
         label={t.runStrip}
         prevLabel={t.prev}
@@ -332,13 +330,13 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
         }
       >
         <div data-card className={card}>
-          <InfoTile icon={<Target />} title={t.primaryKpi} className="w-full">
+          <InfoTile icon={<Target />} title={t.primaryKpi} className={tile}>
             <p className="text-2xl font-semibold tracking-tight text-ink-950">{kpi}</p>
             <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{test.primaryKpi.explanation}</p>
           </InfoTile>
         </div>
         <div data-card className={card}>
-          <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailMetrics} className="w-full">
+          <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailMetrics} className={tile}>
             <ul className="flex list-none flex-col gap-3 p-0">
               {test.otherKpis.map((k) => (
                 <Note key={k.label} label={k.label} note={k.explanation} />
@@ -347,7 +345,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
           </InfoTile>
         </div>
         <div data-card className={card}>
-          <InfoTile icon={<Eye />} tint="bg-amber-50 text-amber-700" title={t.whatToTest} className="w-full">
+          <InfoTile icon={<Eye />} tint="bg-amber-50 text-amber-700" title={t.whatToTest} className={tile}>
             <ul className="flex list-none flex-col gap-3 p-0">
               {test.whatToTest.map((w) => (
                 <Note key={w.label} label={w.label} note={w.explanation} />
@@ -356,11 +354,11 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
           </InfoTile>
         </div>
         <div data-card className={card}>
-          <InfoTile icon={<Ban />} tint="bg-rose-50 text-rose-700" title={t.neverDo} className="w-full">
+          <InfoTile icon={<Ban />} tint="bg-rose-50 text-rose-700" title={t.neverDo} className={tile}>
             <ol className="flex list-none flex-col gap-3 p-0">
               {test.guardrails.map((g, i) => (
                 <li key={g} className="flex gap-3 text-sm leading-relaxed text-pretty text-ink-700">
-                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper-soft text-xs font-semibold text-ink-700 tabular-nums">
+                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper text-xs font-semibold text-ink-700 tabular-nums ring-1 ring-ink-950/[0.06]">
                     {i + 1}
                   </span>
                   {g}
@@ -371,7 +369,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
         </div>
         {takeaway && (
           <div data-card className={card}>
-            <InfoTile icon={<Lightbulb />} title={t.reusableRule} className="w-full">
+            <InfoTile icon={<Lightbulb />} title={t.reusableRule} className={tile}>
               <p className="text-lg leading-relaxed font-medium text-balance text-ink-950">{takeaway}</p>
             </InfoTile>
           </div>
