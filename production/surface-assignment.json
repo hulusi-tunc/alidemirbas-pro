@@ -326,7 +326,7 @@
       "sends": false,
       "routesToHuman": true,
       "silent": true,
-      "excludedFromPublic": true,
+      "excludedFromPublic": false,
       "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
     },
     {

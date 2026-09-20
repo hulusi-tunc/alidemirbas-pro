@@ -7,18 +7,19 @@ later refactor. Code reads this list; it does not recompute it.
 | | |
 |---|---|
 | source corpus (the journey library) | **73** |
-| public journeys | **51** |
-| excluded from the public product | **22** |
+| public journeys | **52** |
+| excluded from the public product | **21** |
 
-Verified as an exact partition of the existing library: 51 + 22 = 73, no
+Verified as an exact partition of the existing library: 52 + 21 = 73, no
 duplicate ids, no id in both lists, and every id resolves to a real journey in
 `src/canonical/`. Enforced by `scripts/validate-public-scope.mjs` (15 checks)
 and asserted again at module load in `src/lib/public-corpus.ts`, so the lists
 and the derived library can never drift apart silently.
 
-**Taken as 52/21, settled at 51/22.** RET-24 was the single journey on which
-this brief's own two rules contradicted each other, and it was removed from the
-public set by explicit decision — see the RET-24 note below.
+**52/21, after a brief excursion to 51/22 that was reversed.** RET-24 is the
+single journey on which this brief's own two rules contradict each other; it
+was removed, then restored when the field that resolves the conflict was found.
+The full reconciliation is `audit/public-scope-validation.md`.
 
 The wider canonical corpus (286 journeys, of which 124 are the archived
 Operational Workflows surface and the rest are silent lifecycle states and
@@ -27,7 +28,7 @@ runtime mechanisms) is untouched by this decision. "73" here means the journey
 
 ---
 
-## The 51 public journeys
+## The 52 public journeys
 
 ### Acquisition, intent & qualification — 7
 | id | name |
@@ -51,10 +52,11 @@ runtime mechanisms) is untouched by this decision. "73" here means the journey
 | ACT-12 | Onboarding Nurture |
 | ACT-19 | Onboarding Personalization |
 
-### Engagement, retention & contactability — 6
+### Engagement, retention & contactability — 7
 | id | name |
 |---|---|
 | RET-28 | Cancellation Save |
+| RET-24 | Churn Risk Escalation |
 | RET-32 | Lapsed Customer Win-Back |
 | RET-31 | Predicted Need Replenishment |
 | RET-30 | Retention Offer Follow-Up |
@@ -118,11 +120,11 @@ runtime mechanisms) is untouched by this decision. "73" here means the journey
 
 ---
 
-## The 22 excluded from the public product
+## The 21 excluded from the public product
 
 ACQ-04 · ACT-11 · CON-264 · CON-283 · FBK-46 · FBK-47 · IDN-81 · IDN-85 ·
 IDN-270 · TRM-106 · TRM-275 · INT-269 · INT-278 · FIN-137 · FUL-276 · REM-152 ·
-SCH-180 · DEC-184 · DEC-267 · DOC-220 · DOC-286 · **RET-24**
+SCH-180 · DEC-184 · DEC-267 · DOC-220 · DOC-286
 
 | id | name |
 |---|---|
@@ -147,7 +149,6 @@ SCH-180 · DEC-184 · DEC-267 · DOC-220 · DOC-286 · **RET-24**
 | DEC-267 | Adverse Decision Recovery |
 | DOC-220 | Document Conflict Review |
 | DOC-286 | Document Activation |
-| RET-24 | Churn Risk Escalation *(see below)* |
 
 These stay in `src/canonical/` — deleting them would break the handoff targets
 and `distinctFrom` references the canonical validator requires, exactly as the
@@ -185,34 +186,19 @@ operational truth and no page ever shows "Task" beside "Email" as if internal
 routing were a customer channel. Check 8 of the scope validator fails if any
 raw `channels: j.channels` projection ever reaches a public surface again.
 
-### RET-24 — the one real conflict, and how it was settled
+### RET-24 — the one real conflict, and where it is recorded
 
-**RET-24 — Churn Risk Escalation — has zero customer-facing communication
-nodes.** It assembles risk evidence and routes: a handoff to RET-28 when
-cancellation intent already exists, to RET-23 when an operational problem is the
-cause, to RET-30 when automated recovery fits, an account-owner task when
-evidence justifies a person, and an exit when nothing is proportionate. Its only
-declared channel is `task`.
+RET-24 Churn Risk Escalation has **zero** customer-facing communication nodes:
+it assembles risk evidence and routes to RET-28, RET-23, RET-30 or an
+account-owner task. Its only declared channel is `task`.
 
-That put two rules of this brief in direct contradiction — the scope list said
-RET-24 is public, the channel rule said a public journey with no customer-facing
-communication must fail — and no reading of either rule resolved it. Three
-options were put up:
+That puts two rules of this brief in direct contradiction — the scope list says
+RET-24 is public, the channel rule says a public journey with no customer-facing
+communication must fail. It was removed on that basis and then **restored**,
+because its own `contact.competition` block already ranks it *above generic
+retention intervention* with `onLoss: suppressed` — so the duplicate-ownership
+hazard that argued against keeping it was already solved in its authored data.
 
-1. keep it public as a documented exception,
-2. add a customer message to its canonical graph,
-3. move it out of the public set.
-
-**Decision: option 3.** RET-24 is excluded from the public product; the public
-library is 51.
-
-Option 2 was the one actively argued against, by two independent reviews: the
-retention episode RET-24 would have messaged on is already owned by RET-30, and
-RET-24's own `c.priority-clear` condition exists precisely to stop two owners
-landing on one account — so adding a touch would have manufactured the
-duplicate-ownership failure the collision rules exist to prevent. Option 1 would
-have left a journey in the customer library that never reaches a customer.
-
-RET-24 stays in `src/canonical/` unchanged, still reachable as a handoff target
-for journeys outside the public set. Nothing in the remaining 51 references it,
-so its removal breaks no link.
+It stays public with **one recorded exception** to the channel rule, named and
+reasoned in `scripts/validate-public-scope.mjs` and printed on every run.
+The full account is `audit/public-scope-validation.md`.

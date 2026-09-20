@@ -69,6 +69,11 @@
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
+  "RET-24": {
+    "hash": "sha256:64a7cfbb25fdbb8ebd0eccdd7769ec70b39d1b5045c07fa80d397ea83354f32e",
+    "source": "src/canonical/retention.ts",
+    "schema_version": "vNext-2026-09"
+  },
   "IDN-271": {
     "hash": "sha256:07ac81863f4022e58a1ec234420ca5439daf03eeadd474a50ee762319d94a65b",
     "source": "src/canonical/identity.ts",

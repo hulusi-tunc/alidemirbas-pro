@@ -26,11 +26,10 @@ function idsOf(source, constName) {
 
 const source = fs.readFileSync(new URL("../" + SOURCE, import.meta.url), "utf8");
 
-/** The 22 journeys removed from the public product (the original 21, plus
-    RET-24 by the 2026-09-20 decision - see src/lib/public-corpus.ts). */
+/** The 21 journeys removed from the public product. */
 export const EXCLUDED_FROM_PUBLIC = new Set(idsOf(source, "EXCLUDED_FROM_PUBLIC"));
 
-/** The 51 journeys that are the public library. */
+/** The 52 journeys that are the public library. */
 export const PUBLIC_LIBRARY_IDS = new Set(idsOf(source, "PUBLIC_LIBRARY_IDS"));
 
 /** The only customer-facing channels. `sales` and `task` exist in the
@@ -38,5 +37,5 @@ export const PUBLIC_LIBRARY_IDS = new Set(idsOf(source, "PUBLIC_LIBRARY_IDS"));
     here: they never count as a channel and never render as a badge. */
 export const CUSTOMER_CHANNELS = new Set(["email", "sms", "push", "whatsapp", "in-app"]);
 
-export const EXPECTED_PUBLIC_COUNT = 51;
-export const EXPECTED_EXCLUDED_COUNT = 22;
+export const EXPECTED_PUBLIC_COUNT = 52;
+export const EXPECTED_EXCLUDED_COUNT = 21;

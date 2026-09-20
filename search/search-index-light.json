@@ -15817,6 +15817,71 @@
           "targetId": "journey:RET-27"
         }
       ],
+      "distinctFrom": [
+        {
+          "targetId": "journey:RET-24",
+          "because": "This asks what is wrong. RET-24 asks how much is wrong and how hard to push back, and it can run on a relationship whose cause is already known and being fixed."
+        }
+      ]
+    }
+  },
+  {
+    "id": "journey:RET-24",
+    "type": "journey",
+    "slug": "churn-risk-escalation",
+    "url": "/lab/journeys/churn-risk-escalation",
+    "urlTr": "/tr/lab/journeys/churn-risk-escalation",
+    "external": false,
+    "title": "RET-24 Churn risk escalation → evidence → intervention priority",
+    "summary": "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
+    "keywords": [
+      "RET-24",
+      "churn risk escalation",
+      "churn risk",
+      "at-risk account escalation",
+      "customer success alert",
+      "churn prevention (risk)"
+    ],
+    "category": [
+      "retention"
+    ],
+    "normalizedCategory": [
+      "retention-and-engagement"
+    ],
+    "surface": [],
+    "funnelStage": [
+      "engagement-retention"
+    ],
+    "metric": [],
+    "businessObjective": [
+      "escalation-exception"
+    ],
+    "intent": [
+      "find-journey",
+      "learn"
+    ],
+    "tags": [
+      "cross-journey-handoff",
+      "external-handoff",
+      "competition"
+    ],
+    "language": "en+tr",
+    "indexable": true,
+    "canonical": "https://alidemirbas.com.tr/lab/journeys/churn-risk-escalation",
+    "searchAliases": [],
+    "boost": {},
+    "journeyRelationRefs": {
+      "handoffs": [
+        {
+          "targetId": "journey:RET-28"
+        },
+        {
+          "targetId": "journey:RET-23"
+        },
+        {
+          "targetId": "journey:RET-30"
+        }
+      ],
       "distinctFrom": []
     }
   },

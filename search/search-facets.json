@@ -11,7 +11,7 @@
       },
       {
         "value": "journey",
-        "documentCount": 140,
+        "documentCount": 141,
         "lowUtility": false
       },
       {
@@ -67,7 +67,7 @@
       },
       {
         "value": "retention-and-engagement",
-        "documentCount": 11,
+        "documentCount": 12,
         "lowUtility": false
       },
       {
@@ -184,7 +184,7 @@
       },
       {
         "value": "engagement-retention",
-        "documentCount": 32,
+        "documentCount": 33,
         "lowUtility": false
       },
       {
@@ -275,7 +275,7 @@
       },
       {
         "value": "escalation-exception",
-        "documentCount": 3,
+        "documentCount": 4,
         "lowUtility": false
       },
       {
@@ -2689,7 +2689,7 @@
     "values": [
       {
         "value": "cross-journey-handoff",
-        "documentCount": 108,
+        "documentCount": 109,
         "lowUtility": false
       },
       {
@@ -2709,12 +2709,12 @@
       },
       {
         "value": "external-handoff",
-        "documentCount": 38,
+        "documentCount": 39,
         "lowUtility": false
       },
       {
         "value": "competition",
-        "documentCount": 19,
+        "documentCount": 20,
         "lowUtility": false
       },
       {

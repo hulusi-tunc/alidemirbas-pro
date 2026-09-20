@@ -62,24 +62,50 @@ PUBLIC_LIBRARY_IDS.size === EXPECTED_PUBLIC_COUNT
 /* 3 — every public journey has at least one customer-facing communication.
    Both halves are required: a declared channel AND a node that actually sends
    on it. A journey that declares `email` but has no communication action is
-   as broken as one that declares nothing. */
+   as broken as one that declares nothing.
+
+   ONE RECORDED EXCEPTION, and it is loud rather than silent. RET-24 Churn
+   Risk Escalation is a routing journey: it assembles risk evidence and hands
+   ownership on - to RET-28 where cancellation intent already exists, RET-23
+   where an operational cause is found, RET-30 where automated recovery fits,
+   an account-owner task where a person is warranted - so every message a
+   customer receives from a RET-24 episode is sent by the journey that took
+   ownership, under RET-24's OWN `contact.competition` precedence
+   ("retention-outreach", "above generic retention intervention",
+   `onLoss: suppressed`).
+
+   Giving it a message of its own would not add a customer touch; it would
+   duplicate one of those four, which is the failure A9's ownership chains
+   exist to prevent. Removing it from the library was tried and reversed -
+   see audit/public-scope-validation.md.
+
+   The exception is a LIST, not a flag: a second id cannot join it without an
+   edit here and a reason beside it, and the run prints the exception every
+   time so it can never pass unnoticed. */
+const CHANNEL_RULE_EXCEPTIONS = new Map([
+  ["RET-24", "routing/escalation journey - its customer messaging is owned by RET-28 / RET-23 / RET-30 under RET-24's own retention-outreach precedence"],
+]);
 {
   const noChannel = [];
   const noNode = [];
+  const excepted = [];
   for (const id of PUBLIC_LIBRARY_IDS) {
     const j = byId.get(id);
     if (!j) continue;
     const customer = (j.channels ?? []).filter((c) => CUSTOMER_CHANNELS.has(c));
     const sends = j.nodes.some((n) => n.kind === "action" && n.execution === "communication");
+    if (customer.length && sends) continue;
+    if (CHANNEL_RULE_EXCEPTIONS.has(id)) { excepted.push(id); continue; }
     if (customer.length === 0) noChannel.push(`${id} (${(j.channels ?? []).join(", ") || "none"})`);
-    else if (!sends) noNode.push(id);
+    else noNode.push(id);
   }
   noChannel.length === 0
-    ? pass("every public journey declares a customer channel")
+    ? pass("every public journey declares a customer channel", excepted.length ? `${excepted.length} recorded exception` : "")
     : fail("every public journey declares a customer channel", `${noChannel.length}: ${noChannel.join("; ")}`);
   noNode.length === 0
     ? pass("every public journey has a communication action")
     : fail("every public journey has a communication action", `${noNode.length}: ${noNode.join(", ")}`);
+  for (const id of excepted) warn(`channel rule exception: ${id}`, CHANNEL_RULE_EXCEPTIONS.get(id));
 }
 
 /* 4 — allowed channel values only. `sales`/`task` are legal canonical values:

@@ -1,7 +1,7 @@
 {
-  "generated": "2026-09-20T19:07:47.131Z",
-  "expected_count": 51,
-  "found_count": 51,
+  "generated": "2026-09-20T19:36:08.407Z",
+  "expected_count": 52,
+  "found_count": 52,
   "issues": [],
   "journeys": [
     {
@@ -446,6 +446,36 @@
         "recovery",
         "shared-exit",
         "wait-event-timeout"
+      ],
+      "severity": null,
+      "patterns_detected": [],
+      "patterns_applied": [],
+      "status": "pending",
+      "change_required": null,
+      "validation_status": "not-run",
+      "blocked_reason": null,
+      "notes": []
+    },
+    {
+      "journey_id": "RET-24",
+      "slug": "churn-risk-escalation",
+      "locales": [
+        "tr",
+        "en"
+      ],
+      "canonical_node_count": 13,
+      "display_node_count_before": null,
+      "display_node_count_after": null,
+      "condition_count": 5,
+      "exit_count": 1,
+      "handoff_count": 4,
+      "journey_types": [
+        "external-handoff",
+        "handoff",
+        "human-vs-automated",
+        "multi-branch",
+        "nested-decision",
+        "shared-exit"
       ],
       "severity": null,
       "patterns_detected": [],
