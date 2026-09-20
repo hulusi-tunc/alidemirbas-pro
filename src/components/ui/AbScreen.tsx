@@ -219,6 +219,21 @@ const UI = {
   conversion: { en: "Conversion", tr: "Dönüşüm" },
   resultsFor: { en: "Results for", tr: "Arama sonuçları" },
   notifications: { en: "Notifications", tr: "Bildirimler" },
+  welcomeBack: { en: "Welcome back", tr: "Tekrar hoş geldin" },
+  continueWhereLeft: { en: "Continue where you left off", tr: "Kaldığın yerden devam et" },
+  resumeCta: { en: "Resume", tr: "Devam et" },
+  everyone: { en: "Everyone", tr: "Herkes" },
+  fromAd: { en: "From the ad", tr: "Reklamdan gelen" },
+  fromSearch: { en: "From search", tr: "Aramadan gelen" },
+  matchedToYou: { en: "Matched to your industry", tr: "Sektörüne göre eşleşen" },
+  completeProfile: { en: "Complete your profile", tr: "Profilini tamamla" },
+  placeFirstOrder: { en: "Place your first order", tr: "İlk siparişini ver" },
+  hello: { en: "Hello", tr: "Merhaba" },
+  bonjour: { en: "Bonjour", tr: "Merhaba" },
+  hallo: { en: "Hallo", tr: "Merhaba" },
+  detectedLanguage: { en: "shown in your language", tr: "senin dilinde" },
+  list: { en: "List", tr: "Liste" },
+  map: { en: "Map", tr: "Harita" },
 } as const;
 
 const CAPTION: Record<AbVariableKind, Record<Lang, string>> = {
@@ -605,11 +620,12 @@ function Reviews({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
   const photos = diff(ctx, "media", false, true, false);
   const video = diff(ctx, ["options", "media"], false, true, false) && ctx.surface !== "pdp";
+  const matched = diff(ctx, "personalization", false, true, false);
   return (
-    <span className="block rounded-lg bg-paper-soft p-5">
+    <span className={clsx("block rounded-lg p-5", matched ? "bg-primary-50 ring-1 ring-primary-200" : "bg-paper-soft")}>
       <span className="flex items-center justify-between">
-        <span className="flex items-center gap-1 text-amber-500">{[0, 1, 2, 3, 4].map((i) => <Star key={i} className="size-4" />)}</span>
-        <span className="text-[12px] font-medium text-ink-600">{UI.reviews[l]}</span>
+        <span className="flex items-center gap-2"><span className="size-8 rounded-full bg-gradient-to-br from-stone-200 to-stone-300" /><span className="flex items-center gap-1 text-amber-500">{[0, 1, 2, 3, 4].map((i) => <Star key={i} className="size-4" />)}</span></span>
+        <span className={clsx("text-[12px] font-medium", matched ? "text-primary-700" : "text-ink-600")}>{matched ? UI.matchedToYou[l] : UI.reviews[l]}</span>
       </span>
       <Bar className="mt-4" /><Bar className="mt-2" w="w-2/3" />
       {photos ? <span className="mt-4 flex gap-2"><Img className="size-16" /><Img className="size-16" /><Img className="size-16" /></span> : null}
@@ -720,9 +736,28 @@ function Text({ ctx }: { ctx: Ctx }) {
   const loud = diff(ctx, "emphasis", false, true, false);
   const personal = diff(ctx, "personalization", false, true, false);
   const longer = diff(ctx, ["wording", "microcopy", "format"], false, true, false);
+  const greeting = /dil/.test(ctx.slotFold);
+  if (personal && greeting) {
+    // The greeting follows the browser's language: three visitors, three words.
+    return (
+      <span className="flex flex-col gap-2">
+        {[UI.hello, UI.bonjour, UI.hallo].map((g, i) => <span key={g.en} className="flex items-center gap-3"><span className="rounded bg-paper-soft px-1.5 py-0.5 text-[10px] font-medium text-ink-500 uppercase">{["en", "fr", "de"][i]}</span><span className={clsx("text-[18px] font-semibold text-ink-950", i > 0 && "opacity-50")}>{g.en}</span>{i === 0 ? <span className="text-[11px] text-primary-700">{UI.detectedLanguage[l]}</span> : null}</span>)}
+      </span>
+    );
+  }
+  if (personal) {
+    // A headline that answers where the visitor came from: the source
+    // named on a tab, the words under it different for each.
+    return (
+      <span className="block">
+        <span className="mb-3 flex gap-1.5">{[UI.fromAd[l], UI.fromSearch[l]].map((s, i) => <span key={s} className={clsx("rounded-md px-2 py-1 text-[11px] font-medium", i === 0 ? "bg-primary-600 text-white" : "bg-paper-soft text-ink-500")}>{s}</span>)}</span>
+        <Title size="lg" w="w-4/5" className="bg-primary-700" /><Title size="lg" w="w-1/2" className="mt-1 bg-primary-700" />
+        <Bar className="mt-3" w="w-2/3" />
+      </span>
+    );
+  }
   return (
     <span className="block">
-      {personal ? <span className="mb-2 inline-block rounded bg-primary-50 px-2 py-1 text-[11px] font-medium text-primary-700">{UI.forYou[l]}</span> : null}
       <Title size={loud ? "lg" : "md"} w={loud ? "w-4/5" : "w-3/5"} />
       <Bar className="mt-3" w={longer ? "w-full" : "w-2/3"} />
       {longer ? <Bar className="mt-2" w="w-1/2" /> : null}
@@ -903,10 +938,20 @@ function Onboarding({ ctx }: { ctx: Ctx }) {
     );
   }
   if (nextStep) {
+    const personal = diff(ctx, "personalization", false, true, false);
+    if (personal) {
+      // Three users, three suggestions - the one that fits is lit.
+      const items = [{ i: <UserRound />, t: UI.completeProfile[l] }, { i: <ShoppingBag />, t: UI.placeFirstOrder[l] }, { i: <Smartphone />, t: UI.getTheApp[l] }];
+      return (
+        <span className="flex flex-col gap-2">
+          {items.map((it, i) => <span key={it.t} className={clsx("flex items-center gap-3 rounded-xl p-3", i === 0 ? "bg-primary-600 text-white" : "bg-paper-soft text-ink-400")}><span className={clsx("grid size-9 shrink-0 place-items-center rounded-lg [&>svg]:size-4", i === 0 ? "bg-white/15" : "bg-paper")}>{it.i}</span><span className="flex-1 text-[13px] font-medium">{it.t}</span>{i === 0 ? <Btn tone="outline" size="sm">{UI.next[l]}</Btn> : null}</span>)}
+        </span>
+      );
+    }
     return (
       <span className="flex items-center gap-3 rounded-xl bg-paper-soft p-4">
         <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary-50 text-primary-700"><ArrowRight className="size-4" /></span>
-        <span className="min-w-0 flex-1"><Title size="sm" w="w-2/3" /><Bar className="mt-2" w="w-1/2" /></span>
+        <span className="min-w-0 flex-1"><span className="text-[13px] font-medium text-ink-900">{UI.next[l]}</span><Bar className="mt-2" w="w-1/2" /></span>
         <Btn tone="primary" size="sm">{UI.next[l]}</Btn>
       </span>
     );
@@ -1070,6 +1115,68 @@ function Dashboard({ ctx }: { ctx: Ctx }) {
   );
 }
 
+/** The home a returning visitor gets: a "welcome back" strip and the
+    thing they left - a product, a step - with a Resume button. The
+    control is the same home for everyone: the block is simply not there,
+    so the slot draws the page's normal hero instead. */
+function Resume({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const personal = diff(ctx, "personalization", false, true, true);
+  if (!personal) {
+    return (
+      <span className="block rounded-2xl bg-paper-soft p-5">
+        <span className="mb-3 inline-block rounded bg-paper px-2 py-0.5 text-[10px] font-medium text-ink-500 ring-1 ring-ink-950/[0.08]">{UI.everyone[l]}</span>
+        <Title size="lg" w="w-5/6" /><Bar className="mt-3" /><Bar w="w-2/3" />
+        <Btn tone="primary" size="md" className="mt-4 w-fit">{UI.getStarted[l]}</Btn>
+      </span>
+    );
+  }
+  return (
+    <span className="block rounded-2xl bg-primary-600 p-5 text-white">
+      <span className="text-[12px] font-medium text-white/70">{UI.welcomeBack[l]}</span>
+      <span className="mt-1 block text-[18px] font-semibold">{UI.continueWhereLeft[l]}</span>
+      <span className="mt-4 flex items-center gap-3 rounded-xl bg-white p-3 text-ink-900">
+        <Img className="size-14 shrink-0" />
+        <span className="min-w-0 flex-1"><Bar w="w-3/4" /><span className="mt-2 block h-1.5 w-full rounded-full bg-ink-950/10"><span className="block h-full w-2/3 rounded-full bg-primary-600" /></span></span>
+        <Btn tone="primary" size="sm">{UI.resumeCta[l]}<ArrowRight className="size-3.5" /></Btn>
+      </span>
+    </span>
+  );
+}
+
+/** A listing with a map: beside the list on one side, behind a Map tab on
+    the other (AB-041). The map is a tinted plate with pins; the list is
+    the shop's cards. */
+function MapView({ ctx }: { ctx: Ctx }) {
+  const l = ctx.lang;
+  const tabbed = diff(ctx, ["placement", "options", "layout"], false, true, false);
+  const pins = [[22, 30], [55, 48], [70, 22], [38, 66], [80, 70]];
+  const map = (
+    <span className="relative block h-full min-h-56 overflow-hidden rounded-lg bg-[#e8efe6]">
+      <span aria-hidden className="absolute inset-0 opacity-50" style={{ backgroundImage: "linear-gradient(#cfd9cc 1px, transparent 1px), linear-gradient(90deg, #cfd9cc 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+      <span aria-hidden className="absolute top-1/2 left-0 h-3 w-full -translate-y-1/2 -rotate-6 bg-paper/80" />
+      {pins.map(([x, y], i) => <span key={i} className="absolute grid size-6 -translate-x-1/2 -translate-y-full place-items-center" style={{ left: `${x}%`, top: `${y}%` }}><MapPin className="size-6 fill-primary-600 text-primary-700" /></span>)}
+    </span>
+  );
+  if (tabbed) {
+    return (
+      <span className="block">
+        <span className="mb-3 flex w-fit rounded-lg bg-paper-soft p-1 text-[12px] font-medium">
+          <span className="rounded-md bg-paper px-3 py-1.5 text-ink-950 shadow-sm">{UI.list[l]}</span>
+          <span className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-ink-500"><MapPin className="size-3.5" />{UI.map[l]}</span>
+        </span>
+        <span className="grid grid-cols-4 gap-4">{[0, 1, 2, 3].map((i) => <ProductCard key={i} lang={l} />)}</span>
+      </span>
+    );
+  }
+  return (
+    <span className="grid grid-cols-[1.1fr_1fr] gap-4">
+      <span className="grid grid-cols-2 gap-3">{[0, 1, 2, 3].map((i) => <ProductCard key={i} lang={l} />)}</span>
+      {map}
+    </span>
+  );
+}
+
 function Generic({ ctx }: { ctx: Ctx }) {
   const loud = diff(ctx, "emphasis", false, true, false);
   const big = diff(ctx, "size", false, true, false);
@@ -1115,6 +1222,8 @@ function Element({ ctx }: { ctx: Ctx }) {
     case "steps": return <Steps ctx={ctx} />;
     case "tabs": return <Tabs ctx={ctx} />;
     case "dashboard": return <Dashboard ctx={ctx} />;
+    case "resume": return <Resume ctx={ctx} />;
+    case "map": return <MapView ctx={ctx} />;
     default: return <Generic ctx={ctx} />;
   }
 }
@@ -1166,10 +1275,18 @@ function Footer() {
 function useSlots(ctx: Ctx, slots: readonly AbElementKind[]) {
   const moved = diff(ctx, "placement", false, true, false);
   let placed = false;
+  /* WHO GETS THE RING (2026-09-20, Hulusi on AB-106: both sides ringed,
+     nothing between them). The ring says "this is what changed"; on the
+     control it says nothing. So the treatment side is ringed, the
+     baseline side draws the element plain - except a presence test, where
+     the absent side shows its ghost and the present side its ring, and a
+     solo drawing, which is the whole point of the page. On a "remove"
+     record the sides are already swapped by `invert`, so the ring follows. */
+  const ringed = ctx.side === "solo" || ctx.kind === "presence" || (ctx.side === "b") !== ctx.invert;
   const draw = (tall: boolean): ReactNode => {
     placed = true;
     if (!ctx.present) return <Ghost lang={ctx.lang} className={tall ? "h-40" : "h-14"} />;
-    return <Spot><Element ctx={ctx} /></Spot>;
+    return ringed ? <Spot><Element ctx={ctx} /></Spot> : <span className="block"><Element ctx={ctx} /></span>;
   };
   const at = (name: AbElementKind, skeleton: ReactNode, alt = false): ReactNode => {
     const mine = ctx.element === name && (moved ? alt : !alt);
@@ -1222,7 +1339,7 @@ function Pdp({ ctx }: { ctx: Ctx }) {
 }
 
 function Plp({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx, ["nav", "search", "filters", "sort", "countdown", "text", "badge", "media", "logos", "grid", "recent", "pagination", "empty", "topbar", "banner"]);
+  const { at, rest } = useSlots(ctx, ["nav", "search", "filters", "sort", "countdown", "text", "badge", "media", "logos", "grid", "recent", "pagination", "empty", "topbar", "banner", "map"]);
   const l = ctx.lang;
   const searching = ctx.surface === "search";
   const empty = ctx.element === "empty";
@@ -1240,11 +1357,11 @@ function Plp({ ctx }: { ctx: Ctx }) {
       {rest()}
       {empty ? at("empty", null) : <>
         <SectionTitle meta={<><Bar w="w-6" className="mr-1 inline-block align-middle" />{UI.results[l]}</>}>{searching ? UI.resultsFor[l] : UI.newArrivals[l]}</SectionTitle>
-        {at("recent", null)}
-        {at("grid", <span className={clsx("grid gap-4", ctx.phone ? "grid-cols-2" : "grid-cols-4")}>{Array.from({ length: ctx.phone ? 4 : 8 }, (_, i) => <ProductCard key={i} lang={l} />)}</span>)}
+        {at("recent", null)}{at("map", null)}
+        {ctx.element === "map" ? null : at("grid", <span className={clsx("grid gap-4", ctx.phone ? "grid-cols-2" : "grid-cols-4")}>{Array.from({ length: ctx.phone ? 4 : 8 }, (_, i) => <ProductCard key={i} lang={l} />)}</span>)}
         {at("pagination", <span className="flex items-center justify-center gap-1.5">{[1, 2, 3].map((n) => <span key={n} className={clsx("grid size-9 place-items-center rounded-md text-[13px] font-medium", n === 1 ? "bg-ink-950 text-white" : "text-ink-500")}>{n}</span>)}</span>)}
       </>}
-      {at("countdown", null, true)}{at("text", null, true)}{at("badge", null, true)}{at("search", null, true)}{at("filters", null, true)}{at("nav", null, true)}{at("media", null, true)}{at("logos", null, true)}{at("sort", null, true)}{at("recent", null, true)}{at("pagination", null, true)}{at("topbar", null, true)}{at("banner", null, true)}
+      {at("countdown", null, true)}{at("text", null, true)}{at("badge", null, true)}{at("search", null, true)}{at("filters", null, true)}{at("nav", null, true)}{at("media", null, true)}{at("logos", null, true)}{at("sort", null, true)}{at("recent", null, true)}{at("pagination", null, true)}{at("topbar", null, true)}{at("banner", null, true)}{at("map", null, true)}
       {!ctx.phone ? <Footer /> : null}
     </span>
   );
@@ -1356,7 +1473,7 @@ function DashboardPage({ ctx }: { ctx: Ctx }) {
 }
 
 function Home({ ctx }: { ctx: Ctx }) {
-  const { at, rest } = useSlots(ctx, ["nav", "text", "cta", "badge", "media", "logos", "countdown", "reviews", "search", "plans", "form", "price", "grid", "topbar", "banner", "section", "recent", "onboarding", "chat", "meter", "steps", "faq", "tabs", "dashboard", "urgency"]);
+  const { at, rest } = useSlots(ctx, ["nav", "text", "cta", "badge", "media", "logos", "countdown", "reviews", "search", "plans", "form", "price", "grid", "topbar", "banner", "section", "recent", "onboarding", "chat", "meter", "steps", "faq", "tabs", "dashboard", "urgency", "resume"]);
   const l = ctx.lang;
   return (
     <span className="flex flex-col gap-8">
@@ -1364,7 +1481,8 @@ function Home({ ctx }: { ctx: Ctx }) {
       {at("nav", <ShopNav ctx={ctx} />)}
       {at("onboarding", null)}
       {at("banner", null)}
-      <span className={clsx("grid items-center gap-10 rounded-2xl bg-paper-soft p-10", ctx.phone ? "grid-cols-1" : "grid-cols-[1.1fr_1fr]")}>
+      {at("resume", null)}
+      <span className={clsx("grid items-center gap-10 rounded-2xl bg-paper-soft p-10", ctx.phone ? "grid-cols-1" : "grid-cols-[1.1fr_1fr]", ctx.element === "resume" && "hidden")}>
         <span className="flex flex-col gap-5">
           {at("text", <><Title size="lg" w="w-5/6" /><Title size="lg" w="w-3/5" /><Bar className="mt-2" /><Bar w="w-2/3" /></>)}
           {at("cta", <Btn tone="primary" size="lg" className="w-fit">{UI.getStarted[l]}</Btn>)}
