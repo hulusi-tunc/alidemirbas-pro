@@ -20,11 +20,15 @@ import {
   FileText,
   Fingerprint,
   Flag,
+  FlaskConical,
+  Gauge,
   GitBranch,
   HeartHandshake,
   HeartPulse,
   KeyRound,
   Layers,
+  LayoutGrid,
+  LayoutList,
   LifeBuoy,
   Mail,
   Megaphone,
@@ -35,6 +39,7 @@ import {
   Network,
   Package,
   PackageCheck,
+  PartyPopper,
   Pause,
   Plug,
   Radio,
@@ -44,12 +49,18 @@ import {
   RotateCcw,
   Route,
   Scale,
+  Search as SearchIcon,
   Send,
   ShieldAlert,
   ShieldCheck,
+  ShoppingBag,
+  ShoppingCart,
   Siren,
+  SlidersHorizontal,
   Smartphone,
+  SquareMousePointer,
   Stethoscope,
+  Tag,
   Target,
   Timer,
   Undo2,
@@ -57,6 +68,7 @@ import {
   UserRound,
   type LucideIcon,
 } from "lucide-react";
+import { House, Building2 } from "lucide-react";
 import type { ChannelId } from "@/canonical/types";
 
 import { clsx } from "@/lib/clsx";
@@ -331,3 +343,68 @@ export function CategoryHeader({
     </div>
   );
 }
+
+/* THE A/B LIBRARY'S OWN VOCABULARY (2026-09-20). The test archive's twelve
+   categories and fourteen pages ("surfaces") get a glyph and a tint each,
+   in the same form the journey categories have, so the A/B list, its rail
+   and its cards can be scanned before they are read. Keys are the
+   archive's own ids (CATEGORY_LABEL / SURFACE_LABEL in ui/AbTestVisuals). */
+const AB_CATEGORY_ICON: Record<string, LucideIcon> = {
+  "Cart & Checkout": ShoppingCart,
+  "Category & Listing": LayoutList,
+  Dashboard: Gauge,
+  "Forms & Signup": ClipboardList,
+  "Home & Landing": House,
+  "Mobile App": Smartphone,
+  Pricing: Tag,
+  "Product Detail Page": ShoppingBag,
+  "SaaS & B2B": Building2,
+  "Search & Filtering": SearchIcon,
+  "Thank You": PartyPopper,
+  "UI Elements": SquareMousePointer,
+};
+const AB_CATEGORY_ACCENT: Record<string, Accent> = {
+  "Cart & Checkout": { tile: "bg-emerald-50 text-emerald-700", ink: "text-emerald-700" },
+  "Category & Listing": { tile: "bg-sky-50 text-sky-700", ink: "text-sky-700" },
+  Dashboard: { tile: "bg-slate-100 text-slate-700", ink: "text-slate-700" },
+  "Forms & Signup": { tile: "bg-violet-50 text-violet-700", ink: "text-violet-700" },
+  "Home & Landing": { tile: "bg-amber-50 text-amber-700", ink: "text-amber-700" },
+  "Mobile App": { tile: "bg-teal-50 text-teal-700", ink: "text-teal-700" },
+  Pricing: { tile: "bg-lime-50 text-lime-700", ink: "text-lime-700" },
+  "Product Detail Page": { tile: "bg-rose-50 text-rose-700", ink: "text-rose-700" },
+  "SaaS & B2B": { tile: "bg-indigo-50 text-indigo-700", ink: "text-indigo-700" },
+  "Search & Filtering": { tile: "bg-cyan-50 text-cyan-700", ink: "text-cyan-700" },
+  "Thank You": { tile: "bg-pink-50 text-pink-700", ink: "text-pink-700" },
+  "UI Elements": { tile: "bg-orange-50 text-orange-700", ink: "text-orange-700" },
+};
+export function abCategoryAccent(id: string): Accent {
+  return AB_CATEGORY_ACCENT[id] ?? NEUTRAL_ACCENT;
+}
+export function AbCategoryIcon({ id, className = "size-4" }: { id: string; className?: string }) {
+  const Icon = AB_CATEGORY_ICON[id] ?? FlaskConical;
+  return <Icon aria-hidden className={className} />;
+}
+
+const AB_SURFACE_ICON: Record<string, LucideIcon> = {
+  pdp: ShoppingBag,
+  plp: LayoutList,
+  home: House,
+  cart: ShoppingCart,
+  checkout: CreditCard,
+  search: SearchIcon,
+  filters: SlidersHorizontal,
+  form: ClipboardList,
+  pricing: Tag,
+  saas: Building2,
+  mobile: Smartphone,
+  thankyou: PartyPopper,
+  dashboard: Gauge,
+  "generic-ui": LayoutGrid,
+};
+export function AbSurfaceIcon({ id, className = "size-3.5" }: { id: string; className?: string }) {
+  const Icon = AB_SURFACE_ICON[id] ?? LayoutGrid;
+  return <Icon aria-hidden className={className} />;
+}
+/** The "any" glyphs the A/B filter menus open with. */
+export const ALL_AB_CATEGORIES_ICON = <FlaskConical aria-hidden />;
+export const ALL_AB_SURFACES_ICON = <LayoutGrid aria-hidden />;

@@ -1,44 +1,40 @@
-import Link from "next/link";
+import { ArrowLeft, Ban, Eye, Lightbulb, Quote, ShieldCheck, Target } from "lucide-react";
 
-import { categoryLabel, setupLabel, surfaceLabel } from "@/components/ui/AbTestVisuals";
+import { ButtonLink } from "@/components/ui/Button";
+import { AbCategoryIcon, AbSurfaceIcon, abCategoryAccent } from "@/components/ui/LibraryChrome";
+import { categoryLabel, surfaceLabel } from "@/components/ui/AbTestVisuals";
 import { VariableDiagram } from "@/components/ui/VariableDiagram";
+import { clsx } from "@/lib/clsx";
 import { abPlaybookText, abSetupMode, abVariableKind } from "@/lib/ab-test-playbook";
 import type { AbVariableKind } from "@/lib/ab-test-playbook";
 import type { AbTestDetail } from "@/lib/ab-test-view";
 import { primaryKpiLabel } from "@/lib/ab-test-view";
 
-/* The A/B test detail page, built to the AB001_Detail_Page_v5 reference.
+/* The A/B test detail page. Rebuilt 2026-09-20 onto the site's design
+   system (Hulusi: the A/B library and detail pages were never updated),
+   in the same order the AB001_Detail_Page_v5 reference set: the way back,
+   the experiment header, Control vs Variant, the spec, the hypothesis as
+   a pulled statement, "How to run this test" as four tiles, and the
+   reusable rule as the closing dark tile.
 
-   Structure, in the reference's order: a mono rail (back link, position in
-   the library), the experiment header, Control vs Variant with an A → B
-   arrow between the two, a spec strip, the hypothesis as a large pulled
-   statement, a four-cell "How to run this test" grid, and the reusable rule
-   as the closing dark block.
+   What changed in the rebuild: the mono rail (back link, "TEST 004 / 211")
+   is a pill link plus a plain sentence; the category and page are the
+   library's own icon tiles and pills (ui/LibraryChrome), so the page
+   matches the card that opened it; the bordered grid became tiles with
+   icon tiles; the A/B marks are the house badges (A ink, B rose) the
+   homepage miniatures use; no uppercase, no mono except the record id.
 
-   Two departures from the mockup, both deliberate.
-
-   FONT. The reference sets the hypothesis and the rule in Newsreader. This
-   site removed its serif on purpose - globals.css clamps `--font-serif` to
-   the sans so the utility cannot produce one - and states the replacement
-   rule in the same breath: pull quotes are re-set in the sans at a larger
-   size with tighter tracking. That is what both blocks do here. Applying the
-   design through the site's own stated rule rather than re-introducing a
-   font it deliberately dropped.
-
-   CONTENT. The mockup is populated with invented material - a Flowbase
-   landing page, "14 gün ücretsiz deneyin", "2.400+ ekip kullanıyor", a
-   HELD CONSTANT list, a rewritten reusable rule. None of it exists in the
-   dataset, and the standing instruction is not to fabricate experiment
-   detail. So every cell below is a real field or a clause of the record's
-   own hypothesis, and a cell with no data behind it is omitted rather than
-   filled. See the section comments for which ones that hits. */
+   CONTENT is unchanged and still the record's own: every cell is a real
+   field or a clause of the record's hypothesis, and a cell with no data
+   behind it is omitted rather than filled. The reference's Newsreader
+   pull quotes stay in the sans at a larger size, per the site's own rule. */
 
 type Lang = "en" | "tr";
 
 const T = {
   en: {
-    back: "A/B Test Library",
-    test: "TEST",
+    back: "All A/B tests",
+    position: "Test {n} of {total}",
     controlVariant: "Control vs Variant",
     testConcept: "Test concept",
     whatChanges: "What changes",
@@ -46,6 +42,7 @@ const T = {
     variant: "Variant",
     changed: "Changed",
     surface: "Page",
+    category: "Category",
     testedElement: "Tested element",
     conceptNote:
       "This record defines the element to test, not a prescribed control and variant.",
@@ -58,8 +55,8 @@ const T = {
     reusableRule: "Reusable rule",
   },
   tr: {
-    back: "A/B Test Kütüphanesi",
-    test: "TEST",
+    back: "Tüm A/B testleri",
+    position: "Test {n} / {total}",
     controlVariant: "Kontrol / Varyant",
     testConcept: "Test fikri",
     whatChanges: "Ne değişiyor",
@@ -67,6 +64,7 @@ const T = {
     variant: "Varyant",
     changed: "Değişen",
     surface: "Sayfa",
+    category: "Kategori",
     testedElement: "Test edilen öğe",
     conceptNote:
       "Bu kayıt test edilecek öğeyi tanımlar; hazır bir kontrol ve varyant önermez.",
@@ -80,8 +78,8 @@ const T = {
   },
 } as const;
 
-const RAIL = "altor-eyebrow text-ink-400";
-
+/** A small label over a value: sans, 13px, medium, sentence case. */
+const LABEL = "text-[13px] font-medium text-ink-500";
 
 export default function AbTestPlaybookPage({
   test,
@@ -93,7 +91,7 @@ export default function AbTestPlaybookPage({
   test: AbTestDetail;
   lang: Lang;
   basePath: string;
-  /** 1-based index of this test in the library, for the header rail. */
+  /** 1-based index of this test in the library, for the header line. */
   position: number;
   total: number;
 }) {
@@ -113,184 +111,111 @@ export default function AbTestPlaybookPage({
     if (test.differenceBehavior === "remove") return side === "a" ? "present" : "absent";
     return null;
   };
+  const accent = abCategoryAccent(test.category);
 
   return (
-    <div className="mx-auto max-w-[1120px] px-6 pb-24 sm:px-8" data-ab-variable={kind} data-ab-mode={mode}>
-      <header className={`flex items-baseline justify-between border-b border-line py-5 ${RAIL}`}>
-        <Link href={basePath} className="transition-colors hover:text-ink-800">
-          ← {t.back}
-        </Link>
-        <span className="text-ink-300 tabular-nums">
-          {t.test} {String(position).padStart(3, "0")} / {total}
-        </span>
-      </header>
-
-      <section className="pt-11 pb-13">
-        {/* id · category · what the difference does. All three are real
-            fields; the mockup's "CTA" segment came from the tested element,
-            which already has its own cell in the spec strip below. */}
-        <p className={RAIL}>
-          {test.id} · {categoryLabel(test.category, lang)} · {setupLabel(test.differenceBehavior, lang)}
+    <div className="altor-container pt-8 pb-20 md:pb-28" data-ab-variable={kind} data-ab-mode={mode}>
+      {/* The way back, and where this record sits in the library. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ButtonLink href={basePath} variant="outline" size="sm">
+          <ArrowLeft aria-hidden className="size-4" />
+          {t.back}
+        </ButtonLink>
+        <p className="text-sm text-ink-500 tabular-nums">
+          {t.position.replace("{n}", String(position)).replace("{total}", String(total))}
         </p>
-        <h1 className="mt-5 max-w-3xl text-h2 text-pretty text-ink-950">
-          {test.question}
-        </h1>
-        {lede && (
-          <p className="mt-4 max-w-[46ch] text-[15px] leading-[1.7] text-pretty text-ink-600">{lede}</p>
-        )}
-      </section>
+      </div>
+
+      {/* The experiment header: the category's tile, the id and category
+          as the eyebrow, the question as the title, the lede, then the
+          record's three facts as pills. */}
+      <header className="mt-10 max-w-3xl">
+        <p className="flex items-center gap-3">
+          <span className={clsx("grid size-9 shrink-0 place-items-center rounded-lg", accent.tile)}>
+            <AbCategoryIcon id={test.category} />
+          </span>
+          <span className="text-sm text-ink-600">
+            <span className="font-mono text-[13px] text-ink-500 tabular-nums">{test.id}</span>
+            <span className="text-ink-400"> · </span>
+            {categoryLabel(test.category, lang)}
+          </span>
+        </p>
+        <h1 className="mt-5 text-h1 text-pretty text-ink-950">{test.question}</h1>
+        {lede && <p className="mt-5 max-w-[56ch] text-lg leading-relaxed text-pretty text-ink-600">{lede}</p>}
+        <ul className="mt-6 flex list-none flex-wrap gap-2 p-0">
+          <Fact icon={<AbSurfaceIcon id={test.surface} className="size-4" />} label={t.surface} value={surfaceLabel(test.surface, lang)} />
+          {/* differenceBehavior (add / remove / move / change) is not shown
+              as a pill: it has no approved label in either language beyond
+              the raw value, and the diagram already draws add and remove. */}
+          {test.testedSlot ? <Fact icon={<Target aria-hidden className="size-4" />} label={t.changed} value={test.testedSlot} /> : null}
+        </ul>
+      </header>
 
       {/* Two legitimate modes, chosen by the record rather than by template.
           COMPARISON puts the two named sides side by side; CONCEPT shows one
           diagram of what is under test and says outright that no control and
-          variant are prescribed. Same type, same spacing, same metadata
-          styling either way - only the claim differs. */}
-      <section className="border-t border-line pt-9 pb-10">
+          variant are prescribed. */}
+      <section className="mt-14">
         <h2 className="text-h3 text-ink-950">{mode === "comparison" ? t.controlVariant : t.testConcept}</h2>
-
         {mode === "comparison" ? (
-          /* Same surface, same slot, twice - because the surface and the slot
-             ARE the same on both sides. The difference between A and B lives
-             in the data as prose, so it is stated in each card's caption
-             rather than drawn as a visual difference the data cannot
-             support. */
-          <div className="mt-7 grid gap-5 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
-            <SidePanel
-              label={t.control}
-              letter="A"
-              side={test.sideA!}
-              kind={kind}
-              presence={presenceOf("a")}
-              testedSlot={test.testedSlot}
-              testedElementLabel={t.testedElement}
-              lang={lang}
-            />
-            <div className="flex items-center justify-center lg:h-full">
-              <span aria-hidden className="font-mono text-[13px] text-ink-300 max-lg:rotate-90">
-                A → B
-              </span>
-            </div>
-            <SidePanel
-              label={t.variant}
-              letter="B"
-              side={test.sideB!}
-              kind={kind}
-              presence={presenceOf("b")}
-              testedSlot={test.testedSlot}
-              testedElementLabel={t.testedElement}
-              lang={lang}
-            />
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            <SidePanel label={t.control} letter="A" side={test.sideA!} kind={kind} presence={presenceOf("a")} testedSlot={test.testedSlot} testedElementLabel={t.testedElement} lang={lang} />
+            <SidePanel label={t.variant} letter="B" side={test.sideB!} kind={kind} presence={presenceOf("b")} testedSlot={test.testedSlot} testedElementLabel={t.testedElement} lang={lang} />
           </div>
         ) : (
-          <div className="mt-7 grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr] lg:gap-10">
+          <div className="mt-6 grid gap-4 rounded-2xl bg-paper-soft p-5 lg:grid-cols-[minmax(0,420px)_1fr] lg:gap-10 lg:p-6">
             <VariableDiagram kind={kind} testedSlot={test.testedSlot} label={t.testedElement} lang={lang} />
-            <div className="flex flex-col justify-center gap-6">
+            <div className="flex flex-col justify-center gap-5">
               <div>
-                <p className={RAIL}>{t.whatChanges}</p>
-                <p className="mt-2.5 text-[1.05rem] leading-snug font-medium text-ink-950">
-                  {test.testedSlot ?? "—"}
-                </p>
+                <p className={LABEL}>{t.whatChanges}</p>
+                <p className="mt-1.5 text-lg leading-snug font-semibold text-ink-950">{test.testedSlot ?? "—"}</p>
               </div>
-              <p className="max-w-[46ch] text-[14px] leading-relaxed text-pretty text-ink-500">
-                {t.conceptNote}
-              </p>
+              <p className="max-w-[46ch] text-sm leading-relaxed text-pretty text-ink-600">{t.conceptNote}</p>
             </div>
-          </div>
-        )}
-
-        {/* Spec strip. The reference had a third cell, HELD CONSTANT; no
-            field behind it exists on any of the 211 records, and inventing
-            one is exactly what this round rules out - so two cells. In
-            concept mode the "changed" cell is already stated beside the
-            diagram above, leaving surface as the only new fact, so the strip
-            is comparison-only rather than repeating itself. */}
-        {mode === "comparison" && (
-          <div className="mt-10 grid border border-line-strong bg-paper sm:grid-cols-[1.15fr_1fr]">
-            <div className="p-6 sm:p-7">
-              <p className={RAIL}>{t.changed}</p>
-              <p className="mt-3 text-[1rem] leading-snug font-semibold text-ink-950">
-                {test.testedSlot ?? "—"}
-              </p>
-            </div>
-            <div className="border-t border-line p-6 sm:border-t-0 sm:border-l sm:p-7">
-              <p className={RAIL}>{t.surface}</p>
-              <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface, lang)}</p>
-            </div>
-          </div>
-        )}
-        {mode === "concept" && (
-          <div className="mt-10 border border-line-strong bg-paper p-6 sm:p-7">
-            <p className={RAIL}>{t.surface}</p>
-            <p className="mt-3 text-[1rem] leading-snug text-ink-700">{surfaceLabel(test.surface, lang)}</p>
           </div>
         )}
       </section>
 
-      {/* The hypothesis, pulled. Warm tint, generous padding, set large in
-          the sans per the site's own pull-quote rule. */}
-      <section className="mt-3 mb-13">
-        <div className="rounded-md bg-paper-soft px-8 py-12 sm:px-16 sm:py-16">
-          <p className={RAIL}>{t.hypothesis}</p>
-          <p className="mt-6 max-w-[30ch] text-[clamp(1.5rem,1.1rem+1.6vw,2.125rem)] leading-[1.36] font-medium tracking-[-0.02em] text-pretty text-ink-950 sm:max-w-[38ch]">
-            {hypothesis}
+      {/* The hypothesis, pulled: the category's tint as the ground, set
+          large in the sans per the site's own pull-quote rule. */}
+      <section className="mt-14">
+        <div className={clsx("rounded-2xl px-6 py-10 sm:px-12 sm:py-14", accent.tile.split(" ")[0])}>
+          <p className={clsx("flex items-center gap-2 text-[13px] font-medium", accent.ink)}>
+            <Lightbulb aria-hidden className="size-4" />
+            {t.hypothesis}
           </p>
+          <p className="mt-5 max-w-[38ch] text-h3 text-pretty text-ink-950 sm:text-[1.75rem] sm:leading-[1.3]">{hypothesis}</p>
         </div>
       </section>
 
-      {/* Four cells, two by two. The mockup's fourth cell was KEEP CONSTANT,
-          which has no field behind it; this uses the slot for the record's
-          own guardrails - the five "never do" rules the mockup left with
-          nowhere to go. */}
-      <section className="pb-14">
+      {/* Four tiles, two by two. The reference's fourth cell was KEEP
+          CONSTANT, which has no field behind it; this uses the slot for the
+          record's own guardrails. */}
+      <section className="mt-14">
         <h2 className="text-h3 text-ink-950">{t.howToRun}</h2>
-        <div className="mt-6 grid border-t border-line-strong sm:grid-cols-2">
-          <RunCell>
-            <p className={RAIL}>{t.primaryKpi}</p>
-            <p className="mt-3.5 text-[clamp(1.5rem,1.2rem+1vw,2rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-ink-950">
-              {primaryKpiLabel(test.primaryKpi.label, lang)}
-            </p>
-            <p className="mt-2 max-w-[40ch] text-sm leading-relaxed text-ink-600">
-              {test.primaryKpi.explanation}
-            </p>
-          </RunCell>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <Tile icon={<Target aria-hidden />} title={t.primaryKpi}>
+            <p className="text-h3 text-ink-950">{primaryKpiLabel(test.primaryKpi.label, lang)}</p>
+            <p className="mt-2 max-w-[40ch] text-sm leading-relaxed text-ink-600">{test.primaryKpi.explanation}</p>
+          </Tile>
 
-          <RunCell divided>
-            <p className={RAIL}>{t.guardrailMetrics}</p>
-            <ul className="mt-3.5 flex flex-col">
-              {test.otherKpis.map((k) => (
-                <li key={k.label} className="border-b border-line py-2.5 last:border-0">
-                  <span className="text-[15px] text-ink-900">{k.label}</span>
-                  <span className="ml-2 text-[13px] text-ink-500">{k.explanation}</span>
-                </li>
-              ))}
-            </ul>
-          </RunCell>
+          <Tile icon={<ShieldCheck aria-hidden />} title={t.guardrailMetrics}>
+            <Rows items={test.otherKpis} />
+          </Tile>
 
-          <RunCell>
-            <p className={RAIL}>{t.whatToTest}</p>
-            <ul className="mt-3.5 flex flex-col">
-              {test.whatToTest.map((w) => (
-                <li key={w.label} className="border-b border-line py-2.5 last:border-0">
-                  <span className="text-[15px] text-ink-900">{w.label}</span>
-                  <span className="ml-2 text-[13px] text-ink-500">{w.explanation}</span>
-                </li>
-              ))}
-            </ul>
-          </RunCell>
+          <Tile icon={<Eye aria-hidden />} title={t.whatToTest}>
+            <Rows items={test.whatToTest} />
+          </Tile>
 
-          <RunCell divided>
-            <p className={RAIL}>{t.neverDo}</p>
-            <ul className="mt-3.5 flex flex-col">
+          <Tile icon={<Ban aria-hidden />} title={t.neverDo}>
+            <ul className="flex list-none flex-col p-0">
               {test.guardrails.map((g) => (
-                <li
-                  key={g}
-                  className="border-b border-line py-2.5 text-[15px] leading-relaxed text-pretty text-ink-700 last:border-0"
-                >
+                <li key={g} className="border-b border-line-soft py-2.5 text-[15px] leading-relaxed text-pretty text-ink-700 last:border-0">
                   {g}
                 </li>
               ))}
             </ul>
-          </RunCell>
+          </Tile>
         </div>
       </section>
 
@@ -298,14 +223,13 @@ export default function AbTestPlaybookPage({
           hypothesis ends in a stated point - see ab-test-playbook.ts on why
           this is not synthesised for the records that don't have one. */}
       {takeaway && (
-        <section>
-          <div className="rounded-md bg-ink-950 px-8 py-11 sm:px-16 sm:py-14">
-            <p className="altor-eyebrow text-white/50">
+        <section className="mt-14">
+          <div className="rounded-2xl bg-ink-950 px-6 py-10 text-white sm:px-12 sm:py-14">
+            <p className="flex items-center gap-2 text-[13px] font-medium text-white/60">
+              <Quote aria-hidden className="size-4" />
               {t.reusableRule}
             </p>
-            <p className="mt-6 max-w-[34ch] text-[clamp(1.35rem,1.05rem+1.3vw,1.8rem)] leading-[1.42] font-medium tracking-[-0.02em] text-pretty text-white sm:max-w-[42ch]">
-              {takeaway}
-            </p>
+            <p className="mt-5 max-w-[42ch] text-h3 text-pretty text-white sm:text-[1.6rem] sm:leading-[1.35]">{takeaway}</p>
           </div>
         </section>
       )}
@@ -313,10 +237,36 @@ export default function AbTestPlaybookPage({
   );
 }
 
-/** One side of the comparison: the surface with the tested slot marked, and
-    the side's own label beneath it. The label is the record's words for what
-    this side actually is - the only place the A/B difference is stated,
-    because it is the only place the data states it. */
+/** One of the record's facts as a pill: a glyph, the label in ink-500,
+    the value in ink-950. */
+function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <li className="inline-flex items-center gap-2 rounded-full bg-paper-soft py-1.5 pr-3.5 pl-2.5 text-sm [&>svg]:size-4 [&>svg]:text-ink-500">
+      {icon}
+      <span className="text-ink-500">{label}</span>
+      <span className="font-medium text-ink-950">{value}</span>
+    </li>
+  );
+}
+
+/** The A / B badge the homepage miniatures and the A/B product page use:
+    A on ink, B on rose. */
+function SideMark({ letter }: { letter: "A" | "B" }) {
+  return (
+    <span
+      aria-hidden
+      className={clsx("grid size-6 place-items-center rounded-full text-xs font-semibold text-white", letter === "A" ? "bg-ink-950" : "bg-rose-600")}
+    >
+      {letter}
+    </span>
+  );
+}
+
+/** One side of the comparison: a tile with the side's badge and name, the
+    surface with the tested slot marked, and the side's own label beneath
+    it - the record's words for what this side actually is, the only place
+    the A/B difference is stated, because it is the only place the data
+    states it. */
 function SidePanel({
   label,
   letter,
@@ -328,7 +278,7 @@ function SidePanel({
   lang,
 }: {
   label: string;
-  letter: string;
+  letter: "A" | "B";
   side: { role: string; label: string | null; sourceBasis: string | null };
   kind: AbVariableKind;
   presence: "absent" | "present" | null;
@@ -337,31 +287,42 @@ function SidePanel({
   lang: Lang;
 }) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-baseline justify-between">
-        <span className="altor-eyebrow text-ink-500">{label}</span>
-        <span className="font-mono text-[11px] text-ink-400">{letter}</span>
-      </div>
+    <div className="flex flex-col gap-4 rounded-2xl bg-paper-soft p-5 lg:p-6">
+      <p className="flex items-center gap-2.5 text-sm font-semibold text-ink-950">
+        <SideMark letter={letter} />
+        {label}
+      </p>
       <VariableDiagram kind={kind} testedSlot={testedSlot} label={testedElementLabel} lang={lang} presence={presence} />
-      <p className="text-[14px] leading-relaxed text-pretty text-ink-700">{side.label ?? "—"}</p>
-      {side.sourceBasis && (
-        <p className="text-[12px] leading-relaxed text-ink-400">{side.sourceBasis}</p>
-      )}
+      <p className="text-[15px] leading-relaxed text-pretty text-ink-800">{side.label ?? "—"}</p>
+      {side.sourceBasis && <p className="text-[13px] leading-relaxed text-ink-500">{side.sourceBasis}</p>}
     </div>
   );
 }
 
-/** One cell of the how-to-run grid. `divided` adds the rule that separates
-    the right column from the left on desktop only - stacked, the horizontal
-    borders already do that work. */
-function RunCell({ children, divided = false }: { children: React.ReactNode; divided?: boolean }) {
+/** One tile of the how-to-run grid: an icon tile and a title, then the
+    content. */
+function Tile({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div
-      className={`border-b border-line py-7 ${
-        divided ? "sm:border-l sm:pl-10" : "sm:pr-10"
-      }`}
-    >
-      {children}
+    <div className="rounded-2xl bg-paper p-5 ring-1 ring-ink-950/[0.06] lg:p-6">
+      <p className="flex items-center gap-2.5 text-sm font-semibold text-ink-950">
+        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-paper-soft text-ink-700 [&>svg]:size-4">{icon}</span>
+        {title}
+      </p>
+      <div className="mt-4">{children}</div>
     </div>
+  );
+}
+
+/** Label + explanation rows, ruled. */
+function Rows({ items }: { items: readonly { label: string; explanation: string }[] }) {
+  return (
+    <ul className="flex list-none flex-col p-0">
+      {items.map((k) => (
+        <li key={k.label} className="border-b border-line-soft py-2.5 last:border-0">
+          <span className="text-[15px] font-medium text-ink-950">{k.label}</span>
+          <span className="ml-2 text-[13px] text-ink-600">{k.explanation}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

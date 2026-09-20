@@ -37,7 +37,7 @@ const BLOCK = "rounded-md bg-ink-100";
 const MARK = "rounded-md bg-ink-900";
 const GHOST = "rounded-md border border-dashed border-ink-200";
 const CAP = "text-[11.5px] leading-snug text-ink-400";
-const RAIL = "font-mono text-[9px] tracking-[0.06em] text-ink-400 uppercase";
+const RAIL = "text-[11px] font-medium text-ink-500";
 
 /** The one line under each drawing that names the variable. */
 const CAPTION: Record<AbVariableKind, Record<Lang, string>> = {
@@ -147,9 +147,9 @@ export function VariableDiagram({
   presence?: "absent" | "present" | null;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-paper p-5 sm:p-6">
-      <p className="font-mono text-[9px] tracking-[0.12em] text-ink-400 uppercase">{label}</p>
-      <p className="mt-1.5 text-[13.5px] leading-snug font-medium text-ink-950">{testedSlot ?? "—"}</p>
+    <div className="rounded-xl bg-paper p-5 ring-1 ring-ink-950/[0.06] sm:p-6">
+      <p className="text-[13px] font-medium text-ink-500">{label}</p>
+      <p className="mt-1 text-[15px] leading-snug font-semibold text-ink-950">{testedSlot ?? "—"}</p>
       <div className="mt-4 border-t border-line-soft pt-4">
         <Body kind={kind} lang={lang} presence={presence ?? null} />
       </div>
