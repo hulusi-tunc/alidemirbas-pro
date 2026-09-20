@@ -148,10 +148,12 @@ Model and Channels from `audit/channel-orchestration-map.md`; ownership-transfer
 ## Model distribution
 
 A journey is counted once per model however many of its stages use it, so the column sums exceed 51.
+Counts are derived from the per-stage model labels in `audit/channel-orchestration-map.md`, not
+from that report's own summary table — two small corrections are noted beneath.
 
 | Model | Journeys | Count | Share of 51 |
 |---|---:|---:|---:|
-| **Single** | ACQ-09, ACQ-13, ACT-13, ACT-14, ACT-17, ACT-18, ACT-19, ACT-20, CON-272, RET-26, RET-28, RET-30, TIM-268, TIM-274, TIM-281, ACC-261, IDN-271, REL-284, FIN-134, FUL-265, REM-151, REM-157, SUB-262, SUB-163, SCH-266, SCH-277, RSK-273, DOC-214, DOC-215, INC-254 | **30** | 59% |
+| **Single** | ACQ-09, ACQ-13, ACT-13, ACT-14, ACT-17, ACT-18, ACT-19, ACT-20, CON-272, RET-26, RET-28, RET-30, FBK-41, FBK-49, TIM-268, TIM-274, TIM-281, ACC-261, IDN-271, REL-284, FIN-134, FUL-265, REM-151, REM-157, SUB-262, SUB-163, SCH-266, SCH-277, RSK-273, DOC-214, DOC-215, INC-254 | **32** | 63% |
 | **Conditional** | ACQ-11, ACQ-285, FBK-43, TIM-268, TIM-61, TIM-63, TIM-274, TIM-281, ACC-261, IDN-84, FIN-134, FUL-146, FUL-148, FUL-265, REM-157, SUB-163, SCH-266, SCH-277, SCH-280, SCH-282, RSK-273, RLT-279 | **22** | 43% |
 | **Sequential** | ACQ-11, ACQ-12, ACQ-285, ACQ-287, ACQ-288, ACT-12, ACT-14, ACT-17, RET-28, RET-31, RET-32, TIM-274, ACC-263, REL-284, FIN-134, FUL-265, SUB-262, DOC-215, RLT-279 | **19** | 37% |
 | **Segment-based** | ACQ-287, ACQ-288, FBK-42, ACC-263, REL-284 | **5** | 10% |
@@ -166,10 +168,10 @@ A journey is counted once per model however many of its stages use it, so the co
   token to exist (ACQ-288, ACQ-287). Everywhere else a second channel appears it is because the
   message or the urgency changed — that is Conditional — not because the first one broke. This is
   the check the brief asked for, and it passes.
-- **Single at 59% is the intended shape, not over-use.** It records that 30 journeys discharge at
-  least one stage with exactly one message. Most of those 30 also carry Sequential or Conditional;
-  only four are single-model end to end (RET-26, IDN-84 and REM-151 — all three wait-free and
-  single-touch — plus INC-254, which pairs Single with Parallel).
+- **Single at 63% is the intended shape, not over-use.** It records that 32 journeys discharge at
+  least one stage with exactly one message. Most of those 32 also carry Sequential or Conditional;
+  only three journeys in the whole set use exactly one model — RET-26, REM-151 (both Single) and
+  IDN-84 (Conditional), which are also the three wait-free single-touch journeys.
 - **Conditional at 43% is the genuine workhorse.** It is the model that decides *what is said*,
   which is where the corpus concentrates its design effort.
 - **Parallel at 2 and Segment-based at 5 are both rare and both earned.** Parallel never pairs two
@@ -178,8 +180,12 @@ A journey is counted once per model however many of its stages use it, so the co
   existing vs new counterparty (REL-284) and strength of relationship evidence (FBK-42).
 - **Event-or-timeout at 47 is structural, not a style choice** — it is simply every journey with a
   wait node, and it combines with all the others.
-- **Touch counts are not maximised.** 27 of 51 journeys reach at most 1 customer touch on any path;
-  15 reach 2; 7 reach 3; and only ACT-17 and ACT-12 reach more — both flagged below.
+- **Touch counts are not maximised.** 20 of 51 journeys reach at most 1 customer touch on any path;
+  22 reach 2; 7 reach 3; and only ACT-17 and ACT-12 reach more — both flagged below.
+
+Two corrections to the orchestration map's own summary table, applied above: its Single row lists
+30 journeys but omits FBK-41 and FBK-49, whose stage rows in that same report are labelled Single
+(32 here); and its Event-or-timeout row counts INC-254, which has no wait node (see decision 13).
 
 ---
 
