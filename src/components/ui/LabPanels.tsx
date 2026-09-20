@@ -82,7 +82,7 @@ import { AB004_TEXT } from "@/components/ui/LabPreviews";
 import { PATTERNS, type Pattern } from "@/components/ui/PatternFlow";
 import { AB_SCALE, FEATURED, SURFACE_COUNTS, canvasRows } from "@/lib/ab-test-marketing";
 import { AB_CATEGORIES, AB_TEST_COUNT, surfaceLabel } from "@/lib/ab-test-view";
-import { JOURNEY_ROWS, LIBRARY_COUNT, journeyDetail, type JourneyRow } from "@/lib/canonical-view";
+import { LIBRARY_COUNT, LIBRARY_ROWS, journeyDetail, type JourneyRow } from "@/lib/canonical-view";
 import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
@@ -215,7 +215,7 @@ async function LibraryGraphPanel({ journey, lang }: { journey: HeroJourney; lang
         <SearchField placeholder={p.searchPlaceholder} className="flex-1" />
         <SelectField value={p.allGoals} className="hidden sm:flex" />
         <span className="hidden shrink-0 text-[12px] text-ink-500 tabular-nums sm:block">
-          {JOURNEY_ROWS.length} {p.results}
+          {LIBRARY_COUNT} {p.results}
         </span>
       </AppBar>
       <div className="flex min-h-0 flex-1">
@@ -833,12 +833,14 @@ export function BuilderCanvasFragment({ lang, pattern: patternIndex = 0 }: { lan
    its live journey count (the browser's real filter), and the seven
    largest journeys by node count - the same ordering the library page
    uses for its previews, a rule, not a pick. */
+// Counted over the LIBRARY (the customer-journeys surface), not every
+// public journey: "the library" means the 73 across 21 categories.
 const GOAL_COUNTS = GOALS.map((goal) => ({
   goal,
-  count: JOURNEY_ROWS.filter((j) => j.goal === goal).length,
+  count: LIBRARY_ROWS.filter((j) => j.goal === goal).length,
 })).sort((a, b) => b.count - a.count || GOAL_LABEL[a.goal].en.localeCompare(GOAL_LABEL[b.goal].en));
 
-const LARGEST_JOURNEYS = [...JOURNEY_ROWS].sort((a, b) => b.nodeCount - a.nodeCount || a.id.localeCompare(b.id)).slice(0, 7);
+const LARGEST_JOURNEYS = [...LIBRARY_ROWS].sort((a, b) => b.nodeCount - a.nodeCount || a.id.localeCompare(b.id)).slice(0, 7);
 
 /** The library as its browser: the page's real search placeholder and
     goal select, the goals as a facet rail with counts, and the largest
@@ -849,12 +851,12 @@ export function LibraryWindow({ lang }: { lang: Lang }) {
   const shown = GOAL_COUNTS.slice(0, 8);
   const rest = GOAL_COUNTS.length - shown.length;
   return (
-    <Window label={w.labels.library} address={lang === "en" ? "/lab/journeys" : "/tr/lab/journeys"} meta={`${JOURNEY_ROWS.length} ${p.results}`}>
+    <Window label={w.labels.library} address={lang === "en" ? "/lab/journeys" : "/tr/lab/journeys"} meta={`${LIBRARY_COUNT} ${p.results}`}>
       <AppBar>
         <SearchField placeholder={p.searchPlaceholder} className="flex-1" />
         <SelectField value={p.allGoals} className="hidden sm:flex" />
         <span className="ml-auto shrink-0 text-[12px] text-ink-500 tabular-nums">
-          {JOURNEY_ROWS.length} / {JOURNEY_ROWS.length} {p.results}
+          {LIBRARY_COUNT} / {LIBRARY_COUNT} {p.results}
         </span>
       </AppBar>
       <div className="flex">
@@ -1639,7 +1641,7 @@ export async function LibraryScene({ lang, view = 0 }: { lang: Lang; view?: numb
        matched word marked, each hit over its own graph. No ids, no
        facets - "type, and the right journey appears". */
     const query = "abandoned";
-    const hits = JOURNEY_ROWS.filter((j) => (j.shortName ?? j.name).toLowerCase().includes(query)).slice(0, 3);
+    const hits = LIBRARY_ROWS.filter((j) => (j.shortName ?? j.name).toLowerCase().includes(query)).slice(0, 3);
     const thumbs = await Promise.all(hits.map((j) => miniCanvas(j.id, lang)));
     const mark = (name: string) => {
       const at = name.toLowerCase().indexOf(query);
