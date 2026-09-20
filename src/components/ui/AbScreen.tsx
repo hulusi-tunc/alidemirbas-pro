@@ -38,6 +38,7 @@ import {
   Truck,
   UserRound,
   X,
+  LoaderCircle, Quote, ThumbsUp, TriangleAlert,
 } from "lucide-react";
 
 import { PixelHighlight } from "@/components/ui/PixelHighlight";
@@ -234,6 +235,40 @@ const UI = {
   detectedLanguage: { en: "shown in your language", tr: "senin dilinde" },
   list: { en: "List", tr: "Liste" },
   map: { en: "Map", tr: "Harita" },
+  // the records whose difference is on the button, in the headline, in a flow
+  send: { en: "Send", tr: "Gönder" },
+  getMyQuote: { en: "Get my quote", tr: "Fiyat teklifimi al" },
+  tryFirst: { en: "Try it first", tr: "Önce dene" },
+  seeThePrice: { en: "See the price", tr: "Fiyatı gör" },
+  start: { en: "Start", tr: "Başlat" },
+  imStarting: { en: "I'm starting", tr: "Başlıyorum" },
+  tryForFree: { en: "Try for free", tr: "Ücretsiz dene" },
+  startDaysFree: { en: "Start 14 days free", tr: "14 gün ücretsiz başla" },
+  problemHeadline: { en: "Losing leads to slow follow-up?", tr: "Geç dönüş yüzünden müşteri mi kaçıyor?" },
+  solutionHeadline: { en: "Follow up with every lead in minutes", tr: "Her müşteriye dakikalar içinde dönün" },
+  abstractBenefit: { en: "Work more efficiently", tr: "Daha verimli çalışın" },
+  concreteBenefit: { en: "Cut report prep time in half", tr: "Rapor hazırlama süresini yarıya indirin" },
+  benefitLine: { en: "Close more deals.", tr: "Daha çok satış kapatın." },
+  featureLine: { en: "One shared inbox for your team.", tr: "Ekibiniz için tek bir ortak gelen kutusu." },
+  forIndividuals: { en: "For personal use", tr: "Bireysel kullanım için" },
+  forTeams: { en: "For your team", tr: "Ekibiniz için" },
+  lossFrame: { en: "Your trial ends soon. You will lose your saved work.", tr: "Deneme süreniz bitiyor. Kayıtlı çalışmalarınız silinecek." },
+  gainFrame: { en: "Keep everything you built. Upgrade to continue.", tr: "Kurduğunuz her şey sizinle kalsın. Devam etmek için yükseltin." },
+  upgrade: { en: "Upgrade", tr: "Yükselt" },
+  standardDelivery: { en: "Standard delivery", tr: "Standart teslimat" },
+  expressDelivery: { en: "Express delivery", tr: "Hızlı teslimat" },
+  processingPayment: { en: "Processing your payment", tr: "Ödemeniz işleniyor" },
+  verifyingCard: { en: "Verifying card", tr: "Kart doğrulanıyor" },
+  bankApproval: { en: "Waiting for bank approval", tr: "Banka onayı bekleniyor" },
+  creatingOrder: { en: "Creating your order", tr: "Sipariş oluşturuluyor" },
+  done: { en: "Done", tr: "Bitti" },
+  placeOrder: { en: "Place order", tr: "Sipariş ver" },
+  autoAdvance: { en: "moves on by itself", tr: "kendiliğinden ilerler" },
+  mostHelpful: { en: "Most helpful", tr: "En faydalı" },
+  relevance: { en: "Relevance", tr: "İlgi düzeyi" },
+  bestSelling: { en: "Best selling", tr: "Çok satan" },
+  nameWord: { en: "name", tr: "ad" },
+  serviceWord: { en: "service", tr: "hizmet" },
 } as const;
 
 const CAPTION: Record<AbVariableKind, Record<Lang, string>> = {
@@ -295,16 +330,18 @@ function PriceBar({ big = false, className = "" }: { big?: boolean; className?: 
 
 /* ---- the real UI, high-fi -------------------------------------------- */
 
-function Btn({ children, tone = "ink", size = "md", className = "" }: { children: ReactNode; tone?: "ink" | "primary" | "outline" | "link" | "ghost"; size?: "sm" | "md" | "lg"; className?: string }) {
+function Btn({ children, tone = "ink", size = "md", shape = "rounded-md", className = "" }: { children: ReactNode; tone?: "ink" | "primary" | "outline" | "link" | "ghost" | "white"; size?: "sm" | "md" | "lg"; shape?: string; className?: string }) {
   return (
     <span
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-md font-semibold whitespace-nowrap",
+        "inline-flex items-center justify-center gap-2 font-semibold whitespace-nowrap",
+        shape,
         size === "sm" ? "h-8 px-3 text-[12px]" : size === "lg" ? "h-12 px-6 text-[15px]" : "h-10 px-4 text-[13px]",
         tone === "primary" && "bg-primary-600 text-white",
         tone === "ink" && "bg-ink-950 text-white",
         tone === "outline" && "bg-paper text-ink-900 ring-1 ring-ink-950/[0.15]",
         tone === "ghost" && "bg-paper-soft text-ink-900",
+        tone === "white" && "bg-white text-primary-700 shadow-sm",
         tone === "link" && "h-auto px-0 text-[13px] text-primary-700 underline underline-offset-2",
         className,
       )}
@@ -314,18 +351,20 @@ function Btn({ children, tone = "ink", size = "md", className = "" }: { children
   );
 }
 
-function Field({ label, placeholder, floating = false, helper, tag, tall = false }: { label: string; placeholder?: string; floating?: boolean; helper?: string; tag?: string; tall?: boolean }) {
+function Field({ label, placeholder, floating = false, helper, tag, tall = false, required = false, focused = false }: { label: string; placeholder?: string; floating?: boolean; helper?: string; tag?: string; tall?: boolean; required?: boolean; focused?: boolean }) {
   return (
     <span className="block min-w-0">
       {!floating && (
         <span className="mb-1.5 flex items-center gap-2 text-[12px] font-medium text-ink-800">
           {label}
+          {required ? <span className="-ml-1 text-rose-600">*</span> : null}
           {tag ? <span className="rounded bg-paper-soft px-1.5 py-0.5 text-[11px] font-normal text-ink-500">{tag}</span> : null}
         </span>
       )}
-      <span className={clsx("relative flex items-center rounded-md bg-paper px-3 text-[13px] text-ink-400 ring-1 ring-ink-950/[0.14]", tall ? "h-12" : "h-10")}>
+      <span className={clsx("relative flex items-center rounded-md bg-paper px-3 text-[13px] text-ink-400 ring-1", focused ? "ring-2 ring-primary-500" : "ring-ink-950/[0.14]", tall ? "h-12" : "h-10")}>
         {floating ? <span className="absolute top-1.5 left-3 text-[10px] font-medium text-ink-600">{label}</span> : null}
         <span className={floating ? "mt-3" : ""}>{placeholder ?? ""}</span>
+        {focused ? <span aria-hidden className="ml-0.5 h-4 w-px bg-ink-900" /> : null}
       </span>
       {helper ? <span className="mt-1.5 block text-[11px] text-ink-500">{helper}</span> : null}
     </span>
@@ -380,6 +419,21 @@ function diff<T>(ctx: Ctx, kinds: AbVariableKind | AbVariableKind[], a: T, b: T,
   return onB !== ctx.invert ? b : a;
 }
 
+/** The treatment side, whatever the variable kind: B, or A on a "remove"
+    record, never on a solo drawing. The slot-specific drawings use it
+    (2026-09-20: twenty-eight records drew the same screen twice, because
+    a kind like "options" or "behavior" says nothing about WHAT the two
+    options are - the slot does). */
+function treat(ctx: Ctx): boolean {
+  return ctx.side !== "solo" && (ctx.side === "b") !== ctx.invert;
+}
+
+/** A headline with real words in it, for the records whose variable IS
+    the words: placeholder copy for the placeholder brand, never a figure. */
+function Headline({ children, phone, muted = false }: { children: ReactNode; phone: boolean; muted?: boolean }) {
+  return <span className={clsx("block font-semibold tracking-tight", phone ? "text-[24px] leading-[1.15]" : "text-[34px] leading-[1.1]", muted ? "text-ink-400" : "text-ink-950")}>{children}</span>;
+}
+
 /** A promo strip with a live countdown - the digits are bars. */
 function Countdown({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
@@ -406,7 +460,45 @@ function Countdown({ ctx }: { ctx: Ctx }) {
 function Cta({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
   const s = ctx.surface;
+  const f = ctx.slotFold;
+  const b = treat(ctx);
   const label = s === "cart" || s === "checkout" ? UI.checkout[l] : s === "form" || s === "saas" ? UI.continue[l] : s === "pdp" || s === "plp" ? UI.addToCart[l] : UI.getStarted[l];
+  /* THE BUTTON RECORDS, each by its slot: the words on a button are
+     interface words, so the two sides carry the two wordings for real. */
+  if (/metni cercevesi/.test(f)) return <Btn tone="primary" size="lg">{b ? UI.getMyQuote[l] : UI.send[l]}</Btn>;
+  if (/metni kipi/.test(f)) return <Btn tone="primary" size="lg">{b ? UI.imStarting[l] : UI.start[l]}</Btn>;
+  if (/deneme cta/.test(f)) return <Btn tone="primary" size="lg">{b ? UI.startDaysFree[l] : UI.tryForFree[l]}</Btn>;
+  if (/tutarlilig/.test(f)) {
+    // Three sections' buttons, one under the other: three styles, or one.
+    const styles: Array<{ tone: "primary" | "ink" | "outline"; shape: string }> = b
+      ? [{ tone: "primary", shape: "rounded-md" }, { tone: "primary", shape: "rounded-md" }, { tone: "primary", shape: "rounded-md" }]
+      : [{ tone: "primary", shape: "rounded-md" }, { tone: "ink", shape: "rounded-full" }, { tone: "outline", shape: "rounded-none" }];
+    const words = [UI.getStarted[l], UI.addToCart[l], UI.learnMore[l]];
+    return (
+      <span className="flex flex-col gap-3">
+        {styles.map((st, i) => (
+          <span key={words[i]} className="flex items-center gap-4 rounded-lg bg-paper-soft px-4 py-3">
+            <span className="flex-1"><Title size="sm" w="w-24" /><Bar className="mt-2" w="w-2/3" /></span>
+            <Btn tone={st.tone} size="md" shape={st.shape}>{words[i]}</Btn>
+          </span>
+        ))}
+      </span>
+    );
+  }
+  if (/buton stili/.test(f)) return <Btn tone={b ? "outline" : "primary"} size="lg">{label}</Btn>;
+  if (/ikincil aksiyon/.test(f)) {
+    return (
+      <span className="flex flex-wrap items-center gap-4">
+        <Btn tone="primary" size="lg">{label}</Btn>
+        {b ? <Btn tone="outline" size="lg">{UI.learnMore[l]}</Btn> : <Btn tone="link">{UI.learnMore[l]}</Btn>}
+      </span>
+    );
+  }
+  if (/taahhut/.test(f)) {
+    return b
+      ? <span className="flex flex-wrap items-center gap-3"><Btn tone="primary" size="lg">{UI.tryFirst[l]}</Btn><Btn tone="outline" size="lg">{UI.seeThePrice[l]}</Btn></span>
+      : <Btn tone="ink" size="lg">{UI.buyNow[l]}</Btn>;
+  }
   const wording = diff(ctx, ["wording", "microcopy"], label, s === "pdp" || s === "plp" ? UI.buyNow[l] : UI.getStarted[l], label);
   const tone = diff<"ink" | "primary" | "outline">(ctx, ["style", "anatomy"], "ink", "primary", diff(ctx, "emphasis", "outline", "primary", "primary"));
   const size = diff<"sm" | "md" | "lg">(ctx, ["size", "anatomy"], "md", "lg", diff(ctx, "emphasis", "md", "lg", "lg"));
@@ -455,19 +547,53 @@ function Shipping({ ctx }: { ctx: Ctx }) {
 
 function Badges({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  const f = ctx.slotFold;
+  const b = treat(ctx);
   const items = [
     { icon: <ShieldCheck />, label: UI.securePayment[l] },
     { icon: <Truck />, label: UI.freeShipping[l] },
     { icon: <RotateCcw />, label: UI.freeReturns[l] },
   ];
+  if (/bildirim isareti/.test(f)) {
+    // The mark on the bell: a count (its digits a bar), or a dot.
+    return (
+      <span className="inline-flex items-center gap-4">
+        <span className="relative grid size-10 place-items-center rounded-full bg-paper-soft text-ink-700">
+          <Bell className="size-5" />
+          {b ? <span className="absolute top-1 right-1 size-3 rounded-full bg-rose-600 ring-2 ring-paper" /> : <span className="absolute -top-0.5 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-rose-600 px-1 ring-2 ring-paper"><span className="h-1.5 w-2.5 rounded-sm bg-white/90" /></span>}
+        </span>
+        <span className="text-[13px] font-medium text-ink-700">{UI.notifications[l]}</span>
+      </span>
+    );
+  }
+  if (/guvence listesi/.test(f)) {
+    // The guarantees inside a paragraph, or as a list of their own.
+    if (!b) {
+      const ib = (w: string) => <span aria-hidden className={clsx("inline-block h-2 rounded-full bg-ink-950/10 align-middle", w)} />;
+      return <span className="block text-[13px] leading-[1.9] text-ink-700">{ib("w-24")} {ib("w-10")} <span className="font-medium text-ink-900">{UI.securePayment[l]}</span> {ib("w-16")} {ib("w-8")} <span className="font-medium text-ink-900">{UI.freeShipping[l]}</span> {ib("w-20")} <span className="font-medium text-ink-900">{UI.freeReturns[l]}</span> {ib("w-12")}.</span>;
+    }
+    return <span className="flex flex-col gap-2">{items.map((x) => <span key={x.label} className="flex items-center gap-2 text-[13px] font-medium text-ink-800"><Check className="size-4 text-emerald-600" />{x.label}</span>)}</span>;
+  }
+  if (/dagilim/.test(f)) {
+    // All the guarantees in one block, or each beside the worry it answers.
+    const pill = (x: (typeof items)[number]) => <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1.5 text-[12px] font-medium text-emerald-700 [&>svg]:size-4">{x.icon}{x.label}</span>;
+    if (!b) return <span className="flex flex-wrap gap-2 rounded-lg bg-paper-soft p-4">{items.map((x) => <span key={x.label}>{pill(x)}</span>)}</span>;
+    return (
+      <span className="flex flex-col gap-3">
+        <span className="flex items-center gap-4"><PriceBar big />{pill(items[2])}</span>
+        <span className="flex items-center gap-4"><span className="h-10 flex-1 rounded-md bg-paper ring-1 ring-ink-950/[0.14]" />{pill(items[0])}</span>
+        <span className="flex items-center gap-4"><Btn tone="primary" size="md">{UI.checkout[l]}</Btn>{pill(items[1])}</span>
+      </span>
+    );
+  }
   const n = diff(ctx, "quantity", 2, 3, 3);
   const loud = diff(ctx, "emphasis", false, true, false);
   const column = diff(ctx, ["format", "layout", "options"], false, true, false);
   return (
     <span className={clsx("flex gap-2", column ? "flex-col" : "flex-wrap")}>
-      {items.slice(0, n).map((b) => (
-        <span key={b.label} className={clsx("inline-flex items-center gap-2 rounded-md text-[12px] font-medium [&>svg]:size-4", loud ? "bg-emerald-50 px-3 py-2 text-emerald-700" : "px-1 py-1 text-ink-600 [&>svg]:text-ink-400")}>
-          {b.icon}{b.label}
+      {items.slice(0, n).map((x) => (
+        <span key={x.label} className={clsx("inline-flex items-center gap-2 rounded-md text-[12px] font-medium [&>svg]:size-4", loud ? "bg-emerald-50 px-3 py-2 text-emerald-700" : "px-1 py-1 text-ink-600 [&>svg]:text-ink-400")}>
+          {x.icon}{x.label}
         </span>
       ))}
     </span>
@@ -476,6 +602,19 @@ function Badges({ ctx }: { ctx: Ctx }) {
 
 function Price({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  if (/sayfadaki sira/.test(ctx.slotFold)) {
+    // The price first and the benefits under it, or the other way round.
+    const b = treat(ctx);
+    const benefits = <span className="flex flex-col gap-2.5">{[0, 1, 2].map((i) => <span key={i} className="flex items-center gap-2"><Check className="size-4 text-primary-600" /><Bar w={i ? "w-2/3" : "w-4/5"} /></span>)}</span>;
+    const price = <span className="flex items-end gap-2"><PriceBar big /><span className="pb-0.5 text-[12px] text-ink-500">{UI.perMonth[l]}</span></span>;
+    return (
+      <span className="flex max-w-sm flex-col gap-5 rounded-xl bg-paper p-6 ring-1 ring-ink-950/[0.1]">
+        <span className="text-[15px] font-semibold text-ink-950">{UI.plans[l][1]}</span>
+        {b ? <>{benefits}{price}</> : <>{price}{benefits}</>}
+        <Btn tone="primary" size="md" className="w-full">{UI.choose[l]}</Btn>
+      </span>
+    );
+  }
   const unit = diff(ctx, ["format", "options"], false, true, false);
   const big = diff(ctx, ["emphasis", "size"], false, true, true);
   const sale = diff(ctx, "emphasis", false, true, false);
@@ -490,6 +629,27 @@ function Price({ ctx }: { ctx: Ctx }) {
 
 function Payment({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  if (/odeme yukleme/.test(ctx.slotFold)) {
+    // While the payment runs: one spinner, or the steps it is going through.
+    const b = treat(ctx);
+    const steps = [UI.verifyingCard[l], UI.bankApproval[l], UI.creatingOrder[l]];
+    return (
+      <span className="flex flex-col items-center gap-4 rounded-xl bg-paper p-6 ring-1 ring-ink-950/[0.08]">
+        {b ? (
+          <span className="flex w-full flex-col gap-3">
+            {steps.map((s, i) => (
+              <span key={s} className={clsx("flex items-center gap-3 text-[13px] font-medium", i === 0 ? "text-ink-950" : i === 1 ? "text-ink-800" : "text-ink-400")}>
+                {i === 0 ? <span className="grid size-6 place-items-center rounded-full bg-emerald-100 text-emerald-700"><Check className="size-3.5" /></span> : i === 1 ? <LoaderCircle className="size-6 text-primary-600" /> : <span className="size-6 rounded-full border-2 border-ink-200" />}
+                {s}
+              </span>
+            ))}
+          </span>
+        ) : (
+          <><LoaderCircle className="size-9 text-primary-600" /><span className="text-[13px] font-medium text-ink-700">{UI.processingPayment[l]}</span></>
+        )}
+      </span>
+    );
+  }
   const guest = diff(ctx, "presence", false, true, true) && ctx.present;
   const saved = diff(ctx, ["options", "format"], false, true, false);
   return (
@@ -508,6 +668,37 @@ function Payment({ ctx }: { ctx: Ctx }) {
 
 function Stepper({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  const f = ctx.slotFold;
+  const b = treat(ctx);
+  const row = (names: string[], active: number, ringed = -1) => (
+    <span className="flex items-center gap-3">
+      {names.map((s, i) => (
+        <span key={s} className="flex flex-1 items-center gap-2">
+          <span className={clsx("grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold", i === active ? "bg-primary-600 text-white" : i < active ? "bg-emerald-100 text-emerald-700" : "bg-paper-soft text-ink-500", i === ringed && "ring-2 ring-primary-300 ring-offset-2 ring-offset-paper")}>{i < active ? <Check className="size-3" /> : i + 1}</span>
+          <span className={clsx("text-[13px] font-medium whitespace-nowrap", i === active ? "text-ink-950" : "text-ink-500")}>{s}</span>
+          {i < names.length - 1 ? <span className="h-px flex-1 bg-ink-950/10" /> : null}
+        </span>
+      ))}
+    </span>
+  );
+  if (/kayit adimi/.test(f)) {
+    // Where the sign-up sits: first, or after the thing the visitor came to do.
+    const names = b ? [UI.placeOrder[l], UI.createAccountCta[l], UI.done[l]] : [UI.createAccountCta[l], UI.placeOrder[l], UI.done[l]];
+    return row(names, 0, b ? 1 : 0);
+  }
+  if (/adim gecis/.test(f)) {
+    // A choice made: wait for "Continue", or move on by itself.
+    const names = [...UI.steps[l]];
+    return (
+      <span className="flex flex-col gap-5">
+        {row(names, b ? 2 : 1)}
+        <span className="flex flex-col gap-2">
+          {[UI.standardDelivery[l], UI.expressDelivery[l]].map((o, i) => <span key={o} className={clsx("flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] font-medium ring-1", i === 0 ? "bg-primary-50 text-primary-800 ring-primary-300" : "text-ink-800 ring-ink-950/[0.12]")}><span className={clsx("grid size-4 place-items-center rounded-full border-2", i === 0 ? "border-primary-600" : "border-ink-300")}>{i === 0 ? <span className="size-2 rounded-full bg-primary-600" /> : null}</span>{o}</span>)}
+        </span>
+        {b ? <span className="flex items-center gap-2 text-[12px] text-ink-500"><ArrowRight className="size-3.5" />{UI.autoAdvance[l]}</span> : <Btn tone="primary" size="md" className="w-fit">{UI.continue[l]}</Btn>}
+      </span>
+    );
+  }
   let steps = [...UI.steps[l]];
   if (diff(ctx, ["ordering", "options"], false, true, false)) steps = [steps[1], steps[0], steps[2]];
   const single = diff(ctx, "options", true, false, false) && ctx.element === "stepper" && ctx.surface === "checkout";
@@ -527,6 +718,19 @@ function Stepper({ ctx }: { ctx: Ctx }) {
 
 function Form({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  const f = ctx.slotFold;
+  const b = treat(ctx);
+  if (/ifade bicimi/.test(f) && b) {
+    // The form as a sentence, the fields inside it.
+    const slot = (w: string, word: string) => <span className={clsx("inline-flex h-9 items-center rounded-md bg-paper px-3 text-[13px] text-ink-400 ring-1 ring-ink-950/[0.14]", w)}>{word}</span>;
+    return (
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-3 text-[16px] leading-none text-ink-800">
+        {l === "tr"
+          ? <>Ben {slot("w-28", UI.nameWord[l])}, {slot("w-24", UI.city[l].toLowerCase())}&apos;de {slot("w-28", UI.serviceWord[l])} arıyorum.</>
+          : <>I&apos;m {slot("w-28", UI.nameWord[l])}, looking for {slot("w-28", UI.serviceWord[l])} in {slot("w-24", UI.city[l].toLowerCase())}.</>}
+      </span>
+    );
+  }
   let fields: string[] = [UI.fullName[l], UI.email[l], UI.address[l]];
   if (diff(ctx, "quantity", false, true, false)) fields = [UI.fullName[l], UI.email[l], UI.phone[l], UI.address[l], UI.city[l]];
   if (diff(ctx, "ordering", false, true, false)) fields = [fields[1], fields[0], ...fields.slice(2)];
@@ -534,11 +738,14 @@ function Form({ ctx }: { ctx: Ctx }) {
   const twoCol = diff(ctx, "layout", false, true, false);
   const tall = diff(ctx, "size", false, true, false);
   const helper = diff(ctx, "presence", false, true, false) && ctx.present;
-  const tag = diff(ctx, "format", "*", UI.optional[l], undefined as string | undefined);
+  // Required and optional marked on every field, or nothing marked at all.
+  const marked = /zorunlu ve istege/.test(f) && b;
+  // The cursor already in the first field when the page opens.
+  const focusFirst = /imlec/.test(f) && b;
   return (
     <span className={clsx("grid gap-4", twoCol ? "grid-cols-2" : "grid-cols-1")}>
-      {fields.map((f, i) => (
-        <Field key={f} label={f} floating={floating} tall={tall} tag={tag && i === fields.length - 1 ? tag : undefined} helper={helper && i === 1 ? UI.helper[l] : undefined} />
+      {fields.map((field, i) => (
+        <Field key={field} label={field} floating={floating} tall={tall} required={marked && i < fields.length - 1} tag={marked && i === fields.length - 1 ? UI.optional[l] : undefined} focused={focusFirst && i === 0} helper={helper && i === 1 ? UI.helper[l] : undefined} />
       ))}
     </span>
   );
@@ -547,6 +754,30 @@ function Form({ ctx }: { ctx: Ctx }) {
 function Nav({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
   let items = [UI.home[l], UI.shop[l], UI.sale[l], UI.about[l]];
+  if (/menu yapisi/.test(ctx.slotFold)) {
+    // A mega menu or a plain one: both open on "Shop", so the structure
+    // is the thing on show.
+    const plain = treat(ctx);
+    const shadow = "shadow-[0_24px_50px_-24px_rgb(10_16_32/0.45)] ring-1 ring-ink-950/[0.08]";
+    return (
+      <span className="block">
+        <span className="flex h-14 items-center gap-8 px-5">
+          <Image src={BRAND} alt="" aria-hidden width={130} height={26} className="h-6 w-auto" />
+          {items.map((t, i) => <span key={t} className={clsx("flex items-center gap-1 text-[14px] font-medium", i === 1 ? "text-ink-950" : "text-ink-600")}>{t}{i === 1 ? <ChevronDown className="size-3.5" /> : null}</span>)}
+        </span>
+        {plain ? (
+          <span className={clsx("flex w-48 flex-col gap-3 rounded-lg bg-paper p-4", ctx.phone ? "ml-24" : "ml-44", shadow)}>
+            {[0, 1, 2, 3, 4].map((i) => <Bar key={i} w={i % 2 ? "w-20" : "w-28"} />)}
+          </span>
+        ) : (
+          <span className={clsx("grid gap-6 rounded-lg bg-paper p-6", ctx.phone ? "grid-cols-2" : "grid-cols-4", shadow)}>
+            {[0, 1, 2].map((c) => <span key={c} className="flex flex-col gap-2.5"><Title size="sm" w="w-20" className="mb-1" /><Bar w="w-24" /><Bar w="w-20" /><Bar w="w-28" /><Bar w="w-16" /></span>)}
+            <Img className="h-28 w-full" />
+          </span>
+        )}
+      </span>
+    );
+  }
   if (diff(ctx, ["ordering", "ordering-nav"], false, true, false)) items = [items[0], items[2], items[1], items[3]];
   const sticky = diff(ctx, "behavior", false, true, false);
   return (
@@ -571,6 +802,29 @@ function SearchBox({ ctx }: { ctx: Ctx }) {
 
 function Filters({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  const f = ctx.slotFold;
+  const b = treat(ctx);
+  if (/kaydirma/.test(f)) {
+    // The same row; on the variant it has become a bar that stays put.
+    return (
+      <span className={clsx("flex flex-wrap items-center gap-2", b && "rounded-lg bg-paper p-2 shadow-[0_12px_30px_-16px_rgb(10_16_32/0.45)] ring-1 ring-ink-950/[0.06]")}>
+        <span className="inline-flex h-9 items-center gap-1.5 rounded-md bg-ink-950 px-3 text-[12px] font-medium text-white"><SlidersHorizontal className="size-3.5" />{UI.filters[l]}</span>
+        {[UI.size[l], UI.colour[l], UI.priceFilter[l]].map((c) => <span key={c} className="inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-[12px] font-medium text-ink-700 ring-1 ring-ink-950/[0.14]">{c}<ChevronDown className="size-3.5 text-ink-400" /></span>)}
+        {b ? <span className="ml-auto rounded bg-paper-soft px-2 py-1 text-[11px] text-ink-500">{UI.sticky[l]}</span> : null}
+      </span>
+    );
+  }
+  if (/filtre paneli gorunurlug/.test(f)) {
+    // The filters open on the page, or folded behind one button.
+    if (b) return <span className="inline-flex h-10 items-center gap-2 rounded-md bg-ink-950 px-4 text-[13px] font-medium text-white"><SlidersHorizontal className="size-4" />{UI.filters[l]}</span>;
+    return (
+      <span className="flex flex-col gap-4 rounded-lg bg-paper-soft p-4">
+        <span className="flex items-center gap-4 text-[13px] font-medium text-ink-800"><span className="w-14">{UI.size[l]}</span>{["S", "M", "L", "XL"].map((o, i) => <span key={o} className={clsx("grid h-8 min-w-8 place-items-center rounded-md px-2 text-[12px] font-semibold ring-1", i === 1 ? "bg-ink-950 text-white ring-ink-950" : "bg-paper text-ink-800 ring-ink-950/[0.15]")}>{o}</span>)}</span>
+        <span className="flex items-center gap-4 text-[13px] font-medium text-ink-800"><span className="w-14">{UI.colour[l]}</span>{["bg-ink-950", "bg-stone-400", "bg-primary-600", "bg-rose-500", "bg-emerald-500"].map((c) => <span key={c} className={clsx("size-6 rounded-full ring-2 ring-paper", c)} />)}</span>
+        <span className="flex items-center gap-4 text-[13px] font-medium text-ink-800"><span className="w-14">{UI.priceFilter[l]}</span><span className="relative mx-2 h-1.5 flex-1 rounded-full bg-ink-950/10"><span className="absolute inset-y-0 right-1/3 left-1/4 rounded-full bg-primary-600" /><span className="absolute -top-1.5 left-1/4 size-4 -translate-x-1/2 rounded-full bg-paper ring-2 ring-primary-600" /><span className="absolute -top-1.5 right-1/3 size-4 translate-x-1/2 rounded-full bg-paper ring-2 ring-primary-600" /></span></span>
+      </span>
+    );
+  }
   const panel = diff(ctx, ["options", "format", "layout"], false, true, false);
   const chips = [UI.size[l], UI.colour[l], UI.priceFilter[l]];
   if (panel) {
@@ -590,22 +844,66 @@ function Filters({ ctx }: { ctx: Ctx }) {
 
 function Popup({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  /* THE RING ON A POPUP (2026-09-20): the dialog itself is ringed, never the
+     overlay. Wrapping the overlay in the Spot made it a zero-height strip at
+     the foot of the page - PixelHighlight's `relative` beat the overlay's
+     `absolute` - so no popup record showed its popup at all. */
+  const ringed = ctx.side === "solo" || ctx.kind === "presence" || treat(ctx);
+  const spot = (node: ReactNode, className: string) => (ringed ? <Spot className={className}>{node}</Spot> : <span className={clsx("block", className)}>{node}</span>);
+  if (/sohbet/.test(ctx.slotFold)) {
+    // The chat in the corner: its closed launcher, or the window already open.
+    const open = treat(ctx);
+    return (
+      <span className="absolute inset-0 z-10 flex items-end justify-end p-8">
+        {open ? spot(
+          <span className="block overflow-hidden rounded-2xl bg-paper shadow-[0_32px_80px_-32px_rgb(10_16_32/0.6)] ring-1 ring-ink-950/[0.06]">
+            <span className="flex items-center gap-3 bg-ink-950 px-4 py-3 text-white"><span className="size-8 rounded-full bg-white/20" /><span className="text-[13px] font-semibold">{UI.chatWithUs[l]}</span><X className="ml-auto size-4 text-white/60" /></span>
+            <span className="flex flex-col gap-2 p-4">
+              <span className="block w-3/4 rounded-2xl rounded-tl-sm bg-paper-soft p-3"><Bar /><Bar className="mt-1.5" w="w-2/3" /></span>
+              <span className="ml-auto block w-1/2 rounded-2xl rounded-tr-sm bg-primary-600 p-3"><Bar className="bg-white/70" /></span>
+            </span>
+            <span className="flex items-center gap-2 border-t border-line-soft px-4 py-3"><span className="h-9 flex-1 rounded-md bg-paper-soft" /><span className="grid size-9 place-items-center rounded-md bg-primary-600 text-white"><ArrowRight className="size-4" /></span></span>
+          </span>, "w-full max-w-[20rem]",
+        ) : spot(
+          <span className="grid size-14 place-items-center rounded-full bg-ink-950 text-white shadow-[0_16px_40px_-16px_rgb(10_16_32/0.5)]"><MessageCircle className="size-6" /></span>, "w-fit rounded-full",
+        )}
+      </span>
+    );
+  }
   const later = diff(ctx, "timing", false, true, false);
   const dim = diff(ctx, ["style", "options"], "bg-ink-950/20", "bg-ink-950/55", "bg-ink-950/35");
   const chat = ctx.surface === "saas" && diff(ctx, "behavior", false, true, false);
   return (
     <span className={clsx("absolute inset-0 z-10 grid p-8", dim, chat ? "items-end justify-end" : later ? "items-end justify-center pb-12" : "place-items-center")}>
-      <span className="block w-full max-w-[22rem] rounded-2xl bg-paper p-6 shadow-[0_32px_80px_-32px_rgb(10_16_32/0.6)]">
+      {spot(<span className="block rounded-2xl bg-paper p-6 shadow-[0_32px_80px_-32px_rgb(10_16_32/0.6)]">
         <span className="flex items-center justify-between"><Title w="w-32" size="sm" /><X className="size-4 text-ink-400" /></span>
         <Bar className="mt-4" /><Bar className="mt-2" w="w-3/4" />
         <span className="mt-5 flex gap-2"><Btn tone="outline" size="md" className="flex-1">{UI.notNow[l]}</Btn><Btn tone="primary" size="md" className="flex-1">{UI.allow[l]}</Btn></span>
         {ctx.kind === "timing" ? <span className="mt-3 block text-center text-[11px] text-ink-500">{later ? UI.afterScroll[l] : UI.onLoad[l]}</span> : null}
-      </span>
+      </span>, "w-full max-w-[22rem]")}
     </span>
   );
 }
 
 function Media({ ctx }: { ctx: Ctx }) {
+  if (/secenek gorsel/.test(ctx.slotFold)) {
+    // Three options of equal weight, or one of them lifted above the others.
+    const lifted = treat(ctx);
+    return (
+      <span className={clsx("grid items-end gap-4", ctx.phone ? "grid-cols-1" : "grid-cols-3")}>
+        {[0, 1, 2].map((i) => {
+          const hot = lifted && i === 1;
+          return (
+            <span key={i} className={clsx("flex flex-col gap-3 rounded-xl p-5 ring-1", hot ? "bg-primary-600 py-8 text-white ring-primary-600" : "bg-paper ring-ink-950/[0.1]")}>
+              {hot ? <span className="w-fit rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold">{UI.recommended[ctx.lang]}</span> : null}
+              <Title size="sm" w="w-1/2" className={hot ? "bg-white/90" : ""} /><Bar className={hot ? "bg-white/25" : ""} /><Bar w="w-2/3" className={hot ? "bg-white/25" : ""} />
+              <Btn tone={hot ? "white" : "outline"} size="sm">{UI.choose[ctx.lang]}</Btn>
+            </span>
+          );
+        })}
+      </span>
+    );
+  }
   const video = diff(ctx, ["media", "options"], false, true, false);
   const n = diff(ctx, "quantity", 1, 3, 1);
   const big = diff(ctx, "size", false, true, false);
@@ -618,6 +916,30 @@ function Media({ ctx }: { ctx: Ctx }) {
 
 function Reviews({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  if (/yorum sira/.test(ctx.slotFold)) {
+    // The reviews sorted newest first, or most helpful first.
+    const helpful = treat(ctx);
+    return (
+      <span className="block rounded-lg bg-paper-soft p-5">
+        <span className="flex items-center justify-between">
+          <span className="text-[14px] font-semibold text-ink-950">{UI.reviews[l]}</span>
+          <span className="inline-flex h-8 items-center gap-1.5 rounded-md bg-paper px-2.5 text-[12px] font-medium text-ink-800 ring-1 ring-ink-950/[0.14]"><span className="text-ink-500">{UI.sortBy[l]}:</span>{helpful ? UI.mostHelpful[l] : UI.newest[l]}<ChevronDown className="size-3.5 text-ink-400" /></span>
+        </span>
+        {[0, 1].map((i) => (
+          <span key={i} className="mt-4 block border-t border-line-soft pt-4">
+            <span className="flex items-center gap-2">
+              <span className="size-7 rounded-full bg-gradient-to-br from-stone-200 to-stone-300" />
+              <span className="flex items-center gap-0.5 text-amber-500">{[0, 1, 2, 3, 4].map((k) => <Star key={k} className="size-3.5" />)}</span>
+              {i === 0 ? (helpful
+                ? <span className="ml-auto inline-flex items-center gap-1 rounded bg-primary-50 px-1.5 py-0.5 text-[11px] font-medium text-primary-700"><ThumbsUp className="size-3" />{UI.mostHelpful[l]}</span>
+                : <span className="ml-auto inline-flex items-center gap-1 rounded bg-paper px-1.5 py-0.5 text-[11px] font-medium text-ink-500 ring-1 ring-ink-950/[0.08]"><Clock className="size-3" />{UI.newest[l]}</span>) : null}
+            </span>
+            <Bar className="mt-3" /><Bar className="mt-2" w="w-2/3" />
+          </span>
+        ))}
+      </span>
+    );
+  }
   const photos = diff(ctx, "media", false, true, false);
   const video = diff(ctx, ["options", "media"], false, true, false) && ctx.surface !== "pdp";
   const matched = diff(ctx, "personalization", false, true, false);
@@ -635,13 +957,15 @@ function Reviews({ ctx }: { ctx: Ctx }) {
 }
 
 /** A product card as a shop draws one. */
-function ProductCard({ lang, list = false, priceFirst = false, badge, note }: { lang: Lang; list?: boolean; priceFirst?: boolean; badge?: ReactNode; note?: ReactNode }) {
+function ProductCard({ lang, list = false, priceFirst = false, badge, note, info }: { lang: Lang; list?: boolean; priceFirst?: boolean; badge?: ReactNode; note?: ReactNode; info?: "specs" | "story" }) {
   return (
     <span className={clsx("relative rounded-lg bg-paper p-2.5 ring-1 ring-ink-950/[0.06]", list ? "flex items-center gap-4" : "block")}>
       <Img className={list ? "size-20 shrink-0" : "aspect-[4/5] w-full"} />
       <span className={clsx("block min-w-0", list ? "flex-1" : "mt-3 px-0.5")}>
         {priceFirst ? <PriceBar /> : <Bar w="w-4/5" />}
         {priceFirst ? <Bar className="mt-2" w="w-4/5" /> : <PriceBar className="mt-2" />}
+        {info === "specs" ? <span className="mt-2 flex items-center gap-1.5 text-[10px] font-medium text-ink-500">{UI.specs[lang]}<span className="inline-block h-1.5 w-8 rounded-full bg-ink-950/10" /><span className="inline-block h-1.5 w-6 rounded-full bg-ink-950/10" /><span className="inline-block h-1.5 w-7 rounded-full bg-ink-950/10" /></span> : null}
+        {info === "story" ? <span className="mt-2 flex items-start gap-1.5"><Quote className="size-3 shrink-0 text-primary-600" /><span className="flex-1"><span className="block h-1.5 w-full rounded-full bg-primary-600/30" /><span className="mt-1 block h-1.5 w-3/4 rounded-full bg-primary-600/30" /></span></span> : null}
         {!list ? <span className="mt-3 flex items-center justify-between"><Heart className="size-4 text-ink-300" /><Btn tone="outline" size="sm">{UI.add[lang]}</Btn></span> : null}
       </span>
       {badge}{note}
@@ -652,6 +976,8 @@ function ProductCard({ lang, list = false, priceFirst = false, badge, note }: { 
 
 function Grid({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  // AB-029: what the card says under its name - the specs, or a line of story.
+  const info = /liste sayfasi mesaji/.test(ctx.slotFold) ? (treat(ctx) ? "story" : "specs") : undefined;
   const base = ctx.phone ? 2 : 4;
   const cols = diff(ctx, "quantity", base - 1, base, base);
   const list = diff(ctx, ["options", "layout"], false, true, false);
@@ -666,6 +992,7 @@ function Grid({ ctx }: { ctx: Ctx }) {
           key={i}
           lang={l}
           list={list}
+          info={info}
           priceFirst={priceFirst}
           badge={badge && i === 0 ? <span className="absolute top-4 left-4 rounded bg-rose-600 px-2 py-0.5 text-[11px] font-semibold text-white">%</span> : null}
           note={stock && i === 1 ? <span className="absolute top-4 right-4 rounded bg-paper px-2 py-0.5 text-[11px] font-medium text-ink-500 ring-1 ring-ink-950/[0.08]">{UI.outOfStock[l]}</span> : null}
@@ -678,6 +1005,22 @@ function Grid({ ctx }: { ctx: Ctx }) {
 function Plans({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
   let names = [...UI.plans[l]];
+  if (/plan sunum/.test(ctx.slotFold) && !treat(ctx)) {
+    // The plans as one comparison table, row by row.
+    const cols = `1.4fr repeat(${names.length}, 1fr)`;
+    return (
+      <span className="block overflow-hidden rounded-xl bg-paper ring-1 ring-ink-950/[0.1]">
+        <span className="grid bg-paper-soft text-[13px] font-semibold text-ink-950" style={{ gridTemplateColumns: cols }}><span className="px-4 py-3" />{names.map((p) => <span key={p} className="px-4 py-3 text-center">{p}</span>)}</span>
+        {[0, 1, 2, 3, 4].map((r) => (
+          <span key={r} className="grid items-center border-t border-line-soft" style={{ gridTemplateColumns: cols }}>
+            <span className="px-4 py-3"><Bar w={r % 2 ? "w-2/3" : "w-4/5"} /></span>
+            {names.map((p, c) => <span key={p} className="grid place-items-center px-4 py-3">{c >= Math.floor(r / 2) ? <Check className="size-4 text-primary-600" /> : <Minus className="size-4 text-ink-300" />}</span>)}
+          </span>
+        ))}
+        <span className="grid items-center border-t border-line-soft" style={{ gridTemplateColumns: cols }}><span className="px-4 py-3" />{names.map((p, i) => <span key={p} className="px-4 py-3"><Btn tone={i === 1 ? "primary" : "outline"} size="sm" className="w-full">{UI.choose[l]}</Btn></span>)}</span>
+      </span>
+    );
+  }
   const n = diff(ctx, "quantity", 2, 3, 3);
   if (diff(ctx, "ordering", false, true, false)) names = [names[1], names[0], names[2]];
   const yearly = diff(ctx, "default", false, true, false);
@@ -707,6 +1050,34 @@ function Plans({ ctx }: { ctx: Ctx }) {
 
 function Selector({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  const f = ctx.slotFold;
+  const b = treat(ctx);
+  if (/varsayilan isaretli/.test(f)) {
+    // A neutral choice: nothing chosen, or the first one already ticked.
+    return (
+      <span className="flex flex-col gap-2">
+        {[UI.standardDelivery[l], UI.expressDelivery[l]].map((o, i) => {
+          const on = b && i === 0;
+          return (
+            <span key={o} className={clsx("flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] font-medium ring-1", on ? "bg-primary-50 text-primary-800 ring-primary-300" : "bg-paper text-ink-800 ring-ink-950/[0.12]")}>
+              <span className={clsx("grid size-4 place-items-center rounded-full border-2", on ? "border-primary-600" : "border-ink-300")}>{on ? <span className="size-2 rounded-full bg-primary-600" /> : null}</span>
+              {o}<PriceBar className="ml-auto" />
+            </span>
+          );
+        })}
+      </span>
+    );
+  }
+  if (/adet secici/.test(f)) {
+    // The quantity control: a faint little select, or a stepper you cannot miss.
+    if (!b) return <span className="inline-flex items-center gap-2 text-[12px] text-ink-500">{UI.quantity[l]}<span className="inline-flex h-8 w-14 items-center justify-between rounded px-2 ring-1 ring-ink-950/[0.08]"><span className="h-2.5 w-3 rounded-sm bg-ink-950/50" /><ChevronDown className="size-3 text-ink-400" /></span></span>;
+    return (
+      <span className="inline-flex items-center gap-3 text-[13px] font-semibold text-ink-900">
+        {UI.quantity[l]}
+        <span className="inline-flex items-center overflow-hidden rounded-md ring-1 ring-primary-300"><span className="grid size-10 place-items-center bg-primary-50 text-primary-700"><Minus className="size-4" /></span><span className="mx-3 h-3 w-5 rounded bg-ink-950/70" /><span className="grid size-10 place-items-center bg-primary-50 text-primary-700"><Plus className="size-4" /></span></span>
+      </span>
+    );
+  }
   const chips = diff(ctx, ["options", "format", "style"], false, true, false);
   const pre = diff(ctx, "default", false, true, true);
   if (ctx.surface === "cart" || ctx.surface === "checkout" || (ctx.element === "selector" && ctx.kind === "emphasis")) {
@@ -737,6 +1108,55 @@ function Text({ ctx }: { ctx: Ctx }) {
   const personal = diff(ctx, "personalization", false, true, false);
   const longer = diff(ctx, ["wording", "microcopy", "format"], false, true, false);
   const greeting = /dil/.test(ctx.slotFold);
+  const f = ctx.slotFold;
+  const b = treat(ctx);
+  /* THE HEADLINE RECORDS: a bar cannot say whether a headline names the
+     problem or the solution, so these carry real words. */
+  if (/baslik cercevesi/.test(f)) return <span className="block"><Headline phone={ctx.phone}>{b ? UI.solutionHeadline[l] : UI.problemHeadline[l]}</Headline><Bar className="mt-4" w="w-2/3" /></span>;
+  if (/somutlug/.test(f)) return <span className="block"><Headline phone={ctx.phone}>{b ? UI.concreteBenefit[l] : UI.abstractBenefit[l]}</Headline><Bar className="mt-4" w="w-2/3" /></span>;
+  if (/ozellik ve fayda/.test(f)) {
+    const [first, second] = b ? [UI.featureLine[l], UI.benefitLine[l]] : [UI.benefitLine[l], UI.featureLine[l]];
+    return <span className="block"><Headline phone={ctx.phone}>{first}</Headline><Headline phone={ctx.phone} muted>{second}</Headline><Bar className="mt-4" w="w-2/3" /></span>;
+  }
+  if (/anlati/.test(f)) {
+    // One story for everyone, or a block per kind of visitor.
+    if (!b) return <span className="block"><Title size="lg" w="w-5/6" /><Title size="lg" w="w-3/5" className="mt-1" /><Bar className="mt-4" /><Bar className="mt-2" w="w-2/3" /></span>;
+    return (
+      <span className={clsx("grid gap-4", ctx.phone ? "grid-cols-1" : "grid-cols-2")}>
+        {[UI.forIndividuals[l], UI.forTeams[l]].map((who, i) => (
+          <span key={who} className="flex flex-col gap-3 rounded-xl bg-paper p-5 ring-1 ring-ink-950/[0.08]">
+            <span className={clsx("w-fit rounded-full px-2.5 py-1 text-[11px] font-semibold text-white", i ? "bg-ink-950" : "bg-primary-600")}>{who}</span>
+            <Title size="md" w="w-4/5" /><Bar /><Bar w="w-2/3" />
+            <Btn tone={i ? "ink" : "primary"} size="sm" className="w-fit">{UI.getStarted[l]}</Btn>
+          </span>
+        ))}
+      </span>
+    );
+  }
+  if (/deneme bitis/.test(f)) {
+    // The end-of-trial notice: what you lose, or what you keep.
+    return (
+      <span className={clsx("flex items-start gap-4 rounded-xl p-5 ring-1", b ? "bg-emerald-50 ring-emerald-200" : "bg-amber-50 ring-amber-200")}>
+        {b ? <Check className="mt-0.5 size-5 shrink-0 text-emerald-600" /> : <TriangleAlert className="mt-0.5 size-5 shrink-0 text-amber-600" />}
+        <span className="flex flex-1 flex-col gap-3">
+          <span className={clsx("text-[15px] leading-snug font-semibold", b ? "text-emerald-900" : "text-amber-900")}>{b ? UI.gainFrame[l] : UI.lossFrame[l]}</span>
+          <Btn tone={b ? "primary" : "ink"} size="md" className="w-fit">{UI.upgrade[l]}</Btn>
+        </span>
+      </span>
+    );
+  }
+  if (/metin ici baglanti/.test(f)) {
+    // The way onward: a button under the paragraph, or a link inside it.
+    return (
+      <span className="block">
+        <Title size="lg" w="w-4/5" />
+        <Bar className="mt-4" />
+        {b
+          ? <span className="mt-2 flex items-center gap-2"><Bar w="w-1/4" /><span className="text-[13px] font-medium text-primary-700 underline underline-offset-2">{UI.learnMore[l]}</span><Bar w="w-1/3" /></span>
+          : <><Bar className="mt-2" w="w-3/4" /><Btn tone="outline" size="md" className="mt-4">{UI.learnMore[l]}</Btn></>}
+      </span>
+    );
+  }
   if (personal && greeting) {
     // The greeting follows the browser's language: three visitors, three words.
     return (
@@ -1015,6 +1435,19 @@ function Empty({ ctx }: { ctx: Ctx }) {
 /** The sort control with its default reading. */
 function Sort({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  if (/varsayilan siralama/.test(ctx.slotFold)) {
+    // The list open, the default ticked: relevance, or best selling.
+    const names = [UI.relevance[l], UI.bestSelling[l], UI.newest[l], UI.priceLowHigh[l]];
+    const picked = treat(ctx) ? 1 : 0;
+    return (
+      <span className="inline-flex flex-col items-start gap-1.5">
+        <span className="inline-flex h-10 items-center gap-2 rounded-md bg-paper px-3 text-[13px] font-medium text-ink-800 ring-1 ring-ink-950/[0.14]"><span className="text-ink-500">{UI.sortBy[l]}:</span>{names[picked]}<ChevronDown className="size-4 rotate-180 text-ink-400" /></span>
+        <span className="flex w-56 flex-col rounded-md bg-paper p-1 shadow-[0_24px_50px_-24px_rgb(10_16_32/0.45)] ring-1 ring-ink-950/[0.08]">
+          {names.map((o, i) => <span key={o} className={clsx("flex items-center justify-between rounded px-2.5 py-1.5 text-[12px]", i === picked ? "bg-primary-50 font-semibold text-primary-800" : "text-ink-700")}>{o}{i === picked ? <Check className="size-3.5" /> : null}</span>)}
+        </span>
+      </span>
+    );
+  }
   const opts = [UI.recommended[l], UI.newest[l], UI.priceLowHigh[l]];
   const chosen = diff(ctx, ["ordering", "default", "options"], 0, 1, 0);
   return (
@@ -1066,10 +1499,14 @@ function Steps({ ctx }: { ctx: Ctx }) {
     const work = diff(ctx, ["options", "format"], false, true, false);
     return <Field label={work ? UI.workEmail[l] : UI.email[l]} placeholder={work ? "name@company.com" : "name@example.com"} />;
   }
-  const days = diff(ctx, ["options", "format", "quantity"], UI.days7[l], UI.days30[l], UI.days14[l]);
+  // AB-169 asks 7 or 14; the days are also drawn as a strip, so the length shows without reading.
+  const trialLength = /deneme suresi/.test(ctx.slotFold);
+  const days = trialLength ? (treat(ctx) ? UI.days14[l] : UI.days7[l]) : diff(ctx, ["options", "format", "quantity"], UI.days7[l], UI.days30[l], UI.days14[l]);
+  const ticks = trialLength ? (treat(ctx) ? 14 : 7) : 0;
   return (
     <span className="flex flex-col gap-3">
       <Btn tone="primary" size="lg" className="w-full">{UI.startTrial[l]}<span className="rounded bg-white/20 px-1.5 py-0.5 text-[11px]">{days}</span></Btn>
+      {ticks ? <span className="flex flex-wrap gap-1">{Array.from({ length: ticks }, (_, i) => <span key={i} className="h-2.5 w-4 rounded-sm bg-primary-600/70" />)}</span> : null}
       <span className="flex items-center justify-center gap-4 text-[11px] text-ink-500"><span className="flex items-center gap-1"><Check className="size-3.5 text-emerald-600" /><Bar w="w-14" /></span><span className="flex items-center gap-1"><Check className="size-3.5 text-emerald-600" /><Bar w="w-16" /></span></span>
     </span>
   );
@@ -1079,6 +1516,16 @@ function Steps({ ctx }: { ctx: Ctx }) {
 function Tabs({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
   const f = ctx.slotFold;
+  if (/urun aciklamasi/.test(f)) {
+    // The description open on arrival, or folded into an accordion.
+    const collapsed = treat(ctx);
+    return (
+      <span className="block border-y border-line-soft py-4">
+        <span className="flex items-center justify-between text-[14px] font-semibold text-ink-950">{UI.description[l]}<ChevronDown className={clsx("size-4 text-ink-400", !collapsed && "rotate-180")} /></span>
+        {collapsed ? null : <><Bar className="mt-3" /><Bar className="mt-2" /><Bar className="mt-2" w="w-3/4" /><Bar className="mt-2" w="w-1/2" /></>}
+      </span>
+    );
+  }
   const contactRow = /iletisim/.test(f);
   const asList = diff(ctx, ["options", "format", "hierarchy"], false, true, false);
   const loud = diff(ctx, "emphasis", false, true, false);
@@ -1370,11 +1817,13 @@ function Plp({ ctx }: { ctx: Ctx }) {
 function Checkout({ ctx }: { ctx: Ctx }) {
   const { at, rest } = useSlots(ctx, ["nav", "selector", "coupon", "shipping", "countdown", "price", "badge", "stepper", "form", "payment", "text", "cta"]);
   const l = ctx.lang;
+  // AB-020 is a delivery choice, which lives in the main column; the cart line keeps its quantity.
+  const choice = /varsayilan isaretli/.test(ctx.slotFold);
   const summary = (
     <span className="flex flex-col gap-4 rounded-xl bg-paper-soft p-6">
       <span className="text-[15px] font-semibold text-ink-950">{UI.yourCart[l]}</span>
       {[0, 1].map((i) => (
-        <span key={i} className="flex items-center gap-4"><Img className="size-16 shrink-0" /><span className="flex-1"><Bar w="w-3/4" /><Bar className="mt-2" w="w-1/3" /></span>{i === 0 ? at("selector", <span className="h-3 w-8 rounded bg-ink-950/60" />) : <span className="h-3 w-8 rounded bg-ink-950/60" />}<PriceBar /></span>
+        <span key={i} className="flex items-center gap-4"><Img className="size-16 shrink-0" /><span className="flex-1"><Bar w="w-3/4" /><Bar className="mt-2" w="w-1/3" /></span>{i === 0 && !choice ? at("selector", <span className="h-3 w-8 rounded bg-ink-950/60" />) : <span className="h-3 w-8 rounded bg-ink-950/60" />}<PriceBar /></span>
       ))}
       {at("coupon", null)}{at("shipping", null)}{at("countdown", null)}
       <span className="flex flex-col gap-2 border-t border-line-soft pt-4 text-[13px] text-ink-600">
@@ -1389,6 +1838,7 @@ function Checkout({ ctx }: { ctx: Ctx }) {
     <span className="flex flex-col gap-6">
       {at("stepper", <span className="flex items-center gap-3">{UI.steps[l].map((s, i) => <span key={s} className="flex flex-1 items-center gap-2"><span className={clsx("grid size-6 place-items-center rounded-full text-[11px] font-semibold", i === 0 ? "bg-ink-950 text-white" : "bg-paper-soft text-ink-500")}>{i + 1}</span><span className={clsx("text-[13px] font-medium", i === 0 ? "text-ink-950" : "text-ink-400")}>{s}</span>{i < 2 ? <span className="h-px flex-1 bg-ink-950/10" /> : null}</span>)}</span>)}
       {at("form", <span className="grid grid-cols-2 gap-4"><Field label={UI.fullName[l]} /><Field label={UI.email[l]} /><span className="col-span-2"><Field label={UI.address[l]} /></span></span>)}
+      {choice ? at("selector", null) : null}
       {at("payment", <span className="grid grid-cols-3 gap-2">{[{ i: <CreditCard />, t: UI.card[l] }, { i: <Landmark />, t: UI.bankTransfer[l] }, { i: <Smartphone />, t: UI.wallet[l] }].map((m, i) => <span key={m.t} className={clsx("flex flex-col items-center gap-1.5 rounded-md py-3 text-[12px] font-medium ring-1 [&>svg]:size-5", i === 0 ? "bg-paper text-ink-900 ring-ink-950" : "bg-paper text-ink-600 ring-ink-950/[0.12]")}>{m.i}{m.t}</span>)}</span>)}
       {at("text", null)}
       {rest()}
@@ -1651,7 +2101,7 @@ export function AbScreen({
           <BrowserChrome address={address} phone={phone} />
           <span className={clsx("relative block bg-paper text-ink-700", phone ? "px-5 py-4" : "px-10 py-2")} style={{ minHeight: phone ? 640 : 520 }}>
             <Body ctx={ctx} />
-            {popup ? <Spot className="absolute inset-0 rounded-none ring-0 ring-offset-0"><Popup ctx={ctx} /></Spot> : null}
+            {popup ? <Popup ctx={ctx} /> : null}
             {element === "popup" && !ctx.present ? <span className="absolute right-8 bottom-8"><Ghost lang={lang} className="h-14 w-48" /></span> : null}
           </span>
         </ScaledPage>

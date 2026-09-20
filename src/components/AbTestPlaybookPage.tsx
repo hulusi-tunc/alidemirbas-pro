@@ -146,7 +146,10 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
      lacks the element and the variant has it, on `remove` the reverse. Any
      other kind draws the same diagram on both sides. */
   const presenceOf = (side: "a" | "b"): "absent" | "present" | null => {
-    if (kind !== "presence") return null;
+    /* A popup that a record adds or removes is absent on the side without it
+       whatever the variable kind says: AB-108's exit-intent popup is a timing
+       record by its words, but its control has no popup at all. */
+    if (kind !== "presence" && !(element === "popup" && (test.differenceBehavior === "add" || test.differenceBehavior === "remove"))) return null;
     if (test.differenceBehavior === "add") return side === "a" ? "absent" : "present";
     if (test.differenceBehavior === "remove") return side === "a" ? "present" : "absent";
     return null;

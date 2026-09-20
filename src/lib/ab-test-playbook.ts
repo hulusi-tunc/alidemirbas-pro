@@ -329,6 +329,12 @@ export function abElementKind(test: { testedSlot: string | null; question: strin
   if (has("ilerleme cubugu", "adim siras", "cok adimli", "adim gecis", "checkout akis", "akistaki yeri")) return "stepper";
   if (has("pop-up", "popup", "modal", "sohbet", "paywall", "izni", "duyuru", "cikis niyet")) return "popup";
   if (has("plan", "periyod", "periyot")) return "plans";
+  /* "tutarlılığı" (consistency) contains "tutar" (amount), which the price
+     rule below would take: the button-style records go first. */
+  if (has("buton stili")) return "cta";
+  /* The product description open or folded is product information, drawn
+     by the tabs family, not the headline the text rule would make of it. */
+  if (has("urun aciklamasi")) return "tabs";
   if (has("fiyat", "tutar", "taksit", "kusurat", "indirim sunum")) return "price";
   if (has("adet secici", "varyant secici", "secim onay", "tek secim", "varsayilan isaretli")) return "selector";
   if (has("yorum", "referans", "puan", "musteri")) return "reviews";
