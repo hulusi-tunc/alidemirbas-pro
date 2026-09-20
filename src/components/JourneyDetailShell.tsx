@@ -83,8 +83,10 @@ export function JourneyDetailShell({
             : "sticky top-0 z-40 border-b border-line-soft bg-paper/95 backdrop-blur-sm"
         }
       >
-        <div className="altor-container-wide flex h-16 items-center justify-between gap-3">
-          <div ref={detailsRef} className={`pointer-events-auto relative flex min-w-0 items-center gap-1 ${pill} ${floating ? "p-1 pr-1.5" : ""}`}>
+        {/* Three cells on one grid, the tabs in the middle one, so they sit at the
+            page's centre whatever the width of the name on the left. */}
+        <div className="altor-container-wide grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+          <div ref={detailsRef} className={`pointer-events-auto relative flex min-w-0 items-center gap-1 justify-self-start ${pill} ${floating ? "p-1 pr-1.5" : ""}`}>
             <Link
               href={hrefs.library}
               className="flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-600 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft hover:text-ink-950"
@@ -159,7 +161,7 @@ export function JourneyDetailShell({
             })}
           </div>
 
-          <div className={`pointer-events-auto flex items-center gap-1 ${pill} ${floating ? "p-1" : ""}`}>
+          <div className={`pointer-events-auto flex items-center gap-1 justify-self-end ${pill} ${floating ? "p-1" : ""}`}>
             <Link
               href={hrefs.lang}
               className="flex h-9 items-center rounded-full px-3 text-sm font-medium text-ink-600 transition-colors duration-[var(--duration-fast)] hover:bg-paper-soft hover:text-ink-950"
