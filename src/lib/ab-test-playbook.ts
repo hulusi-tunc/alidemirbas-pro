@@ -280,7 +280,7 @@ export function abVariableKind(test: {
 export type AbElementKind =
   | "cta" | "coupon" | "countdown" | "shipping" | "badge" | "price" | "payment"
   | "stepper" | "form" | "nav" | "search" | "filters" | "popup" | "media"
-  | "reviews" | "grid" | "plans" | "selector" | "text" | "generic";
+  | "reviews" | "grid" | "plans" | "selector" | "text" | "logos" | "generic";
 
 export function abElementKind(test: { testedSlot: string | null; question: string }): AbElementKind {
   const slot = fold(test.testedSlot);
@@ -292,7 +292,8 @@ export function abElementKind(test: { testedSlot: string | null; question: strin
   if (has("geri sayim", "sayac")) return "countdown";
   if (has("kupon", "indirim kodu", "promosyon")) return "coupon";
   if (has("kargo cubugu", "kargo esig", "ucretsiz kargo")) return "shipping";
-  if (has("rozet", "guven", "garanti", "logolar")) return "badge";
+  if (has("logolar", "logo")) return "logos";
+  if (has("rozet", "guven", "garanti")) return "badge";
   if (has("odeme yontemi", "kayitli kart", "uyeliksiz", "odeme yukleme", "hizli odeme")) return "payment";
   if (has("ilerleme cubugu", "adim siras", "cok adimli", "adim gecis", "checkout akis", "akistaki yeri")) return "stepper";
   if (has("pop-up", "popup", "modal", "sohbet", "paywall", "izni", "duyuru", "cikis niyet")) return "popup";

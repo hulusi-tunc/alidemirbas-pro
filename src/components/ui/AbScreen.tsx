@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 import {
   Check,
@@ -171,12 +172,18 @@ function Img({ className = "", video = false }: { className?: string; video?: bo
     </span>
   );
 }
-/** The shop's own top bar: a wordmark block and real menu words. */
+/** Placeholder brands (logoipsum, supplied by Hulusi 2026-09-20): the
+    first is the shop the screens belong to, the rest are the customer
+    logos a record can test. Nothing here is a real company. */
+const BRAND = "/lab/logoipsum/brand-1.svg";
+const CUSTOMER_LOGOS = [2, 3, 4, 5, 6].map((n) => `/lab/logoipsum/brand-${n}.svg`);
+
+/** The shop's own top bar: its wordmark and real menu words. */
 function ShopNav({ lang }: { lang: Lang }) {
   const l = lang;
   return (
     <span className="flex items-center gap-3">
-      <span className="h-3.5 w-9 rounded bg-ink-950/85" />
+      <Image src={BRAND} alt="" aria-hidden width={104} height={20} className="h-4 w-auto" />
       {[UI.home[l], UI.shop[l], UI.sale[l], UI.about[l]].map((w, i) => <span key={w} className={clsx("text-[11px] font-medium", i === 1 ? "text-ink-950" : "text-ink-500")}>{w}</span>)}
       <span className="ml-auto flex items-center gap-2 text-ink-400"><Search className="size-3.5" /><span className="size-3.5 rounded-full bg-ink-950/15" /></span>
     </span>
@@ -444,7 +451,7 @@ function Nav({ ctx }: { ctx: Ctx }) {
   const sticky = diff(ctx, "behavior", false, true, false);
   return (
     <span className={clsx("flex items-center gap-3 rounded-md px-2.5 py-1.5", sticky ? "bg-paper shadow-[0_8px_20px_-12px_rgb(10_16_32/0.4)] ring-1 ring-ink-950/[0.06]" : "")}>
-      <span className="h-3 w-8 rounded bg-ink-950/80" />
+      <Image src={BRAND} alt="" aria-hidden width={104} height={20} className="h-4 w-auto" />
       {items.map((t, i) => <span key={t} className={clsx("text-[10px] font-medium", i === 1 ? "text-ink-950" : "text-ink-600")}>{t}</span>)}
       {sticky ? <span className="ml-auto rounded bg-paper-soft px-1.5 py-0.5 text-[8.5px] text-ink-500">{UI.sticky[l]}</span> : null}
     </span>
@@ -622,6 +629,20 @@ function Text({ ctx }: { ctx: Ctx }) {
   );
 }
 
+/** A strip of customer logos - grey and quiet, or in colour when the
+    test pushes them. */
+function Logos({ ctx }: { ctx: Ctx }) {
+  const n = diff(ctx, "quantity", 3, 5, 4);
+  const colour = diff(ctx, "emphasis", false, true, false);
+  return (
+    <span className="flex flex-wrap items-center gap-x-4 gap-y-2 py-1">
+      {CUSTOMER_LOGOS.slice(0, n).map((src) => (
+        <Image key={src} src={src} alt="" aria-hidden width={110} height={20} className={clsx("h-3.5 w-auto", colour ? "" : "opacity-60 grayscale")} />
+      ))}
+    </span>
+  );
+}
+
 function Generic({ ctx }: { ctx: Ctx }) {
   const loud = diff(ctx, "emphasis", false, true, false);
   const big = diff(ctx, "size", false, true, false);
@@ -648,6 +669,7 @@ function Element({ ctx }: { ctx: Ctx }) {
     case "plans": return <Plans ctx={ctx} />;
     case "selector": return <Selector ctx={ctx} />;
     case "text": return <Text ctx={ctx} />;
+    case "logos": return <Logos ctx={ctx} />;
     default: return <Generic ctx={ctx} />;
   }
 }
@@ -783,10 +805,11 @@ function Home({ ctx }: { ctx: Ctx }) {
         </span>
         {at("media", <Img className="h-20" />)}
       </span>
+      {at("logos", null)}
       {at("countdown", null)}{at("reviews", null)}{at("search", null)}{at("plans", null)}{at("form", null)}{at("price", null)}
       {rest()}
       {at("grid", <span className="grid grid-cols-3 gap-2">{[0, 1, 2].map((i) => <ProductCard key={i} lang={l} />)}</span>)}
-      {at("nav", null, true)}{at("text", null, true)}{at("cta", null, true)}{at("badge", null, true)}{at("media", null, true)}{at("countdown", null, true)}{at("reviews", null, true)}{at("grid", null, true)}{at("search", null, true)}{at("plans", null, true)}{at("form", null, true)}{at("price", null, true)}
+      {at("nav", null, true)}{at("text", null, true)}{at("cta", null, true)}{at("badge", null, true)}{at("media", null, true)}{at("countdown", null, true)}{at("reviews", null, true)}{at("grid", null, true)}{at("search", null, true)}{at("plans", null, true)}{at("form", null, true)}{at("price", null, true)}{at("logos", null, true)}
     </span>
   );
 }
