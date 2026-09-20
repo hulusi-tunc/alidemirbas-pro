@@ -6,6 +6,7 @@ import { JourneyWorld, actionSequenceOf, type CanvasLabels } from "@/components/
 import type { ChannelId } from "@/canonical/types";
 import type { FlowNode } from "@/lib/canonical-view";
 import type { CanvasLayout } from "@/lib/journey-canvas-layout";
+import { dotGap, dotSheet } from "@/lib/canvas-dots";
 
 /* THE PREVIEW - the canvas itself, small (Hulusi, 2026-09-20: "make the
    preview real, not wireframe"). The same world the Canvas tab renders -
@@ -17,24 +18,6 @@ import type { CanvasLayout } from "@/lib/journey-canvas-layout";
    always shows the same stretch of the graph. */
 
 const WINDOW = 1240; // world px the tile shows across
-
-/* The canvas's dot sheet, drawn as an SVG pattern rather than a CSS radial
-   gradient: a gradient dot is rasterised at CSS-pixel size and reads soft
-   and fat on a 2x display, an SVG circle is drawn at the device's own
-   resolution (Hulusi, 2026-09-20: "the dots don't look high quality, they
-   look so big"). One world dot every 24px, doubling whenever the preview's
-   scale would bring them closer than 18px on screen, same as the canvas. */
-export function dotGap(scale: number): number {
-  let gap = 24;
-  while (gap * scale < 18) gap *= 2;
-  return gap;
-}
-export function dotSheet(scale: number): string {
-  const size = dotGap(scale) * scale;
-  const r = Math.min(1, Math.max(0.6, 0.9 * scale)).toFixed(2);
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'><circle cx='${(size / 2).toFixed(2)}' cy='${(size / 2).toFixed(2)}' r='${r}' fill='rgb(10 16 32 / 0.22)'/></svg>`;
-  return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
-}
 
 export function JourneyMiniMap({
   nodes,
@@ -57,7 +40,7 @@ export function JourneyMiniMap({
   const actionSequence = useMemo(() => actionSequenceOf(nodes), [nodes]);
   const entry = layout.nodes.find((l) => l.node.isEntry) ?? layout.nodes[0];
   const x0 = entry.x - view.window / 2;
-  const y0 = Math.max(0, entry.y - 36);
+  const y0 = Math.max(0, entry.y - 56); // room for the Entry pin, which grows at the far zoom level
 
   useEffect(() => {
     const el = ref.current;
@@ -83,6 +66,7 @@ export function JourneyMiniMap({
     >
       <div
         style={{ width: layout.width, height: layout.height, transform: `translate(${-x0 * view.scale}px, ${-y0 * view.scale}px) scale(${view.scale})`, transformOrigin: "0 0" }}
+        data-lod={view.scale < 0.45 ? "far" : "near"}
         className="absolute top-0 left-0"
       >
         <JourneyWorld

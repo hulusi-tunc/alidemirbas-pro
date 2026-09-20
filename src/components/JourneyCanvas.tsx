@@ -16,7 +16,7 @@ import {
   WaitCard,
 } from "@/components/ui/JourneyCanvasNodes";
 import { NodeDetailPanel, type PanelLabels } from "@/components/ui/NodeDetailPanel";
-import { dotGap, dotSheet } from "@/components/ui/JourneyMiniMap";
+import { dotGap, dotSheet } from "@/lib/canvas-dots";
 
 /* The graph canvas itself: pan is native scroll (so trackpad, touch and
    scrollbar dragging all work for free, on any screen size, without a

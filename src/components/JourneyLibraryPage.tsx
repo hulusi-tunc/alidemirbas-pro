@@ -113,9 +113,7 @@ function Hero({ lang }: { lang: Lang }) {
           {/* On the project's plate, in its hue - the frame language of the
               Lab index (ui/ProductFrame.tsx). */}
           <ProductFrame slug="lifecycle-card-archive">
-            <div className="mx-auto max-w-2xl">
-              <JourneyCanvas lang={lang} />
-            </div>
+            <JourneyCanvas lang={lang} />
           </ProductFrame>
         </Reveal>
       </PortraitContainer>
