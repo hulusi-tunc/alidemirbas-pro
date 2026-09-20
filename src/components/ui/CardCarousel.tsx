@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { clsx } from "@/lib/clsx";
 
 /* A ROW OF CARDS THAT SCROLLS SIDEWAYS (2026-09-20, Hulusi on the A/B
    detail: "cancel the tab structure, put the four cards under the main
@@ -35,6 +34,10 @@ export function CardCarousel({
     const el = strip.current;
     if (!el) return;
     const update = () => {
+      // The snap has to land on the container's edge, not the strip's: a
+      // percentage in scroll-padding resolves against the scrollport, so
+      // the padding is read back in pixels and handed over.
+      el.style.scrollPaddingLeft = getComputedStyle(el).paddingLeft;
       setCanPrev(el.scrollLeft > 4);
       setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
     };
@@ -72,14 +75,20 @@ export function CardCarousel({
           </button>
         </div>
       </div>
+      {/* FULL BLEED (Hulusi, 2026-09-20: "make the overflow visible in the
+          slider"): the strip runs from viewport edge to viewport edge - the
+          margin pulls it out of the centred container, the padding puts
+          the first card back on the container's left edge, and the same
+          value as scroll-padding keeps the snap aligned there - so the
+          cards past the fourth are seen spilling off the right, not cut
+          at the container. Same `100vw` caveat as the marquee: a classic
+          scrollbar adds its width. */}
       <div
         ref={strip}
         role="region"
         aria-label={label}
-        className={clsx(
-          "no-scrollbar mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2",
-          canNext && "[mask-image:linear-gradient(to_right,black_calc(100%-4rem),transparent)]",
-        )}
+        className="no-scrollbar mt-6 flex w-screen snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
+        style={{ marginLeft: "calc(50% - 50vw)", paddingLeft: "calc(50vw - 50%)", paddingRight: "calc(50vw - 50%)" }}
       >
         {children}
       </div>

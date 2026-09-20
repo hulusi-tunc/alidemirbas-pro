@@ -310,7 +310,14 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
      where the record's own hypothesis ends in one. */
   const card = "flex w-[min(22rem,85vw)] shrink-0 snap-start";
   const run = (
-    <section className="mt-14">
+    /* On a grey band (Hulusi, 2026-09-20: "add a grey background"): the
+       site's one soft surface, bled to the viewport edges the way the
+       strip is, running to the bottom of the page. The white cards sit on
+       it with their hairline. */
+    <section
+      className="mt-14 -mb-10 w-screen bg-paper-soft py-12 md:-mb-14 md:py-14"
+      style={{ marginLeft: "calc(50% - 50vw)", paddingLeft: "calc(50vw - 50%)", paddingRight: "calc(50vw - 50%)" }}
+    >
       <CardCarousel
         label={t.runStrip}
         prevLabel={t.prev}
