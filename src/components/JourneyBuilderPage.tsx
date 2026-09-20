@@ -626,11 +626,15 @@ export default function JourneyBuilderPage({ lang }: { lang: Lang }) {
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? "/tr/lab/claude-lifecycle" : "/lab/claude-lifecycle";
   const path = lang === "en" ? "/lab/claude-lifecycle" : "/tr/lab/claude-lifecycle";
+  /* The last crumb is the project's NAME (seo/breadcrumb-contract.json,
+     lab-product: Home › Lab › <project name>), as on the other product
+     pages - it was this page's h1 sentence until 2026-09-20. */
+  const projectName = t.lab.projects.find((p) => p.slug === "claude-lifecycle")?.name ?? t.journeyBuilder.title;
   const jsonLd = [
     breadcrumbList([
       { name: t.footer.home, url: home },
       { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
-      { name: t.journeyBuilder.title, url: path },
+      { name: projectName, url: path },
     ]),
     // A TypeScript library/repository, not a hosted app - REPO is the same
     // constant the hero's own GitHub link uses.

@@ -26,8 +26,10 @@ import {
   StatCalculatorLinks,
   VariantDiff,
 } from "@/components/ui/AbTestVisuals";
+import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { AB_SCALE } from "@/lib/ab-test-marketing";
 import { copy, type Lang } from "@/lib/content";
+import { breadcrumbList } from "@/lib/schema";
 
 /* Product page for the ab-test-playbook Claude Code plugin.
 
@@ -352,8 +354,21 @@ export default function AbTestingPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? "/tr/lab/ab-testing" : "/lab/ab-testing";
+  const path = lang === "en" ? "/lab/ab-testing" : "/tr/lab/ab-testing";
+  /* The breadcrumb trail every other product page carries and this one
+     did not (2026-09-20): Home › Lab › <project name>, per
+     seo/breadcrumb-contract.json's lab-product family. Only the approved
+     type - the contract marks SoftwareApplication as not appropriate for
+     an unrated, free repository. */
+  const projectName = t.lab.projects.find((p) => p.slug === "ab-test-playbook")?.name ?? t.abTesting.title;
+  const jsonLd = breadcrumbList([
+    { name: t.footer.home, url: home },
+    { name: t.nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
+    { name: projectName, url: path },
+  ]);
   return (
     <>
+      <JsonLdScript data={jsonLd} />
       <SiteHeader t={t} anchorBase={home} langHref={langHref} />
       <main>
         <Hero t={t} lang={lang} />

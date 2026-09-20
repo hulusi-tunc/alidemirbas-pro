@@ -14,7 +14,7 @@ import { AppBar, AppMeta, AppTitle, Badge, CheckRow, Field, FormLabel, Rail, Tab
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import type { SkillProductContent } from "@/components/SkillProductPage";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
-import { breadcrumbList, howTo, softwareApplication } from "@/lib/schema";
+import { breadcrumbList, softwareApplication } from "@/lib/schema";
 import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { CHANGE_HISTORY_REAL } from "@/lib/lab-material";
@@ -706,15 +706,10 @@ export default function ChangeHistoryExplorerPage({ lang, content }: { lang: Lan
       }),
     );
   }
-  if (content.installSteps.length > 0) {
-    jsonLd.push(
-      howTo({
-        name: content.installTitle,
-        description: content.whatItDoes.body,
-        steps: content.installSteps.map((s) => ({ name: s.title, text: s.desc ?? s.title })),
-      }),
-    );
-  }
+  /* No HowTo (2026-09-20): it described the old generic install steps,
+     not the ones the Install panel shows, and Google stopped showing
+     HowTo rich results in 2023 - the site's structured-data contract
+     never asked for it. Breadcrumbs and the application node stay. */
 
   return (
     <>
