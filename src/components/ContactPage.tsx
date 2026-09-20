@@ -88,7 +88,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
             {/* Plain case, matching Stack and the calculator family - the
                 mono-uppercase `.altor-eyebrow` rail was retired in the
                 2026-08-30 pass. */}
-            <p className="mb-4 text-[13px] font-medium text-ink-400">{c.eyebrow}</p>
+            <p className="altor-eyebrow mb-4 text-ink-subtle">{c.eyebrow}</p>
             {/* max-w-xl -> max-w-md: Portrait's own real H1 caps at
                 `max-w-[10em]` (tight, editorial, forces controlled line
                 breaks) rather than running the full column width. */}
@@ -101,7 +101,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
                 mt-6->mt-3, max-w-lg->max-w-md: tighter heading-to-body
                 rhythm and measure, matching the "one editorial block"
                 brief. */}
-            <p className="mt-3 max-w-md text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
+            <p className="mt-3 max-w-md text-lg leading-relaxed text-ink-muted">{c.sub}</p>
 
             <div className="mt-6 flex flex-wrap gap-2.5">
               <a
@@ -141,7 +141,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
                 description are the actual focus, description now uses the
                 same heading-color-at-opacity technique as the intro copy
                 for one consistent "ink family" across the whole column. */}
-            <p className="mt-10 mb-4 text-[13px] font-medium text-ink-400">{c.reasonsTitle}</p>
+            <p className="altor-eyebrow mt-10 mb-4 text-ink-subtle">{c.reasonsTitle}</p>
             <div className="flex flex-col gap-6">
               {c.reasons.map((reason, i) => {
                 const Icon = REASON_ICONS[i] ?? MessageCircle;
@@ -161,7 +161,7 @@ function Composition({ t }: { t: (typeof copy)[Lang] }) {
                     <Icon aria-hidden className={`mt-0.5 size-5 shrink-0 ${tint}`} strokeWidth={1.5} />
                     <div>
                       <p className="font-medium text-ink-950">{reason.title}</p>
-                      <p className="mt-1 text-sm leading-relaxed text-ink-950/65">{reason.desc}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-ink-muted">{reason.desc}</p>
                     </div>
                   </div>
                 );

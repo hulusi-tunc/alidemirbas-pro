@@ -1,12 +1,11 @@
 import { ArrowUpRight, Ban, BookOpen, Check, CircleCheck, Info, LayoutDashboard, Lightbulb, Presentation, Scale, ShieldCheck, Store, Terminal, TriangleAlert } from "lucide-react";
 
-import { SiteFooter, SiteHeader } from "@/components/Site";
+import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { buttonStyles } from "@/components/ui/Button";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
 import { GitHubMark } from "@/components/ui/BrandIcons";
 import { InstallPanel } from "@/components/ui/InstallPanel";
-import { ProductCta } from "@/components/ui/ProductCta";
 import { labAccent } from "@/components/ui/LabProjectIdentity";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
@@ -379,7 +378,7 @@ function Hero({ c, t, lang }: { c: SkillProductContent; t: (typeof T)[Lang]; lan
           <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{t.heroTitle}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{t.heroSub}</p>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-muted">{t.heroSub}</p>
         </Reveal>
         {repo && (
           <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-2.5">
@@ -595,12 +594,6 @@ function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
    gone (2026-09-20): the footer lists the same projects, and the A/B and
    Journey Builder pages never carried one. */
 
-function PageCta({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
-  const repo = c.primaryLinks.find((l) => l.href.includes("github.com")) ?? c.primaryLinks[0];
-  if (!repo) return null;
-  return <ProductCta eyebrow={t.ctaEyebrow} title={t.ctaTitle} primary={{ label: repo.label, href: repo.href }} />;
-}
-
 export default function DashboardBuilderPage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
   const copyT = copy[lang];
   const t = T[lang];
@@ -649,7 +642,7 @@ export default function DashboardBuilderPage({ lang, content }: { lang: Lang; co
         <TemplatesSection t={t} lang={lang} />
         <Install c={content} t={t} lang={lang} />
         <Faq c={content} t={t} />
-        <PageCta c={content} t={t} />
+        <FinalCta t={copy[lang]} />
       </main>
       <SiteFooter t={copyT} lang={lang} />
     </>

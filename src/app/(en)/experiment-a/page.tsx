@@ -58,7 +58,7 @@ function SectionHeading({ index, title }: { index: string; title: string }) {
   return (
     <div>
       <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-400">{index}</p>
-      <h2 className="mt-3 text-h2-fluid font-semibold text-ink-900">{title}</h2>
+      <h2 className="mt-3 text-h2 text-ink-950">{title}</h2>
     </div>
   );
 }
@@ -143,7 +143,7 @@ export default function ExperimentAPage() {
           {KIND_META.map(({ kind, label, role }) => (
             <li key={kind} className="bg-paper p-6">
               <div className="flex items-baseline justify-between gap-4">
-                <h3 className="text-h6 font-semibold text-ink-900">{label}</h3>
+                <h3 className="text-h3 text-ink-950">{label}</h3>
                 <span className="font-mono text-sm text-ink-400">
                   ×{nf.format(KIND_COUNT.get(kind) ?? 0)}
                 </span>
@@ -232,7 +232,7 @@ export default function ExperimentAPage() {
       <section className="bg-ink-950">
         <div className="altor-container py-20 md:py-28">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-400">06</p>
-          <h2 className="mt-3 text-h2-fluid font-semibold text-white">Browse the library</h2>
+          <h2 className="mt-3 text-h2 text-white">Browse the library</h2>
           <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-300">
             The full library is searchable and filterable by goal.
           </p>

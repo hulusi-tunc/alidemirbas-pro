@@ -6,7 +6,7 @@ import { Search, X } from "lucide-react";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import IdeaCard from "@/components/ui/IdeaCard";
 import { Button } from "@/components/ui/Button";
-import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, CategoryIcon, ChannelIcon, GoalIcon, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, CategoryIcon, CategoryRail, ChannelIcon, GoalIcon, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
 import { FilterMenu } from "@/components/ui/FilterMenu";
 import { clsx } from "@/lib/clsx";
 import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
@@ -111,55 +111,6 @@ function CategorySection({
         </Button>
       ) : null}
     </section>
-  );
-}
-
-/* THE CATEGORY RAIL (2026-09-13). Twenty-one sections make a page nine
-   screens tall; the rail is the way across it - every category with its
-   count, anchored to its section, the one under the reading line held. It
-   only exists in the default view (a filtered result is one flat grid) and
-   only from lg, where there is a column for it; below that the selects
-   are the way in. */
-function CategoryRail({
-  title,
-  presets,
-  sections,
-  active,
-}: {
-  title: string;
-  presets?: { label: string; count: number };
-  sections: readonly { id: string; title: string; count: number }[];
-  active: string;
-}) {
-  const item = (id: string, label: string, count: number) => (
-    <li key={id}>
-      <a
-        href={`#${id === "presets" ? "presets" : `cat-${id}`}`}
-        title={label}
-        aria-current={active === id ? "true" : undefined}
-        className={clsx(
-          "flex items-center justify-between gap-3 rounded-lg px-3 py-1.5 text-sm transition-colors duration-[var(--duration-fast)]",
-          active === id ? "bg-paper-soft font-medium text-ink-950" : "text-ink-600 hover:bg-paper-soft hover:text-ink-950",
-        )}
-      >
-        <span className="flex min-w-0 items-center gap-2.5">
-          <CategoryIcon id={id} className={clsx("size-4 shrink-0", categoryAccent(id).ink)} />
-          <span className="truncate">{label}</span>
-        </span>
-        <span className="shrink-0 text-xs text-ink-500 tabular-nums">{count}</span>
-      </a>
-    </li>
-  );
-  return (
-    <nav aria-label={title} className="hidden lg:block">
-      <div className="sticky top-20 max-h-[calc(100svh-6rem)] overflow-y-auto pr-2">
-        <p className="px-3 text-sm font-semibold text-ink-950">{title}</p>
-        <ol className="mt-2 flex list-none flex-col gap-0.5 p-0">
-          {presets ? item("presets", presets.label, presets.count) : null}
-          {sections.map((c) => item(c.id, c.title, c.count))}
-        </ol>
-      </div>
-    </nav>
   );
 }
 
@@ -358,8 +309,18 @@ export default function JourneyGallery({
       {isDefault ? (
         <CategoryRail
           title={labels.railTitle}
-          presets={matchingPresets.length ? { label: labels.presetsTitle, count: matchingPresets.length } : undefined}
-          sections={sections.map((s) => ({ id: s.meta.id, title: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr), count: s.items.length }))}
+          items={[
+            ...(matchingPresets.length
+              ? [{ id: "presets", anchor: "presets", label: labels.presetsTitle, count: matchingPresets.length, icon: <CategoryIcon id="presets" className={categoryAccent("presets").ink} /> }]
+              : []),
+            ...sections.map((s) => ({
+              id: s.meta.id,
+              anchor: `cat-${s.meta.id}`,
+              label: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr),
+              count: s.items.length,
+              icon: <CategoryIcon id={s.meta.id} className={categoryAccent(s.meta.id).ink} />,
+            })),
+          ]}
           active={activeCat}
         />
       ) : null}

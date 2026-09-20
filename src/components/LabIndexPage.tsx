@@ -257,7 +257,7 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
 
       <div className="altor-container relative">
         <Reveal>
-          <p className="text-[13px] font-medium text-ink-500">{t.lab.label}</p>
+          <p className="altor-eyebrow text-ink-subtle">{t.lab.label}</p>
           <h1 className="mx-auto mt-4 max-w-4xl text-display-xl text-balance text-ink-950">
             {tt.heroPrefix}{" "}
             <span className="bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
@@ -266,7 +266,7 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
           </h1>
         </Reveal>
         <Reveal delay={90}>
-          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-pretty text-ink-700">
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-pretty text-ink-muted">
             {t.lab.intro}
           </p>
         </Reveal>
@@ -288,7 +288,7 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
 function Mark({ project, dark, center }: { project: Project; dark: boolean; center?: boolean }) {
   const accent = labAccent(project.slug);
   return (
-    <p className={clsx("flex items-center gap-2.5 text-[13px] font-medium", center && "justify-center", dark ? accent.darkInk : accent.ink)}>
+    <p className={clsx("altor-eyebrow flex items-center gap-2.5", center && "justify-center", dark ? accent.darkInk : accent.ink)}>
       <span className={clsx("grid size-8 shrink-0 place-items-center rounded-md", dark ? accent.darkTile : accent.tile)}>
         <LabProjectIcon slug={project.slug} className="size-4" />
       </span>

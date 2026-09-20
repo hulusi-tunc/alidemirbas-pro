@@ -6,9 +6,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { clsx } from "@/lib/clsx";
-import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 
 type NavItem = { label: string; href: string };
 type LabProject = { name: string; href: string; slug?: string };
@@ -40,7 +40,20 @@ const TRIGGER_LABEL = { en: { open: "Open menu", close: "Close menu" }, tr: { op
    projects render here as a nested list under Lab.
 
    The current page is marked (`aria-current`) and tinted, because a menu
-   that cannot say where you are makes you open it twice. */
+   that cannot say where you are makes you open it twice.
+
+   TYPE AND CONTROLS ARE THE SYSTEM'S (2026-09-06). Rows were `text-[17px]`
+   and project rows `text-[15px]` - two sizes the type ramp does not have -
+   and the CTA / language pair at the bottom were hand-rolled pills that
+   never went through Button.tsx, so they kept a `rounded-full` corner and a
+   plain colour swap after the real button moved to the squared 8px corner
+   and the pixel-fill hover. Rows now sit on `text-base` (the button's own
+   16px label tier) with `py-4` so the row is still the 56px target the note
+   above promises - the same 56px the `md` button is - project rows on
+   `text-label` (the ramp's 14px Medium UI-label tier, see globals.css),
+   colours on the semantic `ink` / `ink-muted` / `ink-brand`
+   names, and the two controls are `ButtonLink` (`ink` beside `outline`, the
+   component's documented solid-plus-deferring pair). */
 export function MobileNav({
   items, langHref, langLabel, ctaHref, ctaLabel, labHref, labProjects = [],
 }: {
@@ -104,7 +117,7 @@ export function MobileNav({
         aria-label={open ? trigger.close : trigger.open}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="relative z-50 -mr-2 grid size-10 place-items-center text-ink-950"
+        className="relative z-50 -mr-2 grid size-10 place-items-center text-ink"
       >
         {open ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
       </button>
@@ -130,8 +143,8 @@ export function MobileNav({
                     href={item.href}
                     onClick={close}
                     aria-current={current ? "page" : undefined}
-                    className={`flex items-center rounded-xl px-4 py-3.5 text-[17px] font-medium transition-colors ${
-                      current ? "bg-blue-50 text-primary-700" : "text-ink-900 hover:bg-paper-soft"
+                    className={`flex items-center rounded-xl px-4 py-4 text-base font-medium transition-colors duration-[var(--duration-fast)] ${
+                      current ? "bg-surface-brand-subtle text-ink-brand" : "text-ink hover:bg-paper-soft"
                     }`}
                   >
                     {item.label}
@@ -144,8 +157,8 @@ export function MobileNav({
                             href={p.href}
                             onClick={close}
                             aria-current={isCurrent(p.href) ? "page" : undefined}
-                            className={`flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[15px] transition-colors ${
-                              isCurrent(p.href) ? "text-primary-700" : "text-ink-500 hover:text-ink-900"
+                            className={`flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-label transition-colors duration-[var(--duration-fast)] ${
+                              isCurrent(p.href) ? "text-ink-brand" : "text-ink-muted hover:text-ink"
                             }`}
                           >
                             {/* The project's own glyph on its tint - the same

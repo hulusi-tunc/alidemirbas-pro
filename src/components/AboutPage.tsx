@@ -105,10 +105,10 @@ export default function AboutPage({ lang }: { lang: Lang }) {
   const home = lang === "en" ? "/" : "/tr";
   const logos = c.about.timeline.map((e) => ({ co: e.co, logo: e.logo }));
   const posts = [...getAllBlogPosts(lang)].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
-  const rows = c.about.timeline.flatMap((e): Row[] =>
-    "roles" in e
-      ? e.roles.map((r) => ({ key: `${e.co}-${r.role}`, co: e.co, logo: e.logo, role: r.role, period: r.period, desc: r.desc }))
-      : [{ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period, desc: e.desc }],
+  // One row per entry - every timeline entry is a single role since the
+  // two Enuygun titles were merged (2026-09-14); same shape as Site.tsx's Bio.
+  const rows = c.about.timeline.map(
+    (e): Row => ({ key: `${e.co}-${e.role}`, co: e.co, logo: e.logo, role: e.role, period: e.period, desc: e.desc }),
   );
 
   return (

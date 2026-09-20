@@ -16,7 +16,17 @@ import { ArrowRight } from "lucide-react";
 
    Restyled 2026-09-13 onto the house card (the homepage tiles' rounded
    ring, lift and shadow): sans throughout, badges as 12px pills, nothing
-   under 12px, no mono - the type rules every Lab window keeps. */
+   under 12px, no mono - the type rules every Lab window keeps.
+
+   LONG TITLES (2026-09-20, Hulusi on the A/B library: "the texts are so
+   long it looks ugly"). A journey's name is two words; an A/B scenario's
+   title is a three-line question, and under it two pills that would not
+   share a line. So the title is held to three balanced lines, and a
+   caller whose facts are too long for pills hands them in as `meta` - one
+   quiet line of glyph-and-label pairs, the first in full ink, the rest
+   truncating - and asks for a three-line body so the card fills the
+   height the grid gives it. `badges` stays for the short labels it was
+   made for (a channel, a surface). */
 
 export type IdeaCardBadge = {
   label: string;
@@ -31,13 +41,17 @@ export type IdeaCardBadge = {
   icon?: ReactNode;
 };
 
+export type IdeaCardMeta = { label: string; icon?: ReactNode; title?: string };
+
 export default function IdeaCard({
   href,
   icon,
   iconTone = "bg-paper-soft text-ink-700",
   title,
-  badges,
+  badges = [],
+  meta,
   body,
+  bodyLines = 2,
   footLeft,
   footRight,
 }: {
@@ -49,8 +63,12 @@ export default function IdeaCard({
       neutral default. */
   iconTone?: string;
   title: string;
-  badges: readonly IdeaCardBadge[];
+  badges?: readonly IdeaCardBadge[];
+  /** Facts too long for pills, as one quiet line under the title. */
+  meta?: readonly IdeaCardMeta[];
   body: string;
+  /** How many lines the body may run before it clamps. */
+  bodyLines?: 2 | 3;
   footLeft: string;
   footRight: string;
 }) {
@@ -64,8 +82,21 @@ export default function IdeaCard({
           <span className={`grid size-9 shrink-0 place-items-center rounded-lg [&>svg]:size-4 ${iconTone}`}>{icon}</span>
         ) : null}
         <div className="min-w-0 flex-1">
-          <p className="text-base leading-snug font-semibold text-ink-950">{title}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <p className="line-clamp-3 text-base leading-snug font-semibold text-balance text-ink-950">{title}</p>
+          {meta?.length ? (
+            <p className="mt-2 flex min-w-0 items-center gap-1.5 text-xs text-ink-500 [&_svg]:size-3.5 [&_svg]:shrink-0">
+              {meta.map((m, i) => (
+                <span key={`${m.label}:${i}`} className="contents">
+                  {i > 0 ? <span aria-hidden className="text-ink-300">·</span> : null}
+                  <span title={m.title} className={i === 0 ? "flex shrink-0 items-center gap-1 text-ink-700" : "flex min-w-0 items-center gap-1 truncate"}>
+                    {m.icon}
+                    <span className={i === 0 ? "" : "truncate"}>{m.label}</span>
+                  </span>
+                </span>
+              ))}
+            </p>
+          ) : null}
+          <div className={badges.length ? "mt-2 flex flex-wrap items-center gap-1.5" : "hidden"}>
             {badges.map((b) => (
               <span
                 key={`${b.tone}:${b.label}`}
@@ -89,7 +120,7 @@ export default function IdeaCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-4 px-5 pt-3 pb-5">
-        <p className="line-clamp-2 text-sm leading-relaxed text-ink-600">{body}</p>
+        <p className={bodyLines === 3 ? "line-clamp-3 text-sm leading-relaxed text-ink-600" : "line-clamp-2 text-sm leading-relaxed text-ink-600"}>{body}</p>
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-line-soft pt-3">
           <span className="truncate text-xs text-ink-500">{footLeft}</span>
           <span className="shrink-0 text-xs text-ink-500 tabular-nums">{footRight}</span>

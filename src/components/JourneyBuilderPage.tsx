@@ -1,13 +1,12 @@
 import Image from "next/image";
 import { ArrowUpRight, BellRing, Blocks, Check, CircleCheck, Gauge, LayoutList, Lock, Mail, MessageSquare, Ruler, Smartphone, Terminal } from "lucide-react";
 
-import { SiteFooter, SiteHeader } from "@/components/Site";
+import { FinalCta, SiteFooter, SiteHeader } from "@/components/Site";
 import { GitHubMark } from "@/components/ui/BrandIcons";
 import { buttonStyles } from "@/components/ui/Button";
 import { InstallPanel } from "@/components/ui/InstallPanel";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { PortraitContainer } from "@/components/ui/PortraitContainer";
-import { ProductCta } from "@/components/ui/ProductCta";
 import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { AppBar, AppMeta, AppTitle, Badge, FormLabel, Table, Td, Th, Tr, Window } from "@/components/ui/LabWindow";
@@ -69,7 +68,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
           <h1 className="mx-auto max-w-4xl text-h1 text-ink-950">{c.title}</h1>
         </Reveal>
         <Reveal delay={90} className="mt-6">
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-950/65">{c.sub}</p>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-ink-muted">{c.sub}</p>
         </Reveal>
         <Reveal delay={140} className="mt-8 flex flex-wrap justify-center gap-3">
           <a href={REPO} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "primary", size: "md" })}>
@@ -611,16 +610,6 @@ function Faq({ t }: { t: (typeof copy)[Lang] }) {
   );
 }
 
-/* ---- 13 · Final CTA — page-local, not the shared contact CTA ----------
-   The shared <FinalCta> (Site.tsx) points at the contact form, which is
-   the wrong destination for an open-source repo. Same dark band language
-   (bg-ink-950), this page's own two CTAs, three floating fragment images
-   as decoration (desktop only, matching the brief). */
-function PageCta({ t }: { t: (typeof copy)[Lang] }) {
-  const c = t.journeyBuilder.pageCta;
-  return <ProductCta eyebrow={c.eyebrow} title={c.title} primary={{ label: c.primary, href: REPO }} secondary={{ label: c.secondary, href: DEMO }} />;
-}
-
 export default function JourneyBuilderPage({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
@@ -657,7 +646,7 @@ export default function JourneyBuilderPage({ lang }: { lang: Lang }) {
         <CarouselSection t={t} lang={lang} />
         <Install t={t} lang={lang} />
         <Faq t={t} />
-        <PageCta t={t} />
+        <FinalCta t={t} />
       </main>
       <SiteFooter t={t} lang={lang} />
     </>

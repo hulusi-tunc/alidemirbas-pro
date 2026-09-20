@@ -74,7 +74,7 @@ export function SectionHeading({
           <p
             className={clsx(
               "altor-eyebrow mb-5",
-              tone === "light" ? "text-white/45" : "text-ink-400",
+              tone === "light" ? "text-white/45" : "text-ink-subtle",
             )}
           >
             {eyebrow}
@@ -84,7 +84,7 @@ export function SectionHeading({
           id={id}
           className={clsx(
             "text-h2",
-            tone === "light" ? "text-white" : "text-ink-900",
+            tone === "light" ? "text-white" : "text-ink-950",
           )}
         >
           {title}
@@ -93,7 +93,7 @@ export function SectionHeading({
           <p
             className={clsx(
               "mt-5 max-w-2xl text-lg leading-relaxed",
-              tone === "light" ? "text-white/65" : "text-ink-500",
+              tone === "light" ? "text-white/65" : "text-ink-muted",
             )}
           >
             {intro}

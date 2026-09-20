@@ -253,7 +253,7 @@ function HowItWorks({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
         </div>
         {/* the third step's honest follow-through: run it on real numbers */}
         <Reveal delay={120} className="mt-12 flex flex-col items-center gap-4 text-center">
-          <p className="max-w-xl text-[15px] leading-relaxed text-ink-950/65">{h.step3.note}</p>
+          <p className="max-w-xl text-base leading-relaxed text-ink-muted">{h.step3.note}</p>
           <StatCalculatorLinks lang={lang} />
         </Reveal>
       </PortraitContainer>

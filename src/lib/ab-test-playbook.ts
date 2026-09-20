@@ -268,3 +268,78 @@ export function abVariableKind(test: {
   if (test.comparisonMode === "structural") return "layout";
   return "format";
 }
+
+/* WHICH ELEMENT the experiment touches - the thing the screen has to draw
+   as real UI (ui/AbScreen.tsx), as opposed to abVariableKind, which says
+   HOW the two sides differ. The 211 `testedSlot`s are all different
+   strings, but they name about twenty families of interface element; this
+   reads the family off the slot (and, failing that, the question), on the
+   same diacritic fold and possessive-stem rule as abVariableKind. Most
+   specific first: "kupon kodu alanı" is a coupon field before it is a
+   form field. A slot no rule recognises draws the generic element. */
+export type AbElementKind =
+  | "cta" | "coupon" | "countdown" | "shipping" | "badge" | "price" | "payment"
+  | "stepper" | "form" | "nav" | "search" | "filters" | "popup" | "media"
+  | "reviews" | "grid" | "plans" | "selector" | "text" | "logos"
+  /* The second wave (2026-09-20), the families the first fifty "generic"
+     records turned out to name. */
+  | "pagination" | "sizeguide" | "delivery" | "faq" | "section" | "topbar"
+  | "banner" | "chat" | "onboarding" | "recent" | "meter" | "empty" | "sort"
+  | "urgency" | "bundle" | "steps" | "tabs" | "dashboard" | "generic";
+
+export function abElementKind(test: { testedSlot: string | null; question: string }): AbElementKind {
+  const slot = fold(test.testedSlot);
+  const named = `${slot} ${fold(test.question)}`;
+  const has = (...k: string[]) => k.some((x) => slot.includes(x));
+  const inNamed = (...k: string[]) => k.some((x) => named.includes(x));
+
+  if (has("sosyal medya")) return "reviews";
+  if (has("geri sayim", "sayac")) return "countdown";
+  // The second wave - each before the broader rule that used to swallow it.
+  if (has("sayfalama")) return "pagination";
+  if (has("beden yardim", "beden secim kabi", "beden geri bildirim", "model beden", "beden bilgi")) return "sizeguide";
+  if (has("teslimat bilgisi", "kargo ve iade", "mense")) return "delivery";
+  if (has("sss")) return "faq";
+  if (has("nasil calisir", "kullanim senaryo", "bolum yerlesim", "sayfa uzunlug", "sayfa sonu", "uzman ve kurucu", "kurgu")) return "section";
+  if (has("ust fayda cubugu", "fayda cubugu")) return "topbar";
+  if (has("uygulama indirme", "indirilebilir kaynak", "davet", "arkadas")) return "banner";
+  if (has("canli destek")) return "chat";
+  if (has("karsilama ekrani", "arayuz ipuc", "izin gerekce", "sonraki adim oneri")) return "onboarding";
+  if (has("son gezilen", "gorulen urun")) return "recent";
+  if (has("profil tamamlama", "paket degeri")) return "meter";
+  if (has("sifir sonuc")) return "empty";
+  if (has("varsayilan siralama")) return "sort";
+  if (has("aciliyet bildirim")) return "urgency";
+  if (has("coklu paket", "urun ozellestirme")) return "bundle";
+  if (has("deneme suresi", "is e-postasi")) return "steps";
+  if (has("bilgi sunum bicimi", "avantaj bilgisi", "fayda vurgu", "iletisim bilgisi")) return "tabs";
+  if (has("widget siras")) return "dashboard";
+  if (has("bildirim isareti")) return "badge";
+  if (has("baglanti hedef", "dis baglanti")) return "nav";
+  if (has("harita gorunum")) return "grid";
+  if (has("vergi gosterim")) return "price";
+  if (has("kullanici tipine gore anasayfa")) return "section";
+  if (has("reddetme secenegi")) return "popup";
+  if (has("servis ikonu")) return "section";
+  if (has("kupon", "indirim kodu", "promosyon")) return "coupon";
+  if (has("kargo cubugu", "kargo esig", "ucretsiz kargo")) return "shipping";
+  if (has("logolar", "logo")) return "logos";
+  if (has("rozet", "guven", "garanti")) return "badge";
+  if (has("odeme yontemi", "kayitli kart", "uyeliksiz", "odeme yukleme", "hizli odeme")) return "payment";
+  if (has("ilerleme cubugu", "adim siras", "cok adimli", "adim gecis", "checkout akis", "akistaki yeri")) return "stepper";
+  if (has("pop-up", "popup", "modal", "sohbet", "paywall", "izni", "duyuru", "cikis niyet")) return "popup";
+  if (has("plan", "periyod", "periyot")) return "plans";
+  if (has("fiyat", "tutar", "taksit", "kusurat", "indirim sunum")) return "price";
+  if (has("adet secici", "varyant secici", "secim onay", "tek secim", "varsayilan isaretli")) return "selector";
+  if (has("yorum", "referans", "puan", "musteri")) return "reviews";
+  if (has("gorsel", "video", "fotograf", "resim", "medya")) return "media";
+  if (has("arama")) return "search";
+  if (has("filtre")) return "filters";
+  if (has("menu", "navigasyon", "kategori siras", "sabit menu")) return "nav";
+  if (has("izgara", "kolon", "sayfa basina", "liste", "kart", "urun oneri", "karsilastirma", "urun baslig", "stok")) return "grid";
+  if (has("form", "alan", "etiket", "otomatik tamamlama", "imlec", "kayit", "giris", "sosyal")) return "form";
+  if (has("cta", "buton", "sepete ekle", "satin al")) return "cta";
+  if (has("baslik", "metin", "ifade", "microcopy", "mesaj", "dil", "aciklama", "soru", "guvence", "anlati")) return "text";
+  if (inNamed("buton", "cta")) return "cta";
+  return "generic";
+}

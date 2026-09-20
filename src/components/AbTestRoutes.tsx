@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import AbTestGallery from "@/components/AbTestGallery";
 import AbTestPlaybookPage from "@/components/AbTestPlaybookPage";
 import LabShell from "@/components/LabShell";
-import { ProductMark } from "@/components/ui/ProductFrame";
 import { categoryLabel, surfaceLabel } from "@/components/ui/AbTestVisuals";
+import { ProductMark } from "@/components/ui/ProductFrame";
 import { AB_CATEGORIES, AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail } from "@/lib/ab-test-view";
 import { pageAlternates } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
@@ -17,8 +17,8 @@ type Lang = "en" | "tr";
 export const basePathFor = (lang: Lang) => (lang === "en" ? "/lab/ab-testing/library" : "/tr/lab/ab-testing/library");
 
 const T = {
-  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable A/B test scenarios. The variable under test, the primary KPI and the guardrails for each.`, back: "A/B Test Library", count: "scenarios" },
-  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir A/B test senaryosu. Test edilen değişken, birincil KPI ve her biri için guardrail'ler.`, back: "A/B Test Kütüphanesi", count: "senaryo" },
+  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable A/B test scenarios. The variable under test, the primary KPI and the guardrails for each.`, back: "A/B Test Library", count: "scenarios", allScenarios: "All scenarios" },
+  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir A/B test senaryosu. Test edilen değişken, birincil KPI ve her biri için guardrail'ler.`, back: "A/B Test Kütüphanesi", count: "senaryo", allScenarios: "Tüm senaryolar" },
 };
 
 /* The gallery is a client component, so the category and surface display
@@ -65,12 +65,15 @@ export function AbLibraryIndexPage({ lang }: { lang: Lang }) {
     { name: t.title, url: base },
   ]);
   return (
+    /* The Journey Library's page, for the A/B archive (Hulusi, 2026-09-20:
+       "here is the journey library UI, now update the A/B Test Library"):
+       the site chrome rather than the slim workspace bar, the same opening
+       the library list pages have - the project's mark, the title on the
+       h1 step, the intro, centred, the count as a pill - and the gallery on
+       the wide container, where a category rail plus three card columns
+       need the 90rem measure. */
     <LabShell lang={lang} chrome="site" langHref={basePathFor(lang === "en" ? "tr" : "en")}>
       <JsonLdScript data={breadcrumb} />
-      {/* The same opening the journey library list pages have (2026-09-20):
-          the A/B Test Playbook's mark, the title on the h1 step, the
-          intro, centred, the count as a pill; the list on the wide
-          container, which a category rail plus three card columns need. */}
       <section className="bg-paper pt-14 pb-8 md:pt-16 md:pb-10">
         <div className="altor-container text-center">
           <ProductMark slug="ab-test-playbook" lang={lang} className="mb-5" />
@@ -104,9 +107,6 @@ export function AbLibraryDetailPage({ lang, slug }: { lang: Lang; slug: string }
   const r = abTestDetail(slug);
   if (!r) notFound();
   const base = basePathFor(lang);
-  // Position in the library, for the header rail. Derived from the same
-  // ordered row list the index page renders, so the two can't disagree.
-  const position = AB_TEST_ROWS.findIndex((row) => row.id === r.id) + 1;
   const breadcrumb = breadcrumbList([
     { name: copy[lang].footer.home, url: lang === "en" ? "/" : "/tr" },
     { name: copy[lang].nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
@@ -115,15 +115,11 @@ export function AbLibraryDetailPage({ lang, slug }: { lang: Lang; slug: string }
   ]);
 
   return (
-    <LabShell lang={lang} chrome="site" langHref={`${basePathFor(lang === "en" ? "tr" : "en")}/${slug}`}>
-      <JsonLdScript data={breadcrumb} />
-      <AbTestPlaybookPage
-        test={r}
-        lang={lang}
-        basePath={base}
-        position={position}
-        total={AB_TEST_COUNT}
-      />
+    /* The Lab workspace bar - the way back to the library on the left, the
+       Lab mark, the language and the CTA - and the page as one flow under
+       it: header, experiment, the run notes as a row of cards. */
+    <LabShell lang={lang} back={{ href: base, label: T[lang].allScenarios }} langHref={`${basePathFor(lang === "en" ? "tr" : "en")}/${slug}`}>
+      <AbTestPlaybookPage test={r} lang={lang} breadcrumb={breadcrumb} />
     </LabShell>
   );
 }

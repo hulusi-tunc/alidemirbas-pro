@@ -177,10 +177,10 @@ export function EntryCard({ entry }: { entry: CalcEntry; index?: number }) {
           {entry.description}
         </span>
         <span className="mt-2 flex items-center justify-between gap-2 sm:mt-auto sm:pt-1.5">
-          <span className="text-[12px] text-ink-400">{entry.categoryLabel}</span>
+          <span className="text-xs text-ink-subtle">{entry.categoryLabel}</span>
           <ArrowRight
             aria-hidden
-            className="size-3.5 shrink-0 text-ink-200 transition-colors group-hover:text-blue-600"
+            className="size-3.5 shrink-0 text-ink-200 transition-colors group-hover:text-ink-brand"
           />
         </span>
       </span>
@@ -204,14 +204,14 @@ function FacetChip({
       type="button"
       aria-pressed={checked}
       onClick={onToggle}
-      className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm transition-colors ${
+      className={`flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-label transition-colors duration-[var(--duration-fast)] ${
         checked
-          ? "bg-primary-600 text-white"
-          : "bg-paper-soft text-ink-700 hover:bg-blue-50 hover:text-primary-700"
+          ? "bg-primary text-on-primary"
+          : "bg-paper-soft text-ink-muted hover:bg-surface-brand-subtle hover:text-ink-brand"
       }`}
     >
       {label}
-      <span className={`tabular-nums ${checked ? "text-white/70" : "text-ink-400"}`}>{count}</span>
+      <span className={`tabular-nums ${checked ? "text-white/70" : "text-ink-subtle"}`}>{count}</span>
     </button>
   );
 }
@@ -262,7 +262,7 @@ export function CalculatorLibrary({
         <h1 className="text-h1 text-balance text-ink-950">
           {heroTitle}
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-pretty text-ink-500">{heroSub}</p>
+        <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-pretty text-ink-muted">{heroSub}</p>
       </div>
 
       {/* Search, centred under the title and at a size that reads as the
@@ -277,7 +277,7 @@ export function CalculatorLibrary({
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t.searchPlaceholder}
           aria-label={t.searchPlaceholder}
-          className="box-border w-full rounded-full bg-paper-soft py-4 pr-5 pl-13 text-base text-ink-950 outline-none transition-shadow placeholder:text-ink-400 focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
+          className="box-border w-full rounded-md bg-paper-soft py-4 pr-5 pl-13 text-base text-ink-950 outline-none transition-shadow placeholder:text-ink-subtle focus:shadow-[inset_0_0_0_1px_var(--color-primary-400)]"
         />
         <Search aria-hidden className="pointer-events-none absolute top-1/2 left-5 size-4.5 -translate-y-1/2 text-ink-400" />
       </div>
@@ -330,7 +330,7 @@ export function CalculatorLibrary({
           /* The same designed dead end the two Lab libraries use - count,
              message, one recovery action - on the site tokens. */
           <div className="my-8 rounded-card bg-paper-soft py-14 text-center">
-            <p className="text-[13px] font-medium text-ink-400 tabular-nums">
+            <p className="altor-eyebrow text-ink-subtle tabular-nums">
               0 / {entries.length}
             </p>
             <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-ink-600">{t.empty}</p>
