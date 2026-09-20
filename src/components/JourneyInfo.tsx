@@ -117,7 +117,7 @@ export default function JourneyInfo({
             {/* The picture is the canvas; clicking it opens the Canvas tab
                 (a plain anchor, so the shell's hashchange listener fires). */}
             <a href="#canvas" aria-label={t.openCanvas} className="block h-64 w-full bg-paper-soft sm:h-80 [mask-image:linear-gradient(to_bottom,black_72%,transparent)]">
-              <JourneyMiniMap nodes={canvas.nodes} layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
+              <JourneyMiniMap layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
             </a>
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-6 py-4">
               <p className="text-sm text-ink-muted">{shape.map((s) => s.label).join(" · ")}</p>

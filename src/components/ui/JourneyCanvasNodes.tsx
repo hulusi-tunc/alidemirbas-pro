@@ -42,34 +42,26 @@ export function humanize(text: string): string {
    duration on the one route where this card's main text has to be short.
 
    A REQUIRED wait with no configured default (vNext, `Config.required:
-   true`) has no value to pull out - config-text.ts's own wrapper is
-   "<rule sentence> (configure <key>)", mechanically translated by
-   journey-tr-overrides.ts's regex layer to "(<key> ayarlanmalı)" wherever
-   no hand-authored override exists for that node. Where an override DOES
-   exist (most nodes, corpus-wide - the free-prose TR translation effort),
-   the translator re-wrote the whole sentence by hand and the trailing
-   wrapper varies in wording per node ("... ayarlanmalı", "... üzerinden
-   yapılandırılır", and a few left as the untranslated English "(configure
-   ...)" - confirmed by sampling journey-tr-overrides.ts directly, not
-   assumed). Matching each wording is a losing game against future
-   variants; instead this pulls the dotted key out of whichever trailing
-   parenthetical is present, ignoring the wrapper words around it - which
-   also quietly fixes the untranslated-English-leftover case, since only
-   the key (already language-neutral) ever reaches the card. Falling all
-   the way back to the full "until <event meaning>, or <event meaning>,
-   ..." headline in the no-parenthetical case is what left multi-clause
-   corpus sentences (confirmed corpus-wide, not a guess) sitting on a wait
-   pill meant to say "45 minutes"; past a length worth worrying about, the
-   headline's own first clause (up to its first comma/"or"/"veya"/"ya da")
-   stands in for the whole thing - the full multi-condition sentence stays
-   reachable in the detail panel, this card is a summary. The config key
-   alone is shorter and, left unhumanized rather than turned into a
-   natural-looking phrase, reads honestly as the technical reference it
-   is - the same "don't translate canonical keys" rule this corpus already
-   applies to node ids and event ids, not a new exception. */
+   true`) has NO value to pull out - config-text.ts's wrapper for it is
+   "<rule sentence> (configure <key>)", and 46 of the library's 81 waits are
+   this case, because the honest length depends on the company's own
+   product rather than on anything the corpus can assert.
+
+   Those 46 used to render the config key itself - `bounded_education.window`,
+   `onboarding.step_interval` - scraped back out of that parenthetical. It
+   was reasoned as "the key is language-neutral, so it is safe on both
+   routes", which is true and beside the point: a dotted identifier is
+   engine vocabulary standing where a duration belongs, on a customer-journey
+   canvas, which is exactly what "no canonical config keys on the canvas"
+   forbids. Removed 2026-09-20.
+
+   What they render instead is the fall-through that was always below it and
+   never reached: the wait's own headline, "until <event meaning>, or
+   <event meaning>, ...", cut at its first clause. Already localized, already
+   short, and the right thing to say when there is no number to say - what
+   the journey is waiting FOR. The rule sentence and the key both stay
+   reachable, unchanged, in the detail panel's `detail`. */
 const WAIT_VALUE_RE = /\((?:example|recommended|örnek|önerilen): ([^;)]+)[;)]/i;
-const TRAILING_PAREN_RE = /\(([^()]*)\)\s*$/;
-const DOTTED_KEY_RE = /\b([a-z][\w]*(?:\.[a-z][\w]*)+)\b/i;
 const CLAUSE_SEP_RE = /, | veya | ya da | or |; /;
 
 function firstClause(text: string): string {
@@ -146,9 +138,22 @@ function waitLabel(node: FlowNode): string {
   const detail = node.detail;
   const value = detail ? WAIT_VALUE_RE.exec(detail) : null;
   if (value) return value[1].trim();
-  const paren = detail ? TRAILING_PAREN_RE.exec(detail) : null;
-  const key = paren ? DOTTED_KEY_RE.exec(paren[1]) : null;
-  if (key) return key[1];
+  /* NO CONFIGURED VALUE - and therefore no duration to name. 35 of the
+     library's 81 waits carry a `Config.default` the line above reads; the
+     other 46 are `required: true` with no default, because the honest
+     length depends on the company's own product. The card used to print
+     that Config's KEY in that case - `bounded_education.window`,
+     `onboarding.step_interval` - which is a database-shaped string sitting
+     where a duration should be, on 46 cards, in both locales, and exactly
+     what "no canonical config keys on the canvas" forbids.
+
+     The fall-through below was always the right answer for these and was
+     simply unreachable: a wait's headline is `until <event>, or <event>…`,
+     already localized and already the thing a reader needs when there is no
+     number to show - what it is waiting FOR. "Until a nurture progression
+     signal" is a true statement about the journey; the config key is a
+     statement about the codebase. The key stays reachable in the detail
+     panel, which renders `detail` in full. */
   return humanize(firstClause(node.headline));
 }
 
@@ -487,13 +492,19 @@ export function ExitCard({ node, onOpen, terminalLabel }: { node: FlowNode; onOp
       {/* No line-clamp here on purpose: `line-clamp` establishes a
           `-webkit-box` that does not size predictably inside a `w-fit`
           flex shell (verified - it truncated a longer TR exit headline to
-          "Checkout..." well before the pill's own max-width). Exit
-          headlines are already short by construction (`splitExitState`,
-          canonical-view.ts), so plain wrapping inside `max-w-[220px]`
-          costs at most one extra line on the rare longer one, never a
-          silently broken truncation. */}
+          "Checkout..." well before the pill's own max-width). That still
+          holds, so the budget is applied in STRING space instead, where the
+          flex shell has no opinion: `cardSummary` cuts at the sentence's own
+          boundary, the same rule every other card body uses.
+
+          It catches only the genuinely long ones. `splitExitState` bounds
+          clause count, not length, so nothing stopped a run-on exit state
+          reaching the capsule - but most of the overflow measured across
+          the 51 was shorter than the shared budget and wrapped on WIDTH
+          instead, which a string budget cannot fix. That half is handled by
+          the slot: SIZE.exit is 68, the measured worst case. */}
       <span className={`text-[13px] leading-snug font-medium [[data-lod=far]_&]:hidden ${success ? "text-emerald-700" : "text-ink-600"}`}>
-        {node.headline}
+        {cardSummary(node.headline)}
       </span>
       {node.terminal ? <Pill>{terminalLabel}</Pill> : null}
     </Shell>
@@ -519,12 +530,25 @@ function RouterCard({ node, onOpen, priority, lang }: { node: FlowNode; onOpen: 
   );
 }
 
-/* Communication and human actions - a journey builder's own action card:
-   an icon, the action's real name, the channel(s) it goes out on. No
-   paragraph, ever (the full canonical sentence is one click away, in the
-   detail panel - never lost, never paraphrased there) and no sequence
-   number (nothing left on the card that needs one to stay distinct; the
-   node's own id already does that job in the detail panel). `priority`
+/* Communication and human actions - a journey builder's own message card:
+   an icon, the action's real name, a ONE-LINE preview of what it says, and
+   the channel(s) it goes out on.
+
+   The preview is new (2026-09-20). This card previously carried no body text
+   at all, on the reasoning that a paragraph belongs in the detail panel -
+   correct about paragraphs, wrong about the card: it left every one of the
+   122 message cards in the library saying only "Follow-up" or "Reminder"
+   and a channel pill, so the canvas could tell you a message went out but
+   never what it said. A lifecycle builder's message card shows a line of the
+   message ("SMS #1 / Your cart is waiting…"), and that is the one thing a
+   reader is actually scanning the canvas for.
+
+   It stays a PREVIEW, not the copy: `cardSummary` cuts at the sentence's own
+   first boundary inside the shared card budget and the clamp holds it to one
+   line, with the full canonical sentence one click away in the detail panel,
+   never paraphrased there. Still no sequence number (nothing left on the
+   card needs one to stay distinct; the node's own id does that job in the
+   panel). `priority`
    is usually inherited from a channel-selecting action the display graph
    collapsed into this same card (journey-canvas-layout.ts) - the router's
    own full logic is still one click away too, surfaced in the panel under
@@ -563,6 +587,11 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
         <Tile kind={kind}>{isHuman ? <UserRound aria-hidden /> : <Mail aria-hidden />}</Tile>
         <span className="text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{title}</span>
       </span>
+      {/* One line of what this message says - see the note above on why a
+          preview and not a paragraph. Clamped to a single line so the card
+          stays a card; `line-clamp-1` rather than the 2 the other bodies use,
+          because this one sits under a title that already names the touch. */}
+      <p className="mt-1.5 line-clamp-1 text-[13px] leading-snug text-ink-600 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
       {groups.length ? (
         <ChannelPriorityRow groups={groups} lang={lang} />
       ) : routes.length > 0 ? (
@@ -580,12 +609,18 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
 
 /* A plain internal action - state or data work with no outward effect
    (`ActionNode.execution` unset) that isn't a channel-selecting router
-   either. Unchanged in shape from before this round: a kind label plus
-   sequence (still the only same-kind cards on a canvas without a name of
-   their own) and its own sentence clamped short. */
-export function ActionCard({ node, sequence, onOpen, messageLabels, humanLabels, lang = "en" }: {
+   either: a kind label and its own sentence clamped short.
+
+   The `Internal · 03` counter is gone (2026-09-20). It existed because these
+   cards once had nothing else to tell them apart, and that stopped being
+   true twice over: `cardSummary` now puts the action's own sentence on the
+   card, and the bookkeeping absorption means the only internal actions still
+   drawn are the 14 that write real state - each one a distinct, nameable
+   step. What was left was an implementation counter on a customer-journey
+   canvas, which is what "no sequence numbers" forbids. ConditionCard dropped
+   its branch count for exactly this reason; this is the same removal. */
+export function ActionCard({ node, onOpen, messageLabels, humanLabels, lang = "en" }: {
   node: FlowNode;
-  sequence: number;
   onOpen: () => void;
   lang?: Lang;
   messageLabels: readonly { id: ChannelId; label: string }[];
@@ -606,7 +641,7 @@ export function ActionCard({ node, sequence, onOpen, messageLabels, humanLabels,
   return (
     <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.internal}`}>
       <KindRow kind={KIND.internal} icon={<Cog aria-hidden />}>
-        {w.internalAction} · {String(sequence).padStart(2, "0")}
+        {w.internalAction}
       </KindRow>
       {/* The canonical sentence itself, clamped short - a glance, not a read;
           the full text is in the detail panel, never a paraphrase. */}

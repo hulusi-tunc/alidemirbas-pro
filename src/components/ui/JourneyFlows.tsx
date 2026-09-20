@@ -113,7 +113,7 @@ export async function JourneyCanvas({ lang }: { lang: Lang }) {
     <Link href={`${base}/${detail.slug}#canvas`} className="group block">
       <Figure className="transition-shadow duration-[var(--duration-fast)] group-hover:shadow-[0_32px_80px_-30px_rgb(10_16_32/0.6)]">
         <div className="h-[24rem] sm:h-[30rem]">
-          <JourneyMiniMap nodes={canvas.nodes} layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
+          <JourneyMiniMap layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-5 py-3.5">
           <span className="flex min-w-0 items-center gap-2.5 text-sm">
@@ -314,7 +314,7 @@ export async function JourneyLibrarySpread({ lang }: { lang: Lang }) {
                 className="group flex w-[19rem] shrink-0 snap-center flex-col overflow-hidden rounded-[24px] bg-paper ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)] lg:w-auto"
               >
                 <div className="h-44 bg-paper-soft [mask-image:linear-gradient(to_bottom,black_75%,transparent)]">
-                  <JourneyMiniMap nodes={x.canvas.nodes} layout={x.canvas.layout} labels={x.canvas.labels} messageLabels={x.canvas.messageLabels} humanLabels={x.canvas.humanLabels} />
+                  <JourneyMiniMap layout={x.canvas.layout} labels={x.canvas.labels} messageLabels={x.canvas.messageLabels} humanLabels={x.canvas.humanLabels} />
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <p className={`flex items-center gap-2 text-xs font-medium ${accent.ink}`}>

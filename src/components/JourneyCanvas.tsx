@@ -121,7 +121,6 @@ export default function JourneyCanvas({
   humanLabels?: readonly { id: ChannelId; label: string }[];
 }) {
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
-  const actionSequence = useMemo(() => actionSequenceOf(nodes), [nodes]);
   /* Everything a drawn card stands in for: the channel-selecting action a
      message absorbed, the permission gate and its "record why nothing was
      sent" hop, the journey's own bookkeeping steps. All still real
@@ -294,7 +293,6 @@ export default function JourneyCanvas({
   const world: ReactNode = (
     <JourneyWorld
       layout={layout}
-      actionSequence={actionSequence}
       labels={labels}
       messageLabels={messageLabels}
       humanLabels={humanLabels}
@@ -424,7 +422,6 @@ export default function JourneyCanvas({
     preview can show the real thing. */
 export function JourneyWorld({
   layout,
-  actionSequence,
   labels,
   messageLabels = [],
   humanLabels = [],
@@ -433,7 +430,6 @@ export function JourneyWorld({
   spotKind = null,
 }: {
   layout: CanvasLayout;
-  actionSequence: ReadonlyMap<string, number>;
   labels: CanvasLabels;
   messageLabels?: readonly { id: ChannelId; label: string }[];
   humanLabels?: readonly { id: ChannelId; label: string }[];
@@ -483,7 +479,6 @@ export function JourneyWorld({
             ) : n.kind === "action" ? (
               <ActionCard
                 node={n}
-                sequence={actionSequence.get(n.id) ?? 1}
                 onOpen={open}
                 messageLabels={messageLabels}
                 humanLabels={humanLabels}
@@ -513,15 +508,6 @@ export function JourneyWorld({
       </svg>
     </>
   );
-}
-
-/** The action numbering the cards show ("Message · 03"): the order the
-    journey lists its actions in. Shared with the preview. */
-export function actionSequenceOf(nodes: readonly FlowNode[]): ReadonlyMap<string, number> {
-  const map = new Map<string, number>();
-  let i = 0;
-  for (const n of nodes) if (n.kind === "action") map.set(n.id, ++i);
-  return map;
 }
 
 /* An orthogonal route drawn with rounded bends (Hulusi, 2026-09-20: "the

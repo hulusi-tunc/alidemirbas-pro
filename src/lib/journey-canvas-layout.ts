@@ -136,12 +136,39 @@ export type CanvasLayout = {
    feed these. */
 export const SIZE: Record<CanvasNodeKind, { width: number; height: number }> = {
   trigger: { width: 240, height: 124 },
-  action: { width: 264, height: 108 },
+  /* 108 -> 140 (2026-09-20): the message card gained a one-line preview of
+     what it actually says, and the worst case measured across all 51 public
+     journeys in both locales is 138 against the old 108 slot - the card was
+     drawing 30px outside its own border. Re-measured with `offsetHeight`
+     against the button's `scrollHeight`, both unscaled layout pixels; the
+     canvas is CSS-transformed, so a `getBoundingClientRect` reading here is
+     the zoomed value and will report every card as overflowing. */
+  action: { width: 264, height: 140 },
   condition: { width: 240, height: 100 },
   wait: { width: 240, height: 56 },
   handoff: { width: 240, height: 124 },
   outcome: { width: 232, height: 100 },
-  exit: { width: 200, height: 48 },
+  /* 48 -> 68 (2026-09-20). A PARTIAL fix to a pre-existing overflow, not a
+     complete one - stated plainly so the next reader does not trust this
+     number the way the others can be trusted.
+
+     Measured over all 51 public journeys in both locales with the slot
+     released to `height: auto` (the method this table's own doctrine
+     prescribes): 343 of 772 exit capsules render at 46px and fit the old
+     48px slot, 43 do not - 38 at 50px, 4 at 59px, 1 at 68px - and were
+     drawing outside their own border. 68 covers all 43.
+
+     What it does NOT cover: released to auto AND given the full slot width,
+     the worst Turkish exit state wants 103px, because a 200px slot leaves
+     roughly 24 characters a line and "bu pencerede daha fazla kapasiteye
+     giden bir yol olmaksızın limitte kalındı" is 75 characters with no
+     clause boundary to cut at. Sizing to 103 would make a terminal capsule
+     the tallest small card on the canvas, against the visual language's own
+     "exit should be lightweight"; the real fix is either a wider exit slot
+     or per-node content-aware sizing (`sizeOf` already exists and handles
+     one such case), and both are bigger than this change. Recorded as open
+     in audit/visual-review.md rather than papered over here. */
+  exit: { width: 200, height: 68 },
 };
 
 /** Height of a label chip (`text-xs` pill with `py-0.5`), as ELK sees it. */

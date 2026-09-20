@@ -24,7 +24,7 @@ export async function miniCanvas(id: string, lang: Lang): Promise<MiniCanvas | n
 export function MiniCanvasView({ canvas, className = "" }: { canvas: MiniCanvas; className?: string }) {
   return (
     <div className={clsx("h-full w-full", className)}>
-      <JourneyMiniMap nodes={canvas.nodes} layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
+      <JourneyMiniMap layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />
     </div>
   );
 }

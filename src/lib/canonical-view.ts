@@ -295,6 +295,22 @@ const humanEvent = (event: string): string => {
   return words.charAt(0).toUpperCase() + words.slice(1);
 };
 
+/* A handoff to something outside the canonical library names it with a
+   namespaced id - `external:sales-assignment`,
+   `external:human-in-the-loop-lifecycle`. That id was going onto the card
+   verbatim, on 14 of the library's 80 handoff cards: a colon-prefixed,
+   hyphen-joined identifier is engine vocabulary, and a handoff card's whole
+   job is to say where ownership goes. Same treatment `humanEvent` already
+   gives an event id, extended to the `external:` prefix and to hyphens.
+
+   Deliberately NOT translated per locale: these name systems and teams
+   outside this corpus, which have no TR names to look up - the same "don't
+   translate canonical identifiers" rule the site already applies to node and
+   event ids, rather than inventing Turkish for a system that may not have
+   one. The raw id stays in the detail panel via the edge's own `to`. */
+export const externalTargetName = (target: string): string =>
+  capitalize(target.replace(/^external:/, "").replace(/[-_.]+/g, " ").trim());
+
 /** An exit's `state` is written corpus-wide as "<short clause>; <what that
     implies>" (occasionally "<short clause> - <...>", or, for a minority
     with neither, one comma-joined run-on - "risk recorded, nothing
@@ -473,7 +489,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
            whose whole job is to say where this hands off to. The long form
            is still one click away in the detail panel, and an external
            handoff (no journey to look up) keeps its own `external:` id. */
-        headline: n.to.startsWith("external:") ? n.to : (byId(n.to)?.shortName ?? byId(n.to)?.name ?? n.to),
+        headline: n.to.startsWith("external:") ? externalTargetName(n.to) : (byId(n.to)?.shortName ?? byId(n.to)?.name ?? n.to),
         detail: n.on,
         meta: [
           ...n.carries.map((c) => `carries: ${c}`),

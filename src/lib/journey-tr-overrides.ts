@@ -1,5 +1,5 @@
 import type { FlowNode, JourneyDetail } from "@/lib/canonical-view";
-import { splitExitState } from "@/lib/canonical-view";
+import { externalTargetName, splitExitState } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
 
 /* JOURNEY CANVAS LOCALIZATION for the TR site - applied on top of the
@@ -3580,8 +3580,43 @@ export const TRANSLATION_COVERAGE = { journeysCovered: Object.keys(OVERRIDES).le
    handoff has no journey to look up and keeps its own id. */
 function trHandoffHeadline(node: FlowNode, fallback: string): string {
   const to = node.edges.find((e) => e.kind === "journey")?.to;
-  return (to ? OVERRIDES[to]?.shortName : undefined) ?? fallback;
+  const named = to ? OVERRIDES[to]?.shortName : undefined;
+  if (named) return named;
+  /* A handoff OUT of the corpus has no journey to look up a TR name for, and
+     13 of the hand-authored overrides simply carried the raw canonical id
+     through as their headline - so `external:human-in-the-loop-lifecycle`
+     was reaching TR cards verbatim while the EN route already humanized it
+     (canonical-view.ts's `externalTargetName`, applied at projection).
+
+     Humanizing alone was not enough on this route: it turns the id into an
+     English PHRASE ("Human in the loop lifecycle"), which is a locale leak
+     on a Turkish page rather than a proper noun the reader can be expected
+     to know. A handoff card's whole job is to say where ownership goes, so
+     it has to say it in the page's language. The nine destinations the
+     public corpus hands off to are a closed set - they are named by
+     `external:` ids in src/canonical and nothing generates new ones - so
+     they get real translations here, in the file that owns TR content,
+     rather than a rule that guesses. An id outside the table still falls
+     back to the humanized English, which is the honest failure. */
+  if (!fallback.startsWith("external:")) return fallback;
+  return EXTERNAL_TARGET_TR[fallback] ?? externalTargetName(fallback);
 }
+
+/** The nine destinations outside the canonical library that public journeys
+    hand off to, in Turkish. Closed set, read off the corpus - see
+    `trHandoffHeadline` for why these are translated where node ids, event
+    ids and config keys deliberately are not. */
+const EXTERNAL_TARGET_TR: Readonly<Record<string, string>> = {
+  "external:advocacy-contribution": "Referans ve savunuculuk akışı",
+  "external:consequence-owner": "Yaptırım sahibi",
+  "external:customer-lifecycle": "Müşteri yaşam döngüsü",
+  "external:external-status-reconciliation": "Dış durum mutabakatı",
+  "external:health-monitoring": "Sağlık izleme",
+  "external:human-in-the-loop-lifecycle": "İnsan denetimli süreç",
+  "external:operational-resolution": "Operasyonel çözüm",
+  "external:renewal-lifecycle": "Yenileme yaşam döngüsü",
+  "external:sales-assignment": "Satış ataması",
+};
 
 function localizeNodeContent(node: FlowNode, override: NodeOverride | undefined): FlowNode {
   // A handoff is renamed from the target's own TR shortName whether or not
