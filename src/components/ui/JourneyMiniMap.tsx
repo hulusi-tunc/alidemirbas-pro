@@ -56,7 +56,19 @@ export function JourneyMiniMap({
   }, [layout.width]);
 
   return (
-    <div ref={ref} aria-hidden inert className="pointer-events-none relative h-full w-full overflow-hidden select-none">
+    <div
+      ref={ref}
+      aria-hidden
+      inert
+      style={{
+        // The canvas's own dots (24 world px, moving with the world), so the
+        // preview is the same sheet as the canvas it opens.
+        backgroundImage: "radial-gradient(circle, rgb(10 16 32 / 0.14) 1.1px, transparent 1.6px)",
+        backgroundSize: `${24 * view.scale}px ${24 * view.scale}px`,
+        backgroundPosition: `${-x0 * view.scale}px ${-y0 * view.scale}px`,
+      }}
+      className="pointer-events-none relative h-full w-full overflow-hidden select-none"
+    >
       <div
         style={{ width: layout.width, height: layout.height, transform: `translate(${-x0 * view.scale}px, ${-y0 * view.scale}px) scale(${view.scale})`, transformOrigin: "0 0" }}
         className="absolute top-0 left-0"
