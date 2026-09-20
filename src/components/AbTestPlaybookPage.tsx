@@ -248,7 +248,7 @@ export default function AbTestPlaybookPage({
           />
         </div>
       ) : (
-        <div className="mx-auto mt-6 max-w-3xl rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] sm:p-8">
+        <div className="mx-auto mt-6 max-w-3xl rounded-[28px] bg-paper p-6 pb-16 ring-1 ring-ink-950/[0.06] sm:p-8 sm:pb-20">
           <div className="grid gap-6 sm:grid-cols-2 sm:items-center">
             <VariableDiagram kind={kind} testedSlot={test.testedSlot} label={t.testedElement} lang={lang} />
             <div className="flex flex-col gap-4">
@@ -262,15 +262,18 @@ export default function AbTestPlaybookPage({
         </div>
       )}
 
-      {/* The claim, closing the experiment - not a box: one icon and the
-          sentence at reading size. */}
-      <div className="mt-10 flex gap-4">
+      {/* The claim, floating over the stage's bottom edge (Hulusi,
+          2026-09-20: "make the hypothesis floating"): the canvas's
+          floating-card recipe - paper, a hairline ring, the long soft
+          shadow - overlapping the cards, which leave room for it below
+          their captions. */}
+      <div className="relative z-10 mx-auto -mt-10 flex max-w-3xl gap-4 rounded-[24px] bg-paper p-6 shadow-[0_24px_60px_-24px_rgb(10_16_32/0.35)] ring-1 ring-ink-950/[0.06] sm:p-7">
         <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-700 [&>svg]:size-5">
           <Quote />
         </span>
         <div className="min-w-0">
           <p className="text-sm font-medium text-ink-subtle">{t.hypothesis}</p>
-          <p className="mt-1.5 max-w-4xl text-xl leading-relaxed font-medium text-balance text-ink-950">{hypothesis}</p>
+          <p className="mt-1.5 text-xl leading-relaxed font-medium text-balance text-ink-950">{hypothesis}</p>
         </div>
       </div>
     </section>
@@ -357,7 +360,7 @@ function Side({
   change?: { sign: string; word: string; slot: string };
 }) {
   return (
-    <div className={`flex min-w-0 flex-col rounded-[28px] bg-paper p-6 ring-1 sm:p-7 ${change ? "ring-primary-300" : "ring-ink-950/[0.06]"}`}>
+    <div className={`flex min-w-0 flex-col rounded-[28px] bg-paper p-6 pb-16 ring-1 sm:p-7 sm:pb-20 ${change ? "ring-primary-300" : "ring-ink-950/[0.06]"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-2.5 text-base font-semibold text-ink-950">
           <span aria-hidden className="grid size-7 place-items-center rounded-full bg-paper-soft text-xs font-semibold text-ink-700">

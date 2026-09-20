@@ -52,7 +52,10 @@ export function AbDetailShell({
   ];
 
   return (
-    <div data-lab-root className="flex min-h-svh flex-col bg-paper-soft">
+    /* White ground (Hulusi, 2026-09-20: "the preview's background should
+       be white") - the cards keep their hairline ring, the way the
+       homepage bento sits on paper. */
+    <div data-lab-root className="flex min-h-svh flex-col bg-paper">
       <div className="sticky top-0 z-40 border-b border-line-soft bg-paper/95 backdrop-blur-sm">
         <div className="altor-container-wide grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
           <div className="flex items-center gap-1">
