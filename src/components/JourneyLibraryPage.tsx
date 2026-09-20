@@ -19,6 +19,7 @@ import {
   withLibraryCount,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
+import { localizedJourneyNaming } from "@/lib/journey-tr-overrides";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
 
@@ -173,7 +174,12 @@ function Split({ lang }: { lang: Lang }) {
   const c = t.lab.journeysHub.split;
   const s = t.lab.journeysSplit;
   const rows = SURFACE_ROWS["customer-journeys"];
-  const largest = [...rows].sort((a, b) => b.nodeCount - a.nodeCount).slice(0, 3);
+  // The three rows below are named on the page - same TR content layer as the
+  // gallery cards (LabPage) and the showcase (JourneyFlows).
+  const largest = [...rows]
+    .sort((a, b) => b.nodeCount - a.nodeCount)
+    .slice(0, 3)
+    .map((j) => localizedJourneyNaming(j, lang));
   const basePath = P(lang, "/lab/journeys");
   return (
     <ProductSection tone="paper" space="lg">

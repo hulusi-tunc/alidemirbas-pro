@@ -22,6 +22,7 @@ import { PixelFill } from "@/components/ui/PixelFill";
 import { Reveal } from "@/components/ui/Reveal";
 import { withJourneyCount } from "@/lib/archive";
 import { JOURNEY_ROWS } from "@/lib/canonical-view";
+import { localizedJourneyNaming } from "@/lib/journey-tr-overrides";
 import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
@@ -215,7 +216,7 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
     tags: p.tags,
     href: p.links[0].href,
     cta: p.links[0].label,
-    panel: <LabHeroPanel slug={p.slug} lang={lang} journey={HERO_JOURNEY} />,
+    panel: <LabHeroPanel slug={p.slug} lang={lang} journey={localizedJourneyNaming(HERO_JOURNEY, lang)} />,
   }));
 
   return (

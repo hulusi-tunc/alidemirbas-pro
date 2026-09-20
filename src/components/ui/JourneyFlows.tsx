@@ -11,7 +11,7 @@ import { DOT_STYLE } from "@/lib/canvas-dots";
 import { JOURNEY_ROWS, journeyDetail, type JourneyDetail } from "@/lib/canonical-view";
 import { copy, type Lang } from "@/lib/content";
 import { FEATURED_JOURNEY, JOURNEY_CATEGORY_COUNTS, JOURNEY_SCALE, showcaseCards } from "@/lib/journey-marketing";
-import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
+import { localizedCategoryTitle, localizedFeaturedJourney, localizedJourneyDetail, localizedJourneyNaming } from "@/lib/journey-tr-overrides";
 
 /* THE LANDING PAGE'S FIGURES, on the canvas's own kit (2026-09-20, Hulusi:
    "update the journey library landing page's visuals - we made such nice
@@ -30,7 +30,15 @@ import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
 
    Every string below that is not a UI label is a real canonical field. */
 
-const J = FEATURED_JOURNEY;
+/* THE FEATURED JOURNEY, PER LOCALE. The figures below quote canonical
+   fields the card beside them does not show - a trigger's evidence lists, a
+   condition's branch labels and reasons, a wait's arms and timeout reason -
+   and read them off FEATURED_JOURNEY, which is locale-blind by design
+   (journey-marketing.ts serves the English record). Reading it directly put
+   English prose next to a Turkish card on /tr/lab/journeys. One call through
+   the site's TR content layer, once per locale, fixes every one of them:
+   nothing below quotes journey-marketing.ts unlocalized. */
+const featured = (lang: Lang) => localizedFeaturedJourney(FEATURED_JOURNEY, lang);
 const nf = (lang: Lang, n: number) => n.toLocaleString(lang === "en" ? "en-US" : "tr-TR");
 
 function detailOf(id: string, lang: Lang): JourneyDetail | null {
@@ -102,6 +110,7 @@ function BranchPill({ children, on = false }: { children: ReactNode; on?: boolea
    ==================================================================== */
 
 export async function JourneyCanvas({ lang }: { lang: Lang }) {
+  const J = featured(lang);
   const detail = detailOf(J.id, lang);
   const row = JOURNEY_ROWS.find((r) => r.id === J.id);
   if (!detail || !row) return null;
@@ -140,6 +149,7 @@ export async function JourneyCanvas({ lang }: { lang: Lang }) {
 export function TriggerEvidence({ lang }: { lang: Lang }) {
   const t = copy[lang].journeyBuilder.story1;
   const page = copy[lang].lab.page;
+  const J = featured(lang);
   const detail = detailOf(J.id, lang);
   const trigger = detail?.nodes.find((n) => n.isEntry) ?? detail?.nodes.find((n) => n.kind === "trigger");
   if (!trigger) return null;
@@ -181,6 +191,7 @@ export function TriggerEvidence({ lang }: { lang: Lang }) {
 export function BranchFork({ lang }: { lang: Lang }) {
   const t = copy[lang].journeyBuilder.story2;
   const page = copy[lang].lab.page;
+  const J = featured(lang);
   const detail = detailOf(J.id, lang);
   const condition = detail?.nodes.find((n) => n.kind === "condition" && n.headline === J.branch.asks) ?? detail?.nodes.find((n) => n.kind === "condition");
   if (!condition) return null;
@@ -215,6 +226,7 @@ export function BranchFork({ lang }: { lang: Lang }) {
 export function WaitTimeline({ lang }: { lang: Lang }) {
   const t = copy[lang].journeyBuilder.story3;
   const page = copy[lang].lab.page;
+  const J = featured(lang);
   const detail = detailOf(J.id, lang);
   const wait = detail?.nodes.find((n) => n.kind === "wait");
   const w = J.wait;
@@ -273,7 +285,11 @@ export async function JourneyLibrarySpread({ lang }: { lang: Lang }) {
   const t = copy[lang].journeyBuilder.library;
   const page = copy[lang].lab.page;
   const cards = await Promise.all(
-    showcaseCards(lang).map(async (card) => {
+    /* The cards carry a journey's name, shortName, purpose and category
+       title - showcaseCards() takes a `lang` but spends it only on the href,
+       so every one of those four came back English. Same layer as everything
+       else on this page. */
+    showcaseCards(lang).map((c) => localizedJourneyNaming(c, lang)).map(async (card) => {
       const detail = detailOf(card.id, lang);
       const row = JOURNEY_ROWS.find((r) => r.id === card.id);
       if (!detail || !row) return null;
@@ -292,7 +308,7 @@ export async function JourneyLibrarySpread({ lang }: { lang: Lang }) {
               <span aria-hidden className={`grid size-7 place-items-center rounded-full ${accent.tile}`}>
                 <CategoryIcon id={c.id} className="size-3.5" />
               </span>
-              {c.title}
+              {localizedCategoryTitle(c.title, lang)}
               <span className="text-ink-subtle tabular-nums">{c.count}</span>
             </span>
           );

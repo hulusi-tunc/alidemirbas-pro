@@ -22,6 +22,7 @@ import {
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
+import { localizedJourneyNaming } from "@/lib/journey-tr-overrides";
 import { breadcrumbList, type BreadcrumbItem } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
@@ -196,6 +197,16 @@ export default function LabPage({
   surface?: SurfaceKey;
 }) {
   const t = copy[lang];
+  /* EVERY CARD ON THIS PAGE, THROUGH THE TR CONTENT LAYER. The three surface
+     galleries render a JourneyRow's name, shortName, purpose and category
+     title, and JOURNEY_ROWS is the English canonical projection
+     (canonical-view.ts, computed once at module load and shared by both
+     locales). Passing it straight to the gallery listed every card's purpose
+     in English on /tr - 58 of them on Customer Journeys alone. One map here,
+     at the one boundary all three surfaces pass through; the row's shape,
+     order, counts and thumbnails are untouched, and on `en` the function
+     returns its argument. */
+  const localizedRows = rows.map((r) => localizedJourneyNaming(r, lang));
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   const pageTitle = title ?? t.lab.page.title;
   const pageIntro =
@@ -233,11 +244,11 @@ export default function LabPage({
       <div className="pt-4 pb-16 md:pb-24">
         <div className="altor-container-wide">
           {browser === "gallery" && surface ? (
-            <Suspense fallback={<GalleryFallback lang={lang} t={t.lab.page} basePath={basePath} rows={rows} surface={surface} />}>
+            <Suspense fallback={<GalleryFallback lang={lang} t={t.lab.page} basePath={basePath} rows={localizedRows} surface={surface} />}>
               <JourneyGallery
                 lang={lang}
                 t={t.lab.page}
-                rows={rows}
+                rows={localizedRows}
                 merged={MERGED_REDIRECTS}
                 basePath={basePath}
                 categories={CATEGORY_META}
@@ -254,11 +265,11 @@ export default function LabPage({
               />
             </Suspense>
           ) : (
-            <Suspense fallback={<JourneyBrowserFallback lang={lang} t={t.lab.page} basePath={basePath} rows={rows} />}>
+            <Suspense fallback={<JourneyBrowserFallback lang={lang} t={t.lab.page} basePath={basePath} rows={localizedRows} />}>
               <JourneyBrowser
                 lang={lang}
                 t={t.lab.page}
-                rows={rows}
+                rows={localizedRows}
                 merged={MERGED_REDIRECTS}
                 basePath={basePath}
               />

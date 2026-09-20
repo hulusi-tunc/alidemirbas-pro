@@ -52,6 +52,19 @@ node audit/guard-display.mjs 4511     # G1 exits drawn · G2 handoffs drawn · G
 node audit/canvas-hygiene.mjs 4511    # no config key · no sequence number · no namespaced id ·
                                       # no silent message card, on every card in both locales
 node audit/measure-display.mjs after 4511   # display node counts, long cards, LOCALE LEAKS
+node audit/locale-sweep.mjs 4511      # English prose on every PUBLIC TR ROUTE — /tr, /tr/lab,
+                                      # the library landing page, the three surfaces and every
+                                      # journey detail page (derived from sitemap.xml). Plain
+                                      # `fetch`, no puppeteer, seconds not minutes. Same detector
+                                      # as measure-display (2+ distinct English function words in
+                                      # one text node), but over the WHOLE page rather than
+                                      # `[data-canvas-node-id]` — which is how the TR journey
+                                      # library landing page and all three surface galleries
+                                      # shipped English prose with every gate green. Prints
+                                      # `route | text`, exits non-zero on any finding. Its
+                                      # allowlist and its two reported-not-failed exclusions (the
+                                      # Info tiles' canonical fields, the practitioner `<details>`)
+                                      # are explained in `audit/locale-sweep-notes.md`.
 ```
 
 **Run `audit/guard-display.mjs` BEFORE `audit/build-manifest.mjs`.** The manifest rewrites

@@ -72,6 +72,27 @@ const CATEGORY_TITLE_TR: Readonly<Record<string, string>> = {
   "Incidents, service disruption, operations & recovery": "Olaylar, hizmet kesintisi, operasyonlar ve kurtarma",
 };
 
+/** The one way a category title reaches a page in either locale.
+ *
+ *  LOUD, NOT SILENT, on a miss. `CATEGORY_TITLE_TR` above is a full, closed
+ *  translation of every category in the library - that is the property its
+ *  comment claims, and a `?? title` fallback here would quietly turn the
+ *  first uncovered category into English prose on a Turkish page, which is
+ *  precisely the failure this file exists to prevent. So an uncovered title
+ *  throws at render, the same way `journey-marketing.ts` throws at module
+ *  load when a hard-referenced journey id disappears: a build that fails
+ *  naming the string is cheaper than a page that ships it. */
+export function localizedCategoryTitle(title: string, lang: Lang): string {
+  if (lang !== "tr") return title;
+  const tr = CATEGORY_TITLE_TR[title];
+  if (!tr) {
+    throw new Error(
+      `journey-tr-overrides: no Turkish title for category "${title}". CATEGORY_TITLE_TR is a closed map of every category in the library - add the translation there rather than letting an English title reach a TR page.`,
+    );
+  }
+  return tr;
+}
+
 /** The exact English templates `canonical-view.ts`'s `nodeView` composes -
     kept in lockstep with that file's own literals (see its wait/trigger/
     action/handoff cases). Each entry is `[match, replacement]`; `match` is
@@ -156,7 +177,32 @@ function localizeStructural(node: FlowNode): FlowNode {
    disagree with each other on that one phrase. */
 
 type EdgeOverride = { label?: string; detail?: string };
-type NodeOverride = { headline?: string; detail?: string; edges?: readonly (EdgeOverride | undefined)[] };
+type NodeOverride = {
+  headline?: string;
+  detail?: string;
+  edges?: readonly (EdgeOverride | undefined)[];
+  /* The four canonical fields below are NOT on the canvas card - they are
+     `TriggerNode.evidence` and `WaitNode.timeout.reason`/`until`, which
+     canonical-view.ts folds into `meta` behind a fixed English prefix
+     (`requires: `, `not enough on its own: `) or a generated event text.
+     Layer 1 translates those prefixes; the values after them are canonical
+     prose and have never had a Turkish entry anywhere.
+
+     The journey library's landing page quotes them directly - a trigger's
+     evidence as two tiles, a wait's arms as chips - so they are authored
+     here, in the file that owns TR journey content, keyed by the same node
+     id as everything else, rather than in a second table beside the page
+     that happens to render them. Positional, like `edges`: entry i is the
+     translation of canonical entry i. */
+  /** `TriggerNode.evidence.requires`, in canonical order. */
+  requires?: readonly string[];
+  /** `TriggerNode.evidence.insufficientAlone`, in canonical order. */
+  insufficientAlone?: readonly string[];
+  /** `WaitNode.until`, as the event registry renders each id, in order. */
+  until?: readonly string[];
+  /** `WaitNode.timeout.reason`. */
+  timeoutReason?: string;
+};
 type JourneyOverride = {
   shortName?: string;
   name?: string;
@@ -796,10 +842,29 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   name: "Anonim niyet → bilinen kimlik → yeterli giriş",
   purpose: "Anlamlı ama anonim bir niyet sinyalini, bir kimlik uydurmadan kimlik çözümleme sürecinden geçirmek ve yaşam döngüsüne girişi, kimliğin çözülmüş olmasından ayrı bir soru olarak ele almak.",
   nodes: {
-    "t.threshold": { headline: "Anonim niyet eşiği aşıldı" },
+    "t.threshold": {
+      headline: "Anonim niyet eşiği aşıldı",
+      requires: [
+        "yüksek niyet taşıyan sayfalara tekrarlanan ziyaretler",
+        "fiyatlandırmayla etkileşim",
+        "ürün veya yapılandırma incelemesi",
+        "ilk oturumun ardından anlamlı bir geri dönüş",
+      ],
+      insufficientAlone: [
+        "tek bir sayfa görüntüleme",
+        "geri dönüşü olmayan tek bir oturum",
+        "gelip hemen ayrılan bir reklam tıklaması",
+      ],
+    },
     "c.identity": { headline: "Bu anonim profil için kesin (deterministik) bilinen bir kimlik mevcut mu?", edges: [{ label: "Kesin kimlik", detail: "ziyaretçi kimlik doğruladı, birinci taraf bir tanımlayıcı gönderdi ya da tam olarak tek bir bilinen profille eşleşen imzalı bir bağlantıyı takip etti" }, { label: "Sadece olasılıksal", detail: "yalnızca cihaz, ağ veya benzerlik sinyalleri mevcut - bunlar birden fazla kişiyi tanımlayabilir" }] },
     "a.reconcile": { headline: "Anonim davranışsal geçmişi bilinen profille birleştir, kimlik öncesi kaydı onun yerine geçmek yerine yanında okunabilir tut ve kimliği hangi yöntemin çözdüğünü kaydet" },
-    "w.identity": { headline: "kesin bir bilinen kimlik bu profil için çözülene kadar", detail: "Eşiği açan sinyallerin tazelik penceresi sonrasında zaman aşımına uğrar. (anonymous_intent.identity ayarlanmalı)" },
+    "w.identity": {
+      headline: "kesin bir bilinen kimlik bu profil için çözülene kadar",
+      detail: "Eşiği açan sinyallerin tazelik penceresi sonrasında zaman aşımına uğrar. (anonymous_intent.identity ayarlanmalı)",
+      until: ["anonim profil için kesin (deterministik) bilinen bir kimlik çözülür"],
+      timeoutReason:
+        "anonim niyet de diğer her kanıt gibi bayatlar; çözülmemiş bir profil, bir isim bekleyerek süresiz açık tutulmaz",
+    },
     "c.eligible": { headline: "Artık bilinen profil bir yaşam döngüsüne girmeye uygun mu?", edges: [{ label: "Uygun", detail: "aday yaşam döngüsünün uygunluk kuralları birleştirilmiş profilde geçerli ve bu yaşam döngüsünün yapacağı şey için yasal bir dayanak mevcut" }, { label: "Uygun değil", detail: "uygunluk sağlanmıyor ya da iletişim için yasal bir dayanak yok - kimliğin çözüldüğü ama iznin hiç verilmediği sıradan durum dahil" }] },
     "x.stale": { headline: "anonim, niyet bayatladı, kimlik talep edilmedi", detail: "niyet eşiğinin yeniden aşılması yeni bir örnek açar; hiçbir şey birleştirilmedi ve beklemenin kendisi bir izin anlamına gelmedi" },
     "h.qualification": { headline: "Yeterlilik durumu değişikliği → yönlendir, tekrar yönlendir veya çıkış", detail: "bilinen, uygun bir profilin ilk kez yeterlilik sürecine girmesi" },
@@ -4003,11 +4068,121 @@ export function localizedJourneyDetail(detail: JourneyDetail, lang: Lang): Journ
   const override = OVERRIDES[detail.id];
   const structured = detail.nodes.map((n) => localizeStructural(n));
   return {
-    ...detail,
-    categoryTitle: CATEGORY_TITLE_TR[detail.categoryTitle] ?? detail.categoryTitle,
-    shortName: override?.shortName ?? detail.shortName,
-    name: override?.name ?? detail.name,
-    purpose: override?.purpose ?? detail.purpose,
+    ...localizedJourneyNaming(detail, lang),
+    /* A "distinct from" row names ANOTHER journey - by that journey's own
+       canonical `name`, which is in this table under that journey's id. The
+       `because` sentence beside it is an Info-tab field and is outside this
+       pass (see the OVERRIDES comment), so it stays English; the NAME does
+       not have to, and leaving it English made a TR page state a Turkish
+       journey's title in English right where it links to it. */
+    distinctFrom: detail.distinctFrom.map((d) =>
+      d.name ? { ...d, name: OVERRIDES[d.journey]?.name ?? d.name } : d,
+    ),
     nodes: structured.map((n) => localizeNodeContent(n, override?.nodes?.[n.id])),
+  };
+}
+
+/* ------------------------------------------------------------- the rows --
+
+   ONE localization layer, one table, applied wherever a canonical
+   projection meets a `lang` - not a per-page patch.
+
+   `localizedJourneyDetail` above covers the detail page. Everything ELSE
+   the site renders out of the canonical library is some projection of the
+   same four naming fields: `JourneyRow` (canonical-view.ts) on the three
+   surface galleries and the landing page's largest-journey rows,
+   `ShowcaseCard` (journey-marketing.ts) on the landing page's spread. They
+   were all reading canonical English straight through, which is how
+   /tr/lab/lifecycle-states, /tr/lab/runtime-mechanisms and
+   /tr/lab/customer-journeys came to list every card's purpose in English.
+
+   Structural typing rather than a union of the two row types on purpose:
+   this function's contract is "whatever carries a journey id and these
+   names", so a future projection is covered the moment it is passed
+   through, and nothing here needs to know which page is asking. */
+export type JourneyNaming = {
+  id: string;
+  name: string;
+  shortName?: string;
+  purpose: string;
+  categoryTitle: string;
+};
+
+export function localizedJourneyNaming<T extends JourneyNaming>(row: T, lang: Lang): T {
+  if (lang !== "tr") return row;
+  const override = OVERRIDES[row.id];
+  return {
+    ...row,
+    categoryTitle: localizedCategoryTitle(row.categoryTitle, lang),
+    name: override?.name ?? row.name,
+    ...(row.shortName !== undefined || override?.shortName !== undefined
+      ? { shortName: override?.shortName ?? row.shortName }
+      : {}),
+    purpose: override?.purpose ?? row.purpose,
+  };
+}
+
+/* ------------------------------------------------- the featured journey --
+
+   `FEATURED_JOURNEY` (journey-marketing.ts) is the one projection that
+   quotes RAW canonical fields a canvas card never shows: a trigger's
+   evidence lists, a condition's branch labels and reasons, a wait's arms
+   and its timeout reason. The journey library's landing page stands them
+   beside the real cards as its three story figures, and it was reading all
+   of them off the English record while the card next to them rendered in
+   Turkish.
+
+   Same table, same node ids: the branch text and the timeout wording are
+   the `edges`/`detail` entries the canvas already uses, and the evidence
+   lists and timeout reason are the four `NodeOverride` fields declared
+   above. So a journey translated for the canvas is translated here too,
+   and the page has no strings of its own. */
+export function localizedFeaturedJourney<T extends JourneyNaming & {
+  nodes: readonly { id: string; kind: string }[];
+  trigger: { requires: readonly string[]; insufficientAlone: readonly string[] };
+  branch: { asks: string; branches: readonly { label: string; when: string }[] };
+  wait: { until: readonly string[]; timeoutAfter: string; timeoutReason: string } | null;
+}>(featured: T, lang: Lang): T {
+  if (lang !== "tr") return featured;
+  const nodes = OVERRIDES[featured.id]?.nodes ?? {};
+  /* The three nodes are found the SAME way journey-marketing.ts found them
+     when it built this projection - the first node of each kind, in the
+     journey's own node order - so the override read here is always the
+     override of the node the page is quoting. No node id is named. */
+  const byKind = (kind: string) => {
+    const id = featured.nodes.find((n) => n.kind === kind)?.id;
+    return id ? nodes[id] : undefined;
+  };
+  const trigger = byKind("trigger");
+  const condition = byKind("condition");
+  const wait = byKind("wait");
+
+  const pick = <U,>(tr: readonly U[] | undefined, en: readonly U[]): readonly U[] =>
+    tr && tr.length === en.length ? tr : en;
+
+  return {
+    ...localizedJourneyNaming(featured, lang),
+    trigger: {
+      ...featured.trigger,
+      requires: pick(trigger?.requires, featured.trigger.requires),
+      insufficientAlone: pick(trigger?.insufficientAlone, featured.trigger.insufficientAlone),
+    },
+    branch: {
+      asks: condition?.headline ?? featured.branch.asks,
+      branches: featured.branch.branches.map((b, i) => ({
+        label: condition?.edges?.[i]?.label ?? b.label,
+        when: condition?.edges?.[i]?.detail ?? b.when,
+      })),
+    },
+    wait: featured.wait
+      ? {
+          ...featured.wait,
+          until: pick(wait?.until, featured.wait.until),
+          // The wait card's own `detail` IS the rendered timeout config text,
+          // already translated for the canvas - see localizeWaitDetail.
+          timeoutAfter: wait?.detail ?? featured.wait.timeoutAfter,
+          timeoutReason: wait?.timeoutReason ?? featured.wait.timeoutReason,
+        }
+      : featured.wait,
   };
 }
