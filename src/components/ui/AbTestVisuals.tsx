@@ -7,7 +7,6 @@ import { clsx } from "@/lib/clsx";
 import { getCompute } from "@/lib/calc-registry";
 import {
   AB_SCALE,
-  CATEGORY_COUNTS,
   FEATURED,
   SURFACE_COUNTS,
   SURFACE_MAX,
@@ -326,44 +325,62 @@ export function GuardrailLedger({ lang }: { lang: Lang }) {
    becomes a scroll-snap rail, which is the same affordance by touch.
    ==================================================================== */
 
-function SpreadCardTile({
-  card,
-  centre,
-  lang,
-}: {
-  card: ReturnType<typeof spreadCards>[number];
-  centre: boolean;
-  lang: Lang;
-}) {
+/* The record drawn small (2026-09-20, Hulusi: the library section "still
+   looks bad" - it was a text-only card rail cropped at both edges under a
+   row of chips that filtered nothing). Each card now carries the house
+   A/B miniature: the two sides as the A ink and B rose badges over
+   skeleton bars, the slot the test is about ringed rose on the B side
+   and, for a control-vs-treatment record, drawn as an absent dashed slot
+   on the A side. The words beside it are the record's own: its page,
+   its category, its title and the KPI it is decided by. The dataset's
+   side texts are Turkish only, so they are not drawn here. */
+function SideSketch({ side, slot }: { side: "A" | "B"; slot: "absent" | "present" | "tested" }) {
+  return (
+    <div className={clsx("rounded-xl bg-paper-soft p-2.5", side === "B" && "ring-1 ring-ink-950/[0.04]")}>
+      <div className="flex items-center gap-1.5">
+        <SideMark side={side} />
+        <span className="h-1.5 w-8 rounded-full bg-ink-950/10" />
+      </div>
+      <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
+      <span className="mt-1.5 block h-1.5 w-2/3 rounded-full bg-ink-950/10" />
+      {slot === "absent" ? (
+        <span className="mt-3 block h-6 rounded-md border border-dashed border-ink-300" />
+      ) : slot === "tested" ? (
+        <span className="mt-3 flex h-6 items-center rounded-md bg-paper px-2 ring-2 ring-rose-300">
+          <span className="h-1.5 w-1/2 rounded-full bg-primary-500" />
+        </span>
+      ) : (
+        <span className="mt-3 flex h-6 items-center rounded-md bg-paper px-2 ring-1 ring-ink-950/[0.06]">
+          <span className="h-1.5 w-1/2 rounded-full bg-ink-950/15" />
+        </span>
+      )}
+    </div>
+  );
+}
+
+function SpreadCardTile({ card, lang, decidedBy }: { card: ReturnType<typeof spreadCards>[number]; lang: Lang; decidedBy: string }) {
+  const paired = card.setupType === "option-vs-option";
   return (
     <Link
       href={card.href}
-      className={`flex w-[19rem] shrink-0 snap-center flex-col rounded-2xl bg-paper p-5 ring-1 transition-[box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:-translate-y-0.5 ${
-        centre
-          ? "ring-ink-950/[0.12] shadow-[0_20px_50px_-24px_rgba(3,17,63,0.45)] lg:w-[21rem]"
-          : "ring-ink-950/[0.06] shadow-[0_10px_30px_-24px_rgba(3,17,63,0.35)]"
-      }`}
+      className="group flex flex-col rounded-[28px] bg-paper p-5 ring-1 ring-ink-950/[0.06] transition-[box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-24px_rgba(3,17,63,0.35)]"
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-[11px] text-ink-400 tabular-nums">{card.id}</span>
         <span className="rounded-full bg-paper-soft px-2.5 py-0.5 text-xs font-medium text-ink-600">{surfaceLabel(card.surface, lang)}</span>
+        <span className="font-mono text-[11px] text-ink-400 tabular-nums">{card.id}</span>
       </div>
-      <p className="mt-3 min-h-[3.25rem] text-[15px] leading-snug font-medium text-ink-950">
-        {card.title}
-      </p>
-      <p className="mt-3 text-xs text-ink-500">{categoryLabel(card.category, lang)}</p>
-      <div className="mt-4 flex items-center gap-2 border-t border-line-soft pt-3">
-        <span
-          aria-hidden
-          className={`size-1.5 rounded-full ${
-            card.setupType === "control-vs-treatment" ? "bg-primary-600" : "bg-ink-300"
-          }`}
-        />
-        <span className="text-xs text-ink-500">{setupLabel(card.setupType, lang)}</span>
-        <ArrowRight
-          aria-hidden
-          className="ml-auto size-3.5 text-ink-300 transition-colors group-hover:text-primary-600"
-        />
+      <div aria-hidden className="mt-4 grid grid-cols-2 gap-2">
+        <SideSketch side="A" slot={paired ? "present" : "absent"} />
+        <SideSketch side="B" slot="tested" />
+      </div>
+      <p className="mt-4 text-[15px] leading-snug font-semibold text-ink-950">{card.title}</p>
+      <p className="mt-1 text-xs text-ink-500">{categoryLabel(card.category, lang)}</p>
+      <div className="mt-auto flex items-center gap-2 border-t border-line-soft pt-3.5 text-xs text-ink-500">
+        <Target aria-hidden className="size-3.5 shrink-0 text-primary-600" />
+        <span className="min-w-0 truncate">
+          {decidedBy} <span className="font-medium text-ink-950">{card.kpi}</span>
+        </span>
+        <ArrowRight aria-hidden className="ml-auto size-3.5 shrink-0 text-ink-300 transition-colors group-hover:text-primary-600" />
       </div>
       <span className="sr-only">{lang === "en" ? "Open scenario" : "Senaryoyu aç"}</span>
     </Link>
@@ -371,33 +388,15 @@ function SpreadCardTile({
 }
 
 export function LibrarySpread({ lang }: { lang: Lang }) {
-  const cards = spreadCards(lang);
-  const centreIndex = 3;
+  const decidedBy = copy[lang].abTesting.product.library.decidedBy;
+  /* Six of the seven curated records, one per category, as a grid - the
+     seventh was only ever a cropped edge of the old rail. */
+  const cards = spreadCards(lang).slice(0, 6);
   return (
-    <div>
-      {/* real category facets, exactly as the library's own browser counts them */}
-      <div className="flex flex-wrap justify-center gap-2">
-        {CATEGORY_COUNTS.map((c) => (
-          <span
-            key={c.category}
-            className="rounded-full border border-line-soft bg-paper px-3 py-1.5 text-[13px] text-ink-600"
-          >
-            {categoryLabel(c.category, lang)}
-            <span className="ml-1.5 text-ink-400 tabular-nums">{c.count}</span>
-          </span>
-        ))}
-      </div>
-
-      {/* The crop. `-mx-*` lets the rail bleed past the container measure;
-          overflow-hidden on desktop does the cropping, and the same
-          element becomes a snap rail on touch. */}
-      <div className="mt-10 -mx-5 overflow-x-auto sm:-mx-8 lg:-mx-12 lg:overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex w-max snap-x snap-mandatory gap-5 px-5 sm:px-8 lg:w-full lg:justify-center lg:px-0">
-          {cards.map((card, i) => (
-            <SpreadCardTile key={card.id} card={card} centre={i === centreIndex} lang={lang} />
-          ))}
-        </div>
-      </div>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {cards.map((card) => (
+        <SpreadCardTile key={card.id} card={card} lang={lang} decidedBy={decidedBy} />
+      ))}
     </div>
   );
 }

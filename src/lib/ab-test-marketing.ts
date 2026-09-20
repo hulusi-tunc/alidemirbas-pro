@@ -1,4 +1,5 @@
 import rawTests from "@/data/ab-tests.json";
+import { primaryKpiLabel } from "@/lib/ab-test-kpi-labels";
 
 /* Read model for the A/B Test Playbook PRODUCT PAGE (/lab/ab-testing).
 
@@ -26,6 +27,7 @@ type AbTestRecord = {
   comparisonMode: string;
   differenceBehavior: string;
   testedSlot: string | null;
+  primaryKpi: { label: string; explanation: string };
   guardrails: string[];
   sideA: { role: string; label: string | null } | null;
   sideB: { role: string; label: string | null } | null;
@@ -97,6 +99,9 @@ export type SpreadCard = {
   surface: string;
   setupType: string;
   href: string;
+  /** The record's own primary KPI, in the page's language (the dataset
+      stores the Turkish label; ab-test-kpi-labels maps it). */
+  kpi: string;
 };
 
 export function spreadCards(lang: Lang): SpreadCard[] {
@@ -113,6 +118,7 @@ export function spreadCards(lang: Lang): SpreadCard[] {
       surface: r.surface,
       setupType: r.setupType,
       href: `${base}/${r.slug}`,
+      kpi: primaryKpiLabel(r.primaryKpi.label, lang),
     };
   });
 }
