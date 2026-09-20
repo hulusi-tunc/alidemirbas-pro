@@ -17,8 +17,8 @@ type Lang = "en" | "tr";
 export const basePathFor = (lang: Lang) => (lang === "en" ? "/lab/ab-testing/library" : "/tr/lab/ab-testing/library");
 
 const T = {
-  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable A/B test scenarios. The variable under test, the primary KPI and the guardrails for each.`, back: "A/B Test Library", count: "scenarios" },
-  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir A/B test senaryosu. Test edilen değişken, birincil KPI ve her biri için guardrail'ler.`, back: "A/B Test Kütüphanesi", count: "senaryo" },
+  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable A/B test scenarios. The variable under test, the primary KPI and the guardrails for each.`, back: "A/B Test Library", count: "scenarios", allScenarios: "All scenarios" },
+  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir A/B test senaryosu. Test edilen değişken, birincil KPI ve her biri için guardrail'ler.`, back: "A/B Test Kütüphanesi", count: "senaryo", allScenarios: "Tüm senaryolar" },
 };
 
 /* The gallery is a client component, so the category and surface display
@@ -107,9 +107,6 @@ export function AbLibraryDetailPage({ lang, slug }: { lang: Lang; slug: string }
   const r = abTestDetail(slug);
   if (!r) notFound();
   const base = basePathFor(lang);
-  // Position in the library, for the header rail. Derived from the same
-  // ordered row list the index page renders, so the two can't disagree.
-  const position = AB_TEST_ROWS.findIndex((row) => row.id === r.id) + 1;
   const breadcrumb = breadcrumbList([
     { name: copy[lang].footer.home, url: lang === "en" ? "/" : "/tr" },
     { name: copy[lang].nav.lab, url: lang === "en" ? "/lab" : "/tr/lab" },
@@ -118,15 +115,12 @@ export function AbLibraryDetailPage({ lang, slug }: { lang: Lang; slug: string }
   ]);
 
   return (
-    <LabShell lang={lang}>
+    /* The journey detail's bar: the way back to the library on the left,
+       the Lab mark, the language and the CTA - and the page in the journey
+       Info tab's idiom under it (AbTestPlaybookPage). */
+    <LabShell lang={lang} back={{ href: base, label: T[lang].allScenarios }} langHref={`${basePathFor(lang === "en" ? "tr" : "en")}/${slug}`}>
       <JsonLdScript data={breadcrumb} />
-      <AbTestPlaybookPage
-        test={r}
-        lang={lang}
-        basePath={base}
-        position={position}
-        total={AB_TEST_COUNT}
-      />
+      <AbTestPlaybookPage test={r} lang={lang} />
     </LabShell>
   );
 }

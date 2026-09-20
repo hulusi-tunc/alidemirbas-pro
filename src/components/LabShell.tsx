@@ -15,6 +15,7 @@ export default function LabShell({
   lang,
   chrome = "workspace",
   langHref,
+  back,
   children,
 }: {
   lang: Lang;
@@ -27,11 +28,16 @@ export default function LabShell({
   /** The counterpart page in the other language, for the site header's
       switch; defaults to the library hub. */
   langHref?: string;
+  /** Where the workspace bar's back link goes. A detail page hands in its
+      own library ("All scenarios"), the way the journey detail bar does;
+      the default is the site's home. */
+  back?: { href: string; label: string };
   children: React.ReactNode;
 }) {
   const t = copy[lang];
   const home = lang === "en" ? "/" : "/tr";
   const otherLab = langHref ?? (lang === "en" ? "/tr/lab/journeys" : "/lab/journeys");
+  const backLink = back ?? { href: home, label: t.lab.shell.backToSite };
 
   if (chrome === "site") {
     return (
@@ -53,11 +59,11 @@ export default function LabShell({
         <div className="altor-container-wide flex h-14 items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
-              href={home}
+              href={backLink.href}
               className="flex items-center gap-1.5 text-sm font-medium text-ink-600 transition-colors duration-[var(--duration-fast)] hover:text-ink-950"
             >
               <ArrowLeft aria-hidden className="size-4" />
-              <span className="hidden sm:inline">{t.lab.shell.backToSite}</span>
+              <span className="hidden sm:inline">{backLink.label}</span>
             </Link>
             <span aria-hidden className="h-4 w-px bg-line-soft" />
             <span className="flex items-center gap-2 text-sm font-semibold text-ink-950">
