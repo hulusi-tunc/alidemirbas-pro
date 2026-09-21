@@ -314,7 +314,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                 {posts.map((post, i) => (
                   <Reveal key={post.slug} delay={i * 60} className="flex">
                     <Link
-                      href={`/blog/${post.slug}`}
+                      href={lang === "en" ? `/blog/${post.slug}` : `/tr/blog/${post.slug}`}
                       className="group flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
                     >
                       <p className="altor-eyebrow text-ink-subtle">{CATEGORY_TAB_LABEL[post.category]?.[lang] ?? post.category}</p>
