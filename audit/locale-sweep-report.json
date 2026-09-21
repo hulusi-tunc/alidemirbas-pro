@@ -6426,6 +6426,20 @@
     },
     {
       "route": "/tr/lab/journeys/cancellation-intent-decision-point",
+      "text": "This runs at the decision point, while the relationship is still active and the intent is still reversible. RET-32 runs only after the relationship has actually lapsed - the two never hold the same person at once.",
+      "hits": [
+        "this",
+        "the",
+        "still",
+        "and",
+        "after",
+        "has"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/cancellation-intent-decision-point",
       "text": "At the moment a person declares they want to cancel, learn why if that is useful, offer one genuine alternative if one matches the reason, and let them decide - with the cancellation path fully open at every step.",
       "hits": [
         "the",
@@ -6602,22 +6616,22 @@
     },
     {
       "route": "/tr/lab/journeys/cancellation-intent-decision-point",
-      "text": "Is a declared reason available? · Is asking for a reason useful and appropriate here?",
+      "text": "Where was the cancellation intent declared? · Is a declared reason available?",
       "hits": [
-        "for",
-        "and"
+        "where",
+        "the"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/cancellation-intent-decision-point",
-      "text": "Ask once why, with the cancellation path fully open beside the question. The question is never a step that has to be passed.",
+      "text": "Ask once why, with the cancellation path fully open beside the question. Reached only where the intent was declared inside the product - asking someone who cancelled by phone is not a friction judgement, it is impossible.",
       "hits": [
         "with",
         "the",
-        "that",
-        "has"
+        "where",
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -6635,10 +6649,11 @@
     },
     {
       "route": "/tr/lab/journeys/cancellation-intent-decision-point",
-      "text": "Offer the one alternative that matches the reason, once, alongside an unobstructed route to continue cancelling.",
+      "text": "Offer the one alternative that matches the reason, once, alongside an unobstructed route to continue cancelling. The channel is the surface the intent arrived on, chosen once at c.surface and inherited here - never re-decided, never both at once.",
       "hits": [
         "the",
-        "that"
+        "that",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -10676,7 +10691,7 @@
     },
     {
       "route": "/tr/lab/journeys/complementary-next-offer",
-      "text": "While this journey holds a person in the recommendation-offer group, the generic recommendation journey is suppressed for them; the two never propose a next purchase to the same person at the same time.",
+      "text": "While this journey holds a person in the recommendation-offer group, the generic recommendation journey is suppressed for them; the two never propose a next purchase to the same person at the same time. Predicted-need replenishment (RET-31) outranks it too, for the same person.",
       "hits": [
         "this",
         "the",
@@ -10910,29 +10925,6 @@
     },
     {
       "route": "/tr/lab/journeys/complementary-next-offer",
-      "text": "( Push ): a current device registration exists and the permission covering it still stands, and the offer is short enough to be a nudge",
-      "hits": [
-        "and",
-        "the",
-        "still"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/complementary-next-offer",
-      "text": "( Uygulama içi ): the person is already in a session where the complement can be added to what they own without leaving the product",
-      "hits": [
-        "the",
-        "already",
-        "where",
-        "what"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/complementary-next-offer",
       "text": "complete; the person has the complementary thing the offer was about",
       "hits": [
         "the",
@@ -10964,7 +10956,7 @@
     },
     {
       "route": "/tr/lab/journeys/complementary-next-offer",
-      "text": "recommendation-offer (person) - above the generic recommendation for the same person - a next step that follows from something they already own outranks a set that merely resembles what they liked; while this journey holds the person, that one is suppressed for them rather than queued behind it",
+      "text": "recommendation-offer (person) - above the generic recommendation for the same person - a next step that follows from something they already own outranks a set that merely resembles what they liked; while this journey holds the person, that one is suppressed for them rather than queued behind it - and below predicted-need replenishment (RET-31), which is suppressed for nothing in this group but outranks both of its members: a purchase that is actually due outranks one that is merely plausible",
       "hits": [
         "the",
         "for",
@@ -10972,7 +10964,10 @@
         "from",
         "already",
         "what",
-        "this"
+        "this",
+        "and",
+        "which",
+        "its"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -17195,29 +17190,6 @@
     },
     {
       "route": "/tr/lab/journeys/first-purchase-anniversary",
-      "text": "( Push ): a current device registration exists and the permission covering it still stands",
-      "hits": [
-        "and",
-        "the",
-        "still"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/first-purchase-anniversary",
-      "text": "( Uygulama içi ): the person is already in a session and the recognition belongs where the relationship itself is visible",
-      "hits": [
-        "the",
-        "already",
-        "and",
-        "where"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/first-purchase-anniversary",
       "text": "recognised; the anniversary was marked once for this interval",
       "hits": [
         "the",
@@ -17401,6 +17373,18 @@
         "has",
         "before",
         "its"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/first-purchase-welcome",
+      "text": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year or more later. This journey is the one-time moment that dates it; RET-292 is the recurring recognition of it, and the two never run at once.",
+      "hits": [
+        "the",
+        "this",
+        "that",
+        "and"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -17821,28 +17805,6 @@
         "has",
         "and",
         "for"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/first-purchase-welcome",
-      "text": "( Uygulama içi ): the person is already in a session where the next step can be taken without leaving the product",
-      "hits": [
-        "the",
-        "already",
-        "where"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/first-purchase-welcome",
-      "text": "( Push ): a current device registration exists and the permission covering it still stands, and the touch is short enough to be a nudge",
-      "hits": [
-        "and",
-        "the",
-        "still"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -21688,10 +21650,9 @@
     },
     {
       "route": "/tr/lab/journeys/lapsed-customer-win-back",
-      "text": "Is this relationship one we may write to about coming back? · What can the invitation honestly say? · May the invitation go out?",
+      "text": "Is this relationship one we may write to about coming back? · May the invitation go out?",
       "hits": [
         "this",
-        "what",
         "the"
       ],
       "known": true,
@@ -21785,17 +21746,6 @@
         "and",
         "for",
         "not"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/lapsed-customer-win-back",
-      "text": "( Push ): a valid push token still exists on a device the person kept the app on, and the route back is a single step",
-      "hits": [
-        "still",
-        "the",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -23936,11 +23886,10 @@
     },
     {
       "route": "/tr/lab/journeys/milestone-recognition",
-      "text": "Is this date still ours to recognise? · May the recognition go out?",
+      "text": "Is this date still ours to recognise?",
       "hits": [
         "this",
-        "still",
-        "the"
+        "still"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -23971,30 +23920,6 @@
         "been",
         "the",
         "does"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/milestone-recognition",
-      "text": "( Push ): a current device registration exists and the permission covering it still stands",
-      "hits": [
-        "and",
-        "the",
-        "still"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/milestone-recognition",
-      "text": "( Uygulama içi ): the person is already in a session and the recognition belongs where their own record is visible",
-      "hits": [
-        "the",
-        "already",
-        "and",
-        "where",
-        "their"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -24366,6 +24291,32 @@
     },
     {
       "route": "/tr/lab/journeys/negative-experience-recovery",
+      "text": "REM-151's own gates defer to a process that already owns the failure without naming it. This is that process: RET-26 acknowledges what failed and what was done, and never decides the remedy itself.",
+      "hits": [
+        "that",
+        "already",
+        "the",
+        "this",
+        "what",
+        "and"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/negative-experience-recovery",
+      "text": "RET-26 is the library's general-purpose service-recovery journey; CON-300 is the one journey that names it. This acknowledges a specific failure, not the standing marketing relationship.",
+      "hits": [
+        "the",
+        "that",
+        "this",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/negative-experience-recovery",
       "text": "After an authoritative service failure, say what failed, what was done and what prevents it recurring - once, only when it is useful, only after the failure is resolved, and only where no other process already owns it; route anything owed to remedy.",
       "hits": [
         "after",
@@ -24525,16 +24476,6 @@
         "the",
         "what",
         "which"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/negative-experience-recovery",
-      "text": "( Push ): the failure happened inside the app, the person is active there, and the acknowledgement is short",
-      "hits": [
-        "the",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -27782,7 +27723,7 @@
     },
     {
       "route": "/tr/lab/journeys/personalized-recommendations",
-      "text": "A complementary next offer holding the same person outranks this journey in the recommendation-offer group; while it holds them, this one is suppressed for that person rather than queued behind it (GLB-06).",
+      "text": "A complementary next offer holding the same person outranks this journey in the recommendation-offer group; while it holds them, this one is suppressed for that person rather than queued behind it (GLB-06). Predicted-need replenishment (RET-31) outranks it too, for the same person.",
       "hits": [
         "the",
         "this",
@@ -27929,28 +27870,6 @@
     },
     {
       "route": "/tr/lab/journeys/personalized-recommendations",
-      "text": "( Uygulama içi ): the person is already in a session where the items can be opened directly",
-      "hits": [
-        "the",
-        "already",
-        "where"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/personalized-recommendations",
-      "text": "( Push ): a current device registration exists and the permission covering it still stands, and one item carries the whole message",
-      "hits": [
-        "and",
-        "the",
-        "still"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/personalized-recommendations",
       "text": "converted; a purchase from the recommended set is recorded",
       "hits": [
         "from",
@@ -27983,7 +27902,7 @@
     },
     {
       "route": "/tr/lab/journeys/personalized-recommendations",
-      "text": "recommendation-offer (person) - below the complementary next offer for the same person - a next step that follows from something they already own is a stronger claim on the moment than a set that merely resembles what they liked; while that journey holds the person, this one is suppressed for them",
+      "text": "recommendation-offer (person) - below the complementary next offer for the same person - a next step that follows from something they already own is a stronger claim on the moment than a set that merely resembles what they liked; while that journey holds the person, this one is suppressed for them - and below predicted-need replenishment (RET-31), which is suppressed for nothing in this group but outranks both of its members: a purchase that is actually due outranks one that is merely plausible",
       "hits": [
         "the",
         "for",
@@ -27991,7 +27910,10 @@
         "from",
         "already",
         "what",
-        "this"
+        "this",
+        "and",
+        "which",
+        "its"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -29821,6 +29743,59 @@
     },
     {
       "route": "/tr/lab/journeys/predicted-need-replenishment",
+      "text": "This is a purchase the person's own history says is due, computed from their prior purchase and the item's usable life. RET-293 proposes a next purchase inferred from a recorded signal about the person, not from a due date - the two never hold the same person for the same purchase at once.",
+      "hits": [
+        "this",
+        "the",
+        "from",
+        "their",
+        "and",
+        "not",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/predicted-need-replenishment",
+      "text": "This is a purchase the person's own history says is due. RET-294 offers the thing that completes a declared product relationship, matured by ownership rather than computed from a due date - the two never hold the same person for the same purchase at once.",
+      "hits": [
+        "this",
+        "the",
+        "that",
+        "from",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/predicted-need-replenishment",
+      "text": "This is a predicted need computed from the person's own purchase history. ACQ-289 is a back-in-stock alert for a specific item the person asked to be told about - a different signal and a different claim on the moment.",
+      "hits": [
+        "this",
+        "from",
+        "the",
+        "for",
+        "and"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/predicted-need-replenishment",
+      "text": "This is an ongoing predicted-need cycle that can recur for the life of the relationship. RET-290 is a one-time first-purchase moment that never reopens.",
+      "hits": [
+        "this",
+        "that",
+        "for",
+        "the"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/predicted-need-replenishment",
       "text": "Get the replenishment made before the need bites, with the prediction stated honestly as an estimate and a direct route to reorder; never prompt a need already met, dismissed, or covered by a subscription.",
       "hits": [
         "the",
@@ -29940,11 +29915,12 @@
     },
     {
       "route": "/tr/lab/journeys/predicted-need-replenishment",
-      "text": "A process recovery or a selection recovery for the same person outranks this journey; an open complaint, payment recovery or retention-outreach journey suppresses it (GLB-06).",
+      "text": "A process recovery or a selection recovery for the same person outranks this journey; an open complaint, payment recovery or retention-outreach journey suppresses it (GLB-06); so does an open availability enquiry (SCH-282) for the same person.",
       "hits": [
         "for",
         "the",
-        "this"
+        "this",
+        "does"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -30195,17 +30171,6 @@
     },
     {
       "route": "/tr/lab/journeys/predicted-need-replenishment",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists and the reorder route is a single step from the notification",
-      "hits": [
-        "and",
-        "the",
-        "from"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/predicted-need-replenishment",
       "text": "dismissed by the person; the need is muted for this cycle",
       "hits": [
         "the",
@@ -30217,11 +30182,17 @@
     },
     {
       "route": "/tr/lab/journeys/predicted-need-replenishment",
-      "text": "commerce-recovery (person) - below process recovery and selection recovery for the same person; above interest recovery",
+      "text": "commerce-recovery (person) - below process recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the recommendation-offer group (RET-293, RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they own or a set that resembles what they liked. While this journey holds a person, both of those are suppressed for them rather than queued behind them.",
       "hits": [
         "and",
+        "the",
         "for",
-        "the"
+        "from",
+        "their",
+        "what",
+        "that",
+        "this",
+        "are"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -30323,6 +30294,59 @@
     },
     {
       "route": "/tr/lab/journeys/predicted-next-purchase",
+      "text": "This is a purchase the person's own history says is due, computed from their prior purchase and the item's usable life. RET-293 proposes a next purchase inferred from a recorded signal about the person, not from a due date - the two never hold the same person for the same purchase at once.",
+      "hits": [
+        "this",
+        "the",
+        "from",
+        "their",
+        "and",
+        "not",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/predicted-next-purchase",
+      "text": "This is a purchase the person's own history says is due. RET-294 offers the thing that completes a declared product relationship, matured by ownership rather than computed from a due date - the two never hold the same person for the same purchase at once.",
+      "hits": [
+        "this",
+        "the",
+        "that",
+        "from",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/predicted-next-purchase",
+      "text": "This is a predicted need computed from the person's own purchase history. ACQ-289 is a back-in-stock alert for a specific item the person asked to be told about - a different signal and a different claim on the moment.",
+      "hits": [
+        "this",
+        "from",
+        "the",
+        "for",
+        "and"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/predicted-next-purchase",
+      "text": "This is an ongoing predicted-need cycle that can recur for the life of the relationship. RET-290 is a one-time first-purchase moment that never reopens.",
+      "hits": [
+        "this",
+        "that",
+        "for",
+        "the"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/predicted-next-purchase",
       "text": "Get the replenishment made before the need bites, with the prediction stated honestly as an estimate and a direct route to reorder; never prompt a need already met, dismissed, or covered by a subscription.",
       "hits": [
         "the",
@@ -30442,11 +30466,12 @@
     },
     {
       "route": "/tr/lab/journeys/predicted-next-purchase",
-      "text": "A process recovery or a selection recovery for the same person outranks this journey; an open complaint, payment recovery or retention-outreach journey suppresses it (GLB-06).",
+      "text": "A process recovery or a selection recovery for the same person outranks this journey; an open complaint, payment recovery or retention-outreach journey suppresses it (GLB-06); so does an open availability enquiry (SCH-282) for the same person.",
       "hits": [
         "for",
         "the",
-        "this"
+        "this",
+        "does"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -30697,17 +30722,6 @@
     },
     {
       "route": "/tr/lab/journeys/predicted-next-purchase",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists and the reorder route is a single step from the notification",
-      "hits": [
-        "and",
-        "the",
-        "from"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/predicted-next-purchase",
       "text": "dismissed by the person; the need is muted for this cycle",
       "hits": [
         "the",
@@ -30719,11 +30733,17 @@
     },
     {
       "route": "/tr/lab/journeys/predicted-next-purchase",
-      "text": "commerce-recovery (person) - below process recovery and selection recovery for the same person; above interest recovery",
+      "text": "commerce-recovery (person) - below process recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the recommendation-offer group (RET-293, RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they own or a set that resembles what they liked. While this journey holds a person, both of those are suppressed for them rather than queued behind them.",
       "hits": [
         "and",
+        "the",
         "for",
-        "the"
+        "from",
+        "their",
+        "what",
+        "that",
+        "this",
+        "are"
       ],
       "known": true,
       "reason": "practitioner disclosure"

@@ -362,7 +362,11 @@ export type OrchestrationStrategy =
   | "deadline-countdown"
   | "offer-decide-remind"
   | "two-party-confirmation"
-  | "human-escalation-ladder";
+  | "human-escalation-ladder"
+  /** One route per touch, chosen once by a declared signal (e.g. the surface
+      an intent was declared on) and inherited by every later touch - never a
+      cascade through multiple channels for the same touch. See RET-28. */
+  | "conditional-routing";
 
 export interface Orchestration {
   strategy: OrchestrationStrategy;

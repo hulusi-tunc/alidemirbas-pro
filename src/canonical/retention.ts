@@ -1342,7 +1342,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "negative-experience-recovery",
     category: "retention",
     goal: "compensation-remedy",
-    channels: ["email", "push"],
+    channels: ["email"],
     name: "Negative experience → recovery eligibility → appropriate response",
     shortName: "Service Recovery",
     purpose:
@@ -1356,6 +1356,18 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
+    distinctFrom: [
+      {
+        journey: "REM-151",
+        because:
+          "REM-151's own gates defer to a process that already owns the failure without naming it. This is that process: RET-26 acknowledges what failed and what was done, and never decides the remedy itself.",
+      },
+      {
+        journey: "CON-300",
+        because:
+          "RET-26 is the library's general-purpose service-recovery journey; CON-300 is the one journey that names it. This acknowledges a specific failure, not the standing marketing relationship.",
+      },
+    ],
     objective: "After an authoritative service failure, say what failed, what was done and what prevents it recurring - once, only when it is useful, only after the failure is resolved, and only where no other process already owns it; route anything owed to remedy.",
     eligibility: [
       "an authoritative record of a negative experience or service failure attributable to this person and an experience entity",
@@ -1427,16 +1439,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the acknowledgement should be something the person can keep - what failed, what was done, what prevents it - which is the default"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "the failure happened inside the app, the person is active there, and the acknowledgement is short"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -1454,8 +1459,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -1920,6 +1924,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "This runs while the decision is still reversible and the person is still deciding. RET-29 runs after it is made, and the two must never share an event.",
       },
+      {
+        journey: "RET-32",
+        because:
+          "This runs at the decision point, while the relationship is still active and the intent is still reversible. RET-32 runs only after the relationship has actually lapsed - the two never hold the same person at once.",
+      },
     ],
     objective: "At the moment a person declares they want to cancel, learn why if that is useful, offer one genuine alternative if one matches the reason, and let them decide - with the cancellation path fully open at every step.",
     eligibility: [
@@ -2014,21 +2023,20 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
-      "strategy": "offer-decide-remind",
+      "strategy": "conditional-routing",
       "touches": [
         {
           "id": "t-ask",
           "stage": "reason-ask",
           "action": "a.ask",
           "prerequisites": [
-            "c.reason",
-            "c.ask"
+            "c.surface",
+            "c.reason"
           ],
-          "purpose": "Ask once why, with the cancellation path fully open beside the question. The question is never a step that has to be passed.",
+          "purpose": "Ask once why, with the cancellation path fully open beside the question. Reached only where the intent was declared inside the product - asking someone who cancelled by phone is not a friction judgement, it is impossible.",
           "destination": { "target": "reason-question-beside-cancel-step", "boundTo": "intent_id", "mustNotClaim": ["that answering is required to cancel"] },
           "channelRoles": [
-            "in-session",
-            "persistent"
+            "in-session"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -2040,7 +2048,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [
             "c.resolution"
           ],
-          "purpose": "Offer the one alternative that matches the reason, once, alongside an unobstructed route to continue cancelling.",
+          "purpose": "Offer the one alternative that matches the reason, once, alongside an unobstructed route to continue cancelling. The channel is the surface the intent arrived on, chosen once at c.surface and inherited here - never re-decided, never both at once.",
           "channelRoles": [
             "in-session",
             "persistent"
@@ -2158,7 +2166,26 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.context",
         kind: "action",
         does: "Read what they currently hold, what cancelling would end, and when it would take effect - so anything said next is about their actual relationship rather than a generic one",
-        next: "c.reason",
+        next: "c.surface",
+      },
+      {
+        id: "c.surface",
+        kind: "condition",
+        asks: "Where was the cancellation intent declared?",
+        branches: [
+          {
+            label: "In the cancel flow",
+            when: "the intent was declared inside the product, in the cancellation flow itself",
+            observes: "intent record, intake route",
+            to: "c.reason",
+          },
+          {
+            label: "Through a person / off product",
+            when: "the intent was declared to a person - by message, by phone, or through support - and not inside the product",
+            observes: "intent record, intake route",
+            to: "a.no-reason",
+          },
+        ],
       },
       {
         id: "c.reason",
@@ -2172,25 +2199,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           },
           {
             label: "Not declared",
-            when: "no reason has been given",
-            to: "c.ask",
-          },
-        ],
-      },
-      {
-        id: "c.ask",
-        kind: "condition",
-        asks: "Is asking for a reason useful and appropriate here?",
-        branches: [
-          {
-            label: "Worth asking",
-            when: "the answer would change what is offered, and asking does not delay the cancellation",
+            when: "no reason has been given - and the cancel-flow surface means asking does not delay the cancellation",
             to: "a.ask",
-          },
-          {
-            label: "Not worth asking",
-            when: "the answer would change nothing, or asking would function as friction",
-            to: "a.no-reason",
           },
         ],
       },
@@ -2246,7 +2256,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.record-reason",
         kind: "action",
-        does: "Record the reason with its source among PRICE, LOW_USAGE, MISSING_VALUE, TECHNICAL_PROBLEM, SERVICE_ISSUE, TEMPORARY_NEED, SWITCHING or OTHER. A reason inferred later never overwrites one that was declared",
+        does: "Record the reason with its source - price, low usage, unrealised value, a technical problem, a service issue, a temporary need, switching to something else, or another reason in their own words. A reason inferred later never overwrites one that was declared",
         writes: [{ field: "cancellation_reason_history", mode: "append" }],
         next: "c.resolution",
         idempotencyKey: "intent_id + declared_reason",
@@ -3036,9 +3046,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "category": "retention",
     "goal": "recovery-retry",
     "channels": [
-      "email",
-      "push",
-      "in-app"
+      "email"
     ],
     "name": "Depletion predicted → replenishment prompted before it → replenished, dismissed or lapsed",
     "shortName": "Predicted Need Replenishment",
@@ -3094,7 +3102,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "A process recovery or a selection recovery for the same person outranks this journey; an open complaint, payment recovery or retention-outreach journey suppresses it (GLB-06)."
+        "text": "A process recovery or a selection recovery for the same person outranks this journey; an open complaint, payment recovery or retention-outreach journey suppresses it (GLB-06); so does an open availability enquiry (SCH-282) for the same person."
       },
       {
         "id": "s.incentive",
@@ -3140,7 +3148,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "below process recovery and selection recovery for the same person; above interest recovery",
+        "precedence": "below process recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the recommendation-offer group (RET-293, RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they own or a set that resembles what they liked. While this journey holds a person, both of those are suppressed for them rather than queued behind them.",
         "onLoss": "suppressed"
       }
     },
@@ -3152,17 +3160,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the prompt should carry the item, the estimate and the reorder route and survive until the person can act - the default for a prompt sent days ahead of a need"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push",
-            "in-app"
-          ],
-          "when": "an app session or a valid push token exists and the reorder route is a single step from the notification"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -3179,8 +3179,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The item, the estimated point at which it runs out - stated as an estimate from their own purchases - and the route to reorder. Nothing about stock or price that the system does not assert.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "reorder",
@@ -3207,8 +3206,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "One follow-up after the estimated depletion has passed unmet, with the same reorder route and no invented urgency.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "reorder",
@@ -3684,6 +3682,22 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "RET-32",
         "because": "RET-32 addresses a relationship that ended. A predicted need addresses an active buyer whose next purchase is due."
+      },
+      {
+        "journey": "RET-293",
+        "because": "This is a purchase the person's own history says is due, computed from their prior purchase and the item's usable life. RET-293 proposes a next purchase inferred from a recorded signal about the person, not from a due date - the two never hold the same person for the same purchase at once."
+      },
+      {
+        "journey": "RET-294",
+        "because": "This is a purchase the person's own history says is due. RET-294 offers the thing that completes a declared product relationship, matured by ownership rather than computed from a due date - the two never hold the same person for the same purchase at once."
+      },
+      {
+        "journey": "ACQ-289",
+        "because": "This is a predicted need computed from the person's own purchase history. ACQ-289 is a back-in-stock alert for a specific item the person asked to be told about - a different signal and a different claim on the moment."
+      },
+      {
+        "journey": "RET-290",
+        "because": "This is an ongoing predicted-need cycle that can recur for the life of the relationship. RET-290 is a one-time first-purchase moment that never reopens."
       }
     ],
     "guardrails": [
@@ -3700,8 +3714,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "category": "retention",
     "goal": "recovery-retry",
     "channels": [
-      "email",
-      "push"
+      "email"
     ],
     "name": "Paid relationship lapsed → outreach permitted → won back, declined or left alone",
     "shortName": "Lapsed Customer Win-Back",
@@ -3819,16 +3832,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the invitation should say what changed and carry the route back, and survive until the person reads it - the default for someone who is not in the product"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a valid push token still exists on a device the person kept the app on, and the route back is a single step"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -3840,13 +3846,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "action": "a.touch1",
           "prerequisites": [
             "c.eligible",
-            "c.basis",
             "c.sendable"
           ],
           "purpose": "A plain invitation to come back: what actually changed since they left where something did, the route back, and nothing invented.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "return-route",
@@ -3872,8 +3876,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "One follow-up, only where the company enables it and there is something honest to add - an incentive policy enables, or a further change - with the same route back.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "return-route",
@@ -3949,26 +3952,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           }
         ],
         "idempotencyKey": "person_id + relationship_id + lapse date",
-        "next": "c.basis"
-      },
-      {
-        "id": "c.basis",
-        "kind": "condition",
-        "asks": "What can the invitation honestly say?",
-        "branches": [
-          {
-            "label": "Something changed that speaks to why they left",
-            "when": "a recorded change since the lapse addresses the recorded reason - a fixed problem, a changed plan, a restored feature",
-            "observes": "cancellation reason, change record",
-            "to": "c.sendable"
-          },
-          {
-            "label": "Nothing specific",
-            "when": "no recorded change speaks to the reason, or no reason was recorded - the invitation is plain",
-            "observes": "cancellation reason, change record",
-            "to": "c.sendable"
-          }
-        ]
+        "next": "c.sendable"
       },
       {
         "id": "c.sendable",
@@ -4270,7 +4254,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "first-purchase-welcome",
     "category": "retention",
     "goal": "progression-milestone",
-    "channels": ["email", "in-app", "push"],
+    "channels": ["email"],
     "name": "First purchase completed → welcomed as a customer → returned, prompted or closed",
     "shortName": "First Purchase Thank You & Bounceback",
     "purpose": "Mark the moment a buyer becomes a customer for the first time, and give them one honest reason to come back - without ever speaking over the order's own transactional confirmation.",
@@ -4370,23 +4354,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the touch has to carry the welcome or the offer and survive until the person can act on it - the default for both touches"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is already in a session where the next step can be taken without leaving the product"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the permission covering it still stands, and the touch is short enough to be a nudge"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -4403,8 +4373,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "They are a customer now, and this is what that means here: what happens next with what they bought, where to find it, and how to reach a person. No offer unless the business has issued one.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "customer-account",
@@ -4430,9 +4399,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "One reason to come back, stated as whatever the business has actually issued and for as long as it will honour it - sent only to somebody who has not already come back.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "bounceback-offer",
@@ -4772,6 +4739,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "FUL-301",
         "because": "FUL-301 states what the business took on, from the order record, and it outranks this journey for exactly that reason: the record has to open before there is anything to welcome somebody into. This journey carries none of what that confirmation says and waits until it has had its moment."
+      },
+      {
+        "journey": "RET-292",
+        "because": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year or more later. This journey is the one-time moment that dates it; RET-292 is the recurring recognition of it, and the two never run at once."
       }
     ],
     "guardrails": [
@@ -4787,7 +4758,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "first-purchase-anniversary",
     "category": "retention",
     "goal": "progression-milestone",
-    "channels": ["email", "push", "in-app"],
+    "channels": ["email"],
     "name": "First-purchase anniversary approaching → eligibility checked → recognised or not sent",
     "shortName": "First Purchase Anniversary",
     "purpose": "Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once.",
@@ -4888,23 +4859,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the recognition should be kept rather than glanced at - the default"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the permission covering it still stands"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is already in a session and the recognition belongs where the relationship itself is visible"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -4919,9 +4876,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "How long this relationship has lasted, counted from the first purchase, said once and with nothing attached that the record does not carry.",
           "channelRoles": [
-            "persistent",
-            "low-friction",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "customer-account",
@@ -5176,7 +5131,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "A complementary next offer holding the same person outranks this journey in the recommendation-offer group; while it holds them, this one is suppressed for that person rather than queued behind it (GLB-06)."
+        "text": "A complementary next offer holding the same person outranks this journey in the recommendation-offer group; while it holds them, this one is suppressed for that person rather than queued behind it (GLB-06). Predicted-need replenishment (RET-31) outranks it too, for the same person."
       },
       {
         "id": "s.sunset",
@@ -5211,7 +5166,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "recommendation-offer",
         "scope": "person",
-        "precedence": "below the complementary next offer for the same person - a next step that follows from something they already own is a stronger claim on the moment than a set that merely resembles what they liked; while that journey holds the person, this one is suppressed for them",
+        "precedence": "below the complementary next offer for the same person - a next step that follows from something they already own is a stronger claim on the moment than a set that merely resembles what they liked; while that journey holds the person, this one is suppressed for them - and below predicted-need replenishment (RET-31), which is suppressed for nothing in this group but outranks both of its members: a purchase that is actually due outranks one that is merely plausible",
         "onLoss": "suppressed"
       }
     },
@@ -5223,23 +5178,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the set has to be browsable and survive until the person has time for it - the default"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is already in a session where the items can be opened directly"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the permission covering it still stands, and one item carries the whole message"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -5255,9 +5196,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "A small set that follows from something this person actually did, with every item still available to them and the reason it is there plain from the set itself.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "recommended-set",
@@ -5618,7 +5557,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "While this journey holds a person in the recommendation-offer group, the generic recommendation journey is suppressed for them; the two never propose a next purchase to the same person at the same time."
+        "text": "While this journey holds a person in the recommendation-offer group, the generic recommendation journey is suppressed for them; the two never propose a next purchase to the same person at the same time. Predicted-need replenishment (RET-31) outranks it too, for the same person."
       },
       {
         "id": "s.sunset",
@@ -5653,7 +5592,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "recommendation-offer",
         "scope": "person",
-        "precedence": "above the generic recommendation for the same person - a next step that follows from something they already own outranks a set that merely resembles what they liked; while this journey holds the person, that one is suppressed for them rather than queued behind it",
+        "precedence": "above the generic recommendation for the same person - a next step that follows from something they already own outranks a set that merely resembles what they liked; while this journey holds the person, that one is suppressed for them rather than queued behind it - and below predicted-need replenishment (RET-31), which is suppressed for nothing in this group but outranks both of its members: a purchase that is actually due outranks one that is merely plausible",
         "onLoss": "suppressed"
       }
     },
@@ -5665,23 +5604,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the offer has to carry what it completes and survive until the person can act on it - the default for both touches"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the permission covering it still stands, and the offer is short enough to be a nudge"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is already in a session where the complement can be added to what they own without leaving the product"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -5698,9 +5623,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The thing that completes what they already own, named against what they own rather than on its own. Nothing about stock, price or a deadline the platform does not enforce.",
           "channelRoles": [
-            "persistent",
-            "low-friction",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "complementary-item",
@@ -5727,8 +5650,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "One reminder of the same offer, to somebody who still does not have the complement and has not said they do not want it. Nothing new is added to make it land.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "complementary-item",
@@ -6199,23 +6121,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the recognition should be kept rather than glanced at - the default"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the permission covering it still stands"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is already in a session and the recognition belongs where their own record is visible"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -6226,14 +6134,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "stage": "recognition",
           "action": "a.recognise",
           "prerequisites": [
-            "c.date",
-            "c.sendable"
+            "c.date"
           ],
           "purpose": "The date, said plainly and once, to somebody the relationship is still open with - and nothing attached to it that the record does not already carry.",
           "channelRoles": [
-            "persistent",
-            "low-friction",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "customer-account",
@@ -6286,9 +6191,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "branches": [
           {
             "label": "Recognise",
-            "when": "the date is one the person supplied or one their own record reached, the relationship is open, and this cycle has not already been recognised",
-            "observes": "milestone record, relationship record",
-            "to": "c.sendable"
+            "when": "the date is one the person supplied or one their own record reached, the relationship is open, this cycle has not already been recognised, and the send path passes - purpose-level permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person",
+            "observes": "milestone record, relationship record, send path stages 1-8",
+            "to": "a.recognise"
           },
           {
             "label": "Relationship ended",
@@ -6301,23 +6206,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "when": "this cycle has already been recognised, or the date has passed and the cycle closed unsent",
             "observes": "recognition record",
             "to": "a.record-no-action"
-          }
-        ]
-      },
-      {
-        "id": "c.sendable",
-        "kind": "condition",
-        "asks": "May the recognition go out?",
-        "branches": [
-          {
-            "label": "Sendable",
-            "when": "the send path passes: purpose-level permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person",
-            "observes": "send path stages 1-8",
-            "to": "a.recognise"
           },
           {
-            "label": "Suppressed",
-            "when": "a gate stops it, or a higher-precedence date recognition holds this person's window; the reason is recorded",
+            "label": "Not sendable",
+            "when": "a send-path gate stops it, or a higher-precedence date recognition holds this person's window; the reason is recorded",
             "observes": "send path stages 1-8",
             "to": "a.record-no-action"
           }

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-21T15:11:28.608Z",
+  "generated": "2026-09-21T15:36:31.596Z",
   "expected_count": 69,
   "found_count": 69,
   "issues": [],
@@ -1099,10 +1099,10 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 15,
+      "canonical_node_count": 14,
       "display_node_count_before": null,
       "display_node_count_after": null,
-      "condition_count": 5,
+      "condition_count": 4,
       "exit_count": 3,
       "handoff_count": 0,
       "journey_types": [
@@ -1221,17 +1221,17 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 8,
+      "canonical_node_count": 7,
       "display_node_count_before": null,
       "display_node_count_after": null,
-      "condition_count": 2,
+      "condition_count": 1,
       "exit_count": 3,
       "handoff_count": 0,
       "journey_types": [
         "communication",
         "multi-branch",
-        "nested-decision",
         "nurture",
+        "parallel-fan-out",
         "short"
       ],
       "severity": null,

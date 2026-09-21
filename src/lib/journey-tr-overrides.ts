@@ -882,16 +882,10 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.date": {
       headline: "Bu tarih hâlâ bizim kutlayacağımız bir şey mi?",
       edges: [
-        { label: "Kutla", detail: "tarih kişinin kendi verdiği ya da kendi kaydının ulaştığı bir tarih, ilişki açık ve bu dönem daha önce kutlanmamış" },
+        { label: "Kutla", detail: "tarih kişinin kendi verdiği ya da kendi kaydının ulaştığı bir tarih, ilişki açık, bu dönem daha önce kutlanmamış ve gönderim yolu geçiliyor - yaşam döngüsü iletişimi için amaç düzeyinde izin, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu kişiyi şu anda tutan daha yüksek öncelikli bir akışın bulunmaması" },
         { label: "İlişki sona ermiş", detail: "hesap kapalı, kişi bu tür iletişim için iznini geri çekmiş ya da rahatsız edilmemeyi istemiş" },
         { label: "Dönem tükenmiş", detail: "bu dönem zaten kutlanmış ya da tarih geçmiş ve dönem mesaj gönderilmeden kapanmış" },
-      ],
-    },
-    "c.sendable": {
-      headline: "Kutlama gönderilebilir mi?",
-      edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi için amaç düzeyinde izin, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu kişiyi şu anda tutan daha yüksek öncelikli bir akışın bulunmaması" },
-        { label: "Engellendi", detail: "bir kapı durduruyor ya da daha yüksek öncelikli bir tarih kutlaması bu kişinin penceresini tutuyor; gerekçe kaydedilir" },
+        { label: "Gönderilemez", detail: "bir gönderim yolu kapısı bunu durduruyor ya da daha yüksek öncelikli bir tarih kutlaması bu kişinin penceresini tutuyor; gerekçe kaydedilir" },
       ],
     },
     "a.recognise": {
@@ -3734,9 +3728,9 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   nodes: {
     "t.intent": { headline: "Açık iptal niyeti" },
     "a.context": { headline: "Şu anda ellerinde ne olduğunu, iptalin neyi sona erdireceğini ve ne zaman yürürlüğe gireceğini okuyun - böylece bundan sonra söylenecek her şey genel bir ilişki değil, onların gerçek ilişkisi hakkında olur" },
-    "c.reason": { headline: "Belirtilmiş bir neden var mı?", edges: [{ label: "Belirtildi", detail: "kişi bir neden belirtti" }, { label: "Belirtilmedi", detail: "hiçbir neden verilmedi" }] },
-    "a.record-reason": { headline: "Nedeni, PRICE, LOW_USAGE, MISSING_VALUE, TECHNICAL_PROBLEM, SERVICE_ISSUE, TEMPORARY_NEED, SWITCHING ya da OTHER kaynaklarından biriyle birlikte kaydedin. Daha sonra çıkarsanan bir neden, belirtilmiş olanın üzerine asla yazılmaz" },
-    "c.ask": { headline: "Burada neden sormak yararlı ve uygun mu?", edges: [{ label: "Sormaya değer", detail: "yanıt, sunulacak şeyi değiştirir ve sormak iptali geciktirmez" }, { label: "Sormaya değmez", detail: "yanıt hiçbir şeyi değiştirmez ya da sormak bir sürtünme unsuru işlevi görür" }] },
+    "c.surface": { headline: "İptal niyeti nerede belirtildi?", edges: [{ label: "İptal akışında", detail: "niyet, ürünün içinde, iptal akışının kendisinde belirtildi" }, { label: "Bir kişi aracılığıyla / üründen bağımsız", detail: "niyet bir kişiye - mesajla, telefonla ya da destek üzerinden - belirtildi ve ürünün içinde değil" }] },
+    "c.reason": { headline: "Belirtilmiş bir neden var mı?", edges: [{ label: "Belirtildi", detail: "kişi bir neden belirtti" }, { label: "Belirtilmedi", detail: "hiçbir neden verilmedi - ve iptal akışı yüzeyi, sormanın iptali geciktirmediği anlamına gelir" }] },
+    "a.record-reason": { headline: "Nedeni kaynağıyla birlikte kaydedin - fiyat, düşük kullanım, gerçekleşmemiş değer, teknik bir sorun, bir hizmet sorunu, geçici bir ihtiyaç, başka bir şeye geçiş ya da kendi ifadeleriyle başka bir neden. Daha sonra çıkarsanan bir neden, belirtilmiş olanın üzerine asla yazılmaz" },
     "c.resolution": { headline: "Bu neden için meşru bir çözüm var mı?", edges: [{ label: "Gerçek bir alternatif", detail: "bir şey belirtilen nedeni gerçekten ele alıyor - teknik bir sorun için teknik yardım, maliyet ya da geçici ihtiyaç için plan değişikliği ya da durdurma, gerçekleşmemiş değer için eğitim, bir hizmet hatası için hizmet kurtarma" }, { label: "Gerçek bir şey yok", detail: "hiçbir alternatif nedeni gerçekten yanıtlamıyor ya da yanıtlanacak bir neden verilmedi" }] },
     "a.ask": { headline: "Bir kez sorun; iptal yolu, soruyla birlikte tamamen açık kalsın. Soru hiçbir zaman ayrılmak için geçilmesi gereken bir adım değildir - bu şekilde elde edilen bir neden bilgi değil, bir bedeldir" },
     "a.no-reason": { headline: "Neden olmadan devam edin ve hiçbir neden verilmediğini kaydedin. Çıkarsanan bir neden saklanabilir, ancak asla belirtilmiş nedenlerin tutulduğu alanda değil" },
@@ -3822,7 +3816,6 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.eligible": { headline: "Bu ilişki, geri dönüş hakkında yazabileceğimiz bir ilişki mi?", edges: [{ label: "Uygun", detail: "daha önce ödeme yaptı, iptalin kendi bekleme süresini geçti, üzerinde açık bir şey yok, iletişimi dışlamayan bir neden ve geçmiş var, izin kayıtlı ve geri çekilmemiş" }, { label: "Dışlandı", detail: "neden, geçmiş, açık bir konu ya da eksik izin bunu engelliyor - neden kaydediliyor" }] },
     "a.open": { headline: "İlişkiye ve bu kayba karşı geri kazanma örneğini açın; hitap edeceği iptal nedenini ve bekleme süresinin hesaplanacağı tarihi kaydedin" },
     "a.record-no-action": { headline: "Hiçbir şey gönderilmemesinin nedenini kaydedin - dışlayıcı bir neden, geçmiş, açık bir konu, izin eksikliği ya da gönderim yolundaki bir engel - böylece eylemsizlik ölçülmüş bir sonuç olur" },
-    "c.basis": { headline: "Davet dürüstçe ne söyleyebilir?", edges: [{ label: "Ayrılma nedenlerine hitap eden bir şey değişti", detail: "kayıptan bu yana kaydedilen bir değişiklik, kayıtlı nedene hitap ediyor - düzeltilmiş bir sorun, değişmiş bir plan, geri getirilmiş bir özellik" }, { label: "Belirli bir şey yok", detail: "kayıtlı hiçbir değişiklik nedene hitap etmiyor ya da hiçbir neden kaydedilmedi - davet sade kalır" }] },
     "x.no-action": { headline: "davet gönderilmedi; dışlayıcı neden ya da engel kaydedildi", detail: "dışlayıcı bir neden ya da geçmiş yalnızca değiştiğinde yeniden değerlendirilir; gönderim yolundaki bir engel ise bir sonraki kayıpta yeniden değerlendirilir" },
     "c.sendable": { headline: "Davet gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçiyor: ticari iletişim izni, teslim edilebilir bir hedef, promosyon baskısı üst sınırı, hesap üzerinde daha yüksek öncelikli bir çekişme yok ve yürürlükte bir geri kazanma bekleme süresi yok" }, { label: "Engellendi", detail: "bir engel bunu durduruyor; engel neden olarak kaydediliyor" }] },
     "a.touch1": { headline: "Onları sade bir şekilde geri davet edin: bir şey değiştiyse ayrıldıklarından bu yana gerçekte ne değişti ve geri dönüş yolu. Hiçbir şey uydurulmaz, tutulmayan koşullar tutuluyormuş gibi gösterilmez, politikanın izin vermediği bir indirim sunulmaz" },

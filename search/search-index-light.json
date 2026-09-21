@@ -16494,7 +16494,16 @@
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:REM-151",
+          "because": "REM-151's own gates defer to a process that already owns the failure without naming it. This is that process: RET-26 acknowledges what failed and what was done, and never decides the remedy itself."
+        },
+        {
+          "targetId": "journey:CON-300",
+          "because": "RET-26 is the library's general-purpose service-recovery journey; CON-300 is the one journey that names it. This acknowledges a specific failure, not the standing marketing relationship."
+        }
+      ]
     }
   },
   {
@@ -16615,6 +16624,10 @@
         {
           "targetId": "journey:RET-29",
           "because": "This runs while the decision is still reversible and the person is still deciding. RET-29 runs after it is made, and the two must never share an event."
+        },
+        {
+          "targetId": "journey:RET-32",
+          "because": "This runs at the decision point, while the relationship is still active and the intent is still reversible. RET-32 runs only after the relationship has actually lapsed - the two never hold the same person at once."
         }
       ]
     }
@@ -16793,6 +16806,22 @@
         {
           "targetId": "journey:RET-32",
           "because": "RET-32 addresses a relationship that ended. A predicted need addresses an active buyer whose next purchase is due."
+        },
+        {
+          "targetId": "journey:RET-293",
+          "because": "This is a purchase the person's own history says is due, computed from their prior purchase and the item's usable life. RET-293 proposes a next purchase inferred from a recorded signal about the person, not from a due date - the two never hold the same person for the same purchase at once."
+        },
+        {
+          "targetId": "journey:RET-294",
+          "because": "This is a purchase the person's own history says is due. RET-294 offers the thing that completes a declared product relationship, matured by ownership rather than computed from a due date - the two never hold the same person for the same purchase at once."
+        },
+        {
+          "targetId": "journey:ACQ-289",
+          "because": "This is a predicted need computed from the person's own purchase history. ACQ-289 is a back-in-stock alert for a specific item the person asked to be told about - a different signal and a different claim on the moment."
+        },
+        {
+          "targetId": "journey:RET-290",
+          "because": "This is an ongoing predicted-need cycle that can recur for the life of the relationship. RET-290 is a one-time first-purchase moment that never reopens."
         }
       ]
     }
@@ -16932,6 +16961,10 @@
         {
           "targetId": "journey:FUL-301",
           "because": "FUL-301 states what the business took on, from the order record, and it outranks this journey for exactly that reason: the record has to open before there is anything to welcome somebody into. This journey carries none of what that confirmation says and waits until it has had its moment."
+        },
+        {
+          "targetId": "journey:RET-292",
+          "because": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year or more later. This journey is the one-time moment that dates it; RET-292 is the recurring recognition of it, and the two never run at once."
         }
       ]
     }

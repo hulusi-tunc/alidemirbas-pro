@@ -349,7 +349,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "RET-27",
@@ -404,7 +404,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "RET-32",
@@ -415,7 +415,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "RET-290",
@@ -426,7 +426,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "RET-292",
@@ -437,7 +437,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "RET-293",

@@ -69405,7 +69405,16 @@
           "isExternal": false
         }
       ],
-      "distinctFrom": [],
+      "distinctFrom": [
+        {
+          "journey": "REM-151",
+          "because": "REM-151's own gates defer to a process that already owns the failure without naming it. This is that process: RET-26 acknowledges what failed and what was done, and never decides the remedy itself."
+        },
+        {
+          "journey": "CON-300",
+          "because": "RET-26 is the library's general-purpose service-recovery journey; CON-300 is the one journey that names it. This acknowledges a specific failure, not the standing marketing relationship."
+        }
+      ],
       "competition": null,
       "preemptedBy": []
     },
@@ -69704,17 +69713,17 @@
           "terminal": false
         },
         {
-          "id": "c.reason",
+          "id": "c.surface",
           "kind": "condition",
-          "headline": "Is a declared reason available?",
+          "headline": "Where was the cancellation intent declared?",
           "detail": null,
           "isEntry": false,
           "terminal": false
         },
         {
-          "id": "c.ask",
+          "id": "c.reason",
           "kind": "condition",
-          "headline": "Is asking for a reason useful and appropriate here?",
+          "headline": "Is a declared reason available?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -69746,7 +69755,7 @@
         {
           "id": "a.record-reason",
           "kind": "action",
-          "headline": "Record the reason with its source among PRICE, LOW_USAGE, MISSING_VALUE, TECHNICAL_PROBLEM, SERVICE_ISSUE, TEMPORARY_NEED, SWITCHING or OTHER. A reason inferred later never overwrites one that was declared",
+          "headline": "Record the reason with its source - price, low usage, unrealised value, a technical problem, a service issue, a temporary need, switching to something else, or another reason in their own words. A reason inferred later never overwrites one that was declared",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -69826,10 +69835,24 @@
         },
         {
           "from": "a.context",
-          "to": "c.reason",
+          "to": "c.surface",
           "family": "forward",
           "label": null,
           "when": null
+        },
+        {
+          "from": "c.surface",
+          "to": "c.reason",
+          "family": "branch",
+          "label": "In the cancel flow",
+          "when": "the intent was declared inside the product, in the cancellation flow itself"
+        },
+        {
+          "from": "c.surface",
+          "to": "a.no-reason",
+          "family": "branch",
+          "label": "Through a person / off product",
+          "when": "the intent was declared to a person - by message, by phone, or through support - and not inside the product"
         },
         {
           "from": "c.reason",
@@ -69840,24 +69863,10 @@
         },
         {
           "from": "c.reason",
-          "to": "c.ask",
-          "family": "branch",
-          "label": "Not declared",
-          "when": "no reason has been given"
-        },
-        {
-          "from": "c.ask",
           "to": "a.ask",
           "family": "branch",
-          "label": "Worth asking",
-          "when": "the answer would change what is offered, and asking does not delay the cancellation"
-        },
-        {
-          "from": "c.ask",
-          "to": "a.no-reason",
-          "family": "branch",
-          "label": "Not worth asking",
-          "when": "the answer would change nothing, or asking would function as friction"
+          "label": "Not declared",
+          "when": "no reason has been given - and the cancel-flow surface means asking does not delay the cancellation"
         },
         {
           "from": "a.ask",
@@ -69890,7 +69899,7 @@
         {
           "from": "c.answered",
           "to": "c.decision",
-          "family": "backward",
+          "family": "branch",
           "label": "They decided meanwhile",
           "when": "the cancellation was confirmed or abandoned while the question was still open"
         },
@@ -69904,7 +69913,7 @@
         {
           "from": "a.no-reason",
           "to": "c.resolution",
-          "family": "backward",
+          "family": "forward",
           "label": null,
           "when": null
         },
@@ -69980,9 +69989,7 @@
       ],
       "backwardEdgeIds": [
         8,
-        9,
-        10,
-        12
+        9
       ],
       "branchEdgeIds": [
         2,
@@ -70017,6 +70024,10 @@
         {
           "journey": "RET-29",
           "because": "This runs while the decision is still reversible and the person is still deciding. RET-29 runs after it is made, and the two must never share an event."
+        },
+        {
+          "journey": "RET-32",
+          "because": "This runs at the decision point, while the relationship is still active and the intent is still reversible. RET-32 runs only after the relationship has actually lapsed - the two never hold the same person at once."
         }
       ],
       "competition": null,
@@ -70050,10 +70061,10 @@
       "nodeCount": 16,
       "edgeCount": 22,
       "branchNodeCount": 5,
-      "backwardEdgeCount": 4,
+      "backwardEdgeCount": 2,
       "handoffCount": 2,
       "exitCount": 1,
-      "maxDepth": 7,
+      "maxDepth": 8,
       "maxFanIn": 2,
       "maxFanOut": 2,
       "primaryStructure": "mixed-termination",
@@ -70064,7 +70075,7 @@
         "competition"
       ],
       "complexityTier": "complex",
-      "complexityScore": 66
+      "complexityScore": 63
     }
   },
   {
@@ -71102,6 +71113,22 @@
         {
           "journey": "RET-32",
           "because": "RET-32 addresses a relationship that ended. A predicted need addresses an active buyer whose next purchase is due."
+        },
+        {
+          "journey": "RET-293",
+          "because": "This is a purchase the person's own history says is due, computed from their prior purchase and the item's usable life. RET-293 proposes a next purchase inferred from a recorded signal about the person, not from a due date - the two never hold the same person for the same purchase at once."
+        },
+        {
+          "journey": "RET-294",
+          "because": "This is a purchase the person's own history says is due. RET-294 offers the thing that completes a declared product relationship, matured by ownership rather than computed from a due date - the two never hold the same person for the same purchase at once."
+        },
+        {
+          "journey": "ACQ-289",
+          "because": "This is a predicted need computed from the person's own purchase history. ACQ-289 is a back-in-stock alert for a specific item the person asked to be told about - a different signal and a different claim on the moment."
+        },
+        {
+          "journey": "RET-290",
+          "because": "This is an ongoing predicted-need cycle that can recur for the life of the relationship. RET-290 is a one-time first-purchase moment that never reopens."
         }
       ],
       "competition": null,
@@ -71197,14 +71224,6 @@
           "id": "a.open",
           "kind": "action",
           "headline": "Open the win-back instance against the relationship and this lapse, recording the cancellation reason it will speak to and the date the cooldown will be counted from",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "c.basis",
-          "kind": "condition",
-          "headline": "What can the invitation honestly say?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -71322,24 +71341,10 @@
         },
         {
           "from": "a.open",
-          "to": "c.basis",
+          "to": "c.sendable",
           "family": "forward",
           "label": null,
           "when": null
-        },
-        {
-          "from": "c.basis",
-          "to": "c.sendable",
-          "family": "branch",
-          "label": "Something changed that speaks to why they left",
-          "when": "a recorded change since the lapse addresses the recorded reason - a fixed problem, a changed plan, a restored feature"
-        },
-        {
-          "from": "c.basis",
-          "to": "c.sendable",
-          "family": "branch",
-          "label": "Something changed that speaks to why they left",
-          "when": "a recorded change since the lapse addresses the recorded reason - a fixed problem, a changed plan, a restored feature"
         },
         {
           "from": "c.sendable",
@@ -71440,22 +71445,20 @@
         "x.lapsed"
       ],
       "backwardEdgeIds": [
-        7,
+        5,
+        13,
         15,
-        17,
-        18
+        16
       ],
       "branchEdgeIds": [
         1,
         2,
         4,
         5,
-        6,
-        7,
+        10,
+        11,
         12,
-        13,
-        14,
-        15
+        13
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": []
@@ -71502,13 +71505,13 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 15,
-      "edgeCount": 19,
-      "branchNodeCount": 5,
+      "nodeCount": 14,
+      "edgeCount": 17,
+      "branchNodeCount": 4,
       "backwardEdgeCount": 4,
       "handoffCount": 0,
       "exitCount": 3,
-      "maxDepth": 10,
+      "maxDepth": 9,
       "maxFanIn": 3,
       "maxFanOut": 2,
       "primaryStructure": "self-contained",
@@ -71519,7 +71522,7 @@
         "competition"
       ],
       "complexityTier": "complex",
-      "complexityScore": 65
+      "complexityScore": 59
     }
   },
   {
@@ -71828,6 +71831,10 @@
         {
           "journey": "FUL-301",
           "because": "FUL-301 states what the business took on, from the order record, and it outranks this journey for exactly that reason: the record has to open before there is anything to welcome somebody into. This journey carries none of what that confirmation says and waits until it has had its moment."
+        },
+        {
+          "journey": "RET-292",
+          "because": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year or more later. This journey is the one-time moment that dates it; RET-292 is the recurring recognition of it, and the two never run at once."
         }
       ],
       "competition": null,
@@ -72785,14 +72792,6 @@
           "terminal": false
         },
         {
-          "id": "c.sendable",
-          "kind": "condition",
-          "headline": "May the recognition go out?",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
           "id": "a.recognise",
           "kind": "action",
           "headline": "Say the date and what it marks, in the person's own terms, and say nothing the record does not support. No reward, discount, tier or benefit unless one has actually been issued.",
@@ -72843,10 +72842,10 @@
         },
         {
           "from": "c.date",
-          "to": "c.sendable",
+          "to": "a.recognise",
           "family": "branch",
           "label": "Recognise",
-          "when": "the date is one the person supplied or one their own record reached, the relationship is open, and this cycle has not already been recognised"
+          "when": "the date is one the person supplied or one their own record reached, the relationship is open, this cycle has not already been recognised, and the send path passes - purpose-level permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person"
         },
         {
           "from": "c.date",
@@ -72863,18 +72862,11 @@
           "when": "this cycle has already been recognised, or the date has passed and the cycle closed unsent"
         },
         {
-          "from": "c.sendable",
-          "to": "a.recognise",
-          "family": "branch",
-          "label": "Sendable",
-          "when": "the send path passes: purpose-level permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person"
-        },
-        {
-          "from": "c.sendable",
+          "from": "c.date",
           "to": "a.record-no-action",
           "family": "branch",
-          "label": "Suppressed",
-          "when": "a gate stops it, or a higher-precedence date recognition holds this person's window; the reason is recorded"
+          "label": "Cycle already spent",
+          "when": "this cycle has already been recognised, or the date has passed and the cycle closed unsent"
         },
         {
           "from": "a.recognise",
@@ -72902,8 +72894,7 @@
         1,
         2,
         3,
-        4,
-        5
+        4
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": []
@@ -72951,22 +72942,22 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 8,
-      "edgeCount": 8,
-      "branchNodeCount": 2,
+      "nodeCount": 7,
+      "edgeCount": 7,
+      "branchNodeCount": 1,
       "backwardEdgeCount": 0,
       "handoffCount": 0,
       "exitCount": 3,
-      "maxDepth": 4,
+      "maxDepth": 3,
       "maxFanIn": 2,
-      "maxFanOut": 3,
+      "maxFanOut": 4,
       "primaryStructure": "self-contained",
       "behaviors": [
         "multi-exit",
         "competition"
       ],
       "complexityTier": "simple",
-      "complexityScore": 27
+      "complexityScore": 22
     }
   },
   {

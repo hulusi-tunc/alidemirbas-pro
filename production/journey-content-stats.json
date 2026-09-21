@@ -90,7 +90,7 @@
     },
     {
       "field": "distinctFrom.because",
-      "n": 351,
+      "n": 359,
       "min": 111,
       "median": 209,
       "p90": 354,
@@ -103,7 +103,7 @@
       "field": "action.does (node headline)",
       "n": 1362,
       "min": 39,
-      "median": 217,
+      "median": 218,
       "p90": 302,
       "p95": 343,
       "max": 835,
@@ -112,7 +112,7 @@
     },
     {
       "field": "condition.asks (node headline)",
-      "n": 912,
+      "n": 910,
       "min": 13,
       "median": 43,
       "p90": 68,
@@ -123,7 +123,7 @@
     },
     {
       "field": "branch.label (short, chip-safe)",
-      "n": 2112,
+      "n": 2109,
       "min": 2,
       "median": 13,
       "p90": 28,
@@ -134,7 +134,7 @@
     },
     {
       "field": "branch.when (secondary text, separate field from label)",
-      "n": 2112,
+      "n": 2109,
       "min": 12,
       "median": 63,
       "p90": 102,

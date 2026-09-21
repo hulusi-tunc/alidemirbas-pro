@@ -5686,7 +5686,7 @@
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": false,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.negative",
@@ -5922,10 +5922,10 @@
   "handoffCount": 2,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 2,
-  "backwardEdgeCount": 4,
+  "backwardEdgeCount": 2,
   "maxFanIn": 2,
   "maxFanOut": 2,
-  "maxDepth": 7,
+  "maxDepth": 8,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -5948,8 +5948,26 @@
    },
    {
     "from": "a.context",
-    "to": "c.reason",
+    "to": "c.surface",
     "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.surface",
+    "to": "c.reason",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.surface",
+    "to": "a.no-reason",
+    "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -5966,25 +5984,7 @@
    },
    {
     "from": "c.reason",
-    "to": "c.ask",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.ask",
     "to": "a.ask",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.ask",
-    "to": "a.no-reason",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -6034,7 +6034,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "a.record-reason",
@@ -6052,7 +6052,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "c.resolution",
@@ -6743,10 +6743,10 @@
  {
   "id": "RET-32",
   "category": "retention",
-  "nodeCount": 15,
-  "edgeCount": 19,
-  "branchNodeCount": 5,
-  "branchEdgeCount": 10,
+  "nodeCount": 14,
+  "edgeCount": 17,
+  "branchNodeCount": 4,
+  "branchEdgeCount": 8,
   "waitCount": 2,
   "exitCount": 3,
   "terminalExitCount": 0,
@@ -6756,7 +6756,7 @@
   "backwardEdgeCount": 4,
   "maxFanIn": 3,
   "maxFanOut": 2,
-  "maxDepth": 10,
+  "maxDepth": 9,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -6797,26 +6797,8 @@
    },
    {
     "from": "a.open",
-    "to": "c.basis",
+    "to": "c.sendable",
     "syntacticKind": "forward",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.basis",
-    "to": "c.sendable",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.basis",
-    "to": "c.sendable",
-    "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -7550,10 +7532,10 @@
  {
   "id": "RET-295",
   "category": "retention",
-  "nodeCount": 8,
-  "edgeCount": 8,
-  "branchNodeCount": 2,
-  "branchEdgeCount": 5,
+  "nodeCount": 7,
+  "edgeCount": 7,
+  "branchNodeCount": 1,
+  "branchEdgeCount": 4,
   "waitCount": 0,
   "exitCount": 3,
   "terminalExitCount": 0,
@@ -7562,8 +7544,8 @@
   "crossJourneyHandoffCount": 0,
   "backwardEdgeCount": 0,
   "maxFanIn": 2,
-  "maxFanOut": 3,
-  "maxDepth": 4,
+  "maxFanOut": 4,
+  "maxDepth": 3,
   "hasBranches": true,
   "hasBackwardEdges": false,
   "hasWait": false,
@@ -7586,7 +7568,7 @@
    },
    {
     "from": "c.date",
-    "to": "c.sendable",
+    "to": "a.recognise",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -7612,16 +7594,7 @@
     "isBackward": false
    },
    {
-    "from": "c.sendable",
-    "to": "a.recognise",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.sendable",
+    "from": "c.date",
     "to": "a.record-no-action",
     "syntacticKind": "branch",
     "isExternal": false,

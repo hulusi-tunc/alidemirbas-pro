@@ -32,7 +32,7 @@
     {
       "risk": "long-forward-chain",
       "description": "Depth from entry to the furthest node along non-backward edges. A layout that assumes a short chain will need vertical scroll or compression.",
-      "affectedCount": 35,
+      "affectedCount": 34,
       "threshold": ">=10 levels deep",
       "worst": [
         [
