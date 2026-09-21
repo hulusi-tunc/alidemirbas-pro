@@ -12972,6 +12972,52 @@
     },
     {
       "route": "/tr/lab/journeys/delivery-attempt-failure",
+      "text": "FUL-146 narrates a slip against a timing commitment while the obligation is still moving toward delivery. This runs against a single attempt already known to have failed - a different fact, and one FUL-146 does not narrate beside.",
+      "hits": [
+        "the",
+        "still",
+        "this",
+        "already",
+        "have",
+        "and",
+        "does",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/delivery-attempt-failure",
+      "text": "FUL-265 reports what the executor says about an obligation in motion; this opens on a single attempt already known to have failed, and its subject is the attempt, not the obligation.",
+      "hits": [
+        "what",
+        "the",
+        "this",
+        "already",
+        "have",
+        "and",
+        "its",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/delivery-attempt-failure",
+      "text": "REM-151 asks whether an obligation is unresolved after something was delivered; this runs while nothing has been delivered at all and a further attempt is still possible.",
+      "hits": [
+        "after",
+        "this",
+        "has",
+        "been",
+        "and",
+        "still"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/delivery-attempt-failure",
       "text": "a delivery executor confirming an attempt was made and delivery did not occur",
       "hits": [
         "and",
@@ -13011,6 +13057,17 @@
       "hits": [
         "for",
         "this"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/delivery-attempt-failure",
+      "text": "While this journey holds a failed attempt it is the one that tells the recipient about the obligation's timing.",
+      "hits": [
+        "this",
+        "the",
+        "that"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -13605,6 +13662,34 @@
     },
     {
       "route": "/tr/lab/journeys/dispatch-to-acceptance",
+      "text": "FUL-291 sends guidance once fulfillment has stopped moving and there is nothing left to track. This journey's own tracking ends the moment it exits or hands off, and it never says what to do with what arrived.",
+      "hits": [
+        "has",
+        "and",
+        "this",
+        "the",
+        "what",
+        "with"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/dispatch-to-acceptance",
+      "text": "FUL-148 recovers a single attempt already known to have failed. This journey's own tracking ends at that same moment - a confirmed non-arrival or an executor gone quiet long enough to need recovery - and hands off rather than narrating the attempt itself.",
+      "hits": [
+        "already",
+        "have",
+        "this",
+        "that",
+        "and",
+        "the"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/dispatch-to-acceptance",
       "text": "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
       "hits": [
         "the",
@@ -13689,11 +13774,32 @@
     },
     {
       "route": "/tr/lab/journeys/dispatch-to-acceptance",
+      "text": "A revised window is stated once. A second revision is not a third narrative - it is an executor who cannot hold a window, and the obligation moves to recovery.",
+      "hits": [
+        "not",
+        "and",
+        "the"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/dispatch-to-acceptance",
       "text": "· The executor's own expected window, from the dispatch record; its passing without an authoritative report is a non-arrival to be reconciled, never assumed delivered.",
       "hits": [
         "the",
         "from",
         "its"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/dispatch-to-acceptance",
+      "text": "· One permitted revised-window notice per dispatched obligation; a second revision is read as an executor who cannot hold a window and the obligation goes to recovery instead of a further revision.",
+      "hits": [
+        "and",
+        "the"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -13757,11 +13863,35 @@
     },
     {
       "route": "/tr/lab/journeys/dispatch-to-acceptance",
-      "text": "the the dispatched obligation re-read from the system of record before acting on the timeout",
+      "text": "the dispatched obligation re-read from the system of record before acting on the timeout, and on every re-arm after a revised window - the revision counter itself is read from the instance, never from the event that reported it",
       "hits": [
         "the",
         "from",
-        "before"
+        "before",
+        "and",
+        "after",
+        "that"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/dispatch-to-acceptance",
+      "text": "What did the executor authoritatively report?",
+      "hits": [
+        "what",
+        "the"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/dispatch-to-acceptance",
+      "text": "· iddia edemez : a window the executor has not actually committed to",
+      "hits": [
+        "the",
+        "has",
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -13776,16 +13906,6 @@
         "which",
         "the",
         "have"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/dispatch-to-acceptance",
-      "text": "What did the executor authoritatively report?",
-      "hits": [
-        "what",
-        "the"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -13860,7 +13980,7 @@
     },
     {
       "route": "/tr/lab/journeys/dispatch-to-acceptance",
-      "text": ": a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait",
+      "text": ": a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait, or a second revised window on the same obligation",
       "hits": [
         "that",
         "the"
@@ -18416,7 +18536,7 @@
     },
     {
       "route": "/tr/lab/journeys/fulfillment-delay",
-      "text": "Once the obligation is handed to a delivery executor, an in-transit slip on the same obligation is FUL-265's delay-or-tracking state to hold and report; this journey does not open a second, competing delay narrative about a slip FUL-265 is already tracking under its own wait.",
+      "text": "Once the obligation is handed to a delivery executor, an in-transit slip on the same obligation is FUL-265's delay-or-tracking state to hold and report; this journey does not open a second, competing delay narrative about a slip FUL-265 is already tracking under its own wait. Once the obligation's latest authoritative state is a failed delivery attempt, the failed attempt is FUL-148's to narrate, and this journey does not open beside it either.",
       "hits": [
         "the",
         "and",
@@ -25820,6 +25940,21 @@
     },
     {
       "route": "/tr/lab/journeys/order-confirmation",
+      "text": "SCH-277 confirms a reservation - a claim on a future slot or resource that still has to be honoured. This confirms an order - an obligation to deliver a thing or a performed service. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the reservation.",
+      "hits": [
+        "that",
+        "still",
+        "has",
+        "this",
+        "the",
+        "and",
+        "its"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/order-confirmation",
       "text": "Open the fulfillment record in front of the person who owns it, stated from the record rather than from the request, so that tracking, delay and follow-up all have something true to be later than.",
       "hits": [
         "the",
@@ -25976,7 +26111,7 @@
     },
     {
       "route": "/tr/lab/journeys/order-confirmation",
-      "text": "This journey never reports progress. Where the order is and whether it is running late are the tracking journey's (FUL-265) and the delay journey's (FUL-146) own states, and both of them begin after this one has had its moment.",
+      "text": "This journey never reports progress. Where the order is and whether it is running late are the tracking journey's (FUL-265) and the delay journey's (FUL-146) own states, and both of them begin after this one has had its moment. Where a business sells a reservation as an order, this states only the obligation to deliver or perform - never the reservation itself, which is SCH-277's own record to confirm.",
       "hits": [
         "this",
         "where",
@@ -25985,7 +26120,8 @@
         "are",
         "after",
         "has",
-        "its"
+        "its",
+        "which"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -26116,29 +26252,6 @@
     },
     {
       "route": "/tr/lab/journeys/order-confirmation",
-      "text": "( SMS ): the accepted obligation carries a time-bound action the person has to take, and permission for messages on this route is recorded",
-      "hits": [
-        "the",
-        "has",
-        "and",
-        "for",
-        "this"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/order-confirmation",
-      "text": "( Uygulama içi ): the order was placed inside the product and the confirmation belongs beside the record it describes",
-      "hits": [
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/order-confirmation",
       "text": "confirmed; what the record accepted has been stated once and this journey says nothing further about it",
       "hits": [
         "what",
@@ -26175,13 +26288,15 @@
     },
     {
       "route": "/tr/lab/journeys/order-confirmation",
-      "text": "post-purchase-welcome (person) - highest in the post-purchase-welcome group - the order's own confirmation answers the question the post-purchase follow-up and the first-purchase welcome both assume has been answered, so both of them wait behind it rather than beside it; being transactional it is never itself deferred, and the contest is declared here so the other two have a named side to defer to",
+      "text": "post-purchase-welcome (person) - highest in the post-purchase-welcome group - the order's own confirmation answers the question the post-purchase follow-up and the first-purchase welcome both assume has been answered, so both of them wait behind it rather than beside it; being transactional it is never itself deferred, and the contest is declared here so the other two have a named side to defer to; the group's scope is the person rather than this order deliberately - a contact-pressure judgment about how much this person hears in one window, not an ownership claim this journey makes over another order",
       "hits": [
         "the",
         "and",
         "has",
         "been",
-        "have"
+        "have",
+        "this",
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -28186,10 +28301,13 @@
     },
     {
       "route": "/tr/lab/journeys/post-completion-issue",
-      "text": "The issue is scoped to the fulfillment it concerns. A second problem with the same order is a second issue unless it is the same defect described again.",
+      "text": "The issue is scoped to the fulfillment it concerns. A second problem with the same order is a second issue unless it is the same defect described again. On the actionable branch this journey says nothing, because remedy selection speaks on the same hop: acknowledging an issue and then presenting remedy options a moment later would be two senders on one problem.",
       "hits": [
         "the",
-        "with"
+        "with",
+        "this",
+        "because",
+        "and"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -28232,6 +28350,36 @@
         "with",
         "this",
         "already"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/post-completion-issue",
+      "text": "FUL-148 recovers a single delivery attempt already known to have failed, while a further attempt is still possible. This journey opens once something has actually been delivered and asks whether it left an obligation unresolved - nothing has failed to arrive, something arrived and was not right.",
+      "hits": [
+        "already",
+        "have",
+        "still",
+        "this",
+        "has",
+        "been",
+        "and",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/post-completion-issue",
+      "text": "RET-26 is the library's general service-recovery journey and its evidence explicitly includes a failed fulfilment among other causes. This journey is the narrower case: a concrete problem with a specific completed fulfillment or service, assessed for one unresolved obligation and one remedy route rather than for a relationship-level recovery.",
+      "hits": [
+        "the",
+        "and",
+        "its",
+        "this",
+        "with",
+        "for"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -28781,27 +28929,6 @@
         "has",
         "and",
         "for"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/post-purchase-follow-up",
-      "text": "( Uygulama içi ): the next step is taken inside the product and the guidance belongs beside it",
-      "hits": [
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/post-purchase-follow-up",
-      "text": "( Push ): a current device registration exists and the permission covering it still stands, and the step is short enough to be a nudge",
-      "hits": [
-        "and",
-        "the",
-        "still"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -34629,6 +34756,19 @@
     },
     {
       "route": "/tr/lab/journeys/remedy-selection",
+      "text": "SUB-298 decides a subscription-specific consequence of its own lifecycle. This journey decides which remedy satisfies an unresolved fulfillment or service obligation, on any order - the two never resolve the same question even where the same subscription happens to be the entity behind both.",
+      "hits": [
+        "its",
+        "this",
+        "which",
+        "the",
+        "where"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/remedy-selection",
       "text": "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
       "hits": [
         "the",
@@ -34680,6 +34820,20 @@
       "hits": [
         "for",
         "this"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/remedy-selection",
+      "text": "No message from this journey states the money. That a refund is owed is FIN-137's decision and that it has moved is FIN-302's announcement; this journey names the remedy and nothing about the payment.",
+      "hits": [
+        "from",
+        "this",
+        "the",
+        "that",
+        "and",
+        "has"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -34787,20 +34941,47 @@
     },
     {
       "route": "/tr/lab/journeys/remedy-selection",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "State which remedy resolves the obligation and what happens next.",
       "hits": [
+        "which",
         "the",
-        "has",
-        "and"
+        "and",
+        "what"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/remedy-selection",
-      "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
+      "text": "· iddia edemez : a date the receiving journey has not committed to, that the remedy is complete",
       "hits": [
         "the",
+        "has",
+        "not",
+        "that"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/remedy-selection",
+      "text": "· iddia edemez : a refund: not the amount, not when it will appear, not whether it has settled, a date the receiving journey has not committed to, that the remedy is complete",
+      "hits": [
+        "not",
+        "the",
+        "when",
+        "has",
+        "that"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/remedy-selection",
+      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "hits": [
+        "the",
+        "has",
         "and"
       ],
       "known": true,

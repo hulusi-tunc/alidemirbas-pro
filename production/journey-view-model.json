@@ -41415,7 +41415,7 @@
         {
           "id": "a.offer",
           "kind": "action",
-          "headline": "Offer the choices that are actually available - wait, reschedule, an alternative, or cancel. Offering a choice that cannot be honoured is worse than offering none, because it converts a delay into a broken second promise",
+          "headline": "Re-read the obligation's resumption state before offering - an obligation that resumed while this choice was being evaluated is not offered cancel or reschedule. Offer the choices that are actually available - wait, reschedule, an alternative, or cancel. Offering a choice that cannot be honoured is worse than offering none, because it converts a delay into a broken second promise",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -41453,10 +41453,10 @@
           "terminal": false
         },
         {
-          "id": "h.resume",
-          "kind": "handoff",
-          "headline": "Fulfillment execution → progress → complete, partial or fail",
-          "detail": "a delayed obligation resuming",
+          "id": "x.resumed",
+          "kind": "exit",
+          "headline": "delayed obligation resumed or completed against its revised commitment",
+          "detail": "a later slip against the revised commitment opens its own instance",
           "isEntry": false,
           "terminal": false
         },
@@ -41537,7 +41537,7 @@
         },
         {
           "from": "c.recipient-impact",
-          "to": "c.threshold",
+          "to": "w.resume",
           "family": "branch",
           "label": "No material change for them",
           "when": "the slip stays inside what they were already told to expect and nothing they arranged moves"
@@ -41559,7 +41559,7 @@
         {
           "from": "c.threshold",
           "to": "w.resume",
-          "family": "branch",
+          "family": "backward",
           "label": "Within tolerance",
           "when": "the new timing is still inside what the commitment or policy accepts"
         },
@@ -41642,7 +41642,7 @@
         },
         {
           "from": "w.resume",
-          "to": "h.resume",
+          "to": "x.resumed",
           "family": "wait-event",
           "label": "on event",
           "when": "fulfillment_resumed_or_completed"
@@ -41653,13 +41653,6 @@
           "family": "wait-timeout",
           "label": "on timeout",
           "when": "a delay that outlives even its revised horizon has stopped being a timing problem, and communicating about it does not resolve it"
-        },
-        {
-          "from": "h.resume",
-          "to": "FUL-144",
-          "family": "cross-journey-handoff",
-          "label": null,
-          "when": "a delayed obligation resuming"
         },
         {
           "from": "h.exception",
@@ -41685,13 +41678,14 @@
       ],
       "startNode": "t.slip",
       "terminalNodes": [
-        "h.resume",
+        "x.resumed",
         "h.exception",
         "h.cancel",
         "h.escalate"
       ],
       "backwardEdgeIds": [
         9,
+        10,
         16,
         17,
         21
@@ -41713,17 +41707,12 @@
       "handoffEdgeIds": [
         24,
         25,
-        26,
-        27
+        26
       ],
       "externalEdgeIds": []
     },
     "relationships": {
       "handoffs": [
-        {
-          "to": "FUL-144",
-          "isExternal": false
-        },
         {
           "to": "FUL-145",
           "isExternal": false
@@ -41770,22 +41759,22 @@
       "hasPreemption": false,
       "hasCompetition": false,
       "nodeCount": 19,
-      "edgeCount": 28,
+      "edgeCount": 27,
       "branchNodeCount": 5,
-      "backwardEdgeCount": 4,
-      "handoffCount": 4,
-      "exitCount": 0,
+      "backwardEdgeCount": 5,
+      "handoffCount": 3,
+      "exitCount": 1,
       "maxDepth": 11,
-      "maxFanIn": 4,
+      "maxFanIn": 5,
       "maxFanOut": 4,
-      "primaryStructure": "router",
+      "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
         "wait-timeout",
         "cross-journey-handoff"
       ],
       "complexityTier": "extreme",
-      "complexityScore": 80
+      "complexityScore": 81
     }
   },
   {
@@ -42178,10 +42167,10 @@
           "terminal": false
         },
         {
-          "id": "h.retry",
-          "kind": "handoff",
-          "headline": "Dispatch or handoff → track → delivered, failed or unknown",
-          "detail": "a further delivery attempt being dispatched",
+          "id": "x.reattempt-scheduled",
+          "kind": "exit",
+          "headline": "a further attempt scheduled, against the remaining budget or a policy-authorised alternative route",
+          "detail": "a further attempt that also fails opens its own instance against its own delivery attempt",
           "isEntry": false,
           "terminal": false
         },
@@ -42310,7 +42299,7 @@
         },
         {
           "from": "a.alternate",
-          "to": "h.retry",
+          "to": "x.reattempt-scheduled",
           "family": "forward",
           "label": null,
           "when": null
@@ -42352,17 +42341,10 @@
         },
         {
           "from": "a.reattempt",
-          "to": "h.retry",
+          "to": "x.reattempt-scheduled",
           "family": "forward",
           "label": null,
           "when": null
-        },
-        {
-          "from": "h.retry",
-          "to": "FUL-147",
-          "family": "cross-journey-handoff",
-          "label": null,
-          "when": "a further delivery attempt being dispatched"
         },
         {
           "from": "h.return",
@@ -42381,7 +42363,7 @@
       ],
       "startNode": "t.failed",
       "terminalNodes": [
-        "h.retry",
+        "x.reattempt-scheduled",
         "h.return",
         "h.exception"
       ],
@@ -42408,17 +42390,12 @@
       ],
       "handoffEdgeIds": [
         22,
-        23,
-        24
+        23
       ],
       "externalEdgeIds": []
     },
     "relationships": {
       "handoffs": [
-        {
-          "to": "FUL-147",
-          "isExternal": false
-        },
         {
           "to": "REM-151",
           "isExternal": false
@@ -42428,7 +42405,20 @@
           "isExternal": false
         }
       ],
-      "distinctFrom": [],
+      "distinctFrom": [
+        {
+          "journey": "FUL-146",
+          "because": "FUL-146 narrates a slip against a timing commitment while the obligation is still moving toward delivery. This runs against a single attempt already known to have failed - a different fact, and one FUL-146 does not narrate beside."
+        },
+        {
+          "journey": "FUL-265",
+          "because": "FUL-265 reports what the executor says about an obligation in motion; this opens on a single attempt already known to have failed, and its subject is the attempt, not the obligation."
+        },
+        {
+          "journey": "REM-151",
+          "because": "REM-151 asks whether an obligation is unresolved after something was delivered; this runs while nothing has been delivered at all and a further attempt is still possible."
+        }
+      ],
       "competition": null,
       "preemptedBy": []
     },
@@ -42456,22 +42446,22 @@
       "hasPreemption": false,
       "hasCompetition": false,
       "nodeCount": 15,
-      "edgeCount": 25,
+      "edgeCount": 24,
       "branchNodeCount": 4,
       "backwardEdgeCount": 5,
-      "handoffCount": 3,
-      "exitCount": 0,
+      "handoffCount": 2,
+      "exitCount": 1,
       "maxDepth": 7,
       "maxFanIn": 4,
       "maxFanOut": 5,
-      "primaryStructure": "router",
+      "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
         "wait-timeout",
         "cross-journey-handoff"
       ],
-      "complexityTier": "extreme",
-      "complexityScore": 68
+      "complexityTier": "complex",
+      "complexityScore": 67
     }
   },
   {
@@ -43127,6 +43117,14 @@
           "terminal": false
         },
         {
+          "id": "a.revised",
+          "kind": "action",
+          "headline": "State the revised window the executor now reports, once. A second revision on the same obligation is not a third narrative - it is an executor who cannot hold a window, and the obligation moves to recovery instead",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.no-arrival",
           "kind": "action",
           "headline": "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of. Calling an unknown a failure produces a replacement that then arrives alongside the original",
@@ -43135,10 +43133,10 @@
           "terminal": false
         },
         {
-          "id": "x.unresolved",
+          "id": "h.no-arrival",
           "kind": "handoff",
           "headline": "Delivery attempt failed → reason → retry, correct, alternate or return",
-          "detail": "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait",
+          "detail": "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait, or a second revised window on the same obligation",
           "isEntry": false,
           "terminal": false
         },
@@ -43254,6 +43252,13 @@
         },
         {
           "from": "c.delivery",
+          "to": "a.revised",
+          "family": "branch",
+          "label": "A revised window was reported",
+          "when": "the executor reports the delivery will land later than the window last stated, without yet confirming a failure"
+        },
+        {
+          "from": "c.delivery",
           "to": "a.arrived",
           "family": "branch",
           "label": "Delivered",
@@ -43267,18 +43272,25 @@
           "when": "a confirmed failure, or a window that has passed with no final outcome"
         },
         {
+          "from": "a.revised",
+          "to": "w.delivery",
+          "family": "backward",
+          "label": null,
+          "when": null
+        },
+        {
           "from": "a.no-arrival",
-          "to": "x.unresolved",
+          "to": "h.no-arrival",
           "family": "forward",
           "label": null,
           "when": null
         },
         {
-          "from": "x.unresolved",
+          "from": "h.no-arrival",
           "to": "FUL-148",
           "family": "cross-journey-handoff",
           "label": null,
-          "when": "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait"
+          "when": "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait, or a second revised window on the same obligation"
         },
         {
           "from": "a.arrived",
@@ -43353,24 +43365,27 @@
       ],
       "startNode": "t.dispatched",
       "terminalNodes": [
-        "x.unresolved",
+        "h.no-arrival",
         "x.delivered",
         "h.issue",
         "x.accepted",
         "x.finalized"
       ],
-      "backwardEdgeIds": [],
+      "backwardEdgeIds": [
+        7
+      ],
       "branchEdgeIds": [
         4,
         5,
-        9,
-        10,
-        14,
-        15
+        6,
+        11,
+        12,
+        16,
+        17
       ],
       "handoffEdgeIds": [
-        7,
-        16
+        9,
+        18
       ],
       "externalEdgeIds": []
     },
@@ -43397,6 +43412,14 @@
         {
           "journey": "FUL-301",
           "because": "FUL-301 confirms what the record accepted at the moment it opened, and stops there. This journey begins at dispatch, which is where the order first has a position to report - it never re-confirms the order, and the confirmation never reports a position."
+        },
+        {
+          "journey": "FUL-291",
+          "because": "FUL-291 sends guidance once fulfillment has stopped moving and there is nothing left to track. This journey's own tracking ends the moment it exits or hands off, and it never says what to do with what arrived."
+        },
+        {
+          "journey": "FUL-148",
+          "because": "FUL-148 recovers a single attempt already known to have failed. This journey's own tracking ends at that same moment - a confirmed non-arrival or an executor gone quiet long enough to need recovery - and hands off rather than narrating the attempt itself."
         }
       ],
       "competition": null,
@@ -43416,8 +43439,8 @@
     },
     "derived": {
       "hasBranches": true,
-      "hasBackwardEdges": false,
-      "hasTrueCycle": false,
+      "hasBackwardEdges": true,
+      "hasTrueCycle": true,
       "hasExternalHandoff": false,
       "hasCrossJourneyHandoff": true,
       "hasWait": true,
@@ -43426,24 +43449,25 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 16,
-      "edgeCount": 18,
+      "nodeCount": 17,
+      "edgeCount": 20,
       "branchNodeCount": 3,
-      "backwardEdgeCount": 0,
+      "backwardEdgeCount": 1,
       "handoffCount": 2,
       "exitCount": 3,
       "maxDepth": 9,
       "maxFanIn": 2,
-      "maxFanOut": 2,
+      "maxFanOut": 3,
       "primaryStructure": "mixed-termination",
       "behaviors": [
+        "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
         "multi-exit",
         "no-re-entry"
       ],
       "complexityTier": "complex",
-      "complexityScore": 54
+      "complexityScore": 59
     }
   },
   {
@@ -44294,6 +44318,10 @@
         {
           "journey": "FIN-131",
           "because": "FIN-131 opens the obligation to pay that arises from the same event. This opens the obligation to deliver. They fail independently, and confirming one has never confirmed the other."
+        },
+        {
+          "journey": "SCH-277",
+          "because": "SCH-277 confirms a reservation - a claim on a future slot or resource that still has to be honoured. This confirms an order - an obligation to deliver a thing or a performed service. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the reservation."
         }
       ],
       "competition": null,
@@ -64503,6 +64531,14 @@
         {
           "journey": "REM-305",
           "because": "REM-305 acknowledges that a request arrived and is owned; it hands off here only when the still-open request concerns a completed fulfilment or service with a concrete unresolved problem - REM-305 never restates or re-assesses that problem, and this journey never sends the acknowledgement REM-305 already sent."
+        },
+        {
+          "journey": "FUL-148",
+          "because": "FUL-148 recovers a single delivery attempt already known to have failed, while a further attempt is still possible. This journey opens once something has actually been delivered and asks whether it left an obligation unresolved - nothing has failed to arrive, something arrived and was not right."
+        },
+        {
+          "journey": "RET-26",
+          "because": "RET-26 is the library's general service-recovery journey and its evidence explicitly includes a failed fulfilment among other causes. This journey is the narrower case: a concrete problem with a specific completed fulfillment or service, assessed for one unresolved obligation and one remedy route rather than for a relationship-level recovery."
         }
       ],
       "competition": null,
@@ -64517,7 +64553,7 @@
       ],
       "reusableRule": "Post-completion problems should first establish the unresolved obligation before selecting the remedy intended to satisfy it.",
       "entityScope": "the completed fulfillment or service, and the specific problem reported against it",
-      "entityNote": "The issue is scoped to the fulfillment it concerns. A second problem with the same order is a second issue unless it is the same defect described again."
+      "entityNote": "The issue is scoped to the fulfillment it concerns. A second problem with the same order is a second issue unless it is the same defect described again. On the actionable branch this journey says nothing, because remedy selection speaks on the same hop: acknowledging an issue and then presenting remedy options a moment later would be two senders on one problem."
     },
     "derived": {
       "hasBranches": true,
@@ -66234,6 +66270,38 @@
           "terminal": false
         },
         {
+          "id": "a.confirm-correction",
+          "kind": "action",
+          "headline": "Re-read the obligation before confirming - a correction already begun elsewhere, or an obligation satisfied meanwhile, is not confirmed as a decision still open. State that correction or reperformance is the remedy that resolves the obligation and what happens next, naming the policy default and that no selection was made where the selection window timed out. Claim no date the receiving journey has not committed to, and never that the remedy is already complete - it has been selected, not performed",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.confirm-replacement",
+          "kind": "action",
+          "headline": "Re-read the obligation before confirming - a replacement already begun elsewhere, or an obligation satisfied meanwhile, is not confirmed as a decision still open. State that a replacement is the remedy that resolves the obligation and what happens next, naming the policy default and that no selection was made where the selection window timed out. Claim no date the receiving journey has not committed to, and never that the remedy is already complete - it has been selected, not performed",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.confirm-return",
+          "kind": "action",
+          "headline": "Re-read the obligation before confirming - a return already begun elsewhere, or an obligation satisfied meanwhile, is not confirmed as a decision still open. State that a return is the remedy that resolves the obligation, before anything else, and what happens next, naming the policy default and that no selection was made where the selection window timed out. Claim no date the receiving journey has not committed to, and never that the remedy is already complete - it has been selected, not performed",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.confirm-refund",
+          "kind": "action",
+          "headline": "Re-read the obligation before confirming - a refund already begun elsewhere, or an obligation satisfied meanwhile, is not confirmed as a decision still open. State that a refund or credit is the remedy that resolves the obligation and what happens next, naming the policy default and that no selection was made where the selection window timed out. Name the remedy only - never the amount, never when it will appear, never whether it has settled, and never a date the receiving journey has not committed to or that the remedy is already complete",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "h.correction",
           "kind": "handoff",
           "headline": "Reperformance or correction → execute → verify corrected outcome",
@@ -66348,28 +66416,28 @@
         },
         {
           "from": "c.route",
-          "to": "h.correction",
+          "to": "a.confirm-correction",
           "family": "branch",
           "label": "Correction or reperformance",
           "when": "what exists can be made right, or the service can be performed again"
         },
         {
           "from": "c.route",
-          "to": "h.replacement",
+          "to": "a.confirm-replacement",
           "family": "branch",
           "label": "Replacement",
           "when": "a different instance of the thing is what satisfies the obligation"
         },
         {
           "from": "c.route",
-          "to": "h.return",
+          "to": "a.confirm-return",
           "family": "branch",
           "label": "Return, before anything else",
-          "when": "the resource has to come back before a further remedy can be settled, and a return was not already rejected for this issue - a rejected return does not get re-selected when REM-152's own h.alternative routes back here; that path already arrives at c.route with the rejection recorded, and this branch's condition is false the second time"
+          "when": "the resource has to come back before a further remedy can be settled, and a return was not already rejected for this issue - a rejected return does not get re-selected when REM-152 routes an already-rejected return back here as an alternative; that routing already arrives at this same condition with the rejection recorded, and this branch's condition is false the second time"
         },
         {
           "from": "c.route",
-          "to": "h.financial",
+          "to": "a.confirm-refund",
           "family": "branch",
           "label": "Refund or credit",
           "when": "money is the remedy the obligation calls for"
@@ -66380,6 +66448,34 @@
           "family": "branch",
           "label": "No remedy is owed",
           "when": "the obligation turns out to be satisfied, or no remedy applies under policy"
+        },
+        {
+          "from": "a.confirm-correction",
+          "to": "h.correction",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.confirm-replacement",
+          "to": "h.replacement",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.confirm-return",
+          "to": "h.return",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.confirm-refund",
+          "to": "h.financial",
+          "family": "forward",
+          "label": null,
+          "when": null
         },
         {
           "from": "h.correction",
@@ -66439,10 +66535,10 @@
         13
       ],
       "handoffEdgeIds": [
-        14,
-        15,
-        16,
-        17
+        18,
+        19,
+        20,
+        21
       ],
       "externalEdgeIds": []
     },
@@ -66473,6 +66569,10 @@
         {
           "journey": "FIN-302",
           "because": "This journey says which remedy will resolve the obligation, and a refund is only one of the answers it can give. FIN-302 says that money is actually moving and whether it arrived, which is two decisions further down the chain - a remedy confirmed here is never money arrived, and this journey never announces the movement."
+        },
+        {
+          "journey": "SUB-298",
+          "because": "SUB-298 decides a subscription-specific consequence of its own lifecycle. This journey decides which remedy satisfies an unresolved fulfillment or service obligation, on any order - the two never resolve the same question even where the same subscription happens to be the entity behind both."
         }
       ],
       "competition": null,
@@ -66501,8 +66601,8 @@
       "hasMultipleExits": false,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 14,
-      "edgeCount": 19,
+      "nodeCount": 18,
+      "edgeCount": 23,
       "branchNodeCount": 2,
       "backwardEdgeCount": 2,
       "handoffCount": 4,
@@ -66517,8 +66617,8 @@
         "cross-journey-handoff",
         "competition"
       ],
-      "complexityTier": "medium",
-      "complexityScore": 52
+      "complexityTier": "complex",
+      "complexityScore": 60
     }
   },
   {

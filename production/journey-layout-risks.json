@@ -61,7 +61,7 @@
     {
       "risk": "backward-edges",
       "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
-      "affectedCount": 168,
+      "affectedCount": 169,
       "threshold": ">=1 backward edge",
       "worst": [
         [
@@ -90,7 +90,7 @@
     {
       "risk": "true-graph-cycles",
       "description": "A backward edge is not automatically a cycle - only 33 of the 125 backward-edge journeys form an actual cycle (a path that returns to its own source). These need a recursion/traversal guard in the layout algorithm itself; the other 92 are simple back-references and do not.",
-      "affectedCount": 37,
+      "affectedCount": 38,
       "threshold": "DFS-detected true cycle",
       "worst": [
         "ACQ-11",
@@ -138,7 +138,7 @@
     {
       "risk": "handoff-density",
       "description": "Cross-journey and external handoffs on one graph. Each is a link leaving the current view - a layout that treats handoffs like ordinary nodes undercounts how often the reader leaves this journey.",
-      "affectedCount": 22,
+      "affectedCount": 21,
       "threshold": ">=4 handoffs",
       "worst": [
         [
@@ -175,6 +175,10 @@
           5
         ],
         [
+          "FUL-146",
+          5
+        ],
+        [
           "ACQ-285",
           4
         ],
@@ -184,10 +188,6 @@
         ],
         [
           "ACQ-13",
-          4
-        ],
-        [
-          "ACT-14",
           4
         ]
       ],
@@ -242,7 +242,6 @@
     "ACQ-287",
     "ACQ-288",
     "ACT-12",
-    "ACT-14",
     "DEC-183",
     "FBK-41",
     "FBK-43",
@@ -251,6 +250,7 @@
     "FBK-49",
     "FIN-302",
     "FUL-144",
+    "FUL-146",
     "OPS-121",
     "OWN-55",
     "OWN-57",

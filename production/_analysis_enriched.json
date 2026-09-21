@@ -30157,17 +30157,17 @@
   "id": "FUL-146",
   "category": "fulfillment",
   "nodeCount": 19,
-  "edgeCount": 28,
+  "edgeCount": 27,
   "branchNodeCount": 5,
   "branchEdgeCount": 12,
   "waitCount": 2,
-  "exitCount": 0,
+  "exitCount": 1,
   "terminalExitCount": 0,
-  "handoffCount": 4,
+  "handoffCount": 3,
   "externalHandoffCount": 0,
-  "crossJourneyHandoffCount": 4,
-  "backwardEdgeCount": 4,
-  "maxFanIn": 4,
+  "crossJourneyHandoffCount": 3,
+  "backwardEdgeCount": 5,
+  "maxFanIn": 5,
   "maxFanOut": 4,
   "maxDepth": 11,
   "hasBranches": true,
@@ -30246,7 +30246,7 @@
    },
    {
     "from": "c.recipient-impact",
-    "to": "c.threshold",
+    "to": "w.resume",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -30278,7 +30278,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
+    "isBackward": true
    },
    {
     "from": "c.threshold",
@@ -30381,7 +30381,7 @@
    },
    {
     "from": "w.resume",
-    "to": "h.resume",
+    "to": "x.resumed",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -30395,15 +30395,6 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "h.resume",
-    "to": "FUL-144",
-    "syntacticKind": "handoff",
-    "isExternal": false,
-    "isCrossJourney": true,
-    "isInternal": false,
     "isBackward": false
    },
    {
@@ -30434,8 +30425,8 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 80,
-  "primaryStructure": "router",
+  "complexityScore": 81,
+  "primaryStructure": "mixed-termination",
   "behaviors": [
    "backward-edge",
    "wait-timeout",
@@ -30595,15 +30586,15 @@
   "id": "FUL-148",
   "category": "fulfillment",
   "nodeCount": 15,
-  "edgeCount": 25,
+  "edgeCount": 24,
   "branchNodeCount": 4,
   "branchEdgeCount": 12,
   "waitCount": 2,
-  "exitCount": 0,
+  "exitCount": 1,
   "terminalExitCount": 0,
-  "handoffCount": 3,
+  "handoffCount": 2,
   "externalHandoffCount": 0,
-  "crossJourneyHandoffCount": 3,
+  "crossJourneyHandoffCount": 2,
   "backwardEdgeCount": 5,
   "maxFanIn": 4,
   "maxFanOut": 5,
@@ -30617,7 +30608,7 @@
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": false,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.failed",
@@ -30756,7 +30747,7 @@
    },
    {
     "from": "a.alternate",
-    "to": "h.retry",
+    "to": "x.reattempt-scheduled",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -30810,20 +30801,11 @@
    },
    {
     "from": "a.reattempt",
-    "to": "h.retry",
+    "to": "x.reattempt-scheduled",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "h.retry",
-    "to": "FUL-147",
-    "syntacticKind": "handoff",
-    "isExternal": false,
-    "isCrossJourney": true,
-    "isInternal": false,
     "isBackward": false
    },
    {
@@ -30845,14 +30827,14 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 68,
-  "primaryStructure": "router",
+  "complexityScore": 67,
+  "primaryStructure": "mixed-termination",
   "behaviors": [
    "backward-edge",
    "wait-timeout",
    "cross-journey-handoff"
   ],
-  "complexityTier": "extreme",
+  "complexityTier": "complex",
   "hasTrueCycle": false
  },
  "FUL-149": {
@@ -31204,22 +31186,22 @@
  "FUL-265": {
   "id": "FUL-265",
   "category": "fulfillment",
-  "nodeCount": 16,
-  "edgeCount": 18,
+  "nodeCount": 17,
+  "edgeCount": 20,
   "branchNodeCount": 3,
-  "branchEdgeCount": 6,
+  "branchEdgeCount": 7,
   "waitCount": 2,
   "exitCount": 3,
   "terminalExitCount": 2,
   "handoffCount": 2,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 2,
-  "backwardEdgeCount": 0,
+  "backwardEdgeCount": 1,
   "maxFanIn": 2,
-  "maxFanOut": 2,
+  "maxFanOut": 3,
   "maxDepth": 9,
   "hasBranches": true,
-  "hasBackwardEdges": false,
+  "hasBackwardEdges": true,
   "hasWait": true,
   "hasExternalHandoff": false,
   "hasCrossJourneyHandoff": true,
@@ -31267,6 +31249,15 @@
    },
    {
     "from": "c.delivery",
+    "to": "a.revised",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.delivery",
     "to": "a.arrived",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -31284,8 +31275,17 @@
     "isBackward": false
    },
    {
+    "from": "a.revised",
+    "to": "w.delivery",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
     "from": "a.no-arrival",
-    "to": "x.unresolved",
+    "to": "h.no-arrival",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -31293,7 +31293,7 @@
     "isBackward": false
    },
    {
-    "from": "x.unresolved",
+    "from": "h.no-arrival",
     "to": "FUL-148",
     "syntacticKind": "handoff",
     "isExternal": false,
@@ -31392,16 +31392,17 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 54,
+  "complexityScore": 59,
   "primaryStructure": "mixed-termination",
   "behaviors": [
+   "backward-edge",
    "wait-timeout",
    "cross-journey-handoff",
    "multi-exit",
    "no-re-entry"
   ],
   "complexityTier": "complex",
-  "hasTrueCycle": false
+  "hasTrueCycle": true
  },
  "FUL-276": {
   "id": "FUL-276",
@@ -32928,8 +32929,8 @@
  "REM-157": {
   "id": "REM-157",
   "category": "remedy",
-  "nodeCount": 14,
-  "edgeCount": 19,
+  "nodeCount": 18,
+  "edgeCount": 23,
   "branchNodeCount": 2,
   "branchEdgeCount": 7,
   "waitCount": 1,
@@ -33036,7 +33037,7 @@
    },
    {
     "from": "c.route",
-    "to": "h.correction",
+    "to": "a.confirm-correction",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -33045,7 +33046,7 @@
    },
    {
     "from": "c.route",
-    "to": "h.replacement",
+    "to": "a.confirm-replacement",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -33054,7 +33055,7 @@
    },
    {
     "from": "c.route",
-    "to": "h.return",
+    "to": "a.confirm-return",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -33063,7 +33064,7 @@
    },
    {
     "from": "c.route",
-    "to": "h.financial",
+    "to": "a.confirm-refund",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -33074,6 +33075,42 @@
     "from": "c.route",
     "to": "a.no-remedy",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm-correction",
+    "to": "h.correction",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm-replacement",
+    "to": "h.replacement",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm-return",
+    "to": "h.return",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm-refund",
+    "to": "h.financial",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -33125,7 +33162,7 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 52,
+  "complexityScore": 60,
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "backward-edge",
@@ -33133,7 +33170,7 @@
    "cross-journey-handoff",
    "competition"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "complex",
   "hasTrueCycle": false
  },
  "REM-158": {

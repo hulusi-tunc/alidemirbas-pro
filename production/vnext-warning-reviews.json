@@ -1792,6 +1792,22 @@
    "note": "t0 (a.recognize-next) and t0-only (a.recognize-only) are the two exclusive arms of c.next - a natural next action either follows from what was produced or it does not. They are never sent together; no channelStrategy.simultaneous is needed. The merge of a.recognize and a.surface into one recognition stage with two mutually exclusive message variants is the 69-journey plan's own design (audit/refactor/69-journey-final-plan.md, ACT-17 canonical changes).",
    "reviewedBy": "69-journey refactor, ACQ+ACT batch (ACT-12/13/14/17/19/20)",
    "reviewedAt": "2026-09-21"
+  },
+  {
+   "id": "FUL-265",
+   "code": "simultaneous_review",
+   "match": "touches t1b, t3",
+   "note": "t1b (a.revised) and t3 (a.arrived) are two of c.delivery's three exclusive arms - what the executor authoritatively reports is exactly one of a revised window, a delivery confirmation or a non-arrival, never more than one. They share w.delivery as their gate because both are read from the same wait's onEvent. They are never sent together; no channelStrategy.simultaneous is needed.",
+   "reviewedBy": "69-journey refactor batch (FUL-146/148/265/291/301/REM-151/157)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
+   "id": "REM-157",
+   "code": "simultaneous_review",
+   "match": "touches t2, t3, t3b, t3c, t3d",
+   "note": "t2 (a.no-remedy), t3 (a.confirm-correction), t3b (a.confirm-replacement), t3c (a.confirm-return) and t3d (a.confirm-refund) are the five exclusive arms of c.route - the remedy that resolves the obligation is exactly one of correction, replacement, return, refund or none, never more than one. They share c.choice/c.route as prerequisites because all five are reached only after the same routing decision. They are never sent together; no channelStrategy.simultaneous is needed.",
+   "reviewedBy": "69-journey refactor batch (FUL-146/148/265/291/301/REM-151/157)",
+   "reviewedAt": "2026-09-21"
   }
  ]
 }

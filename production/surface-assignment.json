@@ -1977,7 +1977,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "FUL-301",
@@ -1988,7 +1988,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "REM-151",
@@ -2065,7 +2065,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "REM-158",

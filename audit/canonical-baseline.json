@@ -100,12 +100,12 @@
     "schema_version": "vNext-2026-09"
   },
   "FUL-148": {
-    "hash": "sha256:e92249071016857e6ff8d44cf2f698737ba2732a56e037d2f8bdc7b8c78019d4",
+    "hash": "sha256:54970b30497cef6db1dc900703eb866db9e461879d69b42dea5482ab8bbf984c",
     "source": "src/canonical/fulfillment.ts",
     "schema_version": "vNext-2026-09"
   },
   "FUL-265": {
-    "hash": "sha256:4548dffe4cbf7181fd04156c8d65af203bb519fe79d35aa0d95c0f01ced727da",
+    "hash": "sha256:e5e756fc79fcac7aa8eaaa3c48ffe8ef309d278c3efbcfaee4bc5ef72a8f8b40",
     "source": "src/canonical/fulfillment.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -155,7 +155,7 @@
     "schema_version": "vNext-2026-09"
   },
   "FUL-146": {
-    "hash": "sha256:0d97867ce5c318b9c0fe6ea2f57203486345c4a0810d71a82084ae9d5d4e581a",
+    "hash": "sha256:f99e661a6a897c8edde33175c789c43a193b10fff6817aaab457f30486a491c8",
     "source": "src/canonical/fulfillment.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -215,7 +215,7 @@
     "schema_version": "vNext-2026-09"
   },
   "FUL-301": {
-    "hash": "sha256:1e51da9c57ba4d0108ed1b42d5467065d32704ca17fdc960c86355d6041b83c8",
+    "hash": "sha256:fc29d3cac49aecb501b30862c906cfb9d919322a481be61fd811c09a579f426b",
     "source": "src/canonical/fulfillment.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -235,12 +235,12 @@
     "schema_version": "vNext-2026-09"
   },
   "REM-151": {
-    "hash": "sha256:47d104415be06a70891ebb94a311f224db3a28081c644eac7cde5d825c9bddae",
+    "hash": "sha256:fde965a764eb0a358fb4845a080d43e13269df1d0569ab71b097ba19963f37d0",
     "source": "src/canonical/remedy.ts",
     "schema_version": "vNext-2026-09"
   },
   "FUL-291": {
-    "hash": "sha256:b728deae7298fb42fe48ca60a2eb3dfb17f03c480c8c4423f966ed5b236cd2d3",
+    "hash": "sha256:df41ef2c9f6307101b575b7d3a0a144ab879d9a172e641cdc0d2b691d88f2be8",
     "source": "src/canonical/fulfillment.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -270,7 +270,7 @@
     "schema_version": "vNext-2026-09"
   },
   "REM-157": {
-    "hash": "sha256:3cc4b5236265bcb120376375cb7026e510accebdbc25eeed6516b98504ea9de9",
+    "hash": "sha256:4e62fada3fa550b111afb62bceb2c6a8fc5c074df8b45235b775967f9ce1a66b",
     "source": "src/canonical/remedy.ts",
     "schema_version": "vNext-2026-09"
   },

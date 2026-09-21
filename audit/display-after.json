@@ -1033,7 +1033,7 @@
         "long_cards": [
           {
             "id": "a.offer-route",
-            "len": 142
+            "len": 138
           }
         ],
         "long_branch_labels": [
@@ -1069,7 +1069,7 @@
           },
           {
             "id": "a.offer-route",
-            "len": 129
+            "len": 125
           }
         ],
         "long_branch_labels": [
@@ -1103,22 +1103,26 @@
     "slug": "dispatch-to-acceptance",
     "locales": {
       "en": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 28,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.no-arrival",
-            "len": 141
+            "len": 137
           },
           {
             "id": "a.accept-request",
-            "len": 144
+            "len": 140
           }
         ],
         "long_branch_labels": [
+          {
+            "label": "A revised window was reported",
+            "len": 29
+          },
           {
             "label": "Delivery is the end of it",
             "len": 25
@@ -1127,18 +1131,27 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 28,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.dispatch",
-            "len": 128
+            "len": 124
+          },
+          {
+            "id": "a.revised",
+            "len": 113
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "Revize edilmiş bir pencere bildirildi",
+            "len": 37
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -1527,11 +1540,11 @@
         "long_cards": [
           {
             "id": "a.delay-update",
-            "len": 128
+            "len": 122
           },
           {
             "id": "a.no-choice-update",
-            "len": 121
+            "len": 117
           }
         ],
         "long_branch_labels": [
@@ -2170,7 +2183,7 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 147
+            "len": 136
           }
         ],
         "long_branch_labels": [
@@ -2420,7 +2433,7 @@
         "long_cards": [
           {
             "id": "a.followup",
-            "len": 176
+            "len": 138
           }
         ],
         "long_branch_labels": [],
@@ -2435,7 +2448,7 @@
         "long_cards": [
           {
             "id": "a.followup",
-            "len": 155
+            "len": 115
           }
         ],
         "long_branch_labels": [],
@@ -2705,15 +2718,15 @@
     "slug": "remedy-selection",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 23,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.no-remedy",
-            "len": 134
+            "len": 127
           }
         ],
         "long_branch_labels": [
@@ -2729,17 +2742,12 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 23,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.present",
-            "len": 117
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Düzeltme veya yeniden gerçekleştirme",

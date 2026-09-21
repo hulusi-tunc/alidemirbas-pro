@@ -19269,7 +19269,7 @@
     "external": false,
     "title": "FUL-146 Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
     "summary": "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
-    "searchText": "Fulfillment delay → recalculate commitment → continue, reschedule or escalate. Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.. Also known as delivery delay alert, shipping delay notice, late order notification, ETA change, delay with options. a material slip stated with the original commitment intact behind the new estimate. a delay beyond tolerance with real choices - wait, reschedule, an alternative, cancel. Expected fulfillment timing slipped. Orders, fulfillment, delivery & service completion. Hands off to FUL-144, FUL-145, FUL-150, OWN-55",
+    "searchText": "Fulfillment delay → recalculate commitment → continue, reschedule or escalate. Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.. Also known as delivery delay alert, shipping delay notice, late order notification, ETA change, delay with options. a material slip stated with the original commitment intact behind the new estimate. a delay beyond tolerance with real choices - wait, reschedule, an alternative, cancel. Expected fulfillment timing slipped. Orders, fulfillment, delivery & service completion. Hands off to FUL-145, FUL-150, OWN-55. delayed obligation resumed or completed against its revised commitment",
     "keywords": [
       "FUL-146",
       "delivery delay alert",
@@ -19319,9 +19319,6 @@
     },
     "journeyRelationRefs": {
       "handoffs": [
-        {
-          "targetId": "journey:FUL-144"
-        },
         {
           "targetId": "journey:FUL-145"
         },
@@ -19417,7 +19414,7 @@
     "external": false,
     "title": "FUL-148 Delivery attempt failed → reason → retry, correct, alternate or return",
     "summary": "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
-    "searchText": "Delivery attempt failed → reason → retry, correct, alternate or return. Recover a failed delivery according to why it failed, within a bounded number of attempts.. Also known as failed delivery recovery, delivery attempt failed, redelivery, missed delivery options, address correction request. a failed attempt recovered by why it failed, within a bounded number of attempts. concrete alternatives put to the recipient instead of a blind reattempt. Authoritative delivery attempt failure. Orders, fulfillment, delivery & service completion. Hands off to FUL-147, REM-151, FUL-145",
+    "searchText": "Delivery attempt failed → reason → retry, correct, alternate or return. Recover a failed delivery according to why it failed, within a bounded number of attempts.. Also known as failed delivery recovery, delivery attempt failed, redelivery, missed delivery options, address correction request. a failed attempt recovered by why it failed, within a bounded number of attempts. concrete alternatives put to the recipient instead of a blind reattempt. Authoritative delivery attempt failure. Orders, fulfillment, delivery & service completion. Hands off to REM-151, FUL-145. a further attempt scheduled, against the remaining budget or a policy-authorised alternative route",
     "keywords": [
       "FUL-148",
       "failed delivery recovery",
@@ -19468,16 +19465,26 @@
     "journeyRelationRefs": {
       "handoffs": [
         {
-          "targetId": "journey:FUL-147"
-        },
-        {
           "targetId": "journey:REM-151"
         },
         {
           "targetId": "journey:FUL-145"
         }
       ],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-146",
+          "because": "FUL-146 narrates a slip against a timing commitment while the obligation is still moving toward delivery. This runs against a single attempt already known to have failed - a different fact, and one FUL-146 does not narrate beside."
+        },
+        {
+          "targetId": "journey:FUL-265",
+          "because": "FUL-265 reports what the executor says about an obligation in motion; this opens on a single attempt already known to have failed, and its subject is the attempt, not the obligation."
+        },
+        {
+          "targetId": "journey:REM-151",
+          "because": "REM-151 asks whether an obligation is unresolved after something was delivered; this runs while nothing has been delivered at all and a further attempt is still possible."
+        }
+      ]
     }
   },
   {
@@ -19639,6 +19646,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
       "multi-exit",
@@ -19683,6 +19691,14 @@
         {
           "targetId": "journey:FUL-301",
           "because": "FUL-301 confirms what the record accepted at the moment it opened, and stops there. This journey begins at dispatch, which is where the order first has a position to report - it never re-confirms the order, and the confirmation never reports a position."
+        },
+        {
+          "targetId": "journey:FUL-291",
+          "because": "FUL-291 sends guidance once fulfillment has stopped moving and there is nothing left to track. This journey's own tracking ends the moment it exits or hands off, and it never says what to do with what arrived."
+        },
+        {
+          "targetId": "journey:FUL-148",
+          "because": "FUL-148 recovers a single attempt already known to have failed. This journey's own tracking ends at that same moment - a confirmed non-arrival or an executor gone quiet long enough to need recovery - and hands off rather than narrating the attempt itself."
         }
       ]
     }
@@ -19854,6 +19870,10 @@
         {
           "targetId": "journey:FIN-131",
           "because": "FIN-131 opens the obligation to pay that arises from the same event. This opens the obligation to deliver. They fail independently, and confirming one has never confirmed the other."
+        },
+        {
+          "targetId": "journey:SCH-277",
+          "because": "SCH-277 confirms a reservation - a claim on a future slot or resource that still has to be honoured. This confirms an order - an obligation to deliver a thing or a performed service. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the reservation."
         }
       ]
     }
@@ -21483,6 +21503,14 @@
         {
           "targetId": "journey:REM-305",
           "because": "REM-305 acknowledges that a request arrived and is owned; it hands off here only when the still-open request concerns a completed fulfilment or service with a concrete unresolved problem - REM-305 never restates or re-assesses that problem, and this journey never sends the acknowledgement REM-305 already sent."
+        },
+        {
+          "targetId": "journey:FUL-148",
+          "because": "FUL-148 recovers a single delivery attempt already known to have failed, while a further attempt is still possible. This journey opens once something has actually been delivered and asks whether it left an obligation unresolved - nothing has failed to arrive, something arrived and was not right."
+        },
+        {
+          "targetId": "journey:RET-26",
+          "because": "RET-26 is the library's general service-recovery journey and its evidence explicitly includes a failed fulfilment among other causes. This journey is the narrower case: a concrete problem with a specific completed fulfillment or service, assessed for one unresolved obligation and one remedy route rather than for a relationship-level recovery."
         }
       ]
     }
@@ -21620,6 +21648,10 @@
         {
           "targetId": "journey:FIN-302",
           "because": "This journey says which remedy will resolve the obligation, and a refund is only one of the answers it can give. FIN-302 says that money is actually moving and whether it arrived, which is two decisions further down the chain - a remedy confirmed here is never money arrived, and this journey never announces the movement."
+        },
+        {
+          "targetId": "journey:SUB-298",
+          "because": "SUB-298 decides a subscription-specific consequence of its own lifecycle. This journey decides which remedy satisfies an unresolved fulfillment or service obligation, on any order - the two never resolve the same question even where the same subscription happens to be the entity behind both."
         }
       ]
     }
