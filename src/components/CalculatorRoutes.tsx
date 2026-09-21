@@ -48,13 +48,13 @@ const T = {
 const HERO = {
   en: {
     eyebrow: "Calculators",
-    title: "Calculators for the marketing metrics you use most.",
-    sub: "Free tools for advertising, user acquisition, retention, A/B testing and unit economics. No account, no tracking.",
+    title: "Marketing metric calculators.",
+    sub: "Free calculators and tools for advertising, acquisition, retention, experimentation, and unit economics. No account required.",
   },
   tr: {
     eyebrow: "Hesaplayıcılar",
-    title: "Sık kullanılan pazarlama metrikleri için hesaplayıcılar.",
-    sub: "Reklam, kullanıcı kazanımı, elde tutma, A/B test ve birim ekonomisi için ücretsiz araçlar. Üyelik gerekmiyor, veri toplanmıyor.",
+    title: "Pazarlama metrikleri için hesaplayıcılar.",
+    sub: "Reklam, kullanıcı kazanımı, retention, A/B testleri ve birim ekonomisi için ücretsiz hesaplayıcılar ve araçlar. Üyelik gerekmiyor.",
   },
 };
 
