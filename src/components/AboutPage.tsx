@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, MapPin } from "lucide-react";
+import { ArrowRight, ArrowUpRight, MapPin, Target } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -9,7 +9,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { ExperienceSpiral } from "@/components/ui/ExperienceSpiral";
 import { getAllBlogPosts } from "@/lib/blog";
-import { withJourneyCount } from "@/lib/archive";
+import { CATEGORY_TAB_LABEL } from "@/lib/blog-category-labels";
 import { copy, type Lang } from "@/lib/content";
 
 /* About page - REBUILT IN THE HOMEPAGE'S LANGUAGE (2026-09-07, Hulusi: "now
@@ -40,26 +40,31 @@ const T = {
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
     introSuffix: ", I'm responsible for mobile app growth. I work on user acquisition, activation, engagement and the digital customer experience.",
-    outsideWork: "Alongside that I build open-source tools for growth and CRM.",
-    exploreLabel: "See my projects",
+    outsideWork: "I build open-source tools for growth and CRM.",
+    exploreLabel: "Explore projects",
     exploreHref: "/lab",
     linkedinLabel: "Connect on LinkedIn",
     h2: "Where I've worked so far.",
     basedIn: "Istanbul",
-    nowLabel: "Now",
-    city: "Istanbul",
-    languages: "Turkish and English",
-    years: "Since 2019",
-    yearsLine: "digital marketing and growth",
-    howEyebrow: "Approach",
-    howTitle: "How I work",
+    nowLabel: "Currently",
+    nowRole: "Mobile Growth Lead",
+    nowPeriod: "Apr 2026 – Present",
+    focusTitle: "Focus areas",
+    focusItems: ["User acquisition", "CRM & lifecycle", "Analytics & experimentation"],
+    experienceTitle: "Growth across different industries",
+    experienceLine: "Insurance, telecom, travel, media and automotive.",
+    howEyebrow: "How I work",
+    howTitle: "I start by understanding the problem.",
+    howLead: "I don't jump to a solution as soon as a metric moves. I look at where users come from, where they get stuck, and where they drop off. I try to connect acquisition, product behavior, and CRM rather than treat them separately.",
+    howBody: "Then I test the smallest useful version of an idea. If it works, I build on it. If it doesn't, I move on. For me, growth is less about doing more and more about finding what actually works.",
     writingEyebrow: "Blog",
     writingTitle: "Writing",
-    writingIntro: "Notes on growth, CRM and lifecycle marketing.",
-    allPosts: "All posts",
+    writingIntro: "Writing on growth, CRM, experimentation, and measurement.",
+    allPosts: "View all posts",
     buildEyebrow: "Lab",
-    buildTitle: "My own projects",
-    buildIntro: "Open-source tools and small products for growth and CRM. Each one started with a problem I kept running into.",
+    buildTitle: "Things I build",
+    buildIntro: "Tools and projects for growth, CRM, and measurement. Most started with a problem I kept running into at work.",
+    allProjects: "Explore all projects",
     footerEmailLabel: "Email",
     langLabel: "TR",
     langHref: "/tr/about",
@@ -71,31 +76,55 @@ const T = {
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
     introSuffix: "'da mobil uygulamanın büyümesinden sorumluyum. Kullanıcı kazanımı, aktivasyon, etkileşim ve dijital müşteri deneyimi üzerine çalışıyorum.",
-    outsideWork: "Bunun yanında büyüme ve CRM için açık kaynak araçlar yapıyorum.",
-    exploreLabel: "Projelerime göz at",
+    outsideWork: "Büyüme ve CRM için açık kaynak araçlar geliştiriyorum.",
+    exploreLabel: "Projeleri incele",
     exploreHref: "/tr/lab",
     linkedinLabel: "LinkedIn'de bağlantı kur",
     h2: "Bugüne kadar çalıştığım yerler.",
     basedIn: "İstanbul",
     nowLabel: "Şu an",
-    city: "İstanbul",
-    languages: "Türkçe ve İngilizce",
-    years: "2019'dan beri",
-    yearsLine: "dijital pazarlama ve büyüme",
-    howEyebrow: "Yaklaşım",
-    howTitle: "Nasıl çalışıyorum",
+    nowRole: "Mobil Büyüme Lideri",
+    nowPeriod: "Nis 2026 – Günümüz",
+    focusTitle: "Odak alanlarım",
+    focusItems: ["Kullanıcı kazanımı", "CRM ve lifecycle", "Analitik ve deneyler"],
+    experienceTitle: "Farklı sektörlerde büyüme",
+    experienceLine: "Sigorta, telekom, seyahat, medya ve otomotiv.",
+    howEyebrow: "Çalışma biçimim",
+    howTitle: "Önce problemi anlamaya çalışıyorum.",
+    howLead: "Bir metriği gördüğüm anda çözüm üretmeye başlamıyorum. Kullanıcının nereden geldiğine, nerede zorlandığına ve nerede kaybolduğuna bakıyorum. Kullanıcı kazanımı, ürün ve CRM tarafını mümkün olduğunca birlikte değerlendiriyorum.",
+    howBody: "Sonra fikri mümkün olan en küçük haliyle test ediyorum. Sonuç varsa geliştiriyorum; yoksa başka bir şey deniyorum. Benim için büyüme, daha fazla şey yapmaktan çok neyin gerçekten işe yaradığını bulmak.",
     writingEyebrow: "Blog",
     writingTitle: "Yazılar",
-    writingIntro: "Büyüme, CRM ve yaşam döngüsü pazarlaması üzerine notlar.",
-    allPosts: "Tüm yazılar",
+    writingIntro: "Büyüme, CRM, deneyler ve ölçümleme üzerine yazılar.",
+    allPosts: "Tüm yazıları gör",
     buildEyebrow: "Lab",
-    buildTitle: "Kendi projelerim",
-    buildIntro: "Büyüme ve CRM için açık kaynak araçlar ve küçük ürünler. Her biri, tekrar tekrar karşılaştığım bir problemle başladı.",
+    buildTitle: "Ürettiklerim",
+    buildIntro: "Büyüme, CRM ve ölçümleme için geliştirdiğim araçlar ve projeler. Çoğu, işin içinde tekrar tekrar karşılaştığım bir ihtiyaçtan çıktı.",
+    allProjects: "Tüm projeleri incele",
     footerEmailLabel: "E-posta",
     langLabel: "EN",
     langHref: "/about",
   },
 } as const;
+
+const PROJECT_SUMMARY: Record<Lang, Record<string, string>> = {
+  en: {
+    "claude-lifecycle": "Turns signals and goals into lifecycle journeys.",
+    "lifecycle-card-archive": "Ready-made journeys for common lifecycle needs.",
+    "ab-test-playbook": "Practical A/B test ideas from hypothesis to measurement.",
+    "dashboard-builder": "Turns cross-platform exports into comparable metrics and dashboards.",
+    "google-ads-change-history-dashboard": "Tracks changes alongside date, campaign, and performance data.",
+    numerspace: "Free calculators for marketing metrics.",
+  },
+  tr: {
+    "claude-lifecycle": "Sinyal ve hedeflerden lifecycle akışları oluşturur.",
+    "lifecycle-card-archive": "Farklı lifecycle ihtiyaçları için hazır journey örnekleri.",
+    "ab-test-playbook": "Fikirden ölçüme, uygulanabilir A/B test senaryoları.",
+    "dashboard-builder": "Farklı platform raporlarını karşılaştırılabilir metriklere ve dashboard'lara dönüştürür.",
+    "google-ads-change-history-dashboard": "Değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip eder.",
+    numerspace: "Pazarlama metrikleri için ücretsiz hesaplayıcılar.",
+  },
+};
 
 type Row = { key: string; co: string; logo: string; role: string; period: string; desc: string };
 
@@ -163,28 +192,30 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                 <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
                   <p className="altor-eyebrow text-ink-subtle">{t.nowLabel}</p>
                   <Image src={rows[0].logo} alt={rows[0].co} width={140} height={28} className="mt-4 h-7 w-auto max-w-[9rem] object-contain object-left" />
-                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{rows[0].role}</p>
-                  <p className="mt-1 text-sm text-ink-muted">{rows[0].co}</p>
-                  <p className="mt-auto pt-5 text-sm text-ink-subtle tabular-nums">{rows[0].period}</p>
+                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{t.nowRole}</p>
+                  <p className="mt-auto pt-5 text-sm text-ink-subtle tabular-nums">{t.nowPeriod}</p>
                 </div>
               </Reveal>
 
-              {/* Where. */}
+              {/* Focus areas: what the work is actually about, rather than
+                  repeating the location already shown on the portrait. */}
               <Reveal delay={320} className="flex">
                 <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
                   <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-primary-50 text-primary-700">
-                    <MapPin className="size-5" />
+                    <Target className="size-5" />
                   </span>
-                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{t.city}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.languages}</p>
+                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{t.focusTitle}</p>
+                  <div className="mt-3 flex flex-col gap-1 text-sm leading-relaxed text-ink-muted">
+                    {t.focusItems.map((item) => <p key={item}>{item}</p>)}
+                  </div>
                 </div>
               </Reveal>
 
               {/* The years, and the companies they were spent at. */}
               <Reveal delay={380} className="flex">
                 <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
-                  <p className="text-h2 text-ink-950 tabular-nums">{t.years}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.yearsLine}</p>
+                  <p className="text-h3 text-ink-950">{t.experienceTitle}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.experienceLine}</p>
                   <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
                     {logos.map((l) => (
                       <Image key={l.co} src={l.logo} alt={l.co} width={100} height={20} className="h-5 w-auto max-w-[6rem] object-contain opacity-80" />
@@ -218,8 +249,8 @@ export default function AboutPage({ lang }: { lang: Lang }) {
           <div className="altor-container">
             <SectionHeading eyebrow={t.howEyebrow} title={t.howTitle} />
             <Reveal className="mt-12">
-              <p className="max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.lead}</p>
-              <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.body}</p>
+              <p className="max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{t.howLead}</p>
+              <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{t.howBody}</p>
             </Reveal>
           </div>
         </section>
@@ -256,7 +287,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                     >
                       <span className="min-w-0">
                         <span className="block text-lg leading-snug font-semibold text-ink-950">{project.short}</span>
-                        <span className="mt-1 block text-sm leading-relaxed text-pretty text-ink-muted">{withJourneyCount(project.tagline)}</span>
+                        <span className="mt-1 block text-sm leading-relaxed text-pretty text-ink-muted">{PROJECT_SUMMARY[lang][project.slug] ?? project.tagline}</span>
                       </span>
                       <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
                     </Link>
@@ -266,7 +297,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
             </div>
             <Reveal delay={420} className="mt-12">
               <ButtonLink href={c.nav.labHref} variant="outline" size="md">
-                {c.home.labMore}
+                {t.allProjects}
                 <ArrowRight aria-hidden className="size-4" />
               </ButtonLink>
             </Reveal>
@@ -286,11 +317,11 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                       href={`/blog/${post.slug}`}
                       className="group flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
                     >
-                      <p className="altor-eyebrow text-ink-subtle">{post.category}</p>
+                      <p className="altor-eyebrow text-ink-subtle">{CATEGORY_TAB_LABEL[post.category]?.[lang] ?? post.category}</p>
                       <p className="mt-3 text-lg leading-snug font-semibold text-balance text-ink-950">{post.title}</p>
                       <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{post.excerpt}</p>
                       <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm text-ink-subtle tabular-nums">
-                        {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                        {new Date(post.date).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
                         <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
                       </p>
                     </Link>
