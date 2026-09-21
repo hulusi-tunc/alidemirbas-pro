@@ -1664,8 +1664,9 @@ to avoid"*) and `s.need-met`.
 **Stop conditions:** `value_produced` (→ ACT-17); the recovery window closing (→ health monitoring, with
 adoption-frequency messaging for this use-case suppressed on the way out); the need turning out to be
 met; no evidence of a problem; a blocker needing a person (`s.human` — *no automated touch alongside a
-human intervention*); any open issue under human ownership, live risk case or declared cancellation
-intent (`s.contest`, this journey being lowest in `retention-outreach`).
+human intervention*); any open issue under human ownership, a live risk case (RET-24), a declared
+cancellation intent (RET-28), or a delivered retention intervention still open for follow-up (RET-30)
+on the same account (`s.contest`).
 
 **Ownership / handoff:** ACT-18 is ACT-17's stall destination and ACT-17 is ACT-18's recovery
 destination; `adoption_recovery.cooldown` (30–90 days) is what stops the pair oscillating. Its
@@ -1673,7 +1674,25 @@ destination; `adoption_recovery.cooldown` (30–90 days) is what stops the pair 
 this is post-activation and triggered by silence, where the most common correct answer is that nothing is
 wrong."* Owed: `distinctFrom` += **ACT-17** (D-13), and the P2-6 naming fix — replace *"a live risk
 case"* with *"a live risk case (RET-24)"* and state the referent of *"an open issue under human
-ownership"* by id rather than by phrase. Not reopened otherwise.
+ownership"* by id rather than by phrase — both applied above.
+
+**The `retention-outreach` deadlock — ACT-18's reciprocal half, landed together with RET-30's (product
+decision, locked; see RET-30's section for its side of the same edit — neither may land without the
+other).** RET-30 and ACT-18 previously both claimed "lowest in the group" with `onLoss: suppressed`,
+which left the group with two bottoms. RET-30 now ranks **above** ACT-18: a retention intervention the
+business actually delivered has an outcome worth establishing before a silent adoption stall gets a
+generic nudge, and RET-30's `s.g2` needs a declined offer remembered for the whole cancellation episode
+— a suppressed follow-up loses that record. ACT-18's side of the same edit:
+- `ACT-18.contact.competition.precedence` — replace *"lowest in the group - any live risk case or open
+  issue on the same account outranks it"* with *"lowest in `retention-outreach`: below the declared
+  cancellation intent (RET-28), any live risk case (RET-24), any open issue under human ownership, and
+  the retention offer follow-up (RET-30) on the same account."* ACT-18 remains the group's one
+  unambiguous bottom — RET-32 already resolves its own position by yielding to everything, so this
+  ordering leaves exactly one member at the bottom, not two.
+- `ACT-18.suppressions` += `s.contest` naming RET-30 explicitly (it already names RET-24's live risk
+  case and RET-28's cancellation intent; RET-30 joins the same enumerated list, stated above).
+- Run collision validation (`node scripts/validate-public-scope.mjs` and the ownership/collision check)
+  immediately after this edit and RET-30's land together — not after either alone.
 
 **Canonical changes needed:**
 - `a.recover` stays **one** action, `channelRoles: ["persistent"]`. No `c.one-step`, no push variant.
@@ -1689,9 +1708,10 @@ ownership"* by id rather than by phrase. Not reopened otherwise.
   sentence in the domain and should be the model for the others.
 - The two ownership rows above. Six suppressions, three guardrails, four exit classes and three handoff
   contracts otherwise **unchanged**.
-- **Flagged, not decided:** `x.satisfied.class` is `invalid-state` for what is plainly a success — the
-  account got what it came for. Whether it should be `success` is a canonical question for the class
-  taxonomy, not something to settle inside one journey.
+- **RESOLVED — product decision, locked:** `x.satisfied.class`: `invalid-state` → `success`. The
+  account got what it came for; that is plainly a success outcome, not an invalid state, and `success`
+  is an existing valid terminal class in the canonical taxonomy (`src/canonical/types.ts:309`). No
+  other ACT-18 behaviour changes for this edit.
 
 **Display-only changes needed:**
 - The diagnosis is drawn, as a consequence of the corrected `writes` and nothing else.
@@ -1966,12 +1986,16 @@ recorded as a dissent inside the section, and the deciding evidence (`retention_
 is RET-30's trigger and nothing in the corpus emits it — verified: two occurrences in `src/`, RET-30's
 own trigger and the registry row) is stated there in full. (2) **RET-28** is the one place where the
 domain audit cites evidence the matrix did not consult — the trigger's own `evidence.requires`
-enumerates three intake routes — so it is marked `CONFLICT — ESCALATED`, C's conditional routing is
-applied, and J's single/in-app verdict is recorded beside it. (3) **CON-300's `c.sendable2`** is
-marked `CONFLICT — ESCALATED`: K classifies it as a permission gate that does not change the visible
-route, C shows its short arm is the journey's declared end state, and K's own P1-4 concedes
-`a.suppress` deserves a card — applied as "keep the decision drawn, re-kind the suppression as an
-outcome". (4) **FBK-41**: J examined the exact split D proposes, found `experience_ref` does not
+enumerates three intake routes — so C's conditional routing is applied and J's single/in-app verdict
+is recorded beside it as the dissent it overrides. **RESOLVED** (product decision, locked): conditional
+routing by declaration channel — in-product cancel flow → in-app, person-assisted/phone/off-product
+declaration → email — is final; see the RET-28 section for the routing rule and its "conditional, not
+fallback" framing. (3) **CON-300's `c.sendable2`** is a permission gate under K's own classification
+(does not change the visible route), while C shows its short arm is the journey's declared end state
+and K's own P1-4 concedes `a.suppress` deserves a card — applied as "keep the decision drawn, re-kind
+the suppression as an outcome". **RESOLVED** (product decision, locked): Email only, on all three
+touches (stay-connected question, final notice, suppression confirmation); `marketing_suppression`
+semantics unchanged. (4) **FBK-41**: J examined the exact split D proposes, found `experience_ref` does not
 carry the experience type, and refused to invent it. J wins; the journey is single/email, D's design
 is recorded with the signal that would revive it. (5) **FBK-49's channels**: D's two-channel request
 card is exactly the defect J exists to remove; J wins (email), and the new rejection touch D adds is
@@ -2104,9 +2128,9 @@ Trigger: Churn Risk Detected
   └─ Decision: Did the relationship state move?
         ├ Recovered ──────────────────► Exit: risk cleared without escalation
         ├ Cancellation declared ──────► Handoff: Cancellation Save (RET-28)
-        ├ Answered / intervention taken ─► Handoff: Retention Offer Follow-Up (RET-30)
-        └ No change
-              └─ Decision: Does the unanswered evidence now justify a person?
+        └ Window closed — no reply, or a reply that neither recovered the relationship nor
+          declared cancellation
+              └─ Decision: Does the evidence — including any reply received — now justify a person?
                     ├ Justified     → [Owner task — human, internal] → Handoff: external human lifecycle
                     └ Not justified → Exit: risk recorded, monitored
 ```
@@ -2115,6 +2139,23 @@ The check-in carries **no offer and no discount** — offers belong to RET-28 an
 we can see is going wrong and gives a route to a person. **The internal escalation stays internal and
 stays a `task`**; it simply moves to *after* the check-in window, so a person's attention is spent on
 a relationship that did not answer rather than on one that would have replied to an email.
+
+**Closing the RET-30 handoff gap — product decision, locked.** An earlier draft of this section routed
+a third "Answered / intervention taken" outcome to `h.intervention → RET-30`. That outcome was never
+actually reachable and is now removed rather than repaired: `w.response`'s only two `untilEvent`s are
+`relationship_recovered` and `explicit_cancellation_intent`, so nothing in the redesigned flow produces
+a third, "intervention taken" signal, and the check-in that would have to stand in for the delivered
+intervention carries **no offer and no discount** by this section's own design — it satisfies none of
+RET-30's five accepted evidence types (a plan alternative, a pause option, a support resolution, human
+outreach, an approved save offer; `src/canonical/retention.ts:2698-2705`). Handing a customer off to a
+journey whose trigger evidence can never be produced is exactly the defect this refactor exists to
+remove everywhere else in the corpus, so it is not tolerated here either: **`h.intervention` and the
+`RET-30` handoff are deleted from RET-24.** A reply that neither recovers the relationship nor declares
+cancellation is additional evidence, nothing more, and is read by the same post-check-in justification
+gate (`c.human`) a silent timeout would have reached — it is never manufactured into an "intervention
+delivered" that was never sent. RET-30 stays reachable from RET-28's own alternative-offer branch,
+which is where a real, named offer (`h.intervention` in `retention.ts:1199`) is actually made and
+actually delivered.
 
 **State re-checks:** before the check-in, cancellation intent, operational-cause ownership and the
 `retention-outreach` contest are re-read (three existing decisions, unchanged in kind, with the
@@ -2128,18 +2169,17 @@ mid-window (`onLoss: "suppressed"`, already declared) · the check-in window tim
 events already exist in `src/canonical/events.ts`, so no `scripts/event-curation.json` change and no
 `build-event-registry.mjs` run is required.**
 
-**Ownership / handoff:** unchanged in structure — RET-28, RET-23, RET-30, external human lifecycle.
-Two edges move: RET-28 becomes reachable twice (at entry and from the post-check-in decision), and
-RET-30 is now reached **after a real delivery** rather than instead of one, which is the relationship
-its handoff's `carries` block already describes. I re-verified with I §1.5 that nothing else needs
-saying: RET-24's precedence already reads *"below an open issue under human ownership and below a
-declared cancellation intent on the same account, above generic retention intervention"*, the
-`h.cancellation` handoff already carries `suppresses: ["any separate retention track for this
-relationship while the cancellation decision is live"]`, and I §4-1 lists RET-24 as checked and
-correct. **This journey must not claim** the cancellation conversation (RET-28's), the diagnosis of a
-known operational fault (RET-23's), or the outcome of the intervention (RET-30's). The
-`retention_episode_id` minted at `h.intervention` today should be minted at `a.check-in` — that is
-where the episode becomes real — and carried on the handoff unchanged.
+**Ownership / handoff:** RET-28, RET-23, external human lifecycle — **RET-30 is no longer a target of
+this journey** (see *Closing the RET-30 handoff gap* above; `h.intervention` is deleted). RET-28
+becomes reachable twice (at entry and from the post-check-in decision). I re-verified with I §1.5 that
+nothing else needs saying: RET-24's precedence already reads *"below an open issue under human
+ownership and below a declared cancellation intent on the same account, above generic retention
+intervention"*, the `h.cancellation` handoff already carries `suppresses: ["any separate retention
+track for this relationship while the cancellation decision is live"]`, and I §4-1 lists RET-24 as
+checked and correct. **This journey must not claim** the cancellation conversation (RET-28's), the
+diagnosis of a known operational fault (RET-23's), or the outcome of an intervention (RET-30's,
+which it no longer hands off to at all). `retention_episode_id` is a RET-30-scoped identifier and is
+**not** minted by RET-24 now that the RET-30 edge is gone.
 
 **Canonical changes needed:**
 1. `channels: ["task"]` → `["email", "in-app", "task"]`.
@@ -2150,14 +2190,17 @@ where the episode becomes real — and carried on the handoff unchanged.
 3. New condition `c.signal-class`, *"What kind of risk is this?"*, two branches, each
    `observes: "risk_evidence"`, placed after the contention gate.
 4. New action `a.check-in`, `execution: "communication"`, on each branch of `c.signal-class` (two
-   nodes; see *Renderer changes* for the single-node alternative),
-   `writes: [{ field: "retention_episode_id", mode: "set" }]`.
+   nodes; see *Renderer changes* for the single-node alternative). Carries no offer and no discount.
 5. New wait `w.response`: `untilEvent: ["relationship_recovered", "explicit_cancellation_intent"]`,
    `timeout.after` keyed `churn_risk.response_window`, `class: "response-window"`, `required: true`,
    `windowExtendsOnEngagement: false`, `relativeTo: "previous-touch"`, with a `recheck` sentence.
-6. New condition `c.moved`, *"Did the relationship state move?"*, four branches as drawn.
-7. `c.human` moves to after `c.moved`'s "No change" arm; `c.priority-clear`'s contention question
-   moves **forward** to before the check-in — the same question, asked once, in the right place.
+6. New condition `c.moved`, *"Did the relationship state move?"*, **three** branches as drawn
+   (Recovered / Cancellation declared / Window closed) — matching `w.response`'s two `untilEvent`s
+   plus its timeout exactly, with no fourth "intervention taken" branch invented on top of them.
+7. **Delete `h.intervention` and its `RET-30` handoff.** `c.human` moves to after `c.moved`'s "Window
+   closed" arm and now reads evidence that includes any reply received, whether or not it moved either
+   watched event; `c.priority-clear`'s contention question moves **forward** to before the check-in —
+   the same question, asked once, in the right place.
 8. `orchestration.strategy` `"single-notice"` → `"conditional-routing"`; `orchestration.touches`
    gains `t-checkin` (`stage: "risk-check-in"`, `action: "a.check-in"`,
    `channelRoles: ["persistent","in-session"]`, `mandatory: false`), with the existing owner-task
@@ -2294,17 +2337,20 @@ will otherwise keep after it drops to one channel.
 
 ## RET-28 — Cancellation Save
 
-**CONFLICT — ESCALATED.** J (binding on pattern and channel) marks both stages `single → in_app`,
-reasoning that the ask and the offer must sit beside an unobstructed cancellation path, which is
-"a property of a screen, not of an inbox". C designs conditional routing on the declaration surface
-and cites evidence J did not consult: **the trigger's own `evidence.requires` — verified in the
-export — reads *"an explicit act: a cancel flow entered, a cancellation requested while still
-reversible, or a cancellation asked for through a person"***, and `channelStrategy.roles` already
-states the routing rule in words (in-session "when the intent was declared inside the product",
-persistent "when the intent was declared outside the product, by message or by phone"). **Applied:
-C.** Under J's verdict a person who cancels by phone is sent an in-app question they will never see;
-under C's, each card still carries exactly one channel, which is the whole of J's objective. J's
-in-app-only verdict is recorded here as the dissent.
+**RESOLVED — product decision, locked.** J (binding on pattern and channel) marks both stages
+`single → in_app`, reasoning that the ask and the offer must sit beside an unobstructed cancellation
+path, which is "a property of a screen, not of an inbox". C designs conditional routing on the
+declaration surface and cites evidence J did not consult: **the trigger's own `evidence.requires` —
+verified in the export — reads *"an explicit act: a cancel flow entered, a cancellation requested
+while still reversible, or a cancellation asked for through a person"***, and `channelStrategy.roles`
+already states the routing rule in words (in-session "when the intent was declared inside the
+product", persistent "when the intent was declared outside the product, by message or by phone").
+**Applied: C, final.** Under J's verdict a person who cancels by phone is sent an in-app question they
+will never see; under C's, each card still carries exactly one channel, which is the whole of J's
+objective. J's in-app-only verdict is recorded here as the dissent it does not overturn. The product
+decision is explicit that this is **conditional routing, not fallback**: one customer receives exactly
+one route per stage, chosen by where the cancellation intent was declared, never a cascade through
+both.
 
 **Purpose:** Treat stated intent to leave as a decision point where a genuinely relevant alternative
 may be offered, and never as an obstacle course.
@@ -2457,10 +2503,13 @@ Retention intervention delivered
 
 **Problems found:**
 
-- **Its trigger has no author.** `retention_intervention_delivered` is emitted by nothing in the
-  corpus (verified; see RET-24). Not RET-30's fault and not fixable inside RET-30 — it is fixed by
-  RET-24's new check-in and by RET-28's existing `h.intervention`. Recorded here so the two sides are
-  read together. (C F5.)
+- **Its trigger has one author, not two.** `retention_intervention_delivered` was emitted by nothing in
+  the corpus (verified; see RET-24). Not RET-30's fault and not fixable inside RET-30. **RESOLVED —
+  product decision, locked:** RET-24's new check-in does **not** become a second author of this event —
+  see RET-24's section, *Closing the RET-30 handoff gap* — because a bare check-in that carries no
+  offer satisfies none of this trigger's accepted evidence types. RET-28's existing `h.intervention`
+  (`retention.ts:1199`, a real, named alternative actually offered) remains the trigger's one honest
+  author. RET-30 is reachable from RET-28 only. (C F5.)
 - **Email + In-app on the follow-up**, selected by nothing. The follow-up's own justification is
   "the offer is time-limited or its terms were plausibly not understood" — a document to be re-read,
   not an in-session prompt. (C F1; J `UNRESOLVED` → email.)
@@ -2515,9 +2564,12 @@ for the whole cancellation episode — a suppressed follow-up loses that record.
   above the adoption recovery nudge (ACT-18) …"*.
 - `RET-30.suppressions` += `s.contest` (it has none today — the only member of its group in that
   position other than RET-24, which sends nothing) stating the same ordering in an enforceable field.
-- **ACT-18 is not in this plan part.** Its reciprocal edits — naming RET-30 in its precedence and in
-  its `s.contest` enumeration — belong to whoever holds ACT-18, and **the pair must be landed
-  together**: one side alone leaves the group with two bottoms. Flagged for the plan's owner.
+- **RESOLVED — product decision, locked: landed together.** ACT-18's reciprocal edits — naming RET-30
+  in its precedence and in its `s.contest` enumeration — are written into the ACT-18 section in this
+  same plan (its *"retention-outreach deadlock — ACT-18's reciprocal half"* paragraph), so neither side
+  lands alone and the group is left with exactly one bottom. Run collision validation
+  (`scripts/validate-public-scope.mjs` plus the ownership/collision check) once, after both edits are
+  applied together.
 - RET-32's bare *"lowest in the group"* opening should also go, so exactly one member claims the
   bottom (see the RET-32 section).
 
@@ -3268,15 +3320,17 @@ canonical by the `c.route` split rather than by a renderer rule.
 
 ## CON-300 — Unengaged Subscriber Sunset
 
-**CONFLICT — ESCALATED** (display only). K §2.2 Tier A classifies `c.sendable2` — *"May the final
-notice go out?"* — as a permission gate that does not change the visible route, escaping the collapse
-rule "on a technicality of where the short arm goes first". C shows the short arm is not a technicality:
-it goes to `a.suppress`, i.e. *there is nobody left to give notice to, so end marketing contact
-without a notice*, which is the journey's declared end state. K's own P1-4 concedes the point in the
-other direction — *"writing the marketing suppression **is** this journey's declared end state … so it
-deserves a card — but as an **outcome**, not as an `Internal` cog card sitting mid-graph."* **Applied:
-keep the decision drawn and re-kind `a.suppress` as an end-state/outcome card.** That satisfies both
-audits and does not weaken the suppression.
+**RESOLVED — product decision, locked** (display only). K §2.2 Tier A classifies `c.sendable2` — *"May
+the final notice go out?"* — as a permission gate that does not change the visible route, escaping the
+collapse rule "on a technicality of where the short arm goes first". C shows the short arm is not a
+technicality: it goes to `a.suppress`, i.e. *there is nobody left to give notice to, so end marketing
+contact without a notice*, which is the journey's declared end state. K's own P1-4 concedes the point
+in the other direction — *"writing the marketing suppression **is** this journey's declared end state
+… so it deserves a card — but as an **outcome**, not as an `Internal` cog card sitting mid-graph."*
+**Applied, final: keep the decision drawn and re-kind `a.suppress` as an end-state/outcome card.** That
+satisfies both audits and does not weaken the suppression. Product decision, locked: **Email only**,
+for the stay-connected question, the final notice, and the suppression confirmation; `marketing_suppression`
+semantics are unchanged.
 
 **Purpose:** Decide whether continued marketing contact is still warranted for somebody who has
 answered none of it — by asking them once, putting *fewer* beside *none* as a real answer, and ending
@@ -3375,7 +3429,7 @@ only who asks the question now"* — and that this must not be "fixed" by groupi
 - One documentation row (I, D-25): RET-26 gains a row naming CON-300, mirroring the one CON-300
   already carries.
 
-**ARBITRATION RESOLVED (Phase 1b):** CON-300 - RESOLVED: a.sendable2 draws as a decision card; a.suppress is re-kinded from an internal action to an outcome card, per K's own P1-4 concession that it deserves one. No suppression weakened: no s.sunset removed, no defaultPriority moved.
+**ARBITRATION RESOLVED (Phase 1b, confirmed as final product decision):** CON-300 - RESOLVED: a.sendable2 draws as a decision card; a.suppress is re-kinded from an internal action to an outcome card, per K's own P1-4 concession that it deserves one. No suppression weakened: no s.sunset removed, no defaultPriority moved.
 
 **Canonical changes needed:**
 1. `channels: ["email","in-app"]` → `["email"]`.
@@ -4011,9 +4065,11 @@ rules that out under GLB-01/GLB-03 and prescribes a reciprocal `s.generic-remind
 plus a `distinctFrom` row instead, which is what TIM-63, ACC-263, DOC-215, REL-284 and RLT-279
 carry below. On the canvas I applied K's G9 rule over the INC-254 domain section's claim that all
 its drawn decisions are business logic — `c.cohort` and `c.verified` each draw one edge and are
-absorbed. **One section is marked `CONFLICT — ESCALATED`: INC-254**, where J's "single, delegated,
-email" and the domain audit's "parallel, email and in-app" are answers to the same question and
-the domain audit holds evidence J does not cite. Everything else in the three domain audits'
+absorbed. **One section, INC-254, is RESOLVED by product decision (locked)**, where J's "single,
+delegated, email" and the domain audit's "parallel, email and in-app" were answers to the same
+question and the domain audit held evidence J did not cite; the domain audit's parallel Email +
+In-app is final — see the INC-254 section for the architecture that makes it parallel and not a
+priority chain. Everything else in the three domain audits'
 canonical columns is carried through unchanged, including the five refusals to add work: DOC-214
 stays one touch, DOC-215 stays email, INC-254 gains no wait, RSK-273 gains no second parallel
 pair, and `none` appears in the last three fields wherever it is the truth.
@@ -5632,19 +5688,26 @@ widening for `AWAITING_SIGNATURE`, `SIGNATURE_EXPIRED` and `validity_ends_at`.
 
 ## INC-254 — Incident Update
 
-**CONFLICT — ESCALATED.** J classifies `a.communicate` as **single (delegated)**, final channel
-`email`, on the ground that the action's own text hands the channel to the canonical communication
-mechanism, so asserting any channel pair on the card contradicts the stage. The domain audit
-classifies it as **parallel, `email` + `in_app`**, citing evidence J does not: both
-`audit/51-journey-design-matrix.md` and `audit/channel-orchestration-map.md` record INC-254 as
-Parallel with an authored justification — *"Email carries the record to people who are not in the
-product; the in-app surface reaches whoever is hitting the fault right now. Neither is interruptive,
-so this is not two alarms"* — and the instance key makes each send a single, non-repeating message
-to a cohort that is split between those two situations by definition. **I applied the domain
-audit's answer (parallel, email + in-app).** J's dissent is recorded and is not without force: the
-card must also name the **cohort and the state change**, and must not present the mechanism's
-delivery plumbing as this journey's channel decision. Both audits agree on the only thing that
-matters operationally — **the card must not say "Fallback"**, in either locale.
+**RESOLVED — product decision, locked: Parallel Email + In-app.** J classifies `a.communicate` as
+**single (delegated)**, final channel `email`, on the ground that the action's own text hands the
+channel to the canonical communication mechanism, so asserting any channel pair on the card
+contradicts the stage. The domain audit classifies it as **parallel, `email` + `in_app`**, citing
+evidence J does not: both `audit/51-journey-design-matrix.md` and `audit/channel-orchestration-map.md`
+record INC-254 as Parallel with an authored justification — *"Email carries the record to people who
+are not in the product; the in-app surface reaches whoever is hitting the fault right now. Neither is
+interruptive, so this is not two alarms"* — and the instance key makes each send a single,
+non-repeating message to a cohort that is split between those two situations by definition. **Applied,
+final: the domain audit's answer (parallel, email + in-app).** J's dissent is recorded and is not
+without force: the card must also name the **cohort and the state change**, and must not present the
+mechanism's delivery plumbing as this journey's channel decision.
+
+**The architecture, stated exactly as locked:** Email is the durable/persistent incident record.
+In-app is the live product-context incident surface. They are two simultaneous surfaces for the same
+material incident state change — never a priority chain, never sequential, never retry or
+substitution. Wording anywhere in this journey's copy or its canvas must never imply Email is tried
+before In-app, or that In-app is a fallback for Email. **The card must not say "Fallback", in either
+locale** — both audits agree on this operationally, and the locked decision makes it a hard
+requirement, not a preference.
 
 **Purpose:** Tell the people actually affected something **true and useful**, through the mechanism
 that already owns delivery — and say nothing when nothing has changed.
@@ -5705,11 +5768,11 @@ turn a journey whose whole point is *no clock* into one with a clock, and would 
 key incoherent — a wait inside an instance keyed on `state_change_id` would be waiting for a state
 change that, by definition, starts a different instance. **Do not add a wait, under any reading.**
 
-**Final orchestration:** **parallel** — one send, two surfaces, simultaneously. It qualifies on the
-brief's own terms: the two channels serve **different purposes for different people** (a durable
-record for those outside the product; a live surface for whoever is hitting the fault now), not one
-purpose with a substitute, and neither interrupts. This is one of only two genuine parallel journeys
-in the public corpus.
+**Final orchestration:** **parallel** — one send, two surfaces, simultaneously. Email is the
+durable/persistent incident record; In-app is the live product-context incident surface; they are two
+simultaneous surfaces for the same material incident state change, not one purpose with a substitute,
+and neither interrupts and neither is tried before the other. This is one of only two genuine parallel
+journeys in the public corpus.
 
 **Final customer channels:** `email` **and** `in_app`, together, labelled as two roles doing two
 jobs — never as a priority chain. The card additionally names the **cohort** and the **state
@@ -6234,10 +6297,11 @@ the exact inverse of the fulfilment audit's table; `FUL-291`, `SUB-262`, `SUB-29
 J's corpus rule is that push survives only where a deliverability test exists in the graph and
 neither has one; `SCH-304 a.checkin` becomes **SMS** against the scheduling audit's explicit "drop
 SMS"; and `SCH-266 a.at-risk` and `SCH-303 a.final` become **parallel** sends rather than ranked
-ladders. One stage is marked **CONFLICT — ESCALATED**: `FUL-301 a.confirm`, where the fulfilment
-audit's finding is the categorical *"canonical changes needed — none"* and J's verdict on the same
-stage requires a one-field `channelRoles` reduction. I applied J, recorded the dissent, and state
-plainly that the change adds no touch, no node, no group change and no marketing.
+ladders. One stage, `FUL-301 a.confirm`, is **RESOLVED by product sign-off (locked, final)**: the
+fulfilment audit's finding was the categorical *"canonical changes needed — none"* and J's verdict on
+the same stage required a one-field `channelRoles` reduction. J's reduction is applied — product
+sign-off is given — and the dissent is recorded for the record. The change adds no touch, no node, no
+group change and no marketing.
 
 Two further arbitrations were not channel questions. **FUL-146 `c.estimate`** is listed by K under
 G9_DEGENERATE_DECISION (a drawn Decision with one outgoing edge) while the fulfilment audit says it
@@ -6752,7 +6816,8 @@ This is generic and affects every Family-B-collapsed wait in the corpus**, R9, R
 
 ## FUL-301 — Order Confirmation
 
-**CONFLICT — ESCALATED** (channels only; see the last paragraph of *Final customer channels*).
+**RESOLVED — product sign-off given (locked, final).** Email only; SMS and In-app are removed from
+Order Confirmation. See *Final customer channels* below for the channel argument this sign-off closes.
 
 **Purpose:** State once, at the moment the fulfilment record opens, exactly what the business has
 taken on and what it has not — the question every later message about this order assumes has already
@@ -6800,18 +6865,18 @@ sequence, because a second message would read as a second order (`s.once`). No f
 channel is unavailable. The trailing wait exists only to decide which of two endings the record
 reached.
 
-**Final customer channels:** **email**, alone. — **CONFLICT — ESCALATED.** J (binding column) settles
-`a.confirm` as `single` / email on the evidence above. The fulfilment audit's verdict is *"canonical
-changes needed — none"*, keeping email + SMS + in-app on the grounds that SMS is conditioned by its
-role's `when` (*"the accepted obligation carries a time-bound action the person has to take"* — a
-collection slot, a confirmation owed back) and in-app by *"where the order was placed inside the
-product"*. **I applied J**, because J's `UNRESOLVED` finding is that no node in this graph reads either
-`when`, and because J's reason is specific to this journey's own suppressions rather than to the role
-vocabulary. **The dissent is recorded, and the product owner should confirm it**, because it is the one
-place in this part where a horizontal verdict overturns a domain audit's categorical "change nothing".
-What it costs: one field. `orchestration.touches[t1].channelRoles` goes from three roles to one. **It
-adds no touch, no node, no edge, no marketing and no group change**, and every one of the six authored
-suppressions is untouched.
+**Final customer channels:** **Email, alone — product sign-off is now given; this is final.** J
+(binding column) settles `a.confirm` as `single` / email on the evidence above. The fulfilment audit's
+verdict was *"canonical changes needed — none"*, keeping email + SMS + in-app on the grounds that SMS
+is conditioned by its role's `when` (*"the accepted obligation carries a time-bound action the person
+has to take"* — a collection slot, a confirmation owed back) and in-app by *"where the order was placed
+inside the product"*. **J's channel reduction is applied**, because J's `UNRESOLVED` finding is that no
+node in this graph reads either `when`, and because J's reason is specific to this journey's own
+suppressions rather than to the role vocabulary. The dissent is recorded for the historical record; it
+does not reopen the decision. What it costs: one field. `orchestration.touches[t1].channelRoles` goes
+from three roles to one. **It adds no touch, no node, no edge, no marketing and no group change**, and
+every one of the six authored suppressions is untouched. FUL-301 remains one transactional record, one
+communication, one channel, no marketing, no reminder.
 
 **Customer touch count:** **1.** `mandatory: true`, `pressureClass: "none"`,
 `order_confirmation.discretionary_touches` = 0. Unchanged.
@@ -6848,7 +6913,13 @@ that clause as the house style. One handoff, `h.cancelled` → FUL-150 (non-publ
 anything about progress, position or lateness (`s.status` — FUL-265's and FUL-146's), and it never
 confirms the obligation to *pay* that arises from the same event (FIN-131's).
 
-**ARBITRATION RESOLVED (Phase 1b):** FUL-301 - RESOLVED, FLAGGED FOR PRODUCT SIGN-OFF: J's channel reduction is applied (channelRoles three roles -> one). The fulfilment audit's "none" verdict is overturned on journey-specific evidence J holds and the domain audit did not address: three channels asserting one transactional record that is sent once is not a design choice with alternatives, it is the same fact stated three ways. Cost is exactly one field; no touch, node, edge, marketing content or competition-group change. All six of FUL-301's existing suppressions stay untouched. This is the only section in the plan where a horizontal audit overturns a domain audit's explicit "change nothing", so it is the one place a human product owner should look before implementation proceeds.
+**RESOLVED — product decision, locked and final.** FUL-301: J's channel reduction is applied
+(`channelRoles` three roles → one). The fulfilment audit's "none" verdict is overturned on
+journey-specific evidence J holds and the domain audit did not address: three channels asserting one
+transactional record that is sent once is not a design choice with alternatives, it is the same fact
+stated three ways. Cost is exactly one field; no touch, node, edge, marketing content or
+competition-group change. All six of FUL-301's existing suppressions stay untouched. Product sign-off
+is given; this decision is not flagged, not escalated, and is not reopened during implementation.
 
 **Canonical changes needed:**
 - `orchestration.touches[t1].channelRoles` → `["persistent"]`; drop `sms` and `in_app` from
@@ -7112,8 +7183,10 @@ Trigger support_request_received
   and neither locale renders a complete phrase. (fulfillment §4.1)
 - **`h.owner` → REM-151 is a category assumption.** REM-151's stated eligibility is *"a concrete problem
   with a completed fulfilment or service"*; REM-305 opens on **any** service request — a billing question,
-  an account question, a how-do-I. Every still-open request is handed to a journey whose subject is a
-  completed fulfilment, with a minted `issue_id`. **Flagged, not resolved.** (fulfillment §5)
+  an account question, a how-do-I. Every still-open request was handed to a journey whose subject is a
+  completed fulfilment, with a minted `issue_id`. **RESOLVED — product decision, locked (option (a));
+  see the Ownership / handoff section below for the new `c.open` split and the `x.owned` exit.**
+  (fulfillment §5)
 - One-sided `distinctFrom`: REM-305 names REM-151, REM-151 does not name back. (fulfillment; ownership)
 
 **Verified intact and preserved exactly.** Both state-change touches carry the refund prohibition in
@@ -7155,8 +7228,19 @@ resolved-on-receipt message alone, or the acknowledgement followed by one resolu
 communication actions are declared; the first two are mutually exclusive. The acknowledgement is
 `mandatory: true` and sits outside `support_ack.touches`, whose discretionary budget is 1. Unchanged.
 
-**Final flow:** as current. **No structural change proposed**, and no send node is added on the `h.owner`
-edge.
+**Final flow:** as current, with `c.open`'s *"Still open"* arm split per the resolved option-(a) decision
+above:
+```
+                        └ on timeout → c.open: is the request still open now the window has closed?
+                              ├ Still open, and it concerns a completed fulfilment or
+                              │  completed service with a concrete unresolved problem
+                              │       → h.owner → REM-151   [and NOTHING is sent]
+                              ├ Still open, otherwise
+                              │       → EXIT x.owned   [and NOTHING is sent]
+                              └ Closed while the window ran → a.resolution → EXIT x.resolved
+```
+No send node is added on either arm of `c.open` — the anti-drip rule (`s.no-drip`) applies identically
+to both.
 
 **State re-checks:** `w.window.recheck` re-reads the request from the system that owns it — whether it is
 still open, who owns it now, and whether anything has been recorded against it — before the timeout is
@@ -7166,29 +7250,49 @@ for a journey whose second message is conditional on the first not having been o
 **Stop conditions:** `support_request_resolved` → resolution notice → `x.resolved`. `request_withdrawn` →
 `x.withdrawn` with nothing further sent (`s.withdrawn`: *"a withdrawn request is not a quiet one"*). An
 open request already covering the same problem → `x.attached`, acknowledged once. The window closing on a
-still-open request → handoff, silence.
+still-open request → `h.owner`/REM-151 when the qualifying condition is met, `x.owned` otherwise — silence
+either way.
 
 **Ownership / handoff:** **highest in `service-request` while the request is only a request**, with
-`s.contest` silencing REM-151 and REM-157 until ownership moves at the handoff; once it moves at `h.owner`
-this journey sends nothing further, ever (GLB-06). One handoff → REM-151, public, links. **Must not say:**
+`s.contest` silencing REM-151 and REM-157 until ownership moves at the handoff; once it moves — at
+`h.owner` or at `x.owned` — this journey sends nothing further, ever (GLB-06). One handoff → REM-151,
+public, links, taken only on the qualifying arm of `c.open`; the non-qualifying arm exits silently at
+`x.owned` rather than creating another public customer message. **Must not say:**
 the refund — not the amount, not the timing, not whether it settled; that belongs to FIN-302, and
 ownership records the FIN-302 ↔ REM-305 boundary as reciprocal and closed in `distinctFrom`, in REM-305's
 `s.money` and in FIN-302's `s.decision`.
 
-**Raised and deliberately not decided — `h.owner`'s category.** Two honest ways forward, neither taken
-here: **(a)** condition `c.open`'s *"Still open"* arm — where the request concerns a completed fulfilment
-or service → `h.owner` → REM-151 unchanged; otherwise a new exit `x.owned` (class `success`), *"the request
-is with the team that owns the work, and this journey says nothing further about it"* — which keeps the
-anti-drip rule exactly, adds one honest ending and keeps REM-151's stated eligibility true; **(b)** widen
-REM-151's eligibility to *"any service request with a concrete problem behind it"*, making it the generic
-assessment entry its position in the group already implies, and accept that its name then understates it.
-(a) is the smaller change; (b) is the more truthful one. It needs the remedy arc's owner.
+**RESOLVED — `h.owner`'s category, product decision, locked: option (a), the narrower change.**
+`c.open`'s *"Still open"* arm splits in two: where authoritative request context establishes the still-
+open request concerns a completed fulfilment or a completed service with a concrete unresolved problem
+→ `h.owner` → REM-151, unchanged. Otherwise → a new exit `x.owned` (class `success`), *"the request is
+with the team that owns the work, and this journey says nothing further about it."* This keeps the
+anti-drip rule exactly (still no send node on either arm of `c.open`), adds one honest ending, and keeps
+REM-151's stated eligibility (*"a concrete problem with a completed fulfilment or service"*) true instead
+of quietly widened by volume. **REM-151 is never widened.** Ending REM-305's customer communication and
+transferring the request to its correct operational owner is not, itself, a second customer message —
+`x.owned` sends nothing, exactly like the branch it replaces. **The public journey remains silent after
+ownership transfer, on both arms of `c.open`.** This preserves the three-way split the remedy arc
+depends on: REM-305 is acknowledgement/status, REM-151 is post-completion issue assessment, REM-157 is
+the remedy decision/confirmation — REM-151 stops being the default destination for every generic support
+request that happens to still be open when the window closes.
+
+Option (b) — widening REM-151's eligibility to *"any service request with a concrete problem behind
+it"* — was considered and is **not taken**: it is more truthful about REM-151's actual traffic but
+changes REM-151's own contract, which this journey does not own. (a) is the smaller, correct change
+here.
 
 **Canonical changes needed:**
 - `orchestration.touches[t1..t3]` gain the conditional channel rule keyed on the recorded intake route,
   with the quotable-reference exception written into it. The signal is already captured by `a.capture`;
   **nothing is invented.** (This supersedes the fulfilment audit's *"canonical changes needed — none
   required"* on the channel question only; no structural change follows.)
+- **`c.open`'s "Still open" arm splits in two (product decision, locked, option (a)):** the qualifying
+  arm — the still-open request concerns a completed fulfilment or completed service with a concrete
+  unresolved problem, established from authoritative request context — keeps `h.owner → REM-151`
+  unchanged; the non-qualifying arm routes to a **new exit `x.owned`**, `class: "success"`, `terminal:
+  true`, state string *"the request is with the team that owns the work, and this journey says nothing
+  further about it"*, no send node. `s.no-drip` applies to both arms identically.
 - Reciprocal `distinctFrom` on **REM-151** naming REM-305 (specified in REM-151's section).
 - `observes` on `c.covered`, `c.immediate`, `c.outcome`, `c.open` where absent.
 
