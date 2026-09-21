@@ -18770,6 +18770,10 @@
         {
           "targetId": "journey:FIN-134",
           "because": "FIN-134 is money that failed to come in and an obligation that stays open. This is money going back out against an obligation already discharged; the two share a payment record and nothing else."
+        },
+        {
+          "targetId": "journey:REM-305",
+          "because": "REM-305 closes a support request and tells the requester that a resolution was reached; its subject is the case, and it states no amount, no timing and no settlement state. This journey is the one that announces the money, read from the financial record rather than from the case. Where a refund closed a request the two messages sit beside each other - a closed case and a payment moving - and neither is in the other's competition group, because suppressing either would leave the person with half the story."
         }
       ]
     }
@@ -21571,6 +21575,10 @@
         {
           "targetId": "journey:FBK-43",
           "because": "FBK-43 starts from somebody's account of an experience and asks whether any operational issue exists behind it. This starts from a request made of us and answers only whether it arrived and who owns it."
+        },
+        {
+          "targetId": "journey:FIN-302",
+          "because": "FIN-302 announces the money: that a refund has been submitted and then whether it arrived, each read from the financial record. This says only that the case is closed and that a resolution was reached - never the amount, never when it will appear and never whether it has settled. The two are not in contest and share no group: this one speaks about the request, that one about the payment, and where a refund closed the case both may send about their own subject."
         }
       ]
     }

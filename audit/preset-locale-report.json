@@ -1,5 +1,5 @@
 {
-  "base": null,
+  "base": "http://localhost:4551",
   "presets": [
     "quote-abandonment",
     "application-abandonment",

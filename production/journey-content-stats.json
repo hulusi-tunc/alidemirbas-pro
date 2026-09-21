@@ -90,11 +90,11 @@
     },
     {
       "field": "distinctFrom.because",
-      "n": 334,
+      "n": 336,
       "min": 111,
       "median": 205,
-      "p90": 351,
-      "p95": 408,
+      "p90": 358,
+      "p95": 435,
       "max": 776,
       "maxRecordId": "CMS-208",
       "singleLineAssumptionRisk": "unbounded prose, only present on 166/255 journeys"
@@ -104,8 +104,8 @@
       "n": 1356,
       "min": 39,
       "median": 217,
-      "p90": 302,
-      "p95": 347,
+      "p90": 303,
+      "p95": 348,
       "max": 835,
       "maxRecordId": "CMS-201",
       "singleLineAssumptionRisk": "DANGEROUS — this is the node's HEADLINE with no secondary field, median 214, max 483 chars (OWN-54). A one-line node-headline assumption fails on the majority of action nodes."

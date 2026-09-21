@@ -2563,6 +2563,11 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.no-outcome",
         "label": "CANONICAL_RULE",
         "text": "The acknowledgement states that the request exists and who owns it. It never states a remedy, an eligibility or a fault, because none of those has been decided at the moment it is sent."
+      },
+      {
+        "id": "s.money",
+        "label": "CANONICAL_RULE",
+        "text": "No message from this journey states a refund. That a refund was decided is the deciding journey's to say (FIN-137), and that money has moved and whether it arrived is the refund notification's (FIN-302), which reads it from the financial record. This journey says that the case is closed and that a resolution was reached, and never the amount, never when it will appear and never whether it has settled. Two senders describing the same money leave the person holding the earlier and less reliable one."
       }
     ],
     "contact": {
@@ -2657,7 +2662,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
             "c.immediate",
             "c.sendable-now"
           ],
-          "purpose": "That the thing raised is already done and what was done - instead of an acknowledgement promising attention to something that needs none.",
+          "purpose": "That the thing raised is already done and which resolution closed it - instead of an acknowledgement promising attention to something that needs none.",
           "channelRoles": [
             "persistent",
             "in-session"
@@ -2667,7 +2672,8 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
             "boundTo": "request_id",
             "mustNotClaim": [
               "that anything about this request remains open",
-              "that a further answer is coming"
+              "that a further answer is coming",
+              "a refund: not the amount, not when it will appear, not whether it has settled"
             ]
           },
           "mandatory": false,
@@ -2682,7 +2688,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [
             "c.sendable2"
           ],
-          "purpose": "That the request is closed and what closed it, sent because its own state changed rather than because a period elapsed.",
+          "purpose": "That the request is closed and that a resolution was reached, sent because its own state changed rather than because a period elapsed.",
           "channelRoles": [
             "persistent",
             "in-session"
@@ -2692,7 +2698,8 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
             "boundTo": "request_id",
             "mustNotClaim": [
               "that a problem still present was resolved",
-              "that the requester agreed the outcome, unless they said so"
+              "that the requester agreed the outcome, unless they said so",
+              "a refund: not the amount, not when it will appear, not whether it has settled"
             ]
           },
           "mandatory": false,
@@ -2706,7 +2713,8 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         "s.already-resolved",
         "s.withdrawn",
         "s.contest",
-        "s.no-outcome"
+        "s.no-outcome",
+        "s.money"
       ]
     },
     "implementation": {
@@ -2797,6 +2805,10 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "FBK-43",
         "because": "FBK-43 starts from somebody's account of an experience and asks whether any operational issue exists behind it. This starts from a request made of us and answers only whether it arrived and who owns it."
+      },
+      {
+        "journey": "FIN-302",
+        "because": "FIN-302 announces the money: that a refund has been submitted and then whether it arrived, each read from the financial record. This says only that the case is closed and that a resolution was reached - never the amount, never when it will appear and never whether it has settled. The two are not in contest and share no group: this one speaks about the request, that one about the payment, and where a refund closed the case both may send about their own subject."
       }
     ],
     "entry": "t.received",
@@ -2904,7 +2916,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.resolved-now",
         "kind": "action",
-        "does": "Say that the thing they raised is already done, and what was done. An acknowledgement here would promise attention to a problem that no longer exists, and the requester would then wait for it",
+        "does": "Say that the thing they raised is already done, and which resolution closed it, described as what happened to the request. Where that resolution was money going back, the money itself is not named here - the amount, the timing and whether it has settled are the financial record's to announce (FIN-302). An acknowledgement here would promise attention to a problem that no longer exists, and the requester would then wait for it",
         "execution": "communication",
         "idempotencyKey": "request_id + a.resolved-now",
         "next": "x.resolved"
@@ -3017,7 +3029,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.resolution",
         "kind": "action",
-        "does": "Say that the request is closed and what closed it. This is sent because the request's own state changed, which is the only reason a second message exists at all",
+        "does": "Say that the request is closed and that a resolution was reached, named in the terms the requester raised it in rather than in the terms of any money that moved - that belongs to FIN-302. This is sent because the request's own state changed, which is the only reason a second message exists at all",
         "execution": "communication",
         "idempotencyKey": "request_id + a.resolution",
         "writes": [

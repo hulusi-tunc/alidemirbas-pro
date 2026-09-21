@@ -1,5 +1,5 @@
 {
-  "base": "http://localhost:4552",
+  "base": "http://localhost:4551",
   "routes": 172,
   "leaks": [],
   "known": [
@@ -2040,21 +2040,6 @@
       "hits": [
         "for",
         "this"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/activation-blocker-resolution",
-      "text": "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
-      "hits": [
-        "this",
-        "for",
-        "and",
-        "that",
-        "the",
-        "still",
-        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -4862,11 +4847,12 @@
     },
     {
       "route": "/tr/lab/journeys/back-in-stock-alert",
-      "text": "A checkout in motion or a held cart for the same person outranks this journey in the commerce-recovery group; while either holds the person, this alert is suppressed for them rather than queued behind it (GLB-06).",
+      "text": "A checkout in motion, a held cart, a held selection or a predicted need for the same person outranks this journey in the commerce-recovery group; while any of them holds the person, this alert is suppressed for them rather than queued behind it (GLB-06). This journey in turn outranks unresolved interest recovery (ACQ-13), which is suppressed for a person this alert holds.",
       "hits": [
         "for",
         "the",
-        "this"
+        "this",
+        "which"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -5103,14 +5089,18 @@
     },
     {
       "route": "/tr/lab/journeys/back-in-stock-alert",
-      "text": "commerce-recovery (person) - lowest in the commerce-recovery group - a checkout in motion, a held cart and a held selection all outrank an interest that could never convert at all; when any of them holds the person this alert is suppressed for them rather than queued behind it",
+      "text": "commerce-recovery (person) - below the rest of the commerce-recovery group and above unresolved interest recovery (ACQ-13) - a checkout in motion, a held cart, a held selection and a predicted need all outrank an interest that could never convert at all, and when any of them holds the person this alert is suppressed for them rather than queued behind it; but this alert takes precedence over inferred-interest recovery, because a named item the person asked for and could not buy because it was unavailable is a specific thing they chose and its return is a state change they can act on now, where an inferred interest is neither - the same reason an availability enquiry for a stated window (SCH-282) outranks that journey",
       "hits": [
         "the",
         "and",
         "that",
         "when",
         "this",
-        "for"
+        "for",
+        "because",
+        "not",
+        "its",
+        "where"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -5850,7 +5840,7 @@
     },
     {
       "route": "/tr/lab/journeys/browse-abandonment",
-      "text": "This journey is lowest in the commerce-recovery group: a process recovery, a selection recovery or a predicted-need replenishment for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06).",
+      "text": "This journey ranks below every other member of the commerce-recovery group: a process recovery, a selection recovery, a predicted-need replenishment or a back-in-stock alert (ACQ-289) for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06).",
       "hits": [
         "this",
         "the",
@@ -6087,11 +6077,18 @@
     },
     {
       "route": "/tr/lab/journeys/browse-abandonment",
-      "text": "commerce-recovery (person) - lowest in the group - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person",
+      "text": "commerce-recovery (person) - below every other member of the group, the back-in-stock alert (ACQ-289) included - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person, and so does a named item the person asked for and could not buy: that item is a specific thing they chose and its return is a state change they can act on now, where this journey has only an interest nobody confirmed. Where ACQ-289 holds the person, this journey yields and is suppressed for them rather than queued behind it",
       "hits": [
         "the",
         "and",
-        "for"
+        "for",
+        "does",
+        "not",
+        "that",
+        "its",
+        "where",
+        "this",
+        "has"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -30831,7 +30828,7 @@
     },
     {
       "route": "/tr/lab/journeys/product-view-abandonment",
-      "text": "This journey is lowest in the commerce-recovery group: a process recovery, a selection recovery or a predicted-need replenishment for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06).",
+      "text": "This journey ranks below every other member of the commerce-recovery group: a process recovery, a selection recovery, a predicted-need replenishment or a back-in-stock alert (ACQ-289) for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06).",
       "hits": [
         "this",
         "the",
@@ -31068,11 +31065,18 @@
     },
     {
       "route": "/tr/lab/journeys/product-view-abandonment",
-      "text": "commerce-recovery (person) - lowest in the group - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person",
+      "text": "commerce-recovery (person) - below every other member of the group, the back-in-stock alert (ACQ-289) included - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person, and so does a named item the person asked for and could not buy: that item is a specific thing they chose and its return is a state change they can act on now, where this journey has only an interest nobody confirmed. Where ACQ-289 holds the person, this journey yields and is suppressed for them rather than queued behind it",
       "hits": [
         "the",
         "and",
-        "for"
+        "for",
+        "does",
+        "not",
+        "that",
+        "its",
+        "where",
+        "this",
+        "has"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -32359,6 +32363,23 @@
     },
     {
       "route": "/tr/lab/journeys/refund-notification",
+      "text": "REM-305 closes a support request and tells the requester that a resolution was reached; its subject is the case, and it states no amount, no timing and no settlement state. This journey is the one that announces the money, read from the financial record rather than from the case. Where a refund closed a request the two messages sit beside each other - a closed case and a payment moving - and neither is in the other's competition group, because suppressing either would leave the person with half the story.",
+      "hits": [
+        "and",
+        "the",
+        "that",
+        "its",
+        "this",
+        "from",
+        "where",
+        "because",
+        "with"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/refund-notification",
       "text": "Make a refund something the person can watch happen rather than wait on: said from the financial record that holds it, never from the approval that authorised it, and never as a whole when only part of it moved.",
       "hits": [
         "the",
@@ -32471,14 +32492,15 @@
     },
     {
       "route": "/tr/lab/journeys/refund-notification",
-      "text": "The decision to refund is not this journey's to announce. Whether a refund was approved, refused or is under review is said by the journey that decided it (FIN-137), and which remedy would resolve the obligation at all is said by the journey that chose it (REM-157). This one opens only once money is actually moving.",
+      "text": "The decision to refund is not this journey's to announce. Whether a refund was approved, refused or is under review is said by the journey that decided it (FIN-137), and which remedy would resolve the obligation at all is said by the journey that chose it (REM-157). This one opens only once money is actually moving, and it is the only journey that announces that movement: the case-closure message from the support request acknowledgement (REM-305) says that the request is closed and that a resolution was reached, and states no amount, no timing and no settlement state, so the two complement each other rather than compete.",
       "hits": [
         "the",
         "not",
         "this",
         "that",
         "and",
-        "which"
+        "which",
+        "from"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -38684,7 +38706,7 @@
     },
     {
       "route": "/tr/lab/journeys/search-abandonment",
-      "text": "This journey is lowest in the commerce-recovery group: a process recovery, a selection recovery or a predicted-need replenishment for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06).",
+      "text": "This journey ranks below every other member of the commerce-recovery group: a process recovery, a selection recovery, a predicted-need replenishment or a back-in-stock alert (ACQ-289) for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06).",
       "hits": [
         "this",
         "the",
@@ -38921,11 +38943,18 @@
     },
     {
       "route": "/tr/lab/journeys/search-abandonment",
-      "text": "commerce-recovery (person) - lowest in the group - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person",
+      "text": "commerce-recovery (person) - below every other member of the group, the back-in-stock alert (ACQ-289) included - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person, and so does a named item the person asked for and could not buy: that item is a specific thing they chose and its return is a state change they can act on now, where this journey has only an interest nobody confirmed. Where ACQ-289 holds the person, this journey yields and is suppressed for them rather than queued behind it",
       "hits": [
         "the",
         "and",
-        "for"
+        "for",
+        "does",
+        "not",
+        "that",
+        "its",
+        "where",
+        "this",
+        "has"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -39763,21 +39792,6 @@
     },
     {
       "route": "/tr/lab/journeys/struggling-user-assistance",
-      "text": "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
-      "hits": [
-        "this",
-        "for",
-        "and",
-        "that",
-        "the",
-        "still",
-        "not"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/struggling-user-assistance",
       "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
       "hits": [
         "when",
@@ -40079,6 +40093,26 @@
     },
     {
       "route": "/tr/lab/journeys/support-request-acknowledgement",
+      "text": "FIN-302 announces the money: that a refund has been submitted and then whether it arrived, each read from the financial record. This says only that the case is closed and that a resolution was reached - never the amount, never when it will appear and never whether it has settled. The two are not in contest and share no group: this one speaks about the request, that one about the payment, and where a refund closed the case both may send about their own subject.",
+      "hits": [
+        "the",
+        "that",
+        "has",
+        "been",
+        "and",
+        "from",
+        "this",
+        "when",
+        "are",
+        "not",
+        "where",
+        "their"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/support-request-acknowledgement",
       "text": "Remove the requester's doubt that the request arrived, and pass a request that stays open to the journey that owns the work rather than filling the silence with updates.",
       "hits": [
         "the",
@@ -40268,6 +40302,22 @@
     },
     {
       "route": "/tr/lab/journeys/support-request-acknowledgement",
+      "text": "No message from this journey states a refund. That a refund was decided is the deciding journey's to say (FIN-137), and that money has moved and whether it arrived is the refund notification's (FIN-302), which reads it from the financial record. This journey says that the case is closed and that a resolution was reached, and never the amount, never when it will appear and never whether it has settled. Two senders describing the same money leave the person holding the earlier and less reliable one.",
+      "hits": [
+        "from",
+        "this",
+        "that",
+        "the",
+        "and",
+        "has",
+        "which",
+        "when"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/support-request-acknowledgement",
       "text": "· The period the acknowledgement covers: how long it is honest to say nothing more because nothing more has happened. Past it the request is not silent, it is simply owned by somebody else.",
       "hits": [
         "the",
@@ -40380,23 +40430,27 @@
     },
     {
       "route": "/tr/lab/journeys/support-request-acknowledgement",
-      "text": "That the thing raised is already done and what was done - instead of an acknowledgement promising attention to something that needs none.",
+      "text": "That the thing raised is already done and which resolution closed it - instead of an acknowledgement promising attention to something that needs none.",
       "hits": [
         "that",
         "the",
         "already",
         "and",
-        "what"
+        "which"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/support-request-acknowledgement",
-      "text": "· iddia edemez : that anything about this request remains open, that a further answer is coming",
+      "text": "· iddia edemez : that anything about this request remains open, that a further answer is coming, a refund: not the amount, not when it will appear, not whether it has settled",
       "hits": [
         "that",
-        "this"
+        "this",
+        "not",
+        "the",
+        "when",
+        "has"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -40430,12 +40484,11 @@
     },
     {
       "route": "/tr/lab/journeys/support-request-acknowledgement",
-      "text": "That the request is closed and what closed it, sent because its own state changed rather than because a period elapsed.",
+      "text": "That the request is closed and that a resolution was reached, sent because its own state changed rather than because a period elapsed.",
       "hits": [
         "that",
         "the",
         "and",
-        "what",
         "because",
         "its"
       ],
@@ -40444,11 +40497,14 @@
     },
     {
       "route": "/tr/lab/journeys/support-request-acknowledgement",
-      "text": "· iddia edemez : that a problem still present was resolved, that the requester agreed the outcome, unless they said so",
+      "text": "· iddia edemez : that a problem still present was resolved, that the requester agreed the outcome, unless they said so, a refund: not the amount, not when it will appear, not whether it has settled",
       "hits": [
         "that",
         "still",
-        "the"
+        "the",
+        "not",
+        "when",
+        "has"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -41829,7 +41885,7 @@
     },
     {
       "route": "/tr/lab/journeys/unresolved-interest-recovery",
-      "text": "This journey is lowest in the commerce-recovery group: a process recovery, a selection recovery or a predicted-need replenishment for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06).",
+      "text": "This journey ranks below every other member of the commerce-recovery group: a process recovery, a selection recovery, a predicted-need replenishment or a back-in-stock alert (ACQ-289) for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06).",
       "hits": [
         "this",
         "the",
@@ -42066,11 +42122,18 @@
     },
     {
       "route": "/tr/lab/journeys/unresolved-interest-recovery",
-      "text": "commerce-recovery (person) - lowest in the group - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person",
+      "text": "commerce-recovery (person) - below every other member of the group, the back-in-stock alert (ACQ-289) included - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person, and so does a named item the person asked for and could not buy: that item is a specific thing they chose and its return is a state change they can act on now, where this journey has only an interest nobody confirmed. Where ACQ-289 holds the person, this journey yields and is suppressed for them rather than queued behind it",
       "hits": [
         "the",
         "and",
-        "for"
+        "for",
+        "does",
+        "not",
+        "that",
+        "its",
+        "where",
+        "this",
+        "has"
       ],
       "known": true,
       "reason": "practitioner disclosure"

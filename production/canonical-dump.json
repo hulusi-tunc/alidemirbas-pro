@@ -5036,7 +5036,7 @@
         {
           "id": "s.contest",
           "label": "CANONICAL_RULE",
-          "text": "This journey is lowest in the commerce-recovery group: a process recovery, a selection recovery or a predicted-need replenishment for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06)."
+          "text": "This journey ranks below every other member of the commerce-recovery group: a process recovery, a selection recovery, a predicted-need replenishment or a back-in-stock alert (ACQ-289) for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06)."
         },
         {
           "id": "s.cooldown",
@@ -5083,7 +5083,7 @@
         "competition": {
           "exclusionGroup": "commerce-recovery",
           "scope": "person",
-          "precedence": "lowest in the group - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person",
+          "precedence": "below every other member of the group, the back-in-stock alert (ACQ-289) included - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person, and so does a named item the person asked for and could not buy: that item is a specific thing they chose and its return is a state change they can act on now, where this journey has only an interest nobody confirmed. Where ACQ-289 holds the person, this journey yields and is suppressed for them rather than queued behind it",
           "onLoss": "suppressed"
         }
       },
@@ -6921,7 +6921,7 @@
         {
           "id": "s.contest",
           "label": "CANONICAL_RULE",
-          "text": "A checkout in motion or a held cart for the same person outranks this journey in the commerce-recovery group; while either holds the person, this alert is suppressed for them rather than queued behind it (GLB-06)."
+          "text": "A checkout in motion, a held cart, a held selection or a predicted need for the same person outranks this journey in the commerce-recovery group; while any of them holds the person, this alert is suppressed for them rather than queued behind it (GLB-06). This journey in turn outranks unresolved interest recovery (ACQ-13), which is suppressed for a person this alert holds."
         },
         {
           "id": "s.single",
@@ -6960,7 +6960,7 @@
         "competition": {
           "exclusionGroup": "commerce-recovery",
           "scope": "person",
-          "precedence": "lowest in the commerce-recovery group - a checkout in motion, a held cart and a held selection all outrank an interest that could never convert at all; when any of them holds the person this alert is suppressed for them rather than queued behind it",
+          "precedence": "below the rest of the commerce-recovery group and above unresolved interest recovery (ACQ-13) - a checkout in motion, a held cart, a held selection and a predicted need all outrank an interest that could never convert at all, and when any of them holds the person this alert is suppressed for them rather than queued behind it; but this alert takes precedence over inferred-interest recovery, because a named item the person asked for and could not buy because it was unavailable is a specific thing they chose and its return is a state change they can act on now, where an inferred interest is neither - the same reason an availability enquiry for a stated window (SCH-282) outranks that journey",
           "onLoss": "suppressed"
         }
       },
@@ -8118,16 +8118,11 @@
           "id": "s.g3",
           "label": "CANONICAL_RULE",
           "text": "The moment the requirement is met, its reminders stop, including any already scheduled."
-        },
-        {
-          "id": "s.sunset",
-          "label": "CANONICAL_RULE",
-          "text": "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase."
         }
       ],
       "contact": {
-        "defaultPriority": "lifecycle",
-        "pressureClass": "lifecycle",
+        "defaultPriority": "service",
+        "pressureClass": "service",
         "localCap": {
           "value": {
             "key": "activation_blocker.touches",
@@ -8579,16 +8574,11 @@
           "id": "s.g4",
           "label": "CANONICAL_RULE",
           "text": "The offer is made at most twice: the offer itself, and one final self-service alternative."
-        },
-        {
-          "id": "s.sunset",
-          "label": "CANONICAL_RULE",
-          "text": "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase."
         }
       ],
       "contact": {
-        "defaultPriority": "lifecycle",
-        "pressureClass": "lifecycle",
+        "defaultPriority": "service",
+        "pressureClass": "service",
         "localCap": {
           "value": {
             "key": "struggling_user.touches",
@@ -49341,7 +49331,7 @@
         {
           "id": "s.decision",
           "label": "CANONICAL_RULE",
-          "text": "The decision to refund is not this journey's to announce. Whether a refund was approved, refused or is under review is said by the journey that decided it (FIN-137), and which remedy would resolve the obligation at all is said by the journey that chose it (REM-157). This one opens only once money is actually moving."
+          "text": "The decision to refund is not this journey's to announce. Whether a refund was approved, refused or is under review is said by the journey that decided it (FIN-137), and which remedy would resolve the obligation at all is said by the journey that chose it (REM-157). This one opens only once money is actually moving, and it is the only journey that announces that movement: the case-closure message from the support request acknowledgement (REM-305) says that the request is closed and that a resolution was reached, and states no amount, no timing and no settlement state, so the two complement each other rather than compete."
         },
         {
           "id": "s.approved",
@@ -49847,6 +49837,10 @@
         {
           "journey": "FIN-134",
           "because": "FIN-134 is money that failed to come in and an obligation that stays open. This is money going back out against an obligation already discharged; the two share a payment record and nothing else."
+        },
+        {
+          "journey": "REM-305",
+          "because": "REM-305 closes a support request and tells the requester that a resolution was reached; its subject is the case, and it states no amount, no timing and no settlement state. This journey is the one that announces the money, read from the financial record rather than from the case. Where a refund closed a request the two messages sit beside each other - a closed case and a payment moving - and neither is in the other's competition group, because suppressing either would leave the person with half the story."
         }
       ],
       "guardrails": [
@@ -57509,6 +57503,11 @@
           "id": "s.no-outcome",
           "label": "CANONICAL_RULE",
           "text": "The acknowledgement states that the request exists and who owns it. It never states a remedy, an eligibility or a fault, because none of those has been decided at the moment it is sent."
+        },
+        {
+          "id": "s.money",
+          "label": "CANONICAL_RULE",
+          "text": "No message from this journey states a refund. That a refund was decided is the deciding journey's to say (FIN-137), and that money has moved and whether it arrived is the refund notification's (FIN-302), which reads it from the financial record. This journey says that the case is closed and that a resolution was reached, and never the amount, never when it will appear and never whether it has settled. Two senders describing the same money leave the person holding the earlier and less reliable one."
         }
       ],
       "contact": {
@@ -57603,7 +57602,7 @@
               "c.immediate",
               "c.sendable-now"
             ],
-            "purpose": "That the thing raised is already done and what was done - instead of an acknowledgement promising attention to something that needs none.",
+            "purpose": "That the thing raised is already done and which resolution closed it - instead of an acknowledgement promising attention to something that needs none.",
             "channelRoles": [
               "persistent",
               "in-session"
@@ -57613,7 +57612,8 @@
               "boundTo": "request_id",
               "mustNotClaim": [
                 "that anything about this request remains open",
-                "that a further answer is coming"
+                "that a further answer is coming",
+                "a refund: not the amount, not when it will appear, not whether it has settled"
               ]
             },
             "mandatory": false,
@@ -57628,7 +57628,7 @@
             "prerequisites": [
               "c.sendable2"
             ],
-            "purpose": "That the request is closed and what closed it, sent because its own state changed rather than because a period elapsed.",
+            "purpose": "That the request is closed and that a resolution was reached, sent because its own state changed rather than because a period elapsed.",
             "channelRoles": [
               "persistent",
               "in-session"
@@ -57638,7 +57638,8 @@
               "boundTo": "request_id",
               "mustNotClaim": [
                 "that a problem still present was resolved",
-                "that the requester agreed the outcome, unless they said so"
+                "that the requester agreed the outcome, unless they said so",
+                "a refund: not the amount, not when it will appear, not whether it has settled"
               ]
             },
             "mandatory": false,
@@ -57652,7 +57653,8 @@
           "s.already-resolved",
           "s.withdrawn",
           "s.contest",
-          "s.no-outcome"
+          "s.no-outcome",
+          "s.money"
         ]
       },
       "implementation": {
@@ -57743,6 +57745,10 @@
         {
           "journey": "FBK-43",
           "because": "FBK-43 starts from somebody's account of an experience and asks whether any operational issue exists behind it. This starts from a request made of us and answers only whether it arrived and who owns it."
+        },
+        {
+          "journey": "FIN-302",
+          "because": "FIN-302 announces the money: that a refund has been submitted and then whether it arrived, each read from the financial record. This says only that the case is closed and that a resolution was reached - never the amount, never when it will appear and never whether it has settled. The two are not in contest and share no group: this one speaks about the request, that one about the payment, and where a refund closed the case both may send about their own subject."
         }
       ],
       "entry": "t.received",
@@ -57850,7 +57856,7 @@
         {
           "id": "a.resolved-now",
           "kind": "action",
-          "does": "Say that the thing they raised is already done, and what was done. An acknowledgement here would promise attention to a problem that no longer exists, and the requester would then wait for it",
+          "does": "Say that the thing they raised is already done, and which resolution closed it, described as what happened to the request. Where that resolution was money going back, the money itself is not named here - the amount, the timing and whether it has settled are the financial record's to announce (FIN-302). An acknowledgement here would promise attention to a problem that no longer exists, and the requester would then wait for it",
           "execution": "communication",
           "idempotencyKey": "request_id + a.resolved-now",
           "next": "x.resolved"
@@ -57963,7 +57969,7 @@
         {
           "id": "a.resolution",
           "kind": "action",
-          "does": "Say that the request is closed and what closed it. This is sent because the request's own state changed, which is the only reason a second message exists at all",
+          "does": "Say that the request is closed and that a resolution was reached, named in the terms the requester raised it in rather than in the terms of any money that moved - that belongs to FIN-302. This is sent because the request's own state changed, which is the only reason a second message exists at all",
           "execution": "communication",
           "idempotencyKey": "request_id + a.resolution",
           "writes": [

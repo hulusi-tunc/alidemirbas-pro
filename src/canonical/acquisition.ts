@@ -4990,7 +4990,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "This journey is lowest in the commerce-recovery group: a process recovery, a selection recovery or a predicted-need replenishment for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06)."
+        "text": "This journey ranks below every other member of the commerce-recovery group: a process recovery, a selection recovery, a predicted-need replenishment or a back-in-stock alert (ACQ-289) for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06)."
       },
       {
         "id": "s.cooldown",
@@ -5038,7 +5038,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "lowest in the group - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person"
+        "precedence": "below every other member of the group, the back-in-stock alert (ACQ-289) included - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person, and so does a named item the person asked for and could not buy: that item is a specific thing they chose and its return is a state change they can act on now, where this journey has only an interest nobody confirmed. Where ACQ-289 holds the person, this journey yields and is suppressed for them rather than queued behind it"
       , "onLoss": "suppressed" }
     },
     "channelStrategy": {
@@ -6632,7 +6632,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "A checkout in motion or a held cart for the same person outranks this journey in the commerce-recovery group; while either holds the person, this alert is suppressed for them rather than queued behind it (GLB-06)."
+        "text": "A checkout in motion, a held cart, a held selection or a predicted need for the same person outranks this journey in the commerce-recovery group; while any of them holds the person, this alert is suppressed for them rather than queued behind it (GLB-06). This journey in turn outranks unresolved interest recovery (ACQ-13), which is suppressed for a person this alert holds."
       },
       {
         "id": "s.single",
@@ -6672,7 +6672,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "lowest in the commerce-recovery group - a checkout in motion, a held cart and a held selection all outrank an interest that could never convert at all; when any of them holds the person this alert is suppressed for them rather than queued behind it",
+        "precedence": "below the rest of the commerce-recovery group and above unresolved interest recovery (ACQ-13) - a checkout in motion, a held cart, a held selection and a predicted need all outrank an interest that could never convert at all, and when any of them holds the person this alert is suppressed for them rather than queued behind it; but this alert takes precedence over inferred-interest recovery, because a named item the person asked for and could not buy because it was unavailable is a specific thing they chose and its return is a state change they can act on now, where an inferred interest is neither - the same reason an availability enquiry for a stated window (SCH-282) outranks that journey",
         "onLoss": "suppressed"
       }
     },

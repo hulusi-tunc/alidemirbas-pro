@@ -3387,11 +3387,15 @@
         "long_cards": [
           {
             "id": "a.resolved-now",
-            "len": 116
+            "len": 128
           },
           {
             "id": "a.acknowledge",
             "len": 131
+          },
+          {
+            "id": "a.resolution",
+            "len": 112
           }
         ],
         "long_branch_labels": [
@@ -3411,11 +3415,11 @@
         "long_cards": [
           {
             "id": "a.resolved-now",
-            "len": 112
+            "len": 123
           },
           {
             "id": "a.resolution",
-            "len": 151
+            "len": 140
           }
         ],
         "long_branch_labels": [

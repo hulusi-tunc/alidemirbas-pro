@@ -452,7 +452,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.resolved-now": {
-      headline: "Bildirdikleri şeyin çoktan yapılmış olduğunu ve ne yapıldığını söyle. Burada bir alındı bildirimi, artık var olmayan bir soruna ilgi göstereceğini vaat eder ve kişi o ilgiyi beklemeye başlar",
+      headline: "Bildirdikleri şeyin çoktan yapılmış olduğunu ve talebi hangi çözümün kapattığını, talebin başına ne geldiği olarak söyle. O çözüm paranın geri dönmesiyse, paranın kendisi burada anılmaz - tutar, zamanlama ve paranın hesaba geçip geçmediği finansal kaydın duyuracağı şeylerdir (FIN-302). Burada bir alındı bildirimi, artık var olmayan bir soruna ilgi göstereceğini vaat eder ve kişi o ilgiyi beklemeye başlar",
     },
     "c.sendable": {
       headline: "Alındı bildirimi gönderilebilir mi?",
@@ -490,7 +490,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.resolution": {
-      headline: "Talebin kapandığını ve onu neyin kapattığını söyle. Bu mesaj, talebin kendi durumu değiştiği için gönderilir; ikinci bir mesajın var olmasının tek nedeni budur",
+      headline: "Talebin kapandığını ve bir çözüme ulaşıldığını, talep sahibinin sorunu anlattığı terimlerle söyle - hareket eden paranın terimleriyle değil; o FIN-302'ye aittir. Bu mesaj, talebin kendi durumu değiştiği için gönderilir; ikinci bir mesajın var olmasının tek nedeni budur",
     },
     "a.record-no-action": {
       headline: "Mesajı hangi kapının ve hangi aşamada durdurduğunu kaydet; böylece hiçbir şey duymayan bir talep sahibi sessiz bir boşluk değil, ölçülen bir sonuç olur - ve kimse bu sessizliği talebin hiç ulaşmadığı biçiminde okumaz",

@@ -15,7 +15,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACT-13": {
-    "hash": "sha256:4d76b03567a4c5fd92c6eb8394a31a35f85a1f8c0a4e66d210d6abba96f063ec",
+    "hash": "sha256:1320846fa5f1360b1b7d44eecc1d82382dc7aff66d8e5ab069695903f1f01e15",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -40,7 +40,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACQ-289": {
-    "hash": "sha256:cfe0d979aa00dd764827c6fa8c7f690c4a9742d19208e6a6318cac997387d52b",
+    "hash": "sha256:b0746da09596936c95b7ebbcb54e5078868b1cb6ce46cfbff9239c29ba940fe0",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -260,7 +260,7 @@
     "schema_version": "vNext-2026-09"
   },
   "FIN-302": {
-    "hash": "sha256:07ceb0c5d90afc9d50197e13702e3727f1886c7aea6e64fb62044bcec17e2032",
+    "hash": "sha256:aee6ff1ea8451264873395af585f7a66d7fe1315e12d9bf457ce289a98cf2d64",
     "source": "src/canonical/financial.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -310,12 +310,12 @@
     "schema_version": "vNext-2026-09"
   },
   "ACT-14": {
-    "hash": "sha256:3660d05d2a6432d2aca884d4a2487b1278bd9280ab911abaf8306fbcd98139cb",
+    "hash": "sha256:558ced58718d09e489f3ca74c41a368abc321f7a79fdefc7664ba92467682567",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },
   "REM-305": {
-    "hash": "sha256:0eb420be7e9d0ba69d09acb0cc09be6d08bd53d4477945bb0d5b662a56ee1c6e",
+    "hash": "sha256:7046bf05f4a38629aa629695f902445ef7ebacb92dad460139d80e98f5dce338",
     "source": "src/canonical/remedy.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -325,7 +325,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACQ-13": {
-    "hash": "sha256:f6f4ddd29cddbbcf2fe73ed433c17cb1745f4607fab7dd5a26d42a710a7aca81",
+    "hash": "sha256:9cde7543ca73dc0ad6a6832d23cf0a5c13b40bb1a3e602c0f1bfcae43d12035f",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },

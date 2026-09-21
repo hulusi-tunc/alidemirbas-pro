@@ -875,16 +875,10 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "label": "CANONICAL_RULE",
         "text": "The moment the requirement is met, its reminders stop, including any already scheduled."
       },
-      {
-        "id": "s.sunset",
-        "label": "CANONICAL_RULE",
-        "text":
-          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
-      },
     ],
     contact: {
-      "defaultPriority": "lifecycle",
-      "pressureClass": "lifecycle",
+      "defaultPriority": "service",
+      "pressureClass": "service",
       "localCap": {
         "value": {
           "key": "activation_blocker.touches",
@@ -1321,16 +1315,10 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "label": "CANONICAL_RULE",
         "text": "The offer is made at most twice: the offer itself, and one final self-service alternative."
       },
-      {
-        "id": "s.sunset",
-        "label": "CANONICAL_RULE",
-        "text":
-          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
-      },
     ],
     contact: {
-      "defaultPriority": "lifecycle",
-      "pressureClass": "lifecycle",
+      "defaultPriority": "service",
+      "pressureClass": "service",
       "localCap": {
         "value": {
           "key": "struggling_user.touches",
