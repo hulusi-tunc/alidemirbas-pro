@@ -10043,14 +10043,6 @@
           "terminal": false
         },
         {
-          "id": "a.read",
-          "kind": "action",
-          "headline": "Read which setup milestones are complete and which remain, from the product's own record of what was done rather than from what was sent or opened",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
           "id": "c.next-step",
           "kind": "condition",
           "headline": "Is there a critical next step still outstanding?",
@@ -10099,6 +10091,14 @@
           "terminal": false
         },
         {
+          "id": "c.budget",
+          "kind": "condition",
+          "headline": "Is there a step prompt left in this instance's budget?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "h.blocker",
           "kind": "handoff",
           "headline": "Missing activation requirement → resolve blocker → resume",
@@ -10129,18 +10129,19 @@
           "detail": "a later setup or activation event re-opens this normally; the completed milestones are kept, so a return does not start from the beginning",
           "isEntry": false,
           "terminal": false
+        },
+        {
+          "id": "x.prompts-spent",
+          "kind": "exit",
+          "headline": "step prompts spent; onboarding continues without further prompting",
+          "detail": "a further setup_milestone_completed event or a new onboarding instance re-opens prompting; the completed milestones are kept",
+          "isEntry": false,
+          "terminal": false
         }
       ],
       "edges": [
         {
           "from": "t.active",
-          "to": "a.read",
-          "family": "forward",
-          "label": null,
-          "when": null
-        },
-        {
-          "from": "a.read",
           "to": "c.next-step",
           "family": "forward",
           "label": null,
@@ -10204,8 +10205,8 @@
         },
         {
           "from": "c.what-happened",
-          "to": "a.read",
-          "family": "backward",
+          "to": "c.budget",
+          "family": "branch",
           "label": "A setup milestone",
           "when": "progress was made but value has not been produced yet"
         },
@@ -10218,10 +10219,24 @@
         },
         {
           "from": "c.stalled-step",
-          "to": "a.read",
+          "to": "c.budget",
           "family": "backward",
           "label": "No blocker; simply incomplete",
           "when": "setup has not advanced but nothing identifiable is preventing it"
+        },
+        {
+          "from": "c.budget",
+          "to": "c.next-step",
+          "family": "backward",
+          "label": "A prompt remains",
+          "when": "fewer step prompts have been sent on this instance than onboarding.step_prompts allows"
+        },
+        {
+          "from": "c.budget",
+          "to": "x.prompts-spent",
+          "family": "branch",
+          "label": "Budget spent",
+          "when": "every step prompt the budget allows has already been sent on this instance"
         },
         {
           "from": "h.blocker",
@@ -10256,28 +10271,31 @@
       "terminalNodes": [
         "h.blocker",
         "h.activated",
-        "x.window-closed"
+        "x.window-closed",
+        "x.prompts-spent"
       ],
       "backwardEdgeIds": [
-        9,
-        10,
+        8,
+        11,
         12
       ],
       "branchEdgeIds": [
+        1,
         2,
-        3,
+        4,
         5,
-        6,
+        8,
         9,
         10,
         11,
         12,
-        14,
-        15
+        13,
+        15,
+        16
       ],
       "handoffEdgeIds": [
-        13,
-        16
+        14,
+        17
       ],
       "externalEdgeIds": []
     },
@@ -10300,6 +10318,10 @@
         {
           "journey": "SUB-296",
           "because": "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person."
+        },
+        {
+          "journey": "ACT-20",
+          "because": "ACT-20 attempts to restart a relationship that went dormant before it ever produced value; where an onboarding instance is already open for the same person, an onboarding already in motion is a current lifecycle and this journey owns the account outright. ACT-20's own reactivation handoff (h.onboarding) lands here rather than opening a second attempt."
         }
       ],
       "competition": null,
@@ -10337,28 +10359,29 @@
       "hasWait": true,
       "hasReEntryException": false,
       "hasTerminalExit": false,
-      "hasMultipleExits": false,
+      "hasMultipleExits": true,
       "hasPreemption": true,
       "hasCompetition": true,
-      "nodeCount": 12,
-      "edgeCount": 17,
-      "branchNodeCount": 5,
+      "nodeCount": 13,
+      "edgeCount": 18,
+      "branchNodeCount": 6,
       "backwardEdgeCount": 3,
       "handoffCount": 2,
-      "exitCount": 1,
-      "maxDepth": 7,
-      "maxFanIn": 3,
+      "exitCount": 2,
+      "maxDepth": 6,
+      "maxFanIn": 2,
       "maxFanOut": 2,
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
+        "multi-exit",
         "preemption",
         "competition"
       ],
       "complexityTier": "complex",
-      "complexityScore": 55
+      "complexityScore": 59
     }
   },
   {
@@ -10436,6 +10459,14 @@
           "id": "a.route-dependency",
           "kind": "action",
           "headline": "Raise the requirement with whoever can actually resolve it, carrying what is blocked and why. Ownership of the resume stays here, so the account is not handed away and forgotten",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.hold-notice",
+          "kind": "action",
+          "headline": "Name the outstanding requirement, say it is now with the party who can resolve it, and say what happens when it is. Never asks the account to do anything - this is the branch where they cannot",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -10565,8 +10596,15 @@
         },
         {
           "from": "a.route-dependency",
-          "to": "w.resolve",
+          "to": "a.hold-notice",
           "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.hold-notice",
+          "to": "w.resolve",
+          "family": "backward",
           "label": null,
           "when": null
         },
@@ -10657,24 +10695,26 @@
         "h.reroute",
         "x.blocked"
       ],
-      "backwardEdgeIds": [],
+      "backwardEdgeIds": [
+        8
+      ],
       "branchEdgeIds": [
         2,
         3,
         4,
         5,
-        11,
         12,
-        14,
+        13,
         15,
-        16
+        16,
+        17
       ],
       "handoffEdgeIds": [
-        13,
-        18
+        14,
+        19
       ],
       "externalEdgeIds": [
-        17
+        18
       ]
     },
     "relationships": {
@@ -10695,7 +10735,15 @@
       "distinctFrom": [
         {
           "journey": "ACT-14",
-          "because": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere."
+          "because": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere - and where both are true, a named requirement outstanding and help being sought against it, this journey holds the account and the help offer is suppressed for it, because an obstacle with a name is answerable and a general offer of help is not."
+        },
+        {
+          "journey": "ACT-12",
+          "because": "ACT-12 suppresses its generic next-step prompt for the exact prerequisite this journey names the moment it opens (s.blocker) and hands the account here (h.blocker). This journey is what that transfer is transferring to, and resumes ACT-12 (h.resume) once the requirement clears."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks activation. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ],
       "competition": null,
@@ -10713,7 +10761,7 @@
     },
     "derived": {
       "hasBranches": true,
-      "hasBackwardEdges": false,
+      "hasBackwardEdges": true,
       "hasTrueCycle": false,
       "hasExternalHandoff": true,
       "hasCrossJourneyHandoff": true,
@@ -10723,10 +10771,10 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 16,
-      "edgeCount": 19,
+      "nodeCount": 17,
+      "edgeCount": 20,
       "branchNodeCount": 4,
-      "backwardEdgeCount": 0,
+      "backwardEdgeCount": 1,
       "handoffCount": 3,
       "exitCount": 3,
       "maxDepth": 8,
@@ -10734,13 +10782,14 @@
       "maxFanOut": 3,
       "primaryStructure": "mixed-termination",
       "behaviors": [
+        "backward-edge",
         "wait-timeout",
         "cross-journey-handoff",
         "external-handoff",
         "multi-exit"
       ],
       "complexityTier": "complex",
-      "complexityScore": 57
+      "complexityScore": 61
     }
   },
   {
@@ -10946,7 +10995,7 @@
           "from": "c.duplicate",
           "to": "x.defer",
           "family": "branch",
-          "label": "Already handled",
+          "label": "ACT-13 or a person already has it",
           "when": "an open support case or an assigned human owner covers the same issue, or ACT-13 already owns a named requirement on this instance - the struggle is almost always that requirement, and a help offer beside a blocker reminder is two voices on one problem"
         },
         {
@@ -11128,6 +11177,14 @@
         {
           "journey": "ACT-13",
           "because": "ACT-13 has a named requirement to clear. Here the evidence is effort without progress and no single thing to point at, which is why the offer is help rather than an instruction."
+        },
+        {
+          "journey": "ACT-19",
+          "because": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true this journey holds the person: an open assisted-help session is evidence of active struggle, and a personalization question is not asked into it (s.struggling on ACT-19)."
+        },
+        {
+          "journey": "ACT-12",
+          "because": "ACT-12 pauses its generic next-step prompts while an assisted session booked here is open (s.assisted), released on assisted_session_outcome_recorded or booking_cancelled; this journey is what that pause is for."
         }
       ],
       "competition": null,
@@ -11430,22 +11487,6 @@
           "terminal": false
         },
         {
-          "id": "a.measure",
-          "kind": "action",
-          "headline": "Read adoption from value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them. Activity that produces nothing does not count toward it, however much of it there is",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "a.recognize",
-          "kind": "action",
-          "headline": "Acknowledge what was actually produced, in the terms of the thing itself. Recognition that names nothing real reads as manufactured and devalues the milestones that follow",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
           "id": "c.next",
           "kind": "condition",
           "headline": "Does a natural next action follow from what they just did?",
@@ -11454,9 +11495,17 @@
           "terminal": false
         },
         {
-          "id": "a.surface",
+          "id": "a.recognize-next",
           "kind": "action",
-          "headline": "Surface one relevant next action, drawn from what they produced rather than from the product's feature list",
+          "headline": "Acknowledge what was actually produced, in the terms of the thing itself, and name the one action that genuinely follows from it - sharing it, repeating it, extending it. Recognition that names nothing real reads as manufactured and devalues the milestones that follow",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.recognize-only",
+          "kind": "action",
+          "headline": "Acknowledge what was actually produced, in the terms of the thing itself, and say nothing more - inventing a next step would turn recognition into a pitch. Recognition that names nothing real reads as manufactured and devalues the milestones that follow",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -11494,10 +11543,26 @@
           "terminal": false
         },
         {
+          "id": "w.confirm",
+          "kind": "wait",
+          "headline": "until value_produced",
+          "detail": "timeout after {'key': 'adoption.observation_window', 'rule': \"The early-adoption window is the product's own intended usage rhythm for this use-case; a weekly product and a twice-a-year product cannot share one, and a shared window reports every seasonal account as failing.\", 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.stable-after-nudge",
+          "kind": "condition",
+          "headline": "Is it repeating now?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "h.stall",
           "kind": "handoff",
           "headline": "Adoption stall → diagnose missing value → recover or re-route",
-          "detail": "the early-adoption window passing without repeated value",
+          "detail": "the early-adoption window passing without repeated value, before or after the one behaviour nudge",
           "isEntry": false,
           "terminal": false
         }
@@ -11505,20 +11570,6 @@
       "edges": [
         {
           "from": "t.activated",
-          "to": "a.recognize",
-          "family": "forward",
-          "label": null,
-          "when": null
-        },
-        {
-          "from": "a.measure",
-          "to": "c.stable",
-          "family": "forward",
-          "label": null,
-          "when": null
-        },
-        {
-          "from": "a.recognize",
           "to": "c.next",
           "family": "forward",
           "label": null,
@@ -11526,21 +11577,28 @@
         },
         {
           "from": "c.next",
-          "to": "a.surface",
+          "to": "a.recognize-next",
           "family": "branch",
           "label": "Yes",
           "when": "something specific follows from the thing they produced - sharing it, repeating it, extending it"
         },
         {
           "from": "c.next",
-          "to": "a.measure",
+          "to": "a.recognize-only",
           "family": "branch",
           "label": "No",
           "when": "nothing genuinely follows, and inventing a next step would turn recognition into a pitch"
         },
         {
-          "from": "a.surface",
-          "to": "a.measure",
+          "from": "a.recognize-next",
+          "to": "w.observe",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.recognize-only",
+          "to": "w.observe",
           "family": "forward",
           "label": null,
           "when": null
@@ -11568,15 +11626,15 @@
         },
         {
           "from": "a.next-behavior",
-          "to": "w.observe",
+          "to": "w.confirm",
           "family": "forward",
           "label": null,
           "when": null
         },
         {
           "from": "w.observe",
-          "to": "a.measure",
-          "family": "backward",
+          "to": "c.stable",
+          "family": "wait-event",
           "label": "on event",
           "when": "value_produced"
         },
@@ -11588,11 +11646,39 @@
           "when": "a weekly product and a twice-a-year product cannot share a window, and a shared one would report every seasonal account as failing"
         },
         {
+          "from": "w.confirm",
+          "to": "c.stable-after-nudge",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "value_produced"
+        },
+        {
+          "from": "w.confirm",
+          "to": "h.stall",
+          "family": "backward",
+          "label": "on timeout",
+          "when": "the same observation window applies after the nudge as before it - the use-case's rhythm has not changed"
+        },
+        {
+          "from": "c.stable-after-nudge",
+          "to": "h.normal",
+          "family": "backward",
+          "label": "Yes",
+          "when": "value is being produced repeatedly at the rhythm this use-case implies, following the nudge"
+        },
+        {
+          "from": "c.stable-after-nudge",
+          "to": "h.stall",
+          "family": "backward",
+          "label": "Still not",
+          "when": "the nudge went out and value still has not repeated"
+        },
+        {
           "from": "h.stall",
           "to": "ACT-18",
           "family": "cross-journey-handoff",
           "label": null,
-          "when": "the early-adoption window passing without repeated value"
+          "when": "the early-adoption window passing without repeated value, before or after the one behaviour nudge"
         }
       ],
       "startNode": "t.activated",
@@ -11601,19 +11687,23 @@
         "h.stall"
       ],
       "backwardEdgeIds": [
-        10
+        12,
+        13,
+        14
       ],
       "branchEdgeIds": [
-        3,
-        4,
+        1,
+        2,
+        5,
         6,
-        7
+        13,
+        14
       ],
       "handoffEdgeIds": [
-        12
+        15
       ],
       "externalEdgeIds": [
-        8
+        7
       ]
     },
     "relationships": {
@@ -11631,6 +11721,10 @@
         {
           "journey": "ACT-12",
           "because": "Onboarding gets someone to value once. This is about the second, fifth and twentieth time, where the obstacle is habit rather than setup."
+        },
+        {
+          "journey": "ACT-18",
+          "because": "ACT-17 hands its failure case to ACT-18 and ACT-18 is ACT-17's own recovery destination - two reciprocal handoffs on one instance key (account_id + use_case_id). A competition group would add nothing beyond the handoffs already declared."
         }
       ],
       "competition": null,
@@ -11649,7 +11743,7 @@
     "derived": {
       "hasBranches": true,
       "hasBackwardEdges": true,
-      "hasTrueCycle": true,
+      "hasTrueCycle": false,
       "hasExternalHandoff": true,
       "hasCrossJourneyHandoff": true,
       "hasWait": true,
@@ -11658,13 +11752,13 @@
       "hasMultipleExits": false,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 10,
-      "edgeCount": 13,
-      "branchNodeCount": 2,
-      "backwardEdgeCount": 1,
+      "nodeCount": 11,
+      "edgeCount": 16,
+      "branchNodeCount": 3,
+      "backwardEdgeCount": 3,
       "handoffCount": 2,
       "exitCount": 0,
-      "maxDepth": 8,
+      "maxDepth": 7,
       "maxFanIn": 3,
       "maxFanOut": 2,
       "primaryStructure": "router",
@@ -11674,8 +11768,8 @@
         "cross-journey-handoff",
         "external-handoff"
       ],
-      "complexityTier": "simple",
-      "complexityScore": 39
+      "complexityTier": "medium",
+      "complexityScore": 48
     }
   },
   {
@@ -12192,6 +12286,10 @@
         {
           "journey": "ACT-12",
           "because": "This one asks the question that decides the route; ACT-12 walks the route once it is decided. While the question is outstanding this journey owns the onboarding conversation on the same channels, and ACT-12's nurture prompts are held until the answer lands or the wait times out - otherwise both are talking about setup at once, and the generic prompt can be for the very step the answer was about to change."
+        },
+        {
+          "journey": "ACT-14",
+          "because": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true ACT-14 holds the person: an open assisted-help session suppresses this journey's question (s.struggling) until the session resolves."
         }
       ],
       "competition": null,
@@ -12293,9 +12391,9 @@
           "terminal": false
         },
         {
-          "id": "c.worth-it",
+          "id": "c.reason",
           "kind": "condition",
-          "headline": "Is there a credible reason, and is this person still eligible and contactable?",
+          "headline": "Is there a credible reason to make one attempt?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -12405,24 +12503,24 @@
         },
         {
           "from": "a.reason",
-          "to": "c.worth-it",
+          "to": "c.reason",
           "family": "forward",
           "label": null,
           "when": null
         },
         {
-          "from": "c.worth-it",
+          "from": "c.reason",
           "to": "a.attempt",
           "family": "branch",
-          "label": "Worth one attempt",
-          "when": "a specific reason exists and permission and eligibility both hold"
+          "label": "A specific reason exists",
+          "when": "something specific to come back for - setup never finished, an interest expressed, something now relevant, a real product change"
         },
         {
-          "from": "c.worth-it",
+          "from": "c.reason",
           "to": "x.no-reason",
           "family": "branch",
-          "label": "Not worth it",
-          "when": "no specific reason exists, or permission or eligibility has lapsed"
+          "label": "No specific reason",
+          "when": "no specific reason exists; dormancy alone is never a reason by itself"
         },
         {
           "from": "a.attempt",

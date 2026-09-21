@@ -11791,6 +11791,7 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
+      "multi-exit",
       "preemption",
       "competition"
     ],
@@ -11816,6 +11817,10 @@
         {
           "targetId": "journey:SUB-296",
           "because": "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person."
+        },
+        {
+          "targetId": "journey:ACT-20",
+          "because": "ACT-20 attempts to restart a relationship that went dormant before it ever produced value; where an onboarding instance is already open for the same person, an onboarding already in motion is a current lifecycle and this journey owns the account outright. ACT-20's own reactivation handoff (h.onboarding) lands here rather than opening a second attempt."
         }
       ]
     }
@@ -11856,6 +11861,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
@@ -11875,7 +11881,15 @@
       "distinctFrom": [
         {
           "targetId": "journey:ACT-14",
-          "because": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere."
+          "because": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere - and where both are true, a named requirement outstanding and help being sought against it, this journey holds the account and the help offer is suppressed for it, because an obstacle with a name is answerable and a general offer of help is not."
+        },
+        {
+          "targetId": "journey:ACT-12",
+          "because": "ACT-12 suppresses its generic next-step prompt for the exact prerequisite this journey names the moment it opens (s.blocker) and hands the account here (h.blocker). This journey is what that transfer is transferring to, and resumes ACT-12 (h.resume) once the requirement clears."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks activation. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ]
     }
@@ -11936,6 +11950,14 @@
         {
           "targetId": "journey:ACT-13",
           "because": "ACT-13 has a named requirement to clear. Here the evidence is effort without progress and no single thing to point at, which is why the offer is help rather than an instruction."
+        },
+        {
+          "targetId": "journey:ACT-19",
+          "because": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true this journey holds the person: an open assisted-help session is evidence of active struggle, and a personalization question is not asked into it (s.struggling on ACT-19)."
+        },
+        {
+          "targetId": "journey:ACT-12",
+          "because": "ACT-12 pauses its generic next-step prompts while an assisted session booked here is open (s.assisted), released on assisted_session_outcome_recorded or booking_cancelled; this journey is what that pause is for."
         }
       ]
     }
@@ -12051,6 +12073,10 @@
         {
           "targetId": "journey:ACT-12",
           "because": "Onboarding gets someone to value once. This is about the second, fifth and twentieth time, where the obstacle is habit rather than setup."
+        },
+        {
+          "targetId": "journey:ACT-18",
+          "because": "ACT-17 hands its failure case to ACT-18 and ACT-18 is ACT-17's own recovery destination - two reciprocal handoffs on one instance key (account_id + use_case_id). A competition group would add nothing beyond the handoffs already declared."
         }
       ]
     }
@@ -12171,6 +12197,10 @@
         {
           "targetId": "journey:ACT-12",
           "because": "This one asks the question that decides the route; ACT-12 walks the route once it is decided. While the question is outstanding this journey owns the onboarding conversation on the same channels, and ACT-12's nurture prompts are held until the answer lands or the wait times out - otherwise both are talking about setup at once, and the generic prompt can be for the very step the answer was about to change."
+        },
+        {
+          "targetId": "journey:ACT-14",
+          "because": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true ACT-14 holds the person: an open assisted-help session suppresses this journey's question (s.struggling) until the session resolves."
         }
       ]
     }

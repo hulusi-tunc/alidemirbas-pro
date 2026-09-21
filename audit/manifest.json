@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-21T14:41:29.913Z",
+  "generated": "2026-09-21T15:11:28.608Z",
   "expected_count": 69,
   "found_count": 69,
   "issues": [],
@@ -115,7 +115,7 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 16,
+      "canonical_node_count": 17,
       "display_node_count_before": null,
       "display_node_count_after": null,
       "condition_count": 4,
@@ -784,10 +784,10 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 10,
+      "canonical_node_count": 11,
       "display_node_count_before": null,
       "display_node_count_after": null,
-      "condition_count": 2,
+      "condition_count": 3,
       "exit_count": 0,
       "handoff_count": 2,
       "journey_types": [
@@ -799,6 +799,7 @@
         "multi-branch",
         "no-deadline",
         "nurture",
+        "shared-handoff",
         "wait-event-timeout"
       ],
       "severity": null,
@@ -1342,11 +1343,11 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 12,
+      "canonical_node_count": 13,
       "display_node_count_before": null,
       "display_node_count_after": null,
-      "condition_count": 5,
-      "exit_count": 1,
+      "condition_count": 6,
+      "exit_count": 2,
       "handoff_count": 2,
       "journey_types": [
         "back-edge-retry",

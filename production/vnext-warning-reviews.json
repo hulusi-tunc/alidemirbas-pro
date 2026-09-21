@@ -1760,6 +1760,14 @@
    "note": "t2 (returned in full), t3 (returned in part) and t4 (not confirmed back) are the three exclusive arms of c.outcome - the financial record says exactly one of them about a given refund. They are never sent together and no simultaneous rule is needed; the shared gate is w.outcome because all three read the same settlement result.",
    "reviewedBy": "Batch C, the seventeen-journey additions",
    "reviewedAt": "2026-09-20"
+  },
+  {
+   "id": "ACT-17",
+   "code": "simultaneous_review",
+   "match": "touches t0, t0-only",
+   "note": "t0 (a.recognize-next) and t0-only (a.recognize-only) are the two exclusive arms of c.next - a natural next action either follows from what was produced or it does not. They are never sent together; no channelStrategy.simultaneous is needed. The merge of a.recognize and a.surface into one recognition stage with two mutually exclusive message variants is the 69-journey plan's own design (audit/refactor/69-journey-final-plan.md, ACT-17 canonical changes).",
+   "reviewedBy": "69-journey refactor, ACQ+ACT batch (ACT-12/13/14/17/19/20)",
+   "reviewedAt": "2026-09-21"
   }
  ]
 }

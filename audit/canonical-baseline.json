@@ -15,7 +15,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACT-13": {
-    "hash": "sha256:1320846fa5f1360b1b7d44eecc1d82382dc7aff66d8e5ab069695903f1f01e15",
+    "hash": "sha256:51537d6e247d7b5b17256994cdc8bb71c96e22ac527c46d1ba7c4aa511ba5975",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -115,12 +115,12 @@
     "schema_version": "vNext-2026-09"
   },
   "ACT-20": {
-    "hash": "sha256:2809c76a6efd6e3dfaf3e422c2af48f7b8bc5e7309a0f410ae8b17ec4876ac47",
+    "hash": "sha256:0b4bfb7d9bbde03064ac6d693c0eaef86a3544e48e2b53fadeccbdc54627c01a",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },
   "ACT-17": {
-    "hash": "sha256:cd4dc7ac049643237ecefdda7554137b0cbf2f54844e56b9cc7d55a8f655a29d",
+    "hash": "sha256:1264cd279cf540674d04916eacf288f6a69fcf1f8c68744c090b1846962906f1",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -210,7 +210,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACT-12": {
-    "hash": "sha256:982ab389b75b0ac6726280793df4aae05c28d8c7c95bc65adf7519933cd1611f",
+    "hash": "sha256:20dd6e7bbe9efa703253addc1e0c280a12c22e369744c048846bbd9f2151c802",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -300,7 +300,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACT-19": {
-    "hash": "sha256:c9b8cece95b7ca1a06551a342466098a26080528a69b3653418041f85e19ec32",
+    "hash": "sha256:f4ba9654dd4ccdb8ab57087ce73f9e50e407515458466bc63c30741afb435d32",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -310,7 +310,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACT-14": {
-    "hash": "sha256:558ced58718d09e489f3ca74c41a368abc321f7a79fdefc7664ba92467682567",
+    "hash": "sha256:7d4f03b6eef6c32dcbba4f4a1bb22834916d4d4956f557cf5d57829113a1f3fd",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },

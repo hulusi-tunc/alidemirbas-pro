@@ -199,7 +199,7 @@ const TOUCH_STAGE_TR: Readonly<Record<string, string>> = {
   "confirmation": "Onay", "confirmation-ask": "Onay isteği", "confirmation-request": "Onay talebi",
   "correct": "Düzeltme", "correct-distribution": "Dağıtım düzeltmesi", "correctable": "Düzeltilebilir bildirim",
   "corrective-request": "Düzeltme talebi", "decision-request": "Karar talebi", "decline": "Red bildirimi",
-  "delay-update": "Gecikme güncellemesi", "deliver": "Teslimat bildirimi", "dispatch": "Sevkiyat bildirimi",
+  "delay-update": "Gecikme güncellemesi", "deliver": "Teslimat bildirimi", "dependency-hold": "Bağımlılık bekleme bildirimi", "dispatch": "Sevkiyat bildirimi",
   "distribute": "Dağıtım bildirimi", "educate": "Bilgilendirme", "educate-again": "İkinci bilgilendirme", "ending": "Sonlanma bildirimi",
   "expired": "Süresi doldu bildirimi", "explain": "Açıklama", "explain-terminal": "Sonlanma açıklaması",
   "final": "Son bildirim", "final-notice": "Son uyarı", "first-touch": "İlk temas",

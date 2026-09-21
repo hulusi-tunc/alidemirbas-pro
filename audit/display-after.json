@@ -179,19 +179,19 @@
     "slug": "activation-blocker-resolution",
     "locales": {
       "en": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 27,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.specific-action",
-            "len": 112
-          },
-          {
             "id": "a.route-dependency",
             "len": 115
+          },
+          {
+            "id": "a.hold-notice",
+            "len": 137
           }
         ],
         "long_branch_labels": [
@@ -215,10 +215,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 27,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -1195,7 +1195,7 @@
         "long_cards": [
           {
             "id": "a.attempt",
-            "len": 134
+            "len": 129
           }
         ],
         "long_branch_labels": [
@@ -1213,38 +1213,38 @@
     "slug": "early-adoption-to-stable-use",
     "locales": {
       "en": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
         "terminal_instances": 0,
-        "edges": 17,
+        "edges": 24,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.surface",
-            "len": 132
+            "id": "a.recognize-only",
+            "len": 113
           },
           {
             "id": "a.next-behavior",
-            "len": 139
+            "len": 132
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
         "terminal_instances": 0,
-        "edges": 17,
+        "edges": 24,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.surface",
-            "len": 139
+            "id": "a.recognize-next",
+            "len": 136
           },
           {
             "id": "a.next-behavior",
-            "len": 155
+            "len": 142
           }
         ],
         "long_branch_labels": [],
@@ -2089,10 +2089,10 @@
     "slug": "onboarding-progress-next-step",
     "locales": {
       "en": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 27,
+        "edges": 30,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -2112,17 +2112,12 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 27,
+        "edges": 30,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.read",
-            "len": 125
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Kurulum tamam, değer henüz üretilmedi",
@@ -3143,15 +3138,16 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.offer",
-            "len": 120
-          },
-          {
             "id": "a.followup",
-            "len": 146
+            "len": 134
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "ACT-13 or a person already has it",
+            "len": 33
+          }
+        ],
         "locale_leaks": []
       },
       "tr": {
@@ -3163,22 +3159,23 @@
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 143
+            "len": 130
           },
           {
             "id": "a.confirm",
-            "len": 131
-          },
-          {
-            "id": "a.final",
-            "len": 117
+            "len": 113
           },
           {
             "id": "a.followup",
-            "len": 150
+            "len": 132
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "ACT-13 veya bir kişi zaten üstlendi",
+            "len": 35
+          }
+        ],
         "locale_leaks": []
       }
     }

@@ -217,7 +217,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "ACT-13",
@@ -228,7 +228,7 @@
       "routesToHuman": true,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, task)"
+      "reason": "declares a message channel (email, task)"
     },
     {
       "id": "ACT-14",
@@ -239,7 +239,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
+      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "ACT-16",
@@ -261,7 +261,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (in-app, email)"
     },
     {
       "id": "ACT-18",
@@ -283,7 +283,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (in-app)"
     },
     {
       "id": "ACT-20",
@@ -294,7 +294,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "RET-21",

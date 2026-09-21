@@ -1992,7 +1992,7 @@
     },
     {
       "route": "/tr/lab/journeys/activation-blocker-resolution",
-      "text": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere.",
+      "text": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere - and where both are true, a named requirement outstanding and help being sought against it, this journey holds the account and the help offer is suppressed for it, because an obstacle with a name is answerable and a general offer of help is not.",
       "hits": [
         "the",
         "has",
@@ -2000,7 +2000,42 @@
         "for",
         "where",
         "still",
-        "not"
+        "not",
+        "are",
+        "this",
+        "because",
+        "with"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/activation-blocker-resolution",
+      "text": "ACT-12 suppresses its generic next-step prompt for the exact prerequisite this journey names the moment it opens (s.blocker) and hands the account here (h.blocker). This journey is what that transfer is transferring to, and resumes ACT-12 (h.resume) once the requirement clears.",
+      "hits": [
+        "its",
+        "for",
+        "the",
+        "this",
+        "and",
+        "what",
+        "that"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/activation-blocker-resolution",
+      "text": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks activation. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it.",
+      "hits": [
+        "that",
+        "does",
+        "not",
+        "which",
+        "this",
+        "the",
+        "and",
+        "for"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -2049,6 +2084,18 @@
     },
     {
       "route": "/tr/lab/journeys/activation-blocker-resolution",
+      "text": "This journey owns the reminder for the named requirement it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that obligation while this instance holds it.",
+      "hits": [
+        "this",
+        "the",
+        "for",
+        "that"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/activation-blocker-resolution",
       "text": "· The resolution horizon appropriate to this requirement.",
       "hits": [
         "the",
@@ -2059,10 +2106,11 @@
     },
     {
       "route": "/tr/lab/journeys/activation-blocker-resolution",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "· Every touch runs against a budget fixed when the instance opened; the budget counts customer touches only - a.route-dependency raises an internal work item, not a send - and no customer touch is repeated because nothing could tell whether it arrived.",
       "hits": [
         "when",
         "the",
+        "not",
         "and",
         "because"
       ],
@@ -2129,20 +2177,25 @@
     },
     {
       "route": "/tr/lab/journeys/activation-blocker-resolution",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "Tell the account the requirement is now with the party who can resolve it, and what happens when it is - the one branch where they cannot act themselves must not leave them in silence.",
       "hits": [
         "the",
-        "has",
-        "and"
+        "with",
+        "and",
+        "what",
+        "when",
+        "where",
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/activation-blocker-resolution",
-      "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
+      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
       "hits": [
         "the",
+        "has",
         "and"
       ],
       "known": true,
@@ -14152,13 +14205,11 @@
     },
     {
       "route": "/tr/lab/journeys/dormant-non-customer-reactivation",
-      "text": "Has this relationship ever been monetised in this context? · Is there a credible reason, and is this person still eligible and contactable?",
+      "text": "Has this relationship ever been monetised in this context? · Is there a credible reason to make one attempt?",
       "hits": [
         "has",
         "this",
-        "been",
-        "and",
-        "still"
+        "been"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -14183,17 +14234,6 @@
         "the",
         "has",
         "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/dormant-non-customer-reactivation",
-      "text": "( Push ): a valid token or app session exists and the message is a single step from the notification",
-      "hits": [
-        "and",
-        "the",
-        "from"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -14471,6 +14511,18 @@
     },
     {
       "route": "/tr/lab/journeys/early-adoption-to-stable-use",
+      "text": "ACT-17 hands its failure case to ACT-18 and ACT-18 is ACT-17's own recovery destination - two reciprocal handoffs on one instance key (account_id + use_case_id). A competition group would add nothing beyond the handoffs already declared.",
+      "hits": [
+        "its",
+        "and",
+        "the",
+        "already"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/early-adoption-to-stable-use",
       "text": "Turn a first activation into repeated value in the same use-case: recognise what was actually produced, point at the one behaviour that would produce more, and stop the moment adoption is stable or stalls.",
       "hits": [
         "the",
@@ -14560,10 +14612,12 @@
     },
     {
       "route": "/tr/lab/journeys/early-adoption-to-stable-use",
-      "text": "An open complaint under human ownership, a live risk case or a declared cancellation intent on the same account outranks lifecycle nurture; the touch is deferred and re-evaluated against current state (GLB-06).",
+      "text": "A live risk case (RET-24), an open issue under human ownership or a declared cancellation intent on the same account means adoption is not the subject; the touch is deferred and re-evaluated against current state. This journey declares no exclusion group: it hands the use-case to adoption recovery (ACT-18) rather than contesting it.",
       "hits": [
         "the",
-        "and"
+        "not",
+        "and",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -14607,7 +14661,7 @@
     },
     {
       "route": "/tr/lab/journeys/early-adoption-to-stable-use",
-      "text": "· Recognition and the nudges that follow run against one budget fixed when the instance opened; a nudge is never repeated because nothing could tell whether it was seen.",
+      "text": "· Recognition and the nudge that follows run against one budget fixed when the instance opened; a nudge is never repeated because nothing could tell whether it was seen.",
       "hits": [
         "and",
         "the",
@@ -14654,17 +14708,6 @@
     },
     {
       "route": "/tr/lab/journeys/early-adoption-to-stable-use",
-      "text": "Acknowledge the specific thing that was produced, in its own terms. Recognition that names nothing real is worse than silence.",
-      "hits": [
-        "the",
-        "that",
-        "its"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/early-adoption-to-stable-use",
       "text": "Does a natural next action follow from what they just did?",
       "hits": [
         "does",
@@ -14676,12 +14719,24 @@
     },
     {
       "route": "/tr/lab/journeys/early-adoption-to-stable-use",
-      "text": "Surface the one action that genuinely follows from what they produced - sharing it, repeating it, extending it - and nothing from the feature list.",
+      "text": "Acknowledge the specific thing that was produced, in its own terms, and name the one action that follows from it: sharing it, repeating it, extending it. Recognition that names nothing real is worse than silence; the mutually exclusive branch of a message-variant fork, one stage.",
       "hits": [
         "the",
         "that",
-        "from",
-        "what",
+        "its",
+        "and",
+        "from"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/early-adoption-to-stable-use",
+      "text": "Acknowledge the specific thing that was produced, in its own terms, and say nothing more - inventing a next step would turn recognition into a pitch. The mutually exclusive branch of t0's message-variant fork, one stage.",
+      "hits": [
+        "the",
+        "that",
+        "its",
         "and"
       ],
       "known": true,
@@ -14717,6 +14772,17 @@
         "the",
         "and",
         "have"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/early-adoption-to-stable-use",
+      "text": ": the early-adoption window passing without repeated value, before or after the one behaviour nudge",
+      "hits": [
+        "the",
+        "before",
+        "after"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -25174,6 +25240,22 @@
     },
     {
       "route": "/tr/lab/journeys/onboarding-progress-next-step",
+      "text": "ACT-20 attempts to restart a relationship that went dormant before it ever produced value; where an onboarding instance is already open for the same person, an onboarding already in motion is a current lifecycle and this journey owns the account outright. ACT-20's own reactivation handoff (h.onboarding) lands here rather than opening a second attempt.",
+      "hits": [
+        "that",
+        "before",
+        "where",
+        "already",
+        "for",
+        "the",
+        "and",
+        "this"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/onboarding-progress-next-step",
       "text": "the authoritative activation event, from anywhere",
       "hits": [
         "the",
@@ -25445,16 +25527,6 @@
     },
     {
       "route": "/tr/lab/journeys/onboarding-progress-next-step",
-      "text": "( Uygulama içi ): the person is inside the product - the next step is best pointed at where it is taken",
-      "hits": [
-        "the",
-        "where"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/onboarding-progress-next-step",
       "text": "( E-posta ): no active session, or the step needs an explanation that survives until the person returns",
       "hits": [
         "the",
@@ -25465,10 +25537,14 @@
     },
     {
       "route": "/tr/lab/journeys/onboarding-progress-next-step",
-      "text": "lifecycle-stage (person) - below the authoritative activation event, which supersedes it wherever it sits",
+      "text": "lifecycle-stage (person) - below the authoritative activation event, which supersedes it wherever it sits; above dormant lead reactivation (ACT-20) for the same person, because an onboarding already in motion is a current lifecycle and reactivation is the attempt to start one",
       "hits": [
         "the",
-        "which"
+        "which",
+        "for",
+        "because",
+        "already",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -37719,6 +37795,20 @@
     },
     {
       "route": "/tr/lab/journeys/role-use-case-discovery",
+      "text": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true ACT-14 holds the person: an open assisted-help session suppresses this journey's question (s.struggling) until the session resolves.",
+      "hits": [
+        "the",
+        "and",
+        "with",
+        "where",
+        "are",
+        "this"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/role-use-case-discovery",
       "text": "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
       "hits": [
         "the",
@@ -37770,6 +37860,25 @@
       "hits": [
         "for",
         "this"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/role-use-case-discovery",
+      "text": "An open assisted-help session (ACT-14) for the same person suppresses this journey's question. Somebody who is visibly stuck and has asked for help is not also asked to describe their role; the question waits until that session resolves, and where the onboarding decision has already been defaulted by then, it is not asked at all.",
+      "hits": [
+        "for",
+        "the",
+        "this",
+        "and",
+        "has",
+        "not",
+        "their",
+        "that",
+        "where",
+        "already",
+        "been"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -37850,17 +37959,6 @@
       "hits": [
         "what",
         "the"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/role-use-case-discovery",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
-      "hits": [
-        "the",
-        "has",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -40053,6 +40151,34 @@
     },
     {
       "route": "/tr/lab/journeys/struggling-user-assistance",
+      "text": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true this journey holds the person: an open assisted-help session is evidence of active struggle, and a personalization question is not asked into it (s.struggling on ACT-19).",
+      "hits": [
+        "the",
+        "and",
+        "with",
+        "where",
+        "are",
+        "this",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/struggling-user-assistance",
+      "text": "ACT-12 pauses its generic next-step prompts while an assisted session booked here is open (s.assisted), released on assisted_session_outcome_recorded or booking_cancelled; this journey is what that pause is for.",
+      "hits": [
+        "its",
+        "this",
+        "what",
+        "that",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/struggling-user-assistance",
       "text": "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
       "hits": [
         "and",
@@ -40106,12 +40232,27 @@
     },
     {
       "route": "/tr/lab/journeys/struggling-user-assistance",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "Where a named mandatory requirement is established as the thing preventing activation, the blocker journey (ACT-13) owns the account and this journey does not open.",
+      "hits": [
+        "where",
+        "the",
+        "and",
+        "this",
+        "does",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/struggling-user-assistance",
+      "text": "· Every touch runs against a budget fixed when the instance opened, counted as the longest path through the plan rather than the node count: the offer, the booking confirmation, one follow-up. The booking confirmation is a requested transactional message, not a nudge, so the nudge budget is 2 and s.g4 is its statement.",
       "hits": [
         "when",
         "the",
+        "not",
         "and",
-        "because"
+        "its"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -40219,22 +40360,11 @@
     },
     {
       "route": "/tr/lab/journeys/struggling-user-assistance",
-      "text": "( Push ): no active session, a valid token exists, and the message is a single step from the notification",
+      "text": "( E-posta ): no active session - the message has to be kept and survive until the person returns to act on it",
       "hits": [
-        "and",
         "the",
-        "from"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/struggling-user-assistance",
-      "text": "( E-posta ): no active session and no valid push token - the message has to be kept and survive until the person returns to act on it",
-      "hits": [
-        "and",
-        "the",
-        "has"
+        "has",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"

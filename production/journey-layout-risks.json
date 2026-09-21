@@ -61,7 +61,7 @@
     {
       "risk": "backward-edges",
       "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
-      "affectedCount": 166,
+      "affectedCount": 167,
       "threshold": ">=1 backward edge",
       "worst": [
         [
@@ -90,19 +90,19 @@
     {
       "risk": "true-graph-cycles",
       "description": "A backward edge is not automatically a cycle - only 33 of the 125 backward-edge journeys form an actual cycle (a path that returns to its own source). These need a recursion/traversal guard in the layout algorithm itself; the other 92 are simple back-references and do not.",
-      "affectedCount": 37,
+      "affectedCount": 36,
       "threshold": "DFS-detected true cycle",
       "worst": [
         "ACQ-11",
         "ACQ-12",
         "ACT-12",
-        "ACT-17",
         "FBK-46",
         "FBK-47",
         "OWN-55",
         "OWN-57",
         "TIM-61",
-        "ACC-72"
+        "ACC-72",
+        "ACC-80"
       ],
       "maxValue": null
     },
@@ -167,7 +167,7 @@
     {
       "risk": "node-convergence (fan-in)",
       "description": "Multiple distinct nodes pointing at the same target node. A tree-shaped layout algorithm cannot represent convergence without either duplicating the node or drawing a shared-target edge.",
-      "affectedCount": 63,
+      "affectedCount": 62,
       "threshold": ">=3 incoming edges to one node",
       "worst": [
         [
@@ -233,6 +233,7 @@
   ],
   "layoutStressFixtureCandidates": [
     "ACC-72",
+    "ACC-80",
     "ACQ-05",
     "ACQ-10",
     "ACQ-11",
@@ -243,7 +244,6 @@
     "ACQ-288",
     "ACT-12",
     "ACT-14",
-    "ACT-17",
     "DEC-183",
     "FBK-41",
     "FBK-43",
