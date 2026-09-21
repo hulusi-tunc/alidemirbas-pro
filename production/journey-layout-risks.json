@@ -61,7 +61,7 @@
     {
       "risk": "backward-edges",
       "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
-      "affectedCount": 167,
+      "affectedCount": 168,
       "threshold": ">=1 backward edge",
       "worst": [
         [
@@ -125,11 +125,11 @@
           6
         ],
         [
-          "ACQ-11",
-          5
+          "FIN-302",
+          6
         ],
         [
-          "ACQ-12",
+          "ACQ-11",
           5
         ]
       ],
@@ -167,7 +167,7 @@
     {
       "risk": "node-convergence (fan-in)",
       "description": "Multiple distinct nodes pointing at the same target node. A tree-shaped layout algorithm cannot represent convergence without either duplicating the node or drawing a shared-target edge.",
-      "affectedCount": 65,
+      "affectedCount": 64,
       "threshold": ">=3 incoming edges to one node",
       "worst": [
         [
@@ -249,6 +249,7 @@
     "FBK-46",
     "FBK-47",
     "FBK-49",
+    "FIN-302",
     "FUL-144",
     "OPS-121",
     "OWN-55",

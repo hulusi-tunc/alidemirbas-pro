@@ -10710,7 +10710,12 @@
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns whether a granted entitlement is ever used, and names the first action that uses it; an unused entitlement is this journey's obligation, not a generic outstanding one, and TIM-268 defers to it and sends nothing while this instance holds the entitlement."
+        }
+      ]
     }
   },
   {
@@ -13408,7 +13413,12 @@
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a signature owed on a specific version by a specific signer, and knows which version is being signed; TIM-268 defers to it and sends nothing while this instance holds the obligation."
+        }
+      ]
     }
   },
   {
@@ -13883,6 +13893,26 @@
         {
           "targetId": "journey:TIM-274",
           "because": "This journey owns what is said about an unpaid obligation while recovery is still the whole of the story. Its own handoff into grace ends that: once a grace state is recorded, the holder needs the window's end date and the one condition that restores the active state, which TIM-274 holds and this journey does not. Recovery messaging about the obligation stops at that handoff rather than running beside it."
+        },
+        {
+          "targetId": "journey:SCH-303",
+          "because": "SCH-303's subject is a reservation that is still standing and whether it survives; the payment is a condition on it. This journey's subject is the obligation itself, from the moment an attempt actually failed. SCH-303 hands the money here and stops speaking about it - this journey never speaks about the reservation, and the release point it is handed is a consequence to work inside rather than a deadline to restate."
+        },
+        {
+          "targetId": "journey:FIN-302",
+          "because": "This journey is money that failed to come in and an obligation that stays open. FIN-302 is money going back out against an obligation already discharged. The two share a payment record and nothing else, and neither ever announces the other's movement."
+        },
+        {
+          "targetId": "journey:ACQ-287",
+          "because": "ACQ-287 recovers a checkout nobody finished. This opens only where a checkout was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the cart or the items."
+        },
+        {
+          "targetId": "journey:ACQ-11",
+          "because": "ACQ-11 recovers a resumable process nobody finished. This opens only where the process was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the process or the items."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation before any attempt has been made against it - a due date passed with silence. This journey owns the same obligation from the moment an attempt was actually made and failed; once a failed attempt is recorded, TIM-268 defers to it and stops sending its own generic reminder."
         }
       ]
     }
@@ -14816,6 +14846,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "cross-journey-handoff",
       "multi-exit"
     ],
@@ -15101,6 +15132,10 @@
         {
           "targetId": "journey:IDN-88",
           "because": "IDN-88 restores control to somebody who cannot get in. Here the owner still has access, and the open question is whether somebody else does too."
+        },
+        {
+          "targetId": "journey:ACC-261",
+          "because": "ACC-261 narrates a restriction that stands on its own terms, once one has been recorded. This journey narrates a suspected compromise and the containment applied to it - where a security response placed the restriction ACC-261 defers to, this is the journey that tells the holder."
         }
       ]
     }
@@ -15988,6 +16023,10 @@
         {
           "targetId": "journey:SUB-161",
           "because": "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure; TIM-268 would restate that deadline without knowing what the acceptance grants, so it defers to this journey and sends nothing while this instance holds the invitation."
         }
       ]
     }
@@ -17300,7 +17339,12 @@
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks; TIM-268 can only name the prerequisite, so it defers to this journey and sends nothing while this instance holds the target."
+        }
+      ]
     }
   },
   {

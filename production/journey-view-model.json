@@ -2887,38 +2887,6 @@
           "terminal": false
         },
         {
-          "id": "c.actionable",
-          "kind": "condition",
-          "headline": "Can the holder do anything about this?",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "a.inform-only",
-          "kind": "action",
-          "headline": "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "x.informed",
-          "kind": "exit",
-          "headline": "informed, resolution not theirs",
-          "detail": "if the condition later becomes something they can satisfy, this qualifies again with the actionable path",
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "x.security-owned",
-          "kind": "exit",
-          "headline": "restriction announced by the security response; no separate notice sent",
-          "detail": "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
-          "isEntry": false,
-          "terminal": false
-        },
-        {
           "id": "c.reachable",
           "kind": "condition",
           "headline": "Is there a permitted route to them?",
@@ -2935,6 +2903,30 @@
           "terminal": false
         },
         {
+          "id": "c.actionable",
+          "kind": "condition",
+          "headline": "Can the holder do anything about this?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.inform-only",
+          "kind": "action",
+          "headline": "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.security-owned",
+          "kind": "exit",
+          "headline": "restriction announced by the security response; no separate notice sent",
+          "detail": "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.notify",
           "kind": "action",
           "headline": "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it. Naming what still works is what stops the person assuming the whole relationship has ended",
@@ -2945,7 +2937,7 @@
         {
           "id": "w.resolve",
           "kind": "wait",
-          "headline": "until release_condition_met, or restriction_lifted, or restriction_made_permanent",
+          "headline": "until restriction_release_condition_met, or restriction_lifted, or restriction_made_permanent",
           "detail": "timeout after {'key': 'access_restriction.resolve', 'rule': 'The stated deadline or review point.', 'class': 'attribute-bound', 'required': True}",
           "isEntry": false,
           "terminal": false
@@ -2981,19 +2973,48 @@
           "detail": "if the condition is satisfied afterwards, the restoration path runs from the lifting event",
           "isEntry": false,
           "terminal": false
+        },
+        {
+          "id": "x.permanent",
+          "kind": "exit",
+          "headline": "restriction is now permanent; the release condition no longer applies",
+          "detail": "a later review that converts the restriction back into a bounded one is a new instance",
+          "isEntry": false,
+          "terminal": false
         }
       ],
       "edges": [
         {
           "from": "t.restricted",
-          "to": "c.actionable",
+          "to": "c.reachable",
           "family": "forward",
           "label": null,
           "when": null
         },
         {
+          "from": "c.reachable",
+          "to": "c.actionable",
+          "family": "branch",
+          "label": "Reachable",
+          "when": "at least one contact point is valid and permitted for a service notice of this kind"
+        },
+        {
+          "from": "c.reachable",
+          "to": "h.unreachable",
+          "family": "branch",
+          "label": "Unreachable",
+          "when": "no permitted route survives the purpose and permission checks"
+        },
+        {
+          "from": "h.unreachable",
+          "to": "CON-36",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "a restriction notice that cannot be delivered on any permitted route"
+        },
+        {
           "from": "c.actionable",
-          "to": "c.reachable",
+          "to": "a.notify",
           "family": "branch",
           "label": "Resolvable by them",
           "when": "the release condition is something the account holder can satisfy - a payment, a document, a correction, a re-verification"
@@ -3014,31 +3035,10 @@
         },
         {
           "from": "a.inform-only",
-          "to": "x.informed",
+          "to": "w.resolve",
           "family": "forward",
           "label": null,
           "when": null
-        },
-        {
-          "from": "c.reachable",
-          "to": "a.notify",
-          "family": "branch",
-          "label": "Reachable",
-          "when": "at least one contact point is valid and permitted for a service notice of this kind"
-        },
-        {
-          "from": "c.reachable",
-          "to": "h.unreachable",
-          "family": "branch",
-          "label": "Unreachable",
-          "when": "no permitted route survives the purpose and permission checks"
-        },
-        {
-          "from": "h.unreachable",
-          "to": "CON-36",
-          "family": "cross-journey-handoff",
-          "label": null,
-          "when": "a restriction notice that cannot be delivered on any permitted route"
         },
         {
           "from": "a.notify",
@@ -3052,7 +3052,7 @@
           "to": "c.outcome",
           "family": "wait-event",
           "label": "on event",
-          "when": "release_condition_met, restriction_lifted, restriction_made_permanent"
+          "when": "restriction_release_condition_met, restriction_lifted, restriction_made_permanent"
         },
         {
           "from": "w.resolve",
@@ -3076,6 +3076,13 @@
           "when": "the deadline passed with the condition unmet"
         },
         {
+          "from": "c.outcome",
+          "to": "x.permanent",
+          "family": "branch",
+          "label": "Made permanent",
+          "when": "the restriction was made permanent; the release condition no longer applies"
+        },
+        {
           "from": "a.confirm",
           "to": "x.restored",
           "family": "forward",
@@ -3085,24 +3092,25 @@
       ],
       "startNode": "t.restricted",
       "terminalNodes": [
-        "x.informed",
-        "x.security-owned",
         "h.unreachable",
+        "x.security-owned",
         "x.restored",
-        "x.stands"
+        "x.stands",
+        "x.permanent"
       ],
       "backwardEdgeIds": [],
       "branchEdgeIds": [
         1,
         2,
-        3,
+        4,
         5,
         6,
         11,
-        12
+        12,
+        13
       ],
       "handoffEdgeIds": [
-        7
+        3
       ],
       "externalEdgeIds": []
     },
@@ -3154,7 +3162,7 @@
       "hasPreemption": false,
       "hasCompetition": true,
       "nodeCount": 13,
-      "edgeCount": 14,
+      "edgeCount": 15,
       "branchNodeCount": 3,
       "backwardEdgeCount": 0,
       "handoffCount": 1,
@@ -3170,7 +3178,7 @@
         "competition"
       ],
       "complexityTier": "medium",
-      "complexityScore": 45
+      "complexityScore": 46
     }
   },
   {
@@ -3233,7 +3241,7 @@
           "id": "w.first-use",
           "kind": "wait",
           "headline": "until capability_first_used, or entitlement_revoked_or_replaced",
-          "detail": "timeout after {'key': 'entitlement_activation.first_use', 'rule': 'The single reminder is placed before the activation window closes, late enough that the first notice has had its chance and early enough that claiming is still possible.', 'class': 'reminder-before-attribute', 'required': True}",
+          "detail": "timeout after {'key': 'entitlement_activation.reminder_lead', 'rule': \"The reminder point, not the window's own end: the point before the activation window closes at which the one reminder is sent, late enough that the first notice has had its chance and early enough that claiming is still possible.\", 'class': 'attribute-bound', 'required': True}",
           "isEntry": false,
           "terminal": false
         },
@@ -3280,7 +3288,7 @@
         {
           "id": "w.last-chance",
           "kind": "wait",
-          "headline": "until capability_first_used",
+          "headline": "until capability_first_used, or entitlement_revoked_or_replaced",
           "detail": "timeout after {'key': 'entitlement_activation.last_chance', 'rule': 'After the reminder the instance waits until the activation window itself closes; there is no second reminder.', 'class': 'attribute-bound', 'required': True}",
           "isEntry": false,
           "terminal": false
@@ -3342,7 +3350,7 @@
           "to": "c.remind",
           "family": "wait-timeout",
           "label": "on timeout",
-          "when": "an unclaimed entitlement past its window is a different fact from an unused one inside it, and the two must not be counted together"
+          "when": "a reminder placed exactly at the window's own end arrives with no time left to act on it, so this wait is bound to the reminder point and the window's own end is left for the wait that follows"
         },
         {
           "from": "c.used",
@@ -3363,7 +3371,7 @@
           "to": "a.remind",
           "family": "branch",
           "label": "Time remains",
-          "when": "the window has a meaningful period left and no reminder has been sent for this issuance"
+          "when": "the reminder point falls inside the window and no reminder has been sent for this issuance"
         },
         {
           "from": "c.remind",
@@ -3381,10 +3389,10 @@
         },
         {
           "from": "w.last-chance",
-          "to": "x.activated",
+          "to": "c.used",
           "family": "backward",
           "label": "on event",
-          "when": "capability_first_used"
+          "when": "capability_first_used, entitlement_revoked_or_replaced"
         },
         {
           "from": "w.last-chance",
@@ -3425,6 +3433,10 @@
         {
           "journey": "ACC-76",
           "because": "ACC-76 tracks the credential's own issue/expire/revoke lifecycle. Here the only question is first use inside the window."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns whether a granted entitlement is ever used, and names the first action that uses it; an unused entitlement is this journey's obligation, not a generic outstanding one, and TIM-268 defers to it and sends nothing while this instance holds the entitlement."
         }
       ],
       "competition": null,
@@ -30552,7 +30564,7 @@
           "to": "a.remind",
           "family": "branch",
           "label": "It would",
-          "when": "signatures are still outstanding, the exact version is still current, the request is still valid, and no reminder has been sent on it yet"
+          "when": "signatures are still outstanding, the exact version is still current, the request is still valid, and this signer has not been reminded yet"
         },
         {
           "from": "c.reminder-useful",
@@ -30711,6 +30723,10 @@
         {
           "journey": "DEC-183",
           "because": "DEC-183 is somebody exercising judgment against criteria. This is collecting authorized marks against a fixed artifact - nobody is deciding anything on the merits, and its failure modes are version binding, incomplete sets and expiry rather than authority to conclude."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a signature owed on a specific version by a specific signer, and knows which version is being signed; TIM-268 defers to it and sends nothing while this instance holds the obligation."
         }
       ],
       "competition": null,
@@ -36968,7 +36984,7 @@
         {
           "id": "a.confirmed",
           "kind": "action",
-          "headline": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact looks like from inside",
+          "headline": "Confirm the obligation is discharged, name which method discharged it, and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact looks like from inside; a charge the person did not choose is disclosed at the moment the obligation closes, not discovered on a statement",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -37284,6 +37300,26 @@
         {
           "journey": "TIM-274",
           "because": "This journey owns what is said about an unpaid obligation while recovery is still the whole of the story. Its own handoff into grace ends that: once a grace state is recorded, the holder needs the window's end date and the one condition that restores the active state, which TIM-274 holds and this journey does not. Recovery messaging about the obligation stops at that handoff rather than running beside it."
+        },
+        {
+          "journey": "SCH-303",
+          "because": "SCH-303's subject is a reservation that is still standing and whether it survives; the payment is a condition on it. This journey's subject is the obligation itself, from the moment an attempt actually failed. SCH-303 hands the money here and stops speaking about it - this journey never speaks about the reservation, and the release point it is handed is a consequence to work inside rather than a deadline to restate."
+        },
+        {
+          "journey": "FIN-302",
+          "because": "This journey is money that failed to come in and an obligation that stays open. FIN-302 is money going back out against an obligation already discharged. The two share a payment record and nothing else, and neither ever announces the other's movement."
+        },
+        {
+          "journey": "ACQ-287",
+          "because": "ACQ-287 recovers a checkout nobody finished. This opens only where a checkout was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the cart or the items."
+        },
+        {
+          "journey": "ACQ-11",
+          "because": "ACQ-11 recovers a resumable process nobody finished. This opens only where the process was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the process or the items."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation before any attempt has been made against it - a due date passed with silence. This journey owns the same obligation from the moment an attempt was actually made and failed; once a failed attempt is recorded, TIM-268 defers to it and stops sending its own generic reminder."
         }
       ],
       "competition": null,
@@ -39290,7 +39326,7 @@
         {
           "id": "c.scope",
           "kind": "condition",
-          "headline": "What is actually moving, and against what?",
+          "headline": "Is money actually moving?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -39314,7 +39350,7 @@
         {
           "id": "w.outcome",
           "kind": "wait",
-          "headline": "until refund_settlement_confirmed, or refund_settlement_failed",
+          "headline": "until refund_settlement_confirmed, or refund_settlement_failed, or refund_submission_withdrawn",
           "detail": "timeout after {'key': 'refund_notification.settlement_window', 'rule': 'The period the settlement route is given to produce an outcome before the person is told that the money has not been confirmed back.', 'class': 'external-window', 'required': True}",
           "isEntry": false,
           "terminal": false
@@ -39339,6 +39375,14 @@
           "id": "a.partial",
           "kind": "action",
           "headline": "Say that part of the submitted amount has been returned, name the part that has not, and say what is happening to the remainder. A part announced as a whole leaves the person holding a question nobody can answer.",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.withdrawn",
+          "kind": "action",
+          "headline": "Say that the refund was withdrawn or reversed after the notice went out, and what the record now shows. The earlier notice said money was moving; this says plainly that it stopped.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -39384,6 +39428,14 @@
           "terminal": false
         },
         {
+          "id": "x.withdrawn",
+          "kind": "exit",
+          "headline": "withdrawn after notice; the submission stopped moving before it settled",
+          "detail": "a fresh submission against the same transaction is its own movement and its own instance",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "x.void",
           "kind": "exit",
           "headline": "nothing to announce; the submission was withdrawn before anything was said about it",
@@ -39412,15 +39464,8 @@
           "from": "c.scope",
           "to": "c.sendable",
           "family": "branch",
-          "label": "The whole transaction",
-          "when": "the submitted amount is the whole of the original transaction and nothing remains refundable against it"
-        },
-        {
-          "from": "c.scope",
-          "to": "c.sendable",
-          "family": "branch",
-          "label": "The whole transaction",
-          "when": "the submitted amount is the whole of the original transaction and nothing remains refundable against it"
+          "label": "Money is moving",
+          "when": "the submitted amount, whole or part of the original transaction, is moving, with the remaining refundable amount recorded separately where the submission is partial"
         },
         {
           "from": "c.scope",
@@ -39455,7 +39500,7 @@
           "to": "c.outcome",
           "family": "wait-event",
           "label": "on event",
-          "when": "refund_settlement_confirmed, refund_settlement_failed"
+          "when": "refund_settlement_confirmed, refund_settlement_failed, refund_submission_withdrawn"
         },
         {
           "from": "w.outcome",
@@ -39480,6 +39525,13 @@
         },
         {
           "from": "c.outcome",
+          "to": "a.withdrawn",
+          "family": "branch",
+          "label": "Withdrawn",
+          "when": "the submission was withdrawn or reversed after the notice went out"
+        },
+        {
+          "from": "c.outcome",
           "to": "a.unresolved",
           "family": "branch",
           "label": "Not confirmed back",
@@ -39495,6 +39547,13 @@
         {
           "from": "a.partial",
           "to": "x.partial",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.withdrawn",
+          "to": "x.withdrawn",
           "family": "forward",
           "label": null,
           "when": null
@@ -39519,6 +39578,7 @@
         "x.settled",
         "x.partial",
         "x.unsettled",
+        "x.withdrawn",
         "x.void",
         "x.no-action"
       ],
@@ -39528,7 +39588,7 @@
         2,
         3,
         4,
-        5,
+        8,
         9,
         10,
         11
@@ -39587,22 +39647,22 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 15,
-      "edgeCount": 16,
+      "nodeCount": 17,
+      "edgeCount": 17,
       "branchNodeCount": 3,
       "backwardEdgeCount": 0,
       "handoffCount": 0,
-      "exitCount": 5,
+      "exitCount": 6,
       "maxDepth": 7,
       "maxFanIn": 2,
-      "maxFanOut": 3,
+      "maxFanOut": 4,
       "primaryStructure": "self-contained",
       "behaviors": [
         "wait-timeout",
         "multi-exit"
       ],
-      "complexityTier": "medium",
-      "complexityScore": 49
+      "complexityTier": "complex",
+      "complexityScore": 53
     }
   },
   {
@@ -45386,6 +45446,14 @@
           "terminal": false
         },
         {
+          "id": "a.ours",
+          "kind": "action",
+          "headline": "State that the failure was ours, that nothing they submitted was rejected, and that it is being retried. A person who just watched their attempt fail because of our own outage gets silence while we retry unless this is said, and will resubmit perfectly good evidence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.explain-terminal",
           "kind": "action",
           "headline": "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is. Somebody who attempted verification and hears nothing will attempt it again, and each attempt writes a failure against a person who was never going to be able to pass",
@@ -45413,7 +45481,15 @@
           "id": "h.review",
           "kind": "handoff",
           "headline": "Decision request → validate → route, reject or hold",
-          "detail": "a failure requiring human judgement, or a budget reached",
+          "detail": "a failure requiring human judgement",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "h.review-budget",
+          "kind": "handoff",
+          "headline": "Decision request → validate → route, reject or hold",
+          "detail": "the retry budget for this claim being spent",
           "isEntry": false,
           "terminal": false
         },
@@ -45478,7 +45554,7 @@
         },
         {
           "from": "c.retry-budget",
-          "to": "h.review",
+          "to": "h.review-budget",
           "family": "branch",
           "label": "Budget spent",
           "when": "the limit is reached - and repeated failure is also what a genuine person struggling looks like"
@@ -45506,8 +45582,15 @@
         },
         {
           "from": "a.backoff",
-          "to": "x.retry",
+          "to": "a.ours",
           "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.ours",
+          "to": "x.retry",
+          "family": "backward",
           "label": null,
           "when": null
         },
@@ -45530,7 +45613,14 @@
           "to": "DEC-181",
           "family": "cross-journey-handoff",
           "label": null,
-          "when": "a failure requiring human judgement, or a budget reached"
+          "when": "a failure requiring human judgement"
+        },
+        {
+          "from": "h.review-budget",
+          "to": "DEC-181",
+          "family": "cross-journey-handoff",
+          "label": null,
+          "when": "the retry budget for this claim being spent"
         }
       ],
       "startNode": "t.failed",
@@ -45538,9 +45628,12 @@
         "x.retry",
         "h.escalate",
         "h.review",
+        "h.review-budget",
         "x.terminal"
       ],
-      "backwardEdgeIds": [],
+      "backwardEdgeIds": [
+        12
+      ],
       "branchEdgeIds": [
         2,
         3,
@@ -45552,8 +45645,9 @@
         10
       ],
       "handoffEdgeIds": [
-        13,
-        14
+        14,
+        15,
+        16
       ],
       "externalEdgeIds": []
     },
@@ -45566,9 +45660,18 @@
         {
           "to": "DEC-181",
           "isExternal": false
+        },
+        {
+          "to": "DEC-181",
+          "isExternal": false
         }
       ],
-      "distinctFrom": [],
+      "distinctFrom": [
+        {
+          "journey": "IDN-81",
+          "because": "IDN-81 owns a verification that expired with no attempt made. This journey owns one attempt that was made and failed; it never waits to see whether the holder retries, because the window is IDN-81's."
+        }
+      ],
       "competition": null,
       "preemptedBy": []
     },
@@ -45585,7 +45688,7 @@
     },
     "derived": {
       "hasBranches": true,
-      "hasBackwardEdges": false,
+      "hasBackwardEdges": true,
       "hasTrueCycle": false,
       "hasExternalHandoff": false,
       "hasCrossJourneyHandoff": true,
@@ -45595,22 +45698,23 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 12,
-      "edgeCount": 15,
+      "nodeCount": 14,
+      "edgeCount": 17,
       "branchNodeCount": 3,
-      "backwardEdgeCount": 0,
-      "handoffCount": 2,
+      "backwardEdgeCount": 1,
+      "handoffCount": 3,
       "exitCount": 2,
       "maxDepth": 5,
       "maxFanIn": 2,
       "maxFanOut": 4,
       "primaryStructure": "mixed-termination",
       "behaviors": [
+        "backward-edge",
         "cross-journey-handoff",
         "multi-exit"
       ],
       "complexityTier": "medium",
-      "complexityScore": 42
+      "complexityScore": 49
     }
   },
   {
@@ -47853,7 +47957,7 @@
         {
           "id": "a.standing",
           "kind": "action",
-          "headline": "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is required from them. A restriction with no stated owner and no stated date is where duplicate cases come from",
+          "headline": "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is assumed from their silence. A restriction with no stated owner and no stated date is where duplicate cases come from",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -48003,6 +48107,10 @@
         {
           "journey": "IDN-88",
           "because": "IDN-88 restores control to somebody who cannot get in. Here the owner still has access, and the open question is whether somebody else does too."
+        },
+        {
+          "journey": "ACC-261",
+          "because": "ACC-261 narrates a restriction that stands on its own terms, once one has been recorded. This journey narrates a suspected compromise and the containment applied to it - where a security response placed the restriction ACC-261 defers to, this is the journey that tells the holder."
         }
       ],
       "competition": null,
@@ -64057,7 +64165,7 @@
           "to": "a.remind",
           "family": "branch",
           "label": "Time remains",
-          "when": "the invitation has a meaningful period left and no reminder has been sent for it"
+          "when": "the invitation has a meaningful period left"
         },
         {
           "from": "c.remind",
@@ -64119,6 +64227,10 @@
         {
           "journey": "SUB-161",
           "because": "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure; TIM-268 would restate that deadline without knowing what the acceptance grants, so it defers to this journey and sends nothing while this instance holds the invitation."
         }
       ],
       "competition": null,
@@ -76160,7 +76272,7 @@
         {
           "id": "w.final",
           "kind": "wait",
-          "headline": "until named_requirement_satisfied",
+          "headline": "until named_requirement_satisfied, or change_withdrawn",
           "detail": "timeout after {'key': 'upgrade_blocker.final', 'rule': 'After the last call the instance waits until the preparation window itself closes; there is no third prompt.', 'class': 'attribute-bound', 'required': True}",
           "isEntry": false,
           "terminal": false
@@ -76268,10 +76380,10 @@
         },
         {
           "from": "w.final",
-          "to": "h.resume",
+          "to": "c.cleared",
           "family": "backward",
           "label": "on event",
-          "when": "named_requirement_satisfied"
+          "when": "named_requirement_satisfied, change_withdrawn"
         },
         {
           "from": "w.final",
@@ -76320,6 +76432,10 @@
         {
           "journey": "RLT-241",
           "because": "RLT-241 decides whether the target is in scope for the change at all. Here scope is already settled and the only open question is a prerequisite."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks; TIM-268 can only name the prerequisite, so it defers to this journey and sends nothing while this instance holds the target."
         }
       ],
       "competition": null,
@@ -80130,14 +80246,6 @@
           "terminal": false
         },
         {
-          "id": "a.at-the-wall",
-          "kind": "action",
-          "headline": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
           "id": "c.path",
           "kind": "condition",
           "headline": "What path exists from here?",
@@ -80154,9 +80262,17 @@
           "terminal": false
         },
         {
-          "id": "a.offer-self",
+          "id": "a.at-the-wall",
           "kind": "action",
-          "headline": "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing. Withholding the free path in order to sell the paid one is the fastest way to make a limit read as a trap",
+          "headline": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Where the same party who hit the limit can also authorise more capacity, name it and what it costs, noting that the reset would release it for nothing anyway; where capacity is not purchasable at all, say only that the window resets in its own time. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.blocked-notice",
+          "kind": "action",
+          "headline": "At the point the action is stopped, say which limit was reached and the usage against it. No purchasable capacity and no defined reset exist for this limit, so nothing further is promised",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -80164,7 +80280,7 @@
         {
           "id": "a.offer-holder",
           "kind": "action",
-          "headline": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
+          "headline": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it, what the reset alternative is, and that the ask lapses at the reset date. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -80204,7 +80320,7 @@
         {
           "id": "a.reset",
           "kind": "action",
-          "headline": "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
+          "headline": "Tell the person whose action was held that the window has reset and the action can proceed, taken from the authoritative reset rather than an assumed clock. The decision holder is not addressed here - a reset is not the capacity decision, it is the wait ending without one, and their ask has already lapsed. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -80229,13 +80345,6 @@
       "edges": [
         {
           "from": "t.blocked",
-          "to": "a.at-the-wall",
-          "family": "forward",
-          "label": null,
-          "when": null
-        },
-        {
-          "from": "a.at-the-wall",
           "to": "c.path",
           "family": "forward",
           "label": null,
@@ -80250,21 +80359,21 @@
         },
         {
           "from": "c.path",
-          "to": "w.capacity",
+          "to": "a.at-the-wall",
           "family": "branch",
           "label": "Resets on its own",
           "when": "no more capacity is available in this window, but the reset point is authoritatively defined"
         },
         {
           "from": "c.path",
-          "to": "x.blocked",
+          "to": "a.blocked-notice",
           "family": "branch",
           "label": "Neither",
           "when": "the limit is fixed, with no purchasable capacity and no defined reset"
         },
         {
           "from": "c.decider",
-          "to": "a.offer-self",
+          "to": "a.at-the-wall",
           "family": "branch",
           "label": "Theirs to decide",
           "when": "the same party can authorise more capacity"
@@ -80277,9 +80386,16 @@
           "when": "the commercial decision sits with another party on the relationship"
         },
         {
-          "from": "a.offer-self",
+          "from": "a.at-the-wall",
           "to": "w.capacity",
-          "family": "backward",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.blocked-notice",
+          "to": "x.blocked",
+          "family": "forward",
           "label": null,
           "when": null
         },
@@ -80354,16 +80470,15 @@
         "x.blocked"
       ],
       "backwardEdgeIds": [
-        7,
         9,
         14
       ],
       "branchEdgeIds": [
+        1,
         2,
         3,
         4,
         5,
-        6,
         12,
         13,
         14
@@ -80419,11 +80534,11 @@
       "nodeCount": 13,
       "edgeCount": 17,
       "branchNodeCount": 3,
-      "backwardEdgeCount": 3,
+      "backwardEdgeCount": 2,
       "handoffCount": 1,
       "exitCount": 2,
-      "maxDepth": 6,
-      "maxFanIn": 3,
+      "maxDepth": 7,
+      "maxFanIn": 2,
       "maxFanOut": 3,
       "primaryStructure": "mixed-termination",
       "behaviors": [
@@ -80433,7 +80548,7 @@
         "multi-exit"
       ],
       "complexityTier": "medium",
-      "complexityScore": 51
+      "complexityScore": 50
     }
   },
   {

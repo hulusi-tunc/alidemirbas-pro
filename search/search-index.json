@@ -14663,7 +14663,7 @@
     "external": false,
     "title": "ACC-261 Access restricted or ending → stated route back → restored or ends",
     "summary": "Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.",
-    "searchText": "Access restricted or ending → stated route back → restored or ends. Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.. Also known as access recovery, restriction notice, account restricted notice, access ending notice, suspension notice. a restriction announced with what still works and the one condition that lifts it. a restriction the holder cannot resolve, stated without a call to action. Access restriction or end recorded. Access, entitlement, credentials & capability. Hands off to CON-36. informed, resolution not theirs. restriction announced by the security response; no separate notice sent. restored and confirmed. restriction stands past its deadline",
+    "searchText": "Access restricted or ending → stated route back → restored or ends. Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.. Also known as access recovery, restriction notice, account restricted notice, access ending notice, suspension notice. a restriction announced with what still works and the one condition that lifts it. a restriction the holder cannot resolve, stated without a call to action. Access restriction or end recorded. Access, entitlement, credentials & capability. Hands off to CON-36. restriction announced by the security response; no separate notice sent. restored and confirmed. restriction stands past its deadline. restriction is now permanent; the release condition no longer applies",
     "keywords": [
       "ACC-261",
       "access recovery",
@@ -14789,7 +14789,12 @@
     },
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns whether a granted entitlement is ever used, and names the first action that uses it; an unused entitlement is this journey's obligation, not a generic outstanding one, and TIM-268 defers to it and sends nothing while this instance holds the entitlement."
+        }
+      ]
     }
   },
   {
@@ -18131,7 +18136,12 @@
     },
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a signature owed on a specific version by a specific signer, and knows which version is being signed; TIM-268 defers to it and sends nothing while this instance holds the obligation."
+        }
+      ]
     }
   },
   {
@@ -18718,6 +18728,26 @@
         {
           "targetId": "journey:TIM-274",
           "because": "This journey owns what is said about an unpaid obligation while recovery is still the whole of the story. Its own handoff into grace ends that: once a grace state is recorded, the holder needs the window's end date and the one condition that restores the active state, which TIM-274 holds and this journey does not. Recovery messaging about the obligation stops at that handoff rather than running beside it."
+        },
+        {
+          "targetId": "journey:SCH-303",
+          "because": "SCH-303's subject is a reservation that is still standing and whether it survives; the payment is a condition on it. This journey's subject is the obligation itself, from the moment an attempt actually failed. SCH-303 hands the money here and stops speaking about it - this journey never speaks about the reservation, and the release point it is handed is a consequence to work inside rather than a deadline to restate."
+        },
+        {
+          "targetId": "journey:FIN-302",
+          "because": "This journey is money that failed to come in and an obligation that stays open. FIN-302 is money going back out against an obligation already discharged. The two share a payment record and nothing else, and neither ever announces the other's movement."
+        },
+        {
+          "targetId": "journey:ACQ-287",
+          "because": "ACQ-287 recovers a checkout nobody finished. This opens only where a checkout was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the cart or the items."
+        },
+        {
+          "targetId": "journey:ACQ-11",
+          "because": "ACQ-11 recovers a resumable process nobody finished. This opens only where the process was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the process or the items."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation before any attempt has been made against it - a due date passed with silence. This journey owns the same obligation from the moment an attempt was actually made and failed; once a failed attempt is recorded, TIM-268 defers to it and stops sending its own generic reminder."
         }
       ]
     }
@@ -18796,7 +18826,7 @@
     "external": false,
     "title": "FIN-302 Refund submitted → settlement observed → returned, partly returned or not arrived",
     "summary": "Tell the person that money is going back, and then whether it actually arrived - keeping the decision to refund, the movement of the money and its arrival as three facts stated at the moments each becomes true.",
-    "searchText": "Refund submitted → settlement observed → returned, partly returned or not arrived. Tell the person that money is going back, and then whether it actually arrived - keeping the decision to refund, the movement of the money and its arrival as three facts stated at the moments each becomes true.. Also known as refund notification, refund confirmation, money back notice, refund issued message, refund status update. a refund submitted for settlement, told to the person before it has arrived. a partial refund where the amount returned and the amount still refundable have to be stated separately. a refund that has not been confirmed back, told as being reconciled rather than left silent. Refund submitted for settlement. Transactions, payments, billing & financial outcomes. returned and confirmed; the money is back and the person was told so from the record. partly returned; the amount returned and the amount still refundable were stated separately. not confirmed back; the person was told it is being reconciled rather than left waiting. nothing to announce; the submission was withdrawn before anything was said about it. no notice sent; the reason is recorded",
+    "searchText": "Refund submitted → settlement observed → returned, partly returned or not arrived. Tell the person that money is going back, and then whether it actually arrived - keeping the decision to refund, the movement of the money and its arrival as three facts stated at the moments each becomes true.. Also known as refund notification, refund confirmation, money back notice, refund issued message, refund status update. a refund submitted for settlement, told to the person before it has arrived. a partial refund where the amount returned and the amount still refundable have to be stated separately. a refund that has not been confirmed back, told as being reconciled rather than left silent. Refund submitted for settlement. Transactions, payments, billing & financial outcomes. returned and confirmed; the money is back and the person was told so from the record. partly returned; the amount returned and the amount still refundable were stated separately. not confirmed back; the person was told it is being reconciled rather than left waiting. withdrawn after notice; the submission stopped moving before it settled. nothing to announce; the submission was withdrawn before anything was said about it",
     "keywords": [
       "FIN-302",
       "refund notification",
@@ -19837,7 +19867,7 @@
     "external": false,
     "title": "IDN-84 Verification failure → reason → retry, remediate, review or exit",
     "summary": "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
-    "searchText": "Verification failure → reason → retry, remediate, review or exit. Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.. Also known as verification recovery, failed verification, ID check failed, verification retry. a failed check explained with exactly what to correct and a bounded retry. our own technical failure kept out of the person's verification record. Verification attempt failed. Identity, verification, authentication & account integrity. Hands off to OWN-55, DEC-181. bounded retry available; the verification instance stays open. verification not possible on this basis",
+    "searchText": "Verification failure → reason → retry, remediate, review or exit. Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.. Also known as verification recovery, failed verification, ID check failed, verification retry. a failed check explained with exactly what to correct and a bounded retry. our own technical failure kept out of the person's verification record. Verification attempt failed. Identity, verification, authentication & account integrity. Hands off to OWN-55, DEC-181, DEC-181. bounded retry available; the verification instance stays open. verification not possible on this basis",
     "keywords": [
       "IDN-84",
       "verification recovery",
@@ -19862,6 +19892,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "cross-journey-handoff",
       "multi-exit"
     ],
@@ -20230,6 +20261,10 @@
         {
           "targetId": "journey:IDN-88",
           "because": "IDN-88 restores control to somebody who cannot get in. Here the owner still has access, and the open question is whether somebody else does too."
+        },
+        {
+          "targetId": "journey:ACC-261",
+          "because": "ACC-261 narrates a restriction that stands on its own terms, once one has been recorded. This journey narrates a suspected compromise and the containment applied to it - where a security response placed the restriction ACC-261 defers to, this is the journey that tells the holder."
         }
       ]
     }
@@ -21369,6 +21404,10 @@
         {
           "targetId": "journey:SUB-161",
           "because": "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure; TIM-268 would restate that deadline without knowing what the acceptance grants, so it defers to this journey and sends nothing while this instance holds the invitation."
         }
       ]
     }
@@ -22975,7 +23014,12 @@
     },
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks; TIM-268 can only name the prerequisite, so it defers to this journey and sends nothing while this instance holds the target."
+        }
+      ]
     }
   },
   {

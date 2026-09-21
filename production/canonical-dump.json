@@ -32335,8 +32335,7 @@
       "category": "access",
       "goal": "suspension-restoration",
       "channels": [
-        "email",
-        "in-app"
+        "email"
       ],
       "name": "Access restricted or ending → stated route back → restored or ends",
       "shortName": "Access Restriction Notice",
@@ -32398,17 +32397,17 @@
         "pressureClass": "service",
         "localCap": {
           "value": {
-            "key": "access_restriction.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+            "key": "access_restriction.discretionary_touches",
+            "rule": "Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
             "default": {
-              "value": 2,
+              "value": 0,
               "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; one notice and one confirmation"
+              "applicableWhen": "every touch in the plan is marked mandatory"
             },
             "required": false
           },
-          "appliesTo": "all"
+          "appliesTo": "non-mandatory"
         },
         "cooldown": {
           "key": "access_restriction.cooldown",
@@ -32436,13 +32435,6 @@
               "email"
             ],
             "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the person is active in the product and the action is taken there"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -32456,14 +32448,14 @@
             "stage": "inform-only",
             "action": "a.inform-only",
             "prerequisites": [
+              "c.reachable",
               "c.actionable"
             ],
             "purpose": "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
-            "mandatory": false,
+            "mandatory": true,
             "label": "CANONICAL_RULE"
           },
           {
@@ -32471,15 +32463,14 @@
             "stage": "notify",
             "action": "a.notify",
             "prerequisites": [
-              "c.actionable",
-              "c.reachable"
+              "c.reachable",
+              "c.actionable"
             ],
             "purpose": "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
-            "mandatory": false,
+            "mandatory": true,
             "label": "CANONICAL_RULE",
             "destination": {
               "target": "resolution-condition",
@@ -32500,10 +32491,9 @@
             ],
             "purpose": "Confirm that access is back and name what was restored, so the person can tell the difference between a resolved restriction and a partial one",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
-            "mandatory": false,
+            "mandatory": true,
             "label": "CANONICAL_RULE"
           }
         ],
@@ -32531,10 +32521,10 @@
         "journeyOutcome": {
           "type": "exit-or-handoff",
           "refs": [
-            "x.informed",
             "x.security-owned",
             "x.restored",
             "x.stands",
+            "x.permanent",
             "h.unreachable"
           ]
         },
@@ -32593,53 +32583,7 @@
             ],
             "source": "authoritative"
           },
-          "next": "c.actionable"
-        },
-        {
-          "id": "c.actionable",
-          "kind": "condition",
-          "asks": "Can the holder do anything about this?",
-          "branches": [
-            {
-              "label": "Resolvable by them",
-              "when": "the release condition is something the account holder can satisfy - a payment, a document, a correction, a re-verification",
-              "to": "c.reachable"
-            },
-            {
-              "label": "Not theirs to resolve",
-              "when": "the condition depends on an internal review, a third party, or a fixed period elapsing",
-              "to": "a.inform-only"
-            },
-            {
-              "label": "Placed by a security response",
-              "when": "the restriction was placed by a security response that is itself telling the owner what happened and what is restricted - a second notice about the same restriction duplicates or contradicts the first",
-              "to": "x.security-owned"
-            }
-          ]
-        },
-        {
-          "id": "a.inform-only",
-          "kind": "action",
-          "does": "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
-          "next": "x.informed",
-          "execution": "communication",
-          "idempotencyKey": "account_id + restriction_id + a.inform-only"
-        },
-        {
-          "id": "x.informed",
-          "kind": "exit",
-          "state": "informed, resolution not theirs",
-          "terminal": false,
-          "reEntry": "if the condition later becomes something they can satisfy, this qualifies again with the actionable path",
-          "class": "success"
-        },
-        {
-          "id": "x.security-owned",
-          "kind": "exit",
-          "state": "restriction announced by the security response; no separate notice sent",
-          "terminal": false,
-          "reEntry": "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
-          "class": "suppression"
+          "next": "c.reachable"
         },
         {
           "id": "c.reachable",
@@ -32649,7 +32593,7 @@
             {
               "label": "Reachable",
               "when": "at least one contact point is valid and permitted for a service notice of this kind",
-              "to": "a.notify"
+              "to": "c.actionable"
             },
             {
               "label": "Unreachable",
@@ -32669,6 +32613,44 @@
           ]
         },
         {
+          "id": "c.actionable",
+          "kind": "condition",
+          "asks": "Can the holder do anything about this?",
+          "branches": [
+            {
+              "label": "Resolvable by them",
+              "when": "the release condition is something the account holder can satisfy - a payment, a document, a correction, a re-verification",
+              "to": "a.notify"
+            },
+            {
+              "label": "Not theirs to resolve",
+              "when": "the condition depends on an internal review, a third party, or a fixed period elapsing",
+              "to": "a.inform-only"
+            },
+            {
+              "label": "Placed by a security response",
+              "when": "the restriction was placed by a security response that is itself telling the owner what happened and what is restricted - a second notice about the same restriction duplicates or contradicts the first",
+              "to": "x.security-owned"
+            }
+          ]
+        },
+        {
+          "id": "a.inform-only",
+          "kind": "action",
+          "does": "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
+          "next": "w.resolve",
+          "execution": "communication",
+          "idempotencyKey": "account_id + restriction_id + a.inform-only"
+        },
+        {
+          "id": "x.security-owned",
+          "kind": "exit",
+          "state": "restriction announced by the security response; no separate notice sent",
+          "terminal": false,
+          "reEntry": "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
+          "class": "suppression"
+        },
+        {
           "id": "a.notify",
           "kind": "action",
           "does": "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it. Naming what still works is what stops the person assuming the whole relationship has ended",
@@ -32680,7 +32662,7 @@
           "id": "w.resolve",
           "kind": "wait",
           "until": [
-            "release_condition_met",
+            "restriction_release_condition_met",
             "restriction_lifted",
             "restriction_made_permanent"
           ],
@@ -32714,6 +32696,11 @@
               "label": "Still restricted",
               "when": "the deadline passed with the condition unmet",
               "to": "x.stands"
+            },
+            {
+              "label": "Made permanent",
+              "when": "the restriction was made permanent; the release condition no longer applies",
+              "to": "x.permanent"
             }
           ]
         },
@@ -32740,6 +32727,14 @@
           "terminal": false,
           "reEntry": "if the condition is satisfied afterwards, the restoration path runs from the lifting event",
           "class": "timeout"
+        },
+        {
+          "id": "x.permanent",
+          "kind": "exit",
+          "state": "restriction is now permanent; the release condition no longer applies",
+          "terminal": false,
+          "reEntry": "a later review that converts the restriction back into a bounded one is a new instance",
+          "class": "failure"
         }
       ],
       "guardrails": [
@@ -32779,6 +32774,10 @@
         {
           "journey": "ACC-76",
           "because": "ACC-76 tracks the credential's own issue/expire/revoke lifecycle. Here the only question is first use inside the window."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns whether a granted entitlement is ever used, and names the first action that uses it; an unused entitlement is this journey's obligation, not a generic outstanding one, and TIM-268 defers to it and sends nothing while this instance holds the entitlement."
         }
       ],
       "objective": "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
@@ -32809,6 +32808,11 @@
           "id": "s.g4",
           "label": "CANONICAL_RULE",
           "text": "The message names one action, not the full capability surface."
+        },
+        {
+          "id": "s.generic-reminder",
+          "label": "CANONICAL_RULE",
+          "text": "This journey owns the reminder for the entitlement it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that entitlement while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
         }
       ],
       "contact": {
@@ -32873,8 +32877,7 @@
             ],
             "purpose": "Say what is now available, what it lets them do, and the single first action that uses it.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -32892,7 +32895,6 @@
             ],
             "purpose": "Confirm the new grant briefly and name only what changed from what they already had.",
             "channelRoles": [
-              "persistent",
               "in-session"
             ],
             "mandatory": false,
@@ -32908,8 +32910,7 @@
             ],
             "purpose": "Send one reminder naming the deadline and the same single first action.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -32926,7 +32927,8 @@
           "s.g1",
           "s.g2",
           "s.g3",
-          "s.g4"
+          "s.g4",
+          "s.generic-reminder"
         ]
       },
       "implementation": {
@@ -33052,12 +33054,12 @@
           "onEvent": "c.used",
           "timeout": {
             "after": {
-              "key": "entitlement_activation.first_use",
-              "rule": "The single reminder is placed before the activation window closes, late enough that the first notice has had its chance and early enough that claiming is still possible.",
-              "class": "reminder-before-attribute",
+              "key": "entitlement_activation.reminder_lead",
+              "rule": "The reminder point, not the window's own end: the point before the activation window closes at which the one reminder is sent, late enough that the first notice has had its chance and early enough that claiming is still possible.",
+              "class": "attribute-bound",
               "required": true
             },
-            "reason": "an unclaimed entitlement past its window is a different fact from an unused one inside it, and the two must not be counted together",
+            "reason": "a reminder placed exactly at the window's own end arrives with no time left to act on it, so this wait is bound to the reminder point and the window's own end is left for the wait that follows",
             "relativeTo": "attribute",
             "attribute": "activation_window_ends_at"
           },
@@ -33105,7 +33107,7 @@
           "branches": [
             {
               "label": "Time remains",
-              "when": "the window has a meaningful period left and no reminder has been sent for this issuance",
+              "when": "the reminder point falls inside the window and no reminder has been sent for this issuance",
               "to": "a.remind"
             },
             {
@@ -33127,9 +33129,10 @@
           "id": "w.last-chance",
           "kind": "wait",
           "until": [
-            "capability_first_used"
+            "capability_first_used",
+            "entitlement_revoked_or_replaced"
           ],
-          "onEvent": "x.activated",
+          "onEvent": "c.used",
           "timeout": {
             "after": {
               "key": "entitlement_activation.last_chance",
@@ -34032,6 +34035,12 @@
         ],
         "concurrency": "one-active-per-key"
       },
+      "distinctFrom": [
+        {
+          "journey": "IDN-81",
+          "because": "IDN-81 owns a verification that expired with no attempt made. This journey owns one attempt that was made and failed; it never waits to see whether the holder retries, because the window is IDN-81's."
+        }
+      ],
       "objective": "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
       "eligibility": [
         "a verification attempt that did not establish its claim",
@@ -34061,17 +34070,17 @@
         }
       ],
       "contact": {
-        "defaultPriority": "security",
+        "defaultPriority": "transactional",
         "pressureClass": "none",
         "localCap": {
           "value": {
-            "key": "verification_failure.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+            "key": "verification_failure.discretionary_touches",
+            "rule": "Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
             "default": {
-              "value": 1,
+              "value": 0,
               "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the graph's own touch count"
+              "applicableWhen": "every touch in the plan is marked mandatory"
             },
             "required": false
           },
@@ -34123,8 +34132,7 @@
             ],
             "purpose": "Explain exactly what needs correcting and offer the bounded retry.",
             "channelRoles": [
-              "in-session",
-              "persistent"
+              "in-session"
             ],
             "mandatory": true,
             "label": "CANONICAL_RULE",
@@ -34142,7 +34150,6 @@
             ],
             "purpose": "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is.",
             "channelRoles": [
-              "in-session",
               "persistent"
             ],
             "mandatory": true,
@@ -34151,6 +34158,20 @@
               "target": "alternative-verification-basis",
               "boundTo": "verification_instance_id"
             }
+          },
+          {
+            "id": "t3",
+            "stage": "explain",
+            "action": "a.ours",
+            "prerequisites": [
+              "c.technical-budget"
+            ],
+            "purpose": "State that the failure was ours, that nothing they submitted was rejected, and that it is being retried.",
+            "channelRoles": [
+              "in-session"
+            ],
+            "mandatory": true,
+            "label": "CANONICAL_RULE"
           }
         ],
         "noAction": [
@@ -34180,7 +34201,8 @@
             "x.retry",
             "x.terminal",
             "h.escalate",
-            "h.review"
+            "h.review",
+            "h.review-budget"
           ]
         },
         "secondary": [],
@@ -34279,7 +34301,7 @@
             {
               "label": "Budget spent",
               "when": "the limit is reached - and repeated failure is also what a genuine person struggling looks like",
-              "to": "h.review"
+              "to": "h.review-budget"
             }
           ]
         },
@@ -34324,8 +34346,16 @@
               "mode": "append"
             }
           ],
-          "next": "x.retry",
+          "next": "a.ours",
           "idempotencyKey": "verification_instance_id + a.backoff"
+        },
+        {
+          "id": "a.ours",
+          "kind": "action",
+          "does": "State that the failure was ours, that nothing they submitted was rejected, and that it is being retried. A person who just watched their attempt fail because of our own outage gets silence while we retry unless this is said, and will resubmit perfectly good evidence",
+          "next": "x.retry",
+          "execution": "communication",
+          "idempotencyKey": "verification_instance_id + a.ours"
         },
         {
           "id": "a.explain-terminal",
@@ -34357,10 +34387,22 @@
           "id": "h.review",
           "kind": "handoff",
           "to": "DEC-181",
-          "on": "a failure requiring human judgement, or a budget reached",
+          "on": "a failure requiring human judgement",
           "carries": [
             "the failure class and every attempt made",
-            "the claim being verified, so the reviewer assesses the claim rather than the attempts"
+            "the claim being verified, so the reviewer assesses the claim rather than the attempts",
+            "that nothing has been said to the holder about this attempt"
+          ]
+        },
+        {
+          "id": "h.review-budget",
+          "kind": "handoff",
+          "to": "DEC-181",
+          "on": "the retry budget for this claim being spent",
+          "carries": [
+            "the failure class and every attempt made",
+            "the claim being verified, so the reviewer assesses the claim rather than the attempts",
+            "that the holder was explained to once and has not been told the budget is spent"
           ]
         },
         {
@@ -36500,6 +36542,10 @@
         {
           "journey": "IDN-88",
           "because": "IDN-88 restores control to somebody who cannot get in. Here the owner still has access, and the open question is whether somebody else does too."
+        },
+        {
+          "journey": "ACC-261",
+          "because": "ACC-261 narrates a restriction that stands on its own terms, once one has been recorded. This journey narrates a suspected compromise and the containment applied to it - where a security response placed the restriction ACC-261 defers to, this is the journey that tells the holder."
         }
       ],
       "objective": "Tell the account owner, at every verified destination the signal does not implicate, what was seen and what was restricted - and let their answer resolve it: cleared, or into secure recovery.",
@@ -36905,7 +36951,7 @@
         {
           "id": "a.standing",
           "kind": "action",
-          "does": "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is required from them. A restriction with no stated owner and no stated date is where duplicate cases come from",
+          "does": "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is assumed from their silence. A restriction with no stated owner and no stated date is where duplicate cases come from",
           "next": "x.open",
           "execution": "communication",
           "idempotencyKey": "incident_id + touch id"
@@ -38824,11 +38870,10 @@
       "category": "structure",
       "goal": "relationship-hierarchy-structure",
       "channels": [
-        "email",
-        "in-app"
+        "email"
       ],
       "name": "Relationship invitation → counterparty acceptance → active or expired",
-      "shortName": "Invitation Reminder",
+      "shortName": "Relationship Invitation",
       "purpose": "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
       "entity": {
         "scope": "the invitation, plus the two parties and the scope of the link it proposes, in the direction it was issued",
@@ -38846,6 +38891,10 @@
         {
           "journey": "SUB-161",
           "because": "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure; TIM-268 would restate that deadline without knowing what the acceptance grants, so it defers to this journey and sends nothing while this instance holds the invitation."
         }
       ],
       "objective": "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
@@ -38881,6 +38930,11 @@
           "id": "s.g5",
           "label": "CANONICAL_RULE",
           "text": "Every invitation expires. A pending claim on somebody who never agreed to it does not sit open indefinitely."
+        },
+        {
+          "id": "s.generic-reminder",
+          "label": "CANONICAL_RULE",
+          "text": "This journey owns the reminder for the invitation it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that invitation while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
         }
       ],
       "contact": {
@@ -38888,17 +38942,17 @@
         "pressureClass": "service",
         "localCap": {
           "value": {
-            "key": "relationship_invitation.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+            "key": "relationship_invitation.discretionary_touches",
+            "rule": "Only the invitation and the reminder are discretionary; the confirmation is an obligation the accepting party is owed and is never rationed.",
             "default": {
-              "value": 3,
+              "value": 2,
               "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; an invitation, one reminder and a confirmation"
+              "applicableWhen": "GLB-24; an invitation and one reminder"
             },
             "required": false
           },
-          "appliesTo": "all"
+          "appliesTo": "non-mandatory"
         },
         "cooldown": {
           "key": "relationship_invitation.cooldown",
@@ -38921,13 +38975,6 @@
               "email"
             ],
             "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the person is active in the product and the action is taken there"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -38945,8 +38992,7 @@
             ],
             "purpose": "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -38967,8 +39013,7 @@
             ],
             "purpose": "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -38990,10 +39035,9 @@
             ],
             "purpose": "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
-            "mandatory": false,
+            "mandatory": true,
             "label": "CANONICAL_RULE"
           },
           {
@@ -39006,8 +39050,7 @@
             ],
             "purpose": "Send one reminder naming who is waiting and the date the invitation expires.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -39025,7 +39068,8 @@
           "s.g2",
           "s.g3",
           "s.g4",
-          "s.g5"
+          "s.g5",
+          "s.generic-reminder"
         ]
       },
       "implementation": {
@@ -39214,7 +39258,7 @@
           "branches": [
             {
               "label": "Time remains",
-              "when": "the invitation has a meaningful period left and no reminder has been sent for it",
+              "when": "the invitation has a meaningful period left",
               "to": "a.remind"
             },
             {
@@ -47574,8 +47618,6 @@
       "goal": "recovery-retry",
       "channels": [
         "email",
-        "in-app",
-        "push",
         "sms"
       ],
       "name": "Payment failure → classify → recover, alternate or exit",
@@ -47597,6 +47639,26 @@
         {
           "journey": "TIM-274",
           "because": "This journey owns what is said about an unpaid obligation while recovery is still the whole of the story. Its own handoff into grace ends that: once a grace state is recorded, the holder needs the window's end date and the one condition that restores the active state, which TIM-274 holds and this journey does not. Recovery messaging about the obligation stops at that handoff rather than running beside it."
+        },
+        {
+          "journey": "SCH-303",
+          "because": "SCH-303's subject is a reservation that is still standing and whether it survives; the payment is a condition on it. This journey's subject is the obligation itself, from the moment an attempt actually failed. SCH-303 hands the money here and stops speaking about it - this journey never speaks about the reservation, and the release point it is handed is a consequence to work inside rather than a deadline to restate."
+        },
+        {
+          "journey": "FIN-302",
+          "because": "This journey is money that failed to come in and an obligation that stays open. FIN-302 is money going back out against an obligation already discharged. The two share a payment record and nothing else, and neither ever announces the other's movement."
+        },
+        {
+          "journey": "ACQ-287",
+          "because": "ACQ-287 recovers a checkout nobody finished. This opens only where a checkout was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the cart or the items."
+        },
+        {
+          "journey": "ACQ-11",
+          "because": "ACQ-11 recovers a resumable process nobody finished. This opens only where the process was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the process or the items."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation before any attempt has been made against it - a due date passed with silence. This journey owns the same obligation from the moment an attempt was actually made and failed; once a failed attempt is recorded, TIM-268 defers to it and stops sending its own generic reminder."
         }
       ],
       "objective": "Get the obligation paid by responding to the failure that actually happened, while the obligation stays alive and the relationship's own state is decided elsewhere.",
@@ -47632,6 +47694,16 @@
           "id": "s.hard-gates",
           "label": "CANONICAL_RULE",
           "text": "Hard gates (GLB-31) apply. Pressure caps do not: this is transactional communication about an obligation the person already holds, and it is deduplicated by obligation and touch rather than rationed."
+        },
+        {
+          "id": "s.subject",
+          "label": "CANONICAL_RULE",
+          "text": "This journey speaks about the obligation and the corrective action, and about nothing the obligation was for. A reservation that may be released, a checkout that was abandoned, a process that was left open - each belongs to the journey that handed the money here, and each of those stops speaking about the money for the same reason. A release point or a resume destination received at a handoff is a consequence to work inside, never a deadline for this journey to restate."
+        },
+        {
+          "id": "s.authorised-method",
+          "label": "CANONICAL_RULE",
+          "text": "Where a stored method was charged under standing authority after another failed, the confirmation names the method used. A charge the person did not choose is disclosed at the moment the obligation closes, not discovered on a statement."
         }
       ],
       "contact": {
@@ -47667,29 +47739,25 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the person has an active session in the product - the corrective action is a form, and the shortest route to it is inside the product"
-          },
-          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "no active session, or the instruction and its link have to survive until the person can act"
+            "when": "the instruction and its link have to survive until the person can act"
           },
           {
             "role": "urgent",
             "channels": [
-              "sms",
-              "push"
+              "sms"
             ],
             "when": "an asserted consequence date exists inside the urgent horizon and permission for service messages on this channel is recorded"
           }
         ],
         "fallback": "same-role-other-channel",
+        "simultaneous": {
+          "allowed": true,
+          "reason": "the email restates the corrective action and the amount; the SMS carries the date and what happens on it. Sent once, together, before a consequence the company will actually apply."
+        },
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -47704,7 +47772,6 @@
             ],
             "purpose": "Name the exact corrective action - update the method, complete the authentication, choose another method - and what is owed. Provider risk detail and internal decline codes are never shown.",
             "channelRoles": [
-              "in-session",
               "persistent"
             ],
             "destination": {
@@ -47728,7 +47795,6 @@
             ],
             "purpose": "Put the available alternative methods in front of the customer and ask which to use, stating that the obligation stands either way. Choosing a payment method is theirs to make.",
             "channelRoles": [
-              "in-session",
               "persistent"
             ],
             "destination": {
@@ -47773,10 +47839,9 @@
             "prerequisites": [
               "c.recovered"
             ],
-            "purpose": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking.",
+            "purpose": "Confirm the obligation is discharged, name which method discharged it, and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "destination": {
               "target": "obligation-receipt",
@@ -47791,7 +47856,9 @@
           "s.retry-in-progress",
           "s.no-instruction",
           "s.unknown-outcome",
-          "s.hard-gates"
+          "s.hard-gates",
+          "s.subject",
+          "s.authorised-method"
         ]
       },
       "implementation": {
@@ -48132,7 +48199,7 @@
         {
           "id": "a.confirmed",
           "kind": "action",
-          "does": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact looks like from inside",
+          "does": "Confirm the obligation is discharged, name which method discharged it, and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact looks like from inside; a charge the person did not choose is disclosed at the moment the obligation closes, not discovered on a statement",
           "execution": "communication",
           "idempotencyKey": "obligation_id + touch id",
           "writes": [
@@ -49732,8 +49799,7 @@
       "category": "financial",
       "goal": "delivery-confirmation",
       "channels": [
-        "email",
-        "in-app"
+        "email"
       ],
       "name": "Refund submitted → settlement observed → returned, partly returned or not arrived",
       "shortName": "Refund Notification",
@@ -49829,13 +49895,6 @@
               "email"
             ],
             "when": "a statement about money has to be kept and returned to - the default route for both the notice and the outcome"
-          },
-          {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the person is in the product where the original transaction and its refund are both visible, and the statement belongs beside them"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -49854,8 +49913,7 @@
             ],
             "purpose": "Say that money is going back against this transaction: the amount submitted, whether that is the whole of it or part of it with the remainder named separately, and that it has not arrived yet.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "destination": {
               "target": "transaction-record",
@@ -49881,8 +49939,7 @@
             ],
             "purpose": "Confirm from the financial record that the whole submitted amount has been returned, and say nothing about where it now sits.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "destination": {
               "target": "transaction-record",
@@ -49906,8 +49963,7 @@
             ],
             "purpose": "Say that part of the submitted amount has been returned, name the part that has not, and say what is happening to the remainder.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "destination": {
               "target": "transaction-record",
@@ -49931,8 +49987,7 @@
             ],
             "purpose": "Say plainly that the money has not been confirmed back, that the movement is being reconciled rather than attempted again, and that nothing further is needed from them.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "destination": {
               "target": "transaction-record",
@@ -49941,6 +49996,30 @@
                 "that the refund has failed",
                 "that the money is lost",
                 "a date the reconciliation will finish"
+              ]
+            },
+            "mandatory": true,
+            "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t5",
+            "stage": "withdrawn",
+            "action": "a.withdrawn",
+            "after": "t1",
+            "gatedBy": "w.outcome",
+            "prerequisites": [
+              "c.outcome"
+            ],
+            "purpose": "Say that the refund was withdrawn or reversed after the notice went out, and what the record now shows.",
+            "channelRoles": [
+              "persistent"
+            ],
+            "destination": {
+              "target": "transaction-record",
+              "boundTo": "refund_id",
+              "mustNotClaim": [
+                "that the refund is still moving",
+                "that the money will still arrive"
               ]
             },
             "mandatory": true,
@@ -49982,18 +50061,12 @@
         {
           "id": "c.scope",
           "kind": "condition",
-          "asks": "What is actually moving, and against what?",
+          "asks": "Is money actually moving?",
           "branches": [
             {
-              "label": "The whole transaction",
-              "when": "the submitted amount is the whole of the original transaction and nothing remains refundable against it",
+              "label": "Money is moving",
+              "when": "the submitted amount, whole or part of the original transaction, is moving, with the remaining refundable amount recorded separately where the submission is partial",
               "observes": "the refund record and the original transaction",
-              "to": "c.sendable"
-            },
-            {
-              "label": "Part of it",
-              "when": "the submitted amount is part of the original transaction, with the remaining refundable amount recorded separately",
-              "observes": "the refund record and the remaining refundable amount",
               "to": "c.sendable"
             },
             {
@@ -50042,7 +50115,8 @@
           "kind": "wait",
           "until": [
             "refund_settlement_confirmed",
-            "refund_settlement_failed"
+            "refund_settlement_failed",
+            "refund_submission_withdrawn"
           ],
           "onEvent": "c.outcome",
           "timeout": {
@@ -50075,6 +50149,12 @@
               "when": "the record confirms part of the submitted amount was returned and names the amount still outstanding on it",
               "observes": "refund_settlement_confirmed",
               "to": "a.partial"
+            },
+            {
+              "label": "Withdrawn",
+              "when": "the submission was withdrawn or reversed after the notice went out",
+              "observes": "refund_submission_withdrawn",
+              "to": "a.withdrawn"
             },
             {
               "label": "Not confirmed back",
@@ -50111,6 +50191,20 @@
             }
           ],
           "next": "x.partial"
+        },
+        {
+          "id": "a.withdrawn",
+          "kind": "action",
+          "does": "Say that the refund was withdrawn or reversed after the notice went out, and what the record now shows. The earlier notice said money was moving; this says plainly that it stopped.",
+          "execution": "communication",
+          "idempotencyKey": "refund_id + a.withdrawn",
+          "writes": [
+            {
+              "field": "refund_notice_log",
+              "mode": "append"
+            }
+          ],
+          "next": "x.withdrawn"
         },
         {
           "id": "a.unresolved",
@@ -50164,6 +50258,14 @@
           "reEntry": "if the reconciliation moves money again, that submission is its own instance"
         },
         {
+          "id": "x.withdrawn",
+          "kind": "exit",
+          "state": "withdrawn after notice; the submission stopped moving before it settled",
+          "class": "invalid-state",
+          "terminal": false,
+          "reEntry": "a fresh submission against the same transaction is its own movement and its own instance"
+        },
+        {
           "id": "x.void",
           "kind": "exit",
           "state": "nothing to announce; the submission was withdrawn before anything was said about it",
@@ -50205,6 +50307,7 @@
             "x.settled",
             "x.partial",
             "x.unsettled",
+            "x.withdrawn",
             "x.void",
             "x.no-action"
           ]
@@ -75632,6 +75735,11 @@
           "id": "s.g4",
           "label": "CANONICAL_RULE",
           "text": "Where the capacity decision belongs to somebody else, both parties are told - the one waiting and the one who can end the wait."
+        },
+        {
+          "id": "s.g5",
+          "label": "CANONICAL_RULE",
+          "text": "The reset notice goes to the party whose action was held, never to the decision holder - a reset is not the capacity decision, it is the wait ending without one, and that party's ask has already lapsed."
         }
       ],
       "contact": {
@@ -75639,10 +75747,10 @@
         "pressureClass": "service",
         "localCap": {
           "value": {
-            "key": "usage_limit.touches",
-            "rule": "The wall notice and the reset notice are mandatory; the discretionary offers run against a budget of the plan's own length.",
+            "key": "usage_limit.discretionary_touches",
+            "rule": "The wall notice, the blocked-party notice and the reset notice are mandatory; only the offer to the decision holder is discretionary and runs against this budget.",
             "default": {
-              "value": 2,
+              "value": 1,
               "confidence": "high",
               "basis": "corpus-rule",
               "applicableWhen": "GLB-24; the graph's own touch count"
@@ -75691,30 +75799,15 @@
             "id": "t1",
             "stage": "at-the-wall",
             "action": "a.at-the-wall",
-            "prerequisites": [],
-            "purpose": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets.",
-            "channelRoles": [
-              "in-session",
-              "persistent"
-            ],
-            "mandatory": true,
-            "label": "CANONICAL_RULE"
-          },
-          {
-            "id": "t2",
-            "stage": "offer-self",
-            "action": "a.offer-self",
-            "after": "t1",
             "prerequisites": [
               "c.path",
               "c.decider"
             ],
-            "purpose": "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing.",
+            "purpose": "Say which limit was reached, the usage against it, when the window resets and, where the same party who hit the limit can also authorise more capacity, the capacity that would release it now and what it costs.",
             "channelRoles": [
-              "in-session",
-              "persistent"
+              "in-session"
             ],
-            "mandatory": false,
+            "mandatory": true,
             "label": "CANONICAL_RULE",
             "destination": {
               "target": "purchase-capacity",
@@ -75726,6 +75819,20 @@
             }
           },
           {
+            "id": "t1b",
+            "stage": "at-the-wall",
+            "action": "a.blocked-notice",
+            "prerequisites": [
+              "c.path"
+            ],
+            "purpose": "Say which limit was reached and the usage against it, where neither a purchasable path nor a defined reset exists.",
+            "channelRoles": [
+              "in-session"
+            ],
+            "mandatory": true,
+            "label": "CANONICAL_RULE"
+          },
+          {
             "id": "t3",
             "stage": "offer-holder",
             "action": "a.offer-holder",
@@ -75733,9 +75840,8 @@
               "c.path",
               "c.decider"
             ],
-            "purpose": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is.",
+            "purpose": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it, what the reset alternative is, and that the ask lapses at the reset date.",
             "channelRoles": [
-              "in-session",
               "persistent"
             ],
             "mandatory": false,
@@ -75759,10 +75865,9 @@
             ],
             "purpose": "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway.",
             "channelRoles": [
-              "in-session",
-              "persistent"
+              "in-session"
             ],
-            "mandatory": false,
+            "mandatory": true,
             "label": "CANONICAL_RULE"
           },
           {
@@ -75773,9 +75878,8 @@
             "prerequisites": [
               "c.outcome"
             ],
-            "purpose": "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock.",
+            "purpose": "Tell the person whose action was held that the window has reset and the action can proceed, taken from the authoritative reset rather than an assumed clock.",
             "channelRoles": [
-              "in-session",
               "persistent"
             ],
             "mandatory": true,
@@ -75786,7 +75890,8 @@
           "s.g1",
           "s.g2",
           "s.g3",
-          "s.g4"
+          "s.g4",
+          "s.g5"
         ]
       },
       "implementation": {
@@ -75867,15 +75972,7 @@
             ],
             "source": "authoritative"
           },
-          "next": "a.at-the-wall"
-        },
-        {
-          "id": "a.at-the-wall",
-          "kind": "action",
-          "does": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
-          "next": "c.path",
-          "execution": "communication",
-          "idempotencyKey": "entity_ref + limit_id + window_id + a.at-the-wall"
+          "next": "c.path"
         },
         {
           "id": "c.path",
@@ -75890,12 +75987,12 @@
             {
               "label": "Resets on its own",
               "when": "no more capacity is available in this window, but the reset point is authoritatively defined",
-              "to": "w.capacity"
+              "to": "a.at-the-wall"
             },
             {
               "label": "Neither",
               "when": "the limit is fixed, with no purchasable capacity and no defined reset",
-              "to": "x.blocked"
+              "to": "a.blocked-notice"
             }
           ]
         },
@@ -75907,7 +76004,7 @@
             {
               "label": "Theirs to decide",
               "when": "the same party can authorise more capacity",
-              "to": "a.offer-self"
+              "to": "a.at-the-wall"
             },
             {
               "label": "Held elsewhere",
@@ -75917,17 +76014,25 @@
           ]
         },
         {
-          "id": "a.offer-self",
+          "id": "a.at-the-wall",
           "kind": "action",
-          "does": "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing. Withholding the free path in order to sell the paid one is the fastest way to make a limit read as a trap",
+          "does": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Where the same party who hit the limit can also authorise more capacity, name it and what it costs, noting that the reset would release it for nothing anyway; where capacity is not purchasable at all, say only that the window resets in its own time. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
           "next": "w.capacity",
           "execution": "communication",
-          "idempotencyKey": "entity_ref + limit_id + window_id + a.offer-self"
+          "idempotencyKey": "entity_ref + limit_id + window_id + a.at-the-wall"
+        },
+        {
+          "id": "a.blocked-notice",
+          "kind": "action",
+          "does": "At the point the action is stopped, say which limit was reached and the usage against it. No purchasable capacity and no defined reset exist for this limit, so nothing further is promised",
+          "next": "x.blocked",
+          "execution": "communication",
+          "idempotencyKey": "entity_ref + limit_id + window_id + a.blocked-notice"
         },
         {
           "id": "a.offer-holder",
           "kind": "action",
-          "does": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
+          "does": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it, what the reset alternative is, and that the ask lapses at the reset date. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
           "next": "a.notify-blocked-party",
           "execution": "communication",
           "idempotencyKey": "entity_ref + limit_id + window_id + a.offer-holder"
@@ -75999,7 +76104,7 @@
         {
           "id": "a.reset",
           "kind": "action",
-          "does": "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
+          "does": "Tell the person whose action was held that the window has reset and the action can proceed, taken from the authoritative reset rather than an assumed clock. The decision holder is not addressed here - a reset is not the capacity decision, it is the wait ending without one, and their ask has already lapsed. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
           "next": "x.reset",
           "execution": "communication",
           "idempotencyKey": "entity_ref + limit_id + window_id + a.reset"
@@ -78450,7 +78555,7 @@
             "when": "the message has to be kept and survive until the person can act on it"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -78731,6 +78836,10 @@
         {
           "journey": "DEC-183",
           "because": "DEC-183 is somebody exercising judgment against criteria. This is collecting authorized marks against a fixed artifact - nobody is deciding anything on the merits, and its failure modes are version binding, incomplete sets and expiry rather than authority to conclude."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a signature owed on a specific version by a specific signer, and knows which version is being signed; TIM-268 defers to it and sends nothing while this instance holds the obligation."
         }
       ],
       "objective": "Collect every required signature on one exact document version: request once from each required signer, remind outstanding signers once while a reminder can still change the outcome, and end honestly as fully signed, declined, superseded or expired.",
@@ -78765,6 +78874,11 @@
           "id": "s.hard-gates",
           "label": "CANONICAL_RULE",
           "text": "Hard gates (GLB-31) apply; pressure caps do not, because a signature request is the process itself, not outreach."
+        },
+        {
+          "id": "s.generic-reminder",
+          "label": "CANONICAL_RULE",
+          "text": "This journey owns the reminder for the signature it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that signature while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
         }
       ],
       "contact": {
@@ -78862,7 +78976,8 @@
           "s.outstanding-only",
           "s.one-reminder",
           "s.no-invented-deadline",
-          "s.hard-gates"
+          "s.hard-gates",
+          "s.generic-reminder"
         ]
       },
       "implementation": {
@@ -79058,7 +79173,7 @@
           "branches": [
             {
               "label": "It would",
-              "when": "signatures are still outstanding, the exact version is still current, the request is still valid, and no reminder has been sent on it yet",
+              "when": "signatures are still outstanding, the exact version is still current, the request is still valid, and this signer has not been reminded yet",
               "to": "a.remind"
             },
             {
@@ -86464,6 +86579,10 @@
         {
           "journey": "RLT-241",
           "because": "RLT-241 decides whether the target is in scope for the change at all. Here scope is already settled and the only open question is a prerequisite."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks; TIM-268 can only name the prerequisite, so it defers to this journey and sends nothing while this instance holds the target."
         }
       ],
       "objective": "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
@@ -86494,6 +86613,11 @@
           "id": "s.g4",
           "label": "CANONICAL_RULE",
           "text": "Not ready is not failed. A target that was never touched is recorded as unprepared, not as a failed change."
+        },
+        {
+          "id": "s.generic-reminder",
+          "label": "CANONICAL_RULE",
+          "text": "This journey owns the reminder for the change prerequisite it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that prerequisite while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
         }
       ],
       "contact": {
@@ -86501,17 +86625,17 @@
         "pressureClass": "service",
         "localCap": {
           "value": {
-            "key": "upgrade_blocker.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+            "key": "upgrade_blocker.discretionary_touches",
+            "rule": "Only the last call is discretionary; the hold notice and the name-the-blocker prompt are obligations the holder is owed and are never rationed.",
             "default": {
-              "value": 2,
+              "value": 1,
               "confidence": "high",
               "basis": "corpus-rule",
               "applicableWhen": "the corpus rule: two prompts at most, both naming the same blocker"
             },
             "required": false
           },
-          "appliesTo": "all"
+          "appliesTo": "non-mandatory"
         },
         "cooldown": {
           "key": "upgrade_blocker.cooldown",
@@ -86558,10 +86682,9 @@
             ],
             "purpose": "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do.",
             "channelRoles": [
-              "in-session",
-              "persistent"
+              "in-session"
             ],
-            "mandatory": false,
+            "mandatory": true,
             "label": "CANONICAL_RULE"
           },
           {
@@ -86573,10 +86696,9 @@
             ],
             "purpose": "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window.",
             "channelRoles": [
-              "in-session",
               "persistent"
             ],
-            "mandatory": false,
+            "mandatory": true,
             "label": "CANONICAL_RULE",
             "destination": {
               "target": "clear-the-prerequisite",
@@ -86597,7 +86719,6 @@
             ],
             "purpose": "Send one further prompt naming the same prerequisite and the date it stops mattering.",
             "channelRoles": [
-              "in-session",
               "persistent"
             ],
             "mandatory": false,
@@ -86615,7 +86736,8 @@
           "s.g1",
           "s.g2",
           "s.g3",
-          "s.g4"
+          "s.g4",
+          "s.generic-reminder"
         ]
       },
       "implementation": {
@@ -86729,7 +86851,7 @@
           "state": "held on a blocker the holder cannot clear",
           "terminal": false,
           "reEntry": "if the blocker later becomes theirs to clear, the target qualifies again on the resolvable path",
-          "class": "success"
+          "class": "no-action"
         },
         {
           "id": "a.name-blocker",
@@ -86826,9 +86948,10 @@
           "id": "w.final",
           "kind": "wait",
           "until": [
-            "named_requirement_satisfied"
+            "named_requirement_satisfied",
+            "change_withdrawn"
           ],
-          "onEvent": "h.resume",
+          "onEvent": "c.cleared",
           "timeout": {
             "after": {
               "key": "upgrade_blocker.final",
@@ -87440,17 +87563,17 @@
         "pressureClass": "service",
         "localCap": {
           "value": {
-            "key": "incident_communication.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+            "key": "incident_communication.discretionary_touches",
+            "rule": "Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
             "default": {
-              "value": 1,
+              "value": 0,
               "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the graph's own touch count"
+              "applicableWhen": "every touch in the plan is marked mandatory"
             },
             "required": false
           },
-          "appliesTo": "all"
+          "appliesTo": "non-mandatory"
         },
         "cooldown": {
           "key": "incident_communication.cooldown",
@@ -87483,6 +87606,10 @@
           }
         ],
         "fallback": "same-role-other-channel",
+        "simultaneous": {
+          "allowed": true,
+          "reason": "the email carries the record to recipients who are not in the product; the in-product surface reaches whoever is hitting the fault now. Neither substitutes for the other and neither interrupts."
+        },
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -87502,7 +87629,7 @@
               "persistent",
               "in-session"
             ],
-            "mandatory": false,
+            "mandatory": true,
             "label": "CANONICAL_RULE"
           }
         ],

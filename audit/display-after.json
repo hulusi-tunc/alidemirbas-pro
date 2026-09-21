@@ -120,16 +120,16 @@
         "display_nodes": 12,
         "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.inform-only",
-            "len": 144
+            "id": "a.notify",
+            "len": 118
           },
           {
-            "id": "a.notify",
-            "len": 125
+            "id": "a.inform-only",
+            "len": 137
           }
         ],
         "long_branch_labels": [
@@ -144,16 +144,16 @@
         "display_nodes": 12,
         "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.inform-only",
-            "len": 162
+            "id": "a.notify",
+            "len": 125
           },
           {
-            "id": "a.notify",
-            "len": 138
+            "id": "a.inform-only",
+            "len": 149
           }
         ],
         "long_branch_labels": [
@@ -1276,7 +1276,7 @@
         "long_cards": [
           {
             "id": "a.remind",
-            "len": 119
+            "len": 112
           }
         ],
         "long_branch_labels": [],
@@ -1291,11 +1291,11 @@
         "long_cards": [
           {
             "id": "a.brief",
-            "len": 134
+            "len": 126
           },
           {
             "id": "a.remind",
-            "len": 130
+            "len": 117
           }
         ],
         "long_branch_labels": [],
@@ -2277,11 +2277,15 @@
         "long_cards": [
           {
             "id": "a.corrective",
-            "len": 140
+            "len": 133
+          },
+          {
+            "id": "a.confirmed",
+            "len": 127
           },
           {
             "id": "a.remind",
-            "len": 128
+            "len": 123
           }
         ],
         "long_branch_labels": [
@@ -2312,12 +2316,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.offer-alternate",
-            "len": 112
-          },
-          {
             "id": "a.remind",
-            "len": 143
+            "len": 138
           }
         ],
         "long_branch_labels": [
@@ -2599,10 +2599,10 @@
     "slug": "refund-notification",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 15,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -2610,39 +2610,34 @@
             "len": 156
           },
           {
-            "id": "a.partial",
-            "len": 113
+            "id": "a.withdrawn",
+            "len": 119
           }
         ],
-        "long_branch_labels": [
-          {
-            "label": "The whole transaction · Part of it",
-            "len": 34
-          }
-        ],
+        "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 15,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.issued",
-            "len": 127
+            "len": 114
           },
           {
             "id": "a.partial",
-            "len": 142
+            "len": 129
+          },
+          {
+            "id": "a.withdrawn",
+            "len": 149
           }
         ],
         "long_branch_labels": [
-          {
-            "label": "İşlemin tamamı · Bir kısmı",
-            "len": 26
-          },
           {
             "label": "Geri geldiği doğrulanmadı",
             "len": 25
@@ -2665,11 +2660,11 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 140
+            "len": 133
           },
           {
             "id": "a.remind",
-            "len": 119
+            "len": 112
           }
         ],
         "long_branch_labels": [],
@@ -2684,15 +2679,15 @@
         "long_cards": [
           {
             "id": "a.invite-new",
-            "len": 144
+            "len": 131
           },
           {
             "id": "a.confirm",
-            "len": 128
+            "len": 115
           },
           {
             "id": "a.remind",
-            "len": 142
+            "len": 129
           }
         ],
         "long_branch_labels": [
@@ -3358,11 +3353,11 @@
         "long_cards": [
           {
             "id": "a.inform-hold",
-            "len": 134
+            "len": 128
           },
           {
             "id": "a.last-call",
-            "len": 126
+            "len": 119
           }
         ],
         "long_branch_labels": [],
@@ -3377,15 +3372,15 @@
         "long_cards": [
           {
             "id": "a.name-blocker",
-            "len": 164
+            "len": 151
           },
           {
             "id": "a.inform-hold",
-            "len": 165
+            "len": 157
           },
           {
             "id": "a.last-call",
-            "len": 127
+            "len": 114
           }
         ],
         "long_branch_labels": [],
@@ -3406,11 +3401,15 @@
         "long_cards": [
           {
             "id": "a.at-the-wall",
-            "len": 139
+            "len": 133
+          },
+          {
+            "id": "a.offer-holder",
+            "len": 114
           },
           {
             "id": "a.notify-blocked-party",
-            "len": 126
+            "len": 120
           }
         ],
         "long_branch_labels": [],
@@ -3424,8 +3423,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.notify-blocked-party",
-            "len": 113
+            "id": "a.blocked-notice",
+            "len": 121
+          },
+          {
+            "id": "a.offer-holder",
+            "len": 140
           }
         ],
         "long_branch_labels": [
@@ -3443,15 +3446,19 @@
     "slug": "verification-failure-routing",
     "locales": {
       "en": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.explain-terminal",
-            "len": 132
+            "len": 125
+          },
+          {
+            "id": "a.ours",
+            "len": 119
           }
         ],
         "long_branch_labels": [
@@ -3463,19 +3470,15 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.explain-terminal",
-            "len": 146
-          },
-          {
-            "id": "a.explain",
-            "len": 118
+            "len": 133
           }
         ],
         "long_branch_labels": [],

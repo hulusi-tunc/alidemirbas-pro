@@ -936,6 +936,13 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
+    distinctFrom: [
+      {
+        journey: "IDN-81",
+        because:
+          "IDN-81 owns a verification that expired with no attempt made. This journey owns one attempt that was made and failed; it never waits to see whether the holder retries, because the window is IDN-81's.",
+      },
+    ],
     objective: "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
     eligibility: [
       "a verification attempt that did not establish its claim",
@@ -965,17 +972,17 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
       }
     ],
     contact: {
-      "defaultPriority": "security",
+      "defaultPriority": "transactional",
       "pressureClass": "none",
       "localCap": {
         "value": {
-          "key": "verification_failure.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "key": "verification_failure.discretionary_touches",
+          "rule": "Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
           "default": {
-            "value": 1,
+            "value": 0,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
+            "applicableWhen": "every touch in the plan is marked mandatory"
           },
           "required": false
         },
@@ -1027,8 +1034,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Explain exactly what needs correcting and offer the bounded retry.",
           "channelRoles": [
-            "in-session",
-            "persistent"
+            "in-session"
           ],
           "mandatory": true,
           "label": "CANONICAL_RULE",
@@ -1046,7 +1052,6 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
           "mandatory": true,
@@ -1055,6 +1060,20 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
             "target": "alternative-verification-basis",
             "boundTo": "verification_instance_id"
           }
+        },
+        {
+          "id": "t3",
+          "stage": "explain",
+          "action": "a.ours",
+          "prerequisites": [
+            "c.technical-budget"
+          ],
+          "purpose": "State that the failure was ours, that nothing they submitted was rejected, and that it is being retried.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
         }
       ],
       "noAction": [
@@ -1084,7 +1103,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           "x.retry",
           "x.terminal",
           "h.escalate",
-          "h.review"
+          "h.review",
+          "h.review-budget"
         ]
       },
       "secondary": [],
@@ -1176,7 +1196,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Budget spent",
             when: "the limit is reached - and repeated failure is also what a genuine person struggling looks like",
-            to: "h.review",
+            to: "h.review-budget",
           },
         ],
       },
@@ -1211,8 +1231,16 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Retry with backoff, recording nothing against the person's verification history. Our failure is not their rejection, and the distinction has to survive into whatever reads that history later",
         writes: [{ field: "verification_log", mode: "append" }],
-        next: "x.retry",
+        next: "a.ours",
         idempotencyKey: "verification_instance_id + a.backoff",
+      },
+      {
+        id: "a.ours",
+        kind: "action",
+        does: "State that the failure was ours, that nothing they submitted was rejected, and that it is being retried. A person who just watched their attempt fail because of our own outage gets silence while we retry unless this is said, and will resubmit perfectly good evidence",
+        next: "x.retry",
+        execution: "communication",
+        idempotencyKey: "verification_instance_id + a.ours",
       },
       {
         id: "a.explain-terminal",
@@ -1245,10 +1273,22 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         id: "h.review",
         kind: "handoff",
         to: "DEC-181",
-        on: "a failure requiring human judgement, or a budget reached",
+        on: "a failure requiring human judgement",
         carries: [
           "the failure class and every attempt made",
           "the claim being verified, so the reviewer assesses the claim rather than the attempts",
+          "that nothing has been said to the holder about this attempt",
+        ],
+      },
+      {
+        id: "h.review-budget",
+        kind: "handoff",
+        to: "DEC-181",
+        on: "the retry budget for this claim being spent",
+        carries: [
+          "the failure class and every attempt made",
+          "the claim being verified, so the reviewer assesses the claim rather than the attempts",
+          "that the holder was explained to once and has not been told the budget is spent",
         ],
       },
       {
@@ -3291,6 +3331,11 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "IDN-88 restores control to somebody who cannot get in. Here the owner still has access, and the open question is whether somebody else does too.",
       },
+      {
+        journey: "ACC-261",
+        because:
+          "ACC-261 narrates a restriction that stands on its own terms, once one has been recorded. This journey narrates a suspected compromise and the containment applied to it - where a security response placed the restriction ACC-261 defers to, this is the journey that tells the holder.",
+      },
     ],
     objective: "Tell the account owner, at every verified destination the signal does not implicate, what was seen and what was restricted - and let their answer resolve it: cleared, or into secure recovery.",
     eligibility: [
@@ -3686,7 +3731,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.standing",
         kind: "action",
-        does: "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is required from them. A restriction with no stated owner and no stated date is where duplicate cases come from",
+        does: "Tell the owner the incident is still open past its review point, what remains restricted, and that nothing further is assumed from their silence. A restriction with no stated owner and no stated date is where duplicate cases come from",
         next: "x.open",
         execution: "communication",
         idempotencyKey: "incident_id + touch id",

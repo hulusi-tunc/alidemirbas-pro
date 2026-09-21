@@ -1829,6 +1829,11 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "RLT-241 decides whether the target is in scope for the change at all. Here scope is already settled and the only open question is a prerequisite.",
       },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks; TIM-268 can only name the prerequisite, so it defers to this journey and sends nothing while this instance holds the target.",
+      },
     ],
     objective: "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
     eligibility: [
@@ -1858,6 +1863,11 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "Not ready is not failed. A target that was never touched is recorded as unprepared, not as a failed change."
+      },
+      {
+        "id": "s.generic-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "This journey owns the reminder for the change prerequisite it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that prerequisite while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
       }
     ],
     contact: {
@@ -1865,17 +1875,17 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
       "pressureClass": "service",
       "localCap": {
         "value": {
-          "key": "upgrade_blocker.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "key": "upgrade_blocker.discretionary_touches",
+          "rule": "Only the last call is discretionary; the hold notice and the name-the-blocker prompt are obligations the holder is owed and are never rationed.",
           "default": {
-            "value": 2,
+            "value": 1,
             "confidence": "high",
             "basis": "corpus-rule",
             "applicableWhen": "the corpus rule: two prompts at most, both naming the same blocker"
           },
           "required": false
         },
-        "appliesTo": "all"
+        "appliesTo": "non-mandatory"
       },
       "cooldown": {
         "key": "upgrade_blocker.cooldown",
@@ -1922,10 +1932,9 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say that the change is held and why, with nothing asked of the holder - because there is nothing they can do.",
           "channelRoles": [
-            "in-session",
-            "persistent"
+            "in-session"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE"
         },
         {
@@ -1937,10 +1946,9 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Name the one prerequisite, what clearing it involves, and the date after which the change can no longer be applied in this window.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE",
           "destination": {
             "target": "clear-the-prerequisite",
@@ -1961,7 +1969,6 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send one further prompt naming the same prerequisite and the date it stops mattering.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
           "mandatory": false,
@@ -1979,7 +1986,8 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4"
+        "s.g4",
+        "s.generic-reminder"
       ]
     },
     implementation: {
@@ -2093,7 +2101,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         state: "held on a blocker the holder cannot clear",
         terminal: false,
         reEntry: "if the blocker later becomes theirs to clear, the target qualifies again on the resolvable path",
-        class: "success",
+        class: "no-action",
       },
       {
         id: "a.name-blocker",
@@ -2190,9 +2198,10 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.final",
         kind: "wait",
         until: [
-          "named_requirement_satisfied"
+          "named_requirement_satisfied",
+          "change_withdrawn"
         ],
-        onEvent: "h.resume",
+        onEvent: "c.cleared",
         timeout: {
           "after": {
             "key": "upgrade_blocker.final",

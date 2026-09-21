@@ -90,22 +90,22 @@
     },
     {
       "field": "distinctFrom.because",
-      "n": 367,
+      "n": 378,
       "min": 111,
-      "median": 210,
+      "median": 211,
       "p90": 358,
-      "p95": 412,
+      "p95": 416,
       "max": 776,
       "maxRecordId": "CMS-208",
       "singleLineAssumptionRisk": "unbounded prose, only present on 166/255 journeys"
     },
     {
       "field": "action.does (node headline)",
-      "n": 1367,
+      "n": 1369,
       "min": 39,
       "median": 218,
-      "p90": 303,
-      "p95": 345,
+      "p90": 304,
+      "p95": 347,
       "max": 835,
       "maxRecordId": "CMS-201",
       "singleLineAssumptionRisk": "DANGEROUS — this is the node's HEADLINE with no secondary field, median 214, max 483 chars (OWN-54). A one-line node-headline assumption fails on the majority of action nodes."
@@ -123,7 +123,7 @@
     },
     {
       "field": "branch.label (short, chip-safe)",
-      "n": 2113,
+      "n": 2114,
       "min": 2,
       "median": 13,
       "p90": 28,
@@ -134,10 +134,10 @@
     },
     {
       "field": "branch.when (secondary text, separate field from label)",
-      "n": 2113,
+      "n": 2114,
       "min": 12,
       "median": 63,
-      "p90": 103,
+      "p90": 102,
       "p95": 130,
       "max": 350,
       "maxRecordId": "DEC-181",
@@ -145,7 +145,7 @@
     },
     {
       "field": "wait.until (per item)",
-      "n": 516,
+      "n": 519,
       "min": 7,
       "median": 22,
       "p90": 39,
@@ -171,14 +171,14 @@
       "min": 51,
       "median": 129,
       "p90": 163,
-      "p95": 175,
+      "p95": 178,
       "max": 241,
       "maxRecordId": "OPS-131",
       "singleLineAssumptionRisk": "unbounded prose, median 137"
     },
     {
       "field": "exit.state (node headline)",
-      "n": 615,
+      "n": 616,
       "min": 8,
       "median": 53,
       "p90": 78,
@@ -189,7 +189,7 @@
     },
     {
       "field": "exit.reEntry (secondary text)",
-      "n": 615,
+      "n": 616,
       "min": 32,
       "median": 103,
       "p90": 155,
@@ -200,7 +200,7 @@
     },
     {
       "field": "handoff.on (secondary text)",
-      "n": 531,
+      "n": 532,
       "min": 19,
       "median": 51,
       "p90": 72,
@@ -211,7 +211,7 @@
     },
     {
       "field": "handoff.carries (per item)",
-      "n": 1109,
+      "n": 1113,
       "min": 9,
       "median": 71,
       "p90": 121,

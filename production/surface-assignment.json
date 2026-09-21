@@ -1075,7 +1075,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "ACC-263",
@@ -1332,14 +1332,14 @@
     },
     {
       "id": "REL-284",
-      "shortName": "Invitation Reminder",
+      "shortName": "Relationship Invitation",
       "category": "structure",
       "surface": "customer",
       "sends": true,
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "TRM-101",
@@ -1757,7 +1757,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push, sms)"
+      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "FIN-135",
@@ -1834,7 +1834,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "FUL-141",

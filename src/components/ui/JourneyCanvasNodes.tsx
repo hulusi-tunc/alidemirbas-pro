@@ -234,6 +234,7 @@ const TOUCH_STAGE_TR: Readonly<Record<string, string>> = {
   "signature-request": "İmza talebi",
   "specific-action": "Özel aksiyon", "surface": "Görünür kılma", "total": "Toplam bildirim",
   "unverified": "Doğrulanmadı bildirimi", "verify": "Doğrulama", "waitlist": "Bekleme listesi",
+  "withdrawn": "Geri çekildi bildirimi",
 };
 
 function stageTitle(stage: string, lang: Lang): string | null {

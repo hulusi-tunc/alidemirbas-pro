@@ -1488,12 +1488,10 @@
     },
     {
       "route": "/tr/lab/journeys/access-restriction-route-back",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "· Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
       "hits": [
-        "when",
-        "the",
-        "and",
-        "because"
+        "this",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -1521,6 +1519,16 @@
     },
     {
       "route": "/tr/lab/journeys/access-restriction-route-back",
+      "text": ": the condition recorded to release this specific restriction is met",
+      "hits": [
+        "the",
+        "this"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/access-restriction-route-back",
       "text": ": the restriction is lifted by its owner",
       "hits": [
         "the",
@@ -1531,7 +1539,7 @@
     },
     {
       "route": "/tr/lab/journeys/access-restriction-route-back",
-      "text": "Can the holder do anything about this?",
+      "text": "Is there a permitted route to them? · Can the holder do anything about this?",
       "hits": [
         "the",
         "this"
@@ -1549,16 +1557,6 @@
         "with",
         "because",
         "for"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/access-restriction-route-back",
-      "text": "Can the holder do anything about this? · Is there a permitted route to them?",
-      "hits": [
-        "the",
-        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -1588,9 +1586,10 @@
     },
     {
       "route": "/tr/lab/journeys/access-restriction-route-back",
-      "text": "şuna göre resolution_deadline_at · iptal eden olaylar the condition recorded to release the suppression is met; the restriction is lifted by its owner; the restriction is made permanent",
+      "text": "şuna göre resolution_deadline_at · iptal eden olaylar the condition recorded to release this specific restriction is met; the restriction is lifted by its owner; the restriction is made permanent",
       "hits": [
         "the",
+        "this",
         "its"
       ],
       "known": true,
@@ -1625,16 +1624,6 @@
       "hits": [
         "the",
         "has",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/access-restriction-route-back",
-      "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
-      "hits": [
-        "the",
         "and"
       ],
       "known": true,
@@ -11090,6 +11079,22 @@
     },
     {
       "route": "/tr/lab/journeys/compromise-alert-verification",
+      "text": "ACC-261 narrates a restriction that stands on its own terms, once one has been recorded. This journey narrates a suspected compromise and the containment applied to it - where a security response placed the restriction ACC-261 defers to, this is the journey that tells the holder.",
+      "hits": [
+        "that",
+        "its",
+        "has",
+        "been",
+        "this",
+        "and",
+        "the",
+        "where"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/compromise-alert-verification",
       "text": "Tell the account owner, at every verified destination the signal does not implicate, what was seen and what was restricted - and let their answer resolve it: cleared, or into secure recovery.",
       "hits": [
         "the",
@@ -15048,6 +15053,20 @@
     },
     {
       "route": "/tr/lab/journeys/entitlement-activation-window",
+      "text": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns whether a granted entitlement is ever used, and names the first action that uses it; an unused entitlement is this journey's obligation, not a generic outstanding one, and TIM-268 defers to it and sends nothing while this instance holds the entitlement.",
+      "hits": [
+        "the",
+        "for",
+        "this",
+        "and",
+        "that",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/entitlement-activation-window",
       "text": "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
       "hits": [
         "what",
@@ -15119,10 +15138,28 @@
     },
     {
       "route": "/tr/lab/journeys/entitlement-activation-window",
-      "text": "· The single reminder is placed before the activation window closes, late enough that the first notice has had its chance and early enough that claiming is still possible.",
+      "text": "This journey owns the reminder for the entitlement it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that entitlement while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender.",
+      "hits": [
+        "this",
+        "the",
+        "for",
+        "that",
+        "its",
+        "and",
+        "after",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/entitlement-activation-window",
+      "text": "· The reminder point, not the window's own end: the point before the activation window closes at which the one reminder is sent, late enough that the first notice has had its chance and early enough that claiming is still possible.",
       "hits": [
         "the",
+        "not",
         "before",
+        "which",
         "that",
         "has",
         "its",
@@ -20106,12 +20143,10 @@
     },
     {
       "route": "/tr/lab/journeys/incident-communication",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "· Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
       "hits": [
-        "when",
-        "the",
-        "and",
-        "because"
+        "this",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -26907,6 +26942,81 @@
     },
     {
       "route": "/tr/lab/journeys/payment-failure-recovery",
+      "text": "SCH-303's subject is a reservation that is still standing and whether it survives; the payment is a condition on it. This journey's subject is the obligation itself, from the moment an attempt actually failed. SCH-303 hands the money here and stops speaking about it - this journey never speaks about the reservation, and the release point it is handed is a consequence to work inside rather than a deadline to restate.",
+      "hits": [
+        "that",
+        "still",
+        "and",
+        "the",
+        "this",
+        "from"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/payment-failure-recovery",
+      "text": "This journey is money that failed to come in and an obligation that stays open. FIN-302 is money going back out against an obligation already discharged. The two share a payment record and nothing else, and neither ever announces the other's movement.",
+      "hits": [
+        "this",
+        "that",
+        "and",
+        "already",
+        "the"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/payment-failure-recovery",
+      "text": "ACQ-287 recovers a checkout nobody finished. This opens only where a checkout was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the cart or the items.",
+      "hits": [
+        "this",
+        "where",
+        "and",
+        "the",
+        "its",
+        "what",
+        "that"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/payment-failure-recovery",
+      "text": "ACQ-11 recovers a resumable process nobody finished. This opens only where the process was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the process or the items.",
+      "hits": [
+        "this",
+        "where",
+        "the",
+        "and",
+        "its",
+        "what",
+        "that"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/payment-failure-recovery",
+      "text": "TIM-268 is the generic reminder for an obligation before any attempt has been made against it - a due date passed with silence. This journey owns the same obligation from the moment an attempt was actually made and failed; once a failed attempt is recorded, TIM-268 defers to it and stops sending its own generic reminder.",
+      "hits": [
+        "the",
+        "for",
+        "before",
+        "has",
+        "been",
+        "with",
+        "this",
+        "from",
+        "and",
+        "its"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/payment-failure-recovery",
       "text": "Get the obligation paid by responding to the failure that actually happened, while the obligation stays alive and the relationship's own state is decided elsewhere.",
       "hits": [
         "the",
@@ -27035,6 +27145,31 @@
         "the",
         "already",
         "and"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/payment-failure-recovery",
+      "text": "This journey speaks about the obligation and the corrective action, and about nothing the obligation was for. A reservation that may be released, a checkout that was abandoned, a process that was left open - each belongs to the journey that handed the money here, and each of those stops speaking about the money for the same reason. A release point or a resume destination received at a handoff is a consequence to work inside, never a deadline for this journey to restate.",
+      "hits": [
+        "this",
+        "the",
+        "and",
+        "for",
+        "that"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/payment-failure-recovery",
+      "text": "Where a stored method was charged under standing authority after another failed, the confirmation names the method used. A charge the person did not choose is disclosed at the moment the obligation closes, not discovered on a statement.",
+      "hits": [
+        "where",
+        "after",
+        "the",
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -27221,9 +27356,10 @@
     },
     {
       "route": "/tr/lab/journeys/payment-failure-recovery",
-      "text": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking.",
+      "text": "Confirm the obligation is discharged, name which method discharged it, and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking.",
       "hits": [
         "the",
+        "which",
         "and",
         "that"
       ],
@@ -27232,18 +27368,7 @@
     },
     {
       "route": "/tr/lab/journeys/payment-failure-recovery",
-      "text": "( Uygulama içi ): the person has an active session in the product - the corrective action is a form, and the shortest route to it is inside the product",
-      "hits": [
-        "the",
-        "has",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/payment-failure-recovery",
-      "text": "( E-posta ): no active session, or the instruction and its link have to survive until the person can act",
+      "text": "( E-posta ): the instruction and its link have to survive until the person can act",
       "hits": [
         "the",
         "and",
@@ -27255,7 +27380,7 @@
     },
     {
       "route": "/tr/lab/journeys/payment-failure-recovery",
-      "text": "( SMS, Push ): an asserted consequence date exists inside the urgent horizon and permission for service messages on this channel is recorded",
+      "text": "( SMS ): an asserted consequence date exists inside the urgent horizon and permission for service messages on this channel is recorded",
       "hits": [
         "the",
         "and",
@@ -33146,11 +33271,10 @@
     },
     {
       "route": "/tr/lab/journeys/refund-notification",
-      "text": "What is actually moving, and against what? · May the notice go out?",
+      "text": ": the refund submission is withdrawn or reversed after the notice went out",
       "hits": [
-        "what",
-        "and",
-        "the"
+        "the",
+        "after"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -33185,13 +33309,14 @@
     },
     {
       "route": "/tr/lab/journeys/refund-notification",
-      "text": "önceki temastan sonra · iptal eden olaylar the financial record confirms that funds were returned against the submitted refund, in whole or in part, with the amount actually returned; the financial record shows the submitted refund did not settle, or produced no outcome that can be read as a return of funds",
+      "text": "önceki temastan sonra · iptal eden olaylar the financial record confirms that funds were returned against the submitted refund, in whole or in part, with the amount actually returned; the financial record shows the submitted refund did not settle, or produced no outcome that can be read as a return of funds; the refund submission is withdrawn or reversed after the notice went out",
       "hits": [
         "the",
         "that",
         "were",
         "with",
-        "not"
+        "not",
+        "after"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -33299,25 +33424,36 @@
     },
     {
       "route": "/tr/lab/journeys/refund-notification",
-      "text": "( E-posta ): a statement about money has to be kept and returned to - the default route for both the notice and the outcome",
+      "text": "Say that the refund was withdrawn or reversed after the notice went out, and what the record now shows.",
       "hits": [
-        "has",
-        "and",
+        "that",
         "the",
-        "for"
+        "after",
+        "and",
+        "what"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/refund-notification",
-      "text": "( Uygulama içi ): the person is in the product where the original transaction and its refund are both visible, and the statement belongs beside them",
+      "text": "· iddia edemez : that the refund is still moving, that the money will still arrive",
       "hits": [
+        "that",
         "the",
-        "where",
+        "still"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/refund-notification",
+      "text": "( E-posta ): a statement about money has to be kept and returned to - the default route for both the notice and the outcome",
+      "hits": [
+        "has",
         "and",
-        "its",
-        "are"
+        "the",
+        "for"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -33351,6 +33487,17 @@
       "hits": [
         "not",
         "the"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/refund-notification",
+      "text": "withdrawn after notice; the submission stopped moving before it settled",
+      "hits": [
+        "after",
+        "the",
+        "before"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -34029,6 +34176,21 @@
     },
     {
       "route": "/tr/lab/journeys/relationship-invitation",
+      "text": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure; TIM-268 would restate that deadline without knowing what the acceptance grants, so it defers to this journey and sends nothing while this instance holds the invitation.",
+      "hits": [
+        "the",
+        "for",
+        "this",
+        "where",
+        "that",
+        "what",
+        "and"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/relationship-invitation",
       "text": "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
       "hits": [
         "the",
@@ -34097,6 +34259,22 @@
     },
     {
       "route": "/tr/lab/journeys/relationship-invitation",
+      "text": "This journey owns the reminder for the invitation it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that invitation while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender.",
+      "hits": [
+        "this",
+        "the",
+        "for",
+        "that",
+        "its",
+        "and",
+        "after",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/relationship-invitation",
       "text": "· The point at which one reminder would still leave time to act before expiry.",
       "hits": [
         "the",
@@ -34119,12 +34297,11 @@
     },
     {
       "route": "/tr/lab/journeys/relationship-invitation",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "· Only the invitation and the reminder are discretionary; the confirmation is an obligation the accepting party is owed and is never rationed.",
       "hits": [
-        "when",
         "the",
         "and",
-        "because"
+        "are"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -34228,16 +34405,6 @@
       "hits": [
         "the",
         "has",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/relationship-invitation",
-      "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
-      "hits": [
-        "the",
         "and"
       ],
       "known": true,
@@ -39853,6 +40020,19 @@
     },
     {
       "route": "/tr/lab/journeys/signature-process",
+      "text": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a signature owed on a specific version by a specific signer, and knows which version is being signed; TIM-268 defers to it and sends nothing while this instance holds the obligation.",
+      "hits": [
+        "the",
+        "for",
+        "this",
+        "and",
+        "which"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/signature-process",
       "text": "Collect every required signature on one exact document version: request once from each required signer, remind outstanding signers once while a reminder can still change the outcome, and end honestly as fully signed, declined, superseded or expired.",
       "hits": [
         "from",
@@ -39963,6 +40143,22 @@
         "not",
         "because",
         "the"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/signature-process",
+      "text": "This journey owns the reminder for the signature it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that signature while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender.",
+      "hits": [
+        "this",
+        "the",
+        "for",
+        "that",
+        "its",
+        "and",
+        "after",
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -42859,6 +43055,19 @@
     },
     {
       "route": "/tr/lab/journeys/upgrade-blocker-prompt",
+      "text": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks; TIM-268 can only name the prerequisite, so it defers to this journey and sends nothing while this instance holds the target.",
+      "hits": [
+        "the",
+        "for",
+        "this",
+        "and",
+        "what"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/upgrade-blocker-prompt",
       "text": "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
       "hits": [
         "the",
@@ -42939,6 +43148,22 @@
     },
     {
       "route": "/tr/lab/journeys/upgrade-blocker-prompt",
+      "text": "This journey owns the reminder for the change prerequisite it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that prerequisite while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender.",
+      "hits": [
+        "this",
+        "the",
+        "for",
+        "that",
+        "its",
+        "and",
+        "after",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/upgrade-blocker-prompt",
       "text": "· The point in the preparation window past which a target still blocked cannot be made ready in time.",
       "hits": [
         "the",
@@ -42960,12 +43185,11 @@
     },
     {
       "route": "/tr/lab/journeys/upgrade-blocker-prompt",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "· Only the last call is discretionary; the hold notice and the name-the-blocker prompt are obligations the holder is owed and are never rationed.",
       "hits": [
-        "when",
         "the",
         "and",
-        "because"
+        "are"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -43268,11 +43492,26 @@
     },
     {
       "route": "/tr/lab/journeys/usage-limit-capacity-path",
-      "text": "· The wall notice and the reset notice are mandatory; the discretionary offers run against a budget of the plan's own length.",
+      "text": "The reset notice goes to the party whose action was held, never to the decision holder - a reset is not the capacity decision, it is the wait ending without one, and that party's ask has already lapsed.",
+      "hits": [
+        "the",
+        "not",
+        "and",
+        "that",
+        "has",
+        "already"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/usage-limit-capacity-path",
+      "text": "· The wall notice, the blocked-party notice and the reset notice are mandatory; only the offer to the decision holder is discretionary and runs against this budget.",
       "hits": [
         "the",
         "and",
-        "are"
+        "are",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -43300,18 +43539,6 @@
     },
     {
       "route": "/tr/lab/journeys/usage-limit-capacity-path",
-      "text": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets.",
-      "hits": [
-        "the",
-        "which",
-        "and",
-        "when"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/usage-limit-capacity-path",
       "text": "What path exists from here? · Does the person who hit the limit hold the capacity decision?",
       "hits": [
         "what",
@@ -43324,13 +43551,15 @@
     },
     {
       "route": "/tr/lab/journeys/usage-limit-capacity-path",
-      "text": "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing.",
+      "text": "Say which limit was reached, the usage against it, when the window resets and, where the same party who hit the limit can also authorise more capacity, the capacity that would release it now and what it costs.",
       "hits": [
+        "which",
         "the",
-        "that",
+        "when",
         "and",
-        "what",
-        "for"
+        "where",
+        "that",
+        "what"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -43349,12 +43578,35 @@
     },
     {
       "route": "/tr/lab/journeys/usage-limit-capacity-path",
-      "text": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is.",
+      "text": "What path exists from here?",
+      "hits": [
+        "what",
+        "from"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/usage-limit-capacity-path",
+      "text": "Say which limit was reached and the usage against it, where neither a purchasable path nor a defined reset exists.",
+      "hits": [
+        "which",
+        "and",
+        "the",
+        "where"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/usage-limit-capacity-path",
+      "text": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it, what the reset alternative is, and that the ask lapses at the reset date.",
       "hits": [
         "the",
         "what",
         "for",
-        "and"
+        "and",
+        "that"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -43397,9 +43649,10 @@
     },
     {
       "route": "/tr/lab/journeys/usage-limit-capacity-path",
-      "text": "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock.",
+      "text": "Tell the person whose action was held that the window has reset and the action can proceed, taken from the authoritative reset rather than an assumed clock.",
       "hits": [
         "the",
+        "that",
         "has",
         "and",
         "from"
@@ -43514,6 +43767,20 @@
     },
     {
       "route": "/tr/lab/journeys/verification-failure-routing",
+      "text": "IDN-81 owns a verification that expired with no attempt made. This journey owns one attempt that was made and failed; it never waits to see whether the holder retries, because the window is IDN-81's.",
+      "hits": [
+        "that",
+        "with",
+        "this",
+        "and",
+        "the",
+        "because"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/verification-failure-routing",
       "text": "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
       "hits": [
         "and",
@@ -43569,12 +43836,10 @@
     },
     {
       "route": "/tr/lab/journeys/verification-failure-routing",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "· Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
       "hits": [
-        "when",
-        "the",
-        "and",
-        "because"
+        "this",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -43641,6 +43906,17 @@
     },
     {
       "route": "/tr/lab/journeys/verification-failure-routing",
+      "text": "State that the failure was ours, that nothing they submitted was rejected, and that it is being retried.",
+      "hits": [
+        "that",
+        "the",
+        "and"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/verification-failure-routing",
       "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
       "hits": [
         "the",
@@ -43676,6 +43952,17 @@
       "hits": [
         "that",
         "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/verification-failure-routing",
+      "text": ": the retry budget for this claim being spent",
+      "hits": [
+        "the",
+        "for",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
