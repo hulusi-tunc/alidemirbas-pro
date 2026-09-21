@@ -5236,7 +5236,7 @@
    "competition",
    "no-re-entry"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "RET-21": {
@@ -10391,7 +10391,7 @@
    "multi-exit",
    "competition"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "FBK-43": {
@@ -12675,7 +12675,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": true
  },
  "OWN-56": {
@@ -19234,7 +19234,7 @@
    "wait-timeout",
    "multi-exit"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "IDN-90": {
@@ -25266,7 +25266,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": true
  },
  "OPS-121": {
@@ -29217,7 +29217,7 @@
    "wait-timeout",
    "multi-exit"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "FUL-141": {
@@ -36421,12 +36421,12 @@
  "SUB-297": {
   "id": "SUB-297",
   "category": "subscription",
-  "nodeCount": 13,
-  "edgeCount": 15,
-  "branchNodeCount": 4,
-  "branchEdgeCount": 9,
+  "nodeCount": 15,
+  "edgeCount": 17,
+  "branchNodeCount": 5,
+  "branchEdgeCount": 11,
   "waitCount": 1,
-  "exitCount": 4,
+  "exitCount": 5,
   "terminalExitCount": 0,
   "handoffCount": 0,
   "externalHandoffCount": 0,
@@ -36434,7 +36434,7 @@
   "backwardEdgeCount": 1,
   "maxFanIn": 3,
   "maxFanOut": 3,
-  "maxDepth": 8,
+  "maxDepth": 9,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -36502,8 +36502,26 @@
    },
    {
     "from": "a.explain",
-    "to": "w.act",
+    "to": "c.expires",
     "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.expires",
+    "to": "w.act",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.expires",
+    "to": "x.explained",
+    "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -36547,7 +36565,7 @@
    },
    {
     "from": "c.sendable2",
-    "to": "a.remind",
+    "to": "a.expiry-notice",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -36564,7 +36582,7 @@
     "isBackward": true
    },
    {
-    "from": "a.remind",
+    "from": "a.expiry-notice",
     "to": "x.nurtured",
     "syntacticKind": "forward",
     "isExternal": false,
@@ -36582,7 +36600,7 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 50,
+  "complexityScore": 58,
   "primaryStructure": "self-contained",
   "behaviors": [
    "backward-edge",
@@ -36590,7 +36608,7 @@
    "multi-exit",
    "competition"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "complex",
   "hasTrueCycle": false
  },
  "SUB-298": {
@@ -39099,10 +39117,10 @@
  "SCH-277": {
   "id": "SCH-277",
   "category": "scheduling",
-  "nodeCount": 14,
-  "edgeCount": 16,
-  "branchNodeCount": 2,
-  "branchEdgeCount": 5,
+  "nodeCount": 16,
+  "edgeCount": 19,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 7,
   "waitCount": 2,
   "exitCount": 3,
   "terminalExitCount": 0,
@@ -39153,8 +39171,35 @@
    },
    {
     "from": "w.outcome",
-    "to": "a.lapse",
+    "to": "a.reread-outcome",
     "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reread-outcome",
+    "to": "c.resolved-after-all",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resolved-after-all",
+    "to": "c.outcome",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.resolved-after-all",
+    "to": "a.lapse",
+    "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -39221,7 +39266,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "c.choice",
@@ -39269,7 +39314,7 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 49,
+  "complexityScore": 56,
   "primaryStructure": "mixed-termination",
   "behaviors": [
    "backward-edge",
@@ -39278,7 +39323,7 @@
    "multi-exit",
    "competition"
   ],
-  "complexityTier": "medium",
+  "complexityTier": "complex",
   "hasTrueCycle": false
  },
  "SCH-280": {
@@ -39459,12 +39504,12 @@
  "SCH-282": {
   "id": "SCH-282",
   "category": "scheduling",
-  "nodeCount": 15,
+  "nodeCount": 16,
   "edgeCount": 17,
   "branchNodeCount": 3,
   "branchEdgeCount": 7,
   "waitCount": 3,
-  "exitCount": 5,
+  "exitCount": 6,
   "terminalExitCount": 0,
   "handoffCount": 0,
   "externalHandoffCount": 0,
@@ -39612,7 +39657,7 @@
    },
    {
     "from": "w.waitlist",
-    "to": "x.lapsed",
+    "to": "x.waitlist-lapsed",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -39630,7 +39675,7 @@
    },
    {
     "from": "w.respond",
-    "to": "x.lapsed",
+    "to": "x.offer-lapsed",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -39638,7 +39683,7 @@
     "isBackward": false
    }
   ],
-  "complexityScore": 53,
+  "complexityScore": 55,
   "primaryStructure": "self-contained",
   "behaviors": [
    "backward-edge",
@@ -43128,7 +43173,7 @@
    "cross-journey-handoff",
    "external-handoff"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "RSK-194": {
@@ -44657,7 +44702,7 @@
    "cross-journey-handoff",
    "multi-exit"
   ],
-  "complexityTier": "complex",
+  "complexityTier": "medium",
   "hasTrueCycle": false
  },
  "RSK-273": {

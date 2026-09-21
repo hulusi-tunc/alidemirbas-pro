@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-21T17:39:25.208Z",
+  "generated": "2026-09-21T18:14:47.724Z",
   "expected_count": 69,
   "found_count": 69,
   "issues": [],
@@ -240,11 +240,11 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 15,
+      "canonical_node_count": 16,
       "display_node_count_before": null,
       "display_node_count_after": null,
       "condition_count": 3,
-      "exit_count": 5,
+      "exit_count": 6,
       "handoff_count": 0,
       "journey_types": [
         "back-edge-retry",
@@ -1136,17 +1136,17 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 13,
+      "canonical_node_count": 15,
       "display_node_count_before": null,
       "display_node_count_after": null,
-      "condition_count": 4,
-      "exit_count": 4,
+      "condition_count": 5,
+      "exit_count": 5,
       "handoff_count": 0,
       "journey_types": [
         "communication",
+        "deadline-driven",
         "multi-branch",
         "nested-decision",
-        "no-deadline",
         "nurture",
         "wait-event-timeout"
       ],
@@ -1791,10 +1791,10 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 14,
+      "canonical_node_count": 16,
       "display_node_count_before": null,
       "display_node_count_after": null,
-      "condition_count": 2,
+      "condition_count": 3,
       "exit_count": 3,
       "handoff_count": 1,
       "journey_types": [
@@ -1804,6 +1804,7 @@
         "deadline-driven",
         "handoff",
         "multi-branch",
+        "nested-decision",
         "shared-exit",
         "wait-event-timeout"
       ],

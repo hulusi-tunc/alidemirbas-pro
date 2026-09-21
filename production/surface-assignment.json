@@ -2142,7 +2142,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push, sms)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "SUB-164",
@@ -2230,7 +2230,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "SUB-296",
@@ -2241,7 +2241,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "SUB-297",
@@ -2252,7 +2252,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "SUB-298",
@@ -2263,7 +2263,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "SUB-299",
@@ -2274,7 +2274,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "SCH-171",
@@ -2395,7 +2395,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms, in-app)"
+      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "SCH-277",
@@ -2406,7 +2406,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "SCH-280",
@@ -2417,7 +2417,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "SCH-282",
@@ -2428,7 +2428,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "SCH-303",
@@ -2439,7 +2439,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms, in-app)"
+      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "SCH-304",
@@ -2450,7 +2450,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms, in-app)"
+      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "DEC-181",

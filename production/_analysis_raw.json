@@ -34559,12 +34559,12 @@
  {
   "id": "SUB-297",
   "category": "subscription",
-  "nodeCount": 13,
-  "edgeCount": 15,
-  "branchNodeCount": 4,
-  "branchEdgeCount": 9,
+  "nodeCount": 15,
+  "edgeCount": 17,
+  "branchNodeCount": 5,
+  "branchEdgeCount": 11,
   "waitCount": 1,
-  "exitCount": 4,
+  "exitCount": 5,
   "terminalExitCount": 0,
   "handoffCount": 0,
   "externalHandoffCount": 0,
@@ -34572,7 +34572,7 @@
   "backwardEdgeCount": 1,
   "maxFanIn": 3,
   "maxFanOut": 3,
-  "maxDepth": 8,
+  "maxDepth": 9,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -34640,8 +34640,26 @@
    },
    {
     "from": "a.explain",
-    "to": "w.act",
+    "to": "c.expires",
     "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.expires",
+    "to": "w.act",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.expires",
+    "to": "x.explained",
+    "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -34685,7 +34703,7 @@
    },
    {
     "from": "c.sendable2",
-    "to": "a.remind",
+    "to": "a.expiry-notice",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -34702,7 +34720,7 @@
     "isBackward": true
    },
    {
-    "from": "a.remind",
+    "from": "a.expiry-notice",
     "to": "x.nurtured",
     "syntacticKind": "forward",
     "isExternal": false,
@@ -37112,10 +37130,10 @@
  {
   "id": "SCH-277",
   "category": "scheduling",
-  "nodeCount": 14,
-  "edgeCount": 16,
-  "branchNodeCount": 2,
-  "branchEdgeCount": 5,
+  "nodeCount": 16,
+  "edgeCount": 19,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 7,
   "waitCount": 2,
   "exitCount": 3,
   "terminalExitCount": 0,
@@ -37166,8 +37184,35 @@
    },
    {
     "from": "w.outcome",
-    "to": "a.lapse",
+    "to": "a.reread-outcome",
     "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reread-outcome",
+    "to": "c.resolved-after-all",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resolved-after-all",
+    "to": "c.outcome",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.resolved-after-all",
+    "to": "a.lapse",
+    "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -37234,7 +37279,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "c.choice",
@@ -37451,12 +37496,12 @@
  {
   "id": "SCH-282",
   "category": "scheduling",
-  "nodeCount": 15,
+  "nodeCount": 16,
   "edgeCount": 17,
   "branchNodeCount": 3,
   "branchEdgeCount": 7,
   "waitCount": 3,
-  "exitCount": 5,
+  "exitCount": 6,
   "terminalExitCount": 0,
   "handoffCount": 0,
   "externalHandoffCount": 0,
@@ -37604,7 +37649,7 @@
    },
    {
     "from": "w.waitlist",
-    "to": "x.lapsed",
+    "to": "x.waitlist-lapsed",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -37622,7 +37667,7 @@
    },
    {
     "from": "w.respond",
-    "to": "x.lapsed",
+    "to": "x.offer-lapsed",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,

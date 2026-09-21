@@ -991,16 +991,27 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Anlatım gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: promosyon iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
         { label: "Engellendi", detail: "bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
     "a.explain": {
       headline: "Bu üyeliğin tuttuğu ve kullanılmamış olan şeyi, ne için kullanılabileceğini ve ne zamana kadar geçerli olduğunu, her parçasını göndermeden hemen önce üyelik kaydından okuyarak söyle.",
     },
+    "c.expires": {
+      headline: "Bu konunun, üyenin hâlâ vaktinde harekete geçebileceği bir son kullanma tarihi var mı?",
+      edges: [
+        { label: "Süresi doluyor", detail: "üyelik kaydı, konunun kullanılması gereken bir son noktayı taşıyor" },
+        { label: "Son kullanma tarihi yok", detail: "üyelik kaydı, konunun kullanılması gereken bir son nokta taşımıyor" },
+      ],
+    },
+    "x.explained": {
+      headline: "anlatıldı; konunun bir son kullanma tarihi yok ve söylenecek başka bir şey kalmadı",
+      detail: "kullanılmamış başka bir konu, bekleme süresi dolduktan sonra kendi örneğini açar",
+    },
     "w.act": {
       headline: "şey kullanılana, üyelik sona erene ya da izin geri çekilene kadar",
-      detail: "Zaman aşımı: hatırlatma, şeyi kullanacak olan bir üyenin buna fırsat bulacağı kadar bekler; ilk mesajın onu hatırlamasının nedeni olmaktan çıktığı noktadan öteye geçmez. (loyalty_nurture.response_window ayarlanmalı)",
+      detail: "Zaman aşımı: son kullanma bildirimi, açıklamadan sonra sabit bir süre yerine konunun kendi son kullanma tarihinin yaklaşmasını bekler; şeyi son kullanma tarihinden önce kullanacak olan bir üye o ana kadar her olağan fırsatı bulmuş olur. (loyalty_nurture.response_window ayarlanmalı)",
     },
     "c.acted": {
       headline: "Üye kullandı mı?",
@@ -1010,14 +1021,14 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "c.sendable2": {
-      headline: "Hatırlatma gönderilebilir mi?",
+      headline: "Son kullanma bildirimi gönderilebilir mi?",
       edges: [
         { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor ve temas bütçesi tükenmemiş" },
         { label: "Engellendi", detail: "bir kapı durduruyor ya da temas bütçesi tükenmiş; gerekçe kaydedilir" },
       ],
     },
-    "a.remind": {
-      headline: "Aynı kullanılmamış şeyi bir kez daha söyle, anlatımın söylemediği hiçbir şeyi ekleme ve bundan sonra ne olursa olsun planı kapat.",
+    "a.expiry-notice": {
+      headline: "Bu konunun ne zaman süresinin dolacağını, göndermeden hemen önce üyelik kaydından okuyarak söyle. Bu, açıklamadan farklı bir mesajdır ve bir süre geçtiği için değil, bir olgu değiştiği - son kullanma tarihinin yaklaşması - için gönderilir; bundan sonra ne olursa olsun planı kapat.",
     },
     "a.record-no-action": {
       headline: "Neden hiçbir şey gönderilmediğini ve hangi aşamada olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
@@ -1027,7 +1038,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       detail: "aynı üyelikte kullanılmamış başka bir konu, bekleme süresi dolduktan sonra kendi örneğini açar",
     },
     "x.nurtured": {
-      headline: "Anlatıldı ve hatırlatıldı",
+      headline: "Anlatıldı ve son kullanma bildirimi gönderildi",
       detail: "bu konu bir daha gündeme getirilmez; kullanılmamış başka bir konu, bekleme süresi dolduktan sonra kendi örneğini açar",
     },
     "x.closed": {
@@ -4108,6 +4119,8 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "t.requested": { headline: "Rezervasyon talebi kaydedildi" },
     "a.received": { headline: "Talebi onayla ve bunun henüz bir taahhüt olmadığını açıkça söyle, sonucun ne zaman geleceğini belirterek. Bir zaman istemekle onu tutmak arasındaki boşluk, her çifte rezervasyon anlaşmazlığının başladığı yerdir" },
     "w.outcome": { headline: "Rezervasyon onaylanana, veya kapasite ya da uygunluk yokluğu nedeniyle talep reddedilene kadar bekle", detail: "zaman aşımı: Rezervasyon semantiğinin bir talebin çözülmeden kalmasına izin verdiği sürenin sonunda. (yapılandırma: reservation_outcome.outcome)" },
+    "a.reread-outcome": { headline: "Zaman aşımını bir süresi geçme olarak ele almadan önce talebin sonucunu güncel yetkili durumdan yeniden oku. Zaman aşımına yakın bir anda ulaşan bir onay ya da bir ret, sessizlikle aynı olgu değildir" },
+    "c.resolved-after-all": { headline: "Yeniden okuma sonuçta bir sonuç buldu mu?", edges: [{ label: "Sonuçta çözüldü", detail: "yeniden okuma, zaman aşımına işlem yapılmadan önce talebin taahhüt edildiğini veya reddedildiğini gösteriyor" }, { label: "Hâlâ çözülmemiş", detail: "yeniden okuma hiçbir şeye karar verilmediğini doğruluyor" }] },
     "c.outcome": { headline: "Yeniden doğrulama neye karar verdi?", edges: [{ label: "Taahhüt edildi", detail: "kapasite taahhüt edildi ve şimdi onaylanmış bir rezervasyon var" }, { label: "Kalmadı, ama yakın bir şey var", detail: "slot yeniden okunduğunda artık müsait değildi, ve güncel müsaitlik yeterince yakın, önerilmeye değer bir şey içeriyor" }, { label: "Kalmadı, yakın da bir şey yok", detail: "slot artık müsait değildi ve güncel müsaitlikte gerçek bir alternatif yok" }] },
     "a.lapse": { headline: "Talebi süresi geçmiş olarak kapat ve hiçbir şeyin tutulmadığını, hiçbir şeyin rezerve edilmediğini söyle. Talep sahipleri sessizliği onay olarak okur; bu, rezervasyonda yapılabilecek en maliyetli varsayımdır" },
     "a.confirm": { headline: "Taahhüt edilen slotu, kaynağı ve şartları somut olarak belirt - tarih, saat, yer, gelişte gerekenler. Ayrıntıları yeniden ifade etmeyen bir onay, talep sahibinin bir ay sonra üzerine hareket edebileceği bir şey değildir" },
@@ -4147,7 +4160,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   purpose: "Rezervasyona dönüşmeyen bir müsaitlik sorgusunu, şu anda gerçekten rezerve edilebilecek bir şeyle, veya hiçbir şey uymadığında bir bekleme listesi yeriyle takip etmek - çünkü gösterilen şey hiçbir zaman tutulmadı ve muhtemelen zaten kalmadı.",
   nodes: {
     "t.queried": { headline: "Müsaitlik sorgusu rezervasyon olmadan kapandı" },
-    "c.permitted": { headline: "Bu kişiye hiç istenmemiş bir teklif gönderilebilir mi?", edges: [{ label: "Tanımlı ve izinli", detail: "kişi biliniyor ve en az bir iletişim noktası bu tür bir teklif için geçerli ve izinli" }, { label: "Anonim veya izinli değil", detail: "sorgu, bu amaçla iletişime geçebileceğimiz bir kişiye atfedilemiyor" }] },
+    "c.permitted": { headline: "Bu sorgu, iletişime geçebileceğimiz bir kişiye atfedilebilir mi?", edges: [{ label: "Tanımlı ve izinli", detail: "kişi biliniyor ve en az bir iletişim noktası bu tür bir teklif için geçerli ve izinli" }, { label: "Anonim veya izinli değil", detail: "sorgu, bu amaçla iletişime geçebileceğimiz bir kişiye atfedilemiyor" }] },
     "w.settle": { headline: "Rezervasyon onaylanana, veya talep edilen pencere alınana ya da geri çekilene kadar bekle", detail: "zaman aşımı: Teklif, sorgudan sonra istenmemiş bir rezervasyonun şansı olacak kadar bekler, ama soru güncelliğini koruduğu süreden fazla değil. (yapılandırma: availability_searched.settle)" },
     "x.no-route": { headline: "hiçbir teklif yapılmadı; sorgu ulaşılabilir bir kişiye atfedilemiyor", detail: "tanımlı bir kişiden gelen sonraki bir sorgu normal şekilde nitelenir" },
     "c.settled": { headline: "Beklemeyi ne sonlandırdı?", edges: [{ label: "İstenmeden rezerve edildi", detail: "kişi, pencere için kendi başına bir rezervasyon yaptı veya tutma aldı" }, { label: "Pencere kalmadı", detail: "sordukları pencere, harekete geçmelerinden önce alındı veya kaldırıldı" }] },
@@ -4159,8 +4172,9 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.nothing": { headline: "sunulacak bir şey yok; hiçbir mesaj gönderilmedi", detail: "kapasitesi olan bir pencere için sonradan gelen bir sorgu yeniden nitelenir" },
     "w.respond": { headline: "Rezervasyon onaylanana kadar bekle", detail: "zaman aşımı: Sunulan pencerenin geçerlilik süresinin sonunda. (yapılandırma: availability_searched.respond)" },
     "w.waitlist": { headline: "Kişi sunulan bekleme listesi yerini alana kadar bekle", detail: "zaman aşımı: Bekleme listesi teklifinin geçerlilik süresinin sonunda. (yapılandırma: availability_searched.waitlist)" },
-    "x.lapsed": { headline: "teklif yapıldı ve alınmadı", detail: "yeni bir müsaitlik sorgusu yeni bir örnektir; bu teklif bir daha asla yeniden sunulmaz" },
+    "x.offer-lapsed": { headline: "teklif yapıldı ve alınmadı", detail: "yeni bir müsaitlik sorgusu yeni bir örnektir; bu teklif bir daha asla yeniden sunulmaz" },
     "x.waitlisted": { headline: "bekleme listesine alındı; hiçbir şey rezerve edilmedi", detail: "kapasitenin bekleme listesine ulaşması, bu sürecin değil o mekanizmanın işidir" },
+    "x.waitlist-lapsed": { headline: "bekleme listesi yeri sunuldu ve alınmadı", detail: "yeni bir müsaitlik sorgusu yeni bir örnektir; bu bekleme listesi yeri bir daha asla yeniden sunulmaz" },
   },
   },
   "SUB-161": {
@@ -4218,15 +4232,15 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "h.undefined": { headline: "Karar talebi → doğrulama → yönlendirme, ret veya bekletme", detail: "bildirim süresi veya yenileme koşulları tanımlanmamış bir yenileme penceresi" },
     "a.notice": { headline: "Koşulların gerektirdiği bildirimi ver: uygulanacak yenileme modelini, hangi koşullarla yenileneceğini ve hiçbir şey yapılmazsa ne olacağını bildir. Bir bildirim süresi tanımlamış olmak, bildirimi fiilen yapmış olmakla aynı şey değildir; sessizce yürürlüğe giren bir otomatik yenileme, tam da bu yükümlülüğün var olma nedenidir. Bu bir bildirimdir, talep değildir - hiçbir zaman karar yerine geçmez" },
     "c.blockers": { headline: "Eksik bir engel, yenilemenin karara bağlanmasını önlüyor mu?", edges: [{ label: "Engellendi", detail: "çözülmemiş bir yükümlülük, anlaşmazlık veya uygunluk sorunu engel oluşturuyor" }, { label: "Engel yok", detail: "kararı engelleyecek hiçbir eksik yok" }] },
-    "a.review": { headline: "RENEWAL_REVIEW olarak, çözülmesi gerekenle birlikte kaydet. İlişki bu süreç boyunca mevcut dönemi üzerinde aktif kalır - incelemedeki bir yenileme, sorunlu bir ilişki anlamına gelmez" },
+    "a.review": { headline: "Yenilemenin incelemede olduğunu, çözülmesi gerekenle birlikte kaydet. İlişki bu süreç boyunca mevcut dönemi üzerinde aktif kalır - incelemedeki bir yenileme, sorunlu bir ilişki anlamına gelmez" },
     "c.model": { headline: "Yenileme modeli ne gerektiriyor?", edges: [{ label: "Otomatik yenileme, koşullar sağlandı", detail: "koşullar otomatik olarak yenileniyor ve bunun için gereken her şart sağlanmış" }, { label: "Açık bir karar", detail: "koşullar, karşı tarafın seçim yapmasını gerektiriyor" }, { label: "Önce inceleme", detail: "koşullar, yenileme önerilmeden önce dahili bir karar alınmasını gerektiriyor" }] },
-    "w.review": { headline: "yetkili bir yenileme kararı kaydedilene kadar", detail: "zaman aşımı süresi: Bildirim son tarihini aşan bir inceleme sorumluya yükseltilir; bu sırada ilişki mevcut dönemi üzerinde kalır. (önerilen: term_end_at eksi koşulların gerektirdiği bildirim süresi; yapılandır: renewal.notice_deadline)" },
+    "w.review": { headline: "yetkili bir yenileme kararı kaydedilene kadar", detail: "zaman aşımı süresi: Bildirim son tarihini aşan bir inceleme sorumluya yükseltilir; bu sırada ilişki mevcut dönemi üzerinde kalır. (önerilen: koşulların gerektirdiği bildirim süresi, dönem sona ermeden önce; yapılandır: renewal.notice_deadline)" },
     "a.decided": { headline: "Yenilemeyi, yeni dönemin tarihleri ve uygulanacak koşullarla birlikte karara bağlanmış olarak kaydet. Karara bağlanmış, yenilenmiş demek değildir - yeni dönem kendi koşulları sağlanana kadar var olmaz ve bir ilişki burada beklerken yine de sona erebilir" },
-    "a.request": { headline: "Yenileme kararını, uygulanacak koşullarla birlikte kararı verecek kişiye ilet. Sormak karar vermek değildir - gönderilen bir yenileme bildirimi bir iletişimdir ve göndermeyi yanıt sayan bir uygulama, kimsenin onay vermediği ilişkileri yeniler" },
+    "a.request": { headline: "Yenileme kararını kararı verecek kişiye ilet - bu döngüde bildirim henüz gönderilmediyse uygulanacak koşullarla birlikte, gönderildiyse koşulları tekrarlamadan yalnızca gereken kararı yineleyerek. Sormak karar vermek değildir - gönderilen bir yenileme bildirimi bir iletişimdir ve göndermeyi yanıt sayan bir uygulama, kimsenin onay vermediği ilişkileri yeniler" },
     "c.decision": { headline: "Bir sonraki dönem için sonuç nedir?", edges: [{ label: "İptal süreci işliyor", detail: "döngünün yeniden okunması, ilişki üzerinde şu anda işleyen bir iptal olduğunu gösteriyor - bu sürecin kendi beyan edilmiş önceliği aktif bir iptalin altındadır ve bir iptal işlerken yenileme kararını bağımsız şekilde sonuçlandırmak buna aykırı olur" }, { label: "Yenile", detail: "karar, ya da koşulların varsayılanı, devam etmek yönünde ve işleyen bir iptal yok" }, { label: "Yenileme", detail: "karar, ya da koşulların varsayılanı, dönemin sona ermesine izin vermek yönünde ve işleyen bir iptal yok" }] },
     "h.escalate": { headline: "Sorumluluk yükseltmesi → üst makam → çözüm veya iade", detail: "bildirim süresini aşan bir yenileme incelemesi" },
     "h.execute": { headline: "Yenileme uygulaması → finansal ve bağımlılık kontrolü → yeni dönem aktif", detail: "karara bağlanmış ve uygulanmaya hazır bir yenileme" },
-    "w.decision": { headline: "yetkili bir yenileme kararı kaydedilene kadar", detail: "zaman aşımı süresi: Karar, gerekli bildirim süresinin hâlâ buna izin verdiği son ana kadar beklenir; ardından yönetici koşullar karar verir. (önerilen: term_end_at eksi koşulların gerektirdiği bildirim süresi; yapılandır: renewal.decision_deadline)" },
+    "w.decision": { headline: "yetkili bir yenileme kararı kaydedilene kadar", detail: "zaman aşımı süresi: Karar, gerekli bildirim süresinin hâlâ buna izin verdiği son ana kadar beklenir; ardından yönetici koşullar karar verir. (önerilen: koşulların gerektirdiği bildirim süresi, dönem sona ermeden önce; yapılandır: renewal.decision_deadline)" },
     "x.superseded": { headline: "yenileme kararı bastırıldı; ilişki üzerinde işleyen bir iptal öncelik kazandı", detail: "sonraki adımı iptalin kendi sonucu belirler - iptal geri çekilirse, yenileme döngüsü o zamandan beri kaldırılmış bir iptal altında verilmiş kararı devam ettirmek yerine baştan yeniden açılır" },
     "a.non-renew": { headline: "NON_RENEWING olarak, yürürlük bitişi mevcut dönemin bitişi olacak şekilde kaydet. İlişki hâlâ aktiftir ve hâlâ mevcut dönemine tabidir - yenilememe, bir sonraki dönem hakkında bir karardır ve bu dönem hakkında hiçbir şey söylemez" },
     "a.default": { headline: "Hiçbir karar verilmediğinde yönetici koşulların sonuç olarak tanımladığı şeyi uygula - bu, bazı yenileme modelleri için yenileme, bazıları için yenilememe anlamına gelir. Bir karar kaydetmek yerine hiçbir kararın verilmediğini kaydet, çünkü yanıt vermeyen biri onay vermiş sayılmaz" },

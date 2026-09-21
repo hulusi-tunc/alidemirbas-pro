@@ -203,7 +203,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "isMergedAlias": false,
     "resolvesTo": null
   },

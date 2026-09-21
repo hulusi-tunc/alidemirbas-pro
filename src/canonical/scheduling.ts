@@ -3102,7 +3102,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "appointment-readiness-reminder",
     category: "scheduling",
     goal: "readiness-revalidation",
-    channels: ["email", "sms", "in-app"],
+    channels: ["email", "sms"],
     name: "Appointment approaching → prerequisites and revalidation → ready, reminded or at risk",
     shortName: "Appointment Reminder",
     purpose:
@@ -3131,6 +3131,26 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "SCH-177",
         because:
           "SCH-177 revalidates at the pre-start point in order to start the service. This revalidates at the same point in order to decide whether anything should be sent at all.",
+      },
+      {
+        journey: "SCH-277",
+        because:
+          "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a confirmed booking, and never re-opens the question of whether the commitment exists.",
+      },
+      {
+        journey: "SCH-303",
+        because:
+          "SCH-303 is about whether a conditional reservation survives at all. This is about getting the customer's own side of a commitment done; where both apply, SCH-303 holds the booking and this is suppressed until it does not.",
+      },
+      {
+        journey: "SCH-304",
+        because:
+          "SCH-304 carries the arrival facts close to the time, on a commitment already prepared for. This carries the prerequisites a customer owes so the service can happen at all - a different, earlier question, and one SCH-304 is suppressed behind until this has finished.",
+      },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 is the generic reminder for an obligation nothing more specific owns. This owns what a booking requires before its own occurrence, and its deadline is the occurrence itself; TIM-268 is suppressed for any prerequisite this journey holds.",
       },
     ],
     objective: "Get the customer's side of a confirmed commitment done before it arrives, and remind them from what the booking is at the moment of sending.",
@@ -3217,16 +3237,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the message lists things to read and do over time, or no urgent channel is permitted"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is in the product"
         }
       ],
       "fallback": "same-role-other-channel",
+      "simultaneous": { "allowed": true, "reason": "the SMS carries the last point at which the outstanding prerequisite can still be completed, because the person may be away from a desk; the email carries the time, the place and how to do it, and restates the booking. Different jobs, one moment, sent once." },
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -3241,8 +3255,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Every outstanding prerequisite, whose it is and the point by which each must be done - in one message rather than one per requirement.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "booking-prerequisites",
@@ -3285,9 +3298,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The time, the place or joining route, and anything still outstanding that does not block the service.",
           "channelRoles": [
-            "urgent",
-            "persistent",
-            "in-session"
+            "urgent"
           ],
           "destination": {
             "target": "booking-detail",
@@ -3626,7 +3637,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "reservation-outcome-notice",
     category: "scheduling",
     goal: "scheduling-commitment",
-    channels: ["email", "sms"],
+    channels: ["email"],
     name: "Reservation requested → validate capacity → confirm, re-offer or lapse",
     shortName: "Booking Confirmation",
     purpose:
@@ -3637,13 +3648,23 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       instanceKey: [
         "booking_id"
       ],
-      concurrency: "one-active-per-key"
+      concurrency: "one-active-per-key",
+      supersession: {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A cancellation from the requester, or a newer request from the same requester for the same resource, supersedes this instance; the older instance sends nothing further and the newer request runs its own instance from its own state."
+      }
     },
     distinctFrom: [
       {
         journey: "SCH-173",
         because:
           "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold.",
+      },
+      {
+        journey: "FUL-301",
+        because:
+          "FUL-301 confirms an order - an obligation to deliver a thing or a performed service. This confirms a reservation - a claim on a future slot or resource that still has to be honoured. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the order.",
       },
     ],
     objective: "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
@@ -3655,29 +3676,39 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     suppressions: [
       {
-        "id": "s.g1",
+        "id": "s.not-confirmed",
         "label": "CANONICAL_RULE",
-        "text": "A request acknowledged is never worded as a request confirmed."
+        "text": "A request acknowledged is never worded as a request confirmed. The gap between asking for a time and holding it is where every double-booking dispute begins."
       },
       {
-        "id": "s.g2",
+        "id": "s.current-availability",
         "label": "CANONICAL_RULE",
-        "text": "What is offered after a failure is current availability, never the set the requester was originally shown."
+        "text": "What is offered after a failure is current availability, never the set the requester was originally shown - that set, by definition, contains one slot that no longer exists."
       },
       {
-        "id": "s.g3",
+        "id": "s.nothing-held",
         "label": "CANONICAL_RULE",
-        "text": "Nothing is described as held unless the booking semantics actually hold it."
+        "text": "Nothing is described as held unless the booking semantics actually hold it. A place believed held that is not held is planned around and then lost twice."
       },
       {
-        "id": "s.g4",
+        "id": "s.lapse-stated",
         "label": "CANONICAL_RULE",
-        "text": "A lapse is stated. Silence after a request is read as a commitment."
+        "text": "A lapse is stated, on the route the acknowledgement went out on. Silence after a request is read as a commitment, which is the most expensive assumption in scheduling."
       },
       {
-        "id": "s.g5",
+        "id": "s.concrete-slot",
         "label": "CANONICAL_RULE",
-        "text": "The confirmation restates the concrete slot every time. A reference is not a time and a place."
+        "text": "The confirmation restates the concrete slot every time - the date, the time, the place, what is needed on arrival. A reference is not a time and a place."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "While the requested time has not yet become a commitment, nothing else may speak to the requester about this booking: the reservation payment reminder (SCH-303), the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) are all suppressed for it, because each of them presumes a commitment this journey has not yet established (GLB-06)."
+      },
+      {
+        "id": "s.superseded",
+        "label": "CANONICAL_RULE",
+        "text": "A cancellation from the requester, or a newer request from the same requester for the same resource, supersedes this instance (see the entity's supersession statement); the older instance sends nothing further."
       }
     ],
     contact: {
@@ -3722,17 +3753,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "urgent",
-          "channels": [
-            "sms"
-          ],
-          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+          "when": "the message has to be kept and survive until the person can act on it - every stage in this journey"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -3745,8 +3769,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [],
           "purpose": "Acknowledge the request and say explicitly that it is not yet a commitment, naming when the outcome will come.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3762,8 +3785,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "State the committed slot, the resource and the terms concretely - the date, the time, the place, what is needed on arrival.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3778,8 +3800,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say the requested time is gone, name the slots available now, and give a deadline for choosing.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3802,8 +3823,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say plainly that the time could not be committed, that nothing is being held, and when capacity of this kind is next expected.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3813,11 +3833,12 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "stage": "lapse",
           "action": "a.lapse",
           "gatedBy": "w.outcome",
-          "prerequisites": [],
-          "purpose": "Close the request as lapsed and say that nothing is held and nothing was booked.",
+          "prerequisites": [
+            "c.resolved-after-all"
+          ],
+          "purpose": "Close the request as lapsed and say that nothing is held and nothing was booked, once a fresh read of the booking record confirms it is still unresolved.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3825,11 +3846,12 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         }
       ],
       "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4",
-        "s.g5"
+        "s.not-confirmed",
+        "s.current-availability",
+        "s.nothing-held",
+        "s.lapse-stated",
+        "s.concrete-slot",
+        "s.superseded"
       ]
     },
     implementation: {
@@ -3938,9 +3960,32 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "reason": "an unresolved request sits against capacity other requesters can see, and it cannot sit there indefinitely",
           "relativeTo": "previous-touch"
         },
-        onTimeout: "a.lapse",
+        onTimeout: "a.reread-outcome",
         windowExtendsOnEngagement: false,
         recheck: "the the reservation request re-read from the system of record before acting on the timeout",
+      },
+      {
+        id: "a.reread-outcome",
+        kind: "action",
+        does: "Re-read the reservation request's outcome from authoritative state before treating the window's timeout as a lapse. A confirmation or a rejection that landed late, close to the deadline, is not the same fact as silence",
+        next: "c.resolved-after-all",
+      },
+      {
+        id: "c.resolved-after-all",
+        kind: "condition",
+        asks: "Did the fresh read find an outcome after all?",
+        branches: [
+          {
+            label: "Resolved after all",
+            when: "the fresh read shows the request was committed or rejected before the window's timeout was acted on",
+            to: "c.outcome",
+          },
+          {
+            label: "Still unresolved",
+            when: "the fresh read confirms nothing has been decided",
+            to: "a.lapse",
+          },
+        ],
       },
       {
         id: "c.outcome",
@@ -4086,7 +4131,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "no-show-rebooking",
     category: "scheduling",
     goal: "scheduling-commitment",
-    channels: ["email", "sms"],
+    channels: ["email"],
     name: "No-show confirmed → validate the miss → rebook or close",
     shortName: "No-Show Follow-Up",
     purpose:
@@ -4110,6 +4155,16 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "SCH-177",
         because:
           "SCH-177 runs as the time approaches and is about getting somebody there. This starts only once the window has closed with nobody there.",
+      },
+      {
+        journey: "SCH-266",
+        because:
+          "SCH-266 gets the customer's side of a still-future commitment done. This opens only after the occurrence has passed with nobody there, by which point SCH-266's own work has already finished.",
+      },
+      {
+        journey: "SCH-304",
+        because:
+          "SCH-304 carries arrival facts for a commitment that is still ahead. This speaks about a commitment that did not happen, which SCH-304 has nothing left to say about by the time this opens.",
       },
     ],
     objective: "After a genuinely missed booking, state the fact without penalty language and give the single route to a new booking where one exists - after re-reading the booking, and never where our side could not have delivered.",
@@ -4144,6 +4199,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.hard-gates",
         "label": "CANONICAL_RULE",
         "text": "Hard gates (GLB-31) apply; pressure caps do not, because this concerns a commitment the person made."
+      },
+      {
+        "id": "s.after",
+        "label": "CANONICAL_RULE",
+        "text": "This journey opens only once the occurrence has passed with nobody there, which is why it is outside the booking-lifecycle group rather than at the bottom of it: the booking outcome notice (SCH-277), the reservation payment reminder (SCH-303), the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) have all finished by then, and nothing they own can still be said."
       }
     ],
     contact: {
@@ -4182,17 +4242,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the offer carries the rebooking route and should be kept - the default"
-        },
-        {
-          "role": "urgent",
-          "channels": [
-            "sms"
-          ],
-          "when": "permission for service messages on the channel is recorded and the rebooking window is short"
+          "when": "the offer carries the rebooking route and should be kept - the default, and every stage in this journey"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -4209,8 +4262,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say that the booking was missed as a fact, without penalty language, and give the single route to a new one within the stated window.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "destination": {
             "target": "rebooking",
@@ -4245,7 +4297,8 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         "s.provider-fault",
         "s.no-penalty-language",
         "s.nothing-to-rebook",
-        "s.hard-gates"
+        "s.hard-gates",
+        "s.after"
       ]
     },
     implementation: {
@@ -4510,7 +4563,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "availability-searched-no-booking",
     category: "scheduling",
     goal: "scheduling-commitment",
-    channels: ["email", "push"],
+    channels: ["email"],
     name: "Availability searched, no booking → nearest window or waitlist",
     shortName: "Availability Search Abandonment",
     purpose:
@@ -4535,6 +4588,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "SCH-172 holds capacity for somebody who asked for it. Nothing here is held at any point, and the offer says so.",
       },
+      {
+        journey: "ACQ-289",
+        because:
+          "ACQ-289 acts once an unavailable product becomes purchasable again, with the wait on the item rather than on anything the person did. This follows a stated availability enquiry with restorable state the person opened themselves - a specific window they asked for, not a product return to stock.",
+      },
     ],
     objective: "Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.",
     eligibility: [
@@ -4545,29 +4603,34 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     suppressions: [
       {
-        "id": "s.g1",
+        "id": "s.reevaluated",
         "label": "CANONICAL_RULE",
         "text": "Availability is re-evaluated before the offer is sent. What the query returned was never held and is not evidence of anything now."
       },
       {
-        "id": "s.g2",
+        "id": "s.different-window",
         "label": "CANONICAL_RULE",
-        "text": "A different window is labelled as a different window."
+        "text": "A different window is labelled as a different window, never dressed up as the one that was asked for."
       },
       {
-        "id": "s.g3",
+        "id": "s.waitlist-reserves-nothing",
         "label": "CANONICAL_RULE",
-        "text": "A waitlist place is stated as reserving nothing."
+        "text": "A waitlist place is stated as reserving nothing, because somebody who believes they hold a place they do not hold plans around it."
       },
       {
-        "id": "s.g4",
+        "id": "s.one-offer",
         "label": "CANONICAL_RULE",
         "text": "One offer per query. A second offer for the same request is pressure rather than help."
       },
       {
-        "id": "s.g5",
+        "id": "s.bounded-delay",
         "label": "CANONICAL_RULE",
-        "text": "The delay before the offer is bounded and never extended by the person browsing again."
+        "text": "The delay before the offer is bounded and never extended by the person browsing again - an offer that arrives while somebody is still choosing competes with the thing they are choosing."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A checkout recovery, a process recovery, a cart or selection recovery, an open complaint, an open payment recovery or a retention-outreach journey on the same person outranks this journey; its offer is deferred and re-evaluated against current state, not queued blindly (GLB-06). This journey in turn outranks predicted-need replenishment (RET-31), the back-in-stock alert (ACQ-289) and unresolved-interest recovery (ACQ-13), each of which is suppressed for a person this journey holds."
       },
       {
         "id": "s.sunset",
@@ -4584,10 +4647,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "key": "availability_searched.touches",
           "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
           "default": {
-            "value": 2,
+            "value": 1,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
+            "applicableWhen": "GLB-24; the graph's own touch count - an offer or a waitlist place, never both"
           },
           "required": false
         },
@@ -4607,7 +4670,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "below process recovery and selection recovery; alongside interest recovery - an availability enquiry that asked for a specific window outranks inferred interest for the same person",
+        "precedence": "below checkout recovery (ACQ-287), the generic process pattern (ACQ-11), the held cart (ACQ-288) and the held selection (ACQ-12) for the same person; above predicted-need replenishment (RET-31), the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13), because an availability enquiry for a stated window is a question the person actually asked, where a predicted need is computed from history and an inferred interest was never confirmed at all. Where a higher-precedence member holds the person this journey is suppressed for them rather than queued behind it.",
         "onLoss": "suppressed"
       }
     },
@@ -4618,17 +4681,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a valid token or app session exists and the message is a single step from the notification"
+          "when": "the message has to be kept and survive until the person can act on it - both stages in this journey"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -4644,8 +4700,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -4668,8 +4723,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Offer a waitlist place and state that it reserves nothing.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -4683,11 +4737,11 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         }
       ],
       "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4",
-        "s.g5"
+        "s.reevaluated",
+        "s.different-window",
+        "s.waitlist-reserves-nothing",
+        "s.one-offer",
+        "s.bounded-delay"
       ]
     },
     implementation: {
@@ -4711,7 +4765,8 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "x.booked",
           "x.waitlisted",
           "x.nothing",
-          "x.lapsed"
+          "x.offer-lapsed",
+          "x.waitlist-lapsed"
         ]
       },
       "businessOutcome": {
@@ -4774,7 +4829,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "c.permitted",
         kind: "condition",
-        asks: "May an unprompted offer be sent to this person at all?",
+        asks: "Can this query be attributed to a person we may contact?",
         branches: [
           {
             label: "Identified and permitted",
@@ -4904,7 +4959,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "reason": "an offered place nobody took is not a place held - leaving the offer open would put someone on a list they never agreed to be on",
           "relativeTo": "previous-touch"
         },
-        onTimeout: "x.lapsed",
+        onTimeout: "x.waitlist-lapsed",
         windowExtendsOnEngagement: false,
         recheck: "the the availability question re-read from the system of record before acting on the timeout",
       },
@@ -4915,6 +4970,14 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry: "capacity reaching the waitlist is that mechanism's business, not a new instance of this one",
         class: "success",
+      },
+      {
+        id: "x.waitlist-lapsed",
+        kind: "exit",
+        state: "waitlist place offered and not taken",
+        terminal: false,
+        reEntry: "a new availability query is a new instance; this waitlist place is never re-offered",
+        class: "timeout",
       },
       {
         id: "x.nothing",
@@ -4941,12 +5004,12 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "reason": "the offer was true at one instant only, and the window closing is what makes a second offer a different journey rather than a repeat",
           "relativeTo": "previous-touch"
         },
-        onTimeout: "x.lapsed",
+        onTimeout: "x.offer-lapsed",
         windowExtendsOnEngagement: false,
         recheck: "the the availability question re-read from the system of record before acting on the timeout",
       },
       {
-        id: "x.lapsed",
+        id: "x.offer-lapsed",
         kind: "exit",
         state: "offer made and not taken",
         terminal: false,
@@ -4969,7 +5032,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "reservation-payment-reminder",
     "category": "scheduling",
     "goal": "scheduling-commitment",
-    "channels": ["email", "sms", "in-app"],
+    "channels": ["email", "sms"],
     "name": "Reservation standing on a payment condition → reminded → kept, released or routed to recovery",
     "shortName": "Reservation Payment Reminder",
     "purpose": "Keep a reservation that is standing only because a payment is still expected, by telling the holder what is outstanding and what the booking terms do about it - and by getting out of the way the moment the payment itself is what went wrong.",
@@ -5064,13 +5127,6 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the holder is in the product, where the outstanding obligation can be settled without leaving it"
-        },
-        {
           "role": "persistent",
           "channels": [
             "email"
@@ -5086,6 +5142,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         }
       ],
       "fallback": "same-role-other-channel",
+      "simultaneous": { "allowed": true, "reason": "the SMS carries the deadline, the moment the reservation is released if nothing changes; the email carries the reservation as it stands and what the terms do after. One moment, mandatory, no second notice." },
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -5101,8 +5158,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "What is outstanding against this reservation, the point by which the booking terms expect it, and what those terms do if it is not met.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "reservation-payment",
@@ -5129,8 +5185,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "purpose": "The reservation as it stands at this moment, the last point at which it can still be kept, and what the terms do to it after that point.",
           "channelRoles": [
             "urgent",
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "reservation-payment",
@@ -5155,8 +5210,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [],
           "purpose": "That the reservation was released and nothing is held, said plainly, with what the record now shows.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "destination": {
             "target": "reservation-detail",
@@ -5262,6 +5316,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "SCH-266",
         "because": "SCH-266 chases the prerequisites a customer owes so the service can be delivered. What is outstanding here is not a prerequisite for delivery - it is the condition on which the reservation itself continues to exist, and missing it costs the place rather than the preparation."
+      },
+      {
+        "journey": "SCH-304",
+        "because": "SCH-304 carries arrival facts for a commitment already prepared for. This is about whether the reservation survives at all; where both apply, this holds the booking and SCH-304 is suppressed until it does not."
       }
     ],
     "entry": "t.outstanding",
@@ -5583,7 +5641,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "pre-arrival-preparation",
     "category": "scheduling",
     "goal": "readiness-revalidation",
-    "channels": ["email", "sms", "in-app"],
+    "channels": ["email", "sms"],
     "name": "Arrival window opens → what arriving requires → checked in, arrived or superseded",
     "shortName": "Pre-Arrival Preparation",
     "purpose": "Tell somebody what turning up actually requires - where to go or how to join, what to bring, and the step they can complete before they get there - and say it only where it answers something they could not already know.",
@@ -5685,13 +5743,6 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the message carries a place, a route or a list of things to have, which the holder has to be able to open again when they set off"
         },
         {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the holder is in the product, where the check-in step and the booking's own detail already are"
-        },
-        {
           "role": "urgent",
           "channels": [
             "sms"
@@ -5715,8 +5766,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "What arriving requires: the place or the joining route, what to have, and the step that can be completed before setting off if the booking has one.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "booking-detail",
@@ -5742,8 +5792,6 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The one step still owed before arrival, and the last point at which it can be completed ahead of time.",
           "channelRoles": [
-            "in-session",
-            "persistent",
             "urgent"
           ],
           "destination": {
@@ -5769,9 +5817,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Only what changed or became knowable after the first message - the exact place within the location, the access instruction, the person to ask for.",
           "channelRoles": [
-            "urgent",
-            "in-session",
-            "persistent"
+            "urgent"
           ],
           "destination": {
             "target": "booking-detail",

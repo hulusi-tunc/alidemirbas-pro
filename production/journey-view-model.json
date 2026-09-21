@@ -12703,7 +12703,7 @@
         "competition",
         "no-re-entry"
       ],
-      "complexityTier": "complex",
+      "complexityTier": "medium",
       "complexityScore": 53
     }
   },
@@ -33532,7 +33532,7 @@
         "multi-exit",
         "competition"
       ],
-      "complexityTier": "complex",
+      "complexityTier": "medium",
       "complexityScore": 53
     }
   },
@@ -39661,7 +39661,7 @@
         "wait-timeout",
         "multi-exit"
       ],
-      "complexityTier": "complex",
+      "complexityTier": "medium",
       "complexityScore": 53
     }
   },
@@ -47189,7 +47189,7 @@
         "wait-timeout",
         "multi-exit"
       ],
-      "complexityTier": "complex",
+      "complexityTier": "medium",
       "complexityScore": 53
     }
   },
@@ -54798,7 +54798,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "complex",
+      "complexityTier": "medium",
       "complexityScore": 53
     }
   },
@@ -59765,7 +59765,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "complex",
+      "complexityTier": "medium",
       "complexityScore": 53
     }
   },
@@ -77608,7 +77608,7 @@
         "cross-journey-handoff",
         "external-handoff"
       ],
-      "complexityTier": "complex",
+      "complexityTier": "medium",
       "complexityScore": 53
     }
   },
@@ -80310,7 +80310,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "complex",
+      "complexityTier": "medium",
       "complexityScore": 53
     }
   },
@@ -84628,6 +84628,22 @@
         {
           "journey": "SCH-177",
           "because": "SCH-177 revalidates at the pre-start point in order to start the service. This revalidates at the same point in order to decide whether anything should be sent at all."
+        },
+        {
+          "journey": "SCH-277",
+          "because": "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a confirmed booking, and never re-opens the question of whether the commitment exists."
+        },
+        {
+          "journey": "SCH-303",
+          "because": "SCH-303 is about whether a conditional reservation survives at all. This is about getting the customer's own side of a commitment done; where both apply, SCH-303 holds the booking and this is suppressed until it does not."
+        },
+        {
+          "journey": "SCH-304",
+          "because": "SCH-304 carries the arrival facts close to the time, on a commitment already prepared for. This carries the prerequisites a customer owes so the service can happen at all - a different, earlier question, and one SCH-304 is suppressed behind until this has finished."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This owns what a booking requires before its own occurrence, and its deadline is the occurrence itself; TIM-268 is suppressed for any prerequisite this journey holds."
         }
       ],
       "competition": null,
@@ -84721,6 +84737,22 @@
           "kind": "wait",
           "headline": "until booking_confirmed, or booking_request_rejected",
           "detail": "timeout after {'key': 'reservation_outcome.outcome', 'rule': 'The period the booking semantics allow a request to stay unresolved.', 'class': 'observation-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.reread-outcome",
+          "kind": "action",
+          "headline": "Re-read the reservation request's outcome from authoritative state before treating the window's timeout as a lapse. A confirmation or a rejection that landed late, close to the deadline, is not the same fact as silence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.resolved-after-all",
+          "kind": "condition",
+          "headline": "Did the fresh read find an outcome after all?",
+          "detail": null,
           "isEntry": false,
           "terminal": false
         },
@@ -84837,10 +84869,31 @@
         },
         {
           "from": "w.outcome",
-          "to": "a.lapse",
+          "to": "a.reread-outcome",
           "family": "wait-timeout",
           "label": "on timeout",
           "when": "an unresolved request sits against capacity other requesters can see, and it cannot sit there indefinitely"
+        },
+        {
+          "from": "a.reread-outcome",
+          "to": "c.resolved-after-all",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.resolved-after-all",
+          "to": "c.outcome",
+          "family": "backward",
+          "label": "Resolved after all",
+          "when": "the fresh read shows the request was committed or rejected before the window's timeout was acted on"
+        },
+        {
+          "from": "c.resolved-after-all",
+          "to": "a.lapse",
+          "family": "branch",
+          "label": "Still unresolved",
+          "when": "the fresh read confirms nothing has been decided"
         },
         {
           "from": "c.outcome",
@@ -84887,7 +84940,7 @@
         {
           "from": "w.choice",
           "to": "x.lapsed",
-          "family": "backward",
+          "family": "wait-timeout",
           "label": "on timeout",
           "when": "the offered slots stay visible to everyone else and are not held while one requester decides"
         },
@@ -84935,18 +84988,20 @@
         "x.lapsed"
       ],
       "backwardEdgeIds": [
-        10,
-        12
+        5,
+        15
       ],
       "branchEdgeIds": [
-        4,
         5,
         6,
-        11,
-        12
+        7,
+        8,
+        9,
+        14,
+        15
       ],
       "handoffEdgeIds": [
-        13
+        16
       ],
       "externalEdgeIds": []
     },
@@ -84961,6 +85016,10 @@
         {
           "journey": "SCH-173",
           "because": "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold."
+        },
+        {
+          "journey": "FUL-301",
+          "because": "FUL-301 confirms an order - an obligation to deliver a thing or a performed service. This confirms a reservation - a claim on a future slot or resource that still has to be honoured. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the order."
         }
       ],
       "competition": null,
@@ -84990,9 +85049,9 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 14,
-      "edgeCount": 16,
-      "branchNodeCount": 2,
+      "nodeCount": 16,
+      "edgeCount": 19,
+      "branchNodeCount": 3,
       "backwardEdgeCount": 2,
       "handoffCount": 1,
       "exitCount": 3,
@@ -85007,8 +85066,8 @@
         "multi-exit",
         "competition"
       ],
-      "complexityTier": "medium",
-      "complexityScore": 49
+      "complexityTier": "complex",
+      "complexityScore": 56
     }
   },
   {
@@ -85288,6 +85347,14 @@
         {
           "journey": "SCH-177",
           "because": "SCH-177 runs as the time approaches and is about getting somebody there. This starts only once the window has closed with nobody there."
+        },
+        {
+          "journey": "SCH-266",
+          "because": "SCH-266 gets the customer's side of a still-future commitment done. This opens only after the occurrence has passed with nobody there, by which point SCH-266's own work has already finished."
+        },
+        {
+          "journey": "SCH-304",
+          "because": "SCH-304 carries arrival facts for a commitment that is still ahead. This speaks about a commitment that did not happen, which SCH-304 has nothing left to say about by the time this opens."
         }
       ],
       "competition": null,
@@ -85370,7 +85437,7 @@
         {
           "id": "c.permitted",
           "kind": "condition",
-          "headline": "May an unprompted offer be sent to this person at all?",
+          "headline": "Can this query be attributed to a person we may contact?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -85456,6 +85523,14 @@
           "terminal": false
         },
         {
+          "id": "x.waitlist-lapsed",
+          "kind": "exit",
+          "headline": "waitlist place offered and not taken",
+          "detail": "a new availability query is a new instance; this waitlist place is never re-offered",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "x.nothing",
           "kind": "exit",
           "headline": "nothing to offer; no message sent",
@@ -85472,7 +85547,7 @@
           "terminal": false
         },
         {
-          "id": "x.lapsed",
+          "id": "x.offer-lapsed",
           "kind": "exit",
           "headline": "offer made and not taken",
           "detail": "a new availability query is a new instance; this one is never re-offered",
@@ -85581,7 +85656,7 @@
         },
         {
           "from": "w.waitlist",
-          "to": "x.lapsed",
+          "to": "x.waitlist-lapsed",
           "family": "wait-timeout",
           "label": "on timeout",
           "when": "an offered place nobody took is not a place held - leaving the offer open would put someone on a list they never agreed to be on"
@@ -85595,7 +85670,7 @@
         },
         {
           "from": "w.respond",
-          "to": "x.lapsed",
+          "to": "x.offer-lapsed",
           "family": "wait-timeout",
           "label": "on timeout",
           "when": "the offer was true at one instant only, and the window closing is what makes a second offer a different journey rather than a repeat"
@@ -85606,8 +85681,9 @@
         "x.no-route",
         "x.booked",
         "x.waitlisted",
+        "x.waitlist-lapsed",
         "x.nothing",
-        "x.lapsed"
+        "x.offer-lapsed"
       ],
       "backwardEdgeIds": [
         15
@@ -85634,6 +85710,10 @@
         {
           "journey": "SCH-172",
           "because": "SCH-172 holds capacity for somebody who asked for it. Nothing here is held at any point, and the offer says so."
+        },
+        {
+          "journey": "ACQ-289",
+          "because": "ACQ-289 acts once an unavailable product becomes purchasable again, with the wait on the item rather than on anything the person did. This follows a stated availability enquiry with restorable state the person opened themselves - a specific window they asked for, not a product return to stock."
         }
       ],
       "competition": null,
@@ -85663,12 +85743,12 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 15,
+      "nodeCount": 16,
       "edgeCount": 17,
       "branchNodeCount": 3,
       "backwardEdgeCount": 1,
       "handoffCount": 0,
-      "exitCount": 5,
+      "exitCount": 6,
       "maxDepth": 8,
       "maxFanIn": 2,
       "maxFanOut": 3,
@@ -85680,7 +85760,7 @@
         "competition"
       ],
       "complexityTier": "complex",
-      "complexityScore": 53
+      "complexityScore": 55
     }
   },
   {
@@ -86098,6 +86178,10 @@
         {
           "journey": "SCH-266",
           "because": "SCH-266 chases the prerequisites a customer owes so the service can be delivered. What is outstanding here is not a prerequisite for delivery - it is the condition on which the reservation itself continues to exist, and missing it costs the place rather than the preparation."
+        },
+        {
+          "journey": "SCH-304",
+          "because": "SCH-304 carries arrival facts for a commitment already prepared for. This is about whether the reservation survives at all; where both apply, this holds the booking and SCH-304 is suppressed until it does not."
         }
       ],
       "competition": null,
@@ -87409,7 +87493,7 @@
         {
           "id": "a.request",
           "kind": "action",
-          "headline": "Put the renewal decision to whoever holds it, with the terms that would apply. Asking is not deciding - a renewal notice sent is a communication, and treating the send as the answer renews relationships nobody agreed to",
+          "headline": "Put the renewal decision to whoever holds it - the terms that would apply, where the notice has not already gone out this cycle, and the decision needed restated without repeating those terms where it has. Asking is not deciding - a renewal notice sent is a communication, and treating the send as the answer renews relationships nobody agreed to",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -87418,7 +87502,7 @@
           "id": "w.decision",
           "kind": "wait",
           "headline": "until renewal_decision_recorded",
-          "detail": "timeout after {'key': 'renewal.decision_deadline', 'rule': 'The decision is waited for until the last point at which the required notice period still allows one; then the governing terms decide.', 'class': 'attribute-bound', 'default': {'value': 'term_end_at minus the notice period the terms require', 'confidence': 'high', 'basis': 'attribute-bound'}, 'required': False}",
+          "detail": "timeout after {'key': 'renewal.decision_deadline', 'rule': 'The decision is waited for until the last point at which the required notice period still allows one; then the governing terms decide.', 'class': 'attribute-bound', 'default': {'value': 'the notice period the terms require, before the term ends', 'confidence': 'high', 'basis': 'attribute-bound'}, 'required': False}",
           "isEntry": false,
           "terminal": false
         },
@@ -87449,7 +87533,7 @@
         {
           "id": "a.review",
           "kind": "action",
-          "headline": "Record RENEWAL_REVIEW with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
+          "headline": "Record that the renewal is under review, with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -87458,7 +87542,7 @@
           "id": "w.review",
           "kind": "wait",
           "headline": "until renewal_decision_recorded",
-          "detail": "timeout after {'key': 'renewal.notice_deadline', 'rule': 'A review that outlives the notice deadline is escalated to ownership; the relationship stays on its current term meanwhile.', 'class': 'attribute-bound', 'default': {'value': 'term_end_at minus the notice period the terms require', 'confidence': 'high', 'basis': 'attribute-bound'}, 'required': False}",
+          "detail": "timeout after {'key': 'renewal.notice_deadline', 'rule': 'A review that outlives the notice deadline is escalated to ownership; the relationship stays on its current term meanwhile.', 'class': 'attribute-bound', 'default': {'value': 'the notice period the terms require, before the term ends', 'confidence': 'high', 'basis': 'attribute-bound'}, 'required': False}",
           "isEntry": false,
           "terminal": false
         },
@@ -87764,6 +87848,10 @@
         {
           "journey": "TIM-63",
           "because": "TIM-63 is the generic pre-expiry reminder, and a subscription sits inside its scope - so a term end fires both at the same point in the calendar. This journey owns it: it is the one that knows the renewal terms, the notice period they require and who holds the decision, and the notice it sends is an obligation of the terms rather than outreach. While this cycle's decision window is open, that journey is suppressed for the subscription and owns only the expiries no renewal cycle governs."
+        },
+        {
+          "journey": "RET-292",
+          "because": "RET-292 recognises an anniversary, which carries no obligation and no deadline - nothing happens if it is ignored. This counts down to a renewal decision the governing terms require, with a notice period, a decision holder and a default the terms themselves define if nobody answers."
         }
       ],
       "competition": null,
@@ -90908,6 +90996,10 @@
         {
           "journey": "SUB-297",
           "because": "SUB-297 acts on a membership that has been running and holds something unused. This acts on an enrolment that has just happened, and it runs once per membership, ever."
+        },
+        {
+          "journey": "SUB-299",
+          "because": "SUB-299 states that the membership's own standing moved and outranks this journey while it holds the membership. This states what the membership grants at enrolment, before any standing has had the chance to move."
         }
       ],
       "competition": null,
@@ -91016,10 +91108,26 @@
           "terminal": false
         },
         {
+          "id": "c.expires",
+          "kind": "condition",
+          "headline": "Does this subject have an expiry the member can still act before?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.explained",
+          "kind": "exit",
+          "headline": "explained; the subject carries no expiry and there is nothing further to say",
+          "detail": "a different unused subject opens its own instance once the cooldown has run",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "w.act",
           "kind": "wait",
           "headline": "until loyalty_benefit_used, or loyalty_membership_ended, or permission_withdrawn",
-          "detail": "timeout after {'key': 'loyalty_nurture.response_window', 'rule': 'The reminder waits long enough that a member who was going to use the thing has had the chance to, and no longer than the point at which the first message stops being the reason they would remember it.', 'class': 'response-window', 'required': True}",
+          "detail": "timeout after {'key': 'loyalty_nurture.response_window', 'rule': \"The expiry notice waits for the subject's own expiry to approach rather than for a fixed interval after the explanation; a member who was going to use the thing before it expires has had every ordinary chance to by then.\", 'class': 'attribute-bound', 'required': True}",
           "isEntry": false,
           "terminal": false
         },
@@ -91034,15 +91142,15 @@
         {
           "id": "c.sendable2",
           "kind": "condition",
-          "headline": "May the reminder go out?",
+          "headline": "May the expiry notice go out?",
           "detail": null,
           "isEntry": false,
           "terminal": false
         },
         {
-          "id": "a.remind",
+          "id": "a.expiry-notice",
           "kind": "action",
-          "headline": "Say the same unused thing once more, adding nothing the explanation did not already have, and close the plan whatever happens next.",
+          "headline": "Say that this subject expires, and when, reading the expiry from the membership record immediately before sending. This is a different message from the explanation, sent because a fact changed - the expiry approaching - and not because a while has passed; close the plan whatever happens next.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -91066,7 +91174,7 @@
         {
           "id": "x.nurtured",
           "kind": "exit",
-          "headline": "explained and reminded; the plan ran to its end without a use and is over",
+          "headline": "explained and given its expiry notice; the plan ran to its end without a use and is over",
           "detail": "this subject is not raised again; a different unused subject opens its own instance once the cooldown has run",
           "isEntry": false,
           "terminal": false
@@ -91122,7 +91230,7 @@
           "to": "a.explain",
           "family": "branch",
           "label": "Sendable",
-          "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the promotional pressure cap, no higher-precedence membership journey currently holding this membership, and no cooldown in force"
+          "when": "the send path passes: permission for promotional communication, a deliverable destination, the promotional pressure cap, no higher-precedence membership journey currently holding this membership, and no cooldown in force"
         },
         {
           "from": "c.sendable",
@@ -91133,10 +91241,24 @@
         },
         {
           "from": "a.explain",
-          "to": "w.act",
+          "to": "c.expires",
           "family": "forward",
           "label": null,
           "when": null
+        },
+        {
+          "from": "c.expires",
+          "to": "w.act",
+          "family": "branch",
+          "label": "Expires",
+          "when": "the membership record carries a point by which the subject must be used"
+        },
+        {
+          "from": "c.expires",
+          "to": "x.explained",
+          "family": "branch",
+          "label": "No expiry",
+          "when": "the membership record carries no point by which the subject must be used"
         },
         {
           "from": "w.act",
@@ -91150,7 +91272,7 @@
           "to": "c.acted",
           "family": "wait-timeout",
           "label": "on timeout",
-          "when": "a reminder sent to somebody who has already used the thing is noise, and one sent long after the explanation is a new message pretending to be a reminder"
+          "when": "a notice anchored to nothing but elapsed time arrives for no reason the member can see; anchoring it to the subject's own expiry is what makes it a deadline rather than an interval"
         },
         {
           "from": "c.acted",
@@ -91168,7 +91290,7 @@
         },
         {
           "from": "c.sendable2",
-          "to": "a.remind",
+          "to": "a.expiry-notice",
           "family": "branch",
           "label": "Sendable",
           "when": "the send path passes and the touch budget is not spent"
@@ -91181,7 +91303,7 @@
           "when": "a gate stops it, or the touch budget is spent; the reason is recorded"
         },
         {
-          "from": "a.remind",
+          "from": "a.expiry-notice",
           "to": "x.nurtured",
           "family": "forward",
           "label": null,
@@ -91197,13 +91319,14 @@
       ],
       "startNode": "t.unused",
       "terminalNodes": [
+        "x.explained",
         "x.used",
         "x.nurtured",
         "x.closed",
         "x.no-action"
       ],
       "backwardEdgeIds": [
-        12
+        14
       ],
       "branchEdgeIds": [
         1,
@@ -91211,10 +91334,12 @@
         3,
         4,
         5,
-        9,
-        10,
+        7,
+        8,
         11,
-        12
+        12,
+        13,
+        14
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": []
@@ -91266,13 +91391,13 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 13,
-      "edgeCount": 15,
-      "branchNodeCount": 4,
+      "nodeCount": 15,
+      "edgeCount": 17,
+      "branchNodeCount": 5,
       "backwardEdgeCount": 1,
       "handoffCount": 0,
-      "exitCount": 4,
-      "maxDepth": 8,
+      "exitCount": 5,
+      "maxDepth": 9,
       "maxFanIn": 3,
       "maxFanOut": 3,
       "primaryStructure": "self-contained",
@@ -91282,8 +91407,8 @@
         "multi-exit",
         "competition"
       ],
-      "complexityTier": "medium",
-      "complexityScore": 50
+      "complexityTier": "complex",
+      "complexityScore": 58
     }
   },
   {

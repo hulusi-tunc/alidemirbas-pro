@@ -23749,6 +23749,22 @@
         {
           "targetId": "journey:SCH-177",
           "because": "SCH-177 revalidates at the pre-start point in order to start the service. This revalidates at the same point in order to decide whether anything should be sent at all."
+        },
+        {
+          "targetId": "journey:SCH-277",
+          "because": "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a confirmed booking, and never re-opens the question of whether the commitment exists."
+        },
+        {
+          "targetId": "journey:SCH-303",
+          "because": "SCH-303 is about whether a conditional reservation survives at all. This is about getting the customer's own side of a commitment done; where both apply, SCH-303 holds the booking and this is suppressed until it does not."
+        },
+        {
+          "targetId": "journey:SCH-304",
+          "because": "SCH-304 carries the arrival facts close to the time, on a commitment already prepared for. This carries the prerequisites a customer owes so the service can happen at all - a different, earlier question, and one SCH-304 is suppressed behind until this has finished."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This owns what a booking requires before its own occurrence, and its deadline is the occurrence itself; TIM-268 is suppressed for any prerequisite this journey holds."
         }
       ]
     }
@@ -23822,6 +23838,10 @@
         {
           "targetId": "journey:SCH-173",
           "because": "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold."
+        },
+        {
+          "targetId": "journey:FUL-301",
+          "because": "FUL-301 confirms an order - an obligation to deliver a thing or a performed service. This confirms a reservation - a claim on a future slot or resource that still has to be honoured. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the order."
         }
       ]
     }
@@ -23895,6 +23915,14 @@
         {
           "targetId": "journey:SCH-177",
           "because": "SCH-177 runs as the time approaches and is about getting somebody there. This starts only once the window has closed with nobody there."
+        },
+        {
+          "targetId": "journey:SCH-266",
+          "because": "SCH-266 gets the customer's side of a still-future commitment done. This opens only after the occurrence has passed with nobody there, by which point SCH-266's own work has already finished."
+        },
+        {
+          "targetId": "journey:SCH-304",
+          "because": "SCH-304 carries arrival facts for a commitment that is still ahead. This speaks about a commitment that did not happen, which SCH-304 has nothing left to say about by the time this opens."
         }
       ]
     }
@@ -23908,7 +23936,7 @@
     "external": false,
     "title": "SCH-282 Availability searched, no booking → nearest window or waitlist",
     "summary": "Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.",
-    "searchText": "Availability searched, no booking → nearest window or waitlist. Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.. Also known as availability search abandonment, searched but did not book, no availability follow-up, waitlist offer, nearest slot offer. an availability question that produced no booking, answered with something bookable now. a waitlist place stated as reserving nothing. Availability query closed without reservation. Scheduling, appointments, reservations & time-bound commitments. no offer made; the query cannot be attributed to a reachable person. booked; no offer was needed. waitlisted; nothing is reserved. nothing to offer; no message sent. offer made and not taken",
+    "searchText": "Availability searched, no booking → nearest window or waitlist. Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.. Also known as availability search abandonment, searched but did not book, no availability follow-up, waitlist offer, nearest slot offer. an availability question that produced no booking, answered with something bookable now. a waitlist place stated as reserving nothing. Availability query closed without reservation. Scheduling, appointments, reservations & time-bound commitments. no offer made; the query cannot be attributed to a reachable person. booked; no offer was needed. waitlisted; nothing is reserved. waitlist place offered and not taken. nothing to offer; no message sent",
     "keywords": [
       "SCH-282",
       "availability search abandonment",
@@ -23963,6 +23991,10 @@
         {
           "targetId": "journey:SCH-172",
           "because": "SCH-172 holds capacity for somebody who asked for it. Nothing here is held at any point, and the offer says so."
+        },
+        {
+          "targetId": "journey:ACQ-289",
+          "because": "ACQ-289 acts once an unavailable product becomes purchasable again, with the wait on the item rather than on anything the person did. This follows a stated availability enquiry with restorable state the person opened themselves - a specific window they asked for, not a product return to stock."
         }
       ]
     }
@@ -24044,6 +24076,10 @@
         {
           "targetId": "journey:SCH-266",
           "because": "SCH-266 chases the prerequisites a customer owes so the service can be delivered. What is outstanding here is not a prerequisite for delivery - it is the condition on which the reservation itself continues to exist, and missing it costs the place rather than the preparation."
+        },
+        {
+          "targetId": "journey:SCH-304",
+          "because": "SCH-304 carries arrival facts for a commitment already prepared for. This is about whether the reservation survives at all; where both apply, this holds the booking and SCH-304 is suppressed until it does not."
         }
       ]
     }
@@ -24332,6 +24368,10 @@
         {
           "targetId": "journey:TIM-63",
           "because": "TIM-63 is the generic pre-expiry reminder, and a subscription sits inside its scope - so a term end fires both at the same point in the calendar. This journey owns it: it is the one that knows the renewal terms, the notice period they require and who holds the decision, and the notice it sends is an obligation of the terms rather than outreach. While this cycle's decision window is open, that journey is suppressed for the subscription and owns only the expiries no renewal cycle governs."
+        },
+        {
+          "targetId": "journey:RET-292",
+          "because": "RET-292 recognises an anniversary, which carries no obligation and no deadline - nothing happens if it is ignored. This counts down to a renewal decision the governing terms require, with a notice period, a decision holder and a default the terms themselves define if nobody answers."
         }
       ]
     }
@@ -24900,6 +24940,10 @@
         {
           "targetId": "journey:SUB-297",
           "because": "SUB-297 acts on a membership that has been running and holds something unused. This acts on an enrolment that has just happened, and it runs once per membership, ever."
+        },
+        {
+          "targetId": "journey:SUB-299",
+          "because": "SUB-299 states that the membership's own standing moved and outranks this journey while it holds the membership. This states what the membership grants at enrolment, before any standing has had the chance to move."
         }
       ]
     }
@@ -24913,7 +24957,7 @@
     "external": false,
     "title": "SUB-297 Membership holding something unused → explained → used, reminded once, or closed",
     "summary": "Tell a member what their own membership is currently holding for them that they have not used, in a bounded way that ends rather than a cadence that continues.",
-    "searchText": "Membership holding something unused → explained → used, reminded once, or closed. Tell a member what their own membership is currently holding for them that they have not used, in a bounded way that ends rather than a cadence that continues.. Also known as loyalty nurture, points balance reminder, unused reward reminder, membership engagement, loyalty programme nurture. a member holding a balance or benefit their own record says they have not used. a membership that has been active for a while with something specific still sitting unused against it. Loyalty membership holds unused value. Subscriptions, contracts, renewals & continuing relationships. used; the thing the membership was holding has been used. explained and reminded; the plan ran to its end without a use and is over. closed without a further touch; the membership ended or the member withdrew permission. no touch sent; the reason is recorded",
+    "searchText": "Membership holding something unused → explained → used, reminded once, or closed. Tell a member what their own membership is currently holding for them that they have not used, in a bounded way that ends rather than a cadence that continues.. Also known as loyalty nurture, points balance reminder, unused reward reminder, membership engagement, loyalty programme nurture. a member holding a balance or benefit their own record says they have not used. a membership that has been active for a while with something specific still sitting unused against it. Loyalty membership holds unused value. Subscriptions, contracts, renewals & continuing relationships. explained; the subject carries no expiry and there is nothing further to say. used; the thing the membership was holding has been used. explained and given its expiry notice; the plan ran to its end without a use and is over. closed without a further touch; the membership ended or the member withdrew permission. no touch sent; the reason is recorded",
     "keywords": [
       "SUB-297",
       "loyalty nurture",

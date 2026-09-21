@@ -3872,6 +3872,61 @@
     },
     {
       "route": "/tr/lab/journeys/appointment-readiness-reminder",
+      "text": "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a confirmed booking, and never re-opens the question of whether the commitment exists.",
+      "hits": [
+        "and",
+        "the",
+        "this",
+        "after"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/appointment-readiness-reminder",
+      "text": "SCH-303 is about whether a conditional reservation survives at all. This is about getting the customer's own side of a commitment done; where both apply, SCH-303 holds the booking and this is suppressed until it does not.",
+      "hits": [
+        "this",
+        "the",
+        "where",
+        "and",
+        "does",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/appointment-readiness-reminder",
+      "text": "SCH-304 carries the arrival facts close to the time, on a commitment already prepared for. This carries the prerequisites a customer owes so the service can happen at all - a different, earlier question, and one SCH-304 is suppressed behind until this has finished.",
+      "hits": [
+        "the",
+        "already",
+        "for",
+        "this",
+        "and",
+        "has"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/appointment-readiness-reminder",
+      "text": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This owns what a booking requires before its own occurrence, and its deadline is the occurrence itself; TIM-268 is suppressed for any prerequisite this journey holds.",
+      "hits": [
+        "the",
+        "for",
+        "this",
+        "what",
+        "before",
+        "its",
+        "and"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/appointment-readiness-reminder",
       "text": "Get the customer's side of a confirmed commitment done before it arrives, and remind them from what the booking is at the moment of sending.",
       "hits": [
         "the",
@@ -4440,6 +4495,19 @@
     },
     {
       "route": "/tr/lab/journeys/availability-searched-no-booking",
+      "text": "ACQ-289 acts once an unavailable product becomes purchasable again, with the wait on the item rather than on anything the person did. This follows a stated availability enquiry with restorable state the person opened themselves - a specific window they asked for, not a product return to stock.",
+      "hits": [
+        "with",
+        "the",
+        "this",
+        "for",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/availability-searched-no-booking",
       "text": "Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.",
       "hits": [
         "that",
@@ -4514,6 +4582,57 @@
       "hits": [
         "for",
         "this"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/availability-searched-no-booking",
+      "text": "A different window is labelled as a different window, never dressed up as the one that was asked for.",
+      "hits": [
+        "the",
+        "that",
+        "for"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/availability-searched-no-booking",
+      "text": "A waitlist place is stated as reserving nothing, because somebody who believes they hold a place they do not hold plans around it.",
+      "hits": [
+        "because",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/availability-searched-no-booking",
+      "text": "The delay before the offer is bounded and never extended by the person browsing again - an offer that arrives while somebody is still choosing competes with the thing they are choosing.",
+      "hits": [
+        "the",
+        "before",
+        "and",
+        "that",
+        "still",
+        "with",
+        "are"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/availability-searched-no-booking",
+      "text": "A checkout recovery, a process recovery, a cart or selection recovery, an open complaint, an open payment recovery or a retention-outreach journey on the same person outranks this journey; its offer is deferred and re-evaluated against current state, not queued blindly (GLB-06). This journey in turn outranks predicted-need replenishment (RET-31), the back-in-stock alert (ACQ-289) and unresolved-interest recovery (ACQ-13), each of which is suppressed for a person this journey holds.",
+      "hits": [
+        "the",
+        "this",
+        "its",
+        "and",
+        "not",
+        "which",
+        "for"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -4628,22 +4747,22 @@
     },
     {
       "route": "/tr/lab/journeys/availability-searched-no-booking",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "( E-posta ): the message has to be kept and survive until the person can act on it - both stages in this journey",
       "hits": [
         "the",
         "has",
-        "and"
+        "and",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/availability-searched-no-booking",
-      "text": "( Push ): a valid token or app session exists and the message is a single step from the notification",
+      "text": "waitlist place offered and not taken",
       "hits": [
         "and",
-        "the",
-        "from"
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -4660,12 +4779,15 @@
     },
     {
       "route": "/tr/lab/journeys/availability-searched-no-booking",
-      "text": "commerce-recovery (person) - below process recovery and selection recovery; alongside interest recovery - an availability enquiry that asked for a specific window outranks inferred interest for the same person",
+      "text": "commerce-recovery (person) - below checkout recovery (ACQ-287), the generic process pattern (ACQ-11), the held cart (ACQ-288) and the held selection (ACQ-12) for the same person; above predicted-need replenishment (RET-31), the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13), because an availability enquiry for a stated window is a question the person actually asked, where a predicted need is computed from history and an inferred interest was never confirmed at all. Where a higher-precedence member holds the person this journey is suppressed for them rather than queued behind it.",
       "hits": [
+        "the",
         "and",
-        "that",
         "for",
-        "the"
+        "because",
+        "where",
+        "from",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -7037,21 +7159,12 @@
     },
     {
       "route": "/tr/lab/journeys/cancellation-wind-down-notice",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "( E-posta ): the message has to be kept and survive until the person can act on it - both touches in this journey",
       "hits": [
         "the",
         "has",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/cancellation-wind-down-notice",
-      "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
-      "hits": [
-        "the",
-        "and"
+        "and",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -22238,7 +22351,7 @@
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it",
+      "text": "purpose-level permission for promotional communication is recorded, and hard gates (GLB-31) allow it",
       "hits": [
         "for",
         "and"
@@ -22309,7 +22422,7 @@
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "No touch without purpose-level permission for lifecycle communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route.",
+      "text": "No touch without purpose-level permission for promotional communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route.",
       "hits": [
         "for",
         "and",
@@ -22346,24 +22459,25 @@
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "· The reminder waits long enough that a member who was going to use the thing has had the chance to, and no longer than the point at which the first message stops being the reason they would remember it.",
+      "text": "· The expiry notice waits for the subject's own expiry to approach rather than for a fixed interval after the explanation; a member who was going to use the thing before it expires has had every ordinary chance to by then.",
       "hits": [
         "the",
-        "that",
-        "has",
-        "and",
-        "which"
+        "for",
+        "after",
+        "before",
+        "has"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "· Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - one explanation and at most one reminder - and reaching it closes the instance instead of extending it.",
+      "text": "· Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - one explanation, and one expiry notice only where the subject expires - and reaching it closes the instance instead of extending it.",
       "hits": [
         "when",
         "the",
-        "and"
+        "and",
+        "where"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -22486,7 +22600,7 @@
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "önceki temastan sonra · iptal eden olaylar an authoritative record that something a membership grants - a balance, a reward or a benefit - was actually used by the member it is held for; an authoritative record that a loyalty membership no longer exists - cancelled, closed, reversed or lapsed out of the programme; the person withdraws the permission this communication runs on",
+      "text": "şuna göre subject_expires_at · iptal eden olaylar an authoritative record that something a membership grants - a balance, a reward or a benefit - was actually used by the member it is held for; an authoritative record that a loyalty membership no longer exists - cancelled, closed, reversed or lapsed out of the programme; the person withdraws the permission this communication runs on",
       "hits": [
         "that",
         "the",
@@ -22510,43 +22624,54 @@
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "Has the member used it? · May the reminder go out?",
+      "text": "Does this subject have an expiry the member can still act before? · Has the member used it? · May the expiry notice go out?",
       "hits": [
-        "has",
-        "the"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "The same unused thing, said once more and with nothing added to it, to a member whose record still shows it unused - and then the plan is over.",
-      "hits": [
+        "does",
+        "this",
+        "have",
         "the",
-        "and",
-        "with",
-        "still"
+        "still",
+        "before",
+        "has"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "· iddia edemez : a balance that has not been credited, a deadline the programme does not enforce, that the offer is about to be withdrawn",
+      "text": "That this subject expires, and when - to a member whose record still shows it unused, sent only where the subject actually has an expiry to act before - and then the plan is over.",
+      "hits": [
+        "that",
+        "this",
+        "and",
+        "when",
+        "still",
+        "where",
+        "the",
+        "has",
+        "before"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/loyalty-nurture",
+      "text": "· iddia edemez : a balance that has not been credited, an expiry the programme does not enforce, that the subject remains usable after the stated expiry",
       "hits": [
         "that",
         "has",
         "not",
         "been",
         "the",
-        "does"
+        "does",
+        "after"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "( E-posta ): the touch has to carry what is held and until when, and survive until the member can act on it - the default",
+      "text": "( E-posta ): the touch has to carry what is held and until when, and survive until the member can act on it - the default, and the only role either touch reaches",
       "hits": [
         "the",
         "has",
@@ -22559,24 +22684,10 @@
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "( Uygulama içi ): the member is already in a session where what they hold is visible and can be used without leaving the product",
+      "text": "explained; the subject carries no expiry and there is nothing further to say",
       "hits": [
         "the",
-        "already",
-        "where",
-        "what",
         "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "( Push ): a current device registration exists and the permission covering it still stands, and the subject is short enough to carry the whole message",
-      "hits": [
-        "and",
-        "the",
-        "still"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -22594,11 +22705,11 @@
     },
     {
       "route": "/tr/lab/journeys/loyalty-nurture",
-      "text": "explained and reminded; the plan ran to its end without a use and is over",
+      "text": "explained and given its expiry notice; the plan ran to its end without a use and is over",
       "hits": [
         "and",
-        "the",
-        "its"
+        "its",
+        "the"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -23068,34 +23179,13 @@
     },
     {
       "route": "/tr/lab/journeys/loyalty-tier-change",
-      "text": "( E-posta ): the announcement has to carry what the new standing grants and survive until the member can use it - the default",
+      "text": "( E-posta ): the announcement has to carry what the new standing grants and survive until the member can use it - the default, and the only role this touch reaches",
       "hits": [
         "the",
         "has",
         "what",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/loyalty-tier-change",
-      "text": "( Uygulama içi ): the member is already in a session where the membership's own standing is visible",
-      "hits": [
-        "the",
-        "already",
-        "where"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/loyalty-tier-change",
-      "text": "( Push ): a current device registration exists and the permission covering it still stands, and the standing is short enough to carry the whole message",
-      "hits": [
         "and",
-        "the",
-        "still"
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -23263,6 +23353,21 @@
         "been",
         "and",
         "this"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/loyalty-welcome",
+      "text": "SUB-299 states that the membership's own standing moved and outranks this journey while it holds the membership. This states what the membership grants at enrolment, before any standing has had the chance to move.",
+      "hits": [
+        "that",
+        "the",
+        "and",
+        "this",
+        "what",
+        "before",
+        "has"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -23656,36 +23761,13 @@
     },
     {
       "route": "/tr/lab/journeys/loyalty-welcome",
-      "text": "( E-posta ): the touch has to carry what the membership grants and survive until the person can act on it - the default for both touches",
+      "text": "( E-posta ): the touch has to carry what the membership grants and survive until the person can act on it - the default for both touches, and the only role either reaches",
       "hits": [
         "the",
         "has",
         "what",
         "and",
         "for"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/loyalty-welcome",
-      "text": "( Uygulama içi ): the person is already in a session where the membership itself is visible and can be used without leaving the product",
-      "hits": [
-        "the",
-        "already",
-        "where",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/loyalty-welcome",
-      "text": "( Push ): a current device registration exists and the permission covering it still stands, and the touch is short enough to be a nudge",
-      "hits": [
-        "and",
-        "the",
-        "still"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -25038,6 +25120,38 @@
     },
     {
       "route": "/tr/lab/journeys/no-show-rebooking",
+      "text": "SCH-266 gets the customer's side of a still-future commitment done. This opens only after the occurrence has passed with nobody there, by which point SCH-266's own work has already finished.",
+      "hits": [
+        "the",
+        "still",
+        "this",
+        "after",
+        "has",
+        "with",
+        "which",
+        "already"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/no-show-rebooking",
+      "text": "SCH-304 carries arrival facts for a commitment that is still ahead. This speaks about a commitment that did not happen, which SCH-304 has nothing left to say about by the time this opens.",
+      "hits": [
+        "for",
+        "that",
+        "still",
+        "this",
+        "not",
+        "which",
+        "has",
+        "the"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/no-show-rebooking",
       "text": "After a genuinely missed booking, state the fact without penalty language and give the single route to a new booking where one exists - after re-reading the booking, and never where our side could not have delivered.",
       "hits": [
         "after",
@@ -25157,6 +25271,22 @@
     },
     {
       "route": "/tr/lab/journeys/no-show-rebooking",
+      "text": "This journey opens only once the occurrence has passed with nobody there, which is why it is outside the booking-lifecycle group rather than at the bottom of it: the booking outcome notice (SCH-277), the reservation payment reminder (SCH-303), the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) have all finished by then, and nothing they own can still be said.",
+      "hits": [
+        "this",
+        "the",
+        "has",
+        "with",
+        "which",
+        "and",
+        "have",
+        "still"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/no-show-rebooking",
       "text": "· The offer stands for the window stated in it; when the window passes the instance closes and the offer is not repeated.",
       "hits": [
         "the",
@@ -25240,21 +25370,11 @@
     },
     {
       "route": "/tr/lab/journeys/no-show-rebooking",
-      "text": "( E-posta ): the offer carries the rebooking route and should be kept - the default",
+      "text": "( E-posta ): the offer carries the rebooking route and should be kept - the default, and every stage in this journey",
       "hits": [
         "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/no-show-rebooking",
-      "text": "( SMS ): permission for service messages on the channel is recorded and the rebooking window is short",
-      "hits": [
-        "for",
-        "the",
-        "and"
+        "and",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -29577,19 +29697,6 @@
         "which",
         "has",
         "when"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/pre-arrival-preparation",
-      "text": "( Uygulama içi ): the holder is in the product, where the check-in step and the booking's own detail already are",
-      "hits": [
-        "the",
-        "where",
-        "and",
-        "already",
-        "are"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -35125,6 +35232,19 @@
     },
     {
       "route": "/tr/lab/journeys/renewal-decision",
+      "text": "RET-292 recognises an anniversary, which carries no obligation and no deadline - nothing happens if it is ignored. This counts down to a renewal decision the governing terms require, with a notice period, a decision holder and a default the terms themselves define if nobody answers.",
+      "hits": [
+        "which",
+        "and",
+        "this",
+        "the",
+        "with"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/renewal-decision",
       "text": "Bring a renewal cycle to a recorded decision before the notice deadline: give the notice the terms require, put the decision to whoever holds it where one is needed, and apply what the terms say when none is made.",
       "hits": [
         "before",
@@ -35248,6 +35368,34 @@
     },
     {
       "route": "/tr/lab/journeys/renewal-decision",
+      "text": "Where the notice has already been sent on this cycle, a later decision request restates the decision needed and its deadline, and does not restate the terms the notice already carried - two near-identical messages about one renewal is a duplicate, not reassurance.",
+      "hits": [
+        "where",
+        "the",
+        "has",
+        "already",
+        "been",
+        "this",
+        "and",
+        "its",
+        "does",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/renewal-decision",
+      "text": "the notice period the terms require, before the term ends",
+      "hits": [
+        "the",
+        "before"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/renewal-decision",
       "text": "· The decision is waited for until the last point at which the required notice period still allows one; then the governing terms decide.",
       "hits": [
         "the",
@@ -35347,13 +35495,16 @@
     },
     {
       "route": "/tr/lab/journeys/renewal-decision",
-      "text": "Put the renewal decision to whoever holds it, with the terms that would apply and the point by which the notice period requires an answer.",
+      "text": "Put the renewal decision to whoever holds it - the terms that would apply and the point by which the notice period requires an answer, or, where the notice has already gone out this cycle, the decision needed restated without the terms it already carried.",
       "hits": [
         "the",
-        "with",
         "that",
         "and",
-        "which"
+        "which",
+        "where",
+        "has",
+        "already",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -35371,33 +35522,13 @@
     },
     {
       "route": "/tr/lab/journeys/renewal-decision",
-      "text": "( E-posta ): the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal",
+      "text": "( E-posta ): the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal, and every stage in this journey",
       "hits": [
         "the",
         "and",
         "are",
-        "for"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/renewal-decision",
-      "text": "( Uygulama içi ): the decision holder is active in the product and the decision is taken there",
-      "hits": [
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/renewal-decision",
-      "text": "( SMS, Push ): the notice deadline is inside the urgent horizon and permission for service messages on the channel is recorded",
-      "hits": [
-        "the",
-        "and",
-        "for"
+        "for",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -35860,6 +35991,21 @@
     },
     {
       "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "FUL-301 confirms an order - an obligation to deliver a thing or a performed service. This confirms a reservation - a claim on a future slot or resource that still has to be honoured. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the order.",
+      "hits": [
+        "this",
+        "that",
+        "still",
+        "has",
+        "the",
+        "and",
+        "its"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
       "text": "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
       "hits": [
         "the",
@@ -35886,6 +36032,20 @@
     },
     {
       "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "A cancellation from the requester, or a newer request from the same requester for the same resource, supersedes this instance; the older instance sends nothing further and the newer request runs its own instance from its own state.",
+      "hits": [
+        "from",
+        "the",
+        "for",
+        "this",
+        "and",
+        "its"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
       "text": "no instance of this journey is already open for the the reservation request",
       "hits": [
         "this",
@@ -35900,6 +36060,93 @@
       "route": "/tr/lab/journeys/reservation-outcome-notice",
       "text": "hard gates (GLB-31) allow communication for this purpose",
       "hits": [
+        "for",
+        "this"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "A request acknowledged is never worded as a request confirmed. The gap between asking for a time and holding it is where every double-booking dispute begins.",
+      "hits": [
+        "the",
+        "for",
+        "and",
+        "where"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "What is offered after a failure is current availability, never the set the requester was originally shown - that set, by definition, contains one slot that no longer exists.",
+      "hits": [
+        "what",
+        "after",
+        "the",
+        "that"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "Nothing is described as held unless the booking semantics actually hold it. A place believed held that is not held is planned around and then lost twice.",
+      "hits": [
+        "the",
+        "that",
+        "not",
+        "and"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "A lapse is stated, on the route the acknowledgement went out on. Silence after a request is read as a commitment, which is the most expensive assumption in scheduling.",
+      "hits": [
+        "the",
+        "after",
+        "which"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "The confirmation restates the concrete slot every time - the date, the time, the place, what is needed on arrival. A reference is not a time and a place.",
+      "hits": [
+        "the",
+        "what",
+        "not",
+        "and"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "While the requested time has not yet become a commitment, nothing else may speak to the requester about this booking: the reservation payment reminder (SCH-303), the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) are all suppressed for it, because each of them presumes a commitment this journey has not yet established (GLB-06).",
+      "hits": [
+        "the",
+        "has",
+        "not",
+        "this",
+        "and",
+        "are",
+        "for",
+        "because"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "A cancellation from the requester, or a newer request from the same requester for the same resource, supersedes this instance (see the entity's supersession statement); the older instance sends nothing further.",
+      "hits": [
+        "from",
+        "the",
         "for",
         "this"
       ],
@@ -36041,33 +36288,33 @@
     },
     {
       "route": "/tr/lab/journeys/reservation-outcome-notice",
-      "text": "Close the request as lapsed and say that nothing is held and nothing was booked.",
+      "text": "Did the fresh read find an outcome after all?",
       "hits": [
         "the",
-        "and",
-        "that"
+        "after"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/reservation-outcome-notice",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "Close the request as lapsed and say that nothing is held and nothing was booked, once a fresh read of the booking record confirms it is still unresolved.",
+      "hits": [
+        "the",
+        "and",
+        "that",
+        "still"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-outcome-notice",
+      "text": "( E-posta ): the message has to be kept and survive until the person can act on it - every stage in this journey",
       "hits": [
         "the",
         "has",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/reservation-outcome-notice",
-      "text": "( SMS ): an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded",
-      "hits": [
-        "the",
         "and",
-        "for",
         "this"
       ],
       "known": true,
@@ -36250,6 +36497,22 @@
         "for",
         "which",
         "and"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/reservation-payment-reminder",
+      "text": "SCH-304 carries arrival facts for a commitment already prepared for. This is about whether the reservation survives at all; where both apply, this holds the booking and SCH-304 is suppressed until it does not.",
+      "hits": [
+        "for",
+        "already",
+        "this",
+        "the",
+        "where",
+        "and",
+        "does",
+        "not"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -36677,16 +36940,6 @@
         "that",
         "the",
         "still"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/reservation-payment-reminder",
-      "text": "( Uygulama içi ): the holder is in the product, where the outstanding obligation can be settled without leaving it",
-      "hits": [
-        "the",
-        "where"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -38040,34 +38293,13 @@
     },
     {
       "route": "/tr/lab/journeys/reward-confirmation",
-      "text": "( E-posta ): the confirmation has to be kept and produced again later - the default for a record of something earned",
+      "text": "( E-posta ): the confirmation has to be kept and produced again later - the default for a record of something earned, and the only role this touch reaches",
       "hits": [
         "the",
         "has",
         "and",
-        "for"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/reward-confirmation",
-      "text": "( Uygulama içi ): the member is already in a session and the reward belongs where the membership itself is visible",
-      "hits": [
-        "the",
-        "already",
-        "and",
-        "where"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/reward-confirmation",
-      "text": "( Push ): a current device registration exists and the confirmation is short enough to carry the whole state",
-      "hits": [
-        "and",
-        "the"
+        "for",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"

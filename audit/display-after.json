@@ -343,11 +343,11 @@
         "long_cards": [
           {
             "id": "a.prompt",
-            "len": 122
+            "len": 115
           },
           {
             "id": "a.remind",
-            "len": 133
+            "len": 120
           }
         ],
         "long_branch_labels": [
@@ -379,7 +379,7 @@
           },
           {
             "id": "a.remind",
-            "len": 155
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -405,15 +405,15 @@
     "slug": "availability-searched-no-booking",
     "locales": {
       "en": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
         "edges": 30,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 135
+            "len": 130
           }
         ],
         "long_branch_labels": [
@@ -437,8 +437,8 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
         "edges": 30,
         "internal_cards": 0,
@@ -449,7 +449,7 @@
           },
           {
             "id": "a.offer",
-            "len": 135
+            "len": 130
           }
         ],
         "long_branch_labels": [
@@ -604,12 +604,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.confirm",
-            "len": 113
-          },
-          {
             "id": "a.ending",
-            "len": 131
+            "len": 124
           }
         ],
         "long_branch_labels": [],
@@ -624,11 +620,11 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 125
+            "len": 112
           },
           {
             "id": "a.ending",
-            "len": 124
+            "len": 111
           }
         ],
         "long_branch_labels": [],
@@ -1755,10 +1751,10 @@
     "slug": "loyalty-nurture",
     "locales": {
       "en": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 14,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -1767,11 +1763,11 @@
           },
           {
             "id": "a.explain",
-            "len": 154
+            "len": 116
           },
           {
-            "id": "a.remind",
-            "len": 141
+            "id": "a.expiry-notice",
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -1783,15 +1779,19 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 14,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.explain",
-            "len": 165
+            "len": 125
+          },
+          {
+            "id": "a.expiry-notice",
+            "len": 128
           }
         ],
         "long_branch_labels": [
@@ -1820,10 +1820,6 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.announce",
-            "len": 145
-          },
-          {
             "id": "c.used",
             "len": 117
           }
@@ -1837,12 +1833,7 @@
         "terminal_instances": 0,
         "edges": 13,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.announce",
-            "len": 130
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Yukarı hareket etti ve yürürlükte",
@@ -1869,16 +1860,8 @@
             "len": 120
           },
           {
-            "id": "a.welcome",
-            "len": 117
-          },
-          {
             "id": "c.used",
             "len": 119
-          },
-          {
-            "id": "a.orient",
-            "len": 128
           }
         ],
         "long_branch_labels": [
@@ -1895,16 +1878,7 @@
         "terminal_instances": 0,
         "edges": 14,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.welcome",
-            "len": 129
-          },
-          {
-            "id": "a.orient",
-            "len": 125
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Üyelik artık geçerli değil",
@@ -2089,7 +2063,7 @@
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 154
+            "len": 150
           },
           {
             "id": "a.acknowledge",
@@ -2473,11 +2447,7 @@
           },
           {
             "id": "a.checkin",
-            "len": 139
-          },
-          {
-            "id": "a.late-detail",
-            "len": 122
+            "len": 126
           }
         ],
         "long_branch_labels": [
@@ -2497,11 +2467,11 @@
         "long_cards": [
           {
             "id": "a.checkin",
-            "len": 132
+            "len": 111
           },
           {
             "id": "a.late-detail",
-            "len": 136
+            "len": 115
           }
         ],
         "long_branch_labels": [
@@ -2778,16 +2748,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.review",
-            "len": 120
-          },
-          {
             "id": "a.decided",
             "len": 120
-          },
-          {
-            "id": "a.request",
-            "len": 140
           }
         ],
         "long_branch_labels": [
@@ -2804,16 +2766,7 @@
         "terminal_instances": 0,
         "edges": 35,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.review",
-            "len": 127
-          },
-          {
-            "id": "a.request",
-            "len": 150
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Otomatik yenileme, koşullar sağlandı",
@@ -2833,46 +2786,42 @@
     "slug": "reservation-outcome-notice",
     "locales": {
       "en": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 28,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.received",
-            "len": 129
-          },
-          {
-            "id": "a.reoffer",
-            "len": 113
+            "len": 125
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 28,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.received",
-            "len": 134
-          },
-          {
-            "id": "a.lapse",
-            "len": 137
+            "len": 130
           },
           {
             "id": "a.confirm",
-            "len": 118
+            "len": 114
           },
           {
             "id": "a.reoffer",
-            "len": 136
+            "len": 132
+          },
+          {
+            "id": "a.lapse",
+            "len": 133
           }
         ],
         "long_branch_labels": [
@@ -2902,15 +2851,15 @@
         "long_cards": [
           {
             "id": "a.remind",
-            "len": 134
+            "len": 127
           },
           {
             "id": "a.final",
-            "len": 125
+            "len": 118
           },
           {
             "id": "a.lapse",
-            "len": 122
+            "len": 118
           }
         ],
         "long_branch_labels": [
@@ -2938,11 +2887,11 @@
         "long_cards": [
           {
             "id": "a.final",
-            "len": 155
+            "len": 142
           },
           {
             "id": "a.lapse",
-            "len": 120
+            "len": 116
           }
         ],
         "long_branch_labels": [
@@ -3013,7 +2962,7 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 168
+            "len": 130
           }
         ],
         "long_branch_labels": [],
@@ -3025,12 +2974,7 @@
         "terminal_instances": 0,
         "edges": 8,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.confirm",
-            "len": 137
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Ulaşılmış bir durum değil",

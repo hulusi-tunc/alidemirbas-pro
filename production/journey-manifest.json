@@ -807,7 +807,7 @@
       "competition",
       "no-re-entry"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 53,
     "nodeCount": 15,
     "edgeCount": 17,
@@ -2125,7 +2125,7 @@
       "multi-exit",
       "competition"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 53,
     "nodeCount": 15,
     "edgeCount": 16,
@@ -2486,7 +2486,7 @@
       "wait-timeout",
       "multi-exit"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 53,
     "nodeCount": 17,
     "edgeCount": 17,
@@ -3015,7 +3015,7 @@
       "wait-timeout",
       "multi-exit"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 53,
     "nodeCount": 15,
     "edgeCount": 16,
@@ -3491,7 +3491,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 53,
     "nodeCount": 14,
     "edgeCount": 19,
@@ -3830,7 +3830,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 53,
     "nodeCount": 14,
     "edgeCount": 17,
@@ -5027,7 +5027,7 @@
       "cross-journey-handoff",
       "external-handoff"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 53,
     "nodeCount": 13,
     "edgeCount": 17,
@@ -5179,7 +5179,7 @@
       "cross-journey-handoff",
       "multi-exit"
     ],
-    "complexityTier": "complex",
+    "complexityTier": "medium",
     "complexityScore": 53,
     "nodeCount": 15,
     "edgeCount": 18,
@@ -5454,10 +5454,10 @@
       "multi-exit",
       "competition"
     ],
-    "complexityTier": "medium",
-    "complexityScore": 49,
-    "nodeCount": 14,
-    "edgeCount": 16,
+    "complexityTier": "complex",
+    "complexityScore": 56,
+    "nodeCount": 16,
+    "edgeCount": 19,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
@@ -5499,8 +5499,8 @@
       "competition"
     ],
     "complexityTier": "complex",
-    "complexityScore": 53,
-    "nodeCount": 15,
+    "complexityScore": 55,
+    "nodeCount": 16,
     "edgeCount": 17,
     "hasTrueCycle": false,
     "semanticReady": true,
@@ -5819,10 +5819,10 @@
       "multi-exit",
       "competition"
     ],
-    "complexityTier": "medium",
-    "complexityScore": 50,
-    "nodeCount": 13,
-    "edgeCount": 15,
+    "complexityTier": "complex",
+    "complexityScore": 58,
+    "nodeCount": 15,
+    "edgeCount": 17,
     "hasTrueCycle": false,
     "semanticReady": true,
     "graphValid": true,
