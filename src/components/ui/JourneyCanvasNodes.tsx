@@ -673,6 +673,28 @@ export function ActionCard({ node, onOpen, messageLabels, humanLabels, lang = "e
   }
   const priority = node.channelPriority;
   if (priority && priority.length >= 2) return <RouterCard node={node} onOpen={onOpen} priority={priority} lang={lang} />;
+  /* A plain internal action whose own write IS a declared suppression - the
+     corpus's `*_suppression` field convention (`marketing_suppression` is
+     the one live instance today, CON-300's `a.suppress`) - is this
+     journey's declared end state, not bookkeeping on the way to one.
+     `absorbableBookkeeping` (journey-canvas-layout.ts) already keeps it
+     from being folded into its host card because its write is real, not
+     journal-only; what was still missing is the card KIND itself, which
+     defaulted to the generic "Internal" cog regardless. Read off the
+     authored field name, never a journey or node id, so a future second
+     writer of a different `*_suppression` field renders the same way with
+     no code change here. */
+  const isDeclaredSuppression = (node.writesFields ?? []).some((f) => f.endsWith("_suppression"));
+  if (isDeclaredSuppression) {
+    return (
+      <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.outcome}`}>
+        <KindRow kind={KIND.outcome} icon={<Flag aria-hidden />}>
+          {w.outcome}
+        </KindRow>
+        <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
+      </Shell>
+    );
+  }
   return (
     <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.internal}`}>
       <KindRow kind={KIND.internal} icon={<Cog aria-hidden />}>

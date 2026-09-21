@@ -3,7 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 const { chromium } = pkg;
 
 const BASE = "http://localhost:4022";
-const dump = JSON.parse(await readFile("/home/user/alidemirbas-pro/production/canonical-dump.json", "utf8"));
+const dump = JSON.parse(await readFile(new URL("../../production/canonical-dump.json", import.meta.url), "utf8"));
 
 const JOURNEYS = [
   // Original 4-journey stress test - the permanent reference set.
