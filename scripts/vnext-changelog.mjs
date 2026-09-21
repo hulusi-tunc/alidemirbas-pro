@@ -4,6 +4,31 @@
    not narrated.
 
      node scripts/vnext-changelog.mjs */
+/* ============================ RETIRED GENERATOR ============================
+   This script produces a RETIRED SNAPSHOT. Its output is not part of the
+   current public journey generation pipeline and is not read by the build,
+   the site, or any validator. It is kept so the artifact can be reproduced
+   deliberately, not so it can be kept in step with the corpus.
+
+   It therefore REFUSES TO WRITE unless run with --retired-regenerate. That
+   guard exists because regenerating it silently produces a large diff that
+   reads like "fixing drift" while changing nothing anybody consumes, and
+   the whole point of retiring it was to stop that being mistaken for work.
+
+   Decision and consumer audit: audit/retired-artifacts.md
+   ========================================================================= */
+if (!process.argv.includes("--retired-regenerate")) {
+  console.error(
+    "RETIRED: %s writes a retired snapshot that nothing reads.\n" +
+      "  Its numbers are deliberately NOT kept in step with the corpus.\n" +
+      "  For live figures use production/canonical-dump.json / src/lib/public-corpus.ts.\n" +
+      "  To regenerate anyway: node %s --retired-regenerate\n" +
+      "  See audit/retired-artifacts.md",
+    "scripts/vnext-changelog.mjs", "scripts/vnext-changelog.mjs",
+  );
+  process.exit(0);
+}
+
 import { readFile, writeFile } from "node:fs/promises";
 
 const dump = JSON.parse(await readFile("production/canonical-dump.json", "utf8"));

@@ -21,9 +21,13 @@ scripts; the rest must be run by hand with `node`:
 npm run validate:canonical            # journey graph invariants + vNext rules — the real gate for src/canonical/
 node scripts/surface-assignment.mjs   # production/surface-assignment.json (customer / mechanism / operational)
 node scripts/build-event-registry.mjs # regenerates src/canonical/events.ts from scripts/event-curation.json
-node scripts/vnext-readiness.mjs [out] # readiness scorer; VNEXT_CUSTOMER_READINESS.json when a path is given
-node scripts/vnext-recipes.mjs        # production/vnext-recipes.md (implementation recipes, generated)
-node scripts/vnext-changelog.mjs      # VNEXT_MIGRATION_CHANGELOG.md (generated)
+# RETIRED (2026-09-21) - these three write retired snapshots that NOTHING reads.
+# They refuse to write without --retired-regenerate. Their numbers (135 customer
+# journeys / 68 communicating) are deliberately NOT kept in step with the corpus,
+# and no validation expects them to match 69/90/303. audit/retired-artifacts.md.
+node scripts/vnext-readiness.mjs [out] # RETIRED - VNEXT_CUSTOMER_READINESS.json
+node scripts/vnext-recipes.mjs        # RETIRED - production/vnext-recipes.md
+node scripts/vnext-changelog.mjs      # RETIRED - VNEXT_MIGRATION_CHANGELOG.md
 npm run dump:canonical                # regenerates production/canonical-dump.json
 npm run validate:journey-production   # asserts production/ artifacts against frozen baselines
 npm run validate:seo                  # title/description corpus + cannibalization clustering
@@ -106,7 +110,12 @@ changed. `audit/checkpoint.md` carries the full ordered loop and an order-indepe
   assertions since the Operational Workflows archive: the archived journey must NOT surface. They
   pass; they are not among the 9.)
 - `production/build_seo_metadata.py` needs the A/B canon from another repository; it falls back to
-  `src/data/ab-tests.json` for ids.
+  `src/data/ab-tests.json` for ids. **Do not run it to "fix" the drift.**
+  `production/journey-seo-metadata.json` holds 286 journey records against a 303 corpus, and
+  `validate:seo`'s check 2 asserts exactly 286 - so the file and its validator agree and the gate
+  is green. Regenerating it makes check 2 fail. It is a frozen audit dataset that nothing in
+  `src/` imports, kept deliberately: `audit/retired-artifacts.md` records the consumer audit and
+  the three ways forward.
 
 `npm run validate:canonical`, `npm run validate:journey-production` and `npm run validate:seo`
 pass. Re-run a validator before and after your change so you can tell your failures from the
