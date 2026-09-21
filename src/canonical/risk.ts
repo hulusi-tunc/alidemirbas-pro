@@ -2325,6 +2325,11 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "Where the capacity decision belongs to somebody else, both parties are told - the one waiting and the one who can end the wait."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "The reset notice goes to the party whose action was held, never to the decision holder - a reset is not the capacity decision, it is the wait ending without one, and that party's ask has already lapsed."
       }
     ],
     contact: {
@@ -2332,10 +2337,10 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       "pressureClass": "service",
       "localCap": {
         "value": {
-          "key": "usage_limit.touches",
-          "rule": "The wall notice and the reset notice are mandatory; the discretionary offers run against a budget of the plan's own length.",
+          "key": "usage_limit.discretionary_touches",
+          "rule": "The wall notice, the blocked-party notice and the reset notice are mandatory; only the offer to the decision holder is discretionary and runs against this budget.",
           "default": {
-            "value": 2,
+            "value": 1,
             "confidence": "high",
             "basis": "corpus-rule",
             "applicableWhen": "GLB-24; the graph's own touch count"
@@ -2384,30 +2389,15 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           "id": "t1",
           "stage": "at-the-wall",
           "action": "a.at-the-wall",
-          "prerequisites": [],
-          "purpose": "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets.",
-          "channelRoles": [
-            "in-session",
-            "persistent"
-          ],
-          "mandatory": true,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t2",
-          "stage": "offer-self",
-          "action": "a.offer-self",
-          "after": "t1",
           "prerequisites": [
             "c.path",
             "c.decider"
           ],
-          "purpose": "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing.",
+          "purpose": "Say which limit was reached, the usage against it, when the window resets and, where the same party who hit the limit can also authorise more capacity, the capacity that would release it now and what it costs.",
           "channelRoles": [
-            "in-session",
-            "persistent"
+            "in-session"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE",
           "destination": {
             "target": "purchase-capacity",
@@ -2419,6 +2409,20 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           }
         },
         {
+          "id": "t1b",
+          "stage": "at-the-wall",
+          "action": "a.blocked-notice",
+          "prerequisites": [
+            "c.path"
+          ],
+          "purpose": "Say which limit was reached and the usage against it, where neither a purchasable path nor a defined reset exists.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
           "id": "t3",
           "stage": "offer-holder",
           "action": "a.offer-holder",
@@ -2426,9 +2430,8 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
             "c.path",
             "c.decider"
           ],
-          "purpose": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is.",
+          "purpose": "Tell the party who holds the decision what is blocked, for whom, what capacity would release it, what the reset alternative is, and that the ask lapses at the reset date.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
           "mandatory": false,
@@ -2452,10 +2455,9 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway.",
           "channelRoles": [
-            "in-session",
-            "persistent"
+            "in-session"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE"
         },
         {
@@ -2466,9 +2468,8 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [
             "c.outcome"
           ],
-          "purpose": "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock.",
+          "purpose": "Tell the person whose action was held that the window has reset and the action can proceed, taken from the authoritative reset rather than an assumed clock.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
           "mandatory": true,
@@ -2479,7 +2480,8 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4"
+        "s.g4",
+        "s.g5"
       ]
     },
     implementation: {
@@ -2560,15 +2562,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           source: "authoritative",
         },
-        next: "a.at-the-wall",
-      },
-      {
-        id: "a.at-the-wall",
-        kind: "action",
-        does: "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
         next: "c.path",
-        execution: "communication",
-        idempotencyKey: "entity_ref + limit_id + window_id + a.at-the-wall",
       },
       {
         id: "c.path",
@@ -2583,12 +2577,12 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Resets on its own",
             when: "no more capacity is available in this window, but the reset point is authoritatively defined",
-            to: "w.capacity",
+            to: "a.at-the-wall",
           },
           {
             label: "Neither",
             when: "the limit is fixed, with no purchasable capacity and no defined reset",
-            to: "x.blocked",
+            to: "a.blocked-notice",
           },
         ],
       },
@@ -2600,7 +2594,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Theirs to decide",
             when: "the same party can authorise more capacity",
-            to: "a.offer-self",
+            to: "a.at-the-wall",
           },
           {
             label: "Held elsewhere",
@@ -2610,17 +2604,25 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "a.offer-self",
+        id: "a.at-the-wall",
         kind: "action",
-        does: "Name the capacity that would release the held action and what it costs, alongside the reset that would release it for nothing. Withholding the free path in order to sell the paid one is the fastest way to make a limit read as a trap",
+        does: "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Where the same party who hit the limit can also authorise more capacity, name it and what it costs, noting that the reset would release it for nothing anyway; where capacity is not purchasable at all, say only that the window resets in its own time. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
         next: "w.capacity",
         execution: "communication",
-        idempotencyKey: "entity_ref + limit_id + window_id + a.offer-self",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.at-the-wall",
+      },
+      {
+        id: "a.blocked-notice",
+        kind: "action",
+        does: "At the point the action is stopped, say which limit was reached and the usage against it. No purchasable capacity and no defined reset exist for this limit, so nothing further is promised",
+        next: "x.blocked",
+        execution: "communication",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.blocked-notice",
       },
       {
         id: "a.offer-holder",
         kind: "action",
-        does: "Tell the party who holds the decision what is blocked, for whom, what capacity would release it and what the reset alternative is. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
+        does: "Tell the party who holds the decision what is blocked, for whom, what capacity would release it, what the reset alternative is, and that the ask lapses at the reset date. This half and the next are separate sends to separate people on separate routes, and either one can fail without the other",
         next: "a.notify-blocked-party",
         execution: "communication",
         idempotencyKey: "entity_ref + limit_id + window_id + a.offer-holder",
@@ -2692,7 +2694,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.reset",
         kind: "action",
-        does: "Say the window has reset and the held action can proceed, taken from the authoritative reset rather than an assumed clock. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
+        does: "Tell the person whose action was held that the window has reset and the action can proceed, taken from the authoritative reset rather than an assumed clock. The decision holder is not addressed here - a reset is not the capacity decision, it is the wait ending without one, and their ask has already lapsed. A locally guessed reset grants capacity nobody authorised, and the two drift apart quietly until somebody is refused at a moment we told them they would not be",
         next: "x.reset",
         execution: "communication",
         idempotencyKey: "entity_ref + limit_id + window_id + a.reset",

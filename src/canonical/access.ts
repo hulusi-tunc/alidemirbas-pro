@@ -1941,7 +1941,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "access-restriction-route-back",
     category: "access",
     goal: "suspension-restoration",
-    channels: ["email", "in-app"],
+    channels: ["email"],
     name: "Access restricted or ending → stated route back → restored or ends",
     shortName: "Access Restriction Notice",
     purpose:
@@ -2006,17 +2006,17 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
       "pressureClass": "service",
       "localCap": {
         "value": {
-          "key": "access_restriction.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "key": "access_restriction.discretionary_touches",
+          "rule": "Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
           "default": {
-            "value": 2,
+            "value": 0,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; one notice and one confirmation"
+            "applicableWhen": "every touch in the plan is marked mandatory"
           },
           "required": false
         },
-        "appliesTo": "all"
+        "appliesTo": "non-mandatory"
       },
       "cooldown": {
         "key": "access_restriction.cooldown",
@@ -2044,13 +2044,6 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -2064,14 +2057,14 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "stage": "inform-only",
           "action": "a.inform-only",
           "prerequisites": [
+            "c.reachable",
             "c.actionable"
           ],
           "purpose": "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE"
         },
         {
@@ -2079,15 +2072,14 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "stage": "notify",
           "action": "a.notify",
           "prerequisites": [
-            "c.actionable",
-            "c.reachable"
+            "c.reachable",
+            "c.actionable"
           ],
           "purpose": "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE",
           "destination": {
             "target": "resolution-condition",
@@ -2108,10 +2100,9 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm that access is back and name what was restored, so the person can tell the difference between a resolved restriction and a partial one",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE"
         }
       ],
@@ -2139,10 +2130,10 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
-          "x.informed",
           "x.security-owned",
           "x.restored",
           "x.stands",
+          "x.permanent",
           "h.unreachable"
         ]
       },
@@ -2201,53 +2192,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           source: "authoritative",
         },
-        next: "c.actionable",
-      },
-      {
-        id: "c.actionable",
-        kind: "condition",
-        asks: "Can the holder do anything about this?",
-        branches: [
-          {
-            label: "Resolvable by them",
-            when: "the release condition is something the account holder can satisfy - a payment, a document, a correction, a re-verification",
-            to: "c.reachable",
-          },
-          {
-            label: "Not theirs to resolve",
-            when: "the condition depends on an internal review, a third party, or a fixed period elapsing",
-            to: "a.inform-only",
-          },
-          {
-            label: "Placed by a security response",
-            when: "the restriction was placed by a security response that is itself telling the owner what happened and what is restricted - a second notice about the same restriction duplicates or contradicts the first",
-            to: "x.security-owned",
-          },
-        ],
-      },
-      {
-        id: "a.inform-only",
-        kind: "action",
-        does: "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
-        next: "x.informed",
-        execution: "communication",
-        idempotencyKey: "account_id + restriction_id + a.inform-only",
-      },
-      {
-        id: "x.informed",
-        kind: "exit",
-        state: "informed, resolution not theirs",
-        terminal: false,
-        reEntry: "if the condition later becomes something they can satisfy, this qualifies again with the actionable path",
-        class: "success",
-      },
-      {
-        id: "x.security-owned",
-        kind: "exit",
-        state: "restriction announced by the security response; no separate notice sent",
-        terminal: false,
-        reEntry: "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
-        class: "suppression",
+        next: "c.reachable",
       },
       {
         id: "c.reachable",
@@ -2257,7 +2202,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Reachable",
             when: "at least one contact point is valid and permitted for a service notice of this kind",
-            to: "a.notify",
+            to: "c.actionable",
           },
           {
             label: "Unreachable",
@@ -2277,6 +2222,44 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
+        id: "c.actionable",
+        kind: "condition",
+        asks: "Can the holder do anything about this?",
+        branches: [
+          {
+            label: "Resolvable by them",
+            when: "the release condition is something the account holder can satisfy - a payment, a document, a correction, a re-verification",
+            to: "a.notify",
+          },
+          {
+            label: "Not theirs to resolve",
+            when: "the condition depends on an internal review, a third party, or a fixed period elapsing",
+            to: "a.inform-only",
+          },
+          {
+            label: "Placed by a security response",
+            when: "the restriction was placed by a security response that is itself telling the owner what happened and what is restricted - a second notice about the same restriction duplicates or contradicts the first",
+            to: "x.security-owned",
+          },
+        ],
+      },
+      {
+        id: "a.inform-only",
+        kind: "action",
+        does: "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
+        next: "w.resolve",
+        execution: "communication",
+        idempotencyKey: "account_id + restriction_id + a.inform-only",
+      },
+      {
+        id: "x.security-owned",
+        kind: "exit",
+        state: "restriction announced by the security response; no separate notice sent",
+        terminal: false,
+        reEntry: "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
+        class: "suppression",
+      },
+      {
         id: "a.notify",
         kind: "action",
         does: "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it. Naming what still works is what stops the person assuming the whole relationship has ended",
@@ -2288,7 +2271,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.resolve",
         kind: "wait",
         until: [
-          "release_condition_met",
+          "restriction_release_condition_met",
           "restriction_lifted",
           "restriction_made_permanent"
         ],
@@ -2323,6 +2306,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
             when: "the deadline passed with the condition unmet",
             to: "x.stands",
           },
+          {
+            label: "Made permanent",
+            when: "the restriction was made permanent; the release condition no longer applies",
+            to: "x.permanent",
+          },
         ],
       },
       {
@@ -2348,6 +2336,14 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry: "if the condition is satisfied afterwards, the restoration path runs from the lifting event",
         class: "timeout",
+      },
+      {
+        id: "x.permanent",
+        kind: "exit",
+        state: "restriction is now permanent; the release condition no longer applies",
+        terminal: false,
+        reEntry: "a later review that converts the restriction back into a bounded one is a new instance",
+        class: "failure",
       },
     ],
     guardrails: [
@@ -2389,6 +2385,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "ACC-76 tracks the credential's own issue/expire/revoke lifecycle. Here the only question is first use inside the window.",
       },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns whether a granted entitlement is ever used, and names the first action that uses it; an unused entitlement is this journey's obligation, not a generic outstanding one, and TIM-268 defers to it and sends nothing while this instance holds the entitlement.",
+      },
     ],
     objective: "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
     eligibility: [
@@ -2418,6 +2419,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "The message names one action, not the full capability surface."
+      },
+      {
+        "id": "s.generic-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "This journey owns the reminder for the entitlement it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that entitlement while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
       }
     ],
     contact: {
@@ -2482,8 +2488,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say what is now available, what it lets them do, and the single first action that uses it.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -2501,7 +2506,6 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm the new grant briefly and name only what changed from what they already had.",
           "channelRoles": [
-            "persistent",
             "in-session"
           ],
           "mandatory": false,
@@ -2517,8 +2521,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send one reminder naming the deadline and the same single first action.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -2535,7 +2538,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4"
+        "s.g4",
+        "s.generic-reminder"
       ]
     },
     implementation: {
@@ -2661,12 +2665,12 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         onEvent: "c.used",
         timeout: {
           "after": {
-            "key": "entitlement_activation.first_use",
-            "rule": "The single reminder is placed before the activation window closes, late enough that the first notice has had its chance and early enough that claiming is still possible.",
-            "class": "reminder-before-attribute",
+            "key": "entitlement_activation.reminder_lead",
+            "rule": "The reminder point, not the window's own end: the point before the activation window closes at which the one reminder is sent, late enough that the first notice has had its chance and early enough that claiming is still possible.",
+            "class": "attribute-bound",
             "required": true
           },
-          "reason": "an unclaimed entitlement past its window is a different fact from an unused one inside it, and the two must not be counted together",
+          "reason": "a reminder placed exactly at the window's own end arrives with no time left to act on it, so this wait is bound to the reminder point and the window's own end is left for the wait that follows",
           "relativeTo": "attribute",
           "attribute": "activation_window_ends_at"
         },
@@ -2714,7 +2718,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         branches: [
           {
             label: "Time remains",
-            when: "the window has a meaningful period left and no reminder has been sent for this issuance",
+            when: "the reminder point falls inside the window and no reminder has been sent for this issuance",
             to: "a.remind",
           },
           {
@@ -2736,9 +2740,10 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.last-chance",
         kind: "wait",
         until: [
-          "capability_first_used"
+          "capability_first_used",
+          "entitlement_revoked_or_replaced"
         ],
-        onEvent: "x.activated",
+        onEvent: "c.used",
         timeout: {
           "after": {
             "key": "entitlement_activation.last_chance",

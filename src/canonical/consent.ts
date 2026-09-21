@@ -2277,14 +2277,14 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "sms"
           ],
-          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+          "when": "the failed destination was the email address and a permitted, deliverable phone number survives - the surviving-route substitute, not a time-bound urgency"
         },
         {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "the message has to be kept and survive until the person can act on it"
+          "when": "the message has to be kept and survive until the person can act on it, including where the failed destination was the phone number and a permitted, deliverable email address survives"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -2312,16 +2312,33 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           }
         },
         {
-          "id": "t2",
-          "stage": "prompt-alt",
-          "action": "a.prompt-alt",
+          "id": "t2a",
+          "stage": "prompt-email",
+          "action": "a.prompt-email",
           "prerequisites": [
             "c.route"
           ],
-          "purpose": "Ask for a corrected destination on the surviving permitted route, naming the one that failed.",
+          "purpose": "Ask for a corrected destination on the surviving address, naming the phone number that failed.",
           "channelRoles": [
-            "urgent",
             "persistent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "contact-point-update",
+            "boundTo": "contact_point_id"
+          }
+        },
+        {
+          "id": "t2b",
+          "stage": "prompt-sms",
+          "action": "a.prompt-sms",
+          "prerequisites": [
+            "c.route"
+          ],
+          "purpose": "Ask for a corrected destination on the surviving phone number, naming the address that failed.",
+          "channelRoles": [
+            "urgent"
           ],
           "mandatory": true,
           "label": "CANONICAL_RULE",
@@ -2338,7 +2355,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [
             "c.outcome"
           ],
-          "purpose": "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent.",
+          "purpose": "Confirm on the same route recorded at c.route that carried the repair request - never a second route - that the replacement is now in use, and that this changed where things go and not what may be sent.",
           "channelRoles": [
             "in-session",
             "persistent",
@@ -2443,14 +2460,19 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         asks: "What can carry the repair request without using the broken destination?",
         branches: [
           {
-            label: "Reachable in product",
+            label: "Signed in",
             when: "the person signs in, so the request can wait on the surface they already use",
             to: "a.prompt-in-app",
           },
           {
-            label: "Reachable off product",
-            when: "no session is expected soon, and a separate destination is both deliverable and permitted for a service notice of this kind",
-            to: "a.prompt-alt",
+            label: "Email survives",
+            when: "no session is expected soon, the failed destination was the phone number, and the email address is both deliverable and permitted for a service notice of this kind",
+            to: "a.prompt-email",
+          },
+          {
+            label: "Phone survives",
+            when: "no session is expected soon, the failed destination was the email address, and a permitted, deliverable phone number survives",
+            to: "a.prompt-sms",
           },
           {
             label: "Nothing left",
@@ -2468,12 +2490,20 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         idempotencyKey: "contact_point_id + person_id + a.prompt-in-app",
       },
       {
-        id: "a.prompt-alt",
+        id: "a.prompt-email",
         kind: "action",
-        does: "Ask for a corrected destination on the surviving permitted route, naming the one that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
+        does: "Ask for a corrected destination on the surviving address, naming the phone number that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
         next: "w.corrected",
         execution: "communication",
-        idempotencyKey: "contact_point_id + person_id + a.prompt-alt",
+        idempotencyKey: "contact_point_id + person_id + a.prompt-email",
+      },
+      {
+        id: "a.prompt-sms",
+        kind: "action",
+        does: "Ask for a corrected destination on the surviving phone number, naming the address that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
+        next: "w.corrected",
+        execution: "communication",
+        idempotencyKey: "contact_point_id + person_id + a.prompt-sms",
       },
       {
         id: "x.dark",
@@ -2526,7 +2556,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.confirm",
         kind: "action",
-        does: "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
+        does: "Confirm on the same route that carried the repair request - never a second route - that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
         next: "x.repaired",
         execution: "communication",
         idempotencyKey: "contact_point_id + person_id + a.confirm",
@@ -2921,7 +2951,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "unengaged-sunset",
     "category": "consent",
     "goal": "consent-permission",
-    "channels": ["email", "in-app"],
+    "channels": ["email"],
     "name": "Marketing contact unanswered → the question put once → kept, reduced or ended",
     "shortName": "Unengaged Subscriber Sunset",
     "purpose": "Decide whether continued marketing contact is still warranted for somebody who has answered none of it - by asking them once, putting fewer beside none as a real answer, and ending marketing contact where no answer ever comes.",
@@ -3032,16 +3062,9 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the question has to reach somebody who is not in the product and survive until they answer it - the default route, and the one the unengaged window was measured on"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is still active in the product, where the preference can be changed in the same place the question is asked"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -3057,8 +3080,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Ask once whether marketing contact should continue, with a reduced cadence set beside stopping altogether so that fewer is an answer the person can actually give.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "preference-centre",
@@ -3084,8 +3106,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "One final notice: the date marketing contact will end, the single action that keeps it, and the reduced cadence as the answer in between. Nothing is added to argue for the relationship.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "preference-centre",

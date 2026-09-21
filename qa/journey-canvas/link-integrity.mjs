@@ -6,7 +6,7 @@ import { readFile, writeFile } from "node:fs/promises";
 // real - a canonical journey id or a declared external system - with zero
 // invented destinations. Pure data-integrity check: no browser needed.
 
-const dump = JSON.parse(await readFile("/home/user/alidemirbas-pro/production/canonical-dump.json", "utf8"));
+const dump = JSON.parse(await readFile(new URL("../../production/canonical-dump.json", import.meta.url), "utf8"));
 const journeyIds = new Set(dump.journeys.map((j) => j.id));
 
 const refs = [];

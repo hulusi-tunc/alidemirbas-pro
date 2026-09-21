@@ -720,7 +720,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "payment-failure-recovery",
     category: "financial",
     goal: "recovery-retry",
-    channels: ["email", "in-app", "push", "sms"],
+    channels: ["email", "sms"],
     name: "Payment failure → classify → recover, alternate or exit",
     shortName: "Payment Failure Recovery",
     purpose:
@@ -743,6 +743,31 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "TIM-274",
         because:
           "This journey owns what is said about an unpaid obligation while recovery is still the whole of the story. Its own handoff into grace ends that: once a grace state is recorded, the holder needs the window's end date and the one condition that restores the active state, which TIM-274 holds and this journey does not. Recovery messaging about the obligation stops at that handoff rather than running beside it.",
+      },
+      {
+        journey: "SCH-303",
+        because:
+          "SCH-303's subject is a reservation that is still standing and whether it survives; the payment is a condition on it. This journey's subject is the obligation itself, from the moment an attempt actually failed. SCH-303 hands the money here and stops speaking about it - this journey never speaks about the reservation, and the release point it is handed is a consequence to work inside rather than a deadline to restate.",
+      },
+      {
+        journey: "FIN-302",
+        because:
+          "This journey is money that failed to come in and an obligation that stays open. FIN-302 is money going back out against an obligation already discharged. The two share a payment record and nothing else, and neither ever announces the other's movement.",
+      },
+      {
+        journey: "ACQ-287",
+        because:
+          "ACQ-287 recovers a checkout nobody finished. This opens only where a checkout was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the cart or the items.",
+      },
+      {
+        journey: "ACQ-11",
+        because:
+          "ACQ-11 recovers a resumable process nobody finished. This opens only where the process was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the process or the items.",
+      },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 is the generic reminder for an obligation before any attempt has been made against it - a due date passed with silence. This journey owns the same obligation from the moment an attempt was actually made and failed; once a failed attempt is recorded, TIM-268 defers to it and stops sending its own generic reminder.",
       },
     ],
     objective: "Get the obligation paid by responding to the failure that actually happened, while the obligation stays alive and the relationship's own state is decided elsewhere.",
@@ -778,6 +803,16 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.hard-gates",
         "label": "CANONICAL_RULE",
         "text": "Hard gates (GLB-31) apply. Pressure caps do not: this is transactional communication about an obligation the person already holds, and it is deduplicated by obligation and touch rather than rationed."
+      },
+      {
+        "id": "s.subject",
+        "label": "CANONICAL_RULE",
+        "text": "This journey speaks about the obligation and the corrective action, and about nothing the obligation was for. A reservation that may be released, a checkout that was abandoned, a process that was left open - each belongs to the journey that handed the money here, and each of those stops speaking about the money for the same reason. A release point or a resume destination received at a handoff is a consequence to work inside, never a deadline for this journey to restate."
+      },
+      {
+        "id": "s.authorised-method",
+        "label": "CANONICAL_RULE",
+        "text": "Where a stored method was charged under standing authority after another failed, the confirmation names the method used. A charge the person did not choose is disclosed at the moment the obligation closes, not discovered on a statement."
       }
     ],
     contact: {
@@ -813,29 +848,22 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person has an active session in the product - the corrective action is a form, and the shortest route to it is inside the product"
-        },
-        {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "no active session, or the instruction and its link have to survive until the person can act"
+          "when": "the instruction and its link have to survive until the person can act"
         },
         {
           "role": "urgent",
           "channels": [
-            "sms",
-            "push"
+            "sms"
           ],
           "when": "an asserted consequence date exists inside the urgent horizon and permission for service messages on this channel is recorded"
         }
       ],
       "fallback": "same-role-other-channel",
+      "simultaneous": { "allowed": true, "reason": "the email restates the corrective action and the amount; the SMS carries the date and what happens on it. Sent once, together, before a consequence the company will actually apply." },
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -850,7 +878,6 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Name the exact corrective action - update the method, complete the authentication, choose another method - and what is owed. Provider risk detail and internal decline codes are never shown.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
           "destination": {
@@ -874,7 +901,6 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Put the available alternative methods in front of the customer and ask which to use, stating that the obligation stands either way. Choosing a payment method is theirs to make.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
           "destination": {
@@ -919,10 +945,9 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [
             "c.recovered"
           ],
-          "purpose": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking.",
+          "purpose": "Confirm the obligation is discharged, name which method discharged it, and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "obligation-receipt",
@@ -937,7 +962,9 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         "s.retry-in-progress",
         "s.no-instruction",
         "s.unknown-outcome",
-        "s.hard-gates"
+        "s.hard-gates",
+        "s.subject",
+        "s.authorised-method"
       ]
     },
     implementation: {
@@ -1248,7 +1275,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.confirmed",
         "kind": "action",
-        "does": "Confirm the obligation is discharged and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact looks like from inside",
+        "does": "Confirm the obligation is discharged, name which method discharged it, and that nothing further is expected. An obligation met and never acknowledged is one the person keeps checking, and checking is what a support contact looks like from inside; a charge the person did not choose is disclosed at the moment the obligation closes, not discovered on a statement",
         "execution": "communication",
         "idempotencyKey": "obligation_id + touch id",
         "writes": [
@@ -2694,7 +2721,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "refund-notification",
     "category": "financial",
     "goal": "delivery-confirmation",
-    "channels": ["email", "in-app"],
+    "channels": ["email"],
     "name": "Refund submitted → settlement observed → returned, partly returned or not arrived",
     "shortName": "Refund Notification",
     "purpose": "Tell the person that money is going back, and then whether it actually arrived - keeping the decision to refund, the movement of the money and its arrival as three facts stated at the moments each becomes true.",
@@ -2789,13 +2816,6 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "a statement about money has to be kept and returned to - the default route for both the notice and the outcome"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is in the product where the original transaction and its refund are both visible, and the statement belongs beside them"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -2814,8 +2834,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say that money is going back against this transaction: the amount submitted, whether that is the whole of it or part of it with the remainder named separately, and that it has not arrived yet.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "transaction-record",
@@ -2841,8 +2860,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm from the financial record that the whole submitted amount has been returned, and say nothing about where it now sits.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "transaction-record",
@@ -2866,8 +2884,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say that part of the submitted amount has been returned, name the part that has not, and say what is happening to the remainder.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "transaction-record",
@@ -2891,8 +2908,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say plainly that the money has not been confirmed back, that the movement is being reconciled rather than attempted again, and that nothing further is needed from them.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "transaction-record",
@@ -2901,6 +2917,30 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
               "that the refund has failed",
               "that the money is lost",
               "a date the reconciliation will finish"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t5",
+          "stage": "withdrawn",
+          "action": "a.withdrawn",
+          "after": "t1",
+          "gatedBy": "w.outcome",
+          "prerequisites": [
+            "c.outcome"
+          ],
+          "purpose": "Say that the refund was withdrawn or reversed after the notice went out, and what the record now shows.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "transaction-record",
+            "boundTo": "refund_id",
+            "mustNotClaim": [
+              "that the refund is still moving",
+              "that the money will still arrive"
             ]
           },
           "mandatory": true,
@@ -2942,18 +2982,12 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "c.scope",
         "kind": "condition",
-        "asks": "What is actually moving, and against what?",
+        "asks": "Is money actually moving?",
         "branches": [
           {
-            "label": "The whole transaction",
-            "when": "the submitted amount is the whole of the original transaction and nothing remains refundable against it",
+            "label": "Money is moving",
+            "when": "the submitted amount, whole or part of the original transaction, is moving, with the remaining refundable amount recorded separately where the submission is partial",
             "observes": "the refund record and the original transaction",
-            "to": "c.sendable"
-          },
-          {
-            "label": "Part of it",
-            "when": "the submitted amount is part of the original transaction, with the remaining refundable amount recorded separately",
-            "observes": "the refund record and the remaining refundable amount",
             "to": "c.sendable"
           },
           {
@@ -3002,7 +3036,8 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         "kind": "wait",
         "until": [
           "refund_settlement_confirmed",
-          "refund_settlement_failed"
+          "refund_settlement_failed",
+          "refund_submission_withdrawn"
         ],
         "onEvent": "c.outcome",
         "timeout": {
@@ -3035,6 +3070,12 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
             "when": "the record confirms part of the submitted amount was returned and names the amount still outstanding on it",
             "observes": "refund_settlement_confirmed",
             "to": "a.partial"
+          },
+          {
+            "label": "Withdrawn",
+            "when": "the submission was withdrawn or reversed after the notice went out",
+            "observes": "refund_submission_withdrawn",
+            "to": "a.withdrawn"
           },
           {
             "label": "Not confirmed back",
@@ -3071,6 +3112,20 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           }
         ],
         "next": "x.partial"
+      },
+      {
+        "id": "a.withdrawn",
+        "kind": "action",
+        "does": "Say that the refund was withdrawn or reversed after the notice went out, and what the record now shows. The earlier notice said money was moving; this says plainly that it stopped.",
+        "execution": "communication",
+        "idempotencyKey": "refund_id + a.withdrawn",
+        "writes": [
+          {
+            "field": "refund_notice_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.withdrawn"
       },
       {
         "id": "a.unresolved",
@@ -3124,6 +3179,14 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         "reEntry": "if the reconciliation moves money again, that submission is its own instance"
       },
       {
+        "id": "x.withdrawn",
+        "kind": "exit",
+        "state": "withdrawn after notice; the submission stopped moving before it settled",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a fresh submission against the same transaction is its own movement and its own instance"
+      },
+      {
         "id": "x.void",
         "kind": "exit",
         "state": "nothing to announce; the submission was withdrawn before anything was said about it",
@@ -3165,6 +3228,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
           "x.settled",
           "x.partial",
           "x.unsettled",
+          "x.withdrawn",
           "x.void",
           "x.no-action"
         ]

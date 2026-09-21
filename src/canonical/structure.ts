@@ -1931,9 +1931,9 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "relationship-invitation",
     category: "structure",
     goal: "relationship-hierarchy-structure",
-    channels: ["email", "in-app"],
+    channels: ["email"],
     name: "Relationship invitation → counterparty acceptance → active or expired",
-    shortName: "Invitation Reminder",
+    shortName: "Relationship Invitation",
     purpose:
       "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
     entity: {
@@ -1954,6 +1954,11 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "SUB-161",
         because:
           "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this.",
+      },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure; TIM-268 would restate that deadline without knowing what the acceptance grants, so it defers to this journey and sends nothing while this instance holds the invitation.",
       },
     ],
     objective: "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
@@ -1989,6 +1994,11 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g5",
         "label": "CANONICAL_RULE",
         "text": "Every invitation expires. A pending claim on somebody who never agreed to it does not sit open indefinitely."
+      },
+      {
+        "id": "s.generic-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "This journey owns the reminder for the invitation it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that invitation while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
       }
     ],
     contact: {
@@ -1996,17 +2006,17 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
       "pressureClass": "service",
       "localCap": {
         "value": {
-          "key": "relationship_invitation.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "key": "relationship_invitation.discretionary_touches",
+          "rule": "Only the invitation and the reminder are discretionary; the confirmation is an obligation the accepting party is owed and is never rationed.",
           "default": {
-            "value": 3,
+            "value": 2,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; an invitation, one reminder and a confirmation"
+            "applicableWhen": "GLB-24; an invitation and one reminder"
           },
           "required": false
         },
-        "appliesTo": "all"
+        "appliesTo": "non-mandatory"
       },
       "cooldown": {
         "key": "relationship_invitation.cooldown",
@@ -2029,13 +2039,6 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -2053,8 +2056,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -2075,8 +2077,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -2098,10 +2099,9 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE"
         },
         {
@@ -2114,8 +2114,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send one reminder naming who is waiting and the date the invitation expires.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -2133,7 +2132,8 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g2",
         "s.g3",
         "s.g4",
-        "s.g5"
+        "s.g5",
+        "s.generic-reminder"
       ]
     },
     implementation: {
@@ -2322,7 +2322,7 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         branches: [
           {
             label: "Time remains",
-            when: "the invitation has a meaningful period left and no reminder has been sent for it",
+            when: "the invitation has a meaningful period left",
             to: "a.remind",
           },
           {

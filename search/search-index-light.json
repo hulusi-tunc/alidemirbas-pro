@@ -10710,7 +10710,12 @@
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns whether a granted entitlement is ever used, and names the first action that uses it; an unused entitlement is this journey's obligation, not a generic outstanding one, and TIM-268 defers to it and sends nothing while this instance holds the entitlement."
+        }
+      ]
     }
   },
   {
@@ -11316,6 +11321,10 @@
         {
           "targetId": "journey:ACQ-287",
           "because": "ACQ-287 is this pattern specialised to one process - a checkout - with a stated channel priority per touch and a high-value branch, none of which is true for every resumable process this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the process is a checkout it holds the instance and this one is suppressed for it."
+        },
+        {
+          "targetId": "journey:ACQ-12",
+          "because": "ACQ-12 pursues a held selection with no process state and no expiry. The moment a process starts from it, ACQ-12 hands this journey the instance (h.process) and suppresses every selection-recovery touch it had queued; this journey then owns recovery under its own process-based rules, including the final notice ACQ-12 never sends."
         }
       ]
     }
@@ -11392,6 +11401,10 @@
         {
           "targetId": "journey:ACQ-288",
           "because": "ACQ-288 is this pattern specialised to one kind of selection - a cart - with a stated channel priority per touch, a high-value branch and a handoff into checkout recovery, none of which is true for every held selection this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the selection is a cart it holds the instance and this one is suppressed for it."
+        },
+        {
+          "targetId": "journey:ACQ-289",
+          "because": "ACQ-289 alerts on a named item a person wanted while it was unavailable and could not select at all. This journey recovers a selection the person actually made and held; it never claims an interest the person has not acted on, and it stands above ACQ-289 in the commerce-recovery group whenever a held selection exists."
         }
       ]
     }
@@ -11465,6 +11478,14 @@
         {
           "targetId": "journey:SCH-282",
           "because": "SCH-282 follows an availability enquiry with restorable state. A search here holds nothing; it is attention, not an enquiry."
+        },
+        {
+          "targetId": "journey:ACQ-289",
+          "because": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds."
+        },
+        {
+          "targetId": "journey:RET-293",
+          "because": "RET-293 acts on a retention signal about an existing relationship. This journey acts on inferred pre-purchase attention with no relationship yet to retain, and yields to RET-293 for the same person."
         }
       ]
     }
@@ -11526,6 +11547,10 @@
         {
           "targetId": "journey:ACQ-09",
           "because": "ACQ-09 is the same bounded education on the same declared subject, and one form fill satisfies both triggers. This journey owns the initial contact window the capture earned; ACQ-09 is ineligible while that window is open and may start only once it has closed."
+        },
+        {
+          "targetId": "journey:RET-290",
+          "because": "RET-290 marks the moment a captured lead becomes a paying customer and owns the relationship from the first purchase onward. This journey ends once fulfilment or the welcome closes, well before any purchase exists, and never speaks to someone RET-290 already owns."
         }
       ]
     }
@@ -11656,6 +11681,10 @@
         {
           "targetId": "journey:ACQ-287",
           "because": "ACQ-287 recovers a checkout that has already started; this journey recovers a cart before checkout starts. The two never run in parallel on the same person - this journey hands off to ACQ-287 the moment checkout starts, and every queued cart reminder is suppressed from that point."
+        },
+        {
+          "targetId": "journey:RET-294",
+          "because": "RET-294 prompts a predicted repurchase from the person's own history, with nothing currently in a cart. This journey recovers a cart the person actually built and left; where a cart is present it outranks a predicted need for the same person."
         }
       ]
     }
@@ -11720,6 +11749,10 @@
         {
           "targetId": "journey:RET-31",
           "because": "RET-31 prompts a purchase the person's own history says is due. This prompts one they already showed they wanted and were unable to make."
+        },
+        {
+          "targetId": "journey:SCH-282",
+          "because": "SCH-282 follows an availability enquiry for a stated window with restorable state the person opened. This journey acts on an interest recorded while the item was unavailable, with no enquiry window to restore - the wait is on the item becoming available again, not on state the person set."
         }
       ]
     }
@@ -11763,6 +11796,7 @@
       "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
+      "multi-exit",
       "preemption",
       "competition"
     ],
@@ -11788,6 +11822,10 @@
         {
           "targetId": "journey:SUB-296",
           "because": "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person."
+        },
+        {
+          "targetId": "journey:ACT-20",
+          "because": "ACT-20 attempts to restart a relationship that went dormant before it ever produced value; where an onboarding instance is already open for the same person, an onboarding already in motion is a current lifecycle and this journey owns the account outright. ACT-20's own reactivation handoff (h.onboarding) lands here rather than opening a second attempt."
         }
       ]
     }
@@ -11828,6 +11866,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
@@ -11847,7 +11886,15 @@
       "distinctFrom": [
         {
           "targetId": "journey:ACT-14",
-          "because": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere."
+          "because": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere - and where both are true, a named requirement outstanding and help being sought against it, this journey holds the account and the help offer is suppressed for it, because an obstacle with a name is answerable and a general offer of help is not."
+        },
+        {
+          "targetId": "journey:ACT-12",
+          "because": "ACT-12 suppresses its generic next-step prompt for the exact prerequisite this journey names the moment it opens (s.blocker) and hands the account here (h.blocker). This journey is what that transfer is transferring to, and resumes ACT-12 (h.resume) once the requirement clears."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks activation. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ]
     }
@@ -11908,6 +11955,14 @@
         {
           "targetId": "journey:ACT-13",
           "because": "ACT-13 has a named requirement to clear. Here the evidence is effort without progress and no single thing to point at, which is why the offer is help rather than an instruction."
+        },
+        {
+          "targetId": "journey:ACT-19",
+          "because": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true this journey holds the person: an open assisted-help session is evidence of active struggle, and a personalization question is not asked into it (s.struggling on ACT-19)."
+        },
+        {
+          "targetId": "journey:ACT-12",
+          "because": "ACT-12 pauses its generic next-step prompts while an assisted session booked here is open (s.assisted), released on assisted_session_outcome_recorded or booking_cancelled; this journey is what that pause is for."
         }
       ]
     }
@@ -12023,6 +12078,10 @@
         {
           "targetId": "journey:ACT-12",
           "because": "Onboarding gets someone to value once. This is about the second, fifth and twentieth time, where the obstacle is habit rather than setup."
+        },
+        {
+          "targetId": "journey:ACT-18",
+          "because": "ACT-17 hands its failure case to ACT-18 and ACT-18 is ACT-17's own recovery destination - two reciprocal handoffs on one instance key (account_id + use_case_id). A competition group would add nothing beyond the handoffs already declared."
         }
       ]
     }
@@ -12143,6 +12202,10 @@
         {
           "targetId": "journey:ACT-12",
           "because": "This one asks the question that decides the route; ACT-12 walks the route once it is decided. While the question is outstanding this journey owns the onboarding conversation on the same channels, and ACT-12's nurture prompts are held until the answer lands or the wait times out - otherwise both are talking about setup at once, and the generic prompt can be for the very step the answer was about to change."
+        },
+        {
+          "targetId": "journey:ACT-14",
+          "because": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true ACT-14 holds the person: an open assisted-help session suppresses this journey's question (s.struggling) until the session resolves."
         }
       ]
     }
@@ -13350,7 +13413,12 @@
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a signature owed on a specific version by a specific signer, and knows which version is being signed; TIM-268 defers to it and sends nothing while this instance holds the obligation."
+        }
+      ]
     }
   },
   {
@@ -13464,6 +13532,10 @@
         {
           "targetId": "journey:FBK-43",
           "because": "FBK-43 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it."
+        },
+        {
+          "targetId": "journey:FBK-41",
+          "because": "FBK-41 asks about one completed experience, once. This asks a rarer, higher-value favour built on accumulated relationship evidence rather than one experience - the two share the outbound-ask slot precisely because asking both back-to-back for the same goodwill moment reads as farming it twice."
         }
       ]
     }
@@ -13525,7 +13597,24 @@
           "targetId": "journey:FBK-42"
         }
       ],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-41",
+          "because": "FBK-41 begins only if something actually comes back, and most requests do not produce one. This begins once feedback has actually arrived and reacts to what it says."
+        },
+        {
+          "targetId": "journey:FBK-42",
+          "because": "FBK-42 weighs the accumulated relationship and decides whether it can carry an advocacy request. This reacts to one signal - the feedback record just received - most of which never reach that threshold."
+        },
+        {
+          "targetId": "journey:REM-305",
+          "because": "REM-305 starts from a request made of us and owns acknowledging it to the person who asked. This starts from an account of an experience; where that experience is a support need, this journey raises the work item and REM-305, not this one, tells the requester it was received."
+        },
+        {
+          "targetId": "journey:REM-151",
+          "because": "REM-151 starts from a concrete problem with something already delivered and asks which recovery route would satisfy it - the obligation is already known to exist. This journey starts from an account of an experience and works out whether an operational issue exists at all; where one clearly does, REM-151 owns the remedy route rather than this journey re-assessing it."
+        }
+      ]
     }
   },
   {
@@ -13628,6 +13717,10 @@
         {
           "targetId": "journey:ACT-13",
           "because": "ACT-13 is scoped to activation specifically and owns resuming onboarding. This applies to any named process, most of which have nothing to do with onboarding."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks a process. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ]
     }
@@ -13800,6 +13893,26 @@
         {
           "targetId": "journey:TIM-274",
           "because": "This journey owns what is said about an unpaid obligation while recovery is still the whole of the story. Its own handoff into grace ends that: once a grace state is recorded, the holder needs the window's end date and the one condition that restores the active state, which TIM-274 holds and this journey does not. Recovery messaging about the obligation stops at that handoff rather than running beside it."
+        },
+        {
+          "targetId": "journey:SCH-303",
+          "because": "SCH-303's subject is a reservation that is still standing and whether it survives; the payment is a condition on it. This journey's subject is the obligation itself, from the moment an attempt actually failed. SCH-303 hands the money here and stops speaking about it - this journey never speaks about the reservation, and the release point it is handed is a consequence to work inside rather than a deadline to restate."
+        },
+        {
+          "targetId": "journey:FIN-302",
+          "because": "This journey is money that failed to come in and an obligation that stays open. FIN-302 is money going back out against an obligation already discharged. The two share a payment record and nothing else, and neither ever announces the other's movement."
+        },
+        {
+          "targetId": "journey:ACQ-287",
+          "because": "ACQ-287 recovers a checkout nobody finished. This opens only where a checkout was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the cart or the items."
+        },
+        {
+          "targetId": "journey:ACQ-11",
+          "because": "ACQ-11 recovers a resumable process nobody finished. This opens only where the process was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the process or the items."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation before any attempt has been made against it - a due date passed with silence. This journey owns the same obligation from the moment an attempt was actually made and failed; once a failed attempt is recorded, TIM-268 defers to it and stops sending its own generic reminder."
         }
       ]
     }
@@ -14260,9 +14373,6 @@
     "journeyRelationRefs": {
       "handoffs": [
         {
-          "targetId": "journey:FUL-144"
-        },
-        {
           "targetId": "journey:FUL-145"
         },
         {
@@ -14380,16 +14490,26 @@
     "journeyRelationRefs": {
       "handoffs": [
         {
-          "targetId": "journey:FUL-147"
-        },
-        {
           "targetId": "journey:REM-151"
         },
         {
           "targetId": "journey:FUL-145"
         }
       ],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:FUL-146",
+          "because": "FUL-146 narrates a slip against a timing commitment while the obligation is still moving toward delivery. This runs against a single attempt already known to have failed - a different fact, and one FUL-146 does not narrate beside."
+        },
+        {
+          "targetId": "journey:FUL-265",
+          "because": "FUL-265 reports what the executor says about an obligation in motion; this opens on a single attempt already known to have failed, and its subject is the attempt, not the obligation."
+        },
+        {
+          "targetId": "journey:REM-151",
+          "because": "REM-151 asks whether an obligation is unresolved after something was delivered; this runs while nothing has been delivered at all and a further attempt is still possible."
+        }
+      ]
     }
   },
   {
@@ -14522,6 +14642,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "wait-timeout",
       "cross-journey-handoff",
       "multi-exit",
@@ -14553,6 +14674,14 @@
         {
           "targetId": "journey:FUL-301",
           "because": "FUL-301 confirms what the record accepted at the moment it opened, and stops there. This journey begins at dispatch, which is where the order first has a position to report - it never re-confirms the order, and the confirmation never reports a position."
+        },
+        {
+          "targetId": "journey:FUL-291",
+          "because": "FUL-291 sends guidance once fulfillment has stopped moving and there is nothing left to track. This journey's own tracking ends the moment it exits or hands off, and it never says what to do with what arrived."
+        },
+        {
+          "targetId": "journey:FUL-148",
+          "because": "FUL-148 recovers a single attempt already known to have failed. This journey's own tracking ends at that same moment - a confirmed non-arrival or an executor gone quiet long enough to need recovery - and hands off rather than narrating the attempt itself."
         }
       ]
     }
@@ -14696,6 +14825,10 @@
         {
           "targetId": "journey:FIN-131",
           "because": "FIN-131 opens the obligation to pay that arises from the same event. This opens the obligation to deliver. They fail independently, and confirming one has never confirmed the other."
+        },
+        {
+          "targetId": "journey:SCH-277",
+          "because": "SCH-277 confirms a reservation - a claim on a future slot or resource that still has to be honoured. This confirms an order - an obligation to deliver a thing or a performed service. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the reservation."
         }
       ]
     }
@@ -14733,6 +14866,7 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
       "cross-journey-handoff",
       "multi-exit"
     ],
@@ -15018,6 +15152,10 @@
         {
           "targetId": "journey:IDN-88",
           "because": "IDN-88 restores control to somebody who cannot get in. Here the owner still has access, and the open question is whether somebody else does too."
+        },
+        {
+          "targetId": "journey:ACC-261",
+          "because": "ACC-261 narrates a restriction that stands on its own terms, once one has been recorded. This journey narrates a suspected compromise and the containment applied to it - where a security response placed the restriction ACC-261 defers to, this is the journey that tells the holder."
         }
       ]
     }
@@ -15905,6 +16043,10 @@
         {
           "targetId": "journey:SUB-161",
           "because": "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure; TIM-268 would restate that deadline without knowing what the acceptance grants, so it defers to this journey and sends nothing while this instance holds the invitation."
         }
       ]
     }
@@ -15962,6 +16104,18 @@
         {
           "targetId": "journey:FBK-43",
           "because": "FBK-43 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it."
+        },
+        {
+          "targetId": "journey:REM-305",
+          "because": "REM-305 acknowledges that a request arrived and is owned; it hands off here only when the still-open request concerns a completed fulfilment or service with a concrete unresolved problem - REM-305 never restates or re-assesses that problem, and this journey never sends the acknowledgement REM-305 already sent."
+        },
+        {
+          "targetId": "journey:FUL-148",
+          "because": "FUL-148 recovers a single delivery attempt already known to have failed, while a further attempt is still possible. This journey opens once something has actually been delivered and asks whether it left an obligation unresolved - nothing has failed to arrive, something arrived and was not right."
+        },
+        {
+          "targetId": "journey:RET-26",
+          "because": "RET-26 is the library's general service-recovery journey and its evidence explicitly includes a failed fulfilment among other causes. This journey is the narrower case: a concrete problem with a specific completed fulfillment or service, assessed for one unresolved obligation and one remedy route rather than for a relationship-level recovery."
         }
       ]
     }
@@ -16071,6 +16225,10 @@
         {
           "targetId": "journey:FIN-302",
           "because": "This journey says which remedy will resolve the obligation, and a refund is only one of the answers it can give. FIN-302 says that money is actually moving and whether it arrived, which is two decisions further down the chain - a remedy confirmed here is never money arrived, and this journey never announces the movement."
+        },
+        {
+          "targetId": "journey:SUB-298",
+          "because": "SUB-298 decides a subscription-specific consequence of its own lifecycle. This journey decides which remedy satisfies an unresolved fulfillment or service obligation, on any order - the two never resolve the same question even where the same subscription happens to be the entity behind both."
         }
       ]
     }
@@ -16360,8 +16518,11 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
+      "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
+      "multi-exit",
       "competition"
     ],
     "language": "en+tr",
@@ -16376,9 +16537,6 @@
         },
         {
           "targetId": "journey:RET-23"
-        },
-        {
-          "targetId": "journey:RET-30"
         }
       ],
       "distinctFrom": []
@@ -16432,7 +16590,16 @@
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:REM-151",
+          "because": "REM-151's own gates defer to a process that already owns the failure without naming it. This is that process: RET-26 acknowledges what failed and what was done, and never decides the remedy itself."
+        },
+        {
+          "targetId": "journey:CON-300",
+          "because": "RET-26 is the library's general-purpose service-recovery journey; CON-300 is the one journey that names it. This acknowledges a specific failure, not the standing marketing relationship."
+        }
+      ]
     }
   },
   {
@@ -16553,6 +16720,10 @@
         {
           "targetId": "journey:RET-29",
           "because": "This runs while the decision is still reversible and the person is still deciding. RET-29 runs after it is made, and the two must never share an event."
+        },
+        {
+          "targetId": "journey:RET-32",
+          "because": "This runs at the decision point, while the relationship is still active and the intent is still reversible. RET-32 runs only after the relationship has actually lapsed - the two never hold the same person at once."
         }
       ]
     }
@@ -16731,6 +16902,22 @@
         {
           "targetId": "journey:RET-32",
           "because": "RET-32 addresses a relationship that ended. A predicted need addresses an active buyer whose next purchase is due."
+        },
+        {
+          "targetId": "journey:RET-293",
+          "because": "This is a purchase the person's own history says is due, computed from their prior purchase and the item's usable life. RET-293 proposes a next purchase inferred from a recorded signal about the person, not from a due date - the two never hold the same person for the same purchase at once."
+        },
+        {
+          "targetId": "journey:RET-294",
+          "because": "This is a purchase the person's own history says is due. RET-294 offers the thing that completes a declared product relationship, matured by ownership rather than computed from a due date - the two never hold the same person for the same purchase at once."
+        },
+        {
+          "targetId": "journey:ACQ-289",
+          "because": "This is a predicted need computed from the person's own purchase history. ACQ-289 is a back-in-stock alert for a specific item the person asked to be told about - a different signal and a different claim on the moment."
+        },
+        {
+          "targetId": "journey:RET-290",
+          "because": "This is an ongoing predicted-need cycle that can recur for the life of the relationship. RET-290 is a one-time first-purchase moment that never reopens."
         }
       ]
     }
@@ -16870,6 +17057,10 @@
         {
           "targetId": "journey:FUL-301",
           "because": "FUL-301 states what the business took on, from the order record, and it outranks this journey for exactly that reason: the record has to open before there is anything to welcome somebody into. This journey carries none of what that confirmation says and waits until it has had its moment."
+        },
+        {
+          "targetId": "journey:RET-292",
+          "because": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year or more later. This journey is the one-time moment that dates it; RET-292 is the recurring recognition of it, and the two never run at once."
         }
       ]
     }
@@ -17180,7 +17371,12 @@
     "boost": {},
     "journeyRelationRefs": {
       "handoffs": [],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks; TIM-268 can only name the prerequisite, so it defers to this journey and sends nothing while this instance holds the target."
+        }
+      ]
     }
   },
   {
@@ -17738,6 +17934,22 @@
         {
           "targetId": "journey:SCH-177",
           "because": "SCH-177 revalidates at the pre-start point in order to start the service. This revalidates at the same point in order to decide whether anything should be sent at all."
+        },
+        {
+          "targetId": "journey:SCH-277",
+          "because": "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a confirmed booking, and never re-opens the question of whether the commitment exists."
+        },
+        {
+          "targetId": "journey:SCH-303",
+          "because": "SCH-303 is about whether a conditional reservation survives at all. This is about getting the customer's own side of a commitment done; where both apply, SCH-303 holds the booking and this is suppressed until it does not."
+        },
+        {
+          "targetId": "journey:SCH-304",
+          "because": "SCH-304 carries the arrival facts close to the time, on a commitment already prepared for. This carries the prerequisites a customer owes so the service can happen at all - a different, earlier question, and one SCH-304 is suppressed behind until this has finished."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This owns what a booking requires before its own occurrence, and its deadline is the occurrence itself; TIM-268 is suppressed for any prerequisite this journey holds."
         }
       ]
     }
@@ -17797,6 +18009,10 @@
         {
           "targetId": "journey:SCH-173",
           "because": "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold."
+        },
+        {
+          "targetId": "journey:FUL-301",
+          "because": "FUL-301 confirms an order - an obligation to deliver a thing or a performed service. This confirms a reservation - a claim on a future slot or resource that still has to be honoured. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the order."
         }
       ]
     }
@@ -17856,6 +18072,14 @@
         {
           "targetId": "journey:SCH-177",
           "because": "SCH-177 runs as the time approaches and is about getting somebody there. This starts only once the window has closed with nobody there."
+        },
+        {
+          "targetId": "journey:SCH-266",
+          "because": "SCH-266 gets the customer's side of a still-future commitment done. This opens only after the occurrence has passed with nobody there, by which point SCH-266's own work has already finished."
+        },
+        {
+          "targetId": "journey:SCH-304",
+          "because": "SCH-304 carries arrival facts for a commitment that is still ahead. This speaks about a commitment that did not happen, which SCH-304 has nothing left to say about by the time this opens."
         }
       ]
     }
@@ -17910,6 +18134,10 @@
         {
           "targetId": "journey:SCH-172",
           "because": "SCH-172 holds capacity for somebody who asked for it. Nothing here is held at any point, and the offer says so."
+        },
+        {
+          "targetId": "journey:ACQ-289",
+          "because": "ACQ-289 acts once an unavailable product becomes purchasable again, with the wait on the item rather than on anything the person did. This follows a stated availability enquiry with restorable state the person opened themselves - a specific window they asked for, not a product return to stock."
         }
       ]
     }
@@ -17977,6 +18205,10 @@
         {
           "targetId": "journey:SCH-266",
           "because": "SCH-266 chases the prerequisites a customer owes so the service can be delivered. What is outstanding here is not a prerequisite for delivery - it is the condition on which the reservation itself continues to exist, and missing it costs the place rather than the preparation."
+        },
+        {
+          "targetId": "journey:SCH-304",
+          "because": "SCH-304 carries arrival facts for a commitment already prepared for. This is about whether the reservation survives at all; where both apply, this holds the booking and SCH-304 is suppressed until it does not."
         }
       ]
     }
@@ -18209,6 +18441,10 @@
         {
           "targetId": "journey:TIM-63",
           "because": "TIM-63 is the generic pre-expiry reminder, and a subscription sits inside its scope - so a term end fires both at the same point in the calendar. This journey owns it: it is the one that knows the renewal terms, the notice period they require and who holds the decision, and the notice it sends is an obligation of the terms rather than outreach. While this cycle's decision window is open, that journey is suppressed for the subscription and owns only the expiries no renewal cycle governs."
+        },
+        {
+          "targetId": "journey:RET-292",
+          "because": "RET-292 recognises an anniversary, which carries no obligation and no deadline - nothing happens if it is ignored. This counts down to a renewal decision the governing terms require, with a notice period, a decision holder and a default the terms themselves define if nobody answers."
         }
       ]
     }
@@ -18665,6 +18901,10 @@
         {
           "targetId": "journey:SUB-297",
           "because": "SUB-297 acts on a membership that has been running and holds something unused. This acts on an enrolment that has just happened, and it runs once per membership, ever."
+        },
+        {
+          "targetId": "journey:SUB-299",
+          "because": "SUB-299 states that the membership's own standing moved and outranks this journey while it holds the membership. This states what the membership grants at enrolment, before any standing has had the chance to move."
         }
       ]
     }
@@ -19019,6 +19259,10 @@
         {
           "targetId": "journey:SUB-163",
           "because": "A subscription is in this journey's scope and a term end is in SUB-163's, so the same calendar moment fires both. SUB-163 owns it: it is the one that knows the renewal terms, the notice the terms require and who holds the decision, and its notice is a contractual obligation rather than outreach. This journey is the generic fallback for that expiry - it owns a subscription only where no renewal decision window is open on it, alongside every other expiring entity with no renewal cycle."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific entity is expiring or what its expiry actually does. This journey owns the reminder once an expiring entity is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ]
     }
@@ -19162,6 +19406,10 @@
         {
           "targetId": "journey:FBK-49",
           "because": "FBK-49 owns a blocking data item, and knows which process stalls without it. This journey would ask for the same item without being able to say what it unblocks."
+        },
+        {
+          "targetId": "journey:FIN-134",
+          "because": "FIN-134 opens only where a payment system states that an attempt against the obligation actually failed, and it owns what is said about the obligation from that moment. This journey is the sending for an obligation that is merely outstanding - owed, due, and not yet attempted. Where a recorded failure exists, that journey holds the obligation and this one is suppressed for it."
         }
       ]
     }

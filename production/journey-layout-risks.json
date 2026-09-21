@@ -3,19 +3,19 @@
     {
       "risk": "high-branch-count",
       "description": "A condition node's arm count varies 2 to 6+; a layout that assumes 2-3 arms per fork will overflow.",
-      "affectedCount": 93,
+      "affectedCount": 94,
       "threshold": ">=4 branch nodes in one journey",
       "worst": [
+        [
+          "ACQ-11",
+          9
+        ],
         [
           "FBK-43",
           9
         ],
         [
-          "ACQ-11",
-          8
-        ],
-        [
-          "ACQ-288",
+          "ACQ-12",
           8
         ],
         [
@@ -23,7 +23,7 @@
           8
         ],
         [
-          "ACQ-12",
+          "ACQ-287",
           7
         ]
       ],
@@ -37,31 +37,31 @@
       "worst": [
         [
           "ACQ-11",
-          16
-        ],
-        [
-          "ACQ-288",
-          16
+          17
         ],
         [
           "ACQ-12",
-          14
+          15
         ],
         [
           "ACQ-287",
-          12
+          14
+        ],
+        [
+          "ACQ-288",
+          14
         ],
         [
           "RET-31",
           12
         ]
       ],
-      "maxValue": 16
+      "maxValue": 17
     },
     {
       "risk": "backward-edges",
       "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
-      "affectedCount": 165,
+      "affectedCount": 169,
       "threshold": ">=1 backward edge",
       "worst": [
         [
@@ -77,11 +77,11 @@
           8
         ],
         [
-          "RET-31",
+          "ACQ-287",
           7
         ],
         [
-          "SCH-304",
+          "RET-31",
           7
         ]
       ],
@@ -90,15 +90,15 @@
     {
       "risk": "true-graph-cycles",
       "description": "A backward edge is not automatically a cycle - only 33 of the 125 backward-edge journeys form an actual cycle (a path that returns to its own source). These need a recursion/traversal guard in the layout algorithm itself; the other 92 are simple back-references and do not.",
-      "affectedCount": 37,
+      "affectedCount": 38,
       "threshold": "DFS-detected true cycle",
       "worst": [
         "ACQ-11",
         "ACQ-12",
         "ACT-12",
-        "ACT-17",
         "FBK-46",
         "FBK-47",
+        "FBK-49",
         "OWN-55",
         "OWN-57",
         "TIM-61",
@@ -125,12 +125,12 @@
           6
         ],
         [
-          "ACQ-11",
-          5
+          "FIN-302",
+          6
         ],
         [
-          "ACQ-12",
-          5
+          "SCH-282",
+          6
         ]
       ],
       "maxValue": 6
@@ -138,7 +138,7 @@
     {
       "risk": "handoff-density",
       "description": "Cross-journey and external handoffs on one graph. Each is a link leaving the current view - a layout that treats handoffs like ordinary nodes undercounts how often the reader leaves this journey.",
-      "affectedCount": 23,
+      "affectedCount": 21,
       "threshold": ">=4 handoffs",
       "worst": [
         [
@@ -167,7 +167,7 @@
     {
       "risk": "node-convergence (fan-in)",
       "description": "Multiple distinct nodes pointing at the same target node. A tree-shaped layout algorithm cannot represent convergence without either duplicating the node or drawing a shared-target edge.",
-      "affectedCount": 63,
+      "affectedCount": 64,
       "threshold": ">=3 incoming edges to one node",
       "worst": [
         [
@@ -175,19 +175,19 @@
           5
         ],
         [
+          "FUL-146",
+          5
+        ],
+        [
+          "ACQ-285",
+          4
+        ],
+        [
           "ACQ-11",
           4
         ],
         [
           "ACQ-13",
-          4
-        ],
-        [
-          "ACT-14",
-          4
-        ],
-        [
-          "RET-31",
           4
         ]
       ],
@@ -238,22 +238,25 @@
     "ACQ-11",
     "ACQ-12",
     "ACQ-13",
+    "ACQ-285",
     "ACQ-287",
     "ACQ-288",
     "ACT-12",
-    "ACT-14",
-    "ACT-17",
     "DEC-183",
     "FBK-41",
     "FBK-43",
     "FBK-46",
     "FBK-47",
+    "FBK-49",
+    "FIN-302",
     "FUL-144",
+    "FUL-146",
     "OPS-121",
     "OWN-55",
     "OWN-57",
     "RET-23",
     "RET-31",
+    "SCH-282",
     "SCH-303",
     "SCH-304",
     "TIM-61"

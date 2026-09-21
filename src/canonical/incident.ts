@@ -683,17 +683,17 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
       "pressureClass": "service",
       "localCap": {
         "value": {
-          "key": "incident_communication.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "key": "incident_communication.discretionary_touches",
+          "rule": "Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
           "default": {
-            "value": 1,
+            "value": 0,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
+            "applicableWhen": "every touch in the plan is marked mandatory"
           },
           "required": false
         },
-        "appliesTo": "all"
+        "appliesTo": "non-mandatory"
       },
       "cooldown": {
         "key": "incident_communication.cooldown",
@@ -726,6 +726,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         }
       ],
       "fallback": "same-role-other-channel",
+      "simultaneous": { "allowed": true, "reason": "the email carries the record to recipients who are not in the product; the in-product surface reaches whoever is hitting the fault now. Neither substitutes for the other and neither interrupts." },
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -745,7 +746,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
             "persistent",
             "in-session"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE"
         }
       ],

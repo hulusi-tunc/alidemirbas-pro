@@ -374,7 +374,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "onboarding-progress-next-step",
     category: "activation",
     goal: "progression-milestone",
-    channels: ["email", "in-app"],
+    channels: ["email"],
     name: "Onboarding progress → next best setup step → activation",
     shortName: "Onboarding Nurture",
     purpose:
@@ -389,6 +389,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "SUB-296",
         because:
           "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person.",
+      },
+      {
+        journey: "ACT-20",
+        because:
+          "ACT-20 attempts to restart a relationship that went dormant before it ever produced value; where an onboarding instance is already open for the same person, an onboarding already in motion is a current lifecycle and this journey owns the account outright. ACT-20's own reactivation handoff (h.onboarding) lands here rather than opening a second attempt.",
       },
     ],
     entity: {
@@ -465,9 +470,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "key": "onboarding.step_prompts",
           "rule": "Step prompts run against one budget fixed when the instance opened; a prompt for the same step is never repeated because nothing could tell whether it was seen.",
           "default": {
-            "value": 5,
-            "confidence": "low",
-            "basis": "example-only",
+            "value": 3,
+            "confidence": "medium",
+            "basis": "corpus-rule",
             "applicableWhen": "an onboarding with a handful of critical steps"
           },
           "required": false
@@ -491,18 +496,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "lifecycle-stage",
         "scope": "person",
-        "precedence": "below the authoritative activation event, which supersedes it wherever it sits"
+        "precedence": "below the authoritative activation event, which supersedes it wherever it sits; above dormant lead reactivation (ACT-20) for the same person, because an onboarding already in motion is a current lifecycle and reactivation is the attempt to start one"
       , "onLoss": "superseded" }
     },
     channelStrategy: {
       "roles": [
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is inside the product - the next step is best pointed at where it is taken"
-        },
         {
           "role": "persistent",
           "channels": [
@@ -511,7 +509,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "no active session, or the step needs an explanation that survives until the person returns"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -526,7 +524,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Surface the single most useful next action, read from the product's own record of what is done. Never a completed step, never the whole checklist.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
           "destination": {
@@ -570,7 +567,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "refs": [
           "h.activated",
           "h.blocker",
-          "x.window-closed"
+          "x.window-closed",
+          "x.prompts-spent"
         ]
       },
       "businessOutcome": {
@@ -607,6 +605,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "operational": [
         "entry_volume",
         "prompts_per_instance",
+        "prompts_per_instance_vs_budget",
         "time_to_activation",
         "blocker_handoff_rate",
         "window_closed_rate"
@@ -641,12 +640,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           source: "authoritative",
         },
-        next: "a.read",
-      },
-      {
-        id: "a.read",
-        kind: "action",
-        does: "Read which setup milestones are complete and which remain, from the product's own record of what was done rather than from what was sent or opened",
         next: "c.next-step",
       },
       {
@@ -657,11 +650,13 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "A step remains",
             when: "at least one incomplete milestone stands between this account and value",
+            observes: "the product's own record of completed setup milestones, never send or open history",
             to: "a.surface",
           },
           {
             label: "Nothing critical left",
             when: "the setup work is done and what remains is whether value has actually been produced",
+            observes: "the product's own record of completed setup milestones, never send or open history",
             to: "c.ready",
           },
         ],
@@ -677,9 +672,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "key": "onboarding.step_prompts",
           "rule": "The same budget as the local cap: every prompt spends it, and a spent budget waits out the window silently.",
           "default": {
-            "value": 5,
-            "confidence": "low",
-            "basis": "example-only"
+            "value": 3,
+            "confidence": "medium",
+            "basis": "corpus-rule"
           },
           "required": false
         },
@@ -732,7 +727,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "A setup milestone",
             when: "progress was made but value has not been produced yet",
-            to: "a.read",
+            to: "c.budget",
           },
         ],
       },
@@ -749,7 +744,26 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "No blocker; simply incomplete",
             when: "setup has not advanced but nothing identifiable is preventing it",
-            to: "a.read",
+            to: "c.budget",
+          },
+        ],
+      },
+      {
+        id: "c.budget",
+        kind: "condition",
+        asks: "Is there a step prompt left in this instance's budget?",
+        branches: [
+          {
+            label: "A prompt remains",
+            when: "fewer step prompts have been sent on this instance than onboarding.step_prompts allows",
+            observes: "step prompts sent so far on this instance, onboarding.step_prompts",
+            to: "c.next-step",
+          },
+          {
+            label: "Budget spent",
+            when: "every step prompt the budget allows has already been sent on this instance",
+            observes: "step prompts sent so far on this instance, onboarding.step_prompts",
+            to: "x.prompts-spent",
           },
         ],
       },
@@ -802,6 +816,15 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "a later setup or activation event re-opens this normally; the completed milestones are kept, so a return does not start from the beginning",
         class: "timeout",
       },
+      {
+        id: "x.prompts-spent",
+        kind: "exit",
+        state: "step prompts spent; onboarding continues without further prompting",
+        terminal: false,
+        reEntry:
+          "a further setup_milestone_completed event or a new onboarding instance re-opens prompting; the completed milestones are kept",
+        class: "no-action",
+      },
     ],
     preemptedBy: [
       {
@@ -832,7 +855,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "activation-blocker-resolution",
     category: "activation",
     goal: "relationship-recovery-intervention",
-    channels: ["email", "in-app", "task"],
+    channels: ["email", "task"],
     name: "Missing activation requirement → resolve blocker → resume",
     shortName: "Onboarding Blocker Reminder",
     purpose:
@@ -850,7 +873,17 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         journey: "ACT-14",
         because:
-          "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere.",
+          "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere - and where both are true, a named requirement outstanding and help being sought against it, this journey holds the account and the help offer is suppressed for it, because an obstacle with a name is answerable and a general offer of help is not.",
+      },
+      {
+        journey: "ACT-12",
+        because:
+          "ACT-12 suppresses its generic next-step prompt for the exact prerequisite this journey names the moment it opens (s.blocker) and hands the account here (h.blocker). This journey is what that transfer is transferring to, and resumes ACT-12 (h.resume) once the requirement clears.",
+      },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks activation. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it.",
       },
     ],
     objective: "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
@@ -875,6 +908,14 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "label": "CANONICAL_RULE",
         "text": "The moment the requirement is met, its reminders stop, including any already scheduled."
       },
+      // NOTE: TIM-268 (src/canonical/time.ts) needs its own reciprocal edit -
+      // a distinctFrom row naming ACT-13 and honoring this suppression for the
+      // held obligation. Not made here: out of scope for activation.ts.
+      {
+        "id": "s.generic-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "This journey owns the reminder for the named requirement it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that obligation while this instance holds it."
+      },
     ],
     contact: {
       "defaultPriority": "service",
@@ -882,9 +923,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "activation_blocker.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget counts customer touches only - a.route-dependency raises an internal work item, not a send - and no customer touch is repeated because nothing could tell whether it arrived.",
           "default": {
-            "value": 2,
+            "value": 1,
             "confidence": "high",
             "basis": "corpus-rule",
             "applicableWhen": "GLB-24; the graph's own touch count"
@@ -915,13 +956,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the message has to be kept and survive until the person can act on it"
         },
         {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
-        },
-        {
           "role": "human",
           "channels": [
             "task"
@@ -929,7 +963,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
+      "simultaneous": { "allowed": true, "reason": "the work item and the account notice are addressed to different people and carry different content" },
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -945,8 +980,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Give the one specific action that clears this requirement, named as the thing it is - never a general prompt to finish setup, which tells someone who is already blocked nothing they did not know",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -969,6 +1003,22 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "purpose": "Raise the requirement with whoever can actually resolve it, carrying what is blocked and why.",
           "channelRoles": [
             "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "dependency-hold",
+          "action": "a.hold-notice",
+          "after": "t2",
+          "prerequisites": [
+            "c.blocking",
+            "c.self-resolvable"
+          ],
+          "purpose": "Tell the account the requirement is now with the party who can resolve it, and what happens when it is - the one branch where they cannot act themselves must not leave them in silence.",
+          "channelRoles": [
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -1125,9 +1175,17 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Raise the requirement with whoever can actually resolve it, carrying what is blocked and why. Ownership of the resume stays here, so the account is not handed away and forgotten",
         writes: [{ field: "dependency_requests", mode: "append" }],
-        next: "w.resolve",
+        next: "a.hold-notice",
         execution: "human",
         idempotencyKey: "account_id + a.route-dependency",
+      },
+      {
+        id: "a.hold-notice",
+        kind: "action",
+        does: "Name the outstanding requirement, say it is now with the party who can resolve it, and say what happens when it is. Never asks the account to do anything - this is the branch where they cannot",
+        next: "w.resolve",
+        execution: "communication",
+        idempotencyKey: "account_id + requirement_id + a.hold-notice",
       },
       {
         id: "w.resolve",
@@ -1266,7 +1324,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "struggling-user-assistance",
     category: "activation",
     goal: "relationship-recovery-intervention",
-    channels: ["email", "in-app", "push"],
+    channels: ["email", "in-app"],
     name: "Struggling user detection → proactive assistance → recovery or exit",
     shortName: "Onboarding Help",
     purpose:
@@ -1285,6 +1343,16 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "ACT-13",
         because:
           "ACT-13 has a named requirement to clear. Here the evidence is effort without progress and no single thing to point at, which is why the offer is help rather than an instruction.",
+      },
+      {
+        journey: "ACT-19",
+        because:
+          "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true this journey holds the person: an open assisted-help session is evidence of active struggle, and a personalization question is not asked into it (s.struggling on ACT-19).",
+      },
+      {
+        journey: "ACT-12",
+        because:
+          "ACT-12 pauses its generic next-step prompts while an assisted session booked here is open (s.assisted), released on assisted_session_outcome_recorded or booking_cancelled; this journey is what that pause is for.",
       },
     ],
     objective: "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
@@ -1315,6 +1383,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "label": "CANONICAL_RULE",
         "text": "The offer is made at most twice: the offer itself, and one final self-service alternative."
       },
+      {
+        "id": "s.named-blocker",
+        "label": "CANONICAL_RULE",
+        "text": "Where a named mandatory requirement is established as the thing preventing activation, the blocker journey (ACT-13) owns the account and this journey does not open."
+      },
     ],
     contact: {
       "defaultPriority": "service",
@@ -1322,9 +1395,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "struggling_user.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "rule": "Every touch runs against a budget fixed when the instance opened, counted as the longest path through the plan rather than the node count: the offer, the booking confirmation, one follow-up. The booking confirmation is a requested transactional message, not a nudge, so the nudge budget is 2 and s.g4 is its statement.",
           "default": {
-            "value": 4,
+            "value": 3,
             "confidence": "high",
             "basis": "corpus-rule",
             "applicableWhen": "GLB-24; the graph's own touch count"
@@ -1351,21 +1424,14 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the person is active in the product and the action is taken there"
         },
         {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "no active session, a valid token exists, and the message is a single step from the notification"
-        },
-        {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "no active session and no valid push token - the message has to be kept and survive until the person returns to act on it"
+          "when": "no active session - the message has to be kept and survive until the person returns to act on it"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -1381,9 +1447,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Offer help named against the step they keep returning to.",
           "channelRoles": [
-            "in-session",
-            "low-friction",
-            "persistent"
+            "in-session"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -1403,8 +1467,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on",
           "channelRoles": [
-            "in-session",
-            "low-friction",
             "persistent"
           ],
           "mandatory": false,
@@ -1426,8 +1488,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send one follow-up tied to what the session actually covered.",
           "channelRoles": [
-            "in-session",
-            "low-friction",
             "persistent"
           ],
           "mandatory": false,
@@ -1443,8 +1503,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send one final self-service option and stop.",
           "channelRoles": [
-            "in-session",
-            "low-friction",
             "persistent"
           ],
           "mandatory": false,
@@ -1456,7 +1514,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4"
+        "s.g4",
+        "s.named-blocker"
       ]
     },
     implementation: {
@@ -1573,7 +1632,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         asks: "Is a person already working this same blocker?",
         branches: [
           {
-            label: "Already handled",
+            label: "ACT-13 or a person already has it",
             when: "an open support case or an assigned human owner covers the same issue, or ACT-13 already owns a named requirement on this instance - the struggle is almost always that requirement, and a help offer beside a blocker reminder is two voices on one problem",
             to: "x.defer",
           },
@@ -1986,7 +2045,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "early-adoption-to-stable-use",
     category: "activation",
     goal: "progression-milestone",
-    channels: ["email", "in-app"],
+    channels: ["in-app", "email"],
     name: "Early adoption → usage depth → habit or stable use",
     shortName: "Adoption Nurture",
     purpose:
@@ -2005,6 +2064,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "ACT-12",
         because:
           "Onboarding gets someone to value once. This is about the second, fifth and twentieth time, where the obstacle is habit rather than setup.",
+      },
+      {
+        journey: "ACT-18",
+        because:
+          "ACT-17 hands its failure case to ACT-18 and ACT-18 is ACT-17's own recovery destination - two reciprocal handoffs on one instance key (account_id + use_case_id). A competition group would add nothing beyond the handoffs already declared.",
       },
     ],
     objective: "Turn a first activation into repeated value in the same use-case: recognise what was actually produced, point at the one behaviour that would produce more, and stop the moment adoption is stable or stalls.",
@@ -2033,7 +2097,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "An open complaint under human ownership, a live risk case or a declared cancellation intent on the same account outranks lifecycle nurture; the touch is deferred and re-evaluated against current state (GLB-06)."
+        "text": "A live risk case (RET-24), an open issue under human ownership or a declared cancellation intent on the same account means adoption is not the subject; the touch is deferred and re-evaluated against current state. This journey declares no exclusion group: it hands the use-case to adoption recovery (ACT-18) rather than contesting it."
       },
       {
         "id": "s.permission",
@@ -2053,12 +2117,12 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "adoption.touches",
-          "rule": "Recognition and the nudges that follow run against one budget fixed when the instance opened; a nudge is never repeated because nothing could tell whether it was seen.",
+          "rule": "Recognition and the nudge that follows run against one budget fixed when the instance opened; a nudge is never repeated because nothing could tell whether it was seen.",
           "default": {
-            "value": 4,
-            "confidence": "low",
-            "basis": "example-only",
-            "applicableWhen": "one recognition and a small number of behaviour nudges across the early-adoption window"
+            "value": 2,
+            "confidence": "medium",
+            "basis": "corpus-rule",
+            "applicableWhen": "one recognition and one behaviour nudge across the early-adoption window - the graph's own touch count"
           },
           "required": false
         },
@@ -2097,7 +2161,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "no active session, or the recognition and the suggested behaviour have to survive until the person returns"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -2106,33 +2170,28 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         {
           "id": "t0",
           "stage": "recognition",
-          "action": "a.recognize",
-          "prerequisites": [],
-          "purpose": "Acknowledge the specific thing that was produced, in its own terms. Recognition that names nothing real is worse than silence.",
+          "action": "a.recognize-next",
+          "prerequisites": [
+            "c.next"
+          ],
+          "purpose": "Acknowledge the specific thing that was produced, in its own terms, and name the one action that follows from it: sharing it, repeating it, extending it. Recognition that names nothing real is worse than silence; the mutually exclusive branch of a message-variant fork, one stage.",
           "channelRoles": [
-            "in-session",
-            "persistent"
+            "in-session"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t1",
-          "stage": "next-action",
-          "action": "a.surface",
-          "after": "t0",
+          "id": "t0-only",
+          "stage": "recognition",
+          "action": "a.recognize-only",
           "prerequisites": [
             "c.next"
           ],
-          "purpose": "Surface the one action that genuinely follows from what they produced - sharing it, repeating it, extending it - and nothing from the feature list.",
+          "purpose": "Acknowledge the specific thing that was produced, in its own terms, and say nothing more - inventing a next step would turn recognition into a pitch. The mutually exclusive branch of t0's message-variant fork, one stage.",
           "channelRoles": [
-            "in-session",
-            "persistent"
+            "in-session"
           ],
-          "destination": {
-            "target": "next-action-in-context",
-            "boundTo": "use_case_id"
-          },
           "mandatory": false,
           "label": "CANONICAL_RULE"
         },
@@ -2146,7 +2205,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Encourage only the next behaviour that would produce more value in this use-case; breadth is never pushed where the value is narrow.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
           "destination": {
@@ -2247,26 +2305,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "source": "authoritative"
         },
-        "next": "a.recognize"
-      },
-      {
-        id: "a.measure",
-        kind: "action",
-        does: "Read adoption from value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them. Activity that produces nothing does not count toward it, however much of it there is",
-        next: "c.stable",
-      },
-      {
-        "id": "a.recognize",
-        "kind": "action",
-        "does": "Acknowledge what was actually produced, in the terms of the thing itself. Recognition that names nothing real reads as manufactured and devalues the milestones that follow",
-        "execution": "communication",
-        "idempotencyKey": "account_id + use_case_id + touch id",
-        "writes": [
-          {
-            "field": "adoption_log",
-            "mode": "append"
-          }
-        ],
         "next": "c.next"
       },
       {
@@ -2278,20 +2316,20 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "Yes",
             "when": "something specific follows from the thing they produced - sharing it, repeating it, extending it",
             "observes": "produced_artifact and the use-case's own next step",
-            "to": "a.surface"
+            "to": "a.recognize-next"
           },
           {
             "label": "No",
             "when": "nothing genuinely follows, and inventing a next step would turn recognition into a pitch",
             "observes": "produced_artifact",
-            "to": "a.measure"
+            "to": "a.recognize-only"
           }
         ]
       },
       {
-        "id": "a.surface",
+        "id": "a.recognize-next",
         "kind": "action",
-        "does": "Surface one relevant next action, drawn from what they produced rather than from the product's feature list",
+        "does": "Acknowledge what was actually produced, in the terms of the thing itself, and name the one action that genuinely follows from it - sharing it, repeating it, extending it. Recognition that names nothing real reads as manufactured and devalues the milestones that follow",
         "execution": "communication",
         "idempotencyKey": "account_id + use_case_id + touch id",
         "writes": [
@@ -2300,7 +2338,21 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
             "mode": "append"
           }
         ],
-        "next": "a.measure"
+        "next": "w.observe"
+      },
+      {
+        "id": "a.recognize-only",
+        "kind": "action",
+        "does": "Acknowledge what was actually produced, in the terms of the thing itself, and say nothing more - inventing a next step would turn recognition into a pitch. Recognition that names nothing real reads as manufactured and devalues the milestones that follow",
+        "execution": "communication",
+        "idempotencyKey": "account_id + use_case_id + touch id",
+        "writes": [
+          {
+            "field": "adoption_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.observe"
       },
       {
         id: "c.stable",
@@ -2310,11 +2362,13 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Stable",
             when: "value is being produced repeatedly at the rhythm this use-case implies, without prompting",
+            observes: "value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them; activity that produces nothing does not count toward it, however much of it there is",
             to: "h.normal",
           },
           {
             label: "Not yet",
             when: "value has been produced but not reliably repeated",
+            observes: "value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them; activity that produces nothing does not count toward it, however much of it there is",
             to: "a.next-behavior",
           },
         ],
@@ -2341,7 +2395,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.next-behavior",
         kind: "action",
         does: "Identify the next behaviour that would actually produce more value for this use-case, and encourage only that. Breadth is not pursued where the value is narrow - a person who gets everything they need from one workflow is adopted, not under-adopted",
-        next: "w.observe",
+        next: "w.confirm",
         execution: "communication",
         idempotencyKey: "account_id + use_case_id + touch id + observation cycle",
         attemptBudget: {
@@ -2361,7 +2415,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         until: [
           "value_produced"
         ],
-        onEvent: "a.measure",
+        onEvent: "c.stable",
         timeout: {
           "after": {
             "key": "adoption.observation_window",
@@ -2377,10 +2431,50 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         recheck: "value-producing usage re-read from the product's own record - not activity, not logins",
       },
       {
+        id: "w.confirm",
+        kind: "wait",
+        until: [
+          "value_produced"
+        ],
+        onEvent: "c.stable-after-nudge",
+        timeout: {
+          "after": {
+            "key": "adoption.observation_window",
+            "rule": "The early-adoption window is the product's own intended usage rhythm for this use-case; a weekly product and a twice-a-year product cannot share one, and a shared window reports every seasonal account as failing.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "the same observation window applies after the nudge as before it - the use-case's rhythm has not changed",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "h.stall",
+        windowExtendsOnEngagement: false,
+        recheck: "value-producing usage re-read from the product's own record - not activity, not logins",
+      },
+      {
+        id: "c.stable-after-nudge",
+        kind: "condition",
+        asks: "Is it repeating now?",
+        branches: [
+          {
+            label: "Yes",
+            when: "value is being produced repeatedly at the rhythm this use-case implies, following the nudge",
+            observes: "value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them; activity that produces nothing does not count toward it, however much of it there is",
+            to: "h.normal",
+          },
+          {
+            label: "Still not",
+            when: "the nudge went out and value still has not repeated",
+            observes: "value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them; activity that produces nothing does not count toward it, however much of it there is",
+            to: "h.stall",
+          },
+        ],
+      },
+      {
         id: "h.stall",
         kind: "handoff",
         to: "ACT-18",
-        on: "the early-adoption window passing without repeated value",
+        on: "the early-adoption window passing without repeated value, before or after the one behaviour nudge",
         carries: [
           "what was produced and when it stopped",
           "the expected pattern it was measured against, so the stall is diagnosed rather than assumed",
@@ -2449,7 +2543,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "This journey is lowest in the retention-outreach group: an open issue under human ownership, a live risk case or a declared cancellation intent on the same account suppresses it (GLB-06)."
+        "text": "This journey is lowest in the retention-outreach group: an open issue under human ownership, a live risk case (RET-24), a declared cancellation intent (RET-28), or a retention offer follow-up still open on the same account (RET-30) all suppress it (GLB-06)."
       },
       {
         "id": "s.permission",
@@ -2497,7 +2591,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "retention-outreach",
         "scope": "account",
-        "precedence": "lowest in the group - an open issue under human ownership, a live risk case or a declared cancellation intent all outrank a recovery nudge"
+        "precedence": "lowest in retention-outreach: below the declared cancellation intent (RET-28), any live risk case (RET-24), any open issue under human ownership, and the retention offer follow-up (RET-30) on the same account"
       , "onLoss": "suppressed" }
     },
     channelStrategy: {
@@ -2686,7 +2780,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new use-case, or the same need arising again, opens adoption normally - this account did not fail, it finished",
-        class: "invalid-state",
+        class: "success",
       },
       {
         id: "a.recover",
@@ -2783,7 +2877,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "role-use-case-discovery",
     category: "activation",
     goal: "routing-assignment",
-    channels: ["email", "in-app"],
+    channels: ["in-app"],
     name: "Role or use-case discovery → relevant onboarding adaptation",
     shortName: "Onboarding Personalization",
     purpose:
@@ -2793,6 +2887,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "ACT-12",
         because:
           "This one asks the question that decides the route; ACT-12 walks the route once it is decided. While the question is outstanding this journey owns the onboarding conversation on the same channels, and ACT-12's nurture prompts are held until the answer lands or the wait times out - otherwise both are talking about setup at once, and the generic prompt can be for the very step the answer was about to change.",
+      },
+      {
+        journey: "ACT-14",
+        because:
+          "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true ACT-14 holds the person: an open assisted-help session suppresses this journey's question (s.struggling) until the session resolves.",
       },
     ],
     entity: {
@@ -2825,6 +2924,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g3",
         "label": "CANONICAL_RULE",
         "text": "Onboarding does not become a questionnaire. One question, asked where the answer changes the path."
+      },
+      {
+        "id": "s.struggling",
+        "label": "CANONICAL_RULE",
+        "text": "An open assisted-help session (ACT-14) for the same person suppresses this journey's question. Somebody who is visibly stuck and has asked for help is not also asked to describe their role; the question waits until that session resolves, and where the onboarding decision has already been defaulted by then, it is not asked at all."
       },
       {
         "id": "s.sunset",
@@ -2865,13 +2969,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
           "role": "in-session",
           "channels": [
             "in-app"
@@ -2879,7 +2976,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the person is active in the product and the action is taken there"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -2895,7 +2992,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Ask one lightweight question covering only what the implementation will actually consume.",
           "channelRoles": [
-            "persistent",
             "in-session"
           ],
           "mandatory": false,
@@ -2909,7 +3005,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "noAction": [
         "s.g1",
         "s.g2",
-        "s.g3"
+        "s.g3",
+        "s.struggling"
       ]
     },
     implementation: {
@@ -3111,7 +3208,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "dormant-non-customer-reactivation",
     category: "activation",
     goal: "relationship-recovery-intervention",
-    channels: ["email", "push"],
+    channels: ["email"],
     name: "Dormant non-customer reactivation → return → re-qualification or exit",
     shortName: "Dormant Lead Reactivation",
     purpose:
@@ -3199,16 +3296,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a valid token or app session exists and the message is a single step from the notification"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -3220,12 +3310,11 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "action": "a.attempt",
           "prerequisites": [
             "c.never-monetized",
-            "c.worth-it"
+            "c.reason"
           ],
           "purpose": "Make one bounded attempt built on the recorded reason.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3357,21 +3446,21 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.reason",
         kind: "action",
         does: "Establish whether there is a credible reason to come back: setup they never finished, an interest they expressed, something now relevant that was not before, a destination left incomplete, or a real change in the product",
-        next: "c.worth-it",
+        next: "c.reason",
       },
       {
-        id: "c.worth-it",
+        id: "c.reason",
         kind: "condition",
-        asks: "Is there a credible reason, and is this person still eligible and contactable?",
+        asks: "Is there a credible reason to make one attempt?",
         branches: [
           {
-            label: "Worth one attempt",
-            when: "a specific reason exists and permission and eligibility both hold",
+            label: "A specific reason exists",
+            when: "something specific to come back for - setup never finished, an interest expressed, something now relevant, a real product change",
             to: "a.attempt",
           },
           {
-            label: "Not worth it",
-            when: "no specific reason exists, or permission or eligibility has lapsed",
+            label: "No specific reason",
+            when: "no specific reason exists; dormancy alone is never a reason by itself",
             to: "x.no-reason",
           },
         ],

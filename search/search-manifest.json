@@ -512,12 +512,12 @@
   "sizeReport": {
     "rawSourceSizeBytes": {
       "src/data/ab-tests.json": 635240,
-      "production/journey-view-model.json": 3458897
+      "production/journey-view-model.json": 3513393
     },
-    "searchIndexSizeBytes": 1006051,
-    "searchIndexLightSizeBytes": 635015,
-    "averageDocumentSizeBytes": 2055,
-    "maxDocumentSizeBytes": 4740,
+    "searchIndexSizeBytes": 1028378,
+    "searchIndexLightSizeBytes": 656716,
+    "averageDocumentSizeBytes": 2105,
+    "maxDocumentSizeBytes": 5163,
     "minDocumentSizeBytes": 992
   }
 }

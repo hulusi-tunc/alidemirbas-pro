@@ -230,30 +230,28 @@ const INSTANCED_KINDS: ReadonlySet<CanvasNodeKind> = new Set(["exit", "handoff",
 
 /* A channel-selecting action (`FlowNode.channelPriority`, self-detected -
    see canonical-view.ts) that leads directly into the one send action it
-   selects for is, on the CANVAS, the same step as that send - "pick a
-   channel" and "send on it" read as one action to a journey reader, not
-   two. The canonical graph keeps both nodes exactly as authored (nothing
-   here reads or writes src/canonical); this is a DISPLAY GRAPH decision
-   only, the same kind this module already makes for a shared terminal
-   drawn once per parent below - here the router simply draws no box of
-   its own, and whatever fed into it connects straight through to the
-   message/human action instead. Detail panel access to the router's own
-   full priority/fallback prose is JourneyCanvas.tsx's concern (it still
-   has the router as an ordinary FlowNode, just not laid out); this
-   function only decides what gets a box. Generic: works for any journey
-   with the shape, not looked up by journey or node id. */
-export function collapsibleRouters(nodes: readonly FlowNode[], byId: ReadonlyMap<string, FlowNode>): ReadonlyMap<string, string> {
-  const collapsed = new Map<string, string>();
-  for (const n of nodes) {
-    if (n.kind !== "action" || n.execution || (n.channelPriority?.length ?? 0) < 2) continue;
-    const out = n.edges.filter((e) => e.kind === "node");
-    if (out.length !== 1) continue;
-    const next = byId.get(out[0].to);
-    if (next?.kind === "action" && (next.execution === "communication" || next.execution === "human")) {
-      collapsed.set(n.id, out[0].to);
-    }
-  }
-  return collapsed;
+   selects for was, until 2026-09-21, folded into that send on the CANVAS -
+   "pick a channel" and "send on it" read as one action to a journey
+   reader, not two. That reasoning was overruled by
+   `audit/refactor/_ARBITRATION.md` §5: measured against the whole 69-
+   journey public corpus, this shape matches exactly seven nodes, all in
+   ACQ-287/288/289, and all seven are the library's only real channel
+   *resolution* - they read live state (a push token's validity, whether a
+   number is reachable on WhatsApp) and pick between REAL alternatives, the
+   one case in the corpus where a fallback or a segment split is not
+   asserted in prose but actually decided by a node. Where a stage's
+   pattern is conditional or fallback, that deciding node has to be
+   **visible**, not folded into the card it feeds - a reader must be able
+   to tell a real substitution from one merely claimed on a card. This
+   function keeps its shape (and both call sites below) as a documented,
+   verifiable no-op rather than being deleted outright: the collapse it
+   used to perform is never correct for this corpus and returning an empty
+   map states that as a checkable fact, not a silent removal. Generic: not
+   looked up by journey or node id - if the corpus ever grows a channel-
+   resolving action that is NOT one of these seven, it renders exactly the
+   same way, visible, with no code change needed here. */
+export function collapsibleRouters(_nodes: readonly FlowNode[], _byId: ReadonlyMap<string, FlowNode>): ReadonlyMap<string, string> {
+  return new Map();
 }
 
 /** A binary condition (exactly two branches) where one side is a real
@@ -425,14 +423,18 @@ export function absorbableBookkeeping(
     if (out.length !== 1) continue;
     const host = byId.get(out[0].to);
     if (!host) continue;
-    /* `meta` carries the writes as "writes <field> (<mode>)" - the same
-       projection canonical-view.ts already builds - so the test reads the
-       authored field names without this module needing the canonical node. */
-    const writes = n.meta.filter((m) => m.startsWith("writes "));
-    const journalOnly = writes.every((m) => {
-      const field = m.slice("writes ".length).split(" ")[0];
-      return JOURNAL_WRITE.test(field);
-    });
+    /* `writesFields` (FlowNode, canonical-view.ts) carries the authored
+       `writes[].field` names raw and unlocalized - read that structural
+       fact directly rather than pattern-matching `meta`'s "writes <field>
+       (<mode>)" display line, which is Turkish prose on the TR route and
+       does not start with the English word "writes" there. Matching
+       against `meta` used to make this test vacuously pass on `/tr` for
+       any node with real, non-journal writes (an empty `.filter()` result
+       makes `.every()` true), silently absorbing a node on TR that EN
+       correctly kept drawn - see `writesFields`'s own doc for the five
+       journeys this cost before the fix. */
+    const writes = n.writesFields ?? [];
+    const journalOnly = writes.every((field) => JOURNAL_WRITE.test(field));
     if (!journalOnly) continue;
     absorbed.set(n.id, out[0].to);
   }

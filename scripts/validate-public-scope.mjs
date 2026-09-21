@@ -82,9 +82,13 @@ PUBLIC_LIBRARY_IDS.size === EXPECTED_PUBLIC_COUNT
    The exception is a LIST, not a flag: a second id cannot join it without an
    edit here and a reason beside it, and the run prints the exception every
    time so it can never pass unnoticed. */
-const CHANNEL_RULE_EXCEPTIONS = new Map([
-  ["RET-24", "routing/escalation journey - its customer messaging is owned by RET-28 / RET-23 / RET-30 under RET-24's own retention-outreach precedence"],
-]);
+/* Empty by design (2026-09-21: RET-24 removed - it now carries a real
+   customer-facing check-in, `channels: ["email", "in-app", "task"]`, and
+   no longer needs the exception). Kept as a Map with this comment, printed
+   every run, rather than deleted outright - the next journey that wants to
+   claim "no customer channel" has to justify it here, in the open, instead
+   of the check silently passing. */
+const CHANNEL_RULE_EXCEPTIONS = new Map([]);
 {
   const noChannel = [];
   const noNode = [];

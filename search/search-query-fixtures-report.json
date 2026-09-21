@@ -649,9 +649,9 @@
       "ok": true,
       "isKnownGap": false,
       "top3": [
-        "ab-test:AB-058",
         "ab-test:AB-049",
-        "ab-test:AB-056"
+        "ab-test:AB-056",
+        "ab-test:AB-054"
       ],
       "reason": "VERIFIED: the journey corpus is backend lifecycle/state-machine content (entitlement, ownership, access) and genuinely has no document about UI-level 'signup forms' - that's an ab-test/surface concept in this corpus, not a journey one. An all-ab-test result is the honest reflection of that real structural difference between the two corpora, not a balancing defect."
     },

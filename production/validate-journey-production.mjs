@@ -365,11 +365,25 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 303 journeys / 3998 nodes (2026-09-21). The 69-journey quality refactor
+// (audit/refactor/69-journey-final-plan.md, product decisions locked and implemented across 8
+// commits on refactor/69-journeys) touched every one of the 69 public journeys' canonical data:
+// channel rosters cut to what each touch actually resolves, several new nodes (RET-24's customer
+// check-in and its supporting wait/conditions, REM-305's x.owned exit, REM-157's four remedy
+// confirmations, SCH-277's re-read step, SUB-297's expiry condition, FUL-265's revision path,
+// RSK-273's merged wall message, and others), some deleted (RET-32's degenerate c.basis, RET-24's
+// dangling h.intervention/RET-30 handoff), reciprocal distinctFrom rows completed across domain
+// boundaries, and two corpus-wide precedence deadlocks resolved (RET-30/ACT-18, and the ordering
+// already fixed pre-refactor for ACQ-13/ACQ-289). 3959 -> 3998 nodes, +39 net. Rules (423), global
+// rules (31) and merged redirects (8) are unchanged; the 69/21/90 public-scope split never moved.
+// Two events were added to the registry via scripts/event-curation.json + build-event-registry.mjs:
+// restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (303 journeys / 3959 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (303 journeys / 3998 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 303 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3959 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3998 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

@@ -138,7 +138,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "deadline-tracking",
     category: "time",
     goal: "escalation-exception",
-    channels: ["email", "push", "sms", "whatsapp"],
+    channels: ["email", "sms"],
     name: "Deadline created → track → complete, escalate or expire",
     shortName: "Deadline Tracking",
     purpose:
@@ -232,22 +232,14 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a valid token or app session exists and the message is a single step from the notification"
+          "when": "any pre-deadline threshold before the final one, where the message has to be kept and survive until the person can act on it"
         },
         {
           "role": "urgent",
           "channels": [
-            "sms",
-            "whatsapp"
+            "sms"
           ],
-          "when": "due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
+          "when": "this is the final pre-deadline threshold before the deadline, and permission for messages on this channel is recorded"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -263,12 +255,35 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "gatedBy": "w.tracking",
           "prerequisites": [
             "c.what",
-            "c.useful"
+            "c.useful",
+            "c.threshold"
           ],
           "purpose": "Send the reminder defined for this threshold.",
           "channelRoles": [
-            "persistent",
-            "low-friction",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "discharge-the-obligation",
+            "boundTo": "obligation_id",
+            "mustNotClaim": [
+              "a moved deadline"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "remind-final",
+          "action": "a.remind-final",
+          "gatedBy": "w.tracking",
+          "prerequisites": [
+            "c.what",
+            "c.useful",
+            "c.threshold"
+          ],
+          "purpose": "Send the reminder defined for the final pre-deadline threshold, on the channel that permission and the urgency of the moment both justify.",
+          "channelRoles": [
             "urgent"
           ],
           "mandatory": false,
@@ -427,7 +442,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         does: "Mark the obligation satisfied and invalidate every reminder and escalation still queued against it. A completed obligation is never reopened by a stale deadline job, which is the specific way a finished thing comes back to life",
         writes: [
           { field: "deadline_log", mode: "append" },
-          { field: "suppressed_sends", mode: "append" },
+          { field: "suppressed_sends", mode: "set" },
         ],
         next: "x.satisfied",
         idempotencyKey: "obligation_id + a.satisfied",
@@ -448,12 +463,29 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Send it",
             when: "policy defines a reminder at this threshold and the recipient can still act on it",
-            to: "a.remind",
+            to: "c.threshold",
           },
           {
             label: "Nothing to send",
             when: "no reminder is defined, or nobody can do anything differently on hearing it",
             to: "w.tracking",
+          },
+        ],
+      },
+      {
+        id: "c.threshold",
+        kind: "condition",
+        asks: "Which threshold fired?",
+        branches: [
+          {
+            label: "The final pre-deadline threshold",
+            when: "this is the last threshold before the deadline itself, and SMS permission is recorded",
+            to: "a.remind-final",
+          },
+          {
+            label: "Any earlier threshold",
+            when: "an earlier, non-final threshold - information rather than a deadline with a consequence about to attach",
+            to: "a.remind",
           },
         ],
       },
@@ -464,6 +496,19 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         next: "w.tracking",
         execution: "communication",
         idempotencyKey: "obligation_id + a.remind",
+        attemptBudget: {
+          "key": "deadline_tracking.remind_budget",
+          "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+          "required": true
+        },
+      },
+      {
+        id: "a.remind-final",
+        kind: "action",
+        does: "Send the reminder defined for the final pre-deadline threshold. This is the last chance before the deadline itself becomes the thing that decides what happens, so it carries the deadline and the one way to discharge the obligation, not merely information about it",
+        next: "w.tracking",
+        execution: "communication",
+        idempotencyKey: "obligation_id + a.remind-final",
         attemptBudget: {
           "key": "deadline_tracking.remind_budget",
           "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -496,7 +541,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
             to: "x.failed",
           },
           {
-            label: "STILL_VALID",
+            label: "Still valid",
             when: "the deadline was a target and passing it changes nothing about the obligation",
             to: "x.still-valid",
           },
@@ -795,7 +840,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "pre-expiry-window",
     category: "time",
     goal: "expiry-renewal",
-    channels: ["email", "in-app", "push", "sms"],
+    channels: ["email"],
     name: "Expiry approaching → eligibility check → renew, complete or let expire",
     shortName: "Expiry Reminder",
     purpose:
@@ -819,6 +864,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "SUB-163",
         because:
           "A subscription is in this journey's scope and a term end is in SUB-163's, so the same calendar moment fires both. SUB-163 owns it: it is the one that knows the renewal terms, the notice the terms require and who holds the decision, and its notice is a contractual obligation rather than outreach. This journey is the generic fallback for that expiry - it owns a subscription only where no renewal decision window is open on it, alongside every other expiring entity with no renewal cycle.",
+      },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 is a generic outstanding-obligation reminder that does not know which specific entity is expiring or what its expiry actually does. This journey owns the reminder once an expiring entity is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it.",
       },
     ],
     objective: "Before something expires, tell the person who can actually act what is expiring, the one action that would change the outcome and the point by which it must be taken - or, where nothing can be done, say plainly what will happen; and say nothing where nothing is worth saying.",
@@ -858,6 +908,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.renewal-cycle",
         "label": "CANONICAL_RULE",
         "text": "An entity whose expiry is the end of a renewal cycle is owned by the renewal journey (SUB-163) for the whole of that cycle's decision window, and this journey is suppressed for it - the required notice and a pre-expiry reminder about one subscription are the same message sent twice, and the notice is the one the terms oblige. This journey is the fallback for a subscription expiry no renewal decision owns, and the owner of every expiring entity that has no renewal cycle at all: a document, a credential, an approval, a reservation, a benefit, an agreement with no renewing terms."
+      },
+      {
+        "id": "s.generic-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "This journey owns the reminder for the expiring entity it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that entity while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
       }
     ],
     contact: {
@@ -901,25 +956,10 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the message names an action and a boundary and must survive until the responsible actor can act - the default"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the responsible actor is in the product and the action is taken there"
-        },
-        {
-          "role": "urgent",
-          "channels": [
-            "sms",
-            "push"
-          ],
-          "when": "expires_at falls inside the urgent_horizon attribute, the action is a single step, and permission for service messages on the channel is recorded"
+          "when": "the message names an action and a boundary and must survive until the responsible actor can act - the whole strategy, since the responsible actor may hold no product session at all and nothing here establishes an imminent one-tap action that would justify SMS"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -935,9 +975,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point by which it must be taken.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "urgent"
+            "persistent"
           ],
           "destination": {
             "target": "expiry-action",
@@ -973,7 +1011,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "s.nothing-to-say",
         "s.no-call-where-no-action",
         "s.stale-queue",
-        "s.renewal-cycle"
+        "s.renewal-cycle",
+        "s.generic-reminder"
       ]
     },
     implementation: {
@@ -1119,6 +1158,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.actor",
         kind: "action",
         does: "Establish who is responsible for acting and what the action actually is. A pre-expiry message addressed to someone who cannot perform the renewal is a notification pretending to be a call to action",
+        writes: [{ field: "responsible_actor", mode: "set" }],
         next: "a.prompt-action",
       },
       {
@@ -2320,7 +2360,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "outstanding-obligation-reminder",
     category: "time",
     goal: "escalation-exception",
-    channels: ["email", "sms"],
+    channels: ["email"],
     name: "Customer-owed action → deadline reminder → completed or lapsed",
     shortName: "Action Required Reminder",
     purpose:
@@ -2389,12 +2429,17 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "FBK-49 owns a blocking data item, and knows which process stalls without it. This journey would ask for the same item without being able to say what it unblocks.",
       },
+      {
+        journey: "FIN-134",
+        because:
+          "FIN-134 opens only where a payment system states that an attempt against the obligation actually failed, and it owns what is said about the obligation from that moment. This journey is the sending for an obligation that is merely outstanding - owed, due, and not yet attempted. Where a recorded failure exists, that journey holds the obligation and this one is suppressed for it.",
+      },
     ],
     objective: "Remind somebody of what they owe while there is still time to do it, from the state the obligation is in at the moment of sending - because a reminder for something already done costs more than the reminder that was never sent.",
     eligibility: [
       "an authoritative record that a defined action is owed by a named person",
       "a due date recorded against it",
-      "no journey scoped to this obligation's own type already owns the reminder for it - a governing deadline is TIM-61's, an expiring validity TIM-63's, a signature DOC-215's, an invitation REL-284's, first use of an entitlement ACC-263's, a change prerequisite RLT-279's, a booking prerequisite SCH-266's, an activation requirement ACT-13's and a blocking data item FBK-49's; this journey is what reminds a person of an obligation nothing more specific owns",
+      "no journey scoped to this obligation's own type already owns the reminder for it - a governing deadline is TIM-61's, an expiring validity TIM-63's, a signature DOC-215's, an invitation REL-284's, first use of an entitlement ACC-263's, a change prerequisite RLT-279's, a booking prerequisite SCH-266's, an activation requirement ACT-13's, a blocking data item FBK-49's and a recorded payment failure FIN-134's; this journey is what reminds a person of an obligation nothing more specific owns",
       "no instance of this journey is already open for the the outstanding obligation",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
@@ -2427,7 +2472,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.g6",
         "label": "CANONICAL_RULE",
-        "text": "A type-specific journey owns the obligation wherever one exists. This journey starts only where no more specific public journey already owns the reminder for that obligation's own type, and it is suppressed for any obligation one of them holds. The record decides what is owed; whoever owns the type decides what is said about it; this is the sending for everything left over, and a person never receives the specific reminder and the generic one about the same obligation."
+        "text": "A type-specific journey owns the obligation wherever one exists - TIM-61 for a governed deadline, TIM-63 for an expiring validity, DOC-215 for a signature, REL-284 for an invitation, ACC-263 for first use of an entitlement, RLT-279 for a change prerequisite, SCH-266 for a booking prerequisite, ACT-13 for an activation requirement, FBK-49 for a blocking data item, and FIN-134 for an obligation with a recorded payment failure against it. This journey starts only where no more specific public journey already owns the reminder for that obligation's own type, and it is suppressed for any obligation one of them holds. The record decides what is owed; whoever owns the type decides what is said about it; this is the sending for everything left over, and a person never receives the specific reminder and the generic one about the same obligation."
       },
       {
         "id": "s.g7",
@@ -2441,12 +2486,12 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "outstanding_obligation.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "rule": "One reminder before the deadline and one notice after it; the two post-deadline notices - the confirmation and the overdue notice - are mutually exclusive.",
           "default": {
-            "value": 3,
+            "value": 2,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
+            "applicableWhen": "GLB-24; the longest path to one recipient - the reminder, then the confirmation or the overdue notice, never both"
           },
           "required": false
         },
@@ -2477,17 +2522,10 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "urgent",
-          "channels": [
-            "sms"
-          ],
-          "when": "due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
+          "when": "the message has to be kept and survive until the person can act on it - the whole strategy here, since every obligation with a real type is owned by a journey that can justify a sharper channel and what is left is a generic reminder to somebody whose obligation type is unknown"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -2503,8 +2541,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Name the obligation, what remains outstanding, the deadline and the single way to discharge it.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -2528,8 +2565,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm it is discharged and that nothing further is expected.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -2544,8 +2580,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say once that the deadline has passed, what stands now, and what consequence policy actually attaches to it.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -2728,8 +2763,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "wait",
         until: [
           "obligation_satisfied",
-          "obligation_no_longer_owed",
-          "deadline_passed_unmet"
+          "obligation_no_longer_owed"
         ],
         onEvent: "c.settled",
         timeout: {
@@ -2761,11 +2795,6 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
             label: "Cancelled or adjusted away",
             when: "the obligation no longer exists to be met",
             to: "x.moot",
-          },
-          {
-            label: "Still owed at the deadline",
-            when: "the deadline passed with something still outstanding",
-            to: "a.overdue",
           },
         ],
       },
@@ -2977,10 +3006,11 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "sms"
           ],
-          "when": "grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
+          "when": "the last call, sent once alongside email, together, as the window closes"
         }
       ],
       "fallback": "same-role-other-channel",
+      "simultaneous": { "allowed": true, "reason": "the email carries what stops, what survives and the route back; the SMS carries the date and that this is the last chance. Neither substitutes for the other and the window closes once." },
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -2995,8 +3025,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Name what has stopped working, what still works, the date the window ends and the single condition that restores the active state.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3010,8 +3039,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "State that validity has lapsed, that nothing has changed yet, and the date it will.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3026,8 +3054,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm the active state is back and name which reduced capabilities returned.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3055,8 +3082,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [],
           "purpose": "Say plainly that the window has closed, what is no longer available, and whether a route back still exists on different terms.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3212,9 +3238,34 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "relativeTo": "attribute",
           "attribute": "grace_deadline_at"
         },
-        onTimeout: "a.last-call",
+        onTimeout: "a.recheck-grace",
         windowExtendsOnEngagement: false,
         recheck: "the the entity whose primary validity ended re-read from the system of record before acting on the timeout",
+      },
+      {
+        id: "a.recheck-grace",
+        kind: "action",
+        does: "Re-read the grace record immediately before the last call: is the window still open, is the entity still in grace, has the end moved. Sending the last call blind is one of the two most consequential messages in this journey and the one most likely to arrive after the fact",
+        writes: [{ field: "grace_period_state", mode: "set" }],
+        next: "c.recheck-grace",
+        idempotencyKey: "entity_ref + grace_period_id + a.recheck-grace",
+      },
+      {
+        id: "c.recheck-grace",
+        kind: "condition",
+        asks: "Is the entity still in grace, still unresolved?",
+        branches: [
+          {
+            label: "Still in grace",
+            when: "recovery has not landed and the entity was not terminated since the timeout fired",
+            to: "a.last-call",
+          },
+          {
+            label: "Already resolved",
+            when: "recovery or termination landed between the timeout firing and this re-read",
+            to: "c.outcome",
+          },
+        ],
       },
       {
         id: "c.outcome",
@@ -3269,7 +3320,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.final",
         kind: "wait",
         until: [
-          "recovery_condition_satisfied"
+          "recovery_condition_satisfied",
+          "entity_terminated"
         ],
         onEvent: "c.outcome",
         timeout: {
@@ -3283,9 +3335,34 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "relativeTo": "attribute",
           "attribute": "grace_deadline_at"
         },
-        onTimeout: "a.lost",
+        onTimeout: "a.recheck-final",
         windowExtendsOnEngagement: false,
         recheck: "the the entity whose primary validity ended re-read from the system of record before acting on the timeout",
+      },
+      {
+        id: "a.recheck-final",
+        kind: "action",
+        does: "Re-read the grace record immediately before the loss notice, the same re-read made before the last call: is the window still open, is the entity still in grace, has the end moved. This is one of the two most consequential messages in the journey and both were being sent blind",
+        writes: [{ field: "grace_period_state", mode: "set" }],
+        next: "c.recheck-final",
+        idempotencyKey: "entity_ref + grace_period_id + a.recheck-final",
+      },
+      {
+        id: "c.recheck-final",
+        kind: "condition",
+        asks: "Is the entity still in grace, still unresolved?",
+        branches: [
+          {
+            label: "Still unresolved",
+            when: "recovery has not landed and the entity was not terminated since the timeout fired",
+            to: "a.lost",
+          },
+          {
+            label: "Already resolved",
+            when: "recovery or termination landed between the timeout firing and this re-read",
+            to: "c.outcome",
+          },
+        ],
       },
       {
         id: "a.lost",
@@ -3419,18 +3496,18 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
           "role": "in-session",
           "channels": [
             "in-app"
           ],
-          "when": "the person is active in the product and the action is taken there"
+          "when": "the attempt recorded on attempt_id arrived in the product - the surface the holder is already on, at the moment of their own choosing"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "every other case - the attempt arrived off-product, or the message has to be kept and survive until the person can act on it"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -3448,8 +3525,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Name renewal as the route, what it costs, and what carries across the gap.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "in-session",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3470,8 +3547,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say plainly that this is not a renewal and that the conditions have to be met again, listing them.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "in-session",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3492,8 +3569,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Explain that the old one stays expired and a new one is issued in its place, and what differs between them.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "in-session",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3514,8 +3591,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say there is no way back to this one and name what exists instead, if anything does.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "in-session",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3530,8 +3607,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm what is valid now and, where a replacement was issued, that it is a new one rather than the old one revived.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3629,6 +3705,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.establish",
         kind: "action",
         does: "Establish what the expiry actually did to this entity - suspended it, invalidated it, or ended the relationship behind it - before naming any route back. Reading every lapse as the same lapse is how somebody is sent to renew something that can only be replaced",
+        writes: [{ field: "expiry_effect", mode: "set" }],
         next: "c.route",
       },
       {

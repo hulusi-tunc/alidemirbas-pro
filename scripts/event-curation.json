@@ -217,6 +217,12 @@
   "the release condition is satisfied": {
    "id": "release_condition_met"
   },
+  "the refund submission is withdrawn or reversed after the notice went out": {
+   "id": "refund_submission_withdrawn",
+   "source": "authoritative",
+   "entity": "the refund submission",
+   "meaning": "the refund submission is withdrawn or reversed after the notice went out"
+  },
   "the new destination confirms": {
    "id": "destination_confirmed",
    "source": "declared",
@@ -468,6 +474,12 @@
    "source": "authoritative",
    "entity": "the restriction",
    "meaning": "the restriction is lifted by its owner"
+  },
+  "the recorded release condition for this restriction is met": {
+   "id": "restriction_release_condition_met",
+   "source": "authoritative",
+   "entity": "the restriction",
+   "meaning": "the condition recorded to release this specific restriction is met"
   },
   "the restriction becomes permanent": {
    "id": "restriction_made_permanent",

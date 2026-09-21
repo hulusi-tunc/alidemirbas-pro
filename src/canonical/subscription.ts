@@ -738,7 +738,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "renewal-decision",
     category: "subscription",
     goal: "eligibility-qualification",
-    channels: ["email", "in-app", "push", "sms"],
+    channels: ["email"],
     name: "Renewal window → eligibility → renew, non-renew or review",
     shortName: "Renewal Reminder",
     purpose:
@@ -762,6 +762,11 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "TIM-63",
         because:
           "TIM-63 is the generic pre-expiry reminder, and a subscription sits inside its scope - so a term end fires both at the same point in the calendar. This journey owns it: it is the one that knows the renewal terms, the notice period they require and who holds the decision, and the notice it sends is an obligation of the terms rather than outreach. While this cycle's decision window is open, that journey is suppressed for the subscription and owns only the expiries no renewal cycle governs.",
+      },
+      {
+        journey: "RET-292",
+        because:
+          "RET-292 recognises an anniversary, which carries no obligation and no deadline - nothing happens if it is ignored. This counts down to a renewal decision the governing terms require, with a notice period, a decision holder and a default the terms themselves define if nobody answers.",
       },
     ],
     objective: "Bring a renewal cycle to a recorded decision before the notice deadline: give the notice the terms require, put the decision to whoever holds it where one is needed, and apply what the terms say when none is made.",
@@ -801,6 +806,11 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.hard-gates",
         "label": "CANONICAL_RULE",
         "text": "Hard gates (GLB-31) apply; pressure caps do not to the required notice, which is an obligation of the terms rather than outreach."
+      },
+      {
+        "id": "s.notice-already-given",
+        "label": "CANONICAL_RULE",
+        "text": "Where the notice has already been sent on this cycle, a later decision request restates the decision needed and its deadline, and does not restate the terms the notice already carried - two near-identical messages about one renewal is a duplicate, not reassurance."
       }
     ],
     contact: {
@@ -844,25 +854,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the decision holder is active in the product and the decision is taken there"
-        },
-        {
-          "role": "urgent",
-          "channels": [
-            "sms",
-            "push"
-          ],
-          "when": "the notice deadline is inside the urgent horizon and permission for service messages on the channel is recorded"
+          "when": "the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal, and every stage in this journey"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -878,8 +873,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if no decision is made.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "renewal-terms",
@@ -898,11 +892,9 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
             "c.blockers",
             "c.model"
           ],
-          "purpose": "Put the renewal decision to whoever holds it, with the terms that would apply and the point by which the notice period requires an answer.",
+          "purpose": "Put the renewal decision to whoever holds it - the terms that would apply and the point by which the notice period requires an answer, or, where the notice has already gone out this cycle, the decision needed restated without the terms it already carried.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "urgent"
+            "persistent"
           ],
           "destination": {
             "target": "renewal-decision",
@@ -1113,7 +1105,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.request",
         kind: "action",
-        does: "Put the renewal decision to whoever holds it, with the terms that would apply. Asking is not deciding - a renewal notice sent is a communication, and treating the send as the answer renews relationships nobody agreed to",
+        does: "Put the renewal decision to whoever holds it - the terms that would apply, where the notice has not already gone out this cycle, and the decision needed restated without repeating those terms where it has. Asking is not deciding - a renewal notice sent is a communication, and treating the send as the answer renews relationships nobody agreed to",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.decision",
         execution: "communication",
@@ -1132,7 +1124,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
             "rule": "The decision is waited for until the last point at which the required notice period still allows one; then the governing terms decide.",
             "class": "attribute-bound",
             "default": {
-              "value": "term_end_at minus the notice period the terms require",
+              "value": "the notice period the terms require, before the term ends",
               "confidence": "high",
               "basis": "attribute-bound"
             },
@@ -1188,7 +1180,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.review",
         kind: "action",
-        does: "Record RENEWAL_REVIEW with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
+        does: "Record that the renewal is under review, with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "w.review",
         idempotencyKey: "renewal_cycle_id + relationship_id + a.review",
@@ -1206,7 +1198,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
             "rule": "A review that outlives the notice deadline is escalated to ownership; the relationship stays on its current term meanwhile.",
             "class": "attribute-bound",
             "default": {
-              "value": "term_end_at minus the notice period the terms require",
+              "value": "the notice period the terms require, before the term ends",
               "confidence": "high",
               "basis": "attribute-bound"
             },
@@ -3236,7 +3228,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "cancellation-wind-down-notice",
     category: "subscription",
     goal: "cancellation-termination",
-    channels: ["email", "in-app"],
+    channels: ["email"],
     name: "Cancellation confirmed → wind-down window → access ends or customer returns",
     shortName: "Cancellation Confirmation",
     purpose:
@@ -3270,22 +3262,22 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     suppressions: [
       {
-        "id": "s.g1",
+        "id": "s.no-relitigation",
         "label": "CANONICAL_RULE",
         "text": "The cancellation is never re-litigated. A save attempt after the decision is a different journey and belongs before this one."
       },
       {
-        "id": "s.g2",
+        "id": "s.full-term-access",
         "label": "CANONICAL_RULE",
         "text": "Paid-for access runs to its end date. Cancelling early does not shorten it."
       },
       {
-        "id": "s.g3",
+        "id": "s.end-date-stated",
         "label": "CANONICAL_RULE",
         "text": "The end date is stated in the first message and never moves silently."
       },
       {
-        "id": "s.g4",
+        "id": "s.withdrawal-exits",
         "label": "CANONICAL_RULE",
         "text": "Withdrawal exits the journey immediately - a reminder that access is ending, sent to somebody who has just stayed, is worse than sending nothing."
       }
@@ -3327,17 +3319,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
+          "when": "the message has to be kept and survive until the person can act on it - both touches in this journey"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -3350,8 +3335,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [],
           "purpose": "Confirm the cancellation, the exact date access ends, and what remains available until then.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3365,18 +3349,17 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [],
           "purpose": "Say that access ends shortly and what will and will not survive it - exports, history, outstanding obligations.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
         }
       ],
       "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4"
+        "s.no-relitigation",
+        "s.full-term-access",
+        "s.end-date-stated",
+        "s.withdrawal-exits"
       ]
     },
     implementation: {
@@ -3392,6 +3375,11 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       }
     },
     measurement: {
+      // No businessOutcome: a wind-down has no conversion event to optimise
+      // toward, and inventing one - treating a clean end or a withdrawal as
+      // a "win" - would misstate what this journey is for. journeyOutcome
+      // below is this journey's own self-scoped completion; that is the
+      // whole of what this journey measures about itself.
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
@@ -3576,7 +3564,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "loyalty-welcome",
     "category": "subscription",
     "goal": "progression-milestone",
-    "channels": ["email", "in-app", "push"],
+    "channels": ["email"],
     "name": "Membership enrolled → welcomed → oriented, already in use, or closed",
     "shortName": "Loyalty Program Welcome",
     "purpose": "Open an enrolled membership honestly: what it actually grants from today, where it lives, and how it is used - without borrowing the product's own onboarding or the first purchase's own welcome.",
@@ -3680,24 +3668,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the touch has to carry what the membership grants and survive until the person can act on it - the default for both touches"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is already in a session where the membership itself is visible and can be used without leaving the product"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the permission covering it still stands, and the touch is short enough to be a nudge"
+          "when": "the touch has to carry what the membership grants and survive until the person can act on it - the default for both touches, and the only role either reaches"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -3713,8 +3687,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "What this membership grants from today, where it lives, and how it is used - stated from the membership record and nothing else.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "membership-account",
@@ -3741,9 +3714,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "One route to the thing the membership already grants, sent only to a member whose own usage record says they have not used it yet.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "membership-benefit",
@@ -4057,6 +4028,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "SUB-297",
         "because": "SUB-297 acts on a membership that has been running and holds something unused. This acts on an enrolment that has just happened, and it runs once per membership, ever."
+      },
+      {
+        "journey": "SUB-299",
+        "because": "SUB-299 states that the membership's own standing moved and outranks this journey while it holds the membership. This states what the membership grants at enrolment, before any standing has had the chance to move."
       }
     ],
     "guardrails": [
@@ -4073,7 +4048,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "loyalty-nurture",
     "category": "subscription",
     "goal": "progression-milestone",
-    "channels": ["email", "in-app", "push"],
+    "channels": ["email"],
     "name": "Membership holding something unused → explained → used, reminded once, or closed",
     "shortName": "Loyalty Program Nurture",
     "purpose": "Tell a member what their own membership is currently holding for them that they have not used, in a bounded way that ends rather than a cadence that continues.",
@@ -4096,7 +4071,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "an authoritative membership record showing a specific balance or benefit this member holds and has not used",
       "the membership is active and the subject is still usable by this member",
       "no instance is already open for this membership and this unused subject",
-      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+      "purpose-level permission for promotional communication is recorded, and hard gates (GLB-31) allow it"
     ],
     "suppressions": [
       {
@@ -4122,7 +4097,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.permission",
         "label": "CANONICAL_RULE",
-        "text": "No touch without purpose-level permission for lifecycle communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+        "text": "No touch without purpose-level permission for promotional communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
       },
       {
         "id": "s.ended",
@@ -4142,7 +4117,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "loyalty_nurture.touches",
-          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - one explanation and at most one reminder - and reaching it closes the instance instead of extending it.",
+          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - one explanation, and one expiry notice only where the subject expires - and reaching it closes the instance instead of extending it.",
           "default": {
             "value": 2,
             "confidence": "high",
@@ -4173,24 +4148,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the touch has to carry what is held and until when, and survive until the member can act on it - the default"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the member is already in a session where what they hold is visible and can be used without leaving the product"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the permission covering it still stands, and the subject is short enough to carry the whole message"
+          "when": "the touch has to carry what is held and until when, and survive until the member can act on it - the default, and the only role either touch reaches"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -4206,9 +4167,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "What this membership is holding that has not been used, what it may be used for and until when - every part of it re-read from the membership record.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "membership-benefit",
@@ -4225,27 +4184,26 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         },
         {
           "id": "t2",
-          "stage": "reminder",
-          "action": "a.remind",
+          "stage": "expiry-notice",
+          "action": "a.expiry-notice",
           "after": "t1",
           "gatedBy": "w.act",
           "prerequisites": [
+            "c.expires",
             "c.acted",
             "c.sendable2"
           ],
-          "purpose": "The same unused thing, said once more and with nothing added to it, to a member whose record still shows it unused - and then the plan is over.",
+          "purpose": "That this subject expires, and when - to a member whose record still shows it unused, sent only where the subject actually has an expiry to act before - and then the plan is over.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "membership-benefit",
             "boundTo": "unused_subject_id",
             "mustNotClaim": [
               "a balance that has not been credited",
-              "a deadline the programme does not enforce",
-              "that the offer is about to be withdrawn"
+              "an expiry the programme does not enforce",
+              "that the subject remains usable after the stated expiry"
             ]
           },
           "mandatory": false,
@@ -4315,7 +4273,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "branches": [
           {
             "label": "Sendable",
-            "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the promotional pressure cap, no higher-precedence membership journey currently holding this membership, and no cooldown in force",
+            "when": "the send path passes: permission for promotional communication, a deliverable destination, the promotional pressure cap, no higher-precedence membership journey currently holding this membership, and no cooldown in force",
             "observes": "send path stages 1-8",
             "to": "a.explain"
           },
@@ -4339,7 +4297,34 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
             "mode": "append"
           }
         ],
-        "next": "w.act"
+        "next": "c.expires"
+      },
+      {
+        "id": "c.expires",
+        "kind": "condition",
+        "asks": "Does this subject have an expiry the member can still act before?",
+        "branches": [
+          {
+            "label": "Expires",
+            "when": "the membership record carries a point by which the subject must be used",
+            "observes": "membership record",
+            "to": "w.act"
+          },
+          {
+            "label": "No expiry",
+            "when": "the membership record carries no point by which the subject must be used",
+            "observes": "membership record",
+            "to": "x.explained"
+          }
+        ]
+      },
+      {
+        "id": "x.explained",
+        "kind": "exit",
+        "state": "explained; the subject carries no expiry and there is nothing further to say",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a different unused subject opens its own instance once the cooldown has run"
       },
       {
         "id": "w.act",
@@ -4353,12 +4338,13 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "timeout": {
           "after": {
             "key": "loyalty_nurture.response_window",
-            "rule": "The reminder waits long enough that a member who was going to use the thing has had the chance to, and no longer than the point at which the first message stops being the reason they would remember it.",
-            "class": "response-window",
+            "rule": "The expiry notice waits for the subject's own expiry to approach rather than for a fixed interval after the explanation; a member who was going to use the thing before it expires has had every ordinary chance to by then.",
+            "class": "attribute-bound",
             "required": true
           },
-          "reason": "a reminder sent to somebody who has already used the thing is noise, and one sent long after the explanation is a new message pretending to be a reminder",
-          "relativeTo": "previous-touch"
+          "reason": "a notice anchored to nothing but elapsed time arrives for no reason the member can see; anchoring it to the subject's own expiry is what makes it a deadline rather than an interval",
+          "relativeTo": "attribute",
+          "attribute": "subject_expires_at"
         },
         "onTimeout": "c.acted",
         "recheck": "the membership's own state, the subject's usage and usability, and the member's permission re-read from the systems that own them",
@@ -4386,13 +4372,13 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "c.sendable2",
         "kind": "condition",
-        "asks": "May the reminder go out?",
+        "asks": "May the expiry notice go out?",
         "branches": [
           {
             "label": "Sendable",
             "when": "the send path passes and the touch budget is not spent",
             "observes": "send path stages 1-8",
-            "to": "a.remind"
+            "to": "a.expiry-notice"
           },
           {
             "label": "Suppressed",
@@ -4403,9 +4389,9 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         ]
       },
       {
-        "id": "a.remind",
+        "id": "a.expiry-notice",
         "kind": "action",
-        "does": "Say the same unused thing once more, adding nothing the explanation did not already have, and close the plan whatever happens next.",
+        "does": "Say that this subject expires, and when, reading the expiry from the membership record immediately before sending. This is a different message from the explanation, sent because a fact changed - the expiry approaching - and not because a while has passed; close the plan whatever happens next.",
         "execution": "communication",
         "idempotencyKey": "membership_id + unused_subject_id + touch id",
         "writes": [
@@ -4440,7 +4426,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "x.nurtured",
         "kind": "exit",
-        "state": "explained and reminded; the plan ran to its end without a use and is over",
+        "state": "explained and given its expiry notice; the plan ran to its end without a use and is over",
         "class": "success",
         "terminal": false,
         "reEntry": "this subject is not raised again; a different unused subject opens its own instance once the cooldown has run"
@@ -4473,11 +4459,9 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "membership_benefit_destination"
         ],
         "optional": [
-          "subject_usable_until",
+          "subject_expires_at",
           "subject_credited_at",
-          "push_token",
-          "email_address",
-          "has_active_app_session"
+          "email_address"
         ]
       }
     },
@@ -4486,6 +4470,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "type": "exit",
         "refs": [
           "x.used",
+          "x.explained",
           "x.nurtured",
           "x.closed",
           "x.no-action"
@@ -4572,7 +4557,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "reward-confirmation",
     "category": "subscription",
     "goal": "delivery-confirmation",
-    "channels": ["email", "in-app", "push"],
+    "channels": ["email"],
     "name": "Reward earned → record confirmed → stated once, or closed unstated",
     "shortName": "Reward Confirmation",
     "purpose": "Confirm a state the membership actually reached - a reward earned, credited and usable - as the record states it, and confirm nothing that the record does not.",
@@ -4666,24 +4651,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the confirmation has to be kept and produced again later - the default for a record of something earned"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the member is already in a session and the reward belongs where the membership itself is visible"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the confirmation is short enough to carry the whole state"
+          "when": "the confirmation has to be kept and produced again later - the default for a record of something earned, and the only role this touch reaches"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -4698,9 +4669,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "What was earned, what it may be used for and until when - read from the reward record, said once, with nothing attached to it.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "membership-reward",
@@ -4906,7 +4875,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "loyalty-tier-change",
     "category": "subscription",
     "goal": "progression-milestone",
-    "channels": ["email", "in-app", "push"],
+    "channels": ["email"],
     "name": "Tier moved → direction checked → upgrade announced, used, or left to another journey",
     "shortName": "Loyalty Tier Upgrade",
     "purpose": "Tell a member that their membership's own standing has moved up, and say exactly what that standing now grants that it did not before - and nothing else.",
@@ -5005,24 +4974,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the announcement has to carry what the new standing grants and survive until the member can use it - the default"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the member is already in a session where the membership's own standing is visible"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the permission covering it still stands, and the standing is short enough to carry the whole message"
+          "when": "the announcement has to carry what the new standing grants and survive until the member can use it - the default, and the only role this touch reaches"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -5038,9 +4993,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The standing the member now holds and what it grants that the previous one did not - read from the programme's own terms and said once.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "membership-standing",

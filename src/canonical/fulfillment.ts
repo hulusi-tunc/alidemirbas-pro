@@ -1543,7 +1543,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.g5",
         "label": "CANONICAL_RULE",
-        "text": "Once the obligation is handed to a delivery executor, an in-transit slip on the same obligation is FUL-265's delay-or-tracking state to hold and report; this journey does not open a second, competing delay narrative about a slip FUL-265 is already tracking under its own wait."
+        "text": "Once the obligation is handed to a delivery executor, an in-transit slip on the same obligation is FUL-265's delay-or-tracking state to hold and report; this journey does not open a second, competing delay narrative about a slip FUL-265 is already tracking under its own wait. Once the obligation's latest authoritative state is a failed delivery attempt, the failed attempt is FUL-148's to narrate, and this journey does not open beside it either."
       }
     ],
     contact: {
@@ -1609,7 +1609,6 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed.",
           "channelRoles": [
-            "persistent",
             "urgent"
           ],
           "mandatory": false,
@@ -1627,8 +1626,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -1645,8 +1643,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Offer the choices that are actually available - wait, reschedule, an alternative, or cancel.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -1682,9 +1679,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     },
     measurement: {
       "journeyOutcome": {
-        "type": "handoff",
+        "type": "exit-or-handoff",
         "refs": [
-          "h.resume",
+          "x.resumed",
           "h.exception",
           "h.cancel",
           "h.escalate"
@@ -1759,11 +1756,13 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "A reliable estimate",
             when: "the cause is understood well enough to predict when it clears",
+            observes: "current_estimate",
             to: "a.update",
           },
           {
             label: "No reliable estimate",
             when: "the cause is not understood well enough to name a date that will hold",
+            observes: "current_estimate",
             to: "a.no-estimate",
           },
         ],
@@ -1792,12 +1791,14 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "It changes their plans",
             when: "the new estimate, or the loss of a reliable one, moves something they arranged their own time or commitments around",
+            observes: "current_estimate",
             to: "a.delay-update",
           },
           {
             label: "No material change for them",
             when: "the slip stays inside what they were already told to expect and nothing they arranged moves",
-            to: "c.threshold",
+            observes: "current_estimate",
+            to: "w.resume",
           },
         ],
       },
@@ -1825,11 +1826,13 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Within tolerance",
             when: "the new timing is still inside what the commitment or policy accepts",
+            observes: "tolerance",
             to: "w.resume",
           },
           {
             label: "Beyond tolerance",
             when: "the delay has passed what the commitment or policy accepts",
+            observes: "tolerance",
             to: "c.choice",
           },
         ],
@@ -1842,11 +1845,13 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "They choose",
             when: "real options exist and the choice between them is theirs",
+            observes: "available_choices",
             to: "a.offer",
           },
           {
             label: "Nothing to offer",
             when: "no option exists that they could meaningfully choose between",
+            observes: "available_choices",
             to: "a.no-choice-update",
           },
         ],
@@ -1854,7 +1859,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.offer",
         kind: "action",
-        does: "Offer the choices that are actually available - wait, reschedule, an alternative, or cancel. Offering a choice that cannot be honoured is worse than offering none, because it converts a delay into a broken second promise",
+        does: "Re-read the obligation's resumption state before offering - an obligation that resumed while this choice was being evaluated is not offered cancel or reschedule. Offer the choices that are actually available - wait, reschedule, an alternative, or cancel. Offering a choice that cannot be honoured is worse than offering none, because it converts a delay into a broken second promise",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.decision",
         execution: "communication",
@@ -1910,7 +1915,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         until: [
           "fulfillment_resumed_or_completed"
         ],
-        onEvent: "h.resume",
+        onEvent: "x.resumed",
         timeout: {
           "after": {
             "key": "fulfillment_delay.resume",
@@ -1926,14 +1931,12 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         recheck: "the the obligation and its timing commitment re-read from the system of record before acting on the timeout",
       },
       {
-        id: "h.resume",
-        kind: "handoff",
-        to: "FUL-144",
-        on: "a delayed obligation resuming",
-        carries: [
-          "the current commitment and the history of what preceded it",
-          "the scope already completed, which the delay never touched",
-        ],
+        id: "x.resumed",
+        kind: "exit",
+        state: "delayed obligation resumed or completed against its revised commitment",
+        terminal: false,
+        reEntry: "a later slip against the revised commitment opens its own instance",
+        class: "success",
       },
       {
         id: "h.exception",
@@ -2229,6 +2232,23 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
+    distinctFrom: [
+      {
+        journey: "FUL-146",
+        because:
+          "FUL-146 narrates a slip against a timing commitment while the obligation is still moving toward delivery. This runs against a single attempt already known to have failed - a different fact, and one FUL-146 does not narrate beside.",
+      },
+      {
+        journey: "FUL-265",
+        because:
+          "FUL-265 reports what the executor says about an obligation in motion; this opens on a single attempt already known to have failed, and its subject is the attempt, not the obligation.",
+      },
+      {
+        journey: "REM-151",
+        because:
+          "REM-151 asks whether an obligation is unresolved after something was delivered; this runs while nothing has been delivered at all and a further attempt is still possible.",
+      },
+    ],
     objective: "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
     eligibility: [
       "a delivery executor confirming an attempt was made and delivery did not occur",
@@ -2255,6 +2275,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "The failure reason is never invented. What the executor reported is what is acted on."
+      },
+      {
+        "id": "s.narrator",
+        "label": "CANONICAL_RULE",
+        "text": "While this journey holds a failed attempt it is the one that tells the recipient about the obligation's timing."
       }
     ],
     contact: {
@@ -2319,7 +2344,6 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Request the exact correction - the address, the access instruction, the contact.",
           "channelRoles": [
-            "persistent",
             "urgent"
           ],
           "mandatory": false,
@@ -2340,8 +2364,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -2376,9 +2399,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     },
     measurement: {
       "journeyOutcome": {
-        "type": "handoff",
+        "type": "exit-or-handoff",
         "refs": [
-          "h.retry",
+          "x.reattempt-scheduled",
           "h.return",
           "h.exception"
         ]
@@ -2452,26 +2475,31 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Correctable information needed",
             when: "the destination is wrong, or access to it is blocked in a way information would resolve",
+            observes: "failure_reason",
             to: "a.correct",
           },
           {
             label: "A reattempt is safe",
             when: "the recipient was unavailable, the time window was missed, or the executor itself failed",
+            observes: "failure_reason",
             to: "c.budget",
           },
           {
             label: "The recipient refused it",
             when: "someone with authority to refuse did so",
+            observes: "failure_reason",
             to: "h.return",
           },
           {
             label: "Damaged",
             when: "what arrived is not what should have been delivered",
+            observes: "failure_reason",
             to: "h.exception",
           },
           {
             label: "No usable reason given",
             when: "the executor reported a failure that cannot be turned into an action",
+            observes: "failure_reason",
             to: "c.budget",
           },
         ],
@@ -2504,7 +2532,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "h.return",
         windowExtendsOnEngagement: false,
-        recheck: "the the individual delivery attempt and the obligation it was serving re-read from the system of record before acting on the timeout",
+        recheck: "the individual delivery attempt, the obligation it was serving and the remaining attempt budget re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.budget",
@@ -2514,11 +2542,13 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Attempts remain",
             when: "the policy's attempt limit has not been reached",
+            observes: "attempt_budget",
             to: "c.alternate",
           },
           {
             label: "Exhausted",
             when: "the attempt limit is reached",
+            observes: "attempt_budget",
             to: "h.return",
           },
         ],
@@ -2531,16 +2561,19 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "An alternative is better, and policy authorises it",
             when: "a collection point, a different window or another executor is more likely to succeed, and policy permits the change without asking",
+            observes: "alternative_routes",
             to: "a.alternate",
           },
           {
             label: "An alternative is better, but it is the recipient's to choose",
             when: "the change would move where or when they must be present, which policy does not let us decide for them",
+            observes: "alternative_routes",
             to: "a.offer-route",
           },
           {
             label: "Reattempt the same route",
             when: "the original route remains the best option",
+            observes: "alternative_routes",
             to: "a.reattempt",
           },
         ],
@@ -2549,8 +2582,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.alternate",
         kind: "action",
         does: "Use the authorised alternative route, recorded as a change of route rather than a new obligation. Reached either because policy permits the change or because the recipient chose it - the authority exists before the route moves",
-        writes: [{ field: "delivery_log", mode: "append" }],
-        next: "h.retry",
+        writes: [
+          { field: "delivery_log", mode: "append" },
+          { field: "attempt_budget", mode: "set" },
+        ],
+        next: "x.reattempt-scheduled",
         idempotencyKey: "delivery_attempt_id + obligation_id + a.alternate",
       },
       {
@@ -2591,11 +2627,13 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Selected an alternative",
             when: "they named one of the offered routes",
+            observes: "delivery_alternative_selected",
             to: "a.alternate",
           },
           {
             label: "Declined all of them",
             when: "none of the offered routes works for them and they said so",
+            observes: "delivery_alternatives_declined",
             to: "h.return",
           },
         ],
@@ -2604,19 +2642,20 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.reattempt",
         kind: "action",
         does: "Schedule the bounded reattempt, against the remaining attempt budget rather than a fresh one",
-        writes: [{ field: "delivery_log", mode: "append" }],
-        next: "h.retry",
+        writes: [
+          { field: "delivery_log", mode: "append" },
+          { field: "attempt_budget", mode: "set" },
+        ],
+        next: "x.reattempt-scheduled",
         idempotencyKey: "delivery_attempt_id + obligation_id + a.reattempt",
       },
       {
-        id: "h.retry",
-        kind: "handoff",
-        to: "FUL-147",
-        on: "a further delivery attempt being dispatched",
-        carries: [
-          "the attempt history and the remaining budget, which does not reset",
-          "whatever correction or route change was applied",
-        ],
+        id: "x.reattempt-scheduled",
+        kind: "exit",
+        state: "a further attempt scheduled, against the remaining budget or a policy-authorised alternative route",
+        terminal: false,
+        reEntry: "a further attempt that also fails opens its own instance against its own delivery attempt",
+        class: "success",
       },
       {
         id: "h.return",
@@ -3201,6 +3240,16 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "FUL-301 confirms what the record accepted at the moment it opened, and stops there. This journey begins at dispatch, which is where the order first has a position to report - it never re-confirms the order, and the confirmation never reports a position.",
       },
+      {
+        journey: "FUL-291",
+        because:
+          "FUL-291 sends guidance once fulfillment has stopped moving and there is nothing left to track. This journey's own tracking ends the moment it exits or hands off, and it never says what to do with what arrived.",
+      },
+      {
+        journey: "FUL-148",
+        because:
+          "FUL-148 recovers a single attempt already known to have failed. This journey's own tracking ends at that same moment - a confirmed non-arrival or an executor gone quiet long enough to need recovery - and hands off rather than narrating the attempt itself.",
+      },
     ],
     objective: "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
     eligibility: [
@@ -3239,6 +3288,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g6",
         "label": "CANONICAL_RULE",
         "text": "A pre-dispatch slip against the original commitment is FUL-146's delay narrative, not this journey's; this journey's own tracking begins at dispatch and reports what the executor authoritatively confirms from there."
+      },
+      {
+        "id": "s.g7",
+        "label": "CANONICAL_RULE",
+        "text": "A revised window is stated once. A second revision is not a third narrative - it is an executor who cannot hold a window, and the obligation moves to recovery."
       }
     ],
     contact: {
@@ -3249,10 +3303,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "key": "dispatch_to.touches",
           "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
           "default": {
-            "value": 3,
+            "value": 4,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; a dispatch notice, an arrival or non-arrival notice, and an acceptance request"
+            "applicableWhen": "GLB-24; a dispatch notice, one permitted revised-window notice, an arrival or non-arrival notice, and an acceptance request"
           },
           "required": false
         },
@@ -3301,11 +3355,33 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [],
           "purpose": "Say it is on its way, with the expected window and whatever reference genuinely follows it.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t1b",
+          "stage": "revised-window",
+          "action": "a.revised",
+          "after": "t1",
+          "gatedBy": "w.delivery",
+          "prerequisites": [
+            "c.delivery"
+          ],
+          "purpose": "State the revised window the executor now reports, once.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "revised-delivery-window",
+            "boundTo": "obligation_id",
+            "mustNotClaim": [
+              "a window the executor has not actually committed to"
+            ]
+          }
         },
         {
           "id": "t2",
@@ -3316,8 +3392,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [],
           "purpose": "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -3332,7 +3407,6 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm it arrived and what the evidence for that is.",
           "channelRoles": [
-            "persistent",
             "urgent"
           ],
           "mandatory": false,
@@ -3349,8 +3423,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Ask them to confirm it arrived correctly or to raise an issue, and name the date after which it is treated as accepted.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3388,7 +3461,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
-          "x.unresolved",
+          "h.no-arrival",
           "x.delivered",
           "x.accepted",
           "x.finalized",
@@ -3481,7 +3554,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "a.no-arrival",
         windowExtendsOnEngagement: false,
-        recheck: "the the dispatched obligation re-read from the system of record before acting on the timeout",
+        recheck: "the dispatched obligation re-read from the system of record before acting on the timeout, and on every re-arm after a revised window - the revision counter itself is read from the instance, never from the event that reported it",
       },
       {
         id: "c.delivery",
@@ -3489,30 +3562,57 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         asks: "What did the executor authoritatively report?",
         branches: [
           {
+            label: "A revised window was reported",
+            when: "the executor reports the delivery will land later than the window last stated, without yet confirming a failure",
+            observes: "delivery_delay_reported",
+            to: "a.revised",
+          },
+          {
             label: "Delivered",
             when: "a final delivery confirmation exists, not an intermediate tracking movement",
+            observes: "delivery_confirmed",
             to: "a.arrived",
           },
           {
             label: "Not delivered",
             when: "a confirmed failure, or a window that has passed with no final outcome",
+            observes: "delivery_failed",
             to: "a.no-arrival",
           },
         ],
       },
       {
+        id: "a.revised",
+        kind: "action",
+        does: "State the revised window the executor now reports, once. A second revision on the same obligation is not a third narrative - it is an executor who cannot hold a window, and the obligation moves to recovery instead",
+        next: "w.delivery",
+        execution: "communication",
+        idempotencyKey: "obligation_id + person_id + a.revised",
+        attemptBudget: {
+          "key": "dispatch_to.revisions",
+          "rule": "One permitted revised-window notice per dispatched obligation; a second revision is read as an executor who cannot hold a window and the obligation goes to recovery instead of a further revision.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the revision counter is read from the instance, never from the event"
+          },
+          "required": true
+        },
+      },
+      {
         id: "a.no-arrival",
         kind: "action",
         does: "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of. Calling an unknown a failure produces a replacement that then arrives alongside the original",
-        next: "x.unresolved",
+        next: "h.no-arrival",
         execution: "communication",
         idempotencyKey: "obligation_id + person_id + a.no-arrival",
       },
       {
-        id: "x.unresolved",
+        id: "h.no-arrival",
         kind: "handoff",
         to: "FUL-148",
-        on: "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait",
+        on: "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait, or a second revised window on the same obligation",
         carries: [
           "the failure classification told to the recipient - confirmed failure or executor lost sight of - which becomes FUL-148's failure_reason",
           "the dispatch and tracking history, so recovery does not start from nothing",
@@ -4108,7 +4208,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "post-purchase-follow-up",
     "category": "fulfillment",
     "goal": "progression-milestone",
-    "channels": ["email", "in-app", "push"],
+    "channels": ["email"],
     "name": "Fulfillment completed → the useful next step sent → followed up, superseded or not sent",
     "shortName": "Post-Purchase Follow-Up",
     "purpose": "Once what was owed has actually arrived, send the one thing that makes it useful - how to start with it, how to look after it, what sensibly follows - and nothing else.",
@@ -4204,23 +4304,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the guidance has to be kept and returned to - the default for anything the person may need again later"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the next step is taken inside the product and the guidance belongs beside it"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a current device registration exists and the permission covering it still stands, and the step is short enough to be a nudge"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -4237,9 +4323,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The one thing that makes what they received work: how to start with it, how to look after it, or what sensibly follows. No status, no request for an opinion, no repeat of the order's own confirmation.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "fulfillment-guidance",
@@ -4503,7 +4587,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "order-confirmation",
     "category": "fulfillment",
     "goal": "delivery-confirmation",
-    "channels": ["email", "sms", "in-app"],
+    "channels": ["email"],
     "name": "Order accepted → what was accepted stated once → confirmed, void or handed on",
     "shortName": "Order Confirmation",
     "purpose": "Say once, at the moment the fulfillment record opens, exactly what the business has taken on and what it has not - the question every later message about this order assumes has already been answered.",
@@ -4552,7 +4636,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.status",
         "label": "CANONICAL_RULE",
-        "text": "This journey never reports progress. Where the order is and whether it is running late are the tracking journey's (FUL-265) and the delay journey's (FUL-146) own states, and both of them begin after this one has had its moment."
+        "text": "This journey never reports progress. Where the order is and whether it is running late are the tracking journey's (FUL-265) and the delay journey's (FUL-146) own states, and both of them begin after this one has had its moment. Where a business sells a reservation as an order, this states only the obligation to deliver or perform - never the reservation itself, which is SCH-277's own record to confirm."
       },
       {
         "id": "s.marketing",
@@ -4591,7 +4675,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "post-purchase-welcome",
         "scope": "person",
-        "precedence": "highest in the post-purchase-welcome group - the order's own confirmation answers the question the post-purchase follow-up and the first-purchase welcome both assume has been answered, so both of them wait behind it rather than beside it; being transactional it is never itself deferred, and the contest is declared here so the other two have a named side to defer to",
+        "precedence": "highest in the post-purchase-welcome group - the order's own confirmation answers the question the post-purchase follow-up and the first-purchase welcome both assume has been answered, so both of them wait behind it rather than beside it; being transactional it is never itself deferred, and the contest is declared here so the other two have a named side to defer to; the group's scope is the person rather than this order deliberately - a contact-pressure judgment about how much this person hears in one window, not an ownership claim this journey makes over another order",
         "onLoss": "suppressed"
       }
     },
@@ -4603,23 +4687,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the confirmation has to be kept and returned to - it is the record of what was accepted, and the default route for it"
-        },
-        {
-          "role": "urgent",
-          "channels": [
-            "sms"
-          ],
-          "when": "the accepted obligation carries a time-bound action the person has to take, and permission for messages on this route is recorded"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the order was placed inside the product and the confirmation belongs beside the record it describes"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -4635,9 +4705,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "State once what the record accepted, what it declined and the reason it gives, the amount as the financial record holds it, and the route to the order itself. No progress, no timing the record does not carry, nothing promotional.",
           "channelRoles": [
-            "persistent",
-            "urgent",
-            "in-session"
+            "persistent"
           ],
           "destination": {
             "target": "order-record",
@@ -4924,6 +4992,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "FIN-131",
         "because": "FIN-131 opens the obligation to pay that arises from the same event. This opens the obligation to deliver. They fail independently, and confirming one has never confirmed the other."
+      },
+      {
+        // Reciprocal row lives in SCH-277's own section (src/canonical/scheduling.ts, out of this batch's scope).
+        "journey": "SCH-277",
+        "because": "SCH-277 confirms a reservation - a claim on a future slot or resource that still has to be honoured. This confirms an order - an obligation to deliver a thing or a performed service. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the reservation."
       }
     ],
     "guardrails": [

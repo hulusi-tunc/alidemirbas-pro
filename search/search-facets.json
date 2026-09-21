@@ -2694,17 +2694,17 @@
       },
       {
         "value": "wait-timeout",
-        "documentCount": 111,
+        "documentCount": 112,
         "lowUtility": false
       },
       {
         "value": "multi-exit",
-        "documentCount": 102,
+        "documentCount": 104,
         "lowUtility": false
       },
       {
         "value": "backward-edge",
-        "documentCount": 86,
+        "documentCount": 90,
         "lowUtility": false
       },
       {

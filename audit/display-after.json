@@ -4,25 +4,12 @@
     "slug": "abandoned-process-recovery",
     "locales": {
       "en": {
-        "display_nodes": 19,
-        "distinct_canonical_nodes": 19,
+        "display_nodes": 20,
+        "distinct_canonical_nodes": 20,
         "terminal_instances": 0,
-        "edges": 56,
+        "edges": 60,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.touch1",
-            "len": 113
-          },
-          {
-            "id": "a.touch2",
-            "len": 125
-          },
-          {
-            "id": "a.touch3",
-            "len": 112
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Cancelled, expired or emptied",
@@ -44,19 +31,15 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 19,
-        "distinct_canonical_nodes": 19,
+        "display_nodes": 20,
+        "distinct_canonical_nodes": 20,
         "terminal_instances": 0,
-        "edges": 56,
+        "edges": 60,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.touch2",
-            "len": 168
-          },
-          {
-            "id": "a.touch3",
-            "len": 112
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -94,21 +77,12 @@
     "slug": "abandoned-selection-recovery",
     "locales": {
       "en": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 39,
+        "edges": 43,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.touch1",
-            "len": 138
-          },
-          {
-            "id": "a.touch2",
-            "len": 129
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "At least one item available",
@@ -118,19 +92,19 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 39,
+        "edges": 43,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.touch1",
-            "len": 155
+            "len": 121
           },
           {
             "id": "a.touch2",
-            "len": 169
+            "len": 135
           }
         ],
         "long_branch_labels": [],
@@ -146,16 +120,16 @@
         "display_nodes": 12,
         "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.inform-only",
-            "len": 161
+            "id": "a.notify",
+            "len": 118
           },
           {
-            "id": "a.notify",
-            "len": 142
+            "id": "a.inform-only",
+            "len": 137
           }
         ],
         "long_branch_labels": [
@@ -170,16 +144,16 @@
         "display_nodes": 12,
         "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.inform-only",
-            "len": 178
+            "id": "a.notify",
+            "len": 125
           },
           {
-            "id": "a.notify",
-            "len": 154
+            "id": "a.inform-only",
+            "len": 149
           }
         ],
         "long_branch_labels": [
@@ -205,19 +179,19 @@
     "slug": "activation-blocker-resolution",
     "locales": {
       "en": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 27,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.specific-action",
-            "len": 129
+            "id": "a.route-dependency",
+            "len": 115
           },
           {
-            "id": "a.route-dependency",
-            "len": 123
+            "id": "a.hold-notice",
+            "len": 137
           }
         ],
         "long_branch_labels": [
@@ -241,19 +215,15 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 27,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.specific-action",
-            "len": 120
-          },
-          {
             "id": "a.route-dependency",
-            "len": 124
+            "len": 114
           }
         ],
         "long_branch_labels": [
@@ -279,7 +249,7 @@
         "long_cards": [
           {
             "id": "a.recover",
-            "len": 131
+            "len": 114
           }
         ],
         "long_branch_labels": [],
@@ -294,7 +264,7 @@
         "long_cards": [
           {
             "id": "a.recover",
-            "len": 150
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -323,12 +293,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.ask-light",
-            "len": 117
-          },
-          {
             "id": "a.ask-heavy",
-            "len": 138
+            "len": 114
           }
         ],
         "long_branch_labels": [
@@ -349,12 +315,7 @@
         "terminal_instances": 0,
         "edges": 25,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.ask-light",
-            "len": 117
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Katkıda bulundu, kamuya açık kullanım için",
@@ -382,15 +343,11 @@
         "long_cards": [
           {
             "id": "a.prompt",
-            "len": 139
-          },
-          {
-            "id": "a.at-risk",
-            "len": 114
+            "len": 115
           },
           {
             "id": "a.remind",
-            "len": 159
+            "len": 120
           }
         ],
         "long_branch_labels": [
@@ -417,16 +374,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.prompt",
-            "len": 126
-          },
-          {
             "id": "a.at-risk",
-            "len": 155
+            "len": 139
           },
           {
             "id": "a.remind",
-            "len": 177
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -452,15 +405,15 @@
     "slug": "availability-searched-no-booking",
     "locales": {
       "en": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
         "edges": 30,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 152
+            "len": 130
           }
         ],
         "long_branch_labels": [
@@ -484,8 +437,8 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
         "edges": 30,
         "internal_cards": 0,
@@ -496,11 +449,7 @@
           },
           {
             "id": "a.offer",
-            "len": 151
-          },
-          {
-            "id": "a.waitlist",
-            "len": 120
+            "len": 130
           }
         ],
         "long_branch_labels": [
@@ -538,7 +487,7 @@
         "long_cards": [
           {
             "id": "a.alert",
-            "len": 155
+            "len": 139
           }
         ],
         "long_branch_labels": [],
@@ -553,7 +502,7 @@
         "long_cards": [
           {
             "id": "a.alert",
-            "len": 154
+            "len": 153
           }
         ],
         "long_branch_labels": [],
@@ -574,7 +523,7 @@
         "long_cards": [
           {
             "id": "a.educate2",
-            "len": 151
+            "len": 127
           }
         ],
         "long_branch_labels": [],
@@ -588,12 +537,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.educate",
-            "len": 129
-          },
-          {
             "id": "a.educate2",
-            "len": 151
+            "len": 137
           }
         ],
         "long_branch_labels": [],
@@ -613,15 +558,16 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.record-reason",
-            "len": 114
-          },
-          {
             "id": "a.offer",
-            "len": 155
+            "len": 138
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "Through a person / off product",
+            "len": 30
+          }
+        ],
         "locale_leaks": []
       },
       "tr": {
@@ -632,15 +578,16 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.ask",
-            "len": 115
-          },
-          {
             "id": "a.offer",
-            "len": 153
+            "len": 137
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "Bir kişi aracılığıyla / üründen bağımsız",
+            "len": 40
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -657,12 +604,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.confirm",
-            "len": 130
-          },
-          {
             "id": "a.ending",
-            "len": 148
+            "len": 124
           }
         ],
         "long_branch_labels": [],
@@ -677,11 +620,11 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 141
+            "len": 112
           },
           {
             "id": "a.ending",
-            "len": 140
+            "len": 111
           }
         ],
         "long_branch_labels": [],
@@ -694,42 +637,34 @@
     "slug": "captured-interest-first-touch",
     "locales": {
       "en": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 17,
+        "distinct_canonical_nodes": 17,
         "terminal_instances": 0,
-        "edges": 28,
+        "edges": 38,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.deliver",
-            "len": 121
-          },
-          {
-            "id": "a.nurture",
-            "len": 114
+            "len": 113
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 17,
+        "distinct_canonical_nodes": 17,
         "terminal_instances": 0,
-        "edges": 28,
+        "edges": 38,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.first-touch",
-            "len": 126
+            "len": 116
           },
           {
             "id": "a.deliver",
-            "len": 147
-          },
-          {
-            "id": "a.nurture",
-            "len": 116
+            "len": 137
           }
         ],
         "long_branch_labels": [],
@@ -742,10 +677,10 @@
     "slug": "cart-abandonment",
     "locales": {
       "en": {
-        "display_nodes": 16,
-        "distinct_canonical_nodes": 16,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 36,
+        "edges": 46,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -754,7 +689,7 @@
           },
           {
             "id": "a.reminder2-hv",
-            "len": 152
+            "len": 144
           },
           {
             "id": "a.reminder2-std",
@@ -765,10 +700,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 16,
-        "distinct_canonical_nodes": 16,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 36,
+        "edges": 46,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -788,6 +723,10 @@
           {
             "label": "Boşaldı veya süresi doldu",
             "len": 25
+          },
+          {
+            "label": "Boşaldı veya süresi doldu",
+            "len": 25
           }
         ],
         "locale_leaks": []
@@ -799,20 +738,20 @@
     "slug": "checkout-abandonment",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 48,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 48,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -820,15 +759,24 @@
             "len": 117
           },
           {
-            "id": "a.reminder2-hv",
-            "len": 114
-          },
-          {
             "id": "a.reminder2-std",
             "len": 120
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "İptal edildi veya süresi doldu",
+            "len": 30
+          },
+          {
+            "label": "İptal edildi veya süresi doldu",
+            "len": 30
+          },
+          {
+            "label": "İptal edildi veya süresi doldu",
+            "len": 30
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -838,10 +786,10 @@
     "slug": "churn-risk-escalation",
     "locales": {
       "en": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 18,
+        "distinct_canonical_nodes": 18,
         "terminal_instances": 0,
-        "edges": 23,
+        "edges": 33,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -849,20 +797,33 @@
             "len": 122
           },
           {
+            "id": "a.check-in-inapp",
+            "len": 131
+          },
+          {
             "id": "a.owner-task",
-            "len": 123
+            "len": 115
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 18,
+        "distinct_canonical_nodes": 18,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 33,
         "internal_cards": 0,
-        "long_cards": [],
+        "long_cards": [
+          {
+            "id": "a.check-in-email",
+            "len": 130
+          },
+          {
+            "id": "a.check-in-inapp",
+            "len": 135
+          }
+        ],
         "long_branch_labels": [
           {
             "label": "Belirtilmiş bir niyet yok",
@@ -890,11 +851,11 @@
           },
           {
             "id": "a.offer",
-            "len": 162
+            "len": 124
           },
           {
             "id": "a.remind",
-            "len": 146
+            "len": 122
           }
         ],
         "long_branch_labels": [],
@@ -913,11 +874,11 @@
           },
           {
             "id": "a.offer",
-            "len": 174
+            "len": 134
           },
           {
             "id": "a.remind",
-            "len": 143
+            "len": 114
           }
         ],
         "long_branch_labels": [],
@@ -938,15 +899,7 @@
         "long_cards": [
           {
             "id": "a.alert-contained",
-            "len": 142
-          },
-          {
-            "id": "a.alert-watch",
             "len": 125
-          },
-          {
-            "id": "a.standing",
-            "len": 126
           }
         ],
         "long_branch_labels": [],
@@ -961,15 +914,11 @@
         "long_cards": [
           {
             "id": "a.alert-contained",
-            "len": 150
+            "len": 134
           },
           {
             "id": "a.alert-watch",
-            "len": 132
-          },
-          {
-            "id": "a.standing",
-            "len": 111
+            "len": 116
           }
         ],
         "long_branch_labels": [],
@@ -982,46 +931,37 @@
     "slug": "contactability-repair",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 21,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.prompt-alt",
-            "len": 131
-          },
-          {
-            "id": "a.confirm",
-            "len": 114
+            "id": "a.prompt-email",
+            "len": 113
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 21,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.prompt-alt",
-            "len": 132
+            "id": "a.prompt-email",
+            "len": 123
           },
           {
-            "id": "a.confirm",
-            "len": 155
+            "id": "a.prompt-sms",
+            "len": 115
           }
         ],
-        "long_branch_labels": [
-          {
-            "label": "Ürün dışında ulaşılabilir",
-            "len": 25
-          }
-        ],
+        "long_branch_labels": [],
         "locale_leaks": []
       }
     }
@@ -1031,25 +971,30 @@
     "slug": "deadline-tracking",
     "locales": {
       "en": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 29,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.remind",
-            "len": 165
+            "len": 121
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "The final pre-deadline threshold",
+            "len": 32
+          }
+        ],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 29,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -1058,10 +1003,15 @@
           },
           {
             "id": "a.remind",
-            "len": 160
+            "len": 120
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "Son tarih öncesi son eşik",
+            "len": 25
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -1078,12 +1028,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.correct",
-            "len": 115
-          },
-          {
             "id": "a.offer-route",
-            "len": 159
+            "len": 138
           }
         ],
         "long_branch_labels": [
@@ -1114,16 +1060,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.correct",
-            "len": 119
-          },
-          {
             "id": "a.alternate",
             "len": 122
           },
           {
             "id": "a.offer-route",
-            "len": 145
+            "len": 125
           }
         ],
         "long_branch_labels": [
@@ -1157,26 +1099,26 @@
     "slug": "dispatch-to-acceptance",
     "locales": {
       "en": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 28,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.dispatch",
-            "len": 127
-          },
-          {
             "id": "a.no-arrival",
-            "len": 158
+            "len": 137
           },
           {
             "id": "a.accept-request",
-            "len": 161
+            "len": 140
           }
         ],
         "long_branch_labels": [
+          {
+            "label": "A revised window was reported",
+            "len": 29
+          },
           {
             "label": "Delivery is the end of it",
             "len": 25
@@ -1185,18 +1127,27 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 16,
+        "distinct_canonical_nodes": 16,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 28,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.dispatch",
-            "len": 144
+            "len": 124
+          },
+          {
+            "id": "a.revised",
+            "len": 113
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "Revize edilmiş bir pencere bildirildi",
+            "len": 37
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -1214,7 +1165,7 @@
         "long_cards": [
           {
             "id": "a.distribute",
-            "len": 130
+            "len": 122
           }
         ],
         "long_branch_labels": [],
@@ -1264,7 +1215,7 @@
         "long_cards": [
           {
             "id": "a.attempt",
-            "len": 150
+            "len": 129
           }
         ],
         "long_branch_labels": [
@@ -1282,42 +1233,38 @@
     "slug": "early-adoption-to-stable-use",
     "locales": {
       "en": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
         "terminal_instances": 0,
-        "edges": 17,
+        "edges": 24,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.recognize",
-            "len": 115
-          },
-          {
-            "id": "a.surface",
-            "len": 149
+            "id": "a.recognize-only",
+            "len": 113
           },
           {
             "id": "a.next-behavior",
-            "len": 156
+            "len": 132
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
         "terminal_instances": 0,
-        "edges": 17,
+        "edges": 24,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.surface",
-            "len": 155
+            "id": "a.recognize-next",
+            "len": 136
           },
           {
             "id": "a.next-behavior",
-            "len": 171
+            "len": 142
           }
         ],
         "long_branch_labels": [],
@@ -1337,16 +1284,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.ready",
-            "len": 126
-          },
-          {
-            "id": "a.brief",
-            "len": 120
-          },
-          {
             "id": "a.remind",
-            "len": 136
+            "len": 112
           }
         ],
         "long_branch_labels": [],
@@ -1361,11 +1300,11 @@
         "long_cards": [
           {
             "id": "a.brief",
-            "len": 150
+            "len": 126
           },
           {
             "id": "a.remind",
-            "len": 146
+            "len": 117
           }
         ],
         "long_branch_labels": [],
@@ -1378,54 +1317,54 @@
     "slug": "expired-entity-re-entry",
     "locales": {
       "en": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 23,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.requalify",
-            "len": 138
+            "len": 121
           },
           {
             "id": "a.replace",
-            "len": 145
-          },
-          {
-            "id": "a.no-route",
-            "len": 123
+            "len": 128
           },
           {
             "id": "a.confirm",
-            "len": 154
+            "len": 130
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 23,
         "internal_cards": 0,
         "long_cards": [
           {
+            "id": "a.establish",
+            "len": 111
+          },
+          {
             "id": "a.renew",
-            "len": 131
+            "len": 115
           },
           {
             "id": "a.requalify",
-            "len": 167
+            "len": 151
           },
           {
             "id": "a.replace",
-            "len": 154
+            "len": 138
           },
           {
             "id": "a.no-route",
-            "len": 140
+            "len": 124
           }
         ],
         "long_branch_labels": [],
@@ -1438,25 +1377,25 @@
     "slug": "feedback-eligibility",
     "locales": {
       "en": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 22,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 22,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.request",
-            "len": 168
+            "len": 128
           }
         ],
         "long_branch_labels": [],
@@ -1481,44 +1420,36 @@
           },
           {
             "id": "a.obligation",
-            "len": 124
-          },
-          {
-            "id": "a.acknowledge",
-            "len": 122
-          },
-          {
-            "id": "a.acknowledge-negative",
             "len": 112
           }
         ],
         "long_branch_labels": [
           {
-            "label": "SERVICE_ISSUE or COMPLAINT",
+            "label": "Service issue or complaint",
             "len": 26
           }
         ],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 28,
-        "distinct_canonical_nodes": 28,
+        "display_nodes": 29,
+        "distinct_canonical_nodes": 29,
         "terminal_instances": 0,
-        "edges": 58,
+        "edges": 59,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.obligation",
-            "len": 136
+            "len": 133
           },
           {
             "id": "a.acknowledge",
-            "len": 131
+            "len": 115
           }
         ],
         "long_branch_labels": [
           {
-            "label": "HİZMET SORUNU veya ŞİKAYET",
+            "label": "Hizmet sorunu veya şikayet",
             "len": 26
           }
         ],
@@ -1536,12 +1467,7 @@
         "terminal_instances": 0,
         "edges": 8,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.recognise",
-            "len": 131
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
@@ -1554,7 +1480,7 @@
         "long_cards": [
           {
             "id": "a.recognise",
-            "len": 176
+            "len": 136
           }
         ],
         "long_branch_labels": [],
@@ -1579,7 +1505,7 @@
           },
           {
             "id": "a.bounceback",
-            "len": 171
+            "len": 133
           }
         ],
         "long_branch_labels": [],
@@ -1610,15 +1536,11 @@
         "long_cards": [
           {
             "id": "a.delay-update",
-            "len": 145
-          },
-          {
-            "id": "a.offer",
-            "len": 125
+            "len": 122
           },
           {
             "id": "a.no-choice-update",
-            "len": 138
+            "len": 117
           }
         ],
         "long_branch_labels": [
@@ -1639,12 +1561,7 @@
         "terminal_instances": 0,
         "edges": 32,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.offer",
-            "len": 125
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Güvenilir bir tahmin var · Güvenilir bir tahmin yok",
@@ -1668,50 +1585,46 @@
     "slug": "grace-period-recovery",
     "locales": {
       "en": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 17,
+        "distinct_canonical_nodes": 17,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 32,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.notify-quiet",
-            "len": 123
-          },
-          {
             "id": "a.last-call",
-            "len": 134
+            "len": 117
           },
           {
-            "id": "a.confirm",
-            "len": 113
+            "id": "a.recheck-final",
+            "len": 112
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 17,
+        "distinct_canonical_nodes": 17,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 32,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.notify-quiet",
-            "len": 133
-          },
-          {
-            "id": "a.last-call",
-            "len": 139
+            "len": 113
           },
           {
             "id": "a.confirm",
-            "len": 132
+            "len": 112
+          },
+          {
+            "id": "a.last-call",
+            "len": 123
           },
           {
             "id": "a.lost",
-            "len": 182
+            "len": 162
           }
         ],
         "long_branch_labels": [],
@@ -1732,7 +1645,7 @@
         "long_cards": [
           {
             "id": "a.communicate",
-            "len": 138
+            "len": 121
           }
         ],
         "long_branch_labels": [
@@ -1785,10 +1698,10 @@
     "slug": "lapsed-customer-win-back",
     "locales": {
       "en": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -1797,18 +1710,10 @@
           },
           {
             "id": "a.touch1",
-            "len": 143
-          },
-          {
-            "id": "a.touch2",
-            "len": 113
+            "len": 121
           }
         ],
         "long_branch_labels": [
-          {
-            "label": "Something changed that speaks to why they left · Nothing specific",
-            "len": 65
-          },
           {
             "label": "Enabled with something to add",
             "len": 29
@@ -1821,22 +1726,13 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 11,
+        "distinct_canonical_nodes": 11,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 20,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.touch2",
-            "len": 124
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
-          {
-            "label": "Ayrılma nedenlerine hitap eden bir şey değişti · Belirli bir şey yok",
-            "len": 68
-          },
           {
             "label": "Etkin ve eklenecek bir şey var",
             "len": 30
@@ -1855,10 +1751,10 @@
     "slug": "loyalty-nurture",
     "locales": {
       "en": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 14,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -1867,11 +1763,11 @@
           },
           {
             "id": "a.explain",
-            "len": 154
+            "len": 116
           },
           {
-            "id": "a.remind",
-            "len": 141
+            "id": "a.expiry-notice",
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -1883,15 +1779,19 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 14,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.explain",
-            "len": 165
+            "len": 125
+          },
+          {
+            "id": "a.expiry-notice",
+            "len": 128
           }
         ],
         "long_branch_labels": [
@@ -1920,10 +1820,6 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.announce",
-            "len": 145
-          },
-          {
             "id": "c.used",
             "len": 117
           }
@@ -1937,12 +1833,7 @@
         "terminal_instances": 0,
         "edges": 13,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.announce",
-            "len": 130
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Yukarı hareket etti ve yürürlükte",
@@ -1969,16 +1860,8 @@
             "len": 120
           },
           {
-            "id": "a.welcome",
-            "len": 117
-          },
-          {
             "id": "c.used",
             "len": 119
-          },
-          {
-            "id": "a.orient",
-            "len": 128
           }
         ],
         "long_branch_labels": [
@@ -1995,16 +1878,7 @@
         "terminal_instances": 0,
         "edges": 14,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.welcome",
-            "len": 129
-          },
-          {
-            "id": "a.orient",
-            "len": 125
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Üyelik artık geçerli değil",
@@ -2027,15 +1901,20 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.record-no-action",
-            "len": 128
+            "id": "a.recognise",
+            "len": 121
           },
           {
-            "id": "a.recognise",
-            "len": 159
+            "id": "a.record-no-action",
+            "len": 128
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "Cycle already spent · Not sendable",
+            "len": 34
+          }
+        ],
         "locale_leaks": []
       },
       "tr": {
@@ -2047,10 +1926,15 @@
         "long_cards": [
           {
             "id": "a.recognise",
-            "len": 172
+            "len": 132
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "Dönem tükenmiş · Gönderilemez",
+            "len": 29
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -2060,10 +1944,10 @@
     "slug": "missing-critical-data",
     "locales": {
       "en": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 27,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -2091,15 +1975,15 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 27,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.request",
-            "len": 123
+            "id": "a.reject",
+            "len": 120
           }
         ],
         "long_branch_labels": [
@@ -2133,22 +2017,22 @@
           },
           {
             "id": "a.acknowledge",
-            "len": 162
+            "len": 140
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 19,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.acknowledge",
-            "len": 144
+            "len": 123
           }
         ],
         "long_branch_labels": [],
@@ -2179,11 +2063,11 @@
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 170
+            "len": 150
           },
           {
             "id": "a.acknowledge",
-            "len": 153
+            "len": 143
           }
         ],
         "long_branch_labels": [
@@ -2213,10 +2097,10 @@
     "slug": "onboarding-progress-next-step",
     "locales": {
       "en": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 27,
+        "edges": 30,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -2236,17 +2120,12 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 27,
+        "edges": 30,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.read",
-            "len": 125
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Kurulum tamam, değer henüz üretilmedi",
@@ -2278,7 +2157,7 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 173
+            "len": 136
           }
         ],
         "long_branch_labels": [
@@ -2299,12 +2178,7 @@
         "terminal_instances": 0,
         "edges": 14,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.confirm",
-            "len": 128
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Tamamı kabul edildi · Bir kısmı kabul edildi",
@@ -2327,25 +2201,17 @@
         "display_nodes": 15,
         "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 28,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.remind",
-            "len": 129
-          },
-          {
             "id": "a.overdue",
-            "len": 154
+            "len": 133
           }
         ],
         "long_branch_labels": [
           {
             "label": "Cancelled or adjusted away",
-            "len": 26
-          },
-          {
-            "label": "Still owed at the deadline",
             "len": 26
           },
           {
@@ -2359,16 +2225,12 @@
         "display_nodes": 15,
         "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 28,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.remind",
-            "len": 127
-          },
-          {
             "id": "a.overdue",
-            "len": 152
+            "len": 132
           }
         ],
         "long_branch_labels": [
@@ -2402,19 +2264,15 @@
         "long_cards": [
           {
             "id": "a.corrective",
-            "len": 157
-          },
-          {
-            "id": "a.offer-alternate",
-            "len": 122
+            "len": 133
           },
           {
             "id": "a.confirmed",
-            "len": 117
+            "len": 127
           },
           {
             "id": "a.remind",
-            "len": 145
+            "len": 123
           }
         ],
         "long_branch_labels": [
@@ -2445,12 +2303,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.offer-alternate",
-            "len": 128
-          },
-          {
             "id": "a.remind",
-            "len": 159
+            "len": 138
           }
         ],
         "long_branch_labels": [
@@ -2496,7 +2350,7 @@
         "long_cards": [
           {
             "id": "a.recommend",
-            "len": 166
+            "len": 128
           }
         ],
         "long_branch_labels": [],
@@ -2553,7 +2407,7 @@
         "long_cards": [
           {
             "id": "a.followup",
-            "len": 176
+            "len": 138
           }
         ],
         "long_branch_labels": [],
@@ -2568,7 +2422,7 @@
         "long_cards": [
           {
             "id": "a.followup",
-            "len": 155
+            "len": 115
           }
         ],
         "long_branch_labels": [],
@@ -2593,11 +2447,7 @@
           },
           {
             "id": "a.checkin",
-            "len": 165
-          },
-          {
-            "id": "a.late-detail",
-            "len": 148
+            "len": 126
           }
         ],
         "long_branch_labels": [
@@ -2617,11 +2467,11 @@
         "long_cards": [
           {
             "id": "a.checkin",
-            "len": 154
+            "len": 111
           },
           {
             "id": "a.late-detail",
-            "len": 158
+            "len": 115
           }
         ],
         "long_branch_labels": [
@@ -2643,38 +2493,34 @@
     "slug": "pre-expiry-window",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.prompt-action",
-            "len": 156
+            "len": 114
           },
           {
             "id": "a.inform",
-            "len": 127
+            "len": 119
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.prompt-action",
-            "len": 113
-          },
-          {
             "id": "a.inform",
-            "len": 143
+            "len": 133
           },
           {
             "id": "h.expiry",
@@ -2708,10 +2554,6 @@
           },
           {
             "id": "a.touch1",
-            "len": 151
-          },
-          {
-            "id": "a.touch2",
             "len": 122
           }
         ],
@@ -2727,11 +2569,7 @@
         "long_cards": [
           {
             "id": "a.touch1",
-            "len": 234
-          },
-          {
-            "id": "a.touch2",
-            "len": 139
+            "len": 200
           }
         ],
         "long_branch_labels": [],
@@ -2744,10 +2582,10 @@
     "slug": "refund-notification",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 15,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -2755,47 +2593,34 @@
             "len": 156
           },
           {
-            "id": "a.settled",
-            "len": 120
-          },
-          {
-            "id": "a.partial",
-            "len": 130
+            "id": "a.withdrawn",
+            "len": 119
           }
         ],
-        "long_branch_labels": [
-          {
-            "label": "The whole transaction · Part of it",
-            "len": 34
-          }
-        ],
+        "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 15,
+        "edges": 18,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.issued",
-            "len": 143
-          },
-          {
-            "id": "a.settled",
-            "len": 124
+            "len": 114
           },
           {
             "id": "a.partial",
-            "len": 158
+            "len": 129
+          },
+          {
+            "id": "a.withdrawn",
+            "len": 149
           }
         ],
         "long_branch_labels": [
-          {
-            "label": "İşlemin tamamı · Bir kısmı",
-            "len": 26
-          },
           {
             "label": "Geri geldiği doğrulanmadı",
             "len": 25
@@ -2817,16 +2642,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.invite-known",
-            "len": 115
-          },
-          {
             "id": "a.confirm",
-            "len": 157
+            "len": 133
           },
           {
             "id": "a.remind",
-            "len": 136
+            "len": 112
           }
         ],
         "long_branch_labels": [],
@@ -2841,15 +2662,15 @@
         "long_cards": [
           {
             "id": "a.invite-new",
-            "len": 160
+            "len": 131
           },
           {
             "id": "a.confirm",
-            "len": 144
+            "len": 115
           },
           {
             "id": "a.remind",
-            "len": 158
+            "len": 129
           }
         ],
         "long_branch_labels": [
@@ -2867,19 +2688,15 @@
     "slug": "remedy-selection",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 23,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.present",
-            "len": 118
-          },
-          {
             "id": "a.no-remedy",
-            "len": 151
+            "len": 127
           }
         ],
         "long_branch_labels": [
@@ -2895,17 +2712,12 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 23,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.present",
-            "len": 133
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Düzeltme veya yeniden gerçekleştirme",
@@ -2936,16 +2748,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.review",
-            "len": 120
-          },
-          {
             "id": "a.decided",
             "len": 120
-          },
-          {
-            "id": "a.request",
-            "len": 166
           }
         ],
         "long_branch_labels": [
@@ -2962,16 +2766,7 @@
         "terminal_instances": 0,
         "edges": 35,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.review",
-            "len": 127
-          },
-          {
-            "id": "a.request",
-            "len": 172
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Otomatik yenileme, koşullar sağlandı",
@@ -2991,54 +2786,42 @@
     "slug": "reservation-outcome-notice",
     "locales": {
       "en": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 28,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.received",
-            "len": 146
-          },
-          {
-            "id": "a.lapse",
-            "len": 113
-          },
-          {
-            "id": "a.reoffer",
-            "len": 130
-          },
-          {
-            "id": "a.decline",
-            "len": 111
+            "len": 125
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 28,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.received",
-            "len": 150
-          },
-          {
-            "id": "a.lapse",
-            "len": 153
+            "len": 130
           },
           {
             "id": "a.confirm",
-            "len": 134
+            "len": 114
           },
           {
             "id": "a.reoffer",
-            "len": 152
+            "len": 132
+          },
+          {
+            "id": "a.lapse",
+            "len": 133
           }
         ],
         "long_branch_labels": [
@@ -3068,15 +2851,15 @@
         "long_cards": [
           {
             "id": "a.remind",
-            "len": 151
+            "len": 127
           },
           {
             "id": "a.final",
-            "len": 151
+            "len": 118
           },
           {
             "id": "a.lapse",
-            "len": 139
+            "len": 118
           }
         ],
         "long_branch_labels": [
@@ -3104,11 +2887,11 @@
         "long_cards": [
           {
             "id": "a.final",
-            "len": 177
+            "len": 142
           },
           {
             "id": "a.lapse",
-            "len": 136
+            "len": 116
           }
         ],
         "long_branch_labels": [
@@ -3135,12 +2918,7 @@
         "terminal_instances": 0,
         "edges": 28,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.followup",
-            "len": 126
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Recovered without answering",
@@ -3158,7 +2936,7 @@
         "long_cards": [
           {
             "id": "a.followup",
-            "len": 138
+            "len": 122
           }
         ],
         "long_branch_labels": [
@@ -3184,7 +2962,7 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 168
+            "len": 130
           }
         ],
         "long_branch_labels": [],
@@ -3196,12 +2974,7 @@
         "terminal_instances": 0,
         "edges": 8,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.confirm",
-            "len": 137
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Ulaşılmış bir durum değil",
@@ -3224,10 +2997,6 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.ask",
-            "len": 123
-          },
-          {
             "id": "a.persist",
             "len": 128
           }
@@ -3236,17 +3005,12 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 8,
-        "distinct_canonical_nodes": 8,
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
         "terminal_instances": 0,
-        "edges": 15,
+        "edges": 16,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.ask",
-            "len": 123
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       }
@@ -3265,11 +3029,11 @@
         "long_cards": [
           {
             "id": "a.request",
-            "len": 141
+            "len": 133
           },
           {
             "id": "a.remind",
-            "len": 120
+            "len": 112
           }
         ],
         "long_branch_labels": [
@@ -3293,11 +3057,11 @@
         "long_cards": [
           {
             "id": "a.request",
-            "len": 133
+            "len": 123
           },
           {
             "id": "a.remind",
-            "len": 137
+            "len": 127
           }
         ],
         "long_branch_labels": [
@@ -3326,23 +3090,16 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.offer",
-            "len": 146
-          },
-          {
-            "id": "a.confirm",
-            "len": 134
-          },
-          {
-            "id": "a.final",
-            "len": 133
-          },
-          {
             "id": "a.followup",
-            "len": 172
+            "len": 134
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "ACT-13 or a person already has it",
+            "len": 33
+          }
+        ],
         "locale_leaks": []
       },
       "tr": {
@@ -3354,22 +3111,23 @@
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 165
+            "len": 130
           },
           {
             "id": "a.confirm",
-            "len": 153
-          },
-          {
-            "id": "a.final",
-            "len": 139
+            "len": 113
           },
           {
             "id": "a.followup",
-            "len": 172
+            "len": 132
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "ACT-13 veya bir kişi zaten üstlendi",
+            "len": 35
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -3379,26 +3137,26 @@
     "slug": "support-request-acknowledgement",
     "locales": {
       "en": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.resolved-now",
-            "len": 128
+            "len": 111
           },
           {
             "id": "a.acknowledge",
-            "len": 131
-          },
-          {
-            "id": "a.resolution",
-            "len": 112
+            "len": 114
           }
         ],
         "long_branch_labels": [
+          {
+            "label": "Still open - a completed fulfilment or service problem",
+            "len": 54
+          },
           {
             "label": "Closed while the window ran",
             "len": 27
@@ -3407,22 +3165,26 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.resolved-now",
-            "len": 123
-          },
-          {
             "id": "a.resolution",
-            "len": 140
+            "len": 124
           }
         ],
         "long_branch_labels": [
+          {
+            "label": "Hâlâ açık - tamamlanmış bir teslimat ya da hizmet sorunu",
+            "len": 56
+          },
+          {
+            "label": "Hâlâ açık - başka bir konu",
+            "len": 26
+          },
           {
             "label": "Pencere sürerken kapanmış",
             "len": 25
@@ -3448,16 +3210,8 @@
             "len": 118
           },
           {
-            "id": "a.final",
-            "len": 134
-          },
-          {
             "id": "c.final",
             "len": 121
-          },
-          {
-            "id": "a.confirm-end",
-            "len": 112
           }
         ],
         "long_branch_labels": [],
@@ -3472,11 +3226,11 @@
         "long_cards": [
           {
             "id": "a.ask",
-            "len": 154
+            "len": 125
           },
           {
             "id": "a.confirm-end",
-            "len": 123
+            "len": 113
           }
         ],
         "long_branch_labels": [],
@@ -3501,7 +3255,7 @@
           },
           {
             "id": "a.touch1",
-            "len": 160
+            "len": 131
           }
         ],
         "long_branch_labels": [
@@ -3521,7 +3275,7 @@
         "long_cards": [
           {
             "id": "a.touch1",
-            "len": 182
+            "len": 148
           }
         ],
         "long_branch_labels": [
@@ -3551,11 +3305,11 @@
         "long_cards": [
           {
             "id": "a.inform-hold",
-            "len": 151
+            "len": 128
           },
           {
             "id": "a.last-call",
-            "len": 143
+            "len": 119
           }
         ],
         "long_branch_labels": [],
@@ -3570,15 +3324,15 @@
         "long_cards": [
           {
             "id": "a.name-blocker",
-            "len": 180
+            "len": 151
           },
           {
             "id": "a.inform-hold",
-            "len": 181
+            "len": 157
           },
           {
             "id": "a.last-call",
-            "len": 143
+            "len": 114
           }
         ],
         "long_branch_labels": [],
@@ -3599,15 +3353,15 @@
         "long_cards": [
           {
             "id": "a.at-the-wall",
-            "len": 156
+            "len": 133
           },
           {
-            "id": "a.offer-self",
-            "len": 111
+            "id": "a.offer-holder",
+            "len": 114
           },
           {
             "id": "a.notify-blocked-party",
-            "len": 143
+            "len": 120
           }
         ],
         "long_branch_labels": [],
@@ -3621,20 +3375,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.offer-self",
-            "len": 116
+            "id": "a.blocked-notice",
+            "len": 121
           },
           {
             "id": "a.offer-holder",
-            "len": 124
-          },
-          {
-            "id": "a.notify-blocked-party",
-            "len": 129
-          },
-          {
-            "id": "a.reset",
-            "len": 124
+            "len": 140
           }
         ],
         "long_branch_labels": [
@@ -3652,15 +3398,19 @@
     "slug": "verification-failure-routing",
     "locales": {
       "en": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.explain-terminal",
-            "len": 149
+            "len": 125
+          },
+          {
+            "id": "a.ours",
+            "len": 119
           }
         ],
         "long_branch_labels": [
@@ -3672,19 +3422,15 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 10,
-        "distinct_canonical_nodes": 10,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.explain-terminal",
-            "len": 162
-          },
-          {
-            "id": "a.explain",
-            "len": 134
+            "len": 133
           }
         ],
         "long_branch_labels": [],

@@ -646,7 +646,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the message has to be kept and survive until the person can act on it"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -900,6 +900,11 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "DEC-183 is somebody exercising judgment against criteria. This is collecting authorized marks against a fixed artifact - nobody is deciding anything on the merits, and its failure modes are version binding, incomplete sets and expiry rather than authority to conclude.",
       },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a signature owed on a specific version by a specific signer, and knows which version is being signed; TIM-268 defers to it and sends nothing while this instance holds the obligation.",
+      },
     ],
     objective: "Collect every required signature on one exact document version: request once from each required signer, remind outstanding signers once while a reminder can still change the outcome, and end honestly as fully signed, declined, superseded or expired.",
     eligibility: [
@@ -933,6 +938,11 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.hard-gates",
         "label": "CANONICAL_RULE",
         "text": "Hard gates (GLB-31) apply; pressure caps do not, because a signature request is the process itself, not outreach."
+      },
+      {
+        "id": "s.generic-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "This journey owns the reminder for the signature it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that signature while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
       }
     ],
     contact: {
@@ -1030,7 +1040,8 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         "s.outstanding-only",
         "s.one-reminder",
         "s.no-invented-deadline",
-        "s.hard-gates"
+        "s.hard-gates",
+        "s.generic-reminder"
       ]
     },
     implementation: {
@@ -1209,7 +1220,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         branches: [
           {
             label: "It would",
-            when: "signatures are still outstanding, the exact version is still current, the request is still valid, and no reminder has been sent on it yet",
+            when: "signatures are still outstanding, the exact version is still current, the request is still valid, and this signer has not been reminded yet",
             to: "a.remind",
           },
           {

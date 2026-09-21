@@ -11,7 +11,7 @@ import { practitionerView, type PractitionerView } from "@/lib/practitioner-view
 import { surfaceOf } from "@/canonical/surface";
 import { LIBRARY_JOURNEYS, PUBLIC_JOURNEYS, isPublicJourneyId } from "@/lib/public-corpus";
 import type { Preset } from "@/canonical/types";
-import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, ExitClass, GoalId, SignalSource } from "@/canonical/types";
+import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, ChannelStrategy, ExitClass, GoalId, SignalSource } from "@/canonical/types";
 import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 
@@ -225,8 +225,24 @@ export type FlowNode = {
   eventId: string | null;
   /** The supporting detail, where the node carries any. */
   detail: string | null;
-  /** Evidence, timeout reason, writes - whatever this node kind adds. */
+  /** Evidence, timeout reason, writes - whatever this node kind adds.
+      Free-text display prose, localized on the TR route (see
+      `journey-tr-overrides.ts`'s `localizeStructural`) - never read back
+      structurally by anything downstream. `writesFields` below is the
+      structural fact `meta`'s "writes ..." lines are built from, kept
+      raw and unlocalized for exactly that purpose. */
   meta: readonly string[];
+  /** Action nodes only. The authored `writes[].field` names, verbatim and
+      unlocalized (canonical identifiers, the same treatment node and
+      event ids already get) - the structural source `meta`'s "writes
+      <field> (<mode>)" lines are rendered from. Absent means the action
+      writes nothing. Exists so a layout decision that depends on WHAT a
+      node writes (`absorbableBookkeeping`, journey-canvas-layout.ts) can
+      read the fact directly instead of pattern-matching `meta`'s display
+      prose, which is Turkish on the TR route and does not start with the
+      English word "writes" there - the cause of five journeys drawing a
+      different set of nodes on `/tr` than on `/en` (2026-09-21 fix). */
+  writesFields?: readonly string[];
   edges: readonly FlowEdge[];
   /** Action nodes only. What this action's effect is outside the system -
       see ActionNode.execution. Absent means an internal operation, which is
@@ -290,6 +306,18 @@ export type FlowNode = {
       that one is read off an adjacent router's prose, this one is the
       plan the journey actually declares. */
   channelPlan?: readonly { role: string; channels: readonly ChannelId[] }[];
+  /** Action nodes only, on a vNext journey. The journey's own
+      `contact.channelStrategy.fallback` ("next-eligible-role" |
+      "same-role-other-channel" | "none"), passed through so the card can
+      tell a genuine cross-role fallback cascade from a set of declared
+      roles nothing resolves between. Only `"next-eligible-role"` means
+      `channelPlan`'s entries are actually tried in order with each falling
+      back to the next; `"same-role-other-channel"` describes delivery
+      recovery WITHIN one role, never between the roles `channelPlan` lists,
+      and `"none"` or absent means no fallback claim can be made at all.
+      See `ChannelPriorityRow` (JourneyCanvasNodes.tsx) for the renderer
+      rule this backs. */
+  channelStrategyFallback?: ChannelStrategy["fallback"];
 };
 
 const humanEvent = (event: string): string => {
@@ -427,6 +455,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
         headline: n.does,
         detail: null,
         meta: (n.writes ?? []).map((w) => `writes ${w.field} (${w.mode})`),
+        ...(n.writes?.length ? { writesFields: n.writes.map((w) => w.field) } : {}),
         edges: [edge(n.next)],
         ...(n.execution ? { execution: n.execution } : {}),
       };
@@ -668,6 +697,9 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
     ...(n.kind === "action" && channelHints.has(n.id) ? { channelPriority: channelHints.get(n.id) } : {}),
     ...(n.kind === "action" && stages.has(n.id) ? { touchStage: stages.get(n.id) } : {}),
     ...(n.kind === "action" && plans.has(n.id) ? { channelPlan: plans.get(n.id) } : {}),
+    ...(n.kind === "action" && plans.has(n.id) && j.channelStrategy?.fallback
+      ? { channelStrategyFallback: j.channelStrategy.fallback }
+      : {}),
   }));
 }
 

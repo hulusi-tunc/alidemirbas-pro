@@ -125,7 +125,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "feedback-eligibility",
     category: "feedback",
     goal: "eligibility-qualification",
-    channels: ["email", "in-app", "push"],
+    channels: ["email"],
     name: "Feedback eligibility → ask, suppress or delay",
     shortName: "Feedback Request",
     purpose:
@@ -198,7 +198,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             "value": 1,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "the graph reaches at most one request per instance"
+            "applicableWhen": "one ask is the whole plan - a single merged eligibility decision reaches at most one request per instance, and nothing chases an unanswered ask"
           },
           "required": false
         },
@@ -229,30 +229,24 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the experience ended inside the product and the person is still there - the shortest route to the question"
-        },
-        {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "the experience ended elsewhere, or the person has left the product"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a valid token exists and the question can be answered in a single step from the notification"
+          "when": "a satisfaction ask has no deadline, no consequence and nothing the person must do by a date - email is the whole strategy, not a fallback from a faster route"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
+    /* Revisit condition, recorded so the surface split D proposed is not re-derived from
+       scratch: if `experience_ref` ever carries the experience's own type (transaction /
+       service interaction / onboarding milestone / support case / usage milestone - the
+       trigger's evidence already enumerates exactly those five), this journey becomes
+       conditional routing on the experience's own surface (in-app where the session is
+       still open, push where it just ended, email where it ended off-product) and should
+       be revisited first. Refused for now because no field carries the type today and the
+       brief forbids inventing a routing signal. */
     orchestration: {
       "strategy": "single-notice",
       "touches": [
@@ -262,15 +256,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "action": "a.request",
           "prerequisites": [
             "c.complete",
-            "c.open-issue",
-            "c.recent",
-            "c.moment"
+            "c.appropriate"
           ],
           "purpose": "Ask about this specific experience, in terms the person would recognise as being about the thing they did, with a route to answer.",
           "channelRoles": [
-            "in-session",
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "feedback-form-for-experience",
@@ -386,7 +376,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Complete",
             when: "the thing being asked about has finished for them, not only for us",
-            to: "c.open-issue",
+            to: "c.appropriate",
           },
           {
             label: "Not yet",
@@ -401,7 +391,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         until: [
           "experience_completed"
         ],
-        onEvent: "c.open-issue",
+        onEvent: "c.appropriate",
         timeout: {
           "after": {
             "key": "feedback_request.completion_horizon",
@@ -425,19 +415,29 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         class: "invalid-state",
       },
       {
-        id: "c.open-issue",
+        id: "c.appropriate",
         kind: "condition",
-        asks: "Is there an unresolved issue in this context?",
+        asks: "Is asking appropriate now?",
         branches: [
           {
-            label: "Unresolved",
+            label: "Unresolved issue open",
             when: "the person still has an open problem here - judged on the evidence, not on whether a ticket is marked closed",
             to: "x.deferred",
           },
           {
-            label: "Nothing open",
-            when: "no outstanding problem in this context",
-            to: "c.recent",
+            label: "Already asked",
+            when: "a recent request or response covers the same experience",
+            to: "x.duplicate",
+          },
+          {
+            label: "Ask budget spent",
+            when: "no unresolved issue and nothing recent covers it, but this person has been asked enough recently across every context",
+            to: "x.not-now",
+          },
+          {
+            label: "Appropriate",
+            when: "no outstanding problem in this context, nothing recent covers it, and the overall ask budget has room",
+            to: "a.request",
           },
         ],
       },
@@ -451,46 +451,12 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         class: "suppression",
       },
       {
-        id: "c.recent",
-        kind: "condition",
-        asks: "Has feedback already been collected for this context recently?",
-        branches: [
-          {
-            label: "Already asked",
-            when: "a recent request or response covers the same experience",
-            to: "x.duplicate",
-          },
-          {
-            label: "Not yet",
-            when: "nothing recent covers it",
-            to: "c.moment",
-          },
-        ],
-      },
-      {
         id: "x.duplicate",
         kind: "exit",
         state: "suppressed as a duplicate ask",
         terminal: false,
         reEntry: "a genuinely different experience is a different context and is asked about on its own terms",
         class: "suppression",
-      },
-      {
-        id: "c.moment",
-        kind: "condition",
-        asks: "Is this an appropriate moment, within the bound on how often this person is asked anything?",
-        branches: [
-          {
-            label: "Appropriate",
-            when: "the timing fits the experience and the overall ask budget has room",
-            to: "a.request",
-          },
-          {
-            label: "Not now",
-            when: "the timing is wrong, or this person has been asked enough recently across every context",
-            to: "x.not-now",
-          },
-        ],
       },
       {
         id: "x.not-now",
@@ -574,7 +540,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "advocacy-eligibility",
     category: "feedback",
     goal: "eligibility-qualification",
-    channels: ["email", "in-app", "push"],
+    channels: ["email", "in-app"],
     name: "Advocacy eligibility → ask, delay or suppress",
     shortName: "Advocacy Request",
     purpose:
@@ -594,10 +560,16 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "FBK-43 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it.",
       },
+      {
+        journey: "FBK-41",
+        because:
+          "FBK-41 asks about one completed experience, once. This asks a rarer, higher-value favour built on accumulated relationship evidence rather than one experience - the two share the outbound-ask slot precisely because asking both back-to-back for the same goodwill moment reads as farming it twice.",
+      },
     ],
     objective: "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
     eligibility: [
       "a moment where an advocacy request would be contextually sensible, against a relationship with positive evidence behind it",
+      "no acknowledgement about the same feedback record was sent inside the ask separation window - FBK-43's acknowledgement and this journey's ask are not the same message twice about the same compliment",
       "no instance of this journey is already open for the person or account plus the relationship context the advocacy would be about",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
@@ -645,12 +617,12 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "advocacy_eligibility.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "rule": "One ask per opportunity - light or heavy, never both. a.ask-light and a.ask-heavy are mutually exclusive arms of c.type, so the longest path to one recipient is one touch, not the plan's length.",
           "default": {
-            "value": 2,
+            "value": 1,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
+            "applicableWhen": "GLB-24; the longest path to one recipient"
           },
           "required": false
         },
@@ -672,28 +644,21 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
           "role": "in-session",
           "channels": [
             "in-app"
           ],
-          "when": "the person is active in the product and the action is taken there"
+          "when": "the light ask is a one-tap rating or response, at a moment the person is already in the product succeeding - the low-friction route is the whole point"
         },
         {
-          "role": "low-friction",
+          "role": "persistent",
           "channels": [
-            "push"
+            "email"
           ],
-          "when": "a valid token or app session exists and the message is a single step from the notification"
+          "when": "the heavy ask attaches somebody's name and reputation to ours and has to survive to be read twice, stating plainly what would be used and that contributing is separate from publishing"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -710,9 +675,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Make the small ask, once, with no follow-up sequence behind it.",
           "channelRoles": [
-            "persistent",
-            "in-session",
-            "low-friction"
+            "in-session"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -728,8 +691,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -1037,6 +999,28 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
+    distinctFrom: [
+      {
+        journey: "FBK-41",
+        because:
+          "FBK-41 begins only if something actually comes back, and most requests do not produce one. This begins once feedback has actually arrived and reacts to what it says.",
+      },
+      {
+        journey: "FBK-42",
+        because:
+          "FBK-42 weighs the accumulated relationship and decides whether it can carry an advocacy request. This reacts to one signal - the feedback record just received - most of which never reach that threshold.",
+      },
+      {
+        journey: "REM-305",
+        because:
+          "REM-305 starts from a request made of us and owns acknowledging it to the person who asked. This starts from an account of an experience; where that experience is a support need, this journey raises the work item and REM-305, not this one, tells the requester it was received.",
+      },
+      {
+        journey: "REM-151",
+        because:
+          "REM-151 starts from a concrete problem with something already delivered and asks which recovery route would satisfy it - the obligation is already known to exist. This journey starts from an account of an experience and works out whether an operational issue exists at all; where one clearly does, REM-151 owns the remedy route rather than this journey re-assessing it.",
+      },
+    ],
     objective: "Route one piece of feedback to what it operationally means - praise, a problem, a need, product evidence or a comment - and close the loop with the person only where something is owed.",
     eligibility: [
       "feedback submitted through any channel, attributable to a person and an experience",
@@ -1076,7 +1060,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "feedback.touches",
-          "rule": "One acknowledgement per feedback record, on whichever route it took; the record is never acknowledged twice.",
+          "rule": "One acknowledgement per feedback record, on whichever route it took; the record is never acknowledged twice. The budget counts customer-facing touches only - a.obligation and a.escalate raise an internal work item and carry channelRoles: [\"human\"], not a send, so they are excluded from the count the same way ACT-13's a.route-dependency is.",
           "default": {
             "value": 1,
             "confidence": "high",
@@ -1106,14 +1090,14 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the acknowledgement should reach the person where they can keep it, which is the default for something they wrote to us"
+          "when": "feedback.source recorded at a.persist was not in-app - the acknowledgement returns on the route the feedback actually arrived on"
         },
         {
           "role": "in-session",
           "channels": [
             "in-app"
           ],
-          "when": "the feedback was given inside the product and the person is still there"
+          "when": "feedback.source recorded at a.persist was in-app and the person is still reachable there"
         },
         {
           "role": "human",
@@ -1137,7 +1121,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             "c.route",
             "c.acknowledge"
           ],
-          "purpose": "Acknowledge a general comment specifically enough that it is clear a person could have read it.",
+          "purpose": "Acknowledge a general comment specifically enough that it is clear a person could have read it, on the route recorded as feedback.source.",
           "channelRoles": [
             "persistent",
             "in-session"
@@ -1153,7 +1137,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             "c.route",
             "c.recognition"
           ],
-          "purpose": "Acknowledge the specific thing they praised. Nothing generic, nothing that reads as a template.",
+          "purpose": "Acknowledge the specific thing they praised, on the route recorded as feedback.source. Nothing generic, nothing that reads as a template.",
           "channelRoles": [
             "persistent",
             "in-session"
@@ -1170,7 +1154,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             "c.existing",
             "c.actionable"
           ],
-          "purpose": "Acknowledge what they said about an experience we did not meet, without manufacturing a fault and without offering compensation in place of a fix.",
+          "purpose": "Acknowledge what they said about an experience we did not meet, on the route recorded as feedback.source, without manufacturing a fault and without offering compensation in place of a fix.",
           "channelRoles": [
             "persistent",
             "in-session"
@@ -1342,29 +1326,29 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "condition",
         asks: "What does this mean operationally?",
         branches: [
-          { label: "PRAISE", when: "positive, with substance behind it", to: "a.persist-positive" },
+          { label: "Praise", when: "positive, with substance behind it", to: "a.persist-positive" },
           {
-            label: "SERVICE_ISSUE or COMPLAINT",
+            label: "Service issue or complaint",
             when: "something went wrong, or is alleged to have",
             to: "c.existing",
           },
           {
-            label: "SUPPORT_NEED",
+            label: "A request for help",
             when: "they need help with something rather than reporting a fault",
             to: "a.obligation",
           },
           {
-            label: "PRODUCT_FEEDBACK",
+            label: "Product feedback",
             when: "an observation about the product that creates no obligation to this individual",
             to: "a.product",
           },
           {
-            label: "GENERAL_COMMENT",
+            label: "General comment",
             when: "worth keeping, nothing to do",
             to: "c.acknowledge",
           },
           {
-            label: "UNKNOWN",
+            label: "Meaning unclear",
             when: "the meaning cannot be established reliably enough to route",
             to: "h.triage",
           },
@@ -1466,7 +1450,8 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         "on": "positive evidence reaching the advocacy threshold",
         "carries": [
           "the evidence set, not only the latest item",
-          "the context the positive experience was in"
+          "the context the positive experience was in",
+          "the time the acknowledgement for this record was sent, if any, so FBK-42 can honour its own ask-separation window"
         ]
       },
       {
@@ -1639,7 +1624,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.obligation",
         kind: "action",
-        does: "Create the work item in the owning process. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events",
+        does: "Create the work item in the owning process, carrying the feedback record id so the two stay linked. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events. The requester is acknowledged by REM-305 on support_request_received - not from here",
         writes: [{ field: "feedback_log", mode: "append" }],
         next: "w.outcome",
         execution: "human",
@@ -1702,17 +1687,9 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         timeout: {
           "after": {
             "key": "feedback.promise_window",
-            "rule": "A promised follow-up is waited for only as long as the promise still means anything to the person; past that it is a broken promise and is escalated as one.",
+            "rule": "A promised follow-up is waited for only as long as the promise still means anything to the person; past that it is a broken promise and is escalated as one. The promise carries its own date - relativeTo: \"attribute\" against promised_followup_at - so this journey never invents one.",
             "class": "response-window",
-            "default": {
-              "value": {
-                "min": "7 days",
-                "max": "14 days"
-              },
-              "confidence": "low",
-              "basis": "example-only"
-            },
-            "required": false
+            "required": true
           },
           "reason": "an unkept promise to someone who took the time to tell us something is worse than never having asked, so it escalates rather than expiring",
           "relativeTo": "attribute",
@@ -2898,7 +2875,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "missing-critical-data",
     category: "feedback",
     goal: "recovery-retry",
-    channels: ["email", "in-app", "task"],
+    channels: ["email", "task"],
     name: "Missing critical data → request or resolve → resume",
     shortName: "Missing Information Reminder",
     purpose:
@@ -2917,6 +2894,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "ACT-13",
         because:
           "ACT-13 is scoped to activation specifically and owns resuming onboarding. This applies to any named process, most of which have nothing to do with onboarding.",
+      },
+      {
+        journey: "TIM-268",
+        because:
+          "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks a process. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it.",
       },
     ],
     objective: "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
@@ -2940,6 +2922,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g3",
         "label": "CANONICAL_RULE",
         "text": "Every request names the process it unblocks. A request that cannot is progressive profiling and belongs elsewhere."
+      },
+      {
+        "id": "s.generic-reminder",
+        "label": "CANONICAL_RULE",
+        "text": "This journey owns the reminder for the item it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that obligation while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
       }
     ],
     contact: {
@@ -2948,12 +2935,12 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "missing_critical.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "rule": "Two customer touches: one request to whoever holds the item, and one re-request only where what arrived was received and refused. An internal work item is not a touch - a.request-internal raises one and carries channelRoles: [\"human\"], excluded from the count the same way ACT-13's a.route-dependency and FBK-43's a.obligation/a.escalate are.",
           "default": {
             "value": 2,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
+            "applicableWhen": "GLB-24; one request plus one re-request earned by a genuine state change - the item arrived and was refused"
           },
           "required": false
         },
@@ -2978,14 +2965,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
+          "when": "a request for a document must survive until the person can act on it - there is no due_at, no urgent-horizon attribute and no recorded consequence with a date, so email is the whole strategy"
         },
         {
           "role": "human",
@@ -2995,7 +2975,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -3011,8 +2991,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Request it from the person the record is about, stating what it unblocks, so the request is answerable rather than merely received",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3038,6 +3017,28 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "reject",
+          "action": "a.reject",
+          "after": "t1",
+          "prerequisites": [
+            "c.valid"
+          ],
+          "purpose": "Tell the person what was wrong with what they sent, and re-request it - the same conversation about the same item, on the same route, once.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "provide-missing-item",
+            "boundTo": "requirement_id",
+            "mustNotClaim": [
+              "a deadline this journey does not have"
+            ]
+          }
         }
       ],
       "noAction": [
@@ -3154,6 +3155,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.retrieve",
         kind: "action",
         does: "Retrieve and reconcile it. Asking someone for what we already hold authoritatively is the fastest way to demonstrate that we do not know our own records",
+        writes: [{ field: "requirement_value", mode: "set" }],
         next: "c.valid",
       },
       {
@@ -3193,7 +3195,9 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.received",
         kind: "wait",
         until: [
-          "requested_information_received"
+          "requested_information_received",
+          "dependency_resolved",
+          "process_cancelled"
         ],
         onEvent: "c.valid",
         timeout: {
@@ -3223,9 +3227,28 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Invalid or incomplete",
             when: "what arrived does not satisfy the requirement",
-            to: "c.criticality",
+            to: "a.reject",
           },
         ],
+      },
+      {
+        id: "a.reject",
+        kind: "action",
+        does: "Tell the person what was wrong with what they sent, and re-request it - the same conversation about the same item, on the same route. Sending a document and hearing nothing back is worse than being asked again, because silence gives no way to know it was refused",
+        next: "w.received",
+        execution: "communication",
+        idempotencyKey: "blocked_entity_id + requirement_id + a.reject",
+        attemptBudget: {
+          "key": "missing_critical.reject_budget",
+          "rule": "The re-request runs once; the two customer touches (the request, and one re-request only where what arrived was received and refused) are the whole plan.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "missing_critical.touches"
+          },
+          "required": false
+        },
       },
       {
         id: "a.persist",
