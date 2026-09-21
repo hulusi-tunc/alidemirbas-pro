@@ -19659,14 +19659,14 @@
             "channels": [
               "sms"
             ],
-            "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+            "when": "the failed destination was the email address and a permitted, deliverable phone number survives - the surviving-route substitute, not a time-bound urgency"
           },
           {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the message has to be kept and survive until the person can act on it"
+            "when": "the message has to be kept and survive until the person can act on it, including where the failed destination was the phone number and a permitted, deliverable email address survives"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -19694,16 +19694,33 @@
             }
           },
           {
-            "id": "t2",
-            "stage": "prompt-alt",
-            "action": "a.prompt-alt",
+            "id": "t2a",
+            "stage": "prompt-email",
+            "action": "a.prompt-email",
             "prerequisites": [
               "c.route"
             ],
-            "purpose": "Ask for a corrected destination on the surviving permitted route, naming the one that failed.",
+            "purpose": "Ask for a corrected destination on the surviving address, naming the phone number that failed.",
             "channelRoles": [
-              "urgent",
               "persistent"
+            ],
+            "mandatory": true,
+            "label": "CANONICAL_RULE",
+            "destination": {
+              "target": "contact-point-update",
+              "boundTo": "contact_point_id"
+            }
+          },
+          {
+            "id": "t2b",
+            "stage": "prompt-sms",
+            "action": "a.prompt-sms",
+            "prerequisites": [
+              "c.route"
+            ],
+            "purpose": "Ask for a corrected destination on the surviving phone number, naming the address that failed.",
+            "channelRoles": [
+              "urgent"
             ],
             "mandatory": true,
             "label": "CANONICAL_RULE",
@@ -19720,7 +19737,7 @@
             "prerequisites": [
               "c.outcome"
             ],
-            "purpose": "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent.",
+            "purpose": "Confirm on the same route recorded at c.route that carried the repair request - never a second route - that the replacement is now in use, and that this changed where things go and not what may be sent.",
             "channelRoles": [
               "in-session",
               "persistent",
@@ -19825,14 +19842,19 @@
           "asks": "What can carry the repair request without using the broken destination?",
           "branches": [
             {
-              "label": "Reachable in product",
+              "label": "Signed in",
               "when": "the person signs in, so the request can wait on the surface they already use",
               "to": "a.prompt-in-app"
             },
             {
-              "label": "Reachable off product",
-              "when": "no session is expected soon, and a separate destination is both deliverable and permitted for a service notice of this kind",
-              "to": "a.prompt-alt"
+              "label": "Email survives",
+              "when": "no session is expected soon, the failed destination was the phone number, and the email address is both deliverable and permitted for a service notice of this kind",
+              "to": "a.prompt-email"
+            },
+            {
+              "label": "Phone survives",
+              "when": "no session is expected soon, the failed destination was the email address, and a permitted, deliverable phone number survives",
+              "to": "a.prompt-sms"
             },
             {
               "label": "Nothing left",
@@ -19850,12 +19872,20 @@
           "idempotencyKey": "contact_point_id + person_id + a.prompt-in-app"
         },
         {
-          "id": "a.prompt-alt",
+          "id": "a.prompt-email",
           "kind": "action",
-          "does": "Ask for a corrected destination on the surviving permitted route, naming the one that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
+          "does": "Ask for a corrected destination on the surviving address, naming the phone number that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
           "next": "w.corrected",
           "execution": "communication",
-          "idempotencyKey": "contact_point_id + person_id + a.prompt-alt"
+          "idempotencyKey": "contact_point_id + person_id + a.prompt-email"
+        },
+        {
+          "id": "a.prompt-sms",
+          "kind": "action",
+          "does": "Ask for a corrected destination on the surviving phone number, naming the address that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
+          "next": "w.corrected",
+          "execution": "communication",
+          "idempotencyKey": "contact_point_id + person_id + a.prompt-sms"
         },
         {
           "id": "x.dark",
@@ -19908,7 +19938,7 @@
         {
           "id": "a.confirm",
           "kind": "action",
-          "does": "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
+          "does": "Confirm on the same route that carried the repair request - never a second route - that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
           "next": "x.repaired",
           "execution": "communication",
           "idempotencyKey": "contact_point_id + person_id + a.confirm"
@@ -20300,8 +20330,7 @@
       "category": "consent",
       "goal": "consent-permission",
       "channels": [
-        "email",
-        "in-app"
+        "email"
       ],
       "name": "Marketing contact unanswered → the question put once → kept, reduced or ended",
       "shortName": "Unengaged Subscriber Sunset",
@@ -20413,16 +20442,9 @@
               "email"
             ],
             "when": "the question has to reach somebody who is not in the product and survive until they answer it - the default route, and the one the unengaged window was measured on"
-          },
-          {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the person is still active in the product, where the preference can be changed in the same place the question is asked"
           }
         ],
-        "fallback": "next-eligible-role",
+        "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -20438,8 +20460,7 @@
             ],
             "purpose": "Ask once whether marketing contact should continue, with a reduced cadence set beside stopping altogether so that fewer is an answer the person can actually give.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "destination": {
               "target": "preference-centre",
@@ -20465,8 +20486,7 @@
             ],
             "purpose": "One final notice: the date marketing contact will end, the single action that keeps it, and the reduced cadence as the answer in between. Nothing is added to argue for the relationship.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "destination": {
               "target": "preference-centre",
@@ -21003,9 +21023,7 @@
       "category": "feedback",
       "goal": "eligibility-qualification",
       "channels": [
-        "email",
-        "in-app",
-        "push"
+        "email"
       ],
       "name": "Feedback eligibility → ask, suppress or delay",
       "shortName": "Feedback Request",
@@ -21076,7 +21094,7 @@
               "value": 1,
               "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "the graph reaches at most one request per instance"
+              "applicableWhen": "one ask is the whole plan - a single merged eligibility decision reaches at most one request per instance, and nothing chases an unanswered ask"
             },
             "required": false
           },
@@ -21107,28 +21125,14 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the experience ended inside the product and the person is still there - the shortest route to the question"
-          },
-          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the experience ended elsewhere, or the person has left the product"
-          },
-          {
-            "role": "low-friction",
-            "channels": [
-              "push"
-            ],
-            "when": "a valid token exists and the question can be answered in a single step from the notification"
+            "when": "a satisfaction ask has no deadline, no consequence and nothing the person must do by a date - email is the whole strategy, not a fallback from a faster route"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -21140,15 +21144,11 @@
             "action": "a.request",
             "prerequisites": [
               "c.complete",
-              "c.open-issue",
-              "c.recent",
-              "c.moment"
+              "c.appropriate"
             ],
             "purpose": "Ask about this specific experience, in terms the person would recognise as being about the thing they did, with a route to answer.",
             "channelRoles": [
-              "in-session",
-              "persistent",
-              "low-friction"
+              "persistent"
             ],
             "destination": {
               "target": "feedback-form-for-experience",
@@ -21264,7 +21264,7 @@
             {
               "label": "Complete",
               "when": "the thing being asked about has finished for them, not only for us",
-              "to": "c.open-issue"
+              "to": "c.appropriate"
             },
             {
               "label": "Not yet",
@@ -21279,7 +21279,7 @@
           "until": [
             "experience_completed"
           ],
-          "onEvent": "c.open-issue",
+          "onEvent": "c.appropriate",
           "timeout": {
             "after": {
               "key": "feedback_request.completion_horizon",
@@ -21303,19 +21303,29 @@
           "class": "invalid-state"
         },
         {
-          "id": "c.open-issue",
+          "id": "c.appropriate",
           "kind": "condition",
-          "asks": "Is there an unresolved issue in this context?",
+          "asks": "Is asking appropriate now?",
           "branches": [
             {
-              "label": "Unresolved",
+              "label": "Unresolved issue open",
               "when": "the person still has an open problem here - judged on the evidence, not on whether a ticket is marked closed",
               "to": "x.deferred"
             },
             {
-              "label": "Nothing open",
-              "when": "no outstanding problem in this context",
-              "to": "c.recent"
+              "label": "Already asked",
+              "when": "a recent request or response covers the same experience",
+              "to": "x.duplicate"
+            },
+            {
+              "label": "Ask budget spent",
+              "when": "no unresolved issue and nothing recent covers it, but this person has been asked enough recently across every context",
+              "to": "x.not-now"
+            },
+            {
+              "label": "Appropriate",
+              "when": "no outstanding problem in this context, nothing recent covers it, and the overall ask budget has room",
+              "to": "a.request"
             }
           ]
         },
@@ -21328,46 +21338,12 @@
           "class": "suppression"
         },
         {
-          "id": "c.recent",
-          "kind": "condition",
-          "asks": "Has feedback already been collected for this context recently?",
-          "branches": [
-            {
-              "label": "Already asked",
-              "when": "a recent request or response covers the same experience",
-              "to": "x.duplicate"
-            },
-            {
-              "label": "Not yet",
-              "when": "nothing recent covers it",
-              "to": "c.moment"
-            }
-          ]
-        },
-        {
           "id": "x.duplicate",
           "kind": "exit",
           "state": "suppressed as a duplicate ask",
           "terminal": false,
           "reEntry": "a genuinely different experience is a different context and is asked about on its own terms",
           "class": "suppression"
-        },
-        {
-          "id": "c.moment",
-          "kind": "condition",
-          "asks": "Is this an appropriate moment, within the bound on how often this person is asked anything?",
-          "branches": [
-            {
-              "label": "Appropriate",
-              "when": "the timing fits the experience and the overall ask budget has room",
-              "to": "a.request"
-            },
-            {
-              "label": "Not now",
-              "when": "the timing is wrong, or this person has been asked enough recently across every context",
-              "to": "x.not-now"
-            }
-          ]
         },
         {
           "id": "x.not-now",
@@ -21453,8 +21429,7 @@
       "goal": "eligibility-qualification",
       "channels": [
         "email",
-        "in-app",
-        "push"
+        "in-app"
       ],
       "name": "Advocacy eligibility → ask, delay or suppress",
       "shortName": "Advocacy Request",
@@ -21472,11 +21447,16 @@
         {
           "journey": "FBK-43",
           "because": "FBK-43 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it."
+        },
+        {
+          "journey": "FBK-41",
+          "because": "FBK-41 asks about one completed experience, once. This asks a rarer, higher-value favour built on accumulated relationship evidence rather than one experience - the two share the outbound-ask slot precisely because asking both back-to-back for the same goodwill moment reads as farming it twice."
         }
       ],
       "objective": "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
       "eligibility": [
         "a moment where an advocacy request would be contextually sensible, against a relationship with positive evidence behind it",
+        "no acknowledgement about the same feedback record was sent inside the ask separation window - FBK-43's acknowledgement and this journey's ask are not the same message twice about the same compliment",
         "no instance of this journey is already open for the person or account plus the relationship context the advocacy would be about",
         "hard gates (GLB-31) allow communication for this purpose"
       ],
@@ -21523,12 +21503,12 @@
         "localCap": {
           "value": {
             "key": "advocacy_eligibility.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+            "rule": "One ask per opportunity - light or heavy, never both. a.ask-light and a.ask-heavy are mutually exclusive arms of c.type, so the longest path to one recipient is one touch, not the plan's length.",
             "default": {
-              "value": 2,
+              "value": 1,
               "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the graph's own touch count"
+              "applicableWhen": "GLB-24; the longest path to one recipient"
             },
             "required": false
           },
@@ -21550,28 +21530,21 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
             "role": "in-session",
             "channels": [
               "in-app"
             ],
-            "when": "the person is active in the product and the action is taken there"
+            "when": "the light ask is a one-tap rating or response, at a moment the person is already in the product succeeding - the low-friction route is the whole point"
           },
           {
-            "role": "low-friction",
+            "role": "persistent",
             "channels": [
-              "push"
+              "email"
             ],
-            "when": "a valid token or app session exists and the message is a single step from the notification"
+            "when": "the heavy ask attaches somebody's name and reputation to ours and has to survive to be read twice, stating plainly what would be used and that contributing is separate from publishing"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -21588,9 +21561,7 @@
             ],
             "purpose": "Make the small ask, once, with no follow-up sequence behind it.",
             "channelRoles": [
-              "persistent",
-              "in-session",
-              "low-friction"
+              "in-session"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -21606,8 +21577,7 @@
             ],
             "purpose": "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -21911,6 +21881,24 @@
         ],
         "concurrency": "one-active-per-key"
       },
+      "distinctFrom": [
+        {
+          "journey": "FBK-41",
+          "because": "FBK-41 begins only if something actually comes back, and most requests do not produce one. This begins once feedback has actually arrived and reacts to what it says."
+        },
+        {
+          "journey": "FBK-42",
+          "because": "FBK-42 weighs the accumulated relationship and decides whether it can carry an advocacy request. This reacts to one signal - the feedback record just received - most of which never reach that threshold."
+        },
+        {
+          "journey": "REM-305",
+          "because": "REM-305 starts from a request made of us and owns acknowledging it to the person who asked. This starts from an account of an experience; where that experience is a support need, this journey raises the work item and REM-305, not this one, tells the requester it was received."
+        },
+        {
+          "journey": "REM-151",
+          "because": "REM-151 starts from a concrete problem with something already delivered and asks which recovery route would satisfy it - the obligation is already known to exist. This journey starts from an account of an experience and works out whether an operational issue exists at all; where one clearly does, REM-151 owns the remedy route rather than this journey re-assessing it."
+        }
+      ],
       "objective": "Route one piece of feedback to what it operationally means - praise, a problem, a need, product evidence or a comment - and close the loop with the person only where something is owed.",
       "eligibility": [
         "feedback submitted through any channel, attributable to a person and an experience",
@@ -21950,7 +21938,7 @@
         "localCap": {
           "value": {
             "key": "feedback.touches",
-            "rule": "One acknowledgement per feedback record, on whichever route it took; the record is never acknowledged twice.",
+            "rule": "One acknowledgement per feedback record, on whichever route it took; the record is never acknowledged twice. The budget counts customer-facing touches only - a.obligation and a.escalate raise an internal work item and carry channelRoles: [\"human\"], not a send, so they are excluded from the count the same way ACT-13's a.route-dependency is.",
             "default": {
               "value": 1,
               "confidence": "high",
@@ -21980,14 +21968,14 @@
             "channels": [
               "email"
             ],
-            "when": "the acknowledgement should reach the person where they can keep it, which is the default for something they wrote to us"
+            "when": "feedback.source recorded at a.persist was not in-app - the acknowledgement returns on the route the feedback actually arrived on"
           },
           {
             "role": "in-session",
             "channels": [
               "in-app"
             ],
-            "when": "the feedback was given inside the product and the person is still there"
+            "when": "feedback.source recorded at a.persist was in-app and the person is still reachable there"
           },
           {
             "role": "human",
@@ -22011,7 +21999,7 @@
               "c.route",
               "c.acknowledge"
             ],
-            "purpose": "Acknowledge a general comment specifically enough that it is clear a person could have read it.",
+            "purpose": "Acknowledge a general comment specifically enough that it is clear a person could have read it, on the route recorded as feedback.source.",
             "channelRoles": [
               "persistent",
               "in-session"
@@ -22027,7 +22015,7 @@
               "c.route",
               "c.recognition"
             ],
-            "purpose": "Acknowledge the specific thing they praised. Nothing generic, nothing that reads as a template.",
+            "purpose": "Acknowledge the specific thing they praised, on the route recorded as feedback.source. Nothing generic, nothing that reads as a template.",
             "channelRoles": [
               "persistent",
               "in-session"
@@ -22044,7 +22032,7 @@
               "c.existing",
               "c.actionable"
             ],
-            "purpose": "Acknowledge what they said about an experience we did not meet, without manufacturing a fault and without offering compensation in place of a fix.",
+            "purpose": "Acknowledge what they said about an experience we did not meet, on the route recorded as feedback.source, without manufacturing a fault and without offering compensation in place of a fix.",
             "channelRoles": [
               "persistent",
               "in-session"
@@ -22227,32 +22215,32 @@
           "asks": "What does this mean operationally?",
           "branches": [
             {
-              "label": "PRAISE",
+              "label": "Praise",
               "when": "positive, with substance behind it",
               "to": "a.persist-positive"
             },
             {
-              "label": "SERVICE_ISSUE or COMPLAINT",
+              "label": "Service issue or complaint",
               "when": "something went wrong, or is alleged to have",
               "to": "c.existing"
             },
             {
-              "label": "SUPPORT_NEED",
+              "label": "A request for help",
               "when": "they need help with something rather than reporting a fault",
               "to": "a.obligation"
             },
             {
-              "label": "PRODUCT_FEEDBACK",
+              "label": "Product feedback",
               "when": "an observation about the product that creates no obligation to this individual",
               "to": "a.product"
             },
             {
-              "label": "GENERAL_COMMENT",
+              "label": "General comment",
               "when": "worth keeping, nothing to do",
               "to": "c.acknowledge"
             },
             {
-              "label": "UNKNOWN",
+              "label": "Meaning unclear",
               "when": "the meaning cannot be established reliably enough to route",
               "to": "h.triage"
             }
@@ -22354,7 +22342,8 @@
           "on": "positive evidence reaching the advocacy threshold",
           "carries": [
             "the evidence set, not only the latest item",
-            "the context the positive experience was in"
+            "the context the positive experience was in",
+            "the time the acknowledgement for this record was sent, if any, so FBK-42 can honour its own ask-separation window"
           ]
         },
         {
@@ -22529,7 +22518,7 @@
         {
           "id": "a.obligation",
           "kind": "action",
-          "does": "Create the work item in the owning process. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events",
+          "does": "Create the work item in the owning process, carrying the feedback record id so the two stay linked. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events. The requester is acknowledged by REM-305 on support_request_received - not from here",
           "writes": [
             {
               "field": "feedback_log",
@@ -22596,17 +22585,9 @@
           "timeout": {
             "after": {
               "key": "feedback.promise_window",
-              "rule": "A promised follow-up is waited for only as long as the promise still means anything to the person; past that it is a broken promise and is escalated as one.",
+              "rule": "A promised follow-up is waited for only as long as the promise still means anything to the person; past that it is a broken promise and is escalated as one. The promise carries its own date - relativeTo: \"attribute\" against promised_followup_at - so this journey never invents one.",
               "class": "response-window",
-              "default": {
-                "value": {
-                  "min": "7 days",
-                  "max": "14 days"
-                },
-                "confidence": "low",
-                "basis": "example-only"
-              },
-              "required": false
+              "required": true
             },
             "reason": "an unkept promise to someone who took the time to tell us something is worse than never having asked, so it escalates rather than expiring",
             "relativeTo": "attribute",
@@ -23862,7 +23843,6 @@
       "goal": "recovery-retry",
       "channels": [
         "email",
-        "in-app",
         "task"
       ],
       "name": "Missing critical data → request or resolve → resume",
@@ -23881,6 +23861,10 @@
         {
           "journey": "ACT-13",
           "because": "ACT-13 is scoped to activation specifically and owns resuming onboarding. This applies to any named process, most of which have nothing to do with onboarding."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks a process. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ],
       "objective": "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
@@ -23904,6 +23888,11 @@
           "id": "s.g3",
           "label": "CANONICAL_RULE",
           "text": "Every request names the process it unblocks. A request that cannot is progressive profiling and belongs elsewhere."
+        },
+        {
+          "id": "s.generic-reminder",
+          "label": "CANONICAL_RULE",
+          "text": "This journey owns the reminder for the item it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that obligation while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
         }
       ],
       "contact": {
@@ -23912,12 +23901,12 @@
         "localCap": {
           "value": {
             "key": "missing_critical.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+            "rule": "Two customer touches: one request to whoever holds the item, and one re-request only where what arrived was received and refused. An internal work item is not a touch - a.request-internal raises one and carries channelRoles: [\"human\"], excluded from the count the same way ACT-13's a.route-dependency and FBK-43's a.obligation/a.escalate are.",
             "default": {
               "value": 2,
               "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the graph's own touch count"
+              "applicableWhen": "GLB-24; one request plus one re-request earned by a genuine state change - the item arrived and was refused"
             },
             "required": false
           },
@@ -23942,14 +23931,7 @@
             "channels": [
               "email"
             ],
-            "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the person is active in the product and the action is taken there"
+            "when": "a request for a document must survive until the person can act on it - there is no due_at, no urgent-horizon attribute and no recorded consequence with a date, so email is the whole strategy"
           },
           {
             "role": "human",
@@ -23959,7 +23941,7 @@
             "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -23975,8 +23957,7 @@
             ],
             "purpose": "Request it from the person the record is about, stating what it unblocks, so the request is answerable rather than merely received",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -24002,6 +23983,28 @@
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t3",
+            "stage": "reject",
+            "action": "a.reject",
+            "after": "t1",
+            "prerequisites": [
+              "c.valid"
+            ],
+            "purpose": "Tell the person what was wrong with what they sent, and re-request it - the same conversation about the same item, on the same route, once.",
+            "channelRoles": [
+              "persistent"
+            ],
+            "mandatory": false,
+            "label": "CANONICAL_RULE",
+            "destination": {
+              "target": "provide-missing-item",
+              "boundTo": "requirement_id",
+              "mustNotClaim": [
+                "a deadline this journey does not have"
+              ]
+            }
           }
         ],
         "noAction": [
@@ -24123,6 +24126,12 @@
           "id": "a.retrieve",
           "kind": "action",
           "does": "Retrieve and reconcile it. Asking someone for what we already hold authoritatively is the fastest way to demonstrate that we do not know our own records",
+          "writes": [
+            {
+              "field": "requirement_value",
+              "mode": "set"
+            }
+          ],
           "next": "c.valid"
         },
         {
@@ -24162,7 +24171,9 @@
           "id": "w.received",
           "kind": "wait",
           "until": [
-            "requested_information_received"
+            "requested_information_received",
+            "dependency_resolved",
+            "process_cancelled"
           ],
           "onEvent": "c.valid",
           "timeout": {
@@ -24192,9 +24203,28 @@
             {
               "label": "Invalid or incomplete",
               "when": "what arrived does not satisfy the requirement",
-              "to": "c.criticality"
+              "to": "a.reject"
             }
           ]
+        },
+        {
+          "id": "a.reject",
+          "kind": "action",
+          "does": "Tell the person what was wrong with what they sent, and re-request it - the same conversation about the same item, on the same route. Sending a document and hearing nothing back is worse than being asked again, because silence gives no way to know it was refused",
+          "next": "w.received",
+          "execution": "communication",
+          "idempotencyKey": "blocked_entity_id + requirement_id + a.reject",
+          "attemptBudget": {
+            "key": "missing_critical.reject_budget",
+            "rule": "The re-request runs once; the two customer touches (the request, and one re-request only where what arrived was received and refused) are the whole plan.",
+            "default": {
+              "value": 1,
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "missing_critical.touches"
+            },
+            "required": false
+          }
         },
         {
           "id": "a.persist",
@@ -26533,9 +26563,7 @@
       "goal": "escalation-exception",
       "channels": [
         "email",
-        "push",
-        "sms",
-        "whatsapp"
+        "sms"
       ],
       "name": "Deadline created → track → complete, escalate or expire",
       "shortName": "Deadline Tracking",
@@ -26627,22 +26655,14 @@
             "channels": [
               "email"
             ],
-            "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
-            "role": "low-friction",
-            "channels": [
-              "push"
-            ],
-            "when": "a valid token or app session exists and the message is a single step from the notification"
+            "when": "any pre-deadline threshold before the final one, where the message has to be kept and survive until the person can act on it"
           },
           {
             "role": "urgent",
             "channels": [
-              "sms",
-              "whatsapp"
+              "sms"
             ],
-            "when": "due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
+            "when": "this is the final pre-deadline threshold before the deadline, and permission for messages on this channel is recorded"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -26658,12 +26678,35 @@
             "gatedBy": "w.tracking",
             "prerequisites": [
               "c.what",
-              "c.useful"
+              "c.useful",
+              "c.threshold"
             ],
             "purpose": "Send the reminder defined for this threshold.",
             "channelRoles": [
-              "persistent",
-              "low-friction",
+              "persistent"
+            ],
+            "mandatory": false,
+            "label": "CANONICAL_RULE",
+            "destination": {
+              "target": "discharge-the-obligation",
+              "boundTo": "obligation_id",
+              "mustNotClaim": [
+                "a moved deadline"
+              ]
+            }
+          },
+          {
+            "id": "t2",
+            "stage": "remind-final",
+            "action": "a.remind-final",
+            "gatedBy": "w.tracking",
+            "prerequisites": [
+              "c.what",
+              "c.useful",
+              "c.threshold"
+            ],
+            "purpose": "Send the reminder defined for the final pre-deadline threshold, on the channel that permission and the urgency of the moment both justify.",
+            "channelRoles": [
               "urgent"
             ],
             "mandatory": false,
@@ -26832,7 +26875,7 @@
             },
             {
               "field": "suppressed_sends",
-              "mode": "append"
+              "mode": "set"
             }
           ],
           "next": "x.satisfied",
@@ -26854,12 +26897,29 @@
             {
               "label": "Send it",
               "when": "policy defines a reminder at this threshold and the recipient can still act on it",
-              "to": "a.remind"
+              "to": "c.threshold"
             },
             {
               "label": "Nothing to send",
               "when": "no reminder is defined, or nobody can do anything differently on hearing it",
               "to": "w.tracking"
+            }
+          ]
+        },
+        {
+          "id": "c.threshold",
+          "kind": "condition",
+          "asks": "Which threshold fired?",
+          "branches": [
+            {
+              "label": "The final pre-deadline threshold",
+              "when": "this is the last threshold before the deadline itself, and SMS permission is recorded",
+              "to": "a.remind-final"
+            },
+            {
+              "label": "Any earlier threshold",
+              "when": "an earlier, non-final threshold - information rather than a deadline with a consequence about to attach",
+              "to": "a.remind"
             }
           ]
         },
@@ -26870,6 +26930,19 @@
           "next": "w.tracking",
           "execution": "communication",
           "idempotencyKey": "obligation_id + a.remind",
+          "attemptBudget": {
+            "key": "deadline_tracking.remind_budget",
+            "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
+            "required": true
+          }
+        },
+        {
+          "id": "a.remind-final",
+          "kind": "action",
+          "does": "Send the reminder defined for the final pre-deadline threshold. This is the last chance before the deadline itself becomes the thing that decides what happens, so it carries the deadline and the one way to discharge the obligation, not merely information about it",
+          "next": "w.tracking",
+          "execution": "communication",
+          "idempotencyKey": "obligation_id + a.remind-final",
           "attemptBudget": {
             "key": "deadline_tracking.remind_budget",
             "rule": "This loop runs against a budget fixed when the instance opened; when it is spent the instance takes its timeout path (GLB-24).",
@@ -26902,7 +26975,7 @@
               "to": "x.failed"
             },
             {
-              "label": "STILL_VALID",
+              "label": "Still valid",
               "when": "the deadline was a target and passing it changes nothing about the obligation",
               "to": "x.still-valid"
             }
@@ -27215,10 +27288,7 @@
       "category": "time",
       "goal": "expiry-renewal",
       "channels": [
-        "email",
-        "in-app",
-        "push",
-        "sms"
+        "email"
       ],
       "name": "Expiry approaching → eligibility check → renew, complete or let expire",
       "shortName": "Expiry Reminder",
@@ -27240,6 +27310,10 @@
         {
           "journey": "SUB-163",
           "because": "A subscription is in this journey's scope and a term end is in SUB-163's, so the same calendar moment fires both. SUB-163 owns it: it is the one that knows the renewal terms, the notice the terms require and who holds the decision, and its notice is a contractual obligation rather than outreach. This journey is the generic fallback for that expiry - it owns a subscription only where no renewal decision window is open on it, alongside every other expiring entity with no renewal cycle."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific entity is expiring or what its expiry actually does. This journey owns the reminder once an expiring entity is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ],
       "objective": "Before something expires, tell the person who can actually act what is expiring, the one action that would change the outcome and the point by which it must be taken - or, where nothing can be done, say plainly what will happen; and say nothing where nothing is worth saying.",
@@ -27279,6 +27353,11 @@
           "id": "s.renewal-cycle",
           "label": "CANONICAL_RULE",
           "text": "An entity whose expiry is the end of a renewal cycle is owned by the renewal journey (SUB-163) for the whole of that cycle's decision window, and this journey is suppressed for it - the required notice and a pre-expiry reminder about one subscription are the same message sent twice, and the notice is the one the terms oblige. This journey is the fallback for a subscription expiry no renewal decision owns, and the owner of every expiring entity that has no renewal cycle at all: a document, a credential, an approval, a reservation, a benefit, an agreement with no renewing terms."
+        },
+        {
+          "id": "s.generic-reminder",
+          "label": "CANONICAL_RULE",
+          "text": "This journey owns the reminder for the expiring entity it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that entity while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
         }
       ],
       "contact": {
@@ -27322,25 +27401,10 @@
             "channels": [
               "email"
             ],
-            "when": "the message names an action and a boundary and must survive until the responsible actor can act - the default"
-          },
-          {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the responsible actor is in the product and the action is taken there"
-          },
-          {
-            "role": "urgent",
-            "channels": [
-              "sms",
-              "push"
-            ],
-            "when": "expires_at falls inside the urgent_horizon attribute, the action is a single step, and permission for service messages on the channel is recorded"
+            "when": "the message names an action and a boundary and must survive until the responsible actor can act - the whole strategy, since the responsible actor may hold no product session at all and nothing here establishes an imminent one-tap action that would justify SMS"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -27356,9 +27420,7 @@
             ],
             "purpose": "Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point by which it must be taken.",
             "channelRoles": [
-              "persistent",
-              "in-session",
-              "urgent"
+              "persistent"
             ],
             "destination": {
               "target": "expiry-action",
@@ -27394,7 +27456,8 @@
           "s.nothing-to-say",
           "s.no-call-where-no-action",
           "s.stale-queue",
-          "s.renewal-cycle"
+          "s.renewal-cycle",
+          "s.generic-reminder"
         ]
       },
       "implementation": {
@@ -27540,6 +27603,12 @@
           "id": "a.actor",
           "kind": "action",
           "does": "Establish who is responsible for acting and what the action actually is. A pre-expiry message addressed to someone who cannot perform the renewal is a notification pretending to be a call to action",
+          "writes": [
+            {
+              "field": "responsible_actor",
+              "mode": "set"
+            }
+          ],
           "next": "a.prompt-action"
         },
         {
@@ -28815,8 +28884,7 @@
       "category": "time",
       "goal": "escalation-exception",
       "channels": [
-        "email",
-        "sms"
+        "email"
       ],
       "name": "Customer-owed action → deadline reminder → completed or lapsed",
       "shortName": "Action Required Reminder",
@@ -28873,13 +28941,17 @@
         {
           "journey": "FBK-49",
           "because": "FBK-49 owns a blocking data item, and knows which process stalls without it. This journey would ask for the same item without being able to say what it unblocks."
+        },
+        {
+          "journey": "FIN-134",
+          "because": "FIN-134 opens only where a payment system states that an attempt against the obligation actually failed, and it owns what is said about the obligation from that moment. This journey is the sending for an obligation that is merely outstanding - owed, due, and not yet attempted. Where a recorded failure exists, that journey holds the obligation and this one is suppressed for it."
         }
       ],
       "objective": "Remind somebody of what they owe while there is still time to do it, from the state the obligation is in at the moment of sending - because a reminder for something already done costs more than the reminder that was never sent.",
       "eligibility": [
         "an authoritative record that a defined action is owed by a named person",
         "a due date recorded against it",
-        "no journey scoped to this obligation's own type already owns the reminder for it - a governing deadline is TIM-61's, an expiring validity TIM-63's, a signature DOC-215's, an invitation REL-284's, first use of an entitlement ACC-263's, a change prerequisite RLT-279's, a booking prerequisite SCH-266's, an activation requirement ACT-13's and a blocking data item FBK-49's; this journey is what reminds a person of an obligation nothing more specific owns",
+        "no journey scoped to this obligation's own type already owns the reminder for it - a governing deadline is TIM-61's, an expiring validity TIM-63's, a signature DOC-215's, an invitation REL-284's, first use of an entitlement ACC-263's, a change prerequisite RLT-279's, a booking prerequisite SCH-266's, an activation requirement ACT-13's, a blocking data item FBK-49's and a recorded payment failure FIN-134's; this journey is what reminds a person of an obligation nothing more specific owns",
         "no instance of this journey is already open for the the outstanding obligation",
         "hard gates (GLB-31) allow communication for this purpose"
       ],
@@ -28912,7 +28984,7 @@
         {
           "id": "s.g6",
           "label": "CANONICAL_RULE",
-          "text": "A type-specific journey owns the obligation wherever one exists. This journey starts only where no more specific public journey already owns the reminder for that obligation's own type, and it is suppressed for any obligation one of them holds. The record decides what is owed; whoever owns the type decides what is said about it; this is the sending for everything left over, and a person never receives the specific reminder and the generic one about the same obligation."
+          "text": "A type-specific journey owns the obligation wherever one exists - TIM-61 for a governed deadline, TIM-63 for an expiring validity, DOC-215 for a signature, REL-284 for an invitation, ACC-263 for first use of an entitlement, RLT-279 for a change prerequisite, SCH-266 for a booking prerequisite, ACT-13 for an activation requirement, FBK-49 for a blocking data item, and FIN-134 for an obligation with a recorded payment failure against it. This journey starts only where no more specific public journey already owns the reminder for that obligation's own type, and it is suppressed for any obligation one of them holds. The record decides what is owed; whoever owns the type decides what is said about it; this is the sending for everything left over, and a person never receives the specific reminder and the generic one about the same obligation."
         },
         {
           "id": "s.g7",
@@ -28926,12 +28998,12 @@
         "localCap": {
           "value": {
             "key": "outstanding_obligation.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+            "rule": "One reminder before the deadline and one notice after it; the two post-deadline notices - the confirmation and the overdue notice - are mutually exclusive.",
             "default": {
-              "value": 3,
+              "value": 2,
               "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the graph's own touch count"
+              "applicableWhen": "GLB-24; the longest path to one recipient - the reminder, then the confirmation or the overdue notice, never both"
             },
             "required": false
           },
@@ -28962,17 +29034,10 @@
             "channels": [
               "email"
             ],
-            "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
-            "role": "urgent",
-            "channels": [
-              "sms"
-            ],
-            "when": "due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
+            "when": "the message has to be kept and survive until the person can act on it - the whole strategy here, since every obligation with a real type is owned by a journey that can justify a sharper channel and what is left is a generic reminder to somebody whose obligation type is unknown"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -28988,8 +29053,7 @@
             ],
             "purpose": "Name the obligation, what remains outstanding, the deadline and the single way to discharge it.",
             "channelRoles": [
-              "persistent",
-              "urgent"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -29013,8 +29077,7 @@
             ],
             "purpose": "Confirm it is discharged and that nothing further is expected.",
             "channelRoles": [
-              "persistent",
-              "urgent"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -29029,8 +29092,7 @@
             ],
             "purpose": "Say once that the deadline has passed, what stands now, and what consequence policy actually attaches to it.",
             "channelRoles": [
-              "persistent",
-              "urgent"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -29213,8 +29275,7 @@
           "kind": "wait",
           "until": [
             "obligation_satisfied",
-            "obligation_no_longer_owed",
-            "deadline_passed_unmet"
+            "obligation_no_longer_owed"
           ],
           "onEvent": "c.settled",
           "timeout": {
@@ -29246,11 +29307,6 @@
               "label": "Cancelled or adjusted away",
               "when": "the obligation no longer exists to be met",
               "to": "x.moot"
-            },
-            {
-              "label": "Still owed at the deadline",
-              "when": "the deadline passed with something still outstanding",
-              "to": "a.overdue"
             }
           ]
         },
@@ -29459,10 +29515,14 @@
             "channels": [
               "sms"
             ],
-            "when": "grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded"
+            "when": "the last call, sent once alongside email, together, as the window closes"
           }
         ],
         "fallback": "same-role-other-channel",
+        "simultaneous": {
+          "allowed": true,
+          "reason": "the email carries what stops, what survives and the route back; the SMS carries the date and that this is the last chance. Neither substitutes for the other and the window closes once."
+        },
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -29477,8 +29537,7 @@
             ],
             "purpose": "Name what has stopped working, what still works, the date the window ends and the single condition that restores the active state.",
             "channelRoles": [
-              "persistent",
-              "urgent"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -29492,8 +29551,7 @@
             ],
             "purpose": "State that validity has lapsed, that nothing has changed yet, and the date it will.",
             "channelRoles": [
-              "persistent",
-              "urgent"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -29508,8 +29566,7 @@
             ],
             "purpose": "Confirm the active state is back and name which reduced capabilities returned.",
             "channelRoles": [
-              "persistent",
-              "urgent"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -29537,8 +29594,7 @@
             "prerequisites": [],
             "purpose": "Say plainly that the window has closed, what is no longer available, and whether a route back still exists on different terms.",
             "channelRoles": [
-              "persistent",
-              "urgent"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -29694,9 +29750,39 @@
             "relativeTo": "attribute",
             "attribute": "grace_deadline_at"
           },
-          "onTimeout": "a.last-call",
+          "onTimeout": "a.recheck-grace",
           "windowExtendsOnEngagement": false,
           "recheck": "the the entity whose primary validity ended re-read from the system of record before acting on the timeout"
+        },
+        {
+          "id": "a.recheck-grace",
+          "kind": "action",
+          "does": "Re-read the grace record immediately before the last call: is the window still open, is the entity still in grace, has the end moved. Sending the last call blind is one of the two most consequential messages in this journey and the one most likely to arrive after the fact",
+          "writes": [
+            {
+              "field": "grace_period_state",
+              "mode": "set"
+            }
+          ],
+          "next": "c.recheck-grace",
+          "idempotencyKey": "entity_ref + grace_period_id + a.recheck-grace"
+        },
+        {
+          "id": "c.recheck-grace",
+          "kind": "condition",
+          "asks": "Is the entity still in grace, still unresolved?",
+          "branches": [
+            {
+              "label": "Still in grace",
+              "when": "recovery has not landed and the entity was not terminated since the timeout fired",
+              "to": "a.last-call"
+            },
+            {
+              "label": "Already resolved",
+              "when": "recovery or termination landed between the timeout firing and this re-read",
+              "to": "c.outcome"
+            }
+          ]
         },
         {
           "id": "c.outcome",
@@ -29751,7 +29837,8 @@
           "id": "w.final",
           "kind": "wait",
           "until": [
-            "recovery_condition_satisfied"
+            "recovery_condition_satisfied",
+            "entity_terminated"
           ],
           "onEvent": "c.outcome",
           "timeout": {
@@ -29765,9 +29852,39 @@
             "relativeTo": "attribute",
             "attribute": "grace_deadline_at"
           },
-          "onTimeout": "a.lost",
+          "onTimeout": "a.recheck-final",
           "windowExtendsOnEngagement": false,
           "recheck": "the the entity whose primary validity ended re-read from the system of record before acting on the timeout"
+        },
+        {
+          "id": "a.recheck-final",
+          "kind": "action",
+          "does": "Re-read the grace record immediately before the loss notice, the same re-read made before the last call: is the window still open, is the entity still in grace, has the end moved. This is one of the two most consequential messages in the journey and both were being sent blind",
+          "writes": [
+            {
+              "field": "grace_period_state",
+              "mode": "set"
+            }
+          ],
+          "next": "c.recheck-final",
+          "idempotencyKey": "entity_ref + grace_period_id + a.recheck-final"
+        },
+        {
+          "id": "c.recheck-final",
+          "kind": "condition",
+          "asks": "Is the entity still in grace, still unresolved?",
+          "branches": [
+            {
+              "label": "Still unresolved",
+              "when": "recovery has not landed and the entity was not terminated since the timeout fired",
+              "to": "a.lost"
+            },
+            {
+              "label": "Already resolved",
+              "when": "recovery or termination landed between the timeout firing and this re-read",
+              "to": "c.outcome"
+            }
+          ]
         },
         {
           "id": "a.lost",
@@ -29899,18 +30016,18 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
             "role": "in-session",
             "channels": [
               "in-app"
             ],
-            "when": "the person is active in the product and the action is taken there"
+            "when": "the attempt recorded on attempt_id arrived in the product - the surface the holder is already on, at the moment of their own choosing"
+          },
+          {
+            "role": "persistent",
+            "channels": [
+              "email"
+            ],
+            "when": "every other case - the attempt arrived off-product, or the message has to be kept and survive until the person can act on it"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -29928,8 +30045,8 @@
             ],
             "purpose": "Name renewal as the route, what it costs, and what carries across the gap.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "in-session",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -29950,8 +30067,8 @@
             ],
             "purpose": "Say plainly that this is not a renewal and that the conditions have to be met again, listing them.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "in-session",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -29972,8 +30089,8 @@
             ],
             "purpose": "Explain that the old one stays expired and a new one is issued in its place, and what differs between them.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "in-session",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
@@ -29994,8 +30111,8 @@
             ],
             "purpose": "Say there is no way back to this one and name what exists instead, if anything does.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "in-session",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -30010,8 +30127,7 @@
             ],
             "purpose": "Confirm what is valid now and, where a replacement was issued, that it is a new one rather than the old one revived.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -30109,6 +30225,12 @@
           "id": "a.establish",
           "kind": "action",
           "does": "Establish what the expiry actually did to this entity - suspended it, invalidated it, or ended the relationship behind it - before naming any route back. Reading every lapse as the same lapse is how somebody is sent to renew something that can only be replaced",
+          "writes": [
+            {
+              "field": "expiry_effect",
+              "mode": "set"
+            }
+          ],
           "next": "c.route"
         },
         {

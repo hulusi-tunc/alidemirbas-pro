@@ -13522,6 +13522,10 @@
         {
           "targetId": "journey:FBK-43",
           "because": "FBK-43 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it."
+        },
+        {
+          "targetId": "journey:FBK-41",
+          "because": "FBK-41 asks about one completed experience, once. This asks a rarer, higher-value favour built on accumulated relationship evidence rather than one experience - the two share the outbound-ask slot precisely because asking both back-to-back for the same goodwill moment reads as farming it twice."
         }
       ]
     }
@@ -13583,7 +13587,24 @@
           "targetId": "journey:FBK-42"
         }
       ],
-      "distinctFrom": []
+      "distinctFrom": [
+        {
+          "targetId": "journey:FBK-41",
+          "because": "FBK-41 begins only if something actually comes back, and most requests do not produce one. This begins once feedback has actually arrived and reacts to what it says."
+        },
+        {
+          "targetId": "journey:FBK-42",
+          "because": "FBK-42 weighs the accumulated relationship and decides whether it can carry an advocacy request. This reacts to one signal - the feedback record just received - most of which never reach that threshold."
+        },
+        {
+          "targetId": "journey:REM-305",
+          "because": "REM-305 starts from a request made of us and owns acknowledging it to the person who asked. This starts from an account of an experience; where that experience is a support need, this journey raises the work item and REM-305, not this one, tells the requester it was received."
+        },
+        {
+          "targetId": "journey:REM-151",
+          "because": "REM-151 starts from a concrete problem with something already delivered and asks which recovery route would satisfy it - the obligation is already known to exist. This journey starts from an account of an experience and works out whether an operational issue exists at all; where one clearly does, REM-151 owns the remedy route rather than this journey re-assessing it."
+        }
+      ]
     }
   },
   {
@@ -13686,6 +13707,10 @@
         {
           "targetId": "journey:ACT-13",
           "because": "ACT-13 is scoped to activation specifically and owns resuming onboarding. This applies to any named process, most of which have nothing to do with onboarding."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks a process. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ]
     }
@@ -19114,6 +19139,10 @@
         {
           "targetId": "journey:SUB-163",
           "because": "A subscription is in this journey's scope and a term end is in SUB-163's, so the same calendar moment fires both. SUB-163 owns it: it is the one that knows the renewal terms, the notice the terms require and who holds the decision, and its notice is a contractual obligation rather than outreach. This journey is the generic fallback for that expiry - it owns a subscription only where no renewal decision window is open on it, alongside every other expiring entity with no renewal cycle."
+        },
+        {
+          "targetId": "journey:TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific entity is expiring or what its expiry actually does. This journey owns the reminder once an expiring entity is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ]
     }
@@ -19257,6 +19286,10 @@
         {
           "targetId": "journey:FBK-49",
           "because": "FBK-49 owns a blocking data item, and knows which process stalls without it. This journey would ask for the same item without being able to say what it unblocks."
+        },
+        {
+          "targetId": "journey:FIN-134",
+          "because": "FIN-134 opens only where a payment system states that an attempt against the obligation actually failed, and it owns what is said about the obligation from that moment. This journey is the sending for an obligation that is merely outstanding - owed, due, and not yet attempted. Where a recorded failure exists, that journey holds the obligation and this one is suppressed for it."
         }
       ]
     }

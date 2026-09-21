@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-21T15:36:31.596Z",
+  "generated": "2026-09-21T16:21:56.532Z",
   "expected_count": 69,
   "found_count": 69,
   "issues": [],
@@ -598,7 +598,7 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 11,
+      "canonical_node_count": 12,
       "display_node_count_before": null,
       "display_node_count_after": null,
       "condition_count": 2,
@@ -609,6 +609,7 @@
         "communication-heavy",
         "multi-branch",
         "no-deadline",
+        "parallel-fan-out",
         "wait-event-timeout"
       ],
       "severity": null,
@@ -627,10 +628,10 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 14,
+      "canonical_node_count": 16,
       "display_node_count_before": null,
       "display_node_count_after": null,
-      "condition_count": 3,
+      "condition_count": 4,
       "exit_count": 3,
       "handoff_count": 3,
       "journey_types": [
@@ -881,10 +882,10 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 14,
+      "canonical_node_count": 12,
       "display_node_count_before": null,
       "display_node_count_after": null,
-      "condition_count": 4,
+      "condition_count": 2,
       "exit_count": 6,
       "handoff_count": 0,
       "journey_types": [
@@ -892,6 +893,7 @@
         "multi-branch",
         "nested-decision",
         "no-deadline",
+        "parallel-fan-out",
         "wait-event-timeout"
       ],
       "severity": null,
@@ -1041,10 +1043,10 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 13,
+      "canonical_node_count": 17,
       "display_node_count_before": null,
       "display_node_count_after": null,
-      "condition_count": 2,
+      "condition_count": 4,
       "exit_count": 3,
       "handoff_count": 0,
       "journey_types": [
@@ -1053,6 +1055,7 @@
         "communication-heavy",
         "deadline-driven",
         "multi-branch",
+        "nested-decision",
         "wait-event-timeout"
       ],
       "severity": null,
@@ -1250,13 +1253,14 @@
         "tr",
         "en"
       ],
-      "canonical_node_count": 15,
+      "canonical_node_count": 16,
       "display_node_count_before": null,
       "display_node_count_after": null,
       "condition_count": 4,
       "exit_count": 3,
       "handoff_count": 1,
       "journey_types": [
+        "back-edge-retry",
         "communication",
         "external-handoff",
         "handoff",

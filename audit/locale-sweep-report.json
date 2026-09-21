@@ -2726,6 +2726,18 @@
     },
     {
       "route": "/tr/lab/journeys/advocacy-eligibility",
+      "text": "FBK-41 asks about one completed experience, once. This asks a rarer, higher-value favour built on accumulated relationship evidence rather than one experience - the two share the outbound-ask slot precisely because asking both back-to-back for the same goodwill moment reads as farming it twice.",
+      "hits": [
+        "this",
+        "the",
+        "because",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/advocacy-eligibility",
       "text": "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
       "hits": [
         "for",
@@ -2743,6 +2755,19 @@
       "hits": [
         "where",
         "with"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/advocacy-eligibility",
+      "text": "no acknowledgement about the same feedback record was sent inside the ask separation window - FBK-43's acknowledgement and this journey's ask are not the same message twice about the same compliment",
+      "hits": [
+        "the",
+        "and",
+        "this",
+        "are",
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -2786,12 +2811,12 @@
     },
     {
       "route": "/tr/lab/journeys/advocacy-eligibility",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "· One ask per opportunity - light or heavy, never both. a.ask-light and a.ask-heavy are mutually exclusive arms of c.type, so the longest path to one recipient is one touch, not the plan's length.",
       "hits": [
-        "when",
-        "the",
         "and",
-        "because"
+        "are",
+        "the",
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -2858,31 +2883,23 @@
     },
     {
       "route": "/tr/lab/journeys/advocacy-eligibility",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "( Uygulama içi ): the light ask is a one-tap rating or response, at a moment the person is already in the product succeeding - the low-friction route is the whole point",
       "hits": [
         "the",
-        "has",
-        "and"
+        "already"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/advocacy-eligibility",
-      "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
+      "text": "( E-posta ): the heavy ask attaches somebody's name and reputation to ours and has to survive to be read twice, stating plainly what would be used and that contributing is separate from publishing",
       "hits": [
         "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/advocacy-eligibility",
-      "text": "( Push ): a valid token or app session exists and the message is a single step from the notification",
-      "hits": [
         "and",
-        "the",
+        "has",
+        "what",
+        "that",
         "from"
       ],
       "known": true,
@@ -11708,7 +11725,18 @@
     },
     {
       "route": "/tr/lab/journeys/contactability-repair",
-      "text": "Ask for a corrected destination on the surviving permitted route, naming the one that failed.",
+      "text": "Ask for a corrected destination on the surviving address, naming the phone number that failed.",
+      "hits": [
+        "for",
+        "the",
+        "that"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/contactability-repair",
+      "text": "Ask for a corrected destination on the surviving phone number, naming the address that failed.",
       "hits": [
         "for",
         "the",
@@ -11751,7 +11779,7 @@
     },
     {
       "route": "/tr/lab/journeys/contactability-repair",
-      "text": "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent.",
+      "text": "Confirm on the same route recorded at c.route that carried the repair request - never a second route - that the replacement is now in use, and that this changed where things go and not what may be sent.",
       "hits": [
         "the",
         "that",
@@ -11776,23 +11804,23 @@
     },
     {
       "route": "/tr/lab/journeys/contactability-repair",
-      "text": "( SMS ): an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded",
+      "text": "( SMS ): the failed destination was the email address and a permitted, deliverable phone number survives - the surviving-route substitute, not a time-bound urgency",
       "hits": [
         "the",
         "and",
-        "for",
-        "this"
+        "not"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/contactability-repair",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "( E-posta ): the message has to be kept and survive until the person can act on it, including where the failed destination was the phone number and a permitted, deliverable email address survives",
       "hits": [
         "the",
         "has",
-        "and"
+        "and",
+        "where"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -12510,7 +12538,7 @@
     },
     {
       "route": "/tr/lab/journeys/deadline-tracking",
-      "text": "Which happened? · Is a pre-deadline reminder useful here, and does policy define one?",
+      "text": "Which happened? · Is a pre-deadline reminder useful here, and does policy define one? · Which threshold fired?",
       "hits": [
         "which",
         "and",
@@ -12532,9 +12560,23 @@
     },
     {
       "route": "/tr/lab/journeys/deadline-tracking",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "Send the reminder defined for the final pre-deadline threshold, on the channel that permission and the urgency of the moment both justify.",
       "hits": [
         "the",
+        "for",
+        "that",
+        "and"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/deadline-tracking",
+      "text": "( E-posta ): any pre-deadline threshold before the final one, where the message has to be kept and survive until the person can act on it",
+      "hits": [
+        "before",
+        "the",
+        "where",
         "has",
         "and"
       ],
@@ -12543,23 +12585,13 @@
     },
     {
       "route": "/tr/lab/journeys/deadline-tracking",
-      "text": "( Push ): a valid token or app session exists and the message is a single step from the notification",
+      "text": "( SMS ): this is the final pre-deadline threshold before the deadline, and permission for messages on this channel is recorded",
       "hits": [
-        "and",
+        "this",
         "the",
-        "from"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/deadline-tracking",
-      "text": "( SMS, WhatsApp ): due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded",
-      "hits": [
-        "the",
+        "before",
         "and",
-        "for",
-        "this"
+        "for"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -15924,20 +15956,21 @@
     },
     {
       "route": "/tr/lab/journeys/expired-entity-re-entry",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "( Uygulama içi ): the attempt recorded on attempt_id arrived in the product - the surface the holder is already on, at the moment of their own choosing",
       "hits": [
         "the",
-        "has",
-        "and"
+        "already",
+        "their"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/expired-entity-re-entry",
-      "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
+      "text": "( E-posta ): every other case - the attempt arrived off-product, or the message has to be kept and survive until the person can act on it",
       "hits": [
         "the",
+        "has",
         "and"
       ],
       "known": true,
@@ -16209,15 +16242,10 @@
     },
     {
       "route": "/tr/lab/journeys/feedback-eligibility",
-      "text": "Is the experience actually complete from the person's side? · Is there an unresolved issue in this context? · Has feedback already been collected for this context recently? · Is this an appropriate moment, within the bound on how often this person is asked anything?",
+      "text": "Is the experience actually complete from the person's side? · Is asking appropriate now?",
       "hits": [
         "the",
-        "from",
-        "this",
-        "has",
-        "already",
-        "been",
-        "for"
+        "from"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -16235,31 +16263,12 @@
     },
     {
       "route": "/tr/lab/journeys/feedback-eligibility",
-      "text": "( Uygulama içi ): the experience ended inside the product and the person is still there - the shortest route to the question",
+      "text": "( E-posta ): a satisfaction ask has no deadline, no consequence and nothing the person must do by a date - email is the whole strategy, not a fallback from a faster route",
       "hits": [
-        "the",
-        "and",
-        "still"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/feedback-eligibility",
-      "text": "( E-posta ): the experience ended elsewhere, or the person has left the product",
-      "hits": [
-        "the",
-        "has"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/feedback-eligibility",
-      "text": "( Push ): a valid token exists and the question can be answered in a single step from the notification",
-      "hits": [
+        "has",
         "and",
         "the",
+        "not",
         "from"
       ],
       "known": true,
@@ -16360,6 +16369,64 @@
         "does",
         "not",
         "with"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
+      "text": "FBK-41 begins only if something actually comes back, and most requests do not produce one. This begins once feedback has actually arrived and reacts to what it says.",
+      "hits": [
+        "and",
+        "not",
+        "this",
+        "has",
+        "what"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
+      "text": "FBK-42 weighs the accumulated relationship and decides whether it can carry an advocacy request. This reacts to one signal - the feedback record just received - most of which never reach that threshold.",
+      "hits": [
+        "the",
+        "and",
+        "this",
+        "which",
+        "that"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
+      "text": "REM-305 starts from a request made of us and owns acknowledging it to the person who asked. This starts from an account of an experience; where that experience is a support need, this journey raises the work item and REM-305, not this one, tells the requester it was received.",
+      "hits": [
+        "from",
+        "and",
+        "the",
+        "this",
+        "where",
+        "that",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
+      "text": "REM-151 starts from a concrete problem with something already delivered and asks which recovery route would satisfy it - the obligation is already known to exist. This journey starts from an account of an experience and works out whether an operational issue exists at all; where one clearly does, REM-151 owns the remedy route rather than this journey re-assessing it.",
+      "hits": [
+        "from",
+        "with",
+        "already",
+        "and",
+        "which",
+        "the",
+        "this",
+        "where",
+        "does"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -16496,13 +16563,28 @@
     },
     {
       "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
-      "text": "· A promised follow-up is waited for only as long as the promise still means anything to the person; past that it is a broken promise and is escalated as one.",
+      "text": "· A promised follow-up is waited for only as long as the promise still means anything to the person; past that it is a broken promise and is escalated as one. The promise carries its own date - relativeTo: \"attribute\" against promised_followup_at - so this journey never invents one.",
       "hits": [
         "for",
         "the",
         "still",
         "that",
-        "and"
+        "and",
+        "its",
+        "this"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
+      "text": "· One acknowledgement per feedback record, on whichever route it took; the record is never acknowledged twice. The budget counts customer-facing touches only - a.obligation and a.escalate raise an internal work item and carry channelRoles: [\"human\"], not a send, so they are excluded from the count the same way ACT-13's a.route-dependency is.",
+      "hits": [
+        "the",
+        "and",
+        "not",
+        "are",
+        "from"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -16552,10 +16634,11 @@
     },
     {
       "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
-      "text": "Acknowledge a general comment specifically enough that it is clear a person could have read it.",
+      "text": "Acknowledge a general comment specifically enough that it is clear a person could have read it, on the route recorded as feedback.source.",
       "hits": [
         "that",
-        "have"
+        "have",
+        "the"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -16573,7 +16656,7 @@
     },
     {
       "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
-      "text": "Acknowledge the specific thing they praised. Nothing generic, nothing that reads as a template.",
+      "text": "Acknowledge the specific thing they praised, on the route recorded as feedback.source. Nothing generic, nothing that reads as a template.",
       "hits": [
         "the",
         "that"
@@ -16595,10 +16678,11 @@
     },
     {
       "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
-      "text": "Acknowledge what they said about an experience we did not meet, without manufacturing a fault and without offering compensation in place of a fix.",
+      "text": "Acknowledge what they said about an experience we did not meet, on the route recorded as feedback.source, without manufacturing a fault and without offering compensation in place of a fix.",
       "hits": [
         "what",
         "not",
+        "the",
         "and"
       ],
       "known": true,
@@ -16639,22 +16723,20 @@
     },
     {
       "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
-      "text": "( E-posta ): the acknowledgement should reach the person where they can keep it, which is the default for something they wrote to us",
+      "text": "( E-posta ): feedback.source recorded at a.persist was not in-app - the acknowledgement returns on the route the feedback actually arrived on",
       "hits": [
-        "the",
-        "where",
-        "which",
-        "for"
+        "not",
+        "the"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/feedback-routing-and-loop-closure",
-      "text": "( Uygulama içi ): the feedback was given inside the product and the person is still there",
+      "text": "( Uygulama içi ): feedback.source recorded at a.persist was in-app and the person is still reachable there",
       "hits": [
-        "the",
         "and",
+        "the",
         "still"
       ],
       "known": true,
@@ -19591,16 +19673,6 @@
     },
     {
       "route": "/tr/lab/journeys/grace-period-recovery",
-      "text": "şuna göre grace_deadline_at · iptal eden olaylar the condition that ends the recoverable state is satisfied",
-      "hits": [
-        "the",
-        "that"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/grace-period-recovery",
       "text": "Say plainly that the window has closed, what is no longer available, and whether a route back still exists on different terms.",
       "hits": [
         "that",
@@ -19630,18 +19702,6 @@
         "the",
         "has",
         "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/grace-period-recovery",
-      "text": "( SMS ): grace_deadline_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded",
-      "hits": [
-        "the",
-        "and",
-        "for",
-        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -24024,6 +24084,22 @@
     },
     {
       "route": "/tr/lab/journeys/missing-critical-data",
+      "text": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks a process. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it.",
+      "hits": [
+        "that",
+        "does",
+        "not",
+        "which",
+        "this",
+        "the",
+        "and",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/missing-critical-data",
       "text": "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
       "hits": [
         "and",
@@ -24078,6 +24154,22 @@
     },
     {
       "route": "/tr/lab/journeys/missing-critical-data",
+      "text": "This journey owns the reminder for the item it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that obligation while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender.",
+      "hits": [
+        "this",
+        "the",
+        "for",
+        "that",
+        "its",
+        "and",
+        "after",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/missing-critical-data",
       "text": "· The request is waited on for as long as the blocked process can afford; then criticality decides between a person, an alternate route and abandonment.",
       "hits": [
         "the",
@@ -24089,12 +24181,28 @@
     },
     {
       "route": "/tr/lab/journeys/missing-critical-data",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "· The re-request runs once; the two customer touches (the request, and one re-request only where what arrived was received and refused) are the whole plan.",
       "hits": [
-        "when",
         "the",
         "and",
-        "because"
+        "where",
+        "what",
+        "are"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/missing-critical-data",
+      "text": "· Two customer touches: one request to whoever holds the item, and one re-request only where what arrived was received and refused. An internal work item is not a touch - a.request-internal raises one and carries channelRoles: [\"human\"], excluded from the count the same way ACT-13's a.route-dependency and FBK-43's a.obligation/a.escalate are.",
+      "hits": [
+        "the",
+        "and",
+        "where",
+        "what",
+        "not",
+        "from",
+        "are"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -24164,10 +24272,21 @@
     },
     {
       "route": "/tr/lab/journeys/missing-critical-data",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "Is what we now have valid?",
+      "hits": [
+        "what",
+        "have"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/missing-critical-data",
+      "text": "Tell the person what was wrong with what they sent, and re-request it - the same conversation about the same item, on the same route, once.",
       "hits": [
         "the",
-        "has",
+        "what",
+        "with",
         "and"
       ],
       "known": true,
@@ -24175,10 +24294,24 @@
     },
     {
       "route": "/tr/lab/journeys/missing-critical-data",
-      "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
+      "text": "· iddia edemez : a deadline this journey does not have",
       "hits": [
+        "this",
+        "does",
+        "not",
+        "have"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/missing-critical-data",
+      "text": "( E-posta ): a request for a document must survive until the person can act on it - there is no due_at, no urgent-horizon attribute and no recorded consequence with a date, so email is the whole strategy",
+      "hits": [
+        "for",
         "the",
-        "and"
+        "and",
+        "with"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -26392,6 +26525,23 @@
     },
     {
       "route": "/tr/lab/journeys/outstanding-obligation-reminder",
+      "text": "FIN-134 opens only where a payment system states that an attempt against the obligation actually failed, and it owns what is said about the obligation from that moment. This journey is the sending for an obligation that is merely outstanding - owed, due, and not yet attempted. Where a recorded failure exists, that journey holds the obligation and this one is suppressed for it.",
+      "hits": [
+        "where",
+        "that",
+        "the",
+        "and",
+        "what",
+        "from",
+        "this",
+        "for",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/outstanding-obligation-reminder",
       "text": "Remind somebody of what they owe while there is still time to do it, from the state the obligation is in at the moment of sending - because a reminder for something already done costs more than the reminder that was never sent.",
       "hits": [
         "what",
@@ -26420,7 +26570,7 @@
     },
     {
       "route": "/tr/lab/journeys/outstanding-obligation-reminder",
-      "text": "no journey scoped to this obligation's own type already owns the reminder for it - a governing deadline is TIM-61's, an expiring validity TIM-63's, a signature DOC-215's, an invitation REL-284's, first use of an entitlement ACC-263's, a change prerequisite RLT-279's, a booking prerequisite SCH-266's, an activation requirement ACT-13's and a blocking data item FBK-49's; this journey is what reminds a person of an obligation nothing more specific owns",
+      "text": "no journey scoped to this obligation's own type already owns the reminder for it - a governing deadline is TIM-61's, an expiring validity TIM-63's, a signature DOC-215's, an invitation REL-284's, first use of an entitlement ACC-263's, a change prerequisite RLT-279's, a booking prerequisite SCH-266's, an activation requirement ACT-13's, a blocking data item FBK-49's and a recorded payment failure FIN-134's; this journey is what reminds a person of an obligation nothing more specific owns",
       "hits": [
         "this",
         "already",
@@ -26456,15 +26606,16 @@
     },
     {
       "route": "/tr/lab/journeys/outstanding-obligation-reminder",
-      "text": "A type-specific journey owns the obligation wherever one exists. This journey starts only where no more specific public journey already owns the reminder for that obligation's own type, and it is suppressed for any obligation one of them holds. The record decides what is owed; whoever owns the type decides what is said about it; this is the sending for everything left over, and a person never receives the specific reminder and the generic one about the same obligation.",
+      "text": "A type-specific journey owns the obligation wherever one exists - TIM-61 for a governed deadline, TIM-63 for an expiring validity, DOC-215 for a signature, REL-284 for an invitation, ACC-263 for first use of an entitlement, RLT-279 for a change prerequisite, SCH-266 for a booking prerequisite, ACT-13 for an activation requirement, FBK-49 for a blocking data item, and FIN-134 for an obligation with a recorded payment failure against it. This journey starts only where no more specific public journey already owns the reminder for that obligation's own type, and it is suppressed for any obligation one of them holds. The record decides what is owed; whoever owns the type decides what is said about it; this is the sending for everything left over, and a person never receives the specific reminder and the generic one about the same obligation.",
       "hits": [
         "the",
+        "for",
+        "and",
+        "with",
         "this",
         "where",
         "already",
-        "for",
         "that",
-        "and",
         "what"
       ],
       "known": true,
@@ -26511,12 +26662,13 @@
     },
     {
       "route": "/tr/lab/journeys/outstanding-obligation-reminder",
-      "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+      "text": "· One reminder before the deadline and one notice after it; the two post-deadline notices - the confirmation and the overdue notice - are mutually exclusive.",
       "hits": [
-        "when",
+        "before",
         "the",
         "and",
-        "because"
+        "after",
+        "are"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -26528,17 +26680,6 @@
         "this",
         "the",
         "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/outstanding-obligation-reminder",
-      "text": ": the deadline passes with the obligation still owed",
-      "hits": [
-        "the",
-        "with",
-        "still"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -26578,17 +26719,6 @@
     },
     {
       "route": "/tr/lab/journeys/outstanding-obligation-reminder",
-      "text": "şuna göre due_at · iptal eden olaylar the obligation is satisfied in the system of record; the obligation is satisfied, cancelled or adjusted to nothing; the deadline passes with the obligation still owed",
-      "hits": [
-        "the",
-        "with",
-        "still"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/outstanding-obligation-reminder",
       "text": "Confirm it is discharged and that nothing further is expected.",
       "hits": [
         "and",
@@ -26612,23 +26742,14 @@
     },
     {
       "route": "/tr/lab/journeys/outstanding-obligation-reminder",
-      "text": "( E-posta ): the message has to be kept and survive until the person can act on it",
+      "text": "( E-posta ): the message has to be kept and survive until the person can act on it - the whole strategy here, since every obligation with a real type is owned by a journey that can justify a sharper channel and what is left is a generic reminder to somebody whose obligation type is unknown",
       "hits": [
         "the",
         "has",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/outstanding-obligation-reminder",
-      "text": "( SMS ): due_at falls inside the urgent_horizon attribute and permission for messages on this channel is recorded",
-      "hits": [
-        "the",
         "and",
-        "for",
-        "this"
+        "with",
+        "that",
+        "what"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -29362,6 +29483,24 @@
     },
     {
       "route": "/tr/lab/journeys/pre-expiry-window",
+      "text": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific entity is expiring or what its expiry actually does. This journey owns the reminder once an expiring entity is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it.",
+      "hits": [
+        "that",
+        "does",
+        "not",
+        "which",
+        "what",
+        "its",
+        "this",
+        "the",
+        "and",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/pre-expiry-window",
       "text": "Before something expires, tell the person who can actually act what is expiring, the one action that would change the outcome and the point by which it must be taken - or, where nothing can be done, say plainly what will happen; and say nothing where nothing is worth saying.",
       "hits": [
         "before",
@@ -29485,6 +29624,22 @@
     },
     {
       "route": "/tr/lab/journeys/pre-expiry-window",
+      "text": "This journey owns the reminder for the expiring entity it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that entity while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender.",
+      "hits": [
+        "this",
+        "the",
+        "for",
+        "that",
+        "its",
+        "and",
+        "after",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/pre-expiry-window",
       "text": "· The wait ends at the expiry the system of record asserts; the expiry itself is validated and handled by the next journey, never re-asserted here.",
       "hits": [
         "the",
@@ -29582,31 +29737,11 @@
     },
     {
       "route": "/tr/lab/journeys/pre-expiry-window",
-      "text": "( E-posta ): the message names an action and a boundary and must survive until the responsible actor can act - the default",
-      "hits": [
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/pre-expiry-window",
-      "text": "( Uygulama içi ): the responsible actor is in the product and the action is taken there",
-      "hits": [
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/pre-expiry-window",
-      "text": "( SMS, Push ): expires_at falls inside the urgent_horizon attribute, the action is a single step, and permission for service messages on the channel is recorded",
+      "text": "( E-posta ): the message names an action and a boundary and must survive until the responsible actor can act - the whole strategy, since the responsible actor may hold no product session at all and nothing here establishes an imminent one-tap action that would justify SMS",
       "hits": [
         "the",
         "and",
-        "for"
+        "that"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -29638,7 +29773,7 @@
     },
     {
       "route": "/tr/lab/journeys/pre-expiry-window",
-      "text": "s.already-resolved · s.no-actor · s.nothing-to-say · s.no-call-where-no-action · s.stale-queue · s.renewal-cycle",
+      "text": "s.already-resolved · s.no-actor · s.nothing-to-say · s.no-call-where-no-action · s.stale-queue · s.renewal-cycle · s.generic-reminder",
       "hits": [
         "already",
         "where"
@@ -42049,17 +42184,6 @@
         "has",
         "not",
         "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/unengaged-sunset",
-      "text": "( Uygulama içi ): the person is still active in the product, where the preference can be changed in the same place the question is asked",
-      "hits": [
-        "the",
-        "still",
-        "where"
       ],
       "known": true,
       "reason": "practitioner disclosure"

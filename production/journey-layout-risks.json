@@ -3,7 +3,7 @@
     {
       "risk": "high-branch-count",
       "description": "A condition node's arm count varies 2 to 6+; a layout that assumes 2-3 arms per fork will overflow.",
-      "affectedCount": 93,
+      "affectedCount": 94,
       "threshold": ">=4 branch nodes in one journey",
       "worst": [
         [
@@ -90,7 +90,7 @@
     {
       "risk": "true-graph-cycles",
       "description": "A backward edge is not automatically a cycle - only 33 of the 125 backward-edge journeys form an actual cycle (a path that returns to its own source). These need a recursion/traversal guard in the layout algorithm itself; the other 92 are simple back-references and do not.",
-      "affectedCount": 36,
+      "affectedCount": 37,
       "threshold": "DFS-detected true cycle",
       "worst": [
         "ACQ-11",
@@ -98,11 +98,11 @@
         "ACT-12",
         "FBK-46",
         "FBK-47",
+        "FBK-49",
         "OWN-55",
         "OWN-57",
         "TIM-61",
-        "ACC-72",
-        "ACC-80"
+        "ACC-72"
       ],
       "maxValue": null
     },
@@ -167,7 +167,7 @@
     {
       "risk": "node-convergence (fan-in)",
       "description": "Multiple distinct nodes pointing at the same target node. A tree-shaped layout algorithm cannot represent convergence without either duplicating the node or drawing a shared-target edge.",
-      "affectedCount": 62,
+      "affectedCount": 65,
       "threshold": ">=3 incoming edges to one node",
       "worst": [
         [
@@ -233,7 +233,6 @@
   ],
   "layoutStressFixtureCandidates": [
     "ACC-72",
-    "ACC-80",
     "ACQ-05",
     "ACQ-10",
     "ACQ-11",
@@ -249,6 +248,7 @@
     "FBK-43",
     "FBK-46",
     "FBK-47",
+    "FBK-49",
     "FUL-144",
     "OPS-121",
     "OWN-55",

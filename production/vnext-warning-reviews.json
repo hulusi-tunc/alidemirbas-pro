@@ -18,6 +18,14 @@
    "reviewedAt": "2026-09-21"
   },
   {
+   "id": "TIM-61",
+   "code": "simultaneous_review",
+   "match": "touches t1, t2",
+   "note": "t1 (a.remind) and t2 (a.remind-final) are the two exclusive arms of c.threshold, reached only after c.useful's 'Send it' branch - the threshold that just fired is either the final pre-deadline one or an earlier one, never both, so the two touches sharing w.tracking as their gate and c.what/c.useful/c.threshold as prerequisites is a fork, not a fan-out. They are never sent together; no channelStrategy.simultaneous is needed.",
+   "reviewedBy": "69-journey refactor batch (CON-272/CON-300/FBK-41/42/43/49/TIM-61/63/268/274/281)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
    "id": "ACT-17",
    "code": "router_journey",
    "note": "Adoption nurture ends only in handoffs by design: stable adoption goes to the lifecycle owner, a stall goes to adoption recovery. There is no outcome it owns alone.",

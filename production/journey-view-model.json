@@ -18188,9 +18188,17 @@
           "terminal": false
         },
         {
-          "id": "a.prompt-alt",
+          "id": "a.prompt-email",
           "kind": "action",
-          "headline": "Ask for a corrected destination on the surviving permitted route, naming the one that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
+          "headline": "Ask for a corrected destination on the surviving address, naming the phone number that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.prompt-sms",
+          "kind": "action",
+          "headline": "Ask for a corrected destination on the surviving phone number, naming the address that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -18222,7 +18230,7 @@
         {
           "id": "a.confirm",
           "kind": "action",
-          "headline": "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
+          "headline": "Confirm on the same route that carried the repair request - never a second route - that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -18264,15 +18272,22 @@
           "from": "c.route",
           "to": "a.prompt-in-app",
           "family": "branch",
-          "label": "Reachable in product",
+          "label": "Signed in",
           "when": "the person signs in, so the request can wait on the surface they already use"
         },
         {
           "from": "c.route",
-          "to": "a.prompt-alt",
+          "to": "a.prompt-email",
           "family": "branch",
-          "label": "Reachable off product",
-          "when": "no session is expected soon, and a separate destination is both deliverable and permitted for a service notice of this kind"
+          "label": "Email survives",
+          "when": "no session is expected soon, the failed destination was the phone number, and the email address is both deliverable and permitted for a service notice of this kind"
+        },
+        {
+          "from": "c.route",
+          "to": "a.prompt-sms",
+          "family": "branch",
+          "label": "Phone survives",
+          "when": "no session is expected soon, the failed destination was the email address, and a permitted, deliverable phone number survives"
         },
         {
           "from": "c.route",
@@ -18289,7 +18304,14 @@
           "when": null
         },
         {
-          "from": "a.prompt-alt",
+          "from": "a.prompt-email",
+          "to": "w.corrected",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.prompt-sms",
           "to": "w.corrected",
           "family": "forward",
           "label": null,
@@ -18343,8 +18365,9 @@
         1,
         2,
         3,
-        8,
-        9
+        4,
+        10,
+        11
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": []
@@ -18396,15 +18419,15 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 11,
-      "edgeCount": 11,
+      "nodeCount": 12,
+      "edgeCount": 13,
       "branchNodeCount": 2,
       "backwardEdgeCount": 0,
       "handoffCount": 0,
       "exitCount": 4,
       "maxDepth": 6,
-      "maxFanIn": 2,
-      "maxFanOut": 3,
+      "maxFanIn": 3,
+      "maxFanOut": 4,
       "primaryStructure": "self-contained",
       "behaviors": [
         "wait-timeout",
@@ -18412,7 +18435,7 @@
         "competition"
       ],
       "complexityTier": "simple",
-      "complexityScore": 36
+      "complexityScore": 39
     }
   },
   {
@@ -32919,9 +32942,9 @@
           "terminal": false
         },
         {
-          "id": "c.open-issue",
+          "id": "c.appropriate",
           "kind": "condition",
-          "headline": "Is there an unresolved issue in this context?",
+          "headline": "Is asking appropriate now?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -32935,26 +32958,10 @@
           "terminal": false
         },
         {
-          "id": "c.recent",
-          "kind": "condition",
-          "headline": "Has feedback already been collected for this context recently?",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
           "id": "x.duplicate",
           "kind": "exit",
           "headline": "suppressed as a duplicate ask",
           "detail": "a genuinely different experience is a different context and is asked about on its own terms",
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "c.moment",
-          "kind": "condition",
-          "headline": "Is this an appropriate moment, within the bound on how often this person is asked anything?",
-          "detail": null,
           "isEntry": false,
           "terminal": false
         },
@@ -33009,7 +33016,7 @@
         },
         {
           "from": "c.complete",
-          "to": "c.open-issue",
+          "to": "c.appropriate",
           "family": "branch",
           "label": "Complete",
           "when": "the thing being asked about has finished for them, not only for us"
@@ -33023,7 +33030,7 @@
         },
         {
           "from": "w.completion",
-          "to": "c.open-issue",
+          "to": "c.appropriate",
           "family": "backward",
           "label": "on event",
           "when": "experience_completed"
@@ -33036,46 +33043,32 @@
           "when": "an experience that never completed is not one to ask about; the right response to it is elsewhere, not a survey"
         },
         {
-          "from": "c.open-issue",
+          "from": "c.appropriate",
           "to": "x.deferred",
           "family": "branch",
-          "label": "Unresolved",
+          "label": "Unresolved issue open",
           "when": "the person still has an open problem here - judged on the evidence, not on whether a ticket is marked closed"
         },
         {
-          "from": "c.open-issue",
-          "to": "c.recent",
-          "family": "branch",
-          "label": "Nothing open",
-          "when": "no outstanding problem in this context"
-        },
-        {
-          "from": "c.recent",
+          "from": "c.appropriate",
           "to": "x.duplicate",
           "family": "branch",
           "label": "Already asked",
           "when": "a recent request or response covers the same experience"
         },
         {
-          "from": "c.recent",
-          "to": "c.moment",
+          "from": "c.appropriate",
+          "to": "x.not-now",
           "family": "branch",
-          "label": "Not yet",
-          "when": "nothing recent covers it"
+          "label": "Ask budget spent",
+          "when": "no unresolved issue and nothing recent covers it, but this person has been asked enough recently across every context"
         },
         {
-          "from": "c.moment",
+          "from": "c.appropriate",
           "to": "a.request",
           "family": "branch",
           "label": "Appropriate",
-          "when": "the timing fits the experience and the overall ask budget has room"
-        },
-        {
-          "from": "c.moment",
-          "to": "x.not-now",
-          "family": "branch",
-          "label": "Not now",
-          "when": "the timing is wrong, or this person has been asked enough recently across every context"
+          "when": "no outstanding problem in this context, nothing recent covers it, and the overall ask budget has room"
         },
         {
           "from": "a.request",
@@ -33117,9 +33110,7 @@
         5,
         6,
         7,
-        8,
-        9,
-        10
+        8
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": []
@@ -33159,15 +33150,15 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 14,
-      "edgeCount": 14,
-      "branchNodeCount": 4,
+      "nodeCount": 12,
+      "edgeCount": 12,
+      "branchNodeCount": 2,
       "backwardEdgeCount": 1,
       "handoffCount": 0,
       "exitCount": 6,
-      "maxDepth": 7,
+      "maxDepth": 5,
       "maxFanIn": 2,
-      "maxFanOut": 2,
+      "maxFanOut": 4,
       "primaryStructure": "self-contained",
       "behaviors": [
         "backward-edge",
@@ -33175,8 +33166,8 @@
         "multi-exit",
         "competition"
       ],
-      "complexityTier": "medium",
-      "complexityScore": 51
+      "complexityTier": "simple",
+      "complexityScore": 41
     }
   },
   {
@@ -33475,6 +33466,10 @@
         {
           "journey": "FBK-43",
           "because": "FBK-43 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it."
+        },
+        {
+          "journey": "FBK-41",
+          "because": "FBK-41 asks about one completed experience, once. This asks a rarer, higher-value favour built on accumulated relationship evidence rather than one experience - the two share the outbound-ask slot precisely because asking both back-to-back for the same goodwill moment reads as farming it twice."
         }
       ],
       "competition": null,
@@ -33744,7 +33739,7 @@
         {
           "id": "a.obligation",
           "kind": "action",
-          "headline": "Create the work item in the owning process. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events",
+          "headline": "Create the work item in the owning process, carrying the feedback record id so the two stay linked. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events. The requester is acknowledged by REM-305 on support_request_received - not from here",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -33777,7 +33772,7 @@
           "id": "w.followup",
           "kind": "wait",
           "headline": "until promised_followup_delivered",
-          "detail": "timeout after {'key': 'feedback.promise_window', 'rule': 'A promised follow-up is waited for only as long as the promise still means anything to the person; past that it is a broken promise and is escalated as one.', 'class': 'response-window', 'default': {'value': {'min': '7 days', 'max': '14 days'}, 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
+          "detail": "timeout after {'key': 'feedback.promise_window', 'rule': 'A promised follow-up is waited for only as long as the promise still means anything to the person; past that it is a broken promise and is escalated as one. The promise carries its own date - relativeTo: \"attribute\" against promised_followup_at - so this journey never invents one.', 'class': 'response-window', 'required': True}",
           "isEntry": false,
           "terminal": false
         },
@@ -33848,42 +33843,42 @@
           "from": "c.route",
           "to": "a.persist-positive",
           "family": "branch",
-          "label": "PRAISE",
+          "label": "Praise",
           "when": "positive, with substance behind it"
         },
         {
           "from": "c.route",
           "to": "c.existing",
           "family": "branch",
-          "label": "SERVICE_ISSUE or COMPLAINT",
+          "label": "Service issue or complaint",
           "when": "something went wrong, or is alleged to have"
         },
         {
           "from": "c.route",
           "to": "a.obligation",
           "family": "branch",
-          "label": "SUPPORT_NEED",
+          "label": "A request for help",
           "when": "they need help with something rather than reporting a fault"
         },
         {
           "from": "c.route",
           "to": "a.product",
           "family": "branch",
-          "label": "PRODUCT_FEEDBACK",
+          "label": "Product feedback",
           "when": "an observation about the product that creates no obligation to this individual"
         },
         {
           "from": "c.route",
           "to": "c.acknowledge",
           "family": "branch",
-          "label": "GENERAL_COMMENT",
+          "label": "General comment",
           "when": "worth keeping, nothing to do"
         },
         {
           "from": "c.route",
           "to": "h.triage",
           "family": "branch",
-          "label": "UNKNOWN",
+          "label": "Meaning unclear",
           "when": "the meaning cannot be established reliably enough to route"
         },
         {
@@ -34197,7 +34192,24 @@
           "isExternal": false
         }
       ],
-      "distinctFrom": [],
+      "distinctFrom": [
+        {
+          "journey": "FBK-41",
+          "because": "FBK-41 begins only if something actually comes back, and most requests do not produce one. This begins once feedback has actually arrived and reacts to what it says."
+        },
+        {
+          "journey": "FBK-42",
+          "because": "FBK-42 weighs the accumulated relationship and decides whether it can carry an advocacy request. This reacts to one signal - the feedback record just received - most of which never reach that threshold."
+        },
+        {
+          "journey": "REM-305",
+          "because": "REM-305 starts from a request made of us and owns acknowledging it to the person who asked. This starts from an account of an experience; where that experience is a support need, this journey raises the work item and REM-305, not this one, tells the requester it was received."
+        },
+        {
+          "journey": "REM-151",
+          "because": "REM-151 starts from a concrete problem with something already delivered and asks which recovery route would satisfy it - the obligation is already known to exist. This journey starts from an account of an experience and works out whether an operational issue exists at all; where one clearly does, REM-151 owns the remedy route rather than this journey re-assessing it."
+        }
+      ],
       "competition": null,
       "preemptedBy": []
     },
@@ -35356,7 +35368,7 @@
         {
           "id": "w.received",
           "kind": "wait",
-          "headline": "until requested_information_received",
+          "headline": "until requested_information_received, or dependency_resolved, or process_cancelled",
           "detail": "timeout after {'key': 'missing_critical.received', 'rule': 'The request is waited on for as long as the blocked process can afford; then criticality decides between a person, an alternate route and abandonment.', 'class': 'response-window', 'required': True}",
           "isEntry": false,
           "terminal": false
@@ -35365,6 +35377,14 @@
           "id": "c.valid",
           "kind": "condition",
           "headline": "Is what we now have valid?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.reject",
+          "kind": "action",
+          "headline": "Tell the person what was wrong with what they sent, and re-request it - the same conversation about the same item, on the same route. Sending a document and hearing nothing back is worse than being asked again, because silence gives no way to know it was refused",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -35487,12 +35507,12 @@
           "to": "c.valid",
           "family": "backward",
           "label": "on event",
-          "when": "requested_information_received"
+          "when": "requested_information_received, dependency_resolved, process_cancelled"
         },
         {
           "from": "w.received",
           "to": "c.criticality",
-          "family": "backward",
+          "family": "wait-timeout",
           "label": "on timeout",
           "when": "how long to wait is a property of what is blocked, not of the request - a blocked payment and a blocked report do not deserve the same patience"
         },
@@ -35505,10 +35525,17 @@
         },
         {
           "from": "c.valid",
-          "to": "c.criticality",
+          "to": "a.reject",
           "family": "branch",
           "label": "Invalid or incomplete",
           "when": "what arrived does not satisfy the requirement"
+        },
+        {
+          "from": "a.reject",
+          "to": "w.received",
+          "family": "forward",
+          "label": null,
+          "when": null
         },
         {
           "from": "a.persist",
@@ -35554,8 +35581,7 @@
         "x.abandoned"
       ],
       "backwardEdgeIds": [
-        9,
-        10
+        9
       ],
       "branchEdgeIds": [
         2,
@@ -35564,13 +35590,13 @@
         6,
         11,
         12,
-        14,
         15,
-        16
+        16,
+        17
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": [
-        17
+        18
       ]
     },
     "relationships": {
@@ -35584,6 +35610,10 @@
         {
           "journey": "ACT-13",
           "because": "ACT-13 is scoped to activation specifically and owns resuming onboarding. This applies to any named process, most of which have nothing to do with onboarding."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks a process. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ],
       "competition": null,
@@ -35602,7 +35632,7 @@
     "derived": {
       "hasBranches": true,
       "hasBackwardEdges": true,
-      "hasTrueCycle": false,
+      "hasTrueCycle": true,
       "hasExternalHandoff": true,
       "hasCrossJourneyHandoff": false,
       "hasWait": true,
@@ -35611,14 +35641,14 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 15,
-      "edgeCount": 18,
+      "nodeCount": 16,
+      "edgeCount": 19,
       "branchNodeCount": 4,
-      "backwardEdgeCount": 2,
+      "backwardEdgeCount": 1,
       "handoffCount": 1,
       "exitCount": 3,
-      "maxDepth": 6,
-      "maxFanIn": 2,
+      "maxDepth": 8,
+      "maxFanIn": 3,
       "maxFanOut": 3,
       "primaryStructure": "mixed-termination",
       "behaviors": [
@@ -35628,7 +35658,7 @@
         "multi-exit"
       ],
       "complexityTier": "complex",
-      "complexityScore": 55
+      "complexityScore": 57
     }
   },
   {
@@ -91605,9 +91635,25 @@
           "terminal": false
         },
         {
+          "id": "c.threshold",
+          "kind": "condition",
+          "headline": "Which threshold fired?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.remind",
           "kind": "action",
           "headline": "Send the reminder defined for this threshold. The reminder schedule is not the deadline and does not move it - a deadline nobody was reminded about is still the deadline",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.remind-final",
+          "kind": "action",
+          "headline": "Send the reminder defined for the final pre-deadline threshold. This is the last chance before the deadline itself becomes the thing that decides what happens, so it carries the deadline and the one way to discharge the obligation, not merely information about it",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -91713,7 +91759,7 @@
         },
         {
           "from": "c.useful",
-          "to": "a.remind",
+          "to": "c.threshold",
           "family": "branch",
           "label": "Send it",
           "when": "policy defines a reminder at this threshold and the recipient can still act on it"
@@ -91726,7 +91772,28 @@
           "when": "no reminder is defined, or nobody can do anything differently on hearing it"
         },
         {
+          "from": "c.threshold",
+          "to": "a.remind-final",
+          "family": "branch",
+          "label": "The final pre-deadline threshold",
+          "when": "this is the last threshold before the deadline itself, and SMS permission is recorded"
+        },
+        {
+          "from": "c.threshold",
+          "to": "a.remind",
+          "family": "branch",
+          "label": "Any earlier threshold",
+          "when": "an earlier, non-final threshold - information rather than a deadline with a consequence about to attach"
+        },
+        {
           "from": "a.remind",
+          "to": "w.tracking",
+          "family": "backward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.remind-final",
           "to": "w.tracking",
           "family": "backward",
           "label": null,
@@ -91764,7 +91831,7 @@
           "from": "c.consequence",
           "to": "x.still-valid",
           "family": "branch",
-          "label": "STILL_VALID",
+          "label": "Still valid",
           "when": "the deadline was a target and passing it changes nothing about the obligation"
         },
         {
@@ -91800,23 +91867,26 @@
       ],
       "backwardEdgeIds": [
         8,
-        9
+        11,
+        12
       ],
       "branchEdgeIds": [
         4,
         5,
         7,
         8,
+        9,
         10,
-        11,
-        12,
         13,
-        14
-      ],
-      "handoffEdgeIds": [
+        14,
         15,
         16,
         17
+      ],
+      "handoffEdgeIds": [
+        18,
+        19,
+        20
       ],
       "externalEdgeIds": []
     },
@@ -91871,14 +91941,14 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 14,
-      "edgeCount": 18,
-      "branchNodeCount": 3,
-      "backwardEdgeCount": 2,
+      "nodeCount": 16,
+      "edgeCount": 21,
+      "branchNodeCount": 4,
+      "backwardEdgeCount": 3,
       "handoffCount": 3,
       "exitCount": 3,
-      "maxDepth": 5,
-      "maxFanIn": 3,
+      "maxDepth": 6,
+      "maxFanIn": 4,
       "maxFanOut": 5,
       "primaryStructure": "mixed-termination",
       "behaviors": [
@@ -91889,7 +91959,7 @@
         "competition"
       ],
       "complexityTier": "complex",
-      "complexityScore": 53
+      "complexityScore": 63
     }
   },
   {
@@ -92486,6 +92556,10 @@
         {
           "journey": "SUB-163",
           "because": "A subscription is in this journey's scope and a term end is in SUB-163's, so the same calendar moment fires both. SUB-163 owns it: it is the one that knows the renewal terms, the notice the terms require and who holds the decision, and its notice is a contractual obligation rather than outreach. This journey is the generic fallback for that expiry - it owns a subscription only where no renewal decision window is open on it, alongside every other expiring entity with no renewal cycle."
+        },
+        {
+          "journey": "TIM-268",
+          "because": "TIM-268 is a generic outstanding-obligation reminder that does not know which specific entity is expiring or what its expiry actually does. This journey owns the reminder once an expiring entity is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it."
         }
       ],
       "competition": null,
@@ -94448,7 +94522,7 @@
         {
           "id": "w.deadline",
           "kind": "wait",
-          "headline": "until obligation_satisfied, or obligation_no_longer_owed, or deadline_passed_unmet",
+          "headline": "until obligation_satisfied, or obligation_no_longer_owed",
           "detail": "timeout after {'key': 'outstanding_obligation.deadline', 'rule': 'After the reminder the instance waits until the due date itself; what stands at that moment decides between confirmation, moot and the overdue notice.', 'class': 'attribute-bound', 'required': True}",
           "isEntry": false,
           "terminal": false
@@ -94579,7 +94653,7 @@
           "to": "c.settled",
           "family": "wait-event",
           "label": "on event",
-          "when": "obligation_satisfied, obligation_no_longer_owed, deadline_passed_unmet"
+          "when": "obligation_satisfied, obligation_no_longer_owed"
         },
         {
           "from": "w.deadline",
@@ -94601,13 +94675,6 @@
           "family": "backward",
           "label": "Cancelled or adjusted away",
           "when": "the obligation no longer exists to be met"
-        },
-        {
-          "from": "c.settled",
-          "to": "a.overdue",
-          "family": "branch",
-          "label": "Still owed at the deadline",
-          "when": "the deadline passed with something still outstanding"
         },
         {
           "from": "a.confirm",
@@ -94662,13 +94729,12 @@
         7,
         11,
         12,
-        13,
-        16,
-        17
+        15,
+        16
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": [
-        18
+        17
       ]
     },
     "relationships": {
@@ -94722,6 +94788,10 @@
         {
           "journey": "FBK-49",
           "because": "FBK-49 owns a blocking data item, and knows which process stalls without it. This journey would ask for the same item without being able to say what it unblocks."
+        },
+        {
+          "journey": "FIN-134",
+          "because": "FIN-134 opens only where a payment system states that an attempt against the obligation actually failed, and it owns what is said about the obligation from that moment. This journey is the sending for an obligation that is merely outstanding - owed, due, and not yet attempted. Where a recorded failure exists, that journey holds the obligation and this one is suppressed for it."
         }
       ],
       "competition": null,
@@ -94752,14 +94822,14 @@
       "hasPreemption": false,
       "hasCompetition": true,
       "nodeCount": 15,
-      "edgeCount": 19,
+      "edgeCount": 18,
       "branchNodeCount": 4,
       "backwardEdgeCount": 1,
       "handoffCount": 1,
       "exitCount": 3,
-      "maxDepth": 10,
+      "maxDepth": 9,
       "maxFanIn": 3,
-      "maxFanOut": 3,
+      "maxFanOut": 2,
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
@@ -94770,7 +94840,7 @@
         "no-re-entry"
       ],
       "complexityTier": "complex",
-      "complexityScore": 58
+      "complexityScore": 56
     }
   },
   {
@@ -94838,6 +94908,22 @@
           "terminal": false
         },
         {
+          "id": "a.recheck-grace",
+          "kind": "action",
+          "headline": "Re-read the grace record immediately before the last call: is the window still open, is the entity still in grace, has the end moved. Sending the last call blind is one of the two most consequential messages in this journey and the one most likely to arrive after the fact",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.recheck-grace",
+          "kind": "condition",
+          "headline": "Is the entity still in grace, still unresolved?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "c.outcome",
           "kind": "condition",
           "headline": "What ended the wait?",
@@ -94880,8 +94966,24 @@
         {
           "id": "w.final",
           "kind": "wait",
-          "headline": "until recovery_condition_satisfied",
+          "headline": "until recovery_condition_satisfied, or entity_terminated",
           "detail": "timeout after {'key': 'grace_period.final', 'rule': 'After the last call the instance waits until the grace end itself; recovery before it is confirmed, and its passing is the loss.', 'class': 'attribute-bound', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.recheck-final",
+          "kind": "action",
+          "headline": "Re-read the grace record immediately before the loss notice, the same re-read made before the last call: is the window still open, is the entity still in grace, has the end moved. This is one of the two most consequential messages in the journey and both were being sent blind",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.recheck-final",
+          "kind": "condition",
+          "headline": "Is the entity still in grace, still unresolved?",
+          "detail": null,
           "isEntry": false,
           "terminal": false
         },
@@ -94947,10 +95049,31 @@
         },
         {
           "from": "w.grace",
-          "to": "a.last-call",
+          "to": "a.recheck-grace",
           "family": "wait-timeout",
           "label": "on timeout",
           "when": "the window has a fixed end, so the last useful moment to name it falls before that end rather than at it"
+        },
+        {
+          "from": "a.recheck-grace",
+          "to": "c.recheck-grace",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.recheck-grace",
+          "to": "a.last-call",
+          "family": "branch",
+          "label": "Still in grace",
+          "when": "recovery has not landed and the entity was not terminated since the timeout fired"
+        },
+        {
+          "from": "c.recheck-grace",
+          "to": "c.outcome",
+          "family": "backward",
+          "label": "Already resolved",
+          "when": "recovery or termination landed between the timeout firing and this re-read"
         },
         {
           "from": "c.outcome",
@@ -94985,14 +95108,35 @@
           "to": "c.outcome",
           "family": "backward",
           "label": "on event",
-          "when": "recovery_condition_satisfied"
+          "when": "recovery_condition_satisfied, entity_terminated"
         },
         {
           "from": "w.final",
-          "to": "a.lost",
+          "to": "a.recheck-final",
           "family": "wait-timeout",
           "label": "on timeout",
           "when": "grace does not extend itself, so the journey has to end where the window does"
+        },
+        {
+          "from": "a.recheck-final",
+          "to": "c.recheck-final",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "c.recheck-final",
+          "to": "a.lost",
+          "family": "branch",
+          "label": "Still unresolved",
+          "when": "recovery has not landed and the entity was not terminated since the timeout fired"
+        },
+        {
+          "from": "c.recheck-final",
+          "to": "c.outcome",
+          "family": "backward",
+          "label": "Already resolved",
+          "when": "recovery or termination landed between the timeout firing and this re-read"
         },
         {
           "from": "a.lost",
@@ -95009,13 +95153,19 @@
         "x.lost"
       ],
       "backwardEdgeIds": [
-        11
+        9,
+        14,
+        18
       ],
       "branchEdgeIds": [
         1,
         2,
-        7,
-        8
+        8,
+        9,
+        10,
+        11,
+        17,
+        18
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": []
@@ -95067,14 +95217,14 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 13,
-      "edgeCount": 14,
-      "branchNodeCount": 2,
-      "backwardEdgeCount": 1,
+      "nodeCount": 17,
+      "edgeCount": 20,
+      "branchNodeCount": 4,
+      "backwardEdgeCount": 3,
       "handoffCount": 0,
       "exitCount": 3,
-      "maxDepth": 7,
-      "maxFanIn": 2,
+      "maxDepth": 11,
+      "maxFanIn": 4,
       "maxFanOut": 2,
       "primaryStructure": "self-contained",
       "behaviors": [
@@ -95083,8 +95233,8 @@
         "multi-exit",
         "competition"
       ],
-      "complexityTier": "medium",
-      "complexityScore": 43
+      "complexityTier": "complex",
+      "complexityScore": 65
     }
   },
   {

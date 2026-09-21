@@ -294,7 +294,7 @@
         "long_cards": [
           {
             "id": "a.ask-heavy",
-            "len": 121
+            "len": 114
           }
         ],
         "long_branch_labels": [
@@ -935,42 +935,37 @@
     "slug": "contactability-repair",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 21,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.prompt-alt",
-            "len": 114
+            "id": "a.prompt-email",
+            "len": 113
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 21,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.prompt-alt",
-            "len": 116
+            "id": "a.prompt-email",
+            "len": 123
           },
           {
-            "id": "a.confirm",
-            "len": 133
+            "id": "a.prompt-sms",
+            "len": 115
           }
         ],
-        "long_branch_labels": [
-          {
-            "label": "Ürün dışında ulaşılabilir",
-            "len": 25
-          }
-        ],
+        "long_branch_labels": [],
         "locale_leaks": []
       }
     }
@@ -980,25 +975,30 @@
     "slug": "deadline-tracking",
     "locales": {
       "en": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 29,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.remind",
-            "len": 139
+            "len": 121
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "The final pre-deadline threshold",
+            "len": 32
+          }
+        ],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 29,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -1007,10 +1007,15 @@
           },
           {
             "id": "a.remind",
-            "len": 138
+            "len": 120
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "Son tarih öncesi son eşik",
+            "len": 25
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -1303,10 +1308,10 @@
     "slug": "expired-entity-re-entry",
     "locales": {
       "en": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 23,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -1319,19 +1324,23 @@
           },
           {
             "id": "a.confirm",
-            "len": 137
+            "len": 130
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 23,
         "internal_cards": 0,
         "long_cards": [
+          {
+            "id": "a.establish",
+            "len": 111
+          },
           {
             "id": "a.renew",
             "len": 115
@@ -1359,25 +1368,25 @@
     "slug": "feedback-eligibility",
     "locales": {
       "en": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 22,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 22,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.request",
-            "len": 146
+            "len": 128
           }
         ],
         "long_branch_labels": [],
@@ -1402,12 +1411,12 @@
           },
           {
             "id": "a.obligation",
-            "len": 116
+            "len": 112
           }
         ],
         "long_branch_labels": [
           {
-            "label": "SERVICE_ISSUE or COMPLAINT",
+            "label": "Service issue or complaint",
             "len": 26
           }
         ],
@@ -1422,7 +1431,7 @@
         "long_cards": [
           {
             "id": "a.obligation",
-            "len": 126
+            "len": 133
           },
           {
             "id": "a.acknowledge",
@@ -1431,7 +1440,7 @@
         ],
         "long_branch_labels": [
           {
-            "label": "HİZMET SORUNU veya ŞİKAYET",
+            "label": "Hizmet sorunu veya şikayet",
             "len": 26
           }
         ],
@@ -1567,42 +1576,46 @@
     "slug": "grace-period-recovery",
     "locales": {
       "en": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 17,
+        "distinct_canonical_nodes": 17,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 32,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.last-call",
             "len": 117
+          },
+          {
+            "id": "a.recheck-final",
+            "len": 112
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 17,
+        "distinct_canonical_nodes": 17,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 32,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.notify-quiet",
-            "len": 117
+            "len": 113
+          },
+          {
+            "id": "a.confirm",
+            "len": 112
           },
           {
             "id": "a.last-call",
             "len": 123
           },
           {
-            "id": "a.confirm",
-            "len": 116
-          },
-          {
             "id": "a.lost",
-            "len": 166
+            "len": 162
           }
         ],
         "long_branch_labels": [],
@@ -1944,10 +1957,10 @@
     "slug": "missing-critical-data",
     "locales": {
       "en": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 27,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -1975,12 +1988,17 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 27,
         "internal_cards": 0,
-        "long_cards": [],
+        "long_cards": [
+          {
+            "id": "a.reject",
+            "len": 120
+          }
+        ],
         "long_branch_labels": [
           {
             "label": "Müşteri veya hesap sahibi",
@@ -2196,25 +2214,17 @@
         "display_nodes": 15,
         "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 28,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.remind",
-            "len": 112
-          },
-          {
             "id": "a.overdue",
-            "len": 137
+            "len": 133
           }
         ],
         "long_branch_labels": [
           {
             "label": "Cancelled or adjusted away",
-            "len": 26
-          },
-          {
-            "label": "Still owed at the deadline",
             "len": 26
           },
           {
@@ -2228,16 +2238,12 @@
         "display_nodes": 15,
         "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 28,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.remind",
-            "len": 111
-          },
-          {
             "id": "a.overdue",
-            "len": 136
+            "len": 132
           }
         ],
         "long_branch_labels": [
@@ -2504,15 +2510,15 @@
     "slug": "pre-expiry-window",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.prompt-action",
-            "len": 130
+            "len": 114
           },
           {
             "id": "a.inform",
@@ -2523,10 +2529,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 19,
+        "edges": 20,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -3257,10 +3263,6 @@
             "len": 118
           },
           {
-            "id": "a.final",
-            "len": 134
-          },
-          {
             "id": "c.final",
             "len": 121
           }
@@ -3277,7 +3279,7 @@
         "long_cards": [
           {
             "id": "a.ask",
-            "len": 154
+            "len": 125
           },
           {
             "id": "a.confirm-end",

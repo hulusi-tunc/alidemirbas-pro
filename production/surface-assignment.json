@@ -613,7 +613,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "FBK-41",
@@ -624,7 +624,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "FBK-42",
@@ -635,7 +635,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
+      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "FBK-43",
@@ -690,7 +690,7 @@
       "routesToHuman": true,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, task)"
+      "reason": "declares a message channel (email, task)"
     },
     {
       "id": "FBK-50",
@@ -822,7 +822,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push, sms, whatsapp)"
+      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "TIM-62",
@@ -844,7 +844,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push, sms)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "TIM-64",
@@ -932,7 +932,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "TIM-274",

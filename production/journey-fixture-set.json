@@ -278,8 +278,8 @@
     "id": "FBK-41",
     "reason": "Self-contained structure (never hands off, tied for most exits at 6) - represents the primaryStructure category no other fixture covers.",
     "category": "feedback",
-    "nodeCount": 14,
-    "edgeCount": 14,
+    "nodeCount": 12,
+    "edgeCount": 12,
     "primaryStructure": "self-contained",
     "behaviors": [
       "backward-edge",
@@ -287,7 +287,7 @@
       "multi-exit",
       "competition"
     ],
-    "complexityTier": "medium",
+    "complexityTier": "simple",
     "isMergedAlias": false,
     "resolvesTo": null
   }
