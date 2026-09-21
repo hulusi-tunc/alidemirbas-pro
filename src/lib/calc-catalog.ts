@@ -368,6 +368,12 @@ export function shortDescription(spec: CalcSpec, lang: Lang): string {
    `tr.seo.seoTitle` in production/calculators/content/{slug}.json, so the
    name is identical whether it's read from the card grid, the detail page
    H1, or a related-calculators link. Covers LIVE_CALCULATOR_SLUGS only. */
+const NAME_EN: Record<string, string> = {
+  "ab-test": "A/B Test Significance Calculator",
+  "sample-size-calculator": "A/B Test Sample Size Calculator",
+  "funnel-analysis-multistep": "Multi-Step Funnel Analysis",
+};
+
 const NAME_TR: Record<string, string> = {
   roas: "ROAS Hesaplayıcısı",
   cpc: "CPC Hesaplayıcısı",
@@ -396,7 +402,7 @@ const NAME_TR: Record<string, string> = {
     itself stays English-only research-set data. */
 export function displayName(spec: CalcSpec, lang: Lang): string {
   if (lang === "tr") return NAME_TR[spec.slug] ?? spec.name;
-  return spec.name;
+  return NAME_EN[spec.slug] ?? spec.name;
 }
 
 /** Same lookup, keyed by slug only, for call sites that only have a slug
@@ -404,7 +410,7 @@ export function displayName(spec: CalcSpec, lang: Lang): string {
     than a full `CalcSpec`. */
 export function displayNameForSlug(slug: string, fallbackName: string, lang: Lang): string {
   if (lang === "tr") return NAME_TR[slug] ?? fallbackName;
-  return fallbackName;
+  return NAME_EN[slug] ?? fallbackName;
 }
 
 /** Homepage teaser entry - the same shape CalculatorLibrary's own
