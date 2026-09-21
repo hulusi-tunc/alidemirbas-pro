@@ -1391,20 +1391,20 @@
  {
   "id": "ACQ-285",
   "category": "acquisition",
-  "nodeCount": 15,
-  "edgeCount": 17,
-  "branchNodeCount": 5,
-  "branchEdgeCount": 10,
-  "waitCount": 1,
+  "nodeCount": 17,
+  "edgeCount": 22,
+  "branchNodeCount": 6,
+  "branchEdgeCount": 13,
+  "waitCount": 2,
   "exitCount": 4,
   "terminalExitCount": 1,
   "handoffCount": 1,
   "externalHandoffCount": 1,
   "crossJourneyHandoffCount": 0,
-  "backwardEdgeCount": 1,
-  "maxFanIn": 3,
-  "maxFanOut": 2,
-  "maxDepth": 8,
+  "backwardEdgeCount": 3,
+  "maxFanIn": 4,
+  "maxFanOut": 3,
+  "maxDepth": 9,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -1418,7 +1418,7 @@
   "edges": [
    {
     "from": "t.captured",
-    "to": "c.email-route",
+    "to": "c.contactable",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -1426,7 +1426,7 @@
     "isBackward": false
    },
    {
-    "from": "c.email-route",
+    "from": "c.contactable",
     "to": "c.declared",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -1435,7 +1435,7 @@
     "isBackward": false
    },
    {
-    "from": "c.email-route",
+    "from": "c.contactable",
     "to": "c.declared-no-route",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -1508,7 +1508,7 @@
    },
    {
     "from": "c.permission",
-    "to": "a.nurture",
+    "to": "w.follow-up",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -1525,16 +1525,7 @@
     "isBackward": false
    },
    {
-    "from": "a.nurture",
-    "to": "w.nurture",
-    "syntacticKind": "forward",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "w.nurture",
+    "from": "w.follow-up",
     "to": "c.progressed",
     "syntacticKind": "wait-event",
     "isExternal": false,
@@ -1543,7 +1534,61 @@
     "isBackward": false
    },
    {
-    "from": "w.nurture",
+    "from": "w.follow-up",
+    "to": "c.still-open",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-open",
+    "to": "h.person",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.still-open",
+    "to": "x.stopped",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-open",
+    "to": "a.follow-up",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.follow-up",
+    "to": "w.window",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.window",
+    "to": "c.progressed",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "w.window",
     "to": "x.sunset",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
@@ -1574,10 +1619,10 @@
  {
   "id": "ACQ-11",
   "category": "acquisition",
-  "nodeCount": 26,
-  "edgeCount": 45,
-  "branchNodeCount": 8,
-  "branchEdgeCount": 27,
+  "nodeCount": 27,
+  "edgeCount": 47,
+  "branchNodeCount": 9,
+  "branchEdgeCount": 29,
   "waitCount": 5,
   "exitCount": 5,
   "terminalExitCount": 0,
@@ -1587,7 +1632,7 @@
   "backwardEdgeCount": 16,
   "maxFanIn": 4,
   "maxFanOut": 6,
-  "maxDepth": 16,
+  "maxDepth": 17,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -1790,7 +1835,7 @@
    },
    {
     "from": "c.state2",
-    "to": "a.note-return",
+    "to": "c.resume-budget",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -1799,6 +1844,24 @@
    },
    {
     "from": "c.state2",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resume-budget",
+    "to": "a.note-return",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resume-budget",
     "to": "c.sendable2",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2009,10 +2072,10 @@
  {
   "id": "ACQ-12",
   "category": "acquisition",
-  "nodeCount": 22,
-  "edgeCount": 35,
-  "branchNodeCount": 7,
-  "branchEdgeCount": 22,
+  "nodeCount": 23,
+  "edgeCount": 37,
+  "branchNodeCount": 8,
+  "branchEdgeCount": 24,
   "waitCount": 3,
   "exitCount": 5,
   "terminalExitCount": 0,
@@ -2022,7 +2085,7 @@
   "backwardEdgeCount": 10,
   "maxFanIn": 3,
   "maxFanOut": 5,
-  "maxDepth": 14,
+  "maxDepth": 15,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -2117,7 +2180,7 @@
    },
    {
     "from": "c.state",
-    "to": "a.rearm",
+    "to": "c.rearm-budget",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2126,6 +2189,24 @@
    },
    {
     "from": "c.state",
+    "to": "c.availability",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.rearm-budget",
+    "to": "a.rearm",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.rearm-budget",
     "to": "c.availability",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2528,20 +2609,20 @@
  {
   "id": "ACQ-287",
   "category": "acquisition",
-  "nodeCount": 17,
-  "edgeCount": 25,
-  "branchNodeCount": 4,
-  "branchEdgeCount": 11,
+  "nodeCount": 23,
+  "edgeCount": 36,
+  "branchNodeCount": 7,
+  "branchEdgeCount": 20,
   "waitCount": 3,
-  "exitCount": 2,
+  "exitCount": 3,
   "terminalExitCount": 0,
   "handoffCount": 1,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 1,
-  "backwardEdgeCount": 4,
+  "backwardEdgeCount": 7,
   "maxFanIn": 3,
-  "maxFanOut": 3,
-  "maxDepth": 12,
+  "maxFanOut": 4,
+  "maxDepth": 14,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -2600,8 +2681,44 @@
    },
    {
     "from": "c.completed1",
+    "to": "x.invalid",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.completed1",
+    "to": "c.sendable1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable1",
     "to": "a.router1",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable1",
+    "to": "a.record-no-action-t1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action-t1",
+    "to": "w.second",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -2663,6 +2780,15 @@
    },
    {
     "from": "c.completed2",
+    "to": "x.invalid",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.completed2",
     "to": "c.highvalue",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2672,7 +2798,7 @@
    },
    {
     "from": "c.highvalue",
-    "to": "a.router2-hv",
+    "to": "c.sendable2-hv",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2681,8 +2807,53 @@
    },
    {
     "from": "c.highvalue",
+    "to": "c.sendable2-std",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-hv",
+    "to": "a.router2-hv",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-hv",
+    "to": "a.record-no-action-t2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-std",
     "to": "a.router2-std",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-std",
+    "to": "a.record-no-action-t2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action-t2",
+    "to": "w.third",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -2722,7 +2893,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
+    "isBackward": true
    },
    {
     "from": "w.third",
@@ -2754,6 +2925,15 @@
    {
     "from": "c.completed3",
     "to": "h.payment",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.completed3",
+    "to": "x.invalid",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2783,20 +2963,20 @@
  {
   "id": "ACQ-288",
   "category": "acquisition",
-  "nodeCount": 22,
-  "edgeCount": 30,
-  "branchNodeCount": 8,
-  "branchEdgeCount": 16,
+  "nodeCount": 23,
+  "edgeCount": 35,
+  "branchNodeCount": 7,
+  "branchEdgeCount": 19,
   "waitCount": 3,
   "exitCount": 3,
   "terminalExitCount": 0,
   "handoffCount": 1,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 1,
-  "backwardEdgeCount": 4,
+  "backwardEdgeCount": 6,
   "maxFanIn": 3,
-  "maxFanOut": 2,
-  "maxDepth": 16,
+  "maxFanOut": 4,
+  "maxDepth": 14,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -2819,7 +2999,7 @@
    },
    {
     "from": "w.first",
-    "to": "c.active1",
+    "to": "c.state1",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2828,7 +3008,7 @@
    },
    {
     "from": "w.first",
-    "to": "c.active1",
+    "to": "c.state1",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2836,25 +3016,7 @@
     "isBackward": false
    },
    {
-    "from": "c.active1",
-    "to": "c.purchased1",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.active1",
-    "to": "x.cleared",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.purchased1",
+    "from": "c.state1",
     "to": "x.purchased",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2863,16 +3025,7 @@
     "isBackward": false
    },
    {
-    "from": "c.purchased1",
-    "to": "c.checkout1",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.checkout1",
+    "from": "c.state1",
     "to": "h.checkout",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2881,9 +3034,45 @@
     "isBackward": false
    },
    {
-    "from": "c.checkout1",
+    "from": "c.state1",
+    "to": "x.cleared",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state1",
+    "to": "c.sendable1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable1",
     "to": "a.router1",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable1",
+    "to": "a.record-no-action-t1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action-t1",
+    "to": "w.second",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -2909,7 +3098,7 @@
    },
    {
     "from": "w.second",
-    "to": "c.purchased2",
+    "to": "c.state2",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2918,7 +3107,7 @@
    },
    {
     "from": "w.second",
-    "to": "c.purchased2",
+    "to": "c.state2",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2926,7 +3115,7 @@
     "isBackward": false
    },
    {
-    "from": "c.purchased2",
+    "from": "c.state2",
     "to": "x.purchased",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2935,16 +3124,7 @@
     "isBackward": true
    },
    {
-    "from": "c.purchased2",
-    "to": "c.checkout2",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.checkout2",
+    "from": "c.state2",
     "to": "h.checkout",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2953,7 +3133,16 @@
     "isBackward": true
    },
    {
-    "from": "c.checkout2",
+    "from": "c.state2",
+    "to": "x.cleared",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.state2",
     "to": "c.highvalue",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2963,7 +3152,7 @@
    },
    {
     "from": "c.highvalue",
-    "to": "a.router2-hv",
+    "to": "c.sendable2-hv",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2972,8 +3161,53 @@
    },
    {
     "from": "c.highvalue",
+    "to": "c.sendable2-std",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-hv",
+    "to": "a.router2-hv",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-hv",
+    "to": "a.record-no-action-t2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-std",
     "to": "a.router2-std",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-std",
+    "to": "a.record-no-action-t2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action-t2",
+    "to": "w.third",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -3013,11 +3247,11 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
+    "isBackward": true
    },
    {
     "from": "w.third",
-    "to": "c.purchased3",
+    "to": "c.state3",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -3026,7 +3260,7 @@
    },
    {
     "from": "w.third",
-    "to": "c.purchased3",
+    "to": "c.state3",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -3034,7 +3268,7 @@
     "isBackward": false
    },
    {
-    "from": "c.purchased3",
+    "from": "c.state3",
     "to": "x.purchased",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -3043,31 +3277,22 @@
     "isBackward": true
    },
    {
-    "from": "c.purchased3",
-    "to": "c.active2",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.active2",
-    "to": "x.abandoned",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.active2",
+    "from": "c.state3",
     "to": "x.cleared",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
     "isBackward": true
+   },
+   {
+    "from": "c.state3",
+    "to": "x.abandoned",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
    },
    {
     "from": "h.checkout",
@@ -3083,8 +3308,8 @@
  {
   "id": "ACQ-289",
   "category": "acquisition",
-  "nodeCount": 13,
-  "edgeCount": 14,
+  "nodeCount": 14,
+  "edgeCount": 15,
   "branchNodeCount": 3,
   "branchEdgeCount": 7,
   "waitCount": 2,
@@ -3096,7 +3321,7 @@
   "backwardEdgeCount": 1,
   "maxFanIn": 2,
   "maxFanOut": 3,
-  "maxDepth": 7,
+  "maxDepth": 8,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -3164,7 +3389,7 @@
    },
    {
     "from": "c.sendable",
-    "to": "a.alert",
+    "to": "a.router1",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -3175,6 +3400,15 @@
     "from": "c.sendable",
     "to": "a.record-no-action",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.router1",
+    "to": "a.alert",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,

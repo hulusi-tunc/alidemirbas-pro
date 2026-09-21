@@ -107,7 +107,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "ACQ-10",
@@ -140,7 +140,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push, in-app, sms)"
+      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "ACQ-12",
@@ -151,7 +151,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "ACQ-13",
@@ -162,7 +162,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "ACQ-287",
@@ -195,7 +195,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (push, email, in-app)"
+      "reason": "declares a message channel (push, email)"
     },
     {
       "id": "ACT-11",

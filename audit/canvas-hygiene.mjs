@@ -72,9 +72,18 @@ for (const m of manifest.journeys) {
       // H4 - a message card must say something about the message. The kind
       // attribute is `action`; a message card is one whose text carries a
       // channel pill, so this is checked on the rendered text length past
-      // the title rather than on canonical execution.
+      // the title rather than on canonical execution. A router card (kind
+      // label "Channel selection" / "Kanal seçimi", JourneyCanvasNodes.tsx's
+      // RouterCard) also carries channel pills but is not a message by
+      // design - it draws the channel DECISION, never a body of its own,
+      // ahead of the send it feeds (audit/refactor/_ARBITRATION.md §5,
+      // 2026-09-21: the library's seven genuine channel-resolving routers
+      // became visible on the canvas rather than staying folded into the
+      // send). Excluded here on the same rendered-text signal rather than a
+      // journey or node id, so it stays correct if the corpus grows more.
       if (c.kind === "action") {
-        const isMessage = /(Email|SMS|Push|WhatsApp|In-app|E-posta|Uygulama içi)/.test(c.text);
+        const isRouter = /(Channel selection|Kanal seçimi)/.test(c.text);
+        const isMessage = !isRouter && /(Email|SMS|Push|WhatsApp|In-app|E-posta|Uygulama içi)/.test(c.text);
         if (isMessage) {
           messageCards++;
           // title + preview + pills; a card with no preview is title + pills

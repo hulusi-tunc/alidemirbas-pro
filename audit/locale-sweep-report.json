@@ -134,6 +134,20 @@
     },
     {
       "route": "/tr/lab/journeys/abandoned-process-recovery",
+      "text": "ACQ-12 pursues a held selection with no process state and no expiry. The moment a process starts from it, ACQ-12 hands this journey the instance (h.process) and suppresses every selection-recovery touch it had queued; this journey then owns recovery under its own process-based rules, including the final notice ACQ-12 never sends.",
+      "hits": [
+        "with",
+        "and",
+        "the",
+        "from",
+        "this",
+        "its"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/abandoned-process-recovery",
       "text": "Bring the person back to the specific unfinished process and let them complete it; never claim reserved stock, a held price or a discount the system does not assert.",
       "hits": [
         "the",
@@ -619,18 +633,6 @@
     },
     {
       "route": "/tr/lab/journeys/abandoned-process-recovery",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the intent is minutes old and a nudge back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/abandoned-process-recovery",
       "text": "( E-posta ): no low-friction route exists, or the touch has to carry the items and survive until the person can act",
       "hits": [
         "the",
@@ -642,7 +644,7 @@
     },
     {
       "route": "/tr/lab/journeys/abandoned-process-recovery",
-      "text": "( SMS ): explicit commercial SMS permission exists and the process carries an asserted time-bound element - an expiry, a hold, a delivery cut-off",
+      "text": "( SMS ): explicit commercial SMS permission is recorded and the platform asserts the time-bound element the final notice names",
       "hits": [
         "and",
         "the"
@@ -829,6 +831,19 @@
         "has",
         "the",
         "where"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/abandoned-selection-recovery",
+      "text": "ACQ-289 alerts on a named item a person wanted while it was unavailable and could not select at all. This journey recovers a selection the person actually made and held; it never claims an interest the person has not acted on, and it stands above ACQ-289 in the commerce-recovery group whenever a held selection exists.",
+      "hits": [
+        "and",
+        "not",
+        "this",
+        "the",
+        "has"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -1259,18 +1274,6 @@
         "and",
         "does",
         "not"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/abandoned-selection-recovery",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the selection is recent and a nudge back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -3138,6 +3141,20 @@
     },
     {
       "route": "/tr/lab/journeys/application-abandonment",
+      "text": "ACQ-12 pursues a held selection with no process state and no expiry. The moment a process starts from it, ACQ-12 hands this journey the instance (h.process) and suppresses every selection-recovery touch it had queued; this journey then owns recovery under its own process-based rules, including the final notice ACQ-12 never sends.",
+      "hits": [
+        "with",
+        "and",
+        "the",
+        "from",
+        "this",
+        "its"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/application-abandonment",
       "text": "Bring the person back to the specific unfinished process and let them complete it; never claim reserved stock, a held price or a discount the system does not assert.",
       "hits": [
         "the",
@@ -3623,18 +3640,6 @@
     },
     {
       "route": "/tr/lab/journeys/application-abandonment",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the intent is minutes old and a nudge back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/application-abandonment",
       "text": "( E-posta ): no low-friction route exists, or the touch has to carry the items and survive until the person can act",
       "hits": [
         "the",
@@ -3646,7 +3651,7 @@
     },
     {
       "route": "/tr/lab/journeys/application-abandonment",
-      "text": "( SMS ): explicit commercial SMS permission exists and the process carries an asserted time-bound element - an expiry, a hold, a delivery cut-off",
+      "text": "( SMS ): explicit commercial SMS permission is recorded and the platform asserts the time-bound element the final notice names",
       "hits": [
         "and",
         "the"
@@ -4713,6 +4718,19 @@
     },
     {
       "route": "/tr/lab/journeys/back-in-stock-alert",
+      "text": "SCH-282 follows an availability enquiry for a stated window with restorable state the person opened. This journey acts on an interest recorded while the item was unavailable, with no enquiry window to restore - the wait is on the item becoming available again, not on state the person set.",
+      "hits": [
+        "for",
+        "with",
+        "the",
+        "this",
+        "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/back-in-stock-alert",
       "text": "Convert an interest that could not convert because the thing was not there, by saying once - at the moment availability actually returns - that it is there now.",
       "hits": [
         "that",
@@ -5027,11 +5045,13 @@
     },
     {
       "route": "/tr/lab/journeys/back-in-stock-alert",
-      "text": "Is this interest still worth alerting on? · May the alert go out?",
+      "text": "Is this interest still worth alerting on? · May the alert go out? · Select the highest-priority channel this alert may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and send nothing.",
       "hits": [
         "this",
         "still",
-        "the"
+        "the",
+        "that",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -5057,20 +5077,6 @@
         "and",
         "the",
         "still",
-        "not"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/back-in-stock-alert",
-      "text": "( Uygulama içi ): the person is already in a session where the item can be opened directly and the alert does not need to leave the product",
-      "hits": [
-        "the",
-        "already",
-        "where",
-        "and",
-        "does",
         "not"
       ],
       "known": true,
@@ -5594,16 +5600,6 @@
     },
     {
       "route": "/tr/lab/journeys/bounded-education-progress-or-sunset",
-      "text": "( Uygulama içi ): the person is active in the product and the action is taken there",
-      "hits": [
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/bounded-education-progress-or-sunset",
       "text": "( E-posta ): no active session - the message has to be kept and survive until the person returns to act on it",
       "hits": [
         "the",
@@ -5708,6 +5704,35 @@
       "hits": [
         "with",
         "not"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/browse-abandonment",
+      "text": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds.",
+      "hits": [
+        "already",
+        "and",
+        "not",
+        "which",
+        "this",
+        "from",
+        "the",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/browse-abandonment",
+      "text": "RET-293 acts on a retention signal about an existing relationship. This journey acts on inferred pre-purchase attention with no relationship yet to retain, and yields to RET-293 for the same person.",
+      "hits": [
+        "this",
+        "with",
+        "and",
+        "for",
+        "the"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -6037,18 +6062,6 @@
       "hits": [
         "the",
         "that"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/browse-abandonment",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the attention is recent and a route back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -7231,6 +7244,20 @@
     },
     {
       "route": "/tr/lab/journeys/captured-interest-first-touch",
+      "text": "RET-290 marks the moment a captured lead becomes a paying customer and owns the relationship from the first purchase onward. This journey ends once fulfilment or the welcome closes, well before any purchase exists, and never speaks to someone RET-290 already owns.",
+      "hits": [
+        "the",
+        "and",
+        "from",
+        "this",
+        "before",
+        "already"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/captured-interest-first-touch",
       "text": "Answer a declared interest with the thing that interest actually asked for, and carry it onward only as far as what the person said about themselves justifies.",
       "hits": [
         "with",
@@ -7326,6 +7353,29 @@
     },
     {
       "route": "/tr/lab/journeys/captured-interest-first-touch",
+      "text": "· Give the person time to declare a destination on their own, past fulfilment, before the closing message of the welcome is sent.",
+      "hits": [
+        "the",
+        "their",
+        "before"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/captured-interest-first-touch",
+      "text": "· The welcome closes whether or not the closing message worked; it was stated as the last of the sequence and moving it silently is what turns interest into complaint.",
+      "hits": [
+        "the",
+        "not",
+        "and",
+        "what"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/captured-interest-first-touch",
       "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the most touches any single path through the plan reaches, not the number of touch nodes drawn across branches the same instance can never both take, and no touch is repeated because nothing could tell whether it arrived.",
       "hits": [
         "when",
@@ -7410,24 +7460,50 @@
     },
     {
       "route": "/tr/lab/journeys/captured-interest-first-touch",
-      "text": "Is the destination they supplied actually usable for this? · What did the person actually declare? · Is there permission to continue past fulfilment?",
+      "text": "önceki temastan sonra · iptal eden olaylar the person does something that names where they are going: a reply, a request to talk, a purchase; the person withdraws the permission this communication runs on",
       "hits": [
         "the",
-        "for",
-        "this",
-        "what"
+        "does",
+        "that",
+        "where",
+        "are",
+        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/captured-interest-first-touch",
-      "text": "Open a bounded sequence on the subject they declared, and state where it ends when it opens.",
+      "text": "the capture re-read from the system of record before acting on the timeout: no destination declared, and the permission position unchanged",
       "hits": [
         "the",
+        "from",
+        "before",
+        "and"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/captured-interest-first-touch",
+      "text": "Is there permission to continue past fulfilment? · Is this still a lead with nothing declared?",
+      "hits": [
+        "this",
+        "still",
+        "with"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/captured-interest-first-touch",
+      "text": "Send one further message on the subject they declared, saying plainly that this is the last of the welcome and what happens next.",
+      "hits": [
+        "the",
+        "that",
+        "this",
         "and",
-        "where",
-        "when"
+        "what"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -7610,6 +7686,18 @@
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
+      "text": "A reminder is never sent about a cart the person cleared or that expired - every wait watches for it and every re-check asks about it.",
+      "hits": [
+        "the",
+        "that",
+        "for",
+        "and"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/cart-abandonment",
       "text": "Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
       "hits": [
         "that",
@@ -7622,21 +7710,19 @@
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
+      "text": "Permission is checked by the send-path gate before a channel is ever chosen; the router that follows it resolves only reachability - a valid token or address - and never re-decides permission.",
       "hits": [
-        "and",
-        "are",
-        "not",
         "the",
-        "with",
-        "still"
+        "before",
+        "that",
+        "and"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
+      "text": "No message goes out on a channel that failed reachability - the router skips the touch rather than forcing a channel that cannot deliver.",
       "hits": [
         "that",
         "the"
@@ -7704,6 +7790,21 @@
         "the",
         "and",
         "from"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/cart-abandonment",
+      "text": "RET-294 prompts a predicted repurchase from the person's own history, with nothing currently in a cart. This journey recovers a cart the person actually built and left; where a cart is present it outranks a predicted need for the same person.",
+      "hits": [
+        "from",
+        "the",
+        "with",
+        "this",
+        "and",
+        "where",
+        "for"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -7997,16 +8098,6 @@
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": ": every item was removed from the selection by the person, or the selection was deleted",
-      "hits": [
-        "from",
-        "the"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/cart-abandonment",
       "text": ": the logical process reached its completion in the system of record",
       "hits": [
         "the",
@@ -8029,21 +8120,31 @@
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "tetikleyiciden sonra · iptal eden olaylar every item was removed from the selection by the person, or the selection was deleted; the logical process reached its completion in the system of record; an authoritative checkout record opened for the person with at least one item and a resume destination",
+      "text": ": every item was removed from the selection by the person, or the selection was deleted",
       "hits": [
         "from",
+        "the"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/cart-abandonment",
+      "text": "tetikleyiciden sonra · iptal eden olaylar the logical process reached its completion in the system of record; an authoritative checkout record opened for the person with at least one item and a resume destination; every item was removed from the selection by the person, or the selection was deleted; the platform expired the logical process",
+      "hits": [
         "the",
         "its",
         "for",
         "with",
-        "and"
+        "and",
+        "from"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "the cart re-read from the system of record: items present and each item's availability and price as the platform asserts them, no order placed, no checkout opened from it",
+      "text": "the cart re-read from the system of record: items present and each item's availability and price as the platform asserts them, no order placed, no checkout opened from it, and no clearing or expiry recorded against it",
       "hits": [
         "the",
         "from",
@@ -8054,17 +8155,13 @@
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "Is the cart still active? · Is the purchase completed? · Has checkout started? · Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+      "text": "What is the cart now? · May the first reminder go out? · Select the highest-priority channel this reminder may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
       "hits": [
+        "what",
         "the",
-        "still",
-        "has",
         "this",
-        "and",
-        "are",
-        "with",
-        "before",
-        "that"
+        "that",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -8085,20 +8182,21 @@
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "önceki temastan sonra · iptal eden olaylar the logical process reached its completion in the system of record; an authoritative checkout record opened for the person with at least one item and a resume destination",
+      "text": "önceki temastan sonra · iptal eden olaylar the logical process reached its completion in the system of record; an authoritative checkout record opened for the person with at least one item and a resume destination; every item was removed from the selection by the person, or the selection was deleted; the platform expired the logical process",
       "hits": [
         "the",
         "its",
         "for",
         "with",
-        "and"
+        "and",
+        "from"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "the cart re-read from the system of record since the first reminder: no order placed, no checkout opened from it, and each held item's availability and price as the platform now asserts them",
+      "text": "the cart re-read from the system of record since the first reminder: no order placed, no checkout opened from it, no clearing or expiry recorded against it, and each held item's availability and price as the platform now asserts them",
       "hits": [
         "the",
         "from",
@@ -8109,15 +8207,13 @@
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "Is the purchase completed? · Has checkout started? · Is this a high-value cart? · Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value cart gets a more direct channel than the first touch, not a repeat of it. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+      "text": "What is the cart now? · Is this a high-value cart? · May the high-value second reminder go out? · Select the highest-priority direct channel: WhatsApp first (a valid phone number is on file and the number is reachable on WhatsApp), otherwise SMS (a valid phone number is on file). A high-value cart gets a more direct channel than the first touch, not a repeat of it. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
       "hits": [
+        "what",
         "the",
-        "has",
         "this",
         "and",
         "not",
-        "before",
-        "with",
         "that"
       ],
       "known": true,
@@ -8138,15 +8234,13 @@
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "Is the purchase completed? · Has checkout started? · Is this a high-value cart? · Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+      "text": "What is the cart now? · Is this a high-value cart? · May the second reminder go out? · Select the highest-priority channel: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). Same priority as the first touch. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
       "hits": [
+        "what",
         "the",
-        "has",
         "this",
-        "and",
-        "before",
-        "with",
-        "that"
+        "that",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -8190,11 +8284,11 @@
     },
     {
       "route": "/tr/lab/journeys/cart-abandonment",
-      "text": "( WhatsApp, SMS ): the instance is at or above the company's configured high-value threshold and explicit permission for direct commercial messaging on a phone number is recorded",
+      "text": "( WhatsApp, SMS ): explicit permission for direct commercial messaging on a phone number is recorded and the number is reachable",
       "hits": [
-        "the",
+        "for",
         "and",
-        "for"
+        "the"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -8470,6 +8564,17 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
+      "text": "A reminder is never sent about a checkout the person cancelled or the platform expired - every wait watches for it and every re-check asks about it.",
+      "hits": [
+        "the",
+        "for",
+        "and"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/checkout-abandonment",
       "text": "A payment failure ends this journey's ownership: the instance is handed to payment failure recovery and every queued reminder is suppressed, so checkout-abandonment messaging and payment-recovery messaging never run at the same time for the same failed payment.",
       "hits": [
         "this",
@@ -8482,21 +8587,19 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
+      "text": "Permission is checked by the send-path gate before a channel is ever chosen; the router that follows it resolves only reachability - a valid token or address - and never re-decides permission.",
       "hits": [
-        "and",
-        "are",
-        "not",
         "the",
-        "with",
-        "still"
+        "before",
+        "that",
+        "and"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
+      "text": "No message goes out on a channel that failed reachability - the router skips the touch rather than forcing a channel that cannot deliver.",
       "hits": [
         "that",
         "the"
@@ -8666,6 +8769,16 @@
         "this",
         "and",
         "that"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/checkout-abandonment",
+      "text": "Exit when the checkout is cancelled by the person or expired by the platform. Nothing is sent about a checkout the person cannot return to.",
+      "hits": [
+        "when",
+        "the"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -8850,7 +8963,7 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "tetikleyiciden sonra · iptal eden olaylar the logical process reached its completion in the system of record; an authoritative provider response classifies a payment attempt as failed",
+      "text": "tetikleyiciden sonra · iptal eden olaylar the logical process reached its completion in the system of record; an authoritative provider response classifies a payment attempt as failed; the person cancelled the logical process; the platform expired the logical process",
       "hits": [
         "the",
         "its"
@@ -8860,7 +8973,7 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "the checkout re-read from the system of record: still open and resumable, no completion recorded against it, and no payment failure recorded on it",
+      "text": "the checkout re-read from the system of record: still open and resumable, no completion recorded against it, no payment failure recorded on it, and no cancellation or expiry recorded against it",
       "hits": [
         "the",
         "from",
@@ -8872,16 +8985,13 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "Is the checkout completed, and is it still this journey's to recover? · Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+      "text": "What is the checkout now? · May the first reminder go out? · Select the highest-priority channel this reminder may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
       "hits": [
+        "what",
         "the",
-        "and",
-        "still",
         "this",
-        "are",
-        "with",
-        "before",
-        "that"
+        "that",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -8903,7 +9013,7 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "önceki temastan sonra · iptal eden olaylar the logical process reached its completion in the system of record; an authoritative provider response classifies a payment attempt as failed",
+      "text": "önceki temastan sonra · iptal eden olaylar the logical process reached its completion in the system of record; an authoritative provider response classifies a payment attempt as failed; the person cancelled the logical process; the platform expired the logical process",
       "hits": [
         "the",
         "its"
@@ -8913,7 +9023,7 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "the checkout re-read from the system of record since the first reminder: no completion recorded against it, and no payment failure recorded on it",
+      "text": "the checkout re-read from the system of record since the first reminder: no completion recorded against it, no payment failure recorded on it, and no cancellation or expiry recorded against it",
       "hits": [
         "the",
         "from",
@@ -8924,15 +9034,13 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "Is the checkout completed, and is it still this journey's to recover? · Is this a high-value checkout? · Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value checkout gets a more direct channel than the first touch, not a repeat of it. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+      "text": "What is the checkout now? · Is this a high-value checkout? · May the high-value second reminder go out? · Select the highest-priority direct channel: WhatsApp first (a valid phone number is on file and the number is reachable on WhatsApp), otherwise SMS (a valid phone number is on file). A high-value checkout gets a more direct channel than the first touch, not a repeat of it. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
       "hits": [
+        "what",
         "the",
-        "and",
-        "still",
         "this",
+        "and",
         "not",
-        "before",
-        "with",
         "that"
       ],
       "known": true,
@@ -8964,15 +9072,13 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "Is the checkout completed, and is it still this journey's to recover? · Is this a high-value checkout? · Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+      "text": "What is the checkout now? · Is this a high-value checkout? · May the second reminder go out? · Select the highest-priority channel: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). Same priority as the first touch. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
       "hits": [
+        "what",
         "the",
-        "and",
-        "still",
         "this",
-        "before",
-        "with",
-        "that"
+        "that",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -9016,11 +9122,11 @@
     },
     {
       "route": "/tr/lab/journeys/checkout-abandonment",
-      "text": "( WhatsApp, SMS ): the instance is at or above the company's configured high-value threshold and explicit permission for direct commercial messaging on a phone number is recorded",
+      "text": "( WhatsApp, SMS ): explicit permission for direct commercial messaging on a phone number is recorded and the number is reachable",
       "hits": [
-        "the",
+        "for",
         "and",
-        "for"
+        "the"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -20121,6 +20227,20 @@
     },
     {
       "route": "/tr/lab/journeys/incomplete-registration",
+      "text": "ACQ-12 pursues a held selection with no process state and no expiry. The moment a process starts from it, ACQ-12 hands this journey the instance (h.process) and suppresses every selection-recovery touch it had queued; this journey then owns recovery under its own process-based rules, including the final notice ACQ-12 never sends.",
+      "hits": [
+        "with",
+        "and",
+        "the",
+        "from",
+        "this",
+        "its"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/incomplete-registration",
       "text": "Bring the person back to the specific unfinished process and let them complete it; never claim reserved stock, a held price or a discount the system does not assert.",
       "hits": [
         "the",
@@ -20606,18 +20726,6 @@
     },
     {
       "route": "/tr/lab/journeys/incomplete-registration",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the intent is minutes old and a nudge back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/incomplete-registration",
       "text": "( E-posta ): no low-friction route exists, or the touch has to carry the items and survive until the person can act",
       "hits": [
         "the",
@@ -20629,7 +20737,7 @@
     },
     {
       "route": "/tr/lab/journeys/incomplete-registration",
-      "text": "( SMS ): explicit commercial SMS permission exists and the process carries an asserted time-bound element - an expiry, a hold, a delivery cut-off",
+      "text": "( SMS ): explicit commercial SMS permission is recorded and the platform asserts the time-bound element the final notice names",
       "hits": [
         "and",
         "the"
@@ -30832,6 +30940,35 @@
     },
     {
       "route": "/tr/lab/journeys/product-view-abandonment",
+      "text": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds.",
+      "hits": [
+        "already",
+        "and",
+        "not",
+        "which",
+        "this",
+        "from",
+        "the",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/product-view-abandonment",
+      "text": "RET-293 acts on a retention signal about an existing relationship. This journey acts on inferred pre-purchase attention with no relationship yet to retain, and yields to RET-293 for the same person.",
+      "hits": [
+        "this",
+        "with",
+        "and",
+        "for",
+        "the"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/product-view-abandonment",
       "text": "Bring a person whose attention qualified as interest back to the thing they looked at, once, without asserting stock, price or intent the system does not hold; and leave alone everyone whose attention did not qualify.",
       "hits": [
         "the",
@@ -31155,18 +31292,6 @@
       "hits": [
         "the",
         "that"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/product-view-abandonment",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the attention is recent and a route back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -31553,6 +31678,20 @@
         "has",
         "the",
         "where"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/quote-abandonment",
+      "text": "ACQ-12 pursues a held selection with no process state and no expiry. The moment a process starts from it, ACQ-12 hands this journey the instance (h.process) and suppresses every selection-recovery touch it had queued; this journey then owns recovery under its own process-based rules, including the final notice ACQ-12 never sends.",
+      "hits": [
+        "with",
+        "and",
+        "the",
+        "from",
+        "this",
+        "its"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -32044,18 +32183,6 @@
     },
     {
       "route": "/tr/lab/journeys/quote-abandonment",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the intent is minutes old and a nudge back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/quote-abandonment",
       "text": "( E-posta ): no low-friction route exists, or the touch has to carry the items and survive until the person can act",
       "hits": [
         "the",
@@ -32067,7 +32194,7 @@
     },
     {
       "route": "/tr/lab/journeys/quote-abandonment",
-      "text": "( SMS ): explicit commercial SMS permission exists and the process carries an asserted time-bound element - an expiry, a hold, a delivery cut-off",
+      "text": "( SMS ): explicit commercial SMS permission is recorded and the platform asserts the time-bound element the final notice names",
       "hits": [
         "and",
         "the"
@@ -37867,6 +37994,19 @@
     },
     {
       "route": "/tr/lab/journeys/saved-item-reminder",
+      "text": "ACQ-289 alerts on a named item a person wanted while it was unavailable and could not select at all. This journey recovers a selection the person actually made and held; it never claims an interest the person has not acted on, and it stands above ACQ-289 in the commerce-recovery group whenever a held selection exists.",
+      "hits": [
+        "and",
+        "not",
+        "this",
+        "the",
+        "has"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/saved-item-reminder",
       "text": "Bring the person back to the selection as it currently stands and let them act on it; never claim reserved stock, a held price or a discount the system does not assert, and never present an item the platform says is unavailable.",
       "hits": [
         "the",
@@ -38291,18 +38431,6 @@
         "and",
         "does",
         "not"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/saved-item-reminder",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the selection is recent and a nudge back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -38738,6 +38866,35 @@
     },
     {
       "route": "/tr/lab/journeys/search-abandonment",
+      "text": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds.",
+      "hits": [
+        "already",
+        "and",
+        "not",
+        "which",
+        "this",
+        "from",
+        "the",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/search-abandonment",
+      "text": "RET-293 acts on a retention signal about an existing relationship. This journey acts on inferred pre-purchase attention with no relationship yet to retain, and yields to RET-293 for the same person.",
+      "hits": [
+        "this",
+        "with",
+        "and",
+        "for",
+        "the"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/search-abandonment",
       "text": "Bring a person whose attention qualified as interest back to the thing they looked at, once, without asserting stock, price or intent the system does not hold; and leave alone everyone whose attention did not qualify.",
       "hits": [
         "the",
@@ -39061,18 +39218,6 @@
       "hits": [
         "the",
         "that"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/search-abandonment",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the attention is recent and a route back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -41930,6 +42075,35 @@
     },
     {
       "route": "/tr/lab/journeys/unresolved-interest-recovery",
+      "text": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds.",
+      "hits": [
+        "already",
+        "and",
+        "not",
+        "which",
+        "this",
+        "from",
+        "the",
+        "for"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/unresolved-interest-recovery",
+      "text": "RET-293 acts on a retention signal about an existing relationship. This journey acts on inferred pre-purchase attention with no relationship yet to retain, and yields to RET-293 for the same person.",
+      "hits": [
+        "this",
+        "with",
+        "and",
+        "for",
+        "the"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/unresolved-interest-recovery",
       "text": "Bring a person whose attention qualified as interest back to the thing they looked at, once, without asserting stock, price or intent the system does not hold; and leave alone everyone whose attention did not qualify.",
       "hits": [
         "the",
@@ -42253,18 +42427,6 @@
       "hits": [
         "the",
         "that"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/unresolved-interest-recovery",
-      "text": "( Push, Uygulama içi ): an app session or a valid push token exists for this person - the attention is recent and a route back beats content",
-      "hits": [
-        "for",
-        "this",
-        "the",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"

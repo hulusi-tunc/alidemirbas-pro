@@ -546,6 +546,9 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
+    "a.router1": {
+      headline: "Bu bildirimin gerçekten ulaşabileceği en yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve hiçbir şey gönderme.",
+    },
     "a.alert": {
       headline: "Bu kişinin istediği ürünün yeniden satın alınabilir olduğunu söyle ve doğrudan ürüne giden yolu ver. Rezerve stok, tutulan fiyat, indirim ya da platformun uygulamadığı bir son tarih iddia etme.",
     },
@@ -1144,18 +1147,34 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       detail: "Zaman aşımı: kişiye kendi başına tamamlaması için süre tanı. (örnek: 45 dakika; ayarla: checkout_abandonment.first_check)",
     },
     "c.completed1": {
-      headline: "Satın alma tamamlandı mı?",
+      headline: "Checkout şu anda ne durumda?",
       edges: [
         { label: "Tamamlandı", detail: "bu checkout örneği için yetkili bir satın alma veya sipariş kaydı mevcut" },
-        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı yok" },
+        { label: "Ödeme başarısız", detail: "bu checkout'a karşı bir ödeme hatası kaydedildi - başarısız bir ödeme terk anlamına gelmez" },
+        { label: "İptal edildi veya süresi doldu", detail: "kişi checkout'u iptal etti ya da platform süresini doldurdu" },
+        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı, ödeme hatası veya iptal/süre dolumu yok" },
       ],
+    },
+    "c.sendable1": {
+      headline: "İlk hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, yürürlükte bir soğuma süresi olmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.record-no-action-t1": {
+      headline: "İlk hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
     },
     "x.purchased": {
       headline: "Satın Alma Tamamlandı",
       detail: "kişi için yeni bir checkout kendi örneğini açar; bu örnekle ilgili hiçbir şey yeniden açılmaz",
     },
+    "x.invalid": {
+      headline: "Tamamlanmadan Kapandı",
+      detail: "iptal edildi ya da süresi doldu; başka hiçbir şey gönderilmez - yeni bir checkout kendi örneğini açar",
+    },
     "a.router1": {
-      headline: "En uygun kullanılabilir kanalı seç: önce push (iletişim izni verilmiş ve geçerli, güncel bir push token kayıtlı), olmuyorsa e-posta (iletişim izni verilmiş ve geçerli, ulaşılabilir bir e-posta adresi kayıtlı). İzin ve ulaşılabilirlik iki ayrı kontroldür ve ikisi de sağlanmalıdır - izin verilmiş ama geçerli bir token ya da adres yoksa kanal yine de kullanılamaz. Hiçbir kanal iki kontrolü de geçemezse hiçbir kanal kullanılamadığı kaydedilir ve mesaj gönderilmeden doğrudan sonraki bekleme adımına geçilir.",
+      headline: "Bu hatırlatmanın gerçekten ulaşabileceği en yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
     "a.reminder1": {
       headline: "Az önce seçilen kanal üzerinden ilk checkout hatırlatmasını gönder; kişiyi başladığı checkout'a, o anki durumuyla geri yönlendir.",
@@ -1165,10 +1184,12 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       detail: "Zaman aşımı: ilk hatırlatmanın gerçekten işe yarayıp yaramadığını görmek için yeterli süre tanı, ikinci ve daha doğrudan bir temasın gerekip gerekmediğine ondan sonra karar ver. (örnek: 6 saat; ayarla: checkout_abandonment.second_check)",
     },
     "c.completed2": {
-      headline: "Satın alma tamamlandı mı?",
+      headline: "Checkout şu anda ne durumda?",
       edges: [
         { label: "Tamamlandı", detail: "bu checkout örneği için yetkili bir satın alma veya sipariş kaydı mevcut" },
-        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı yok" },
+        { label: "Ödeme başarısız", detail: "bu checkout'a karşı bir ödeme hatası kaydedildi - başarısız bir ödeme terk anlamına gelmez" },
+        { label: "İptal edildi veya süresi doldu", detail: "kişi checkout'u iptal etti ya da platform süresini doldurdu" },
+        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı, ödeme hatası veya iptal/süre dolumu yok" },
       ],
     },
     "c.highvalue": {
@@ -1178,11 +1199,28 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
         { label: "Standart", detail: "checkout değeri yapılandırılan eşiğin altındadır" },
       ],
     },
+    "c.sendable2-hv": {
+      headline: "Yüksek değerli ikinci hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, yürürlükte bir soğuma süresi olmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "c.sendable2-std": {
+      headline: "İkinci hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, yürürlükte bir soğuma süresi olmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.record-no-action-t2": {
+      headline: "İkinci hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+    },
     "a.router2-hv": {
-      headline: "En öncelikli doğrudan kanalı seç: önce WhatsApp (iletişim izni verilmiş, geçerli bir telefon numarası kayıtlı ve numara WhatsApp üzerinden ulaşılabilir), olmuyorsa SMS (iletişim izni verilmiş ve geçerli bir telefon numarası kayıtlı). Yüksek değerli bir checkout ilk temasın bir tekrarını değil, daha doğrudan bir kanal alır. Hiçbiri iki kontrolü de geçemezse hiçbir kanal kullanılamadığı kaydedilir ve mesaj gönderilmeden doğrudan sonraki bekleme adımına geçilir.",
+      headline: "En öncelikli doğrudan kanalı seç: önce WhatsApp (geçerli bir telefon numarası kayıtlıysa ve numara WhatsApp üzerinden ulaşılabilirse), yoksa SMS (geçerli bir telefon numarası kayıtlıysa). Yüksek değerli bir checkout, ilk temasın bir tekrarını değil, daha doğrudan bir kanal alır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
     "a.router2-std": {
-      headline: "En uygun kullanılabilir kanalı seç: önce push (iletişim izni verilmiş ve geçerli, güncel bir push token kayıtlı), olmuyorsa e-posta (iletişim izni verilmiş ve geçerli, ulaşılabilir bir e-posta adresi kayıtlı). Öncelik sırası ilk temasla aynıdır. Hiçbiri iki kontrolü de geçemezse hiçbir kanal kullanılamadığı kaydedilir ve mesaj gönderilmeden doğrudan sonraki bekleme adımına geçilir.",
+      headline: "En yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Öncelik sırası ilk temasla aynıdır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
     "a.reminder2-hv": {
       headline: "Az önce seçilen kanal üzerinden ikinci checkout hatırlatmasını gönder; yüksek değerli bir checkout'un gerektirdiği daha doğrudan üslubu kullan.",
@@ -1195,10 +1233,12 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       detail: "Zaman aşımı: son hatırlatmaya tam bir gün tanı; bu sürenin sonunda checkout tamamlanmadıysa tamamlanmamış sayılır. (örnek: 24 saat; ayarla: checkout_abandonment.final_check)",
     },
     "c.completed3": {
-      headline: "Satın alma tamamlandı mı?",
+      headline: "Kademenin sonunda checkout ne durumda?",
       edges: [
         { label: "Tamamlandı", detail: "bu checkout örneği için yetkili bir satın alma veya sipariş kaydı mevcut" },
-        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı yok" },
+        { label: "Ödeme başarısız", detail: "bu checkout'a karşı bir ödeme hatası kaydedildi - başarısız bir ödeme terk anlamına gelmez" },
+        { label: "İptal edildi veya süresi doldu", detail: "kişi checkout'u iptal etti ya da platform süresini doldurdu" },
+        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı, ödeme hatası veya iptal/süre dolumu yok" },
       ],
     },
     "x.abandoned": {
@@ -1214,52 +1254,45 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   nodes: {
     "t.added": { headline: "Sepete ürün eklendi" },
     "w.first": {
-      headline: "sepet boşalana, satın alma tamamlanana veya checkout başlayana kadar",
+      headline: "satın alma tamamlanana, checkout başlayana, sepet boşalana veya süresi dolana kadar",
       detail: "Zaman aşımı: kişiye sepete kendi başına dönmesi için süre tanı. (örnek: 2 saat; ayarla: cart_abandonment.first_check)",
     },
-    "c.active1": {
-      headline: "Sepet hâlâ aktif mi?",
+    "c.state1": {
+      headline: "Sepet şu anda ne durumda?",
       edges: [
-        { label: "Aktif", detail: "sepet, platformun hâlâ kullanılabilir saydığı en az bir ürünü tutuyor ve silinmemiş" },
+        { label: "Satın alındı", detail: "bu sepetten en az bir ürünü içeren yetkili bir satın alma veya sipariş kaydı mevcut" },
+        { label: "Checkout başladı", detail: "bu sepetten yetkili bir checkout kaydı açıldı" },
         { label: "Boşaldı veya süresi doldu", detail: "kişi tüm ürünleri kaldırdı, sepeti sildi veya sepetin tutma ya da oturum süresi doldu" },
+        { label: "Hâlâ duruyor", detail: "sepet, platformun hâlâ kullanılabilir saydığı en az bir ürünü tutuyor, hiçbir sipariş kaydedilmedi ve hiçbir checkout açılmadı" },
       ],
     },
-    "c.purchased1": {
-      headline: "Satın alma tamamlandı mı?",
+    "c.sendable1": {
+      headline: "İlk hatırlatma gönderilebilir mi?",
       edges: [
-        { label: "Tamamlandı", detail: "bu sepetten en az bir ürünü içeren yetkili bir satın alma veya sipariş kaydı mevcut" },
-        { label: "Tamamlanmadı", detail: "bu sepet için hiçbir tamamlanma kaydı yok" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir soğuma süresi olmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
-    "c.checkout1": {
-      headline: "Ödeme süreci (checkout) başladı mı?",
-      edges: [
-        { label: "Başladı", detail: "bu sepetten yetkili bir checkout kaydı açıldı" },
-        { label: "Başlamadı", detail: "bu sepetten henüz bir checkout açılmadı" },
-      ],
+    "a.record-no-action-t1": {
+      headline: "İlk hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
     },
     "a.router1": {
-      headline: "En uygun kullanılabilir kanalı seç: önce push (iletişim izni verilmiş ve geçerli, güncel bir push token kayıtlı), olmuyorsa e-posta (iletişim izni verilmiş ve geçerli, ulaşılabilir bir e-posta adresi kayıtlı). İzin ve ulaşılabilirlik iki ayrı kontroldür ve ikisi de sağlanmalıdır - izin verilmiş ama geçerli bir token ya da adres yoksa kanal yine de kullanılamaz. Hiçbir kanal iki kontrolü de geçemezse hiçbir kanal kullanılamadığı kaydedilir ve mesaj gönderilmeden doğrudan sonraki bekleme adımına geçilir.",
+      headline: "Bu hatırlatmanın gerçekten ulaşabileceği en yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
     "a.reminder1": {
       headline: "Az önce seçilen kanal üzerinden ilk sepet hatırlatmasını gönder; sepeti şu anki hâliyle - platformun hâlâ kullanılabilir saydığı ürünleri ve güncel fiyatlarını - göster ve sepete dönüş bağlantısını ekle. Sistemin doğrulamadığı hiçbir şey iddia edilmez: rezerve stok, tutulan fiyat, indirim veya son tarih yok.",
     },
     "w.second": {
-      headline: "satın alma tamamlanana veya checkout başlayana kadar",
+      headline: "satın alma tamamlanana, checkout başlayana, sepet boşalana veya süresi dolana kadar",
       detail: "Zaman aşımı: ilk hatırlatmanın gerçekten işe yarayıp yaramadığını görmek için yeterli süre tanı, ikinci ve daha doğrudan bir temasın gerekip gerekmediğine ondan sonra karar ver. (örnek: 20–24 saat; ayarla: cart_abandonment.second_check)",
     },
-    "c.purchased2": {
-      headline: "Satın alma tamamlandı mı?",
+    "c.state2": {
+      headline: "Sepet şu anda ne durumda?",
       edges: [
-        { label: "Tamamlandı", detail: "bu sepetten en az bir ürünü içeren yetkili bir satın alma veya sipariş kaydı mevcut" },
-        { label: "Tamamlanmadı", detail: "bu sepet için hiçbir tamamlanma kaydı yok" },
-      ],
-    },
-    "c.checkout2": {
-      headline: "Ödeme süreci (checkout) başladı mı?",
-      edges: [
-        { label: "Başladı", detail: "bu sepetten yetkili bir checkout kaydı açıldı" },
-        { label: "Başlamadı", detail: "bu sepetten henüz bir checkout açılmadı" },
+        { label: "Satın alındı", detail: "bu sepetten en az bir ürünü içeren yetkili bir satın alma veya sipariş kaydı mevcut" },
+        { label: "Checkout başladı", detail: "bu sepetten yetkili bir checkout kaydı açıldı" },
+        { label: "Boşaldı veya süresi doldu", detail: "kişi tüm ürünleri kaldırdı, sepeti sildi veya sepetin tutma ya da oturum süresi doldu" },
+        { label: "Hâlâ duruyor", detail: "sepet, platformun hâlâ kullanılabilir saydığı en az bir ürünü tutuyor, hiçbir sipariş kaydedilmedi ve hiçbir checkout açılmadı" },
       ],
     },
     "c.highvalue": {
@@ -1269,34 +1302,45 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
         { label: "Standart", detail: "sepetin değeri yapılandırılan eşiğin altındadır" },
       ],
     },
+    "c.sendable2-hv": {
+      headline: "Yüksek değerli ikinci hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir soğuma süresi olmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "c.sendable2-std": {
+      headline: "İkinci hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir soğuma süresi olmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.record-no-action-t2": {
+      headline: "İkinci hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+    },
     "a.router2-hv": {
-      headline: "En öncelikli doğrudan kanalı seç: önce WhatsApp (iletişim izni verilmiş, geçerli bir telefon numarası kayıtlı ve numara WhatsApp üzerinden ulaşılabilir), olmuyorsa SMS (iletişim izni verilmiş ve geçerli bir telefon numarası kayıtlı). Yüksek değerli bir sepet ilk temasın bir tekrarını değil, daha doğrudan bir kanal alır. Hiçbiri iki kontrolü de geçemezse hiçbir kanal kullanılamadığı kaydedilir ve mesaj gönderilmeden doğrudan sonraki bekleme adımına geçilir.",
+      headline: "En öncelikli doğrudan kanalı seç: önce WhatsApp (geçerli bir telefon numarası kayıtlıysa ve numara WhatsApp üzerinden ulaşılabilirse), yoksa SMS (geçerli bir telefon numarası kayıtlıysa). Yüksek değerli bir sepet, ilk temasın bir tekrarını değil, daha doğrudan bir kanal alır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
     "a.reminder2-hv": {
       headline: "Az önce seçilen kanal üzerinden ikinci sepet hatırlatmasını gönder; yüksek değerli bir sepetin gerektirdiği daha doğrudan üslubu kullan ve sepeti şu anki hâliyle göster.",
     },
     "a.router2-std": {
-      headline: "En uygun kullanılabilir kanalı seç: önce push (iletişim izni verilmiş ve geçerli, güncel bir push token kayıtlı), olmuyorsa e-posta (iletişim izni verilmiş ve geçerli, ulaşılabilir bir e-posta adresi kayıtlı). Öncelik sırası ilk temasla aynıdır. Hiçbiri iki kontrolü de geçemezse hiçbir kanal kullanılamadığı kaydedilir ve mesaj gönderilmeden doğrudan sonraki bekleme adımına geçilir.",
+      headline: "En yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Öncelik sırası ilk temasla aynıdır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
     "a.reminder2-std": {
       headline: "Az önce seçilen kanal üzerinden ikinci sepet hatırlatmasını gönder; sepeti şu anki hâliyle - platformun hâlâ kullanılabilir saydığı ürünleri ve güncel fiyatlarını - göster ve sepete dönüş bağlantısını ekle.",
     },
     "w.third": {
-      headline: "satın alma tamamlanana veya sepet boşalana kadar",
+      headline: "satın alma tamamlanana, sepet boşalana veya süresi dolana kadar",
       detail: "Zaman aşımı: son hatırlatmaya iki tam gün tanı; bu sürenin sonunda satın alma tamamlanmadıysa sepet terk edilmiş sayılır. (örnek: 48 saat; ayarla: cart_abandonment.final_check)",
     },
-    "c.purchased3": {
-      headline: "Satın alma tamamlandı mı?",
+    "c.state3": {
+      headline: "Kademenin sonunda sepet ne durumda?",
       edges: [
-        { label: "Tamamlandı", detail: "bu sepetten en az bir ürünü içeren yetkili bir satın alma veya sipariş kaydı mevcut" },
-        { label: "Tamamlanmadı", detail: "bu sepet için hiçbir tamamlanma kaydı yok" },
-      ],
-    },
-    "c.active2": {
-      headline: "Sepet hâlâ aktif mi?",
-      edges: [
-        { label: "Aktif", detail: "sepet, platformun hâlâ kullanılabilir saydığı en az bir ürünü tutuyor ve silinmemiş" },
+        { label: "Satın alındı", detail: "bu sepetten en az bir ürünü içeren yetkili bir satın alma veya sipariş kaydı mevcut" },
         { label: "Boşaldı veya süresi doldu", detail: "kişi tüm ürünleri kaldırdı, sepeti sildi veya sepetin tutma ya da oturum süresi doldu" },
+        { label: "Hâlâ duruyor", detail: "sepet, platformun hâlâ kullanılabilir saydığı en az bir ürünü tutuyor; başka hiçbir şey gönderilmez" },
       ],
     },
     "x.purchased": {
@@ -1620,6 +1664,13 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.record-no-action": { headline: "Temasın hangi süreç için hangi engel tarafından durdurulduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülmüş bir sonuç olur" },
     "w.second": { headline: "kimliği doğrulanmış bir oturum aynı mantıksal sürece geri dönene kadar, ya da mantıksal süreç sistem kaydında tamamlanana kadar, ya da kişi mantıksal süreci iptal edene kadar, ya da platform mantıksal sürecin süresini doldurana kadar, ya da süreçteki tüm ürünler kaldırılana kadar, ya da yetkili bir sağlayıcı yanıtı bir ödeme denemesini başarısız olarak sınıflandırana kadar", detail: "İkinci kontrol, kişinin ilk temasa kendi zamanında tepki verme fırsatı bulmasından sonra, ama süreç sürdürülebilir olmaktan çıkmadan önce yapılır. (örnek: 20–28 saat; recovery.second_check ayarlanmalı)" },
     "c.state2": { headline: "Süreç şu anda ne durumda ve kişi geri döndü mü?", edges: [{ label: "Tamamlandı", detail: "sürece karşı bir sipariş veya tamamlanma kaydedildi" }, { label: "İptal edildi, süresi doldu veya boşaltıldı", detail: "sürece artık geri dönülemez" }, { label: "Yerine yenisi geçti", detail: "aynı kişi için daha yeni bir mantıksal süreç var ve yerine geçme kuralı geçerli" }, { label: "Ödeme başarısız", detail: "bu sürece karşı bir ödeme hatası kaydedildi" }, { label: "Geri dönüldü, hâlâ açık", detail: "ilk temastan bu yana kimliği doğrulanmış bir oturum sürece dokundu ve süreç hâlâ açık - kişi unutmuyor, karar veriyor" }, { label: "Hâlâ açık, geri dönülmedi", detail: "süreç açık ve ilk temastan bu yana hiç dokunulmadı" }] },
+    "c.resume-budget": {
+      headline: "Geri dönüş erteleme bütçesi hâlâ mevcut mu?",
+      edges: [
+        { label: "Bütçe mevcut", detail: "bu örneğe karşı, recovery.resume_rearms'ın izin verdiğinden daha az sayıda geri dönüş ertelemesi kullanılmış" },
+        { label: "Bütçe tükendi", detail: "örnek açıldığında belirlenen geri dönüş erteleme bütçesi zaten kullanılmış - ikinci temas bir geri dönüş için bir kez ertelenir, sonsuza kadar değil" },
+      ],
+    },
     "a.note-return": { headline: "Geri dönüşü kaydet ve yeni son etkinlikten itibaren bir bekleme süresini daha başlat. Geri dönüp yeniden ayrılan bir kişi karar veriyordur; ikinci temas bir kez ertelenir, ne atlanır ne de hızlandırılır" },
     "c.sendable2": { headline: "İkinci temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli ve temas bütçesi tükenmedi" }, { label: "Baskılandı", detail: "bir engel bunu durduruyor; engel kaydedilir" }] },
     "w.resumed": { headline: "mantıksal süreç sistem kaydında tamamlanana kadar, ya da kişi mantıksal süreci iptal edene kadar, ya da platform mantıksal sürecin süresini doldurana kadar, ya da süreçteki tüm ürünler kaldırılana kadar, ya da yetkili bir sağlayıcı yanıtı bir ödeme denemesini başarısız olarak sınıflandırana kadar", detail: "Bir geri dönüşten sonra, aynı ilk kontrol aralığı yeni son etkinlikten itibaren tekrar işler. (örnek: 30–60 dakika; recovery.first_check ayarlanmalı)" },
@@ -1647,6 +1698,13 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.converted": { headline: "dönüştü; seçili bir ürünü içeren bir sipariş kaydedildi", detail: "yeni bir seçim yeni bir örnektir; bu örnek dönüşüm gerçekleşmiş olarak kapatılır" },
     "x.invalid": { headline: "kişi tarafından temizlendi; başka hiçbir şey gönderilmez", detail: "yeni bir seçim yeni bir örnektir" },
     "h.process": { headline: "Süreç başladı → terk onaylandı → kurtarıldı, yerini yenisi aldı veya sona erdi", detail: "seçimden başlatılan bir süreç - o andan itibaren kurtarmayı süreç yürütür" },
+    "c.rearm-budget": {
+      headline: "Yeniden başlatma bütçesi hâlâ mevcut mu?",
+      edges: [
+        { label: "Bütçe mevcut", detail: "bu örneğe karşı, selection.rearm_limit'in izin verdiğinden daha az sayıda yeniden başlatma kullanılmış" },
+        { label: "Bütçe tükendi", detail: "örnek açıldığında belirlenen yeniden başlatma bütçesi zaten kullanılmış - hâlâ tuttuğu bir seçimi değiştirmeye devam eden bir kişi hâlâ karar veriyordur, ama bekleme sonsuza kadar yeniden başlatılmaz" },
+      ],
+    },
     "a.rearm": { headline: "Değişikliği kaydet ve ilk beklemeyi, sınırlı sayıda olmak üzere, yeni son etkinlikten itibaren yeniden başlat. Seçimini hâlâ düzenleyen bir kişi unutmuyor, karar veriyordur" },
     "c.availability": { headline: "Bunlardan herhangi biri hâlâ işleme alınabilir mi?", edges: [{ label: "En az bir ürün mevcut", detail: "platform, seçili ürünlerden en az birinin mevcut olduğunu belirtiyor" }, { label: "Hiçbiri mevcut değil", detail: "platform, seçili ürünlerin tamamının mevcut olmadığını belirtiyor" }] },
     "c.sendable": { headline: "İlk temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon baskı sınırı aşılmadı, kişi üzerinde daha yüksek öncelikli bir çakışma yok ve yürürlükte bir soğuma süresi yok" }, { label: "Baskılandı", detail: "bir engel bunu durduruyor; engel neden olarak kaydedilir" }] },
@@ -1688,7 +1746,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   purpose: "Belirtilen bir ilgiyi, o ilginin gerçekte talep ettiği şeyle yanıtlamak ve kişinin kendisi hakkında söylediklerinin haklı kıldığı noktaya kadar ilerletmek.",
   nodes: {
     "t.captured": { headline: "Birinci taraf ilgi sinyali yakalandı" },
-    "c.email-route": { headline: "Sağladıkları hedef bunun için gerçekten kullanılabilir mi?", edges: [{ label: "Kullanılabilir", detail: "sağlanan hedef geçerli, ulaşılabilir ve talep edileni karşılamak için izinli" }, { label: "Kullanılamaz", detail: "geçerli, ulaşılabilir bir hedef sağlanmadı ya da bu karşılama için izinli değil" }] },
+    "c.contactable": { headline: "Sağladıkları hedef bunun için gerçekten kullanılabilir mi?", edges: [{ label: "Kullanılabilir", detail: "sağlanan hedef geçerli, ulaşılabilir ve talep edileni karşılamak için izinli" }, { label: "Kullanılamaz", detail: "geçerli, ulaşılabilir bir hedef sağlanmadı ya da bu karşılama için izinli değil" }] },
     "c.declared": { headline: "Kişi gerçekte ne belirtti?", edges: [{ label: "Bir kişi talep etti", detail: "yakalama, yalnızca bir kişinin yanıtlayabileceği bir talep içeriyor - bir görüşme, kendi durumuna özel bir fiyat, bir değerlendirme" }, { label: "İçerik talep etti", detail: "yakalama bir belge, erişim veya bildirim talep ediyor ve bir kişi tarafından yürütülecek bir talep belirtmiyor" }] },
     "c.declared-no-route": { headline: "Kendilerine ulaşamadığımıza göre ne talep ettiler?", edges: [{ label: "Bir kişi talep etti", detail: "talep içerik için değil, iletişim içindi" }, { label: "İçerik talep etti", detail: "talep, göndermiş olacağımız bir şey içindi ama gönderilecek bir yer yok" }] },
     "a.first-touch": { headline: "Talep ettiklerini gönder ve bir kişinin ne zaman geri döneceğini belirterek takip edeceğini söyle. Zamanı belirtilmeyen bir takip vaadi, bir yanıt değil bir sıra gibi algılanır ve kişi başka bir yerde yeniden başlar" },
@@ -1696,11 +1754,20 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "h.person": { headline: "external:sales-assignment", detail: "belirtilen talebi yalnızca bir kişinin yanıtlayabileceği, yakalanmış bir ilgi" },
     "x.no-delivery-route": { headline: "yakalandı ama ulaştırılabilecek hiçbir şey yok; talep karşılanmadı", detail: "daha sonra sağlanacak geçerli ve izinli bir hedef, aynı talebi karşılanabilir hale getirir" },
     "c.permission": { headline: "Karşılamanın ötesine geçmek için izin var mı?", edges: [{ label: "İzinli", detail: "sürekli iletişimi kapsayan bir izin, yakalama sırasında verildi ve kendi başına bir gerçek olarak kaydedildi" }, { label: "Yalnızca karşılama", detail: "talep edilen tek teslimatın ötesinde hiçbir şeye izin verilmedi" }] },
-    "a.nurture": { headline: "Belirttikleri konuda sınırlı bir dizi başlat ve başlarken nerede biteceğini belirt. Sonu belirtilmeyen bir dizi, kimsenin kabul etmediği bir abonelik gibidir ve öyle hatırlanır" },
     "x.delivered": { headline: "karşılandı, sürekli iletişime izin verilmedi", detail: "izin taşıyan daha sonraki bir yakalama, sınırlı yolu açar" },
-    "w.nurture": { headline: "kişi nereye gittiğini belirten bir şey yapana kadar - yanıt verme, görüşme talebi, satın alma - ya da kişi bu iletişimin dayandığı izni geri çekene kadar", detail: "Sınırlı dizinin belirtilen süresi doluyor. (captured_interest.nurture ayarlanmalı)" },
-    "c.progressed": { headline: "Diziyi ne sonlandırdı?", edges: [{ label: "Hazır olduğunu belirtti", detail: "kişi, artık hazır olduğu bir hedefi belirten bir şey yaptı" }, { label: "Durduruldu", detail: "kişi izni geri çekti ya da durdurulmasını istedi" }] },
-    "x.sunset": { headline: "dizi sona erdi, hedef belirtilmedi", detail: "aynı kişiden gelecek daha sonraki bir yakalama, kendi hedefiyle kendi örneğini oluşturur" },
+    "w.follow-up": { headline: "kişi nereye gittiğini belirten bir şey yapana kadar - bir yanıt, bir görüşme talebi, bir satın alma - ya da bu iletişimin dayandığı izni geri çekene kadar", detail: "Zaman aşımı: karşılamanın ötesine geçmeden önce, kişiye kendi başına bir hedef belirtmesi için zaman tanınır. (welcome.follow_up ayarlanmalı)" },
+    "c.still-open": {
+      headline: "Bu hâlâ hiçbir şey belirtmemiş bir müşteri adayı mı?",
+      edges: [
+        { label: "Hazır olduğunu belirtti", detail: "kişi karşılamadan bu yana, artık hazır olduğu bir hedefi belirten bir şey yaptı" },
+        { label: "İzin geri çekildi", detail: "yakalama sırasında kaydedilen izin artık sürekli iletişimi kapsamıyor" },
+        { label: "Hâlâ açık", detail: "hiçbir hedef belirtilmedi, yakalama sırasında kaydedilen izin hâlâ geçerli ve iletişim hedefi hâlâ ulaşılabilir" },
+      ],
+    },
+    "a.follow-up": { headline: "Belirttikleri konuda tek bir ek mesaj gönder; bunun karşılamanın sonuncusu olduğunu ve bundan sonra ne olacağını açıkça belirt. Sonu belirtilmeyen bir dizi, kimsenin kabul etmediği bir abonelik gibidir ve öyle hatırlanır" },
+    "w.window": { headline: "kişi nereye gittiğini belirten bir şey yapana kadar - bir yanıt, bir görüşme talebi, bir satın alma - ya da bu iletişimin dayandığı izni geri çekene kadar", detail: "Zaman aşımı: sınırlı karşılamanın belirtilen süresi doluyor. (welcome.window ayarlanmalı)" },
+    "c.progressed": { headline: "Bekleyişi ne sonlandırdı?", edges: [{ label: "Hazır olduğunu belirtti", detail: "kişi, artık hazır olduğu bir hedefi belirten bir şey yaptı" }, { label: "Durduruldu", detail: "kişi izni geri çekti ya da durdurulmasını istedi" }] },
+    "x.sunset": { headline: "karşılama sona erdi, hedef belirtilmedi", detail: "aynı kişiden gelecek daha sonraki bir yakalama, kendi hedefiyle kendi örneğini oluşturur" },
     "x.stopped": { headline: "kişinin talebi üzerine durduruldu", detail: "kendi izniyle gelecek daha sonraki bir yakalama yeni bir örnektir; bu örnek asla sürdürülmez" },
   },
   },

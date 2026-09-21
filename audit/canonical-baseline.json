@@ -1,11 +1,11 @@
 {
   "ACQ-11": {
-    "hash": "sha256:200d07e39830497bc0361c205cf48ee06f16225f5d0f393b9b11a1039a8c7012",
+    "hash": "sha256:0e27f6d3edafe897948bb1c268b00f7de7269e36b50c5db324119c29636d5775",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
   "ACQ-12": {
-    "hash": "sha256:f66e6a1a63561c3a599477423799117371cac579339c79617256e1e5b8744735",
+    "hash": "sha256:90f864972f66ab53456720553f8d60ad58eecd0c9b0d5d3c1f0a91d71de5fe82",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -40,12 +40,12 @@
     "schema_version": "vNext-2026-09"
   },
   "ACQ-289": {
-    "hash": "sha256:b0746da09596936c95b7ebbcb54e5078868b1cb6ce46cfbff9239c29ba940fe0",
+    "hash": "sha256:b25cbed61d6a0fa2c74a495a2bb3fd77b420c89356010a335aa0ce1c9b997080",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
   "ACQ-09": {
-    "hash": "sha256:020de65e778bca61332ede719f5917360e1df17fcf4476d21c435e6811dd75b7",
+    "hash": "sha256:d636b50f21399aebda312fbf85d9fc8542af823fbf77c3ce6f19c824d5ea653a",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -60,17 +60,17 @@
     "schema_version": "vNext-2026-09"
   },
   "ACQ-285": {
-    "hash": "sha256:bdba0232b353b6016d46f02d7d9490736b6a2a4475022ecbd60063daab27b439",
+    "hash": "sha256:0867a7c3f997d04e39d332537ea6ffc2963a4bb7e270eb1266c3128b19144dc3",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
   "ACQ-288": {
-    "hash": "sha256:f27043469a382a8b469b186d993d4288f7a704765bf3de6e0fcce3df2d663503",
+    "hash": "sha256:2bf9ea39ba4e86ea94ff1081a92752bc4a9eda48996d1d442086dd2621c1ca0b",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
   "ACQ-287": {
-    "hash": "sha256:2d81bcfb0429eae14c02584974637ad44e91f2150291a2c575b3c0bf8d0e0451",
+    "hash": "sha256:8d03b24c5042352e370a9344739bde52b7f72144047f932ae69d276d275f1dfc",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -325,7 +325,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACQ-13": {
-    "hash": "sha256:9cde7543ca73dc0ad6a6832d23cf0a5c13b40bb1a3e602c0f1bfcae43d12035f",
+    "hash": "sha256:8e9ac710eb58aec096cc837f30c6583840821db7fc8053604d09c3843dd058b9",
     "source": "src/canonical/acquisition.ts",
     "schema_version": "vNext-2026-09"
   },

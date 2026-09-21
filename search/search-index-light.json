@@ -11316,6 +11316,10 @@
         {
           "targetId": "journey:ACQ-287",
           "because": "ACQ-287 is this pattern specialised to one process - a checkout - with a stated channel priority per touch and a high-value branch, none of which is true for every resumable process this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the process is a checkout it holds the instance and this one is suppressed for it."
+        },
+        {
+          "targetId": "journey:ACQ-12",
+          "because": "ACQ-12 pursues a held selection with no process state and no expiry. The moment a process starts from it, ACQ-12 hands this journey the instance (h.process) and suppresses every selection-recovery touch it had queued; this journey then owns recovery under its own process-based rules, including the final notice ACQ-12 never sends."
         }
       ]
     }
@@ -11392,6 +11396,10 @@
         {
           "targetId": "journey:ACQ-288",
           "because": "ACQ-288 is this pattern specialised to one kind of selection - a cart - with a stated channel priority per touch, a high-value branch and a handoff into checkout recovery, none of which is true for every held selection this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the selection is a cart it holds the instance and this one is suppressed for it."
+        },
+        {
+          "targetId": "journey:ACQ-289",
+          "because": "ACQ-289 alerts on a named item a person wanted while it was unavailable and could not select at all. This journey recovers a selection the person actually made and held; it never claims an interest the person has not acted on, and it stands above ACQ-289 in the commerce-recovery group whenever a held selection exists."
         }
       ]
     }
@@ -11465,6 +11473,14 @@
         {
           "targetId": "journey:SCH-282",
           "because": "SCH-282 follows an availability enquiry with restorable state. A search here holds nothing; it is attention, not an enquiry."
+        },
+        {
+          "targetId": "journey:ACQ-289",
+          "because": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds."
+        },
+        {
+          "targetId": "journey:RET-293",
+          "because": "RET-293 acts on a retention signal about an existing relationship. This journey acts on inferred pre-purchase attention with no relationship yet to retain, and yields to RET-293 for the same person."
         }
       ]
     }
@@ -11526,6 +11542,10 @@
         {
           "targetId": "journey:ACQ-09",
           "because": "ACQ-09 is the same bounded education on the same declared subject, and one form fill satisfies both triggers. This journey owns the initial contact window the capture earned; ACQ-09 is ineligible while that window is open and may start only once it has closed."
+        },
+        {
+          "targetId": "journey:RET-290",
+          "because": "RET-290 marks the moment a captured lead becomes a paying customer and owns the relationship from the first purchase onward. This journey ends once fulfilment or the welcome closes, well before any purchase exists, and never speaks to someone RET-290 already owns."
         }
       ]
     }
@@ -11656,6 +11676,10 @@
         {
           "targetId": "journey:ACQ-287",
           "because": "ACQ-287 recovers a checkout that has already started; this journey recovers a cart before checkout starts. The two never run in parallel on the same person - this journey hands off to ACQ-287 the moment checkout starts, and every queued cart reminder is suppressed from that point."
+        },
+        {
+          "targetId": "journey:RET-294",
+          "because": "RET-294 prompts a predicted repurchase from the person's own history, with nothing currently in a cart. This journey recovers a cart the person actually built and left; where a cart is present it outranks a predicted need for the same person."
         }
       ]
     }
@@ -11720,6 +11744,10 @@
         {
           "targetId": "journey:RET-31",
           "because": "RET-31 prompts a purchase the person's own history says is due. This prompts one they already showed they wanted and were unable to make."
+        },
+        {
+          "targetId": "journey:SCH-282",
+          "because": "SCH-282 follows an availability enquiry for a stated window with restorable state the person opened. This journey acts on an interest recorded while the item was unavailable, with no enquiry window to restore - the wait is on the item becoming available again, not on state the person set."
         }
       ]
     }

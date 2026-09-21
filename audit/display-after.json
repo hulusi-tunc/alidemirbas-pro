@@ -4,10 +4,10 @@
     "slug": "abandoned-process-recovery",
     "locales": {
       "en": {
-        "display_nodes": 19,
-        "distinct_canonical_nodes": 19,
+        "display_nodes": 20,
+        "distinct_canonical_nodes": 20,
         "terminal_instances": 0,
-        "edges": 56,
+        "edges": 60,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -31,15 +31,15 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 19,
-        "distinct_canonical_nodes": 19,
+        "display_nodes": 20,
+        "distinct_canonical_nodes": 20,
         "terminal_instances": 0,
-        "edges": 56,
+        "edges": 60,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.touch2",
-            "len": 152
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -77,21 +77,12 @@
     "slug": "abandoned-selection-recovery",
     "locales": {
       "en": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 39,
+        "edges": 43,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.touch1",
-            "len": 121
-          },
-          {
-            "id": "a.touch2",
-            "len": 112
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "At least one item available",
@@ -101,19 +92,19 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 39,
+        "edges": 43,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.touch1",
-            "len": 139
+            "len": 121
           },
           {
             "id": "a.touch2",
-            "len": 153
+            "len": 135
           }
         ],
         "long_branch_labels": [],
@@ -496,7 +487,7 @@
         "long_cards": [
           {
             "id": "a.alert",
-            "len": 155
+            "len": 139
           }
         ],
         "long_branch_labels": [],
@@ -511,7 +502,7 @@
         "long_cards": [
           {
             "id": "a.alert",
-            "len": 154
+            "len": 153
           }
         ],
         "long_branch_labels": [],
@@ -532,7 +523,7 @@
         "long_cards": [
           {
             "id": "a.educate2",
-            "len": 134
+            "len": 127
           }
         ],
         "long_branch_labels": [],
@@ -546,12 +537,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.educate",
-            "len": 113
-          },
-          {
             "id": "a.educate2",
-            "len": 135
+            "len": 137
           }
         ],
         "long_branch_labels": [],
@@ -648,10 +635,10 @@
     "slug": "captured-interest-first-touch",
     "locales": {
       "en": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 17,
+        "distinct_canonical_nodes": 17,
         "terminal_instances": 0,
-        "edges": 28,
+        "edges": 38,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -663,10 +650,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 15,
-        "distinct_canonical_nodes": 15,
+        "display_nodes": 17,
+        "distinct_canonical_nodes": 17,
         "terminal_instances": 0,
-        "edges": 28,
+        "edges": 38,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -688,10 +675,10 @@
     "slug": "cart-abandonment",
     "locales": {
       "en": {
-        "display_nodes": 16,
-        "distinct_canonical_nodes": 16,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 36,
+        "edges": 46,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -711,10 +698,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 16,
-        "distinct_canonical_nodes": 16,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 36,
+        "edges": 46,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -734,6 +721,10 @@
           {
             "label": "Boşaldı veya süresi doldu",
             "len": 25
+          },
+          {
+            "label": "Boşaldı veya süresi doldu",
+            "len": 25
           }
         ],
         "locale_leaks": []
@@ -745,20 +736,20 @@
     "slug": "checkout-abandonment",
     "locales": {
       "en": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 48,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 19,
+        "distinct_canonical_nodes": 19,
         "terminal_instances": 0,
-        "edges": 26,
+        "edges": 48,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -770,7 +761,20 @@
             "len": 120
           }
         ],
-        "long_branch_labels": [],
+        "long_branch_labels": [
+          {
+            "label": "İptal edildi veya süresi doldu",
+            "len": 30
+          },
+          {
+            "label": "İptal edildi veya süresi doldu",
+            "len": 30
+          },
+          {
+            "label": "İptal edildi veya süresi doldu",
+            "len": 30
+          }
+        ],
         "locale_leaks": []
       }
     }
@@ -3306,7 +3310,7 @@
           },
           {
             "id": "a.touch1",
-            "len": 143
+            "len": 131
           }
         ],
         "long_branch_labels": [
@@ -3326,7 +3330,7 @@
         "long_cards": [
           {
             "id": "a.touch1",
-            "len": 166
+            "len": 148
           }
         ],
         "long_branch_labels": [

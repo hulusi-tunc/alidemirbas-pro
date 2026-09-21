@@ -6346,6 +6346,14 @@
           "terminal": false
         },
         {
+          "id": "c.resume-budget",
+          "kind": "condition",
+          "headline": "Is the resume re-arm budget still available?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.note-return",
           "kind": "action",
           "headline": "Record the return and re-arm one further wait from the new last activity. A person who came back and left again is deciding; the second touch is held once, not skipped and not hurried",
@@ -6624,7 +6632,7 @@
         },
         {
           "from": "c.state2",
-          "to": "a.note-return",
+          "to": "c.resume-budget",
           "family": "branch",
           "label": "Resumed, still open",
           "when": "an authenticated session touched the process since the first touch and it is still open - the person is deciding, not forgetting"
@@ -6635,6 +6643,20 @@
           "family": "branch",
           "label": "Still open, not resumed",
           "when": "the process is open and untouched since the first touch"
+        },
+        {
+          "from": "c.resume-budget",
+          "to": "a.note-return",
+          "family": "branch",
+          "label": "Budget available",
+          "when": "fewer resume re-arms have been used against this instance than recovery.resume_rearms allows"
+        },
+        {
+          "from": "c.resume-budget",
+          "to": "c.sendable2",
+          "family": "branch",
+          "label": "Budget spent",
+          "when": "the resume re-arm budget fixed when the instance opened has already been used - the second touch is held once for a return, not indefinitely"
         },
         {
           "from": "a.note-return",
@@ -6806,17 +6828,17 @@
         18,
         19,
         20,
-        24,
-        25,
+        26,
         27,
-        31,
-        32,
+        29,
         33,
         34,
-        40,
-        41,
+        35,
+        36,
         42,
-        43
+        43,
+        44,
+        45
       ],
       "branchEdgeIds": [
         1,
@@ -6834,21 +6856,23 @@
         20,
         21,
         22,
-        26,
-        27,
-        31,
-        32,
+        23,
+        24,
+        28,
+        29,
         33,
         34,
         35,
         36,
         37,
-        41,
-        42,
-        43
+        38,
+        39,
+        43,
+        44,
+        45
       ],
       "handoffEdgeIds": [
-        44
+        46
       ],
       "externalEdgeIds": []
     },
@@ -6871,6 +6895,10 @@
         {
           "journey": "ACQ-287",
           "because": "ACQ-287 is this pattern specialised to one process - a checkout - with a stated channel priority per touch and a high-value branch, none of which is true for every resumable process this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the process is a checkout it holds the instance and this one is suppressed for it."
+        },
+        {
+          "journey": "ACQ-12",
+          "because": "ACQ-12 pursues a held selection with no process state and no expiry. The moment a process starts from it, ACQ-12 hands this journey the instance (h.process) and suppresses every selection-recovery touch it had queued; this journey then owns recovery under its own process-based rules, including the final notice ACQ-12 never sends."
         }
       ],
       "competition": null,
@@ -6900,13 +6928,13 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 26,
-      "edgeCount": 45,
-      "branchNodeCount": 8,
+      "nodeCount": 27,
+      "edgeCount": 47,
+      "branchNodeCount": 9,
       "backwardEdgeCount": 16,
       "handoffCount": 1,
       "exitCount": 5,
-      "maxDepth": 16,
+      "maxDepth": 17,
       "maxFanIn": 4,
       "maxFanOut": 6,
       "primaryStructure": "mixed-termination",
@@ -6918,7 +6946,7 @@
         "competition"
       ],
       "complexityTier": "extreme",
-      "complexityScore": 141
+      "complexityScore": 147
     }
   },
   {
@@ -6983,6 +7011,14 @@
           "id": "c.state",
           "kind": "condition",
           "headline": "What is the selection now?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.rearm-budget",
+          "kind": "condition",
+          "headline": "Is the re-arm budget still available?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -7190,7 +7226,7 @@
         },
         {
           "from": "c.state",
-          "to": "a.rearm",
+          "to": "c.rearm-budget",
           "family": "branch",
           "label": "Changed, still held",
           "when": "an item was added or removed and at least one remains - the person is still deciding"
@@ -7201,6 +7237,20 @@
           "family": "branch",
           "label": "Still held",
           "when": "the selection stands as it was"
+        },
+        {
+          "from": "c.rearm-budget",
+          "to": "a.rearm",
+          "family": "branch",
+          "label": "Budget available",
+          "when": "fewer re-arms have been used against this instance than selection.rearm_limit allows"
+        },
+        {
+          "from": "c.rearm-budget",
+          "to": "c.availability",
+          "family": "branch",
+          "label": "Budget spent",
+          "when": "the re-arm budget fixed when the instance opened has already been used - a person who keeps changing a held selection is still deciding, but the wait is not re-armed forever"
         },
         {
           "from": "a.rearm",
@@ -7381,16 +7431,16 @@
         "h.process"
       ],
       "backwardEdgeIds": [
-        11,
-        16,
-        20,
-        21,
+        13,
+        18,
         22,
         23,
-        26,
-        30,
-        31,
-        32
+        24,
+        25,
+        28,
+        32,
+        33,
+        34
       ],
       "branchEdgeIds": [
         1,
@@ -7400,24 +7450,26 @@
         8,
         9,
         10,
+        11,
         12,
-        13,
         14,
         15,
-        20,
-        21,
+        16,
+        17,
         22,
         23,
         24,
         25,
         26,
-        30,
-        31,
+        27,
+        28,
         32,
-        33
+        33,
+        34,
+        35
       ],
       "handoffEdgeIds": [
-        34
+        36
       ],
       "externalEdgeIds": []
     },
@@ -7440,6 +7492,10 @@
         {
           "journey": "ACQ-288",
           "because": "ACQ-288 is this pattern specialised to one kind of selection - a cart - with a stated channel priority per touch, a high-value branch and a handoff into checkout recovery, none of which is true for every held selection this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the selection is a cart it holds the instance and this one is suppressed for it."
+        },
+        {
+          "journey": "ACQ-289",
+          "because": "ACQ-289 alerts on a named item a person wanted while it was unavailable and could not select at all. This journey recovers a selection the person actually made and held; it never claims an interest the person has not acted on, and it stands above ACQ-289 in the commerce-recovery group whenever a held selection exists."
         }
       ],
       "competition": null,
@@ -7468,13 +7524,13 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 22,
-      "edgeCount": 35,
-      "branchNodeCount": 7,
+      "nodeCount": 23,
+      "edgeCount": 37,
+      "branchNodeCount": 8,
       "backwardEdgeCount": 10,
       "handoffCount": 1,
       "exitCount": 5,
-      "maxDepth": 14,
+      "maxDepth": 15,
       "maxFanIn": 3,
       "maxFanOut": 5,
       "primaryStructure": "mixed-termination",
@@ -7486,7 +7542,7 @@
         "competition"
       ],
       "complexityTier": "extreme",
-      "complexityScore": 111
+      "complexityScore": 117
     }
   },
   {
@@ -7770,6 +7826,14 @@
         {
           "journey": "SCH-282",
           "because": "SCH-282 follows an availability enquiry with restorable state. A search here holds nothing; it is attention, not an enquiry."
+        },
+        {
+          "journey": "ACQ-289",
+          "because": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds."
+        },
+        {
+          "journey": "RET-293",
+          "because": "RET-293 acts on a retention signal about an existing relationship. This journey acts on inferred pre-purchase attention with no relationship yet to retain, and yields to RET-293 for the same person."
         }
       ],
       "competition": null,
@@ -7852,7 +7916,7 @@
           "terminal": false
         },
         {
-          "id": "c.email-route",
+          "id": "c.contactable",
           "kind": "condition",
           "headline": "Is the destination they supplied actually usable for this?",
           "detail": null,
@@ -7916,25 +7980,41 @@
           "terminal": false
         },
         {
-          "id": "a.nurture",
-          "kind": "action",
-          "headline": "Open a bounded sequence on the subject they declared, and state where it ends when it opens. A sequence with no stated end is a subscription nobody agreed to, and it is remembered as one",
+          "id": "w.follow-up",
+          "kind": "wait",
+          "headline": "until destination_declared, or permission_withdrawn",
+          "detail": "timeout after {'key': 'welcome.follow_up', 'rule': 'Give the person time to declare a destination on their own, past fulfilment, before the closing message of the welcome is sent.', 'class': 'response-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.still-open",
+          "kind": "condition",
+          "headline": "Is this still a lead with nothing declared?",
           "detail": null,
           "isEntry": false,
           "terminal": false
         },
         {
-          "id": "w.nurture",
+          "id": "a.follow-up",
+          "kind": "action",
+          "headline": "Send one further message on the subject they declared, saying plainly that this is the last of the welcome and what happens next. A sequence with no stated end is a subscription nobody agreed to, and it is remembered as one",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.window",
           "kind": "wait",
           "headline": "until destination_declared, or permission_withdrawn",
-          "detail": "timeout after {'key': 'captured_interest.nurture', 'rule': 'The stated length of the bounded sequence.', 'class': 'observation-window', 'required': True}",
+          "detail": "timeout after {'key': 'welcome.window', 'rule': 'The welcome closes whether or not the closing message worked; it was stated as the last of the sequence and moving it silently is what turns interest into complaint.', 'class': 'observation-window', 'required': True}",
           "isEntry": false,
           "terminal": false
         },
         {
           "id": "c.progressed",
           "kind": "condition",
-          "headline": "What ended the sequence?",
+          "headline": "What ended the wait?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -7967,20 +8047,20 @@
       "edges": [
         {
           "from": "t.captured",
-          "to": "c.email-route",
+          "to": "c.contactable",
           "family": "forward",
           "label": null,
           "when": null
         },
         {
-          "from": "c.email-route",
+          "from": "c.contactable",
           "to": "c.declared",
           "family": "branch",
           "label": "Usable",
           "when": "the supplied destination is valid, deliverable and permitted for fulfilling what was asked for"
         },
         {
-          "from": "c.email-route",
+          "from": "c.contactable",
           "to": "c.declared-no-route",
           "family": "branch",
           "label": "Not usable",
@@ -8037,7 +8117,7 @@
         },
         {
           "from": "c.permission",
-          "to": "a.nurture",
+          "to": "w.follow-up",
           "family": "branch",
           "label": "Permitted",
           "when": "a permission covering ongoing contact was given in the capture and recorded as its own fact"
@@ -8050,25 +8130,60 @@
           "when": "nothing beyond the single requested delivery was permitted"
         },
         {
-          "from": "a.nurture",
-          "to": "w.nurture",
-          "family": "forward",
-          "label": null,
-          "when": null
-        },
-        {
-          "from": "w.nurture",
+          "from": "w.follow-up",
           "to": "c.progressed",
           "family": "wait-event",
           "label": "on event",
           "when": "destination_declared, permission_withdrawn"
         },
         {
-          "from": "w.nurture",
+          "from": "w.follow-up",
+          "to": "c.still-open",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "a closing message sent before the person has had a chance to act on fulfilment is repetition, not a follow-up"
+        },
+        {
+          "from": "c.still-open",
+          "to": "h.person",
+          "family": "backward",
+          "label": "Readiness declared",
+          "when": "the person did something since fulfilment that names a destination they are now ready for"
+        },
+        {
+          "from": "c.still-open",
+          "to": "x.stopped",
+          "family": "branch",
+          "label": "Permission withdrawn",
+          "when": "the permission recorded at capture no longer covers continuing contact"
+        },
+        {
+          "from": "c.still-open",
+          "to": "a.follow-up",
+          "family": "branch",
+          "label": "Still open",
+          "when": "no destination has been declared, the permission recorded at capture still stands, and the contact point is still deliverable"
+        },
+        {
+          "from": "a.follow-up",
+          "to": "w.window",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.window",
+          "to": "c.progressed",
+          "family": "backward",
+          "label": "on event",
+          "when": "destination_declared, permission_withdrawn"
+        },
+        {
+          "from": "w.window",
           "to": "x.sunset",
           "family": "wait-timeout",
           "label": "on timeout",
-          "when": "the end was stated when the sequence opened, and moving it silently is what turns interest into complaint"
+          "when": "the window is what makes this a bounded welcome rather than a permanent messaging state, and it is set once the closing message is sent"
         },
         {
           "from": "c.progressed",
@@ -8094,7 +8209,9 @@
         "x.delivered"
       ],
       "backwardEdgeIds": [
-        15
+        14,
+        18,
+        20
       ],
       "branchEdgeIds": [
         1,
@@ -8105,8 +8222,11 @@
         6,
         10,
         11,
+        14,
         15,
-        16
+        16,
+        20,
+        21
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": [
@@ -8128,6 +8248,10 @@
         {
           "journey": "ACQ-09",
           "because": "ACQ-09 is the same bounded education on the same declared subject, and one form fill satisfies both triggers. This journey owns the initial contact window the capture earned; ACQ-09 is ineligible while that window is open and may start only once it has closed."
+        },
+        {
+          "journey": "RET-290",
+          "because": "RET-290 marks the moment a captured lead becomes a paying customer and owns the relationship from the first purchase onward. This journey ends once fulfilment or the welcome closes, well before any purchase exists, and never speaks to someone RET-290 already owns."
         }
       ],
       "competition": null,
@@ -8156,15 +8280,15 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": false,
-      "nodeCount": 15,
-      "edgeCount": 17,
-      "branchNodeCount": 5,
-      "backwardEdgeCount": 1,
+      "nodeCount": 17,
+      "edgeCount": 22,
+      "branchNodeCount": 6,
+      "backwardEdgeCount": 3,
       "handoffCount": 1,
       "exitCount": 4,
-      "maxDepth": 8,
-      "maxFanIn": 3,
-      "maxFanOut": 2,
+      "maxDepth": 9,
+      "maxFanIn": 4,
+      "maxFanOut": 3,
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
@@ -8173,8 +8297,8 @@
         "multi-exit",
         "no-re-entry"
       ],
-      "complexityTier": "complex",
-      "complexityScore": 57
+      "complexityTier": "extreme",
+      "complexityScore": 71
     }
   },
   {
@@ -8209,7 +8333,7 @@
         {
           "id": "w.first",
           "kind": "wait",
-          "headline": "until process_completed, or payment_failed",
+          "headline": "until process_completed, or payment_failed, or process_cancelled, or process_expired",
           "detail": "timeout after {'key': 'checkout_abandonment.first_check', 'rule': 'Give the person time to finish on their own before the first reminder.', 'class': 'recovery-window', 'default': {'value': '45 minutes', 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
           "isEntry": false,
           "terminal": false
@@ -8217,7 +8341,23 @@
         {
           "id": "c.completed1",
           "kind": "condition",
-          "headline": "Is the checkout completed, and is it still this journey's to recover?",
+          "headline": "What is the checkout now?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable1",
+          "kind": "condition",
+          "headline": "May the first reminder go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action-t1",
+          "kind": "action",
+          "headline": "Record which gate stopped the first reminder and against which checkout, so no-action is a measured outcome rather than a silent absence",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8225,7 +8365,7 @@
         {
           "id": "a.router1",
           "kind": "action",
-          "headline": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority channel this reminder may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8241,7 +8381,7 @@
         {
           "id": "w.second",
           "kind": "wait",
-          "headline": "until process_completed, or payment_failed",
+          "headline": "until process_completed, or payment_failed, or process_cancelled, or process_expired",
           "detail": "timeout after {'key': 'checkout_abandonment.second_check', 'rule': 'Give the first reminder real time to work before deciding whether a second, more direct touch is warranted.', 'class': 'recovery-window', 'default': {'value': '6 hours', 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
           "isEntry": false,
           "terminal": false
@@ -8249,7 +8389,7 @@
         {
           "id": "c.completed2",
           "kind": "condition",
-          "headline": "Is the checkout completed, and is it still this journey's to recover?",
+          "headline": "What is the checkout now?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8263,9 +8403,33 @@
           "terminal": false
         },
         {
+          "id": "c.sendable2-hv",
+          "kind": "condition",
+          "headline": "May the high-value second reminder go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2-std",
+          "kind": "condition",
+          "headline": "May the second reminder go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action-t2",
+          "kind": "action",
+          "headline": "Record which gate stopped the second reminder and against which checkout, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.router2-hv",
           "kind": "action",
-          "headline": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value checkout gets a more direct channel than the first touch, not a repeat of it. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority direct channel: WhatsApp first (a valid phone number is on file and the number is reachable on WhatsApp), otherwise SMS (a valid phone number is on file). A high-value checkout gets a more direct channel than the first touch, not a repeat of it. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8281,7 +8445,7 @@
         {
           "id": "a.router2-std",
           "kind": "action",
-          "headline": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority channel: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). Same priority as the first touch. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8297,7 +8461,7 @@
         {
           "id": "w.third",
           "kind": "wait",
-          "headline": "until process_completed, or payment_failed",
+          "headline": "until process_completed, or payment_failed, or process_cancelled, or process_expired",
           "detail": "timeout after {'key': 'checkout_abandonment.final_check', 'rule': 'The last reminder gets a full day to work before the checkout is treated as abandoned.', 'class': 'recovery-window', 'default': {'value': '24 hours', 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
           "isEntry": false,
           "terminal": false
@@ -8315,6 +8479,14 @@
           "kind": "exit",
           "headline": "purchased; the checkout the reminders pointed at is complete",
           "detail": "a new checkout for this person opens its own instance; nothing about this one is reopened",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.invalid",
+          "kind": "exit",
+          "headline": "closed unfinished - cancelled or expired; nothing further is sent",
+          "detail": "a new checkout is a new instance",
           "isEntry": false,
           "terminal": false
         },
@@ -8348,7 +8520,7 @@
           "to": "c.completed1",
           "family": "wait-event",
           "label": "on event",
-          "when": "process_completed, payment_failed"
+          "when": "process_completed, payment_failed, process_cancelled, process_expired"
         },
         {
           "from": "w.first",
@@ -8373,10 +8545,38 @@
         },
         {
           "from": "c.completed1",
-          "to": "a.router1",
+          "to": "x.invalid",
+          "family": "branch",
+          "label": "Cancelled or expired",
+          "when": "the person cancelled the checkout, or the platform expired it"
+        },
+        {
+          "from": "c.completed1",
+          "to": "c.sendable1",
           "family": "branch",
           "label": "Not completed",
-          "when": "no completion record and no payment failure exists for this checkout instance"
+          "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance"
+        },
+        {
+          "from": "c.sendable1",
+          "to": "a.router1",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest"
+        },
+        {
+          "from": "c.sendable1",
+          "to": "a.record-no-action-t1",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.record-no-action-t1",
+          "to": "w.second",
+          "family": "forward",
+          "label": null,
+          "when": null
         },
         {
           "from": "a.router1",
@@ -8397,7 +8597,7 @@
           "to": "c.completed2",
           "family": "wait-event",
           "label": "on event",
-          "when": "process_completed, payment_failed"
+          "when": "process_completed, payment_failed, process_cancelled, process_expired"
         },
         {
           "from": "w.second",
@@ -8422,24 +8622,66 @@
         },
         {
           "from": "c.completed2",
+          "to": "x.invalid",
+          "family": "backward",
+          "label": "Cancelled or expired",
+          "when": "the person cancelled the checkout, or the platform expired it"
+        },
+        {
+          "from": "c.completed2",
           "to": "c.highvalue",
           "family": "branch",
           "label": "Not completed",
-          "when": "no completion record and no payment failure exists for this checkout instance"
+          "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance"
         },
         {
           "from": "c.highvalue",
-          "to": "a.router2-hv",
+          "to": "c.sendable2-hv",
           "family": "branch",
           "label": "High-value",
           "when": "the checkout's value is at or above the adopting company's configured high-value threshold - no value is asserted here"
         },
         {
           "from": "c.highvalue",
-          "to": "a.router2-std",
+          "to": "c.sendable2-std",
           "family": "branch",
           "label": "Standard",
           "when": "the checkout's value is below the configured threshold"
+        },
+        {
+          "from": "c.sendable2-hv",
+          "to": "a.router2-hv",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest"
+        },
+        {
+          "from": "c.sendable2-hv",
+          "to": "a.record-no-action-t2",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "c.sendable2-std",
+          "to": "a.router2-std",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest"
+        },
+        {
+          "from": "c.sendable2-std",
+          "to": "a.record-no-action-t2",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.record-no-action-t2",
+          "to": "w.third",
+          "family": "forward",
+          "label": null,
+          "when": null
         },
         {
           "from": "a.router2-hv",
@@ -8465,7 +8707,7 @@
         {
           "from": "a.reminder2-std",
           "to": "w.third",
-          "family": "forward",
+          "family": "backward",
           "label": null,
           "when": null
         },
@@ -8474,7 +8716,7 @@
           "to": "c.completed3",
           "family": "wait-event",
           "label": "on event",
-          "when": "process_completed, payment_failed"
+          "when": "process_completed, payment_failed, process_cancelled, process_expired"
         },
         {
           "from": "w.third",
@@ -8499,10 +8741,17 @@
         },
         {
           "from": "c.completed3",
+          "to": "x.invalid",
+          "family": "backward",
+          "label": "Cancelled or expired",
+          "when": "the person cancelled the checkout, or the platform expired it"
+        },
+        {
+          "from": "c.completed3",
           "to": "x.abandoned",
           "family": "branch",
           "label": "Not completed",
-          "when": "no completion record and no payment failure exists for this checkout instance"
+          "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance"
         },
         {
           "from": "h.payment",
@@ -8515,30 +8764,43 @@
       "startNode": "t.started",
       "terminalNodes": [
         "x.purchased",
+        "x.invalid",
         "x.abandoned",
         "h.payment"
       ],
       "backwardEdgeIds": [
-        10,
-        11,
-        21,
-        22
+        14,
+        15,
+        16,
+        28,
+        31,
+        32,
+        33
       ],
       "branchEdgeIds": [
         3,
         4,
         5,
-        10,
-        11,
-        12,
-        13,
+        6,
+        7,
+        8,
         14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
         21,
         22,
-        23
+        23,
+        31,
+        32,
+        33,
+        34
       ],
       "handoffEdgeIds": [
-        24
+        35
       ],
       "externalEdgeIds": []
     },
@@ -8565,9 +8827,10 @@
     "governance": {
       "guardrails": [
         "A reminder is never sent once a completion is already on record - every reminder step is reached only through a condition that just re-checked completion.",
+        "A reminder is never sent about a checkout the person cancelled or the platform expired - every wait watches for it and every re-check asks about it.",
         "A payment failure ends this journey's ownership: the instance is handed to payment failure recovery and every queued reminder is suppressed, so checkout-abandonment messaging and payment-recovery messaging never run at the same time for the same failed payment.",
-        "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
-        "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
+        "Permission is checked by the send-path gate before a channel is ever chosen; the router that follows it resolves only reachability - a valid token or address - and never re-decides permission.",
+        "No message goes out on a channel that failed reachability - the router skips the touch rather than forcing a channel that cannot deliver.",
         "The high-value threshold is a configured value, never a number this journey asserts.",
         "While this journey holds a checkout, the generic process-recovery pattern is suppressed for the same process; the two never message the same person about the same checkout."
       ],
@@ -8587,15 +8850,15 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 17,
-      "edgeCount": 25,
-      "branchNodeCount": 4,
-      "backwardEdgeCount": 4,
+      "nodeCount": 23,
+      "edgeCount": 36,
+      "branchNodeCount": 7,
+      "backwardEdgeCount": 7,
       "handoffCount": 1,
-      "exitCount": 2,
-      "maxDepth": 12,
+      "exitCount": 3,
+      "maxDepth": 14,
       "maxFanIn": 3,
-      "maxFanOut": 3,
+      "maxFanOut": 4,
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
@@ -8605,7 +8868,7 @@
         "competition"
       ],
       "complexityTier": "extreme",
-      "complexityScore": 73
+      "complexityScore": 105
     }
   },
   {
@@ -8643,31 +8906,31 @@
         {
           "id": "w.first",
           "kind": "wait",
-          "headline": "until selection_cleared, or process_completed, or checkout_started",
+          "headline": "until process_completed, or checkout_started, or selection_cleared, or process_expired",
           "detail": "timeout after {'key': 'cart_abandonment.first_check', 'rule': 'Give the person time to return to the cart on their own before the first reminder.', 'class': 'recovery-window', 'default': {'value': '2 hours', 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
           "isEntry": false,
           "terminal": false
         },
         {
-          "id": "c.active1",
+          "id": "c.state1",
           "kind": "condition",
-          "headline": "Is the cart still active?",
+          "headline": "What is the cart now?",
           "detail": null,
           "isEntry": false,
           "terminal": false
         },
         {
-          "id": "c.purchased1",
+          "id": "c.sendable1",
           "kind": "condition",
-          "headline": "Is the purchase completed?",
+          "headline": "May the first reminder go out?",
           "detail": null,
           "isEntry": false,
           "terminal": false
         },
         {
-          "id": "c.checkout1",
-          "kind": "condition",
-          "headline": "Has checkout started?",
+          "id": "a.record-no-action-t1",
+          "kind": "action",
+          "headline": "Record which gate stopped the first reminder and against which cart, so no-action is a measured outcome rather than a silent absence",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8675,7 +8938,7 @@
         {
           "id": "a.router1",
           "kind": "action",
-          "headline": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority channel this reminder may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8691,23 +8954,15 @@
         {
           "id": "w.second",
           "kind": "wait",
-          "headline": "until process_completed, or checkout_started",
+          "headline": "until process_completed, or checkout_started, or selection_cleared, or process_expired",
           "detail": "timeout after {'key': 'cart_abandonment.second_check', 'rule': 'Give the first reminder real time to work before deciding whether a second, more direct touch is warranted.', 'class': 'recovery-window', 'default': {'value': {'min': '20 hours', 'max': '24 hours'}, 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
           "isEntry": false,
           "terminal": false
         },
         {
-          "id": "c.purchased2",
+          "id": "c.state2",
           "kind": "condition",
-          "headline": "Is the purchase completed?",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "c.checkout2",
-          "kind": "condition",
-          "headline": "Has checkout started?",
+          "headline": "What is the cart now?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8721,9 +8976,33 @@
           "terminal": false
         },
         {
+          "id": "c.sendable2-hv",
+          "kind": "condition",
+          "headline": "May the high-value second reminder go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.sendable2-std",
+          "kind": "condition",
+          "headline": "May the second reminder go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.record-no-action-t2",
+          "kind": "action",
+          "headline": "Record which gate stopped the second reminder and against which cart, so no-action is a measured outcome rather than a silent absence",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "a.router2-hv",
           "kind": "action",
-          "headline": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value cart gets a more direct channel than the first touch, not a repeat of it. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority direct channel: WhatsApp first (a valid phone number is on file and the number is reachable on WhatsApp), otherwise SMS (a valid phone number is on file). A high-value cart gets a more direct channel than the first touch, not a repeat of it. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8739,7 +9018,7 @@
         {
           "id": "a.router2-std",
           "kind": "action",
-          "headline": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. Before selecting, re-read the commerce-recovery contest: if a journey with higher precedence currently holds this person, no channel is selected and nothing is sent. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+          "headline": "Select the highest-priority channel: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). Same priority as the first touch. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8755,23 +9034,15 @@
         {
           "id": "w.third",
           "kind": "wait",
-          "headline": "until process_completed, or selection_cleared",
+          "headline": "until process_completed, or selection_cleared, or process_expired",
           "detail": "timeout after {'key': 'cart_abandonment.final_check', 'rule': 'The last reminder gets two full days to work before the cart is treated as abandoned.', 'class': 'recovery-window', 'default': {'value': '48 hours', 'confidence': 'low', 'basis': 'example-only'}, 'required': False}",
           "isEntry": false,
           "terminal": false
         },
         {
-          "id": "c.purchased3",
+          "id": "c.state3",
           "kind": "condition",
-          "headline": "Is the purchase completed?",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "c.active2",
-          "kind": "condition",
-          "headline": "Is the cart still active?",
+          "headline": "At the end of the cascade, what is the cart?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -8819,59 +9090,66 @@
         },
         {
           "from": "w.first",
-          "to": "c.active1",
+          "to": "c.state1",
           "family": "wait-event",
           "label": "on event",
-          "when": "selection_cleared, process_completed, checkout_started"
+          "when": "process_completed, checkout_started, selection_cleared, process_expired"
         },
         {
           "from": "w.first",
-          "to": "c.active1",
+          "to": "c.state1",
           "family": "wait-timeout",
           "label": "on timeout",
           "when": "long enough that a person still browsing or mid-session is not interrupted, short enough that the cart is still warm"
         },
         {
-          "from": "c.active1",
-          "to": "c.purchased1",
+          "from": "c.state1",
+          "to": "x.purchased",
           "family": "branch",
-          "label": "Active",
-          "when": "the cart still holds at least one item the platform asserts as available, and has not been deleted"
+          "label": "Purchased",
+          "when": "an authoritative purchase or order record exists that includes at least one item from this cart"
         },
         {
-          "from": "c.active1",
+          "from": "c.state1",
+          "to": "h.checkout",
+          "family": "branch",
+          "label": "Checkout started",
+          "when": "an authoritative checkout record has been opened from this cart"
+        },
+        {
+          "from": "c.state1",
           "to": "x.cleared",
           "family": "branch",
           "label": "Cleared or expired",
           "when": "the person removed every item, deleted the cart, or the cart's hold or session expired"
         },
         {
-          "from": "c.purchased1",
-          "to": "x.purchased",
+          "from": "c.state1",
+          "to": "c.sendable1",
           "family": "branch",
-          "label": "Completed",
-          "when": "an authoritative purchase or order record exists that includes at least one item from this cart"
+          "label": "Still held",
+          "when": "the cart still holds at least one item the platform asserts as available, no order is recorded and no checkout has been opened"
         },
         {
-          "from": "c.purchased1",
-          "to": "c.checkout1",
-          "family": "branch",
-          "label": "Not completed",
-          "when": "no completion record exists for this cart"
-        },
-        {
-          "from": "c.checkout1",
-          "to": "h.checkout",
-          "family": "branch",
-          "label": "Started",
-          "when": "an authoritative checkout record has been opened from this cart"
-        },
-        {
-          "from": "c.checkout1",
+          "from": "c.sendable1",
           "to": "a.router1",
           "family": "branch",
-          "label": "Not started",
-          "when": "no checkout has been opened from this cart"
+          "label": "Sendable",
+          "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force"
+        },
+        {
+          "from": "c.sendable1",
+          "to": "a.record-no-action-t1",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.record-no-action-t1",
+          "to": "w.second",
+          "family": "forward",
+          "label": null,
+          "when": null
         },
         {
           "from": "a.router1",
@@ -8889,59 +9167,94 @@
         },
         {
           "from": "w.second",
-          "to": "c.purchased2",
+          "to": "c.state2",
           "family": "wait-event",
           "label": "on event",
-          "when": "process_completed, checkout_started"
+          "when": "process_completed, checkout_started, selection_cleared, process_expired"
         },
         {
           "from": "w.second",
-          "to": "c.purchased2",
+          "to": "c.state2",
           "family": "wait-timeout",
           "label": "on timeout",
           "when": "close to a full day for the first reminder to be seen and acted on before a second touch is considered"
         },
         {
-          "from": "c.purchased2",
+          "from": "c.state2",
           "to": "x.purchased",
           "family": "backward",
-          "label": "Completed",
+          "label": "Purchased",
           "when": "an authoritative purchase or order record exists that includes at least one item from this cart"
         },
         {
-          "from": "c.purchased2",
-          "to": "c.checkout2",
-          "family": "branch",
-          "label": "Not completed",
-          "when": "no completion record exists for this cart"
-        },
-        {
-          "from": "c.checkout2",
+          "from": "c.state2",
           "to": "h.checkout",
           "family": "backward",
-          "label": "Started",
+          "label": "Checkout started",
           "when": "an authoritative checkout record has been opened from this cart"
         },
         {
-          "from": "c.checkout2",
+          "from": "c.state2",
+          "to": "x.cleared",
+          "family": "backward",
+          "label": "Cleared or expired",
+          "when": "the person removed every item, deleted the cart, or the cart's hold or session expired"
+        },
+        {
+          "from": "c.state2",
           "to": "c.highvalue",
           "family": "branch",
-          "label": "Not started",
-          "when": "no checkout has been opened from this cart"
+          "label": "Still held",
+          "when": "the cart still holds at least one item the platform asserts as available, no order is recorded and no checkout has been opened"
         },
         {
           "from": "c.highvalue",
-          "to": "a.router2-hv",
+          "to": "c.sendable2-hv",
           "family": "branch",
           "label": "High-value",
           "when": "the cart's value is at or above the adopting company's configured high-value threshold - no value is asserted here"
         },
         {
           "from": "c.highvalue",
-          "to": "a.router2-std",
+          "to": "c.sendable2-std",
           "family": "branch",
           "label": "Standard",
           "when": "the cart's value is below the configured threshold"
+        },
+        {
+          "from": "c.sendable2-hv",
+          "to": "a.router2-hv",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force"
+        },
+        {
+          "from": "c.sendable2-hv",
+          "to": "a.record-no-action-t2",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "c.sendable2-std",
+          "to": "a.router2-std",
+          "family": "branch",
+          "label": "Sendable",
+          "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force"
+        },
+        {
+          "from": "c.sendable2-std",
+          "to": "a.record-no-action-t2",
+          "family": "branch",
+          "label": "Suppressed",
+          "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.record-no-action-t2",
+          "to": "w.third",
+          "family": "forward",
+          "label": null,
+          "when": null
         },
         {
           "from": "a.router2-hv",
@@ -8967,51 +9280,44 @@
         {
           "from": "a.reminder2-std",
           "to": "w.third",
-          "family": "forward",
+          "family": "backward",
           "label": null,
           "when": null
         },
         {
           "from": "w.third",
-          "to": "c.purchased3",
+          "to": "c.state3",
           "family": "wait-event",
           "label": "on event",
-          "when": "process_completed, selection_cleared"
+          "when": "process_completed, selection_cleared, process_expired"
         },
         {
           "from": "w.third",
-          "to": "c.purchased3",
+          "to": "c.state3",
           "family": "wait-timeout",
           "label": "on timeout",
           "when": "two full days past the second reminder is the point past which a cart this old is read as abandoned rather than merely delayed"
         },
         {
-          "from": "c.purchased3",
+          "from": "c.state3",
           "to": "x.purchased",
           "family": "backward",
-          "label": "Completed",
+          "label": "Purchased",
           "when": "an authoritative purchase or order record exists that includes at least one item from this cart"
         },
         {
-          "from": "c.purchased3",
-          "to": "c.active2",
-          "family": "branch",
-          "label": "Not completed",
-          "when": "no completion record exists for this cart"
-        },
-        {
-          "from": "c.active2",
-          "to": "x.abandoned",
-          "family": "branch",
-          "label": "Active",
-          "when": "the cart still holds at least one item the platform asserts as available, and has not been deleted"
-        },
-        {
-          "from": "c.active2",
+          "from": "c.state3",
           "to": "x.cleared",
           "family": "backward",
           "label": "Cleared or expired",
           "when": "the person removed every item, deleted the cart, or the cart's hold or session expired"
+        },
+        {
+          "from": "c.state3",
+          "to": "x.abandoned",
+          "family": "branch",
+          "label": "Still held",
+          "when": "the cart still holds at least one item the platform asserts as available; nothing further is sent"
         },
         {
           "from": "h.checkout",
@@ -9029,10 +9335,12 @@
         "h.checkout"
       ],
       "backwardEdgeIds": [
-        13,
+        14,
         15,
-        25,
-        28
+        16,
+        28,
+        31,
+        32
       ],
       "branchEdgeIds": [
         3,
@@ -9041,19 +9349,22 @@
         6,
         7,
         8,
-        13,
         14,
         15,
         16,
         17,
         18,
-        25,
-        26,
-        27,
-        28
+        19,
+        20,
+        21,
+        22,
+        23,
+        31,
+        32,
+        33
       ],
       "handoffEdgeIds": [
-        29
+        34
       ],
       "externalEdgeIds": []
     },
@@ -9072,6 +9383,10 @@
         {
           "journey": "ACQ-287",
           "because": "ACQ-287 recovers a checkout that has already started; this journey recovers a cart before checkout starts. The two never run in parallel on the same person - this journey hands off to ACQ-287 the moment checkout starts, and every queued cart reminder is suppressed from that point."
+        },
+        {
+          "journey": "RET-294",
+          "because": "RET-294 prompts a predicted repurchase from the person's own history, with nothing currently in a cart. This journey recovers a cart the person actually built and left; where a cart is present it outranks a predicted need for the same person."
         }
       ],
       "competition": null,
@@ -9080,9 +9395,10 @@
     "governance": {
       "guardrails": [
         "A reminder is never sent once a purchase or a checkout start is already on record - every reminder step is reached only through conditions that just re-checked both.",
+        "A reminder is never sent about a cart the person cleared or that expired - every wait watches for it and every re-check asks about it.",
         "Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
-        "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
-        "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
+        "Permission is checked by the send-path gate before a channel is ever chosen; the router that follows it resolves only reachability - a valid token or address - and never re-decides permission.",
+        "No message goes out on a channel that failed reachability - the router skips the touch rather than forcing a channel that cannot deliver.",
         "The high-value threshold is a configured value, never a number this journey asserts.",
         "Cart Abandonment and Checkout Abandonment never message the same person about the same items at the same time - the handoff on checkout start is immediate and suppresses every queued cart touch.",
         "While this journey holds a cart, the generic held-selection pattern is suppressed for the same selection; the two never message the same person about the same cart."
@@ -9103,15 +9419,15 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 22,
-      "edgeCount": 30,
-      "branchNodeCount": 8,
-      "backwardEdgeCount": 4,
+      "nodeCount": 23,
+      "edgeCount": 35,
+      "branchNodeCount": 7,
+      "backwardEdgeCount": 6,
       "handoffCount": 1,
       "exitCount": 3,
-      "maxDepth": 16,
+      "maxDepth": 14,
       "maxFanIn": 3,
-      "maxFanOut": 2,
+      "maxFanOut": 4,
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
@@ -9121,7 +9437,7 @@
         "competition"
       ],
       "complexityTier": "extreme",
-      "complexityScore": 96
+      "complexityScore": 102
     }
   },
   {
@@ -9178,6 +9494,14 @@
           "id": "c.sendable",
           "kind": "condition",
           "headline": "May the alert go out?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.router1",
+          "kind": "action",
+          "headline": "Select the highest-priority channel this alert may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and send nothing.",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -9300,10 +9624,10 @@
         },
         {
           "from": "c.sendable",
-          "to": "a.alert",
+          "to": "a.router1",
           "family": "branch",
           "label": "Sendable",
-          "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence commerce-recovery journey currently holding this person, and no cooldown in force"
+          "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence commerce-recovery journey currently holds this person"
         },
         {
           "from": "c.sendable",
@@ -9311,6 +9635,13 @@
           "family": "branch",
           "label": "Suppressed",
           "when": "a gate stops it; the gate is recorded as the reason"
+        },
+        {
+          "from": "a.router1",
+          "to": "a.alert",
+          "family": "forward",
+          "label": null,
+          "when": null
         },
         {
           "from": "a.alert",
@@ -9364,7 +9695,7 @@
         "x.no-action"
       ],
       "backwardEdgeIds": [
-        11
+        12
       ],
       "branchEdgeIds": [
         3,
@@ -9372,8 +9703,8 @@
         5,
         6,
         7,
-        11,
-        12
+        12,
+        13
       ],
       "handoffEdgeIds": [],
       "externalEdgeIds": []
@@ -9392,6 +9723,10 @@
         {
           "journey": "RET-31",
           "because": "RET-31 prompts a purchase the person's own history says is due. This prompts one they already showed they wanted and were unable to make."
+        },
+        {
+          "journey": "SCH-282",
+          "because": "SCH-282 follows an availability enquiry for a stated window with restorable state the person opened. This journey acts on an interest recorded while the item was unavailable, with no enquiry window to restore - the wait is on the item becoming available again, not on state the person set."
         }
       ],
       "competition": null,
@@ -9421,13 +9756,13 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 13,
-      "edgeCount": 14,
+      "nodeCount": 14,
+      "edgeCount": 15,
       "branchNodeCount": 3,
       "backwardEdgeCount": 1,
       "handoffCount": 0,
       "exitCount": 5,
-      "maxDepth": 7,
+      "maxDepth": 8,
       "maxFanIn": 2,
       "maxFanOut": 3,
       "primaryStructure": "self-contained",
@@ -9438,7 +9773,7 @@
         "competition"
       ],
       "complexityTier": "medium",
-      "complexityScore": 47
+      "complexityScore": 50
     }
   },
   {
