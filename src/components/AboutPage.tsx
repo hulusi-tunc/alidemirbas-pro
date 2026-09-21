@@ -120,7 +120,7 @@ const PROJECT_SUMMARY: Record<Lang, Record<string, string>> = {
     "claude-lifecycle": "Sinyal ve hedeflerden lifecycle akışları oluşturur.",
     "lifecycle-card-archive": "Farklı lifecycle ihtiyaçları için hazır journey örnekleri.",
     "ab-test-playbook": "Fikirden ölçüme, uygulanabilir A/B test senaryoları.",
-    "dashboard-builder": "Farklı platform raporlarını karşılaştırılabilir metriklere ve dashboard'lara dönüştürür.",
+    "dashboard-builder": "Farklı platform raporlarını karşılaştırılabilir metriklere dönüştürür.",
     "google-ads-change-history-dashboard": "Değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip eder.",
     numerspace: "Pazarlama metrikleri için ücretsiz hesaplayıcılar.",
   },
