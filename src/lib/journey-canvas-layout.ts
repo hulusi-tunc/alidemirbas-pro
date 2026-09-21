@@ -425,14 +425,18 @@ export function absorbableBookkeeping(
     if (out.length !== 1) continue;
     const host = byId.get(out[0].to);
     if (!host) continue;
-    /* `meta` carries the writes as "writes <field> (<mode>)" - the same
-       projection canonical-view.ts already builds - so the test reads the
-       authored field names without this module needing the canonical node. */
-    const writes = n.meta.filter((m) => m.startsWith("writes "));
-    const journalOnly = writes.every((m) => {
-      const field = m.slice("writes ".length).split(" ")[0];
-      return JOURNAL_WRITE.test(field);
-    });
+    /* `writesFields` (FlowNode, canonical-view.ts) carries the authored
+       `writes[].field` names raw and unlocalized - read that structural
+       fact directly rather than pattern-matching `meta`'s "writes <field>
+       (<mode>)" display line, which is Turkish prose on the TR route and
+       does not start with the English word "writes" there. Matching
+       against `meta` used to make this test vacuously pass on `/tr` for
+       any node with real, non-journal writes (an empty `.filter()` result
+       makes `.every()` true), silently absorbing a node on TR that EN
+       correctly kept drawn - see `writesFields`'s own doc for the five
+       journeys this cost before the fix. */
+    const writes = n.writesFields ?? [];
+    const journalOnly = writes.every((field) => JOURNAL_WRITE.test(field));
     if (!journalOnly) continue;
     absorbed.set(n.id, out[0].to);
   }

@@ -9,20 +9,7 @@
         "terminal_instances": 0,
         "edges": 56,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.touch1",
-            "len": 113
-          },
-          {
-            "id": "a.touch2",
-            "len": 125
-          },
-          {
-            "id": "a.touch3",
-            "len": 112
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Cancelled, expired or emptied",
@@ -52,11 +39,7 @@
         "long_cards": [
           {
             "id": "a.touch2",
-            "len": 168
-          },
-          {
-            "id": "a.touch3",
-            "len": 112
+            "len": 152
           }
         ],
         "long_branch_labels": [
@@ -102,11 +85,11 @@
         "long_cards": [
           {
             "id": "a.touch1",
-            "len": 138
+            "len": 121
           },
           {
             "id": "a.touch2",
-            "len": 129
+            "len": 112
           }
         ],
         "long_branch_labels": [
@@ -126,11 +109,11 @@
         "long_cards": [
           {
             "id": "a.touch1",
-            "len": 155
+            "len": 139
           },
           {
             "id": "a.touch2",
-            "len": 169
+            "len": 153
           }
         ],
         "long_branch_labels": [],
@@ -151,11 +134,11 @@
         "long_cards": [
           {
             "id": "a.inform-only",
-            "len": 161
+            "len": 144
           },
           {
             "id": "a.notify",
-            "len": 142
+            "len": 125
           }
         ],
         "long_branch_labels": [
@@ -175,11 +158,11 @@
         "long_cards": [
           {
             "id": "a.inform-only",
-            "len": 178
+            "len": 162
           },
           {
             "id": "a.notify",
-            "len": 154
+            "len": 138
           }
         ],
         "long_branch_labels": [
@@ -213,11 +196,11 @@
         "long_cards": [
           {
             "id": "a.specific-action",
-            "len": 129
+            "len": 112
           },
           {
             "id": "a.route-dependency",
-            "len": 123
+            "len": 115
           }
         ],
         "long_branch_labels": [
@@ -241,19 +224,15 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 14,
-        "distinct_canonical_nodes": 14,
+        "display_nodes": 15,
+        "distinct_canonical_nodes": 15,
         "terminal_instances": 0,
-        "edges": 25,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.specific-action",
-            "len": 120
-          },
-          {
             "id": "a.route-dependency",
-            "len": 124
+            "len": 114
           }
         ],
         "long_branch_labels": [
@@ -279,7 +258,7 @@
         "long_cards": [
           {
             "id": "a.recover",
-            "len": 131
+            "len": 114
           }
         ],
         "long_branch_labels": [],
@@ -294,7 +273,7 @@
         "long_cards": [
           {
             "id": "a.recover",
-            "len": 150
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -323,12 +302,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.ask-light",
-            "len": 117
-          },
-          {
             "id": "a.ask-heavy",
-            "len": 138
+            "len": 121
           }
         ],
         "long_branch_labels": [
@@ -349,12 +324,7 @@
         "terminal_instances": 0,
         "edges": 25,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.ask-light",
-            "len": 117
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Katkıda bulundu, kamuya açık kullanım için",
@@ -382,15 +352,11 @@
         "long_cards": [
           {
             "id": "a.prompt",
-            "len": 139
-          },
-          {
-            "id": "a.at-risk",
-            "len": 114
+            "len": 122
           },
           {
             "id": "a.remind",
-            "len": 159
+            "len": 133
           }
         ],
         "long_branch_labels": [
@@ -417,16 +383,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.prompt",
-            "len": 126
-          },
-          {
             "id": "a.at-risk",
-            "len": 155
+            "len": 139
           },
           {
             "id": "a.remind",
-            "len": 177
+            "len": 155
           }
         ],
         "long_branch_labels": [
@@ -460,7 +422,7 @@
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 152
+            "len": 135
           }
         ],
         "long_branch_labels": [
@@ -496,11 +458,7 @@
           },
           {
             "id": "a.offer",
-            "len": 151
-          },
-          {
-            "id": "a.waitlist",
-            "len": 120
+            "len": 135
           }
         ],
         "long_branch_labels": [
@@ -574,7 +532,7 @@
         "long_cards": [
           {
             "id": "a.educate2",
-            "len": 151
+            "len": 134
           }
         ],
         "long_branch_labels": [],
@@ -589,11 +547,11 @@
         "long_cards": [
           {
             "id": "a.educate",
-            "len": 129
+            "len": 113
           },
           {
             "id": "a.educate2",
-            "len": 151
+            "len": 135
           }
         ],
         "long_branch_labels": [],
@@ -618,7 +576,7 @@
           },
           {
             "id": "a.offer",
-            "len": 155
+            "len": 138
           }
         ],
         "long_branch_labels": [],
@@ -632,12 +590,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.ask",
-            "len": 115
-          },
-          {
             "id": "a.offer",
-            "len": 153
+            "len": 137
           }
         ],
         "long_branch_labels": [],
@@ -658,11 +612,11 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 130
+            "len": 113
           },
           {
             "id": "a.ending",
-            "len": 148
+            "len": 131
           }
         ],
         "long_branch_labels": [],
@@ -677,11 +631,11 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 141
+            "len": 125
           },
           {
             "id": "a.ending",
-            "len": 140
+            "len": 124
           }
         ],
         "long_branch_labels": [],
@@ -702,11 +656,7 @@
         "long_cards": [
           {
             "id": "a.deliver",
-            "len": 121
-          },
-          {
-            "id": "a.nurture",
-            "len": 114
+            "len": 113
           }
         ],
         "long_branch_labels": [],
@@ -721,15 +671,11 @@
         "long_cards": [
           {
             "id": "a.first-touch",
-            "len": 126
+            "len": 116
           },
           {
             "id": "a.deliver",
-            "len": 147
-          },
-          {
-            "id": "a.nurture",
-            "len": 116
+            "len": 137
           }
         ],
         "long_branch_labels": [],
@@ -754,7 +700,7 @@
           },
           {
             "id": "a.reminder2-hv",
-            "len": 152
+            "len": 144
           },
           {
             "id": "a.reminder2-std",
@@ -820,10 +766,6 @@
             "len": 117
           },
           {
-            "id": "a.reminder2-hv",
-            "len": 114
-          },
-          {
             "id": "a.reminder2-std",
             "len": 120
           }
@@ -850,17 +792,17 @@
           },
           {
             "id": "a.owner-task",
-            "len": 123
+            "len": 115
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 12,
-        "distinct_canonical_nodes": 12,
+        "display_nodes": 13,
+        "distinct_canonical_nodes": 13,
         "terminal_instances": 0,
-        "edges": 22,
+        "edges": 23,
         "internal_cards": 0,
         "long_cards": [],
         "long_branch_labels": [
@@ -938,15 +880,7 @@
         "long_cards": [
           {
             "id": "a.alert-contained",
-            "len": 142
-          },
-          {
-            "id": "a.alert-watch",
             "len": 125
-          },
-          {
-            "id": "a.standing",
-            "len": 126
           }
         ],
         "long_branch_labels": [],
@@ -961,15 +895,11 @@
         "long_cards": [
           {
             "id": "a.alert-contained",
-            "len": 150
+            "len": 134
           },
           {
             "id": "a.alert-watch",
-            "len": 132
-          },
-          {
-            "id": "a.standing",
-            "len": 111
+            "len": 116
           }
         ],
         "long_branch_labels": [],
@@ -990,10 +920,6 @@
         "long_cards": [
           {
             "id": "a.prompt-alt",
-            "len": 131
-          },
-          {
-            "id": "a.confirm",
             "len": 114
           }
         ],
@@ -1009,11 +935,11 @@
         "long_cards": [
           {
             "id": "a.prompt-alt",
-            "len": 132
+            "len": 116
           },
           {
             "id": "a.confirm",
-            "len": 155
+            "len": 133
           }
         ],
         "long_branch_labels": [
@@ -1039,7 +965,7 @@
         "long_cards": [
           {
             "id": "a.remind",
-            "len": 165
+            "len": 139
           }
         ],
         "long_branch_labels": [],
@@ -1058,7 +984,7 @@
           },
           {
             "id": "a.remind",
-            "len": 160
+            "len": 138
           }
         ],
         "long_branch_labels": [],
@@ -1078,12 +1004,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.correct",
-            "len": 115
-          },
-          {
             "id": "a.offer-route",
-            "len": 159
+            "len": 142
           }
         ],
         "long_branch_labels": [
@@ -1114,16 +1036,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.correct",
-            "len": 119
-          },
-          {
             "id": "a.alternate",
             "len": 122
           },
           {
             "id": "a.offer-route",
-            "len": 145
+            "len": 129
           }
         ],
         "long_branch_labels": [
@@ -1164,16 +1082,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.dispatch",
-            "len": 127
-          },
-          {
             "id": "a.no-arrival",
-            "len": 158
+            "len": 141
           },
           {
             "id": "a.accept-request",
-            "len": 161
+            "len": 144
           }
         ],
         "long_branch_labels": [
@@ -1193,7 +1107,7 @@
         "long_cards": [
           {
             "id": "a.dispatch",
-            "len": 144
+            "len": 128
           }
         ],
         "long_branch_labels": [],
@@ -1214,7 +1128,7 @@
         "long_cards": [
           {
             "id": "a.distribute",
-            "len": 130
+            "len": 122
           }
         ],
         "long_branch_labels": [],
@@ -1264,7 +1178,7 @@
         "long_cards": [
           {
             "id": "a.attempt",
-            "len": 150
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -1289,16 +1203,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.recognize",
-            "len": 115
-          },
-          {
             "id": "a.surface",
-            "len": 149
+            "len": 132
           },
           {
             "id": "a.next-behavior",
-            "len": 156
+            "len": 139
           }
         ],
         "long_branch_labels": [],
@@ -1313,11 +1223,11 @@
         "long_cards": [
           {
             "id": "a.surface",
-            "len": 155
+            "len": 139
           },
           {
             "id": "a.next-behavior",
-            "len": 171
+            "len": 155
           }
         ],
         "long_branch_labels": [],
@@ -1337,16 +1247,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.ready",
-            "len": 126
-          },
-          {
-            "id": "a.brief",
-            "len": 120
-          },
-          {
             "id": "a.remind",
-            "len": 136
+            "len": 119
           }
         ],
         "long_branch_labels": [],
@@ -1361,11 +1263,11 @@
         "long_cards": [
           {
             "id": "a.brief",
-            "len": 150
+            "len": 134
           },
           {
             "id": "a.remind",
-            "len": 146
+            "len": 130
           }
         ],
         "long_branch_labels": [],
@@ -1386,19 +1288,15 @@
         "long_cards": [
           {
             "id": "a.requalify",
-            "len": 138
+            "len": 121
           },
           {
             "id": "a.replace",
-            "len": 145
-          },
-          {
-            "id": "a.no-route",
-            "len": 123
+            "len": 128
           },
           {
             "id": "a.confirm",
-            "len": 154
+            "len": 137
           }
         ],
         "long_branch_labels": [],
@@ -1413,19 +1311,19 @@
         "long_cards": [
           {
             "id": "a.renew",
-            "len": 131
+            "len": 115
           },
           {
             "id": "a.requalify",
-            "len": 167
+            "len": 151
           },
           {
             "id": "a.replace",
-            "len": 154
+            "len": 138
           },
           {
             "id": "a.no-route",
-            "len": 140
+            "len": 124
           }
         ],
         "long_branch_labels": [],
@@ -1456,7 +1354,7 @@
         "long_cards": [
           {
             "id": "a.request",
-            "len": 168
+            "len": 146
           }
         ],
         "long_branch_labels": [],
@@ -1481,15 +1379,7 @@
           },
           {
             "id": "a.obligation",
-            "len": 124
-          },
-          {
-            "id": "a.acknowledge",
-            "len": 122
-          },
-          {
-            "id": "a.acknowledge-negative",
-            "len": 112
+            "len": 116
           }
         ],
         "long_branch_labels": [
@@ -1501,19 +1391,19 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 28,
-        "distinct_canonical_nodes": 28,
+        "display_nodes": 29,
+        "distinct_canonical_nodes": 29,
         "terminal_instances": 0,
-        "edges": 58,
+        "edges": 59,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.obligation",
-            "len": 136
+            "len": 126
           },
           {
             "id": "a.acknowledge",
-            "len": 131
+            "len": 115
           }
         ],
         "long_branch_labels": [
@@ -1610,15 +1500,11 @@
         "long_cards": [
           {
             "id": "a.delay-update",
-            "len": 145
-          },
-          {
-            "id": "a.offer",
-            "len": 125
+            "len": 128
           },
           {
             "id": "a.no-choice-update",
-            "len": 138
+            "len": 121
           }
         ],
         "long_branch_labels": [
@@ -1639,12 +1525,7 @@
         "terminal_instances": 0,
         "edges": 32,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.offer",
-            "len": 125
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Güvenilir bir tahmin var · Güvenilir bir tahmin yok",
@@ -1675,16 +1556,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.notify-quiet",
-            "len": 123
-          },
-          {
             "id": "a.last-call",
-            "len": 134
-          },
-          {
-            "id": "a.confirm",
-            "len": 113
+            "len": 117
           }
         ],
         "long_branch_labels": [],
@@ -1699,19 +1572,19 @@
         "long_cards": [
           {
             "id": "a.notify-quiet",
-            "len": 133
+            "len": 117
           },
           {
             "id": "a.last-call",
-            "len": 139
+            "len": 123
           },
           {
             "id": "a.confirm",
-            "len": 132
+            "len": 116
           },
           {
             "id": "a.lost",
-            "len": 182
+            "len": 166
           }
         ],
         "long_branch_labels": [],
@@ -1732,7 +1605,7 @@
         "long_cards": [
           {
             "id": "a.communicate",
-            "len": 138
+            "len": 121
           }
         ],
         "long_branch_labels": [
@@ -1797,11 +1670,7 @@
           },
           {
             "id": "a.touch1",
-            "len": 143
-          },
-          {
-            "id": "a.touch2",
-            "len": 113
+            "len": 126
           }
         ],
         "long_branch_labels": [
@@ -1826,12 +1695,7 @@
         "terminal_instances": 0,
         "edges": 22,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.touch2",
-            "len": 124
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Ayrılma nedenlerine hitap eden bir şey değişti · Belirli bir şey yok",
@@ -2096,12 +1960,7 @@
         "terminal_instances": 0,
         "edges": 25,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.request",
-            "len": 123
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Müşteri veya hesap sahibi",
@@ -2133,22 +1992,22 @@
           },
           {
             "id": "a.acknowledge",
-            "len": 162
+            "len": 145
           }
         ],
         "long_branch_labels": [],
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 11,
-        "distinct_canonical_nodes": 11,
+        "display_nodes": 12,
+        "distinct_canonical_nodes": 12,
         "terminal_instances": 0,
-        "edges": 18,
+        "edges": 19,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "a.acknowledge",
-            "len": 144
+            "len": 128
           }
         ],
         "long_branch_labels": [],
@@ -2179,11 +2038,11 @@
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 170
+            "len": 154
           },
           {
             "id": "a.acknowledge",
-            "len": 153
+            "len": 143
           }
         ],
         "long_branch_labels": [
@@ -2278,7 +2137,7 @@
         "long_cards": [
           {
             "id": "a.confirm",
-            "len": 173
+            "len": 147
           }
         ],
         "long_branch_labels": [
@@ -2299,12 +2158,7 @@
         "terminal_instances": 0,
         "edges": 14,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.confirm",
-            "len": 128
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Tamamı kabul edildi · Bir kısmı kabul edildi",
@@ -2332,11 +2186,11 @@
         "long_cards": [
           {
             "id": "a.remind",
-            "len": 129
+            "len": 112
           },
           {
             "id": "a.overdue",
-            "len": 154
+            "len": 137
           }
         ],
         "long_branch_labels": [
@@ -2364,11 +2218,11 @@
         "long_cards": [
           {
             "id": "a.remind",
-            "len": 127
+            "len": 111
           },
           {
             "id": "a.overdue",
-            "len": 152
+            "len": 136
           }
         ],
         "long_branch_labels": [
@@ -2402,19 +2256,11 @@
         "long_cards": [
           {
             "id": "a.corrective",
-            "len": 157
-          },
-          {
-            "id": "a.offer-alternate",
-            "len": 122
-          },
-          {
-            "id": "a.confirmed",
-            "len": 117
+            "len": 140
           },
           {
             "id": "a.remind",
-            "len": 145
+            "len": 128
           }
         ],
         "long_branch_labels": [
@@ -2446,11 +2292,11 @@
         "long_cards": [
           {
             "id": "a.offer-alternate",
-            "len": 128
+            "len": 112
           },
           {
             "id": "a.remind",
-            "len": 159
+            "len": 143
           }
         ],
         "long_branch_labels": [
@@ -2593,11 +2439,11 @@
           },
           {
             "id": "a.checkin",
-            "len": 165
+            "len": 139
           },
           {
             "id": "a.late-detail",
-            "len": 148
+            "len": 122
           }
         ],
         "long_branch_labels": [
@@ -2617,11 +2463,11 @@
         "long_cards": [
           {
             "id": "a.checkin",
-            "len": 154
+            "len": 132
           },
           {
             "id": "a.late-detail",
-            "len": 158
+            "len": 136
           }
         ],
         "long_branch_labels": [
@@ -2651,11 +2497,11 @@
         "long_cards": [
           {
             "id": "a.prompt-action",
-            "len": 156
+            "len": 130
           },
           {
             "id": "a.inform",
-            "len": 127
+            "len": 119
           }
         ],
         "long_branch_labels": [],
@@ -2669,12 +2515,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.prompt-action",
-            "len": 113
-          },
-          {
             "id": "a.inform",
-            "len": 143
+            "len": 133
           },
           {
             "id": "h.expiry",
@@ -2708,11 +2550,7 @@
           },
           {
             "id": "a.touch1",
-            "len": 151
-          },
-          {
-            "id": "a.touch2",
-            "len": 122
+            "len": 134
           }
         ],
         "long_branch_labels": [],
@@ -2727,11 +2565,11 @@
         "long_cards": [
           {
             "id": "a.touch1",
-            "len": 234
+            "len": 218
           },
           {
             "id": "a.touch2",
-            "len": 139
+            "len": 123
           }
         ],
         "long_branch_labels": [],
@@ -2755,12 +2593,8 @@
             "len": 156
           },
           {
-            "id": "a.settled",
-            "len": 120
-          },
-          {
             "id": "a.partial",
-            "len": 130
+            "len": 113
           }
         ],
         "long_branch_labels": [
@@ -2780,15 +2614,11 @@
         "long_cards": [
           {
             "id": "a.issued",
-            "len": 143
-          },
-          {
-            "id": "a.settled",
-            "len": 124
+            "len": 127
           },
           {
             "id": "a.partial",
-            "len": 158
+            "len": 142
           }
         ],
         "long_branch_labels": [
@@ -2817,16 +2647,12 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.invite-known",
-            "len": 115
-          },
-          {
             "id": "a.confirm",
-            "len": 157
+            "len": 140
           },
           {
             "id": "a.remind",
-            "len": 136
+            "len": 119
           }
         ],
         "long_branch_labels": [],
@@ -2841,15 +2667,15 @@
         "long_cards": [
           {
             "id": "a.invite-new",
-            "len": 160
-          },
-          {
-            "id": "a.confirm",
             "len": 144
           },
           {
+            "id": "a.confirm",
+            "len": 128
+          },
+          {
             "id": "a.remind",
-            "len": 158
+            "len": 142
           }
         ],
         "long_branch_labels": [
@@ -2874,12 +2700,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.present",
-            "len": 118
-          },
-          {
             "id": "a.no-remedy",
-            "len": 151
+            "len": 134
           }
         ],
         "long_branch_labels": [
@@ -2903,7 +2725,7 @@
         "long_cards": [
           {
             "id": "a.present",
-            "len": 133
+            "len": 117
           }
         ],
         "long_branch_labels": [
@@ -2945,7 +2767,7 @@
           },
           {
             "id": "a.request",
-            "len": 166
+            "len": 140
           }
         ],
         "long_branch_labels": [
@@ -2969,7 +2791,7 @@
           },
           {
             "id": "a.request",
-            "len": 172
+            "len": 150
           }
         ],
         "long_branch_labels": [
@@ -2999,19 +2821,11 @@
         "long_cards": [
           {
             "id": "a.received",
-            "len": 146
-          },
-          {
-            "id": "a.lapse",
-            "len": 113
+            "len": 129
           },
           {
             "id": "a.reoffer",
-            "len": 130
-          },
-          {
-            "id": "a.decline",
-            "len": 111
+            "len": 113
           }
         ],
         "long_branch_labels": [],
@@ -3026,19 +2840,19 @@
         "long_cards": [
           {
             "id": "a.received",
-            "len": 150
-          },
-          {
-            "id": "a.lapse",
-            "len": 153
-          },
-          {
-            "id": "a.confirm",
             "len": 134
           },
           {
+            "id": "a.lapse",
+            "len": 137
+          },
+          {
+            "id": "a.confirm",
+            "len": 118
+          },
+          {
             "id": "a.reoffer",
-            "len": 152
+            "len": 136
           }
         ],
         "long_branch_labels": [
@@ -3068,15 +2882,15 @@
         "long_cards": [
           {
             "id": "a.remind",
-            "len": 151
+            "len": 134
           },
           {
             "id": "a.final",
-            "len": 151
+            "len": 125
           },
           {
             "id": "a.lapse",
-            "len": 139
+            "len": 122
           }
         ],
         "long_branch_labels": [
@@ -3104,11 +2918,11 @@
         "long_cards": [
           {
             "id": "a.final",
-            "len": 177
+            "len": 155
           },
           {
             "id": "a.lapse",
-            "len": 136
+            "len": 120
           }
         ],
         "long_branch_labels": [
@@ -3135,12 +2949,7 @@
         "terminal_instances": 0,
         "edges": 28,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.followup",
-            "len": 126
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [
           {
             "label": "Recovered without answering",
@@ -3158,7 +2967,7 @@
         "long_cards": [
           {
             "id": "a.followup",
-            "len": 138
+            "len": 122
           }
         ],
         "long_branch_labels": [
@@ -3224,10 +3033,6 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.ask",
-            "len": 123
-          },
-          {
             "id": "a.persist",
             "len": 128
           }
@@ -3236,17 +3041,12 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 8,
-        "distinct_canonical_nodes": 8,
+        "display_nodes": 9,
+        "distinct_canonical_nodes": 9,
         "terminal_instances": 0,
-        "edges": 15,
+        "edges": 16,
         "internal_cards": 0,
-        "long_cards": [
-          {
-            "id": "a.ask",
-            "len": 123
-          }
-        ],
+        "long_cards": [],
         "long_branch_labels": [],
         "locale_leaks": []
       }
@@ -3265,11 +3065,11 @@
         "long_cards": [
           {
             "id": "a.request",
-            "len": 141
+            "len": 133
           },
           {
             "id": "a.remind",
-            "len": 120
+            "len": 112
           }
         ],
         "long_branch_labels": [
@@ -3293,11 +3093,11 @@
         "long_cards": [
           {
             "id": "a.request",
-            "len": 133
+            "len": 123
           },
           {
             "id": "a.remind",
-            "len": 137
+            "len": 127
           }
         ],
         "long_branch_labels": [
@@ -3327,19 +3127,11 @@
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 146
-          },
-          {
-            "id": "a.confirm",
-            "len": 134
-          },
-          {
-            "id": "a.final",
-            "len": 133
+            "len": 120
           },
           {
             "id": "a.followup",
-            "len": 172
+            "len": 146
           }
         ],
         "long_branch_labels": [],
@@ -3354,19 +3146,19 @@
         "long_cards": [
           {
             "id": "a.offer",
-            "len": 165
+            "len": 143
           },
           {
             "id": "a.confirm",
-            "len": 153
+            "len": 131
           },
           {
             "id": "a.final",
-            "len": 139
+            "len": 117
           },
           {
             "id": "a.followup",
-            "len": 172
+            "len": 150
           }
         ],
         "long_branch_labels": [],
@@ -3387,15 +3179,11 @@
         "long_cards": [
           {
             "id": "a.resolved-now",
-            "len": 128
+            "len": 111
           },
           {
             "id": "a.acknowledge",
-            "len": 131
-          },
-          {
-            "id": "a.resolution",
-            "len": 112
+            "len": 114
           }
         ],
         "long_branch_labels": [
@@ -3414,12 +3202,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.resolved-now",
-            "len": 123
-          },
-          {
             "id": "a.resolution",
-            "len": 140
+            "len": 124
           }
         ],
         "long_branch_labels": [
@@ -3454,10 +3238,6 @@
           {
             "id": "c.final",
             "len": 121
-          },
-          {
-            "id": "a.confirm-end",
-            "len": 112
           }
         ],
         "long_branch_labels": [],
@@ -3476,7 +3256,7 @@
           },
           {
             "id": "a.confirm-end",
-            "len": 123
+            "len": 113
           }
         ],
         "long_branch_labels": [],
@@ -3501,7 +3281,7 @@
           },
           {
             "id": "a.touch1",
-            "len": 160
+            "len": 143
           }
         ],
         "long_branch_labels": [
@@ -3521,7 +3301,7 @@
         "long_cards": [
           {
             "id": "a.touch1",
-            "len": 182
+            "len": 166
           }
         ],
         "long_branch_labels": [
@@ -3551,11 +3331,11 @@
         "long_cards": [
           {
             "id": "a.inform-hold",
-            "len": 151
+            "len": 134
           },
           {
             "id": "a.last-call",
-            "len": 143
+            "len": 126
           }
         ],
         "long_branch_labels": [],
@@ -3570,15 +3350,15 @@
         "long_cards": [
           {
             "id": "a.name-blocker",
-            "len": 180
+            "len": 164
           },
           {
             "id": "a.inform-hold",
-            "len": 181
+            "len": 165
           },
           {
             "id": "a.last-call",
-            "len": 143
+            "len": 127
           }
         ],
         "long_branch_labels": [],
@@ -3599,15 +3379,11 @@
         "long_cards": [
           {
             "id": "a.at-the-wall",
-            "len": 156
-          },
-          {
-            "id": "a.offer-self",
-            "len": 111
+            "len": 139
           },
           {
             "id": "a.notify-blocked-party",
-            "len": 143
+            "len": 126
           }
         ],
         "long_branch_labels": [],
@@ -3621,20 +3397,8 @@
         "internal_cards": 0,
         "long_cards": [
           {
-            "id": "a.offer-self",
-            "len": 116
-          },
-          {
-            "id": "a.offer-holder",
-            "len": 124
-          },
-          {
             "id": "a.notify-blocked-party",
-            "len": 129
-          },
-          {
-            "id": "a.reset",
-            "len": 124
+            "len": 113
           }
         ],
         "long_branch_labels": [
@@ -3660,7 +3424,7 @@
         "long_cards": [
           {
             "id": "a.explain-terminal",
-            "len": 149
+            "len": 132
           }
         ],
         "long_branch_labels": [
@@ -3680,11 +3444,11 @@
         "long_cards": [
           {
             "id": "a.explain-terminal",
-            "len": 162
+            "len": 146
           },
           {
             "id": "a.explain",
-            "len": 134
+            "len": 118
           }
         ],
         "long_branch_labels": [],

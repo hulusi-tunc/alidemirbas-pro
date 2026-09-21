@@ -248,24 +248,45 @@ function actionTitle(node: FlowNode, lang: Lang): string | null {
   return node.touchStage ? stageTitle(node.touchStage, lang) : null;
 }
 
-/** The channel-priority rows: a labelled "Primary"/"Fallback" pair (or
-    longer chain), never a bare arrow - "Push → Email" alone read as two
-    channels a message goes out on in sequence, not as "try Push, and only
-    if it fails, Email" (2026-09-19 feedback: the arrow-only chip was
-    genuinely ambiguous). Shared by a channel-selecting action and, when it
-    inherited that action's own priority, the message/human action right
-    after it (see `FlowNode.channelPriority`) - one presentation for every
-    router+message pairing on the canvas, not a per-journey choice. */
-function ChannelPriorityRow({ groups, lang }: { groups: readonly (readonly ChannelId[])[]; lang: Lang }) {
+/** The channel row: plain pills by default, and a labelled "Primary" /
+    "Fallback" pair (or longer chain) ONLY where the journey backs that
+    claim - never a bare arrow either, which "Push → Email" alone read as
+    two channels a message goes out on in sequence rather than as "try
+    Push, and only if it fails, Email" (2026-09-19 feedback: the
+    arrow-only chip was genuinely ambiguous).
+
+    `ranked` decides which of those two this row is. It must be true only
+    when the groups it is given really are a tried-in-order cascade:
+    - a single group is never ranked - one channel, or one role's set of
+      alternates, is not a priority relative to anything else, and a lone
+      "Primary" row asserted a cascade of one (2026-09-21 fix: this is
+      what put `Primary: Task` on an internal owner-task card, and
+      `Primary: Email` on every single-channel journey in the corpus).
+    - two or more groups are ranked only when the journey's own
+      `channelStrategy.fallback` is `"next-eligible-role"` - the one
+      value that means the roles `channelPlan` lists are actually tried
+      in that order. `"same-role-other-channel"` describes delivery
+      recovery inside ONE role, never a cascade between the roles this
+      row is showing, and `"none"` or an absent value backs no ordering
+      claim at all. Callers that already know their own priority list is
+      a genuine resolved cascade (`RouterCard`, over an actual router
+      node's own sequential logic) pass `ranked` themselves instead of
+      deriving it from `channelStrategy.fallback`.
+
+    Un-ranked, multi-group rows still stack one row per group (a role can
+    carry more than one channel - "low-friction" is push AND in-app, both
+    pills on that one row) but carry no rank word at all, so nothing on
+    the card claims an order the data does not. */
+function ChannelPriorityRow({ groups, lang, ranked }: { groups: readonly (readonly ChannelId[])[]; lang: Lang; ranked: boolean }) {
   const w = CARD_TEXT[lang];
+  const showRank = ranked && groups.length >= 2;
   return (
     <div className="mt-2.5 flex flex-col gap-1 [[data-lod=far]_&]:hidden">
       {groups.map((ids, i) => (
         <span key={ids.join("+")} className="flex items-center gap-2">
-          <span className="w-[62px] shrink-0 text-[11px] text-ink-400">{i === 0 ? w.primary : w.fallback}</span>
-          {/* A role can carry more than one channel (low-friction is push
-              AND in-app): both pills sit on the one row, because they are
-              one step of the priority, not two. */}
+          {showRank ? (
+            <span className="w-[62px] shrink-0 text-[11px] text-ink-400">{i === 0 ? w.primary : w.fallback}</span>
+          ) : null}
           <span className="flex flex-wrap gap-1">
             {ids.map((id) => (
               <span key={id} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[id].pill}`}>
@@ -525,7 +546,7 @@ function RouterCard({ node, onOpen, priority, lang }: { node: FlowNode; onOpen: 
       <KindRow kind={KIND.router} icon={<Route aria-hidden />}>
         {w.channelSelection}
       </KindRow>
-      <ChannelPriorityRow groups={priority.map((id) => [id])} lang={lang} />
+      <ChannelPriorityRow groups={priority.map((id) => [id])} lang={lang} ranked />
     </Shell>
   );
 }
@@ -580,6 +601,14 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
     : (priority?.length ?? 0) >= 2
       ? priority!.map((id) => [id])
       : [];
+  /* `channelPlan` is the journey's own declared role list - ranked only
+     when `channelStrategy.fallback` says those roles are actually tried
+     in that order (see `ChannelPriorityRow`). `channelPriority` is
+     inherited from an adjacent router node the display graph collapsed
+     into this same card - that router's sequence is already a resolved
+     cascade by construction, the same as `RouterCard` reads it, so it is
+     always ranked. */
+  const ranked = plan?.length ? node.channelStrategyFallback === "next-eligible-role" : true;
   const title = actionTitle(node, lang) ?? (isHuman ? w.human : w.message);
   return (
     <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${far} py-2.5`}>
@@ -593,7 +622,7 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
           because this one sits under a title that already names the touch. */}
       <p className="mt-1.5 line-clamp-1 text-[13px] leading-snug text-ink-600 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
       {groups.length ? (
-        <ChannelPriorityRow groups={groups} lang={lang} />
+        <ChannelPriorityRow groups={groups} lang={lang} ranked={ranked} />
       ) : routes.length > 0 ? (
         <span className="mt-2.5 flex flex-wrap gap-1 [[data-lod=far]_&]:hidden">
           {routes.map((r) => (
