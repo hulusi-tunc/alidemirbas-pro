@@ -72,6 +72,22 @@ node audit/locale-sweep.mjs 4511      # English prose on every PUBLIC TR ROUTE â
                                       # allowlist and its two reported-not-failed exclusions (the
                                       # Info tiles' canonical fields, the practitioner `<details>`)
                                       # are explained in `audit/locale-sweep-notes.md`.
+node audit/preset-locale.mjs [port]   # Turkish for every PRACTITIONER PRESET (canonical
+                                      # `discovery.presets`; 8 today). The sweep above CANNOT
+                                      # see these: a two-word chip ("Browse Abandonment") never
+                                      # reaches its two-function-word threshold, and the
+                                      # `applicableWhen` sentence is a `discovery` field, which
+                                      # it reports as the known Info-tab gap rather than failing
+                                      # on. So this one compares the PAGE AGAINST THE SOURCE
+                                      # DATA instead of sniffing for English-looking words: every
+                                      # preset in production/canonical-dump.json must have an
+                                      # entry in `PRESET_TR` (src/lib/journey-tr-overrides.ts,
+                                      # closed in both directions), and with a port it also
+                                      # asserts the rendered TR routes carry the Turkish and not
+                                      # the English, the gallery's RSC props carry it too (its
+                                      # preset cards are client-rendered), and the EN routes are
+                                      # untouched. Data-only without a port. Notes and before/
+                                      # after evidence: `audit/preset-localization-notes.md`.
 ```
 
 **Run `audit/guard-display.mjs` BEFORE `audit/build-manifest.mjs`.** The manifest rewrites

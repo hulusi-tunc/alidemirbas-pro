@@ -22,7 +22,7 @@ import {
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
-import { localizedJourneyNaming } from "@/lib/journey-tr-overrides";
+import { localizedJourneyNaming, localizedPreset } from "@/lib/journey-tr-overrides";
 import { breadcrumbList, type BreadcrumbItem } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
@@ -207,6 +207,11 @@ export default function LabPage({
      order, counts and thumbnails are untouched, and on `en` the function
      returns its argument. */
   const localizedRows = rows.map((r) => localizedJourneyNaming(r, lang));
+  /* Same boundary, same rule, for the preset cards the customer-journeys
+     gallery shows above the list: name, applicable-when, parent name and
+     category title, translated once here rather than inside the client
+     component. `localizedPreset` returns its argument on `en`. */
+  const localizedPresets = PRESET_ROWS.map((p) => localizedPreset(p, lang));
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   const pageTitle = title ?? t.lab.page.title;
   const pageIntro =
@@ -254,7 +259,7 @@ export default function LabPage({
                 categories={CATEGORY_META}
                 surface={surface}
                 surfaceLinks={SURFACE_KEYS.map((k) => ({ key: k, href: (lang === "en" ? "" : "/tr") + SURFACE_PATH[k], label: t.lab.journeysSplit.surfaceLabels[k] }))}
-                presets={surface === "customer-journeys" ? PRESET_ROWS : []}
+                presets={surface === "customer-journeys" ? localizedPresets : []}
                 emptyChannelLabel={
                   surface === "lifecycle-states"
                     ? t.lab.journeysSplit.silentBadge

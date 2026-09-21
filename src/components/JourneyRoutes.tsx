@@ -9,7 +9,7 @@ import JourneyInfo, { JourneyChips, journeyCategoryId, journeyTitle } from "@/co
 import { CategoryIcon, categoryAccent } from "@/components/ui/LibraryChrome";
 import JourneyModal from "@/components/JourneyModal";
 import { resolveDetailSlug } from "@/lib/canonical-view";
-import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
+import { localizedJourneyDetail, localizedPreset } from "@/lib/journey-tr-overrides";
 import { copy, EMAIL, type Lang } from "@/lib/content";
 import { pageAlternates, SITE_URL } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
@@ -43,11 +43,15 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
   const suffix = lang === "en" ? "Journey Library" : "Journey Kütüphanesi";
 
   /* A preset is its own page: its own title, its own canonical, the parent's
-     practitioner view with the preset applied. */
+     practitioner view with the preset applied. The title and the description
+     ARE the preset's own two strings, so they take the same TR content layer
+     the page body does - a Turkish page whose <title> and meta description
+     are English is the same leak one layer up. */
   if (preset) {
+    const p = localizedPreset(preset, lang);
     return {
-      title: `${preset.name} - ${suffix}`,
-      description: preset.applicableWhen,
+      title: `${p.name} - ${suffix}`,
+      description: p.applicableWhen,
       alternates: pageAlternates(`/lab/journeys/${preset.slug}`, lang),
     };
   }
@@ -90,7 +94,8 @@ export async function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string
         ...(preset
           ? [
               { name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` },
-              { name: preset.name, url: `${basePath}/${preset.slug}` },
+              // The crumb names the preset, so it names it the way the page does.
+              { name: localizedPreset(preset, lang).name, url: `${basePath}/${preset.slug}` },
             ]
           : [{ name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` }]),
       ]);

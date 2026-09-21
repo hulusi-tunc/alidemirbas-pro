@@ -19,7 +19,7 @@ import {
   withLibraryCount,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
-import { localizedJourneyNaming } from "@/lib/journey-tr-overrides";
+import { localizedJourneyNaming, localizedPreset } from "@/lib/journey-tr-overrides";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
 
@@ -180,6 +180,10 @@ function Split({ lang }: { lang: Lang }) {
     .sort((a, b) => b.nodeCount - a.nodeCount)
     .slice(0, 3)
     .map((j) => localizedJourneyNaming(j, lang));
+  // The preset chips below are the same content layer one shape along - a
+  // preset is not a journey, so it has its own localizer (see
+  // journey-tr-overrides.ts). Returns its argument on `en`.
+  const presets = PRESET_ROWS.map((p) => localizedPreset(p, lang));
   const basePath = P(lang, "/lab/journeys");
   return (
     <ProductSection tone="paper" space="lg">
@@ -221,7 +225,7 @@ function Split({ lang }: { lang: Lang }) {
 
             <p className="mt-5 flex flex-wrap items-center gap-1.5">
               <span className="mr-1 text-xs font-medium text-ink-subtle">{s.presetsTitle}</span>
-              {PRESET_ROWS.map((p) => (
+              {presets.map((p) => (
                 <Link
                   key={p.id}
                   href={`${basePath}/${p.slug}`}

@@ -1,0 +1,24 @@
+{
+  "base": null,
+  "presets": [
+    "quote-abandonment",
+    "application-abandonment",
+    "incomplete-registration",
+    "saved-item-reminder",
+    "browse-abandonment",
+    "product-view-abandonment",
+    "search-abandonment",
+    "predicted-next-purchase"
+  ],
+  "translated": [
+    "quote-abandonment",
+    "application-abandonment",
+    "incomplete-registration",
+    "saved-item-reminder",
+    "browse-abandonment",
+    "product-view-abandonment",
+    "search-abandonment",
+    "predicted-next-purchase"
+  ],
+  "failures": []
+}

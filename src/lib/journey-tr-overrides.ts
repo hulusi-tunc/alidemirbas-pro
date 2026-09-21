@@ -33,8 +33,16 @@ import type { Lang } from "@/lib/content";
       Coverage is tracked by `TRANSLATION_COVERAGE` below rather than
       claimed silently - see that constant's own comment.
 
-   ENGLISH ON THE EN ROUTE, always: `localizedJourneyDetail` returns
-   `detail` unchanged for any lang other than "tr". */
+   3. PRESETS. `PRESET_TR` near the bottom of the file. A preset
+      (canonical `discovery.presets`) is the one shape the library renders
+      that is NOT a journey and not a node, so it fitted neither key this
+      file is built on and went untranslated everywhere it appears. Same
+      discipline as layer 1's category titles: a closed map of every preset
+      the public corpus declares, applied by one localizer at the boundary,
+      throwing rather than falling back to English on a miss.
+
+   ENGLISH ON THE EN ROUTE, always: every localizer here returns its
+   argument unchanged for any lang other than "tr". */
 
 /* ---------------------------------------------------------------- layer 1 */
 
@@ -4871,6 +4879,28 @@ export function localizedJourneyDetail(detail: JourneyDetail, lang: Lang): Journ
       d.name ? { ...d, name: OVERRIDES[d.journey]?.name ?? d.name } : d,
     ),
     nodes: structured.map((n) => localizeNodeContent(n, override?.nodes?.[n.id])),
+    /* The preset half of the page: the applied preset (title card, the
+       "preset of" line, the practitioner banner) and the parent's list of
+       its own presets. `localizedPreset` is the single mechanism - see its
+       own comment for every place a preset's text surfaces.
+
+       The practitioner view is otherwise English on the TR route by a
+       standing decision (see this file's header and
+       audit/locale-sweep-notes.md: its deeper technical fields are a
+       translation backlog, not a wiring bug). The preset banner is the one
+       part of it reached here, because the preset's own name and rule are
+       what the URL promises - they are also the page's <title> and its
+       meta description - and leaving them English inside a Turkish page
+       would be the same leak this table exists to close. */
+    preset: detail.preset ? localizedPreset(detail.preset, lang) : null,
+    presets: detail.presets.map((p) => localizedPreset(p, lang)),
+    practitioner: detail.practitioner
+      ? {
+          ...detail.practitioner,
+          preset: detail.practitioner.preset ? localizedPreset(detail.practitioner.preset, lang) : null,
+          presets: detail.practitioner.presets.map((p) => localizedPreset(p, lang)),
+        }
+      : detail.practitioner,
   };
 }
 
@@ -4911,6 +4941,160 @@ export function localizedJourneyNaming<T extends JourneyNaming>(row: T, lang: La
       ? { shortName: override?.shortName ?? row.shortName }
       : {}),
     purpose: override?.purpose ?? row.purpose,
+  };
+}
+
+/* ------------------------------------------------------------- presets --
+
+   A preset is a named specialisation of a communicating customer journey -
+   canonical `discovery.presets`, projected as `PresetRow` by
+   canonical-view.ts and as `PractitionerView.preset`/`.presets` by
+   practitioner-view.ts. It is the one canonical shape that is NOT a journey
+   and therefore had no slot in this file, which is keyed by journey id and
+   node id: that is the whole reason every preset name and every
+   `applicableWhen` sentence stood in English on the Turkish routes.
+
+   Where a preset's own text reaches a TR page (all of it goes through
+   `localizedPreset` below, at the boundary, never patched per call site):
+
+     /tr/lab/journeys                     the chip row on the library's
+                                          landing page (JourneyLibraryPage)
+     /tr/lab/customer-journeys            the preset cards above the gallery
+                                          (JourneyGallery, via LabPage)
+     /tr/lab/journeys/<preset-id>         its own page - title card, the
+                                          "preset of" line, and the banner +
+                                          parent's preset list inside the
+                                          practitioner view
+     <head> of that page                  `journeyMetadata`'s title and
+                                          description (JourneyRoutes.tsx)
+     JSON-LD                              the breadcrumb's last crumb
+
+   CLOSED, AND LOUD ON A MISS, exactly like `CATEGORY_TITLE_TR` above: every
+   preset the public corpus declares is translated here, so a preset added
+   to `src/canonical` without a Turkish entry fails the render by name
+   instead of quietly shipping "Browse Abandonment" onto a Turkish page.
+   `audit/locale-sweep.mjs` cannot catch that class - a two-word title never
+   reaches its two-distinct-function-word threshold, and the
+   `applicableWhen` sentence is a `discovery` field, which that gate reports
+   as the known Info-tab gap rather than failing on. `audit/preset-locale.mjs`
+   is the check that can, and it asserts this map against the corpus.
+
+   WHAT STAYS ENGLISH, deliberately: the preset's `overrides` are config
+   KEYS and their values (`recovery.first_check`), which are canonical
+   identifiers and are never translated anywhere on this site (same rule as
+   event ids and node ids), and the journey ids quoted inside an
+   `applicableWhen` sentence (TIM-61, IDN-81, SCH-282) - an id is the thing
+   a practitioner looks up. The journey NAMED beside such an id is given in
+   Turkish, because that name is in this file under that journey's id and
+   every other TR list already shows it that way. */
+type PresetTranslation = {
+  name: string;
+  applicableWhen: string;
+  /** The canonical `destination` - rendered after "Hedef:" on the preset
+      banner. Short noun phrase, lower case, as the English is. */
+  destination: string;
+};
+
+const PRESET_TR: Readonly<Record<string, PresetTranslation>> = {
+  "quote-abandonment": {
+    name: "Teklif Terki",
+    applicableWhen:
+      "Sürdürülebilir süreç, kişinin yapılandırdığı ama kabul etmediği bir teklif ya da öneridir; sürdürülebileceği bir hedefi ve teklif sisteminin bildirdiği bir geçerlilik sonu vardır.",
+    destination: "teklif",
+  },
+  "application-abandonment": {
+    name: "Başvuru Terki",
+    applicableWhen:
+      "Sürdürülebilir süreç, durumu kaydedilmiş çok adımlı bir başvurudur; kesin bir son gönderim tarihi varsa o tarih, bu kurtarmanın değil, devir yoluyla Son Tarih Takibi'nin (TIM-61) sorumluluğundadır.",
+    destination: "başvuru",
+  },
+  "incomplete-registration": {
+    name: "Yarım Kalan Kayıt",
+    applicableWhen:
+      "Sürdürülebilir süreç, yarım bırakılmış bir kayıt ya da üyelik adımıdır; kimlik doğrulaması gerekiyorsa Kimlik Doğrulama'ya (IDN-81) devredilir ve burada bir daha istenmez.",
+    destination: "kayıt adımı",
+  },
+  "saved-item-reminder": {
+    name: "Kaydedilen Ürün Hatırlatması",
+    applicableWhen:
+      "Seçim, kaydedilmiş bir liste ya da istek listesidir: satın alma niyeti iddia edilmeyen, beyan edilmiş bir ilgi. Bu yüzden ilk kontrol çok daha geç yapılır ve yazmanın dürüst gerekçesi, kaydedilen bir üründeki değişikliktir.",
+    destination: "kaydedilmiş liste",
+  },
+  "browse-abandonment": {
+    name: "Gezinme Terki",
+    applicableWhen:
+      "Konu, kişinin tekrar tekrar gezindiği bir kategori ya da listedir; temas kategoriyi işaret eder, kişinin tek tek seçmediği bir ürünü değil.",
+    destination: "kategori ya da liste",
+  },
+  "product-view-abandonment": {
+    name: "Ürün İnceleme Terki",
+    applicableWhen:
+      "Konu, tekrar tekrar görüntülenen tek bir üründür; temas o ürünü olduğu hâliyle ve platformun bildirdiği güncel bulunabilirliğiyle gösterir.",
+    destination: "ürün",
+  },
+  "search-abandonment": {
+    name: "Arama Terki",
+    applicableWhen:
+      "Konu, hiçbir seçime yol açmamış, tekrarlanan bir aramadır; temas sonuçları oldukları hâliyle işaret eder. Bir şeyi tutan müsaitlik sorgusu SCH-282'ye aittir, buraya değil.",
+    destination: "arama sonuçları",
+  },
+  "predicted-next-purchase": {
+    name: "Öngörülen Sonraki Satın Alma",
+    applicableWhen:
+      "İhtiyaç, tek bir ürünün kullanılabilir süresinden değil, kişinin o kategorideki kendi satın alma ritminden öngörülür; işleyiş aynıdır ve öngörü bir tahmin olarak belirtilir.",
+    destination: "kategorinin yeniden sipariş yolu",
+  },
+};
+
+/** Every shape a preset leaves the server in. Structural, like
+    `localizedJourneyNaming` above and for the same reason: the contract is
+    "whatever carries a preset id and these fields", so `PresetRow`
+    (canonical-view.ts), the practitioner view's applied `preset` and the
+    parent's `presets` list all pass through the one function, and a future
+    projection is covered the moment it is passed through.
+
+    `applicableWhen` arrives as a plain string on `PresetRow` (already
+    flattened from the canonical `RuleStatement`) and as the `RuleStatement`
+    itself on the practitioner view; the label beside it is a `Label` enum
+    the page already translates from its own dictionary, so only `text`
+    changes here. */
+export type PresetNaming = {
+  id: string;
+  name: string;
+  applicableWhen?: string | { text: string };
+  destination?: string | null;
+  parentId?: string;
+  parentName?: string;
+  categoryTitle?: string;
+};
+
+export function localizedPreset<T extends PresetNaming>(row: T, lang: Lang): T {
+  if (lang !== "tr") return row;
+  const tr = PRESET_TR[row.id];
+  if (!tr) {
+    throw new Error(
+      `journey-tr-overrides: no Turkish for preset "${row.id}". PRESET_TR is a closed map of every preset the public corpus declares - add the translation there rather than letting an English preset name reach a TR page. (node audit/preset-locale.mjs names every untranslated preset.)`,
+    );
+  }
+  return {
+    ...row,
+    name: tr.name,
+    ...(row.applicableWhen !== undefined
+      ? {
+          applicableWhen:
+            typeof row.applicableWhen === "string"
+              ? tr.applicableWhen
+              : { ...row.applicableWhen, text: tr.applicableWhen },
+        }
+      : {}),
+    ...(row.destination !== undefined && row.destination !== null ? { destination: tr.destination } : {}),
+    /* The parent is a journey, so its Turkish name is where every other TR
+       list reads it from - `OVERRIDES` under the parent's own id, short name
+       first, exactly as `localizedJourneyNaming` resolves it. */
+    ...(row.parentId !== undefined && row.parentName !== undefined
+      ? { parentName: OVERRIDES[row.parentId]?.shortName ?? OVERRIDES[row.parentId]?.name ?? row.parentName }
+      : {}),
+    ...(row.categoryTitle !== undefined ? { categoryTitle: localizedCategoryTitle(row.categoryTitle, lang) } : {}),
   };
 }
 

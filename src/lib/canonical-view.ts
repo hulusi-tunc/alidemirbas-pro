@@ -176,8 +176,10 @@ const MERGED_BY_SLUG = new Map<string, MergedRedirect>(
   MERGED_REDIRECTS.map((m) => [m.from.toLowerCase(), m]),
 );
 
-/** Every slug the detail route builds: 160 public journeys, 5 public merged
-    redirects and 10 preset URLs. */
+/** Every slug the detail route builds: 158 public journeys, 5 public merged
+    redirects and 8 preset URLs. Derived, never hardcoded - these numbers are
+    here to be read, and were 160/10 until the preset localization pass counted
+    them. */
 export const ALL_DETAIL_SLUGS: readonly string[] = [
   ...PUBLIC_JOURNEYS.map((j) => j.slug),
   ...MERGED_REDIRECTS.map((m) => m.from.toLowerCase()),

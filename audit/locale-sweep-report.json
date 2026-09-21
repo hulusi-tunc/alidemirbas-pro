@@ -1,5 +1,5 @@
 {
-  "base": "http://localhost:4541",
+  "base": "http://localhost:4552",
   "routes": 172,
   "leaks": [],
   "known": [
@@ -717,42 +717,6 @@
       "reason": "practitioner disclosure"
     },
     {
-      "route": "/tr/lab/journeys/abandoned-process-recovery",
-      "text": "The resumable process is a quote or proposal the person configured and did not accept; it has a resume destination and an expiry the quoting system asserts.",
-      "hits": [
-        "the",
-        "and",
-        "not",
-        "has"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/abandoned-process-recovery",
-      "text": "The resumable process is a multi-step application with saved state; a hard submission deadline, where one exists, is owned by deadline reminder (TIM-61) through handoff, not by this recovery.",
-      "hits": [
-        "the",
-        "with",
-        "where",
-        "not",
-        "this"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/abandoned-process-recovery",
-      "text": "The resumable process is a registration or sign-up left part-way; identity verification, where required, is handed to verification (IDN-81) and never re-asked here.",
-      "hits": [
-        "the",
-        "where",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
       "route": "/tr/lab/journeys/abandoned-selection-recovery",
       "text": "A held selection is recovered against its own current state - items, availability, price - re-read before every touch, with no deadline invented for something that has none.",
       "hits": [
@@ -1363,17 +1327,6 @@
         "this",
         "which",
         "for"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/abandoned-selection-recovery",
-      "text": "The selection is a saved list or wishlist: a declared interest with no purchase intent asserted, so the first check is much later and a change on a saved item is the honest reason to write.",
-      "hits": [
-        "the",
-        "with",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -3189,19 +3142,6 @@
     },
     {
       "route": "/tr/lab/journeys/application-abandonment",
-      "text": "The resumable process is a multi-step application with saved state; a hard submission deadline, where one exists, is owned by deadline reminder (TIM-61) through handoff, not by this recovery.",
-      "hits": [
-        "the",
-        "with",
-        "where",
-        "not",
-        "this"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/application-abandonment",
       "text": "Bring the person back to the specific unfinished process and let them complete it; never claim reserved stock, a held price or a discount the system does not assert.",
       "hits": [
         "the",
@@ -3780,29 +3720,6 @@
         "that",
         "for",
         "because"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/application-abandonment",
-      "text": "The resumable process is a quote or proposal the person configured and did not accept; it has a resume destination and an expiry the quoting system asserts.",
-      "hits": [
-        "the",
-        "and",
-        "not",
-        "has"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/application-abandonment",
-      "text": "The resumable process is a registration or sign-up left part-way; identity verification, where required, is handed to verification (IDN-81) and never re-asked here.",
-      "hits": [
-        "the",
-        "where",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -5796,16 +5713,6 @@
     },
     {
       "route": "/tr/lab/journeys/browse-abandonment",
-      "text": "The subject is a category or listing the person browsed repeatedly; the touch points back at the category, never at an item the person did not single out.",
-      "hits": [
-        "the",
-        "not"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/browse-abandonment",
       "text": "Bring a person whose attention qualified as interest back to the thing they looked at, once, without asserting stock, price or intent the system does not hold; and leave alone everyone whose attention did not qualify.",
       "hits": [
         "the",
@@ -6195,30 +6102,6 @@
       "hits": [
         "not",
         "already"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/browse-abandonment",
-      "text": "The subject is one item viewed repeatedly; the touch shows that item as it stands and its current availability as the platform asserts it.",
-      "hits": [
-        "the",
-        "that",
-        "and",
-        "its"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/browse-abandonment",
-      "text": "The subject is a repeated search that led to no selection; the touch points back at the results as they stand. An availability enquiry that holds something is SCH-282's, not this.",
-      "hits": [
-        "the",
-        "that",
-        "not",
-        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -20116,17 +19999,6 @@
     },
     {
       "route": "/tr/lab/journeys/incomplete-registration",
-      "text": "The resumable process is a registration or sign-up left part-way; identity verification, where required, is handed to verification (IDN-81) and never re-asked here.",
-      "hits": [
-        "the",
-        "where",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/incomplete-registration",
       "text": "Bring the person back to the specific unfinished process and let them complete it; never claim reserved stock, a held price or a discount the system does not assert.",
       "hits": [
         "the",
@@ -20705,31 +20577,6 @@
         "that",
         "for",
         "because"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/incomplete-registration",
-      "text": "The resumable process is a quote or proposal the person configured and did not accept; it has a resume destination and an expiry the quoting system asserts.",
-      "hits": [
-        "the",
-        "and",
-        "not",
-        "has"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/incomplete-registration",
-      "text": "The resumable process is a multi-step application with saved state; a hard submission deadline, where one exists, is owned by deadline reminder (TIM-61) through handoff, not by this recovery.",
-      "hits": [
-        "the",
-        "with",
-        "where",
-        "not",
-        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -30058,17 +29905,6 @@
       "reason": "practitioner disclosure"
     },
     {
-      "route": "/tr/lab/journeys/predicted-need-replenishment",
-      "text": "The need is predicted from the person's own purchase cadence in a category rather than from a single item's usable period; the machine is the same and the estimate is stated as one.",
-      "hits": [
-        "the",
-        "from",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
       "route": "/tr/lab/journeys/predicted-next-purchase",
       "text": "A predicted need is prompted once before its estimated point and at most once after it, against the person's own purchase record re-read before each touch, with the estimate stated as an estimate.",
       "hits": [
@@ -30162,17 +29998,6 @@
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
-    },
-    {
-      "route": "/tr/lab/journeys/predicted-next-purchase",
-      "text": "The need is predicted from the person's own purchase cadence in a category rather than from a single item's usable period; the machine is the same and the estimate is stated as one.",
-      "hits": [
-        "the",
-        "from",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/predicted-next-purchase",
@@ -30869,18 +30694,6 @@
     },
     {
       "route": "/tr/lab/journeys/product-view-abandonment",
-      "text": "The subject is one item viewed repeatedly; the touch shows that item as it stands and its current availability as the platform asserts it.",
-      "hits": [
-        "the",
-        "that",
-        "and",
-        "its"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/product-view-abandonment",
       "text": "Bring a person whose attention qualified as interest back to the thing they looked at, once, without asserting stock, price or intent the system does not hold; and leave alone everyone whose attention did not qualify.",
       "hits": [
         "the",
@@ -31275,28 +31088,6 @@
       "reason": "practitioner disclosure"
     },
     {
-      "route": "/tr/lab/journeys/product-view-abandonment",
-      "text": "The subject is a category or listing the person browsed repeatedly; the touch points back at the category, never at an item the person did not single out.",
-      "hits": [
-        "the",
-        "not"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/product-view-abandonment",
-      "text": "The subject is a repeated search that led to no selection; the touch points back at the results as they stand. An availability enquiry that holds something is SCH-282's, not this.",
-      "hits": [
-        "the",
-        "that",
-        "not",
-        "this"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
       "route": "/tr/lab/journeys/qualification-state-change-routing",
       "text": "Qualification is held per commercial relationship. The same person can be qualified for one offering and not another.",
       "hits": [
@@ -31620,18 +31411,6 @@
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
-    },
-    {
-      "route": "/tr/lab/journeys/quote-abandonment",
-      "text": "The resumable process is a quote or proposal the person configured and did not accept; it has a resume destination and an expiry the quoting system asserts.",
-      "hits": [
-        "the",
-        "and",
-        "not",
-        "has"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/quote-abandonment",
@@ -32213,30 +31992,6 @@
         "that",
         "for",
         "because"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/quote-abandonment",
-      "text": "The resumable process is a multi-step application with saved state; a hard submission deadline, where one exists, is owned by deadline reminder (TIM-61) through handoff, not by this recovery.",
-      "hits": [
-        "the",
-        "with",
-        "where",
-        "not",
-        "this"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/quote-abandonment",
-      "text": "The resumable process is a registration or sign-up left part-way; identity verification, where required, is handed to verification (IDN-81) and never re-asked here.",
-      "hits": [
-        "the",
-        "where",
-        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -37921,17 +37676,6 @@
     },
     {
       "route": "/tr/lab/journeys/saved-item-reminder",
-      "text": "The selection is a saved list or wishlist: a declared interest with no purchase intent asserted, so the first check is much later and a change on a saved item is the honest reason to write.",
-      "hits": [
-        "the",
-        "with",
-        "and"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/saved-item-reminder",
       "text": "Bring the person back to the selection as it currently stands and let them act on it; never claim reserved stock, a held price or a discount the system does not assert, and never present an item the platform says is unavailable.",
       "hits": [
         "the",
@@ -38803,18 +38547,6 @@
     },
     {
       "route": "/tr/lab/journeys/search-abandonment",
-      "text": "The subject is a repeated search that led to no selection; the touch points back at the results as they stand. An availability enquiry that holds something is SCH-282's, not this.",
-      "hits": [
-        "the",
-        "that",
-        "not",
-        "this"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/search-abandonment",
       "text": "Bring a person whose attention qualified as interest back to the thing they looked at, once, without asserting stock, price or intent the system does not hold; and leave alone everyone whose attention did not qualify.",
       "hits": [
         "the",
@@ -39204,28 +38936,6 @@
       "hits": [
         "not",
         "already"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/search-abandonment",
-      "text": "The subject is a category or listing the person browsed repeatedly; the touch points back at the category, never at an item the person did not single out.",
-      "hits": [
-        "the",
-        "not"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/search-abandonment",
-      "text": "The subject is one item viewed repeatedly; the touch shows that item as it stands and its current availability as the platform asserts it.",
-      "hits": [
-        "the",
-        "that",
-        "and",
-        "its"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -42371,40 +42081,6 @@
       "hits": [
         "not",
         "already"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/unresolved-interest-recovery",
-      "text": "The subject is a category or listing the person browsed repeatedly; the touch points back at the category, never at an item the person did not single out.",
-      "hits": [
-        "the",
-        "not"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/unresolved-interest-recovery",
-      "text": "The subject is one item viewed repeatedly; the touch shows that item as it stands and its current availability as the platform asserts it.",
-      "hits": [
-        "the",
-        "that",
-        "and",
-        "its"
-      ],
-      "known": true,
-      "reason": "practitioner disclosure"
-    },
-    {
-      "route": "/tr/lab/journeys/unresolved-interest-recovery",
-      "text": "The subject is a repeated search that led to no selection; the touch points back at the results as they stand. An availability enquiry that holds something is SCH-282's, not this.",
-      "hits": [
-        "the",
-        "that",
-        "not",
-        "this"
       ],
       "known": true,
       "reason": "practitioner disclosure"

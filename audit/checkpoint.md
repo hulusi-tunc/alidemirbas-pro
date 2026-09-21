@@ -84,6 +84,7 @@ journey's own side.
 | `audit/canvas-hygiene.mjs` | PASS — 0 findings |
 | `audit/guard-display.mjs` | PASS — canonical drift none, G1/G2/G3/G5/G6 0 |
 | `audit/locale-sweep.mjs` | PASS — 0 leaks over every public TR route |
+| `audit/preset-locale.mjs` | PASS — 8/8 presets translated, TR and EN routes both asserted |
 | `npm run validate:canonical` | PASS — 303/3959, 0 errors |
 | `npm run validate:journey-production` | PASS — baseline 303/3959 |
 | `audit/measure-display.mjs` | PASS — 0 locale leaks, 0 render errors |
@@ -132,7 +133,18 @@ node audit/measure-display.mjs after 4511      # locale leaks must stay 0
 npm run validate:journey-production            # frozen node-count baseline
 node seo/seo-validator.mjs                     # check 18 hardcodes the journey count
 node audit/locale-sweep.mjs 4511               # whole-page TR leak sweep (172 routes)
+node audit/preset-locale.mjs 4511              # preset names + applicableWhen, TR vs source data
 ```
+
+`audit/preset-locale.mjs` is in this list because the sweep above cannot cover
+it: a preset chip is two words and never reaches the sweep's
+two-distinct-function-word threshold, and a preset's `applicableWhen` sentence
+is a `discovery` field, which the sweep reports as the known Info-tab gap
+rather than failing on. It checks the two strings against the corpus instead of
+against a word list — so a preset added to `src/canonical/` without a
+`PRESET_TR` entry in `src/lib/journey-tr-overrides.ts` fails here by id, and so
+does a call site that renders `PRESET_ROWS` without `localizedPreset`. Run it
+with the port; data-only (no port) still catches a missing translation.
 
 `seo/seo-validator.mjs` check 18 is in this list for a reason. It hardcodes
 `journeyViewModel.length` on purpose — a tripwire that fails until the constant
