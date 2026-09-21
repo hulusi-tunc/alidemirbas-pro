@@ -59906,7 +59906,7 @@
         "cross-journey-handoff",
         "multi-exit"
       ],
-      "complexityTier": "extreme",
+      "complexityTier": "complex",
       "complexityScore": 67
     }
   },
@@ -63924,6 +63924,10 @@
         {
           "journey": "FBK-43",
           "because": "FBK-43 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it."
+        },
+        {
+          "journey": "REM-305",
+          "because": "REM-305 acknowledges that a request arrived and is owned; it hands off here only when the still-open request concerns a completed fulfilment or service with a concrete unresolved problem - REM-305 never restates or re-assesses that problem, and this journey never sends the acknowledgement REM-305 already sent."
         }
       ],
       "competition": null,
@@ -67106,6 +67110,14 @@
           "terminal": false
         },
         {
+          "id": "x.owned",
+          "kind": "exit",
+          "headline": "the request is with the team that owns the work, and this journey says nothing further about it",
+          "detail": "a further request from the same person is its own instance; this journey's own acknowledgement and anti-drip rule apply to it exactly as they did here",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
           "id": "x.withdrawn",
           "kind": "exit",
           "headline": "withdrawn by the requester; nothing further is sent",
@@ -67246,8 +67258,15 @@
           "from": "c.open",
           "to": "h.owner",
           "family": "branch",
-          "label": "Still open",
-          "when": "the request is recorded open against an owner, with no resolution and no withdrawal"
+          "label": "Still open - a completed fulfilment or service problem",
+          "when": "the request is recorded open against an owner, with no resolution and no withdrawal, and authoritative request context establishes it concerns a completed fulfilment or a completed service with a concrete unresolved problem"
+        },
+        {
+          "from": "c.open",
+          "to": "x.owned",
+          "family": "branch",
+          "label": "Still open - otherwise",
+          "when": "the request is recorded open against an owner, with no resolution and no withdrawal, and it does not concern a completed fulfilment or a completed service with a concrete unresolved problem"
         },
         {
           "from": "c.open",
@@ -67297,12 +67316,13 @@
         "h.owner",
         "x.resolved",
         "x.attached",
+        "x.owned",
         "x.withdrawn",
         "x.no-action"
       ],
       "backwardEdgeIds": [
-        20,
-        21
+        21,
+        22
       ],
       "branchEdgeIds": [
         2,
@@ -67318,10 +67338,11 @@
         17,
         18,
         19,
-        20
+        20,
+        21
       ],
       "handoffEdgeIds": [
-        23
+        24
       ],
       "externalEdgeIds": []
     },
@@ -67378,15 +67399,15 @@
       "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 20,
-      "edgeCount": 24,
+      "nodeCount": 21,
+      "edgeCount": 25,
       "branchNodeCount": 7,
       "backwardEdgeCount": 2,
       "handoffCount": 1,
-      "exitCount": 4,
+      "exitCount": 5,
       "maxDepth": 9,
       "maxFanIn": 3,
-      "maxFanOut": 2,
+      "maxFanOut": 3,
       "primaryStructure": "mixed-termination",
       "behaviors": [
         "backward-edge",
@@ -67396,7 +67417,7 @@
         "competition"
       ],
       "complexityTier": "extreme",
-      "complexityScore": 76
+      "complexityScore": 79
     }
   },
   {
@@ -68350,17 +68371,65 @@
           "terminal": false
         },
         {
-          "id": "c.human",
+          "id": "c.priority-clear",
           "kind": "condition",
-          "headline": "Does the evidence justify a person?",
+          "headline": "Does a higher-precedence retention-outreach contender already claim this account?",
           "detail": null,
           "isEntry": false,
           "terminal": false
         },
         {
-          "id": "c.priority-clear",
+          "id": "c.signal-class",
           "kind": "condition",
-          "headline": "Does a higher-precedence retention-outreach contender already claim this account?",
+          "headline": "What kind of risk is this?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.check-in-email",
+          "kind": "action",
+          "headline": "Send a check-in naming what we can see going wrong, with a route to a person, on the route that reaches someone who is not in the product. Carries no offer and no discount; offers belong to RET-28 and RET-30",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "a.check-in-inapp",
+          "kind": "action",
+          "headline": "Send a check-in naming what we can see going wrong, with a route to a person, beside the thing that is failing, where the person still is. Carries no offer and no discount; offers belong to RET-28 and RET-30",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "w.response",
+          "kind": "wait",
+          "headline": "until relationship_recovered, or explicit_cancellation_intent",
+          "detail": "timeout after {'key': 'churn_risk.response_window', 'rule': \"A bounded window to notice whether the check-in changed anything, before spending a person's attention on a relationship that did not answer.\", 'class': 'response-window', 'required': True}",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.moved",
+          "kind": "condition",
+          "headline": "Did the relationship state move?",
+          "detail": null,
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.recovered",
+          "kind": "exit",
+          "headline": "the relationship recovered; risk cleared without escalation",
+          "detail": "a fresh risk evaluation is a new instance if the threshold crosses again",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "c.human",
+          "kind": "condition",
+          "headline": "Does the evidence - including any reply received during the check-in window - now justify a person?",
           "detail": null,
           "isEntry": false,
           "terminal": false
@@ -68382,26 +68451,18 @@
           "terminal": false
         },
         {
-          "id": "c.automated",
-          "kind": "condition",
-          "headline": "Is a proportionate automated recovery available?",
-          "detail": null,
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "h.intervention",
-          "kind": "handoff",
-          "headline": "Retention intervention → outcome → suppress, escalate or exit",
-          "detail": "a proportionate automated retention intervention being delivered",
-          "isEntry": false,
-          "terminal": false
-        },
-        {
-          "id": "x.monitor",
+          "id": "x.contended",
           "kind": "exit",
-          "headline": "risk recorded, nothing proportionate to do, or a higher-precedence contender already owns this account",
-          "detail": "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence, and doing something disproportionate is not; where the reason was a higher-precedence contender's active claim, that contender resolving re-opens this evaluation from current evidence rather than resuming a stale one",
+          "headline": "another owner already holds this account",
+          "detail": "that contender resolving re-opens this evaluation from current evidence rather than resuming a stale one",
+          "isEntry": false,
+          "terminal": false
+        },
+        {
+          "id": "x.monitored",
+          "kind": "exit",
+          "headline": "risk recorded, monitored; nothing further from this evaluation",
+          "detail": "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence",
           "isEntry": false,
           "terminal": false
         }
@@ -68451,7 +68512,7 @@
         },
         {
           "from": "c.operational",
-          "to": "c.human",
+          "to": "c.priority-clear",
           "family": "branch",
           "label": "No known problem",
           "when": "the relationship is deteriorating and nothing identifiable is causing it, or the identifiable cause is a payment failure that payment recovery already owns"
@@ -68464,32 +68525,88 @@
           "when": "risk with an identifiable operational cause"
         },
         {
-          "from": "c.human",
-          "to": "c.priority-clear",
-          "family": "branch",
-          "label": "Justified",
-          "when": "the evidence is strong and corroborated, and the relationship warrants the cost of someone's attention"
-        },
-        {
-          "from": "c.human",
-          "to": "c.automated",
-          "family": "branch",
-          "label": "Not justified",
-          "when": "the evidence is real but thin, and putting a person on it would be a larger intervention than the signal supports"
-        },
-        {
           "from": "c.priority-clear",
-          "to": "a.owner-task",
+          "to": "c.signal-class",
           "family": "branch",
           "label": "Clear",
           "when": "no open issue under human ownership (FBK-46) currently claims this account - this journey's own declared precedence is below that, above generic retention intervention"
         },
         {
           "from": "c.priority-clear",
-          "to": "x.monitor",
+          "to": "x.contended",
           "family": "branch",
           "label": "Contended",
-          "when": "an open issue under human ownership already claims this account - raising a second, competing owner-task would contradict the person already working it rather than corroborate their evidence"
+          "when": "an open issue under human ownership already claims this account - sending a check-in, or raising a competing owner-task, would contradict the person already working it rather than corroborate their evidence"
+        },
+        {
+          "from": "c.signal-class",
+          "to": "a.check-in-email",
+          "family": "branch",
+          "label": "Disengagement",
+          "when": "the evidence points at sustained usage decline, falling account-wide adoption, a key stakeholder leaving, or a failed renewal or payment - by definition, the person is not in the product"
+        },
+        {
+          "from": "c.signal-class",
+          "to": "a.check-in-inapp",
+          "family": "branch",
+          "label": "In-product friction",
+          "when": "the evidence points at repeated unresolved blockers, a negative support experience, or explicit dissatisfaction - the risk was generated by something failing inside the product, where the person still is"
+        },
+        {
+          "from": "a.check-in-email",
+          "to": "w.response",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "a.check-in-inapp",
+          "to": "w.response",
+          "family": "forward",
+          "label": null,
+          "when": null
+        },
+        {
+          "from": "w.response",
+          "to": "c.moved",
+          "family": "wait-event",
+          "label": "on event",
+          "when": "relationship_recovered, explicit_cancellation_intent"
+        },
+        {
+          "from": "w.response",
+          "to": "c.human",
+          "family": "wait-timeout",
+          "label": "on timeout",
+          "when": "an unanswered check-in is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come"
+        },
+        {
+          "from": "c.moved",
+          "to": "x.recovered",
+          "family": "branch",
+          "label": "Recovered",
+          "when": "the relationship measurably recovered"
+        },
+        {
+          "from": "c.moved",
+          "to": "h.cancellation",
+          "family": "backward",
+          "label": "Cancellation declared",
+          "when": "a cancellation was requested, or a cancel flow entered, while waiting for a response to the check-in"
+        },
+        {
+          "from": "c.human",
+          "to": "a.owner-task",
+          "family": "branch",
+          "label": "Justified",
+          "when": "the evidence is strong and corroborated, and the relationship warrants the cost of someone's attention"
+        },
+        {
+          "from": "c.human",
+          "to": "x.monitored",
+          "family": "branch",
+          "label": "Not justified",
+          "when": "the evidence is real but thin, and a person's attention would be a larger intervention than the signal supports"
         },
         {
           "from": "a.owner-task",
@@ -68504,38 +68621,20 @@
           "family": "external",
           "label": null,
           "when": "risk strong enough to justify a person"
-        },
-        {
-          "from": "c.automated",
-          "to": "h.intervention",
-          "family": "branch",
-          "label": "Available",
-          "when": "something exists that matches the evidence at this strength"
-        },
-        {
-          "from": "c.automated",
-          "to": "x.monitor",
-          "family": "branch",
-          "label": "Nothing proportionate",
-          "when": "the only available responses are larger than the evidence justifies"
-        },
-        {
-          "from": "h.intervention",
-          "to": "RET-30",
-          "family": "cross-journey-handoff",
-          "label": null,
-          "when": "a proportionate automated retention intervention being delivered"
         }
       ],
       "startNode": "t.threshold",
       "terminalNodes": [
         "h.cancellation",
         "h.resolve-first",
+        "x.recovered",
         "h.human",
-        "h.intervention",
-        "x.monitor"
+        "x.contended",
+        "x.monitored"
       ],
-      "backwardEdgeIds": [],
+      "backwardEdgeIds": [
+        17
+      ],
       "branchEdgeIds": [
         1,
         2,
@@ -68545,16 +68644,17 @@
         9,
         10,
         11,
-        14,
-        15
+        16,
+        17,
+        18,
+        19
       ],
       "handoffEdgeIds": [
         3,
-        7,
-        16
+        7
       ],
       "externalEdgeIds": [
-        13
+        21
       ]
     },
     "relationships": {
@@ -68570,10 +68670,6 @@
         {
           "to": "external:human-in-the-loop-lifecycle",
           "isExternal": true
-        },
-        {
-          "to": "RET-30",
-          "isExternal": false
         }
       ],
       "distinctFrom": [],
@@ -68586,8 +68682,8 @@
         "A high-value customer is not automatically at high risk. Value is what is at stake, not the probability of losing it.",
         "A risk score is not the outcome. It orders attention; it does not decide anything.",
         "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one.",
-        "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim immediately before a.owner-task rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
-        "h.intervention mints a retention_episode_id at handoff rather than reusing risk_episode_id, since this journey's own episode is a churn-risk evaluation and RET-30's decline memory is scoped to a retention episode - a genuinely different, narrower concept that does not exist here until this specific intervention is chosen."
+        "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim once, before the check-in is sent, rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
+        "The check-in carries no offer and no discount - offers belong to RET-28 (the cancellation save) and RET-30 (the retention offer follow-up). This journey does not hand off to RET-30: RET-30's trigger requires a defined intervention actually delivered (a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer), and a bare check-in satisfies none of those - handing a customer off to a journey whose trigger evidence can never be produced is exactly the defect this design removes. A reply that neither recovers the relationship nor declares cancellation is additional evidence, read by c.human exactly as a silent timeout would be, never manufactured into a delivered intervention."
       ],
       "reusableRule": "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",
       "entityScope": "customer, account or subscription relationship",
@@ -68595,33 +68691,36 @@
     },
     "derived": {
       "hasBranches": true,
-      "hasBackwardEdges": false,
+      "hasBackwardEdges": true,
       "hasTrueCycle": false,
       "hasExternalHandoff": true,
       "hasCrossJourneyHandoff": true,
-      "hasWait": false,
+      "hasWait": true,
       "hasReEntryException": false,
       "hasTerminalExit": false,
-      "hasMultipleExits": false,
+      "hasMultipleExits": true,
       "hasPreemption": false,
       "hasCompetition": true,
-      "nodeCount": 13,
-      "edgeCount": 17,
-      "branchNodeCount": 5,
-      "backwardEdgeCount": 0,
-      "handoffCount": 4,
-      "exitCount": 1,
-      "maxDepth": 7,
+      "nodeCount": 18,
+      "edgeCount": 22,
+      "branchNodeCount": 6,
+      "backwardEdgeCount": 1,
+      "handoffCount": 3,
+      "exitCount": 3,
+      "maxDepth": 10,
       "maxFanIn": 2,
       "maxFanOut": 2,
       "primaryStructure": "mixed-termination",
       "behaviors": [
+        "backward-edge",
+        "wait-timeout",
         "cross-journey-handoff",
         "external-handoff",
+        "multi-exit",
         "competition"
       ],
-      "complexityTier": "medium",
-      "complexityScore": 52
+      "complexityTier": "extreme",
+      "complexityScore": 70
     }
   },
   {
@@ -82733,7 +82832,7 @@
         "cross-journey-handoff",
         "external-handoff"
       ],
-      "complexityTier": "extreme",
+      "complexityTier": "complex",
       "complexityScore": 67
     }
   },

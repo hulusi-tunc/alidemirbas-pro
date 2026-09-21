@@ -2449,7 +2449,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "This journey is lowest in the retention-outreach group: an open issue under human ownership, a live risk case or a declared cancellation intent on the same account suppresses it (GLB-06)."
+        "text": "This journey is lowest in the retention-outreach group: an open issue under human ownership, a live risk case (RET-24), a declared cancellation intent (RET-28), or a retention offer follow-up still open on the same account (RET-30) all suppress it (GLB-06)."
       },
       {
         "id": "s.permission",
@@ -2497,7 +2497,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "retention-outreach",
         "scope": "account",
-        "precedence": "lowest in the group - an open issue under human ownership, a live risk case or a declared cancellation intent all outrank a recovery nudge"
+        "precedence": "lowest in retention-outreach: below the declared cancellation intent (RET-28), any live risk case (RET-24), any open issue under human ownership, and the retention offer follow-up (RET-30) on the same account"
       , "onLoss": "suppressed" }
     },
     channelStrategy: {
@@ -2686,7 +2686,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         terminal: false,
         reEntry:
           "a new use-case, or the same need arising again, opens adoption normally - this account did not fail, it finished",
-        class: "invalid-state",
+        class: "success",
       },
       {
         id: "a.recover",

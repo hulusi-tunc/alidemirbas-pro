@@ -189,6 +189,11 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "FBK-43 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it.",
       },
+      {
+        journey: "REM-305",
+        because:
+          "REM-305 acknowledges that a request arrived and is owned; it hands off here only when the still-open request concerns a completed fulfilment or service with a concrete unresolved problem - REM-305 never restates or re-assesses that problem, and this journey never sends the acknowledgement REM-305 already sent.",
+      },
     ],
     objective: "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
     eligibility: [
@@ -2742,6 +2747,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           "x.attached",
           "x.withdrawn",
           "x.no-action",
+          "x.owned",
           "h.owner"
         ]
       },
@@ -2995,9 +3001,14 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         "asks": "Is the request still open now the acknowledgement window has closed?",
         "branches": [
           {
-            "label": "Still open",
-            "when": "the request is recorded open against an owner, with no resolution and no withdrawal",
+            "label": "Still open - a completed fulfilment or service problem",
+            "when": "the request is recorded open against an owner, with no resolution and no withdrawal, and authoritative request context establishes it concerns a completed fulfilment or a completed service with a concrete unresolved problem",
             "to": "h.owner"
+          },
+          {
+            "label": "Still open - otherwise",
+            "when": "the request is recorded open against an owner, with no resolution and no withdrawal, and it does not concern a completed fulfilment or a completed service with a concrete unresolved problem",
+            "to": "x.owned"
           },
           {
             "label": "Closed while the window ran",
@@ -3091,6 +3102,14 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         "class": "suppression",
         "terminal": false,
         "reEntry": "if that request closes with the problem still present, the next description of it enters as a new request on its own evidence"
+      },
+      {
+        "id": "x.owned",
+        "kind": "exit",
+        "state": "the request is with the team that owns the work, and this journey says nothing further about it",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a further request from the same person is its own instance; this journey's own acknowledgement and anti-drip rule apply to it exactly as they did here"
       },
       {
         "id": "x.withdrawn",

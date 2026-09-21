@@ -2425,10 +2425,11 @@
     },
     {
       "route": "/tr/lab/journeys/adoption-stall-diagnosis",
-      "text": "This journey is lowest in the retention-outreach group: an open issue under human ownership, a live risk case or a declared cancellation intent on the same account suppresses it (GLB-06).",
+      "text": "This journey is lowest in the retention-outreach group: an open issue under human ownership, a live risk case (RET-24), a declared cancellation intent (RET-28), or a retention offer follow-up still open on the same account (RET-30) all suppress it (GLB-06).",
       "hits": [
         "this",
-        "the"
+        "the",
+        "still"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -2563,6 +2564,16 @@
       "hits": [
         "the",
         "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/adoption-stall-diagnosis",
+      "text": "retention-outreach (account) - lowest in retention-outreach: below the declared cancellation intent (RET-28), any live risk case (RET-24), any open issue under human ownership, and the retention offer follow-up (RET-30) on the same account",
+      "hits": [
+        "the",
+        "and"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -9104,7 +9115,7 @@
     },
     {
       "route": "/tr/lab/journeys/churn-risk-escalation",
-      "text": "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim immediately before a.owner-task rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
+      "text": "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim once, before the check-in is sent, rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
       "hits": [
         "this",
         "already",
@@ -9117,13 +9128,14 @@
     },
     {
       "route": "/tr/lab/journeys/churn-risk-escalation",
-      "text": "h.intervention mints a retention_episode_id at handoff rather than reusing risk_episode_id, since this journey's own episode is a churn-risk evaluation and RET-30's decline memory is scoped to a retention episode - a genuinely different, narrower concept that does not exist here until this specific intervention is chosen.",
+      "text": "The check-in carries no offer and no discount - offers belong to RET-28 (the cancellation save) and RET-30 (the retention offer follow-up). This journey does not hand off to RET-30: RET-30's trigger requires a defined intervention actually delivered (a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer), and a bare check-in satisfies none of those - handing a customer off to a journey whose trigger evidence can never be produced is exactly the defect this design removes. A reply that neither recovers the relationship nor declares cancellation is additional evidence, read by c.human exactly as a silent timeout would be, never manufactured into a delivered intervention.",
       "hits": [
-        "this",
+        "the",
         "and",
-        "that",
+        "this",
         "does",
-        "not"
+        "not",
+        "that"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -9164,6 +9176,18 @@
     },
     {
       "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "· A bounded window to notice whether the check-in changed anything, before spending a person's attention on a relationship that did not answer.",
+      "hits": [
+        "the",
+        "before",
+        "that",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
       "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
       "hits": [
         "when",
@@ -9187,26 +9211,117 @@
     },
     {
       "route": "/tr/lab/journeys/churn-risk-escalation",
-      "text": "Has explicit cancellation intent already been expressed? · Is the risk driven by a known operational problem, other than a payment failure already open in payment recovery? · Does the evidence justify a person?",
+      "text": ": an explicit act: a cancel flow entered, a cancellation requested while still reversible, or a cancellation asked for through a person",
       "hits": [
-        "has",
-        "already",
-        "been",
-        "the",
-        "does"
+        "still",
+        "for"
       ],
       "known": true,
       "reason": "practitioner disclosure"
     },
     {
       "route": "/tr/lab/journeys/churn-risk-escalation",
-      "text": "Raise a task for the account owner or customer success, carrying the evidence rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
+      "text": "Has explicit cancellation intent already been expressed? · Is the risk driven by a known operational problem, other than a payment failure already open in payment recovery? · Does a higher-precedence retention-outreach contender already claim this account? · What kind of risk is this?",
+      "hits": [
+        "has",
+        "already",
+        "been",
+        "the",
+        "does",
+        "this",
+        "what"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "Ask what is going wrong on the channel that reaches someone who has stopped using the product, and give them a route to a person - no offer, no discount.",
+      "hits": [
+        "what",
+        "the",
+        "that",
+        "has",
+        "and"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "Ask what is going wrong beside the thing that is failing, in the product, and give them a route to a person - no offer, no discount.",
+      "hits": [
+        "what",
+        "the",
+        "that",
+        "and"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "önceki temastan sonra · iptal eden olaylar the relationship's own state recovers without the person answering the offer; an explicit act: a cancel flow entered, a cancellation requested while still reversible, or a cancellation asked for through a person",
+      "hits": [
+        "the",
+        "still",
+        "for"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "the relationship state and the cancellation record, re-read from the systems that own them, before the timeout is acted on",
+      "hits": [
+        "the",
+        "and",
+        "from",
+        "that",
+        "before"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "Does the evidence - including any reply received during the check-in window - now justify a person?",
+      "hits": [
+        "does",
+        "the"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "Raise a task for the account owner or customer success, carrying the evidence - including any reply the check-in drew - rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
       "hits": [
         "for",
         "the",
         "and",
         "this",
         "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "( E-posta ): the risk is disengagement; the person is not in the product",
+      "hits": [
+        "the",
+        "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "( Uygulama içi ): the risk is in-product friction; the check-in belongs beside the thing that is failing",
+      "hits": [
+        "the",
+        "that"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -9223,9 +9338,19 @@
     },
     {
       "route": "/tr/lab/journeys/churn-risk-escalation",
-      "text": "risk recorded, nothing proportionate to do, or a higher-precedence contender already owns this account",
+      "text": "another owner already holds this account",
       "hits": [
         "already",
+        "this"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/churn-risk-escalation",
+      "text": "risk recorded, monitored; nothing further from this evaluation",
+      "hits": [
+        "from",
         "this"
       ],
       "known": true,
@@ -21514,7 +21639,7 @@
     },
     {
       "route": "/tr/lab/journeys/lapsed-customer-win-back",
-      "text": "retention-outreach (account) - lowest in the group - any live retention, complaint, risk or payment journey on the account means the relationship is not lapsed and this journey does not run",
+      "text": "retention-outreach (account) - any live retention, complaint, risk or payment journey on the account means the relationship is not lapsed and this journey does not run",
       "hits": [
         "the",
         "not",
@@ -27739,6 +27864,22 @@
         "which",
         "the",
         "what"
+      ],
+      "known": true,
+      "reason": "canonical field outside the TR pass"
+    },
+    {
+      "route": "/tr/lab/journeys/post-completion-issue",
+      "text": "REM-305 acknowledges that a request arrived and is owned; it hands off here only when the still-open request concerns a completed fulfilment or service with a concrete unresolved problem - REM-305 never restates or re-assesses that problem, and this journey never sends the acknowledgement REM-305 already sent.",
+      "hits": [
+        "that",
+        "and",
+        "when",
+        "the",
+        "still",
+        "with",
+        "this",
+        "already"
       ],
       "known": true,
       "reason": "canonical field outside the TR pass"
@@ -36661,6 +36802,20 @@
     },
     {
       "route": "/tr/lab/journeys/retention-intervention-outcome",
+      "text": "This journey yields to a declared cancellation intent (RET-28) and to a live risk case (RET-24) on the same account, and to any open issue under human ownership - all three outrank a follow-up on a retention offer already sent. It ranks above the adoption recovery nudge (ACT-18): a declined offer must be remembered for the whole cancellation episode, and a suppressed follow-up loses that record.",
+      "hits": [
+        "this",
+        "and",
+        "the",
+        "already",
+        "for",
+        "that"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/retention-intervention-outcome",
       "text": "· Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
       "hits": [
         "when",
@@ -36742,6 +36897,20 @@
       "hits": [
         "that",
         "not"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/retention-intervention-outcome",
+      "text": "retention-outreach (account) - below the declared cancellation intent (RET-28), any live risk case (RET-24) and any open issue under human ownership on the same account; above the adoption recovery nudge (ACT-18) - an intervention the business actually delivered has an outcome to establish where a stall has only an inference, and a declined offer must be remembered for the whole cancellation episode before a generic nudge is allowed to reopen it",
+      "hits": [
+        "the",
+        "and",
+        "has",
+        "where",
+        "for",
+        "before"
       ],
       "known": true,
       "reason": "practitioner disclosure"
@@ -40551,6 +40720,19 @@
       "hits": [
         "the",
         "already",
+        "this"
+      ],
+      "known": true,
+      "reason": "practitioner disclosure"
+    },
+    {
+      "route": "/tr/lab/journeys/support-request-acknowledgement",
+      "text": "the request is with the team that owns the work, and this journey says nothing further about it",
+      "hits": [
+        "the",
+        "with",
+        "that",
+        "and",
         "this"
       ],
       "known": true,

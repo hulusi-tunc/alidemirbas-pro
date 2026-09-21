@@ -780,15 +780,19 @@
     "slug": "churn-risk-escalation",
     "locales": {
       "en": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 18,
+        "distinct_canonical_nodes": 18,
         "terminal_instances": 0,
-        "edges": 23,
+        "edges": 33,
         "internal_cards": 0,
         "long_cards": [
           {
             "id": "c.operational",
             "len": 122
+          },
+          {
+            "id": "a.check-in-inapp",
+            "len": 131
           },
           {
             "id": "a.owner-task",
@@ -799,12 +803,21 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 18,
+        "distinct_canonical_nodes": 18,
         "terminal_instances": 0,
-        "edges": 23,
+        "edges": 33,
         "internal_cards": 0,
-        "long_cards": [],
+        "long_cards": [
+          {
+            "id": "a.check-in-email",
+            "len": 130
+          },
+          {
+            "id": "a.check-in-inapp",
+            "len": 135
+          }
+        ],
         "long_branch_labels": [
           {
             "label": "Belirtilmiş bir niyet yok",
@@ -3171,10 +3184,10 @@
     "slug": "support-request-acknowledgement",
     "locales": {
       "en": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -3188,6 +3201,10 @@
         ],
         "long_branch_labels": [
           {
+            "label": "Still open - a completed fulfilment or service problem",
+            "len": 54
+          },
+          {
             "label": "Closed while the window ran",
             "len": 27
           }
@@ -3195,10 +3212,10 @@
         "locale_leaks": []
       },
       "tr": {
-        "display_nodes": 13,
-        "distinct_canonical_nodes": 13,
+        "display_nodes": 14,
+        "distinct_canonical_nodes": 14,
         "terminal_instances": 0,
-        "edges": 24,
+        "edges": 26,
         "internal_cards": 0,
         "long_cards": [
           {
@@ -3207,6 +3224,14 @@
           }
         ],
         "long_branch_labels": [
+          {
+            "label": "Hâlâ açık - tamamlanmış bir teslimat ya da hizmet sorunu",
+            "len": 56
+          },
+          {
+            "label": "Hâlâ açık - başka bir konu",
+            "len": 26
+          },
           {
             "label": "Pencere sürerken kapanmış",
             "len": 25

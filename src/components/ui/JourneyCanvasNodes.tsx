@@ -227,6 +227,7 @@ const TOUCH_STAGE_TR: Readonly<Record<string, string>> = {
   "request": "Talep", "request-internal": "İç talep", "request-more": "Ek bilgi talebi",
   "request-more-info": "Ek bilgi talebi", "required-notice": "Zorunlu bildirim", "reset": "Sıfırlama bildirimi",
   "resolution": "Çözüm bildirimi", "restored": "Geri yüklendi bildirimi", "review": "İnceleme",
+  "risk-check-in": "Risk kontrol mesajı",
   "route-dependency": "Yönlendirme bağımlılığı", "routing": "Yönlendirme", "signature-request": "İmza talebi",
   "specific-action": "Özel aksiyon", "surface": "Görünür kılma", "total": "Toplam bildirim",
   "unverified": "Doğrulanmadı bildirimi", "verify": "Doğrulama", "waitlist": "Bekleme listesi",

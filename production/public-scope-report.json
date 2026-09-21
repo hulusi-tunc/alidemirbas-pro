@@ -1,15 +1,11 @@
 {
-  "generated": "2026-09-21T06:21:44.441Z",
+  "generated": "2026-09-21T13:45:55.744Z",
   "publicCount": 69,
   "excludedCount": 21,
   "sourceCorpus": 90,
   "checks": 15,
   "failures": [],
   "warnings": [
-    {
-      "label": "channel rule exception: RET-24",
-      "detail": "routing/escalation journey - its customer messaging is owned by RET-28 / RET-23 / RET-30 under RET-24's own retention-outreach precedence"
-    },
     {
       "label": "journeys whose canonical channels include an operational value",
       "detail": "4: ACT-13, RET-24, FBK-43, FBK-49 — correct in canonical, filtered from badges by publicChannels()"

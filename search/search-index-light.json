@@ -15962,6 +15962,10 @@
         {
           "targetId": "journey:FBK-43",
           "because": "FBK-43 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it."
+        },
+        {
+          "targetId": "journey:REM-305",
+          "because": "REM-305 acknowledges that a request arrived and is owned; it hands off here only when the still-open request concerns a completed fulfilment or service with a concrete unresolved problem - REM-305 never restates or re-assesses that problem, and this journey never sends the acknowledgement REM-305 already sent."
         }
       ]
     }
@@ -16360,8 +16364,11 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
+      "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
+      "multi-exit",
       "competition"
     ],
     "language": "en+tr",
@@ -16376,9 +16383,6 @@
         },
         {
           "targetId": "journey:RET-23"
-        },
-        {
-          "targetId": "journey:RET-30"
         }
       ],
       "distinctFrom": []

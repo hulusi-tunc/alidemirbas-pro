@@ -4,8 +4,8 @@
   "totals": {
     "journeys": 303,
     "customer": 154,
-    "customer-silent": 67,
-    "customer-communicating": 87,
+    "customer-silent": 66,
+    "customer-communicating": 88,
     "mechanism": 25,
     "operational": 124
   },
@@ -334,11 +334,11 @@
       "shortName": "Churn Risk Escalation",
       "category": "retention",
       "surface": "customer",
-      "sends": false,
+      "sends": true,
       "routesToHuman": true,
-      "silent": true,
+      "silent": false,
       "excludedFromPublic": false,
-      "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
+      "reason": "declares a message channel (email, in-app, task)"
     },
     {
       "id": "RET-26",

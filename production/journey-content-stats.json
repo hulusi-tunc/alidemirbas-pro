@@ -90,7 +90,7 @@
     },
     {
       "field": "distinctFrom.because",
-      "n": 336,
+      "n": 337,
       "min": 111,
       "median": 205,
       "p90": 358,
@@ -101,7 +101,7 @@
     },
     {
       "field": "action.does (node headline)",
-      "n": 1356,
+      "n": 1358,
       "min": 39,
       "median": 217,
       "p90": 303,
@@ -112,18 +112,18 @@
     },
     {
       "field": "condition.asks (node headline)",
-      "n": 904,
+      "n": 905,
       "min": 13,
       "median": 43,
       "p90": 68,
-      "p95": 74,
+      "p95": 75,
       "max": 113,
       "maxRecordId": "RET-24",
       "singleLineAssumptionRisk": "two-line safe (median 45, p95 74)"
     },
     {
       "field": "branch.label (short, chip-safe)",
-      "n": 2086,
+      "n": 2089,
       "min": 2,
       "median": 13,
       "p90": 28,
@@ -134,18 +134,18 @@
     },
     {
       "field": "branch.when (secondary text, separate field from label)",
-      "n": 2086,
+      "n": 2089,
       "min": 12,
       "median": 63,
       "p90": 100,
-      "p95": 124,
+      "p95": 127,
       "max": 350,
       "maxRecordId": "DEC-181",
       "singleLineAssumptionRisk": "unbounded — must render as expandable/secondary, never inline with the label"
     },
     {
       "field": "wait.until (per item)",
-      "n": 499,
+      "n": 501,
       "min": 7,
       "median": 22,
       "p90": 40,
@@ -156,7 +156,7 @@
     },
     {
       "field": "wait.timeout.after",
-      "n": 253,
+      "n": 254,
       "min": 4,
       "median": 5,
       "p90": 45,
@@ -167,7 +167,7 @@
     },
     {
       "field": "wait.timeout.reason",
-      "n": 253,
+      "n": 254,
       "min": 51,
       "median": 129,
       "p90": 163,
@@ -178,7 +178,7 @@
     },
     {
       "field": "exit.state (node headline)",
-      "n": 610,
+      "n": 613,
       "min": 8,
       "median": 53,
       "p90": 78,
@@ -189,18 +189,18 @@
     },
     {
       "field": "exit.reEntry (secondary text)",
-      "n": 610,
+      "n": 613,
       "min": 33,
       "median": 103,
-      "p90": 157,
-      "p95": 172,
-      "max": 336,
-      "maxRecordId": "RET-24",
+      "p90": 155,
+      "p95": 171,
+      "max": 261,
+      "maxRecordId": "OWN-51",
       "singleLineAssumptionRisk": "unbounded prose, median 115"
     },
     {
       "field": "handoff.on (secondary text)",
-      "n": 532,
+      "n": 531,
       "min": 19,
       "median": 51,
       "p90": 72,
@@ -211,13 +211,13 @@
     },
     {
       "field": "handoff.carries (per item)",
-      "n": 1111,
+      "n": 1108,
       "min": 9,
       "median": 71,
       "p90": 121,
-      "p95": 147,
-      "max": 333,
-      "maxRecordId": "RET-24",
+      "p95": 146,
+      "max": 308,
+      "maxRecordId": "OWN-57",
       "singleLineAssumptionRisk": "unbounded list"
     }
   ],

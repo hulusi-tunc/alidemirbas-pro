@@ -21357,6 +21357,10 @@
         {
           "targetId": "journey:FBK-43",
           "because": "FBK-43 starts from someone's account of an experience and asks whether any operational issue exists. This starts from a concrete problem with something already delivered and asks which recovery route would fix it - the obligation is known to exist and the question is what satisfies it."
+        },
+        {
+          "targetId": "journey:REM-305",
+          "because": "REM-305 acknowledges that a request arrived and is owned; it hands off here only when the still-open request concerns a completed fulfilment or service with a concrete unresolved problem - REM-305 never restates or re-assesses that problem, and this journey never sends the acknowledgement REM-305 already sent."
         }
       ]
     }
@@ -21507,7 +21511,7 @@
     "external": false,
     "title": "REM-305 Service request received → acknowledged or already resolved → closed or handed to the work",
     "summary": "Tell somebody who raised a problem that it exists, is owned and is not lost - once, transactionally, and without promising an outcome nobody has decided yet.",
-    "searchText": "Service request received → acknowledged or already resolved → closed or handed to the work. Tell somebody who raised a problem that it exists, is owned and is not lost - once, transactionally, and without promising an outcome nobody has decided yet.. Also known as support request acknowledgement, ticket received confirmation, we got your message, service request intake, case opened notification. a problem reported through any intake route, acknowledged once with the reference and the owner. a request that turns out to be already resolved when it arrives, told as that rather than acknowledged. a request still open when the acknowledgement window closes, handed to the journey that owns the work. Support request received. Returns, remedies, corrections & post-completion recovery. Hands off to REM-151. resolved; the requester was told what closed it. attached to the request already open on this problem; acknowledged once. withdrawn by the requester; nothing further is sent. no message sent; the gate that stopped it is recorded and the request still has its owner",
+    "searchText": "Service request received → acknowledged or already resolved → closed or handed to the work. Tell somebody who raised a problem that it exists, is owned and is not lost - once, transactionally, and without promising an outcome nobody has decided yet.. Also known as support request acknowledgement, ticket received confirmation, we got your message, service request intake, case opened notification. a problem reported through any intake route, acknowledged once with the reference and the owner. a request that turns out to be already resolved when it arrives, told as that rather than acknowledged. a request still open when the acknowledgement window closes, handed to the journey that owns the work. Support request received. Returns, remedies, corrections & post-completion recovery. Hands off to REM-151. resolved; the requester was told what closed it. attached to the request already open on this problem; acknowledged once. the request is with the team that owns the work, and this journey says nothing further about it. withdrawn by the requester; nothing further is sent. no message sent; the gate that stopped it is recorded and the request still has its owner",
     "keywords": [
       "REM-305",
       "support request acknowledgement",
@@ -21812,7 +21816,7 @@
     "external": false,
     "title": "RET-24 Churn risk escalation → evidence → intervention priority",
     "summary": "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
-    "searchText": "Churn risk escalation → evidence → intervention priority. Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.. Also known as churn risk escalation, churn risk, at-risk account escalation, customer success alert, churn prevention (risk). several independent risk signals crossing a threshold on one account. deciding between a person, an automated intervention, or watching. Churn risk threshold crossed. Engagement, health, retention & churn prevention. Hands off to RET-28, RET-23, external:human-in-the-loop-lifecycle, RET-30. risk recorded, nothing proportionate to do, or a higher-precedence contender already owns this account",
+    "searchText": "Churn risk escalation → evidence → intervention priority. Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.. Also known as churn risk escalation, churn risk, at-risk account escalation, customer success alert, churn prevention (risk). several independent risk signals crossing a threshold on one account. deciding between a person, an automated intervention, or watching. Churn risk threshold crossed. Engagement, health, retention & churn prevention. Hands off to RET-28, RET-23, external:human-in-the-loop-lifecycle. the relationship recovered; risk cleared without escalation. another owner already holds this account. risk recorded, monitored; nothing further from this evaluation",
     "keywords": [
       "RET-24",
       "churn risk escalation",
@@ -21840,8 +21844,11 @@
       "learn"
     ],
     "tags": [
+      "backward-edge",
+      "wait-timeout",
       "cross-journey-handoff",
       "external-handoff",
+      "multi-exit",
       "competition"
     ],
     "language": "en+tr",
@@ -21869,9 +21876,6 @@
         },
         {
           "targetId": "journey:RET-23"
-        },
-        {
-          "targetId": "journey:RET-30"
         }
       ],
       "distinctFrom": []

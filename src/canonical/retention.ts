@@ -862,7 +862,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "churn-risk-escalation",
     category: "retention",
     goal: "relationship-recovery-intervention",
-    channels: ["task"],
+    channels: ["email", "in-app", "task"],
     name: "Churn risk escalation → evidence → intervention priority",
     shortName: "Churn Risk Escalation",
     purpose:
@@ -941,6 +941,20 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the risk is disengagement; the person is not in the product"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the risk is in-product friction; the check-in belongs beside the thing that is failing"
+        },
+        {
           "role": "human",
           "channels": [
             "task"
@@ -948,22 +962,55 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
-      "strategy": "single-notice",
+      "strategy": "human-escalation-ladder",
       "touches": [
         {
-          "id": "t1",
-          "stage": "owner-task",
-          "action": "a.owner-task",
+          "id": "t-checkin-email",
+          "stage": "risk-check-in",
+          "action": "a.check-in-email",
           "prerequisites": [
             "c.intent",
             "c.operational",
+            "c.priority-clear",
+            "c.signal-class"
+          ],
+          "purpose": "Ask what is going wrong on the channel that reaches someone who has stopped using the product, and give them a route to a person - no offer, no discount.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-checkin-inapp",
+          "stage": "risk-check-in",
+          "action": "a.check-in-inapp",
+          "prerequisites": [
+            "c.intent",
+            "c.operational",
+            "c.priority-clear",
+            "c.signal-class"
+          ],
+          "purpose": "Ask what is going wrong beside the thing that is failing, in the product, and give them a route to a person - no offer, no discount.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-owner-task",
+          "stage": "owner-task",
+          "action": "a.owner-task",
+          "gatedBy": "w.response",
+          "prerequisites": [
             "c.human"
           ],
-          "purpose": "Raise a task for the account owner or customer success, carrying the evidence rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
+          "purpose": "Raise a task for the account owner or customer success, carrying the evidence - including any reply the check-in drew - rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
           "channelRoles": [
             "human"
           ],
@@ -995,11 +1042,12 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
-          "x.monitor",
+          "x.contended",
+          "x.monitored",
+          "x.recovered",
           "h.cancellation",
           "h.resolve-first",
-          "h.human",
-          "h.intervention"
+          "h.human"
         ]
       },
       "secondary": [],
@@ -1097,7 +1145,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "No known problem",
             when: "the relationship is deteriorating and nothing identifiable is causing it, or the identifiable cause is a payment failure that payment recovery already owns",
-            to: "c.human",
+            to: "c.priority-clear",
           },
         ],
       },
@@ -1113,23 +1161,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         suppresses: ["promotional retention offers on this relationship until the problem is resolved"],
       },
       {
-        id: "c.human",
-        kind: "condition",
-        asks: "Does the evidence justify a person?",
-        branches: [
-          {
-            label: "Justified",
-            when: "the evidence is strong and corroborated, and the relationship warrants the cost of someone's attention",
-            to: "c.priority-clear",
-          },
-          {
-            label: "Not justified",
-            when: "the evidence is real but thin, and putting a person on it would be a larger intervention than the signal supports",
-            to: "c.automated",
-          },
-        ],
-      },
-      {
         id: "c.priority-clear",
         kind: "condition",
         asks: "Does a higher-precedence retention-outreach contender already claim this account?",
@@ -1137,12 +1168,110 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Clear",
             when: "no open issue under human ownership (FBK-46) currently claims this account - this journey's own declared precedence is below that, above generic retention intervention",
-            to: "a.owner-task",
+            to: "c.signal-class",
           },
           {
             label: "Contended",
-            when: "an open issue under human ownership already claims this account - raising a second, competing owner-task would contradict the person already working it rather than corroborate their evidence",
-            to: "x.monitor",
+            when: "an open issue under human ownership already claims this account - sending a check-in, or raising a competing owner-task, would contradict the person already working it rather than corroborate their evidence",
+            to: "x.contended",
+          },
+        ],
+      },
+      {
+        id: "c.signal-class",
+        kind: "condition",
+        asks: "What kind of risk is this?",
+        branches: [
+          {
+            label: "Disengagement",
+            when: "the evidence points at sustained usage decline, falling account-wide adoption, a key stakeholder leaving, or a failed renewal or payment - by definition, the person is not in the product",
+            observes: "risk_evidence",
+            to: "a.check-in-email",
+          },
+          {
+            label: "In-product friction",
+            when: "the evidence points at repeated unresolved blockers, a negative support experience, or explicit dissatisfaction - the risk was generated by something failing inside the product, where the person still is",
+            observes: "risk_evidence",
+            to: "a.check-in-inapp",
+          },
+        ],
+      },
+      {
+        id: "a.check-in-email",
+        kind: "action",
+        does: "Send a check-in naming what we can see going wrong, with a route to a person, on the route that reaches someone who is not in the product. Carries no offer and no discount; offers belong to RET-28 and RET-30",
+        next: "w.response",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.check-in-email",
+      },
+      {
+        id: "a.check-in-inapp",
+        kind: "action",
+        does: "Send a check-in naming what we can see going wrong, with a route to a person, beside the thing that is failing, where the person still is. Carries no offer and no discount; offers belong to RET-28 and RET-30",
+        next: "w.response",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.check-in-inapp",
+      },
+      {
+        id: "w.response",
+        kind: "wait",
+        until: ["relationship_recovered", "explicit_cancellation_intent"],
+        onEvent: "c.moved",
+        timeout: {
+          after: {
+            key: "churn_risk.response_window",
+            rule: "A bounded window to notice whether the check-in changed anything, before spending a person's attention on a relationship that did not answer.",
+            class: "response-window",
+            required: true,
+          },
+          reason: "an unanswered check-in is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
+          relativeTo: "previous-touch",
+        },
+        onTimeout: "c.human",
+        windowExtendsOnEngagement: false,
+        recheck: "the relationship state and the cancellation record, re-read from the systems that own them, before the timeout is acted on",
+      },
+      {
+        id: "c.moved",
+        kind: "condition",
+        asks: "Did the relationship state move?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "the relationship measurably recovered",
+            observes: "relationship_recovered",
+            to: "x.recovered",
+          },
+          {
+            label: "Cancellation declared",
+            when: "a cancellation was requested, or a cancel flow entered, while waiting for a response to the check-in",
+            observes: "explicit_cancellation_intent",
+            to: "h.cancellation",
+          },
+        ],
+      },
+      {
+        id: "x.recovered",
+        kind: "exit",
+        state: "the relationship recovered; risk cleared without escalation",
+        terminal: false,
+        reEntry: "a fresh risk evaluation is a new instance if the threshold crosses again",
+        class: "success",
+      },
+      {
+        id: "c.human",
+        kind: "condition",
+        asks: "Does the evidence - including any reply received during the check-in window - now justify a person?",
+        branches: [
+          {
+            label: "Justified",
+            when: "the evidence is strong and corroborated, and the relationship warrants the cost of someone's attention",
+            to: "a.owner-task",
+          },
+          {
+            label: "Not justified",
+            when: "the evidence is real but thin, and a person's attention would be a larger intervention than the signal supports",
+            to: "x.monitored",
           },
         ],
       },
@@ -1177,41 +1306,21 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         },
       },
       {
-        id: "c.automated",
-        kind: "condition",
-        asks: "Is a proportionate automated recovery available?",
-        branches: [
-          {
-            label: "Available",
-            when: "something exists that matches the evidence at this strength",
-            to: "h.intervention",
-          },
-          {
-            label: "Nothing proportionate",
-            when: "the only available responses are larger than the evidence justifies",
-            to: "x.monitor",
-          },
-        ],
-      },
-      {
-        id: "h.intervention",
-        kind: "handoff",
-        to: "RET-30",
-        on: "a proportionate automated retention intervention being delivered",
-        carries: [
-          "the evidence it was chosen against",
-          "the risk state at the time it was sent",
-          "a retention_episode_id minted at this handoff, deterministically derived from account_id + risk_episode_id, since this journey's own episode concept (a churn-risk evaluation) is not itself a retention episode - RET-30 remembers a decline against this identity the same way it does for RET-28's own cancellation-episode-scoped handoff",
-        ],
-        contract: { requiredFields: ["account_id", "retention_episode_id"] },
-      },
-      {
-        id: "x.monitor",
+        id: "x.contended",
         kind: "exit",
-        state: "risk recorded, nothing proportionate to do, or a higher-precedence contender already owns this account",
+        state: "another owner already holds this account",
         terminal: false,
         reEntry:
-          "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence, and doing something disproportionate is not; where the reason was a higher-precedence contender's active claim, that contender resolving re-opens this evaluation from current evidence rather than resuming a stale one",
+          "that contender resolving re-opens this evaluation from current evidence rather than resuming a stale one",
+        class: "suppression",
+      },
+      {
+        id: "x.monitored",
+        kind: "exit",
+        state: "risk recorded, monitored; nothing further from this evaluation",
+        terminal: false,
+        reEntry:
+          "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence",
         class: "no-action",
       },
     ],
@@ -1220,8 +1329,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "A high-value customer is not automatically at high risk. Value is what is at stake, not the probability of losing it.",
       "A risk score is not the outcome. It orders attention; it does not decide anything.",
       "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one.",
-      "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim immediately before a.owner-task rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
-      "h.intervention mints a retention_episode_id at handoff rather than reusing risk_episode_id, since this journey's own episode is a churn-risk evaluation and RET-30's decline memory is scoped to a retention episode - a genuinely different, narrower concept that does not exist here until this specific intervention is chosen.",
+      "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim once, before the check-in is sent, rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
+      "The check-in carries no offer and no discount - offers belong to RET-28 (the cancellation save) and RET-30 (the retention offer follow-up). This journey does not hand off to RET-30: RET-30's trigger requires a defined intervention actually delivered (a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer), and a bare check-in satisfies none of those - handing a customer off to a journey whose trigger evidence can never be produced is exactly the defect this design removes. A reply that neither recovers the relationship nor declares cancellation is additional evidence, read by c.human exactly as a silent timeout would be, never manufactured into a delivered intervention.",
     ],
     reusableRule:
       "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",
@@ -2552,6 +2661,12 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "text":
           "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
       },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text":
+          "This journey yields to a declared cancellation intent (RET-28) and to a live risk case (RET-24) on the same account, and to any open issue under human ownership - all three outrank a follow-up on a retention offer already sent. It ranks above the adoption recovery nudge (ACT-18): a declined offer must be remembered for the whole cancellation episode, and a suppressed follow-up loses that record.",
+      },
     ],
     contact: {
       "defaultPriority": "lifecycle",
@@ -2579,7 +2694,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "retention-outreach",
         "scope": "account",
-        "precedence": "lowest in the group - any live risk case or open issue on the same account outranks it",
+        "precedence": "below the declared cancellation intent (RET-28), any live risk case (RET-24) and any open issue under human ownership on the same account; above the adoption recovery nudge (ACT-18) - an intervention the business actually delivered has an outcome to establish where a stall has only an inference, and a declined offer must be remembered for the whole cancellation episode before a generic nudge is allowed to reopen it",
         "onLoss": "suppressed"
       }
     },
@@ -3692,7 +3807,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "retention-outreach",
         "scope": "account",
-        "precedence": "lowest in the group - any live retention, complaint, risk or payment journey on the account means the relationship is not lapsed and this journey does not run",
+        "precedence": "any live retention, complaint, risk or payment journey on the account means the relationship is not lapsed and this journey does not run",
         "onLoss": "suppressed"
       }
     },

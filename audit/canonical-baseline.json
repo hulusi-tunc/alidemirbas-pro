@@ -20,7 +20,7 @@
     "schema_version": "vNext-2026-09"
   },
   "ACT-18": {
-    "hash": "sha256:2d76ed878fea3f9141b487f9aed5a6beb509b69cc14e47a5662a5ff6f9a4bec5",
+    "hash": "sha256:fe46d9c1d9454e15ffabcb3de440fdde40346022ec146c5a7f9a9ee3843f10cf",
     "source": "src/canonical/activation.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -75,7 +75,7 @@
     "schema_version": "vNext-2026-09"
   },
   "RET-24": {
-    "hash": "sha256:64a7cfbb25fdbb8ebd0eccdd7769ec70b39d1b5045c07fa80d397ea83354f32e",
+    "hash": "sha256:d376992969fa35837b2b04fe0160674186fd2588d90f7d2b04fab193a875e4a2",
     "source": "src/canonical/retention.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -170,7 +170,7 @@
     "schema_version": "vNext-2026-09"
   },
   "RET-32": {
-    "hash": "sha256:e387af89db974d40ee28f22816c65640f7cd7ddc1f81eb53e0c69b1ed7cdc9bd",
+    "hash": "sha256:a5ba1c1a214d09133128a4719bc49f7ba79cc6adf4913f64ee5f45adead2d5a5",
     "source": "src/canonical/retention.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -235,7 +235,7 @@
     "schema_version": "vNext-2026-09"
   },
   "REM-151": {
-    "hash": "sha256:d24bd019e12da13fb8eb1f01abca4bb02b5cb89ff6de438f2ca2f60ef7058950",
+    "hash": "sha256:47d104415be06a70891ebb94a311f224db3a28081c644eac7cde5d825c9bddae",
     "source": "src/canonical/remedy.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -290,7 +290,7 @@
     "schema_version": "vNext-2026-09"
   },
   "RET-30": {
-    "hash": "sha256:cbb3900729f74edc954fc05052b0ebab04a5a4713d3eee099a6dba382ab824ab",
+    "hash": "sha256:198863e5c442766a2486f43a577e082952f35a5c0a583c933922970158f96965",
     "source": "src/canonical/retention.ts",
     "schema_version": "vNext-2026-09"
   },
@@ -315,7 +315,7 @@
     "schema_version": "vNext-2026-09"
   },
   "REM-305": {
-    "hash": "sha256:7046bf05f4a38629aa629695f902445ef7ebacb92dad460139d80e98f5dce338",
+    "hash": "sha256:f062316181216e238e0b9eda2c57d8a46deb4c1487ff036d462905f3c0b57b5f",
     "source": "src/canonical/remedy.ts",
     "schema_version": "vNext-2026-09"
   },

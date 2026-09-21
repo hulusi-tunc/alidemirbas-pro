@@ -10,6 +10,14 @@
    "reviewedAt": "2026-09-01"
   },
   {
+   "id": "RET-24",
+   "code": "simultaneous_review",
+   "match": "touches t-checkin-email, t-checkin-inapp",
+   "note": "t-checkin-email and t-checkin-inapp are the two exclusive arms of c.signal-class - the risk is either disengagement or in-product friction, never both, and c.signal-class is a condition (single winning branch), not a fan-out. They are never sent together; no channelStrategy.simultaneous is needed.",
+   "reviewedBy": "69-journey refactor, product decision #1 (RET-24)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
    "id": "ACT-17",
    "code": "router_journey",
    "note": "Adoption nurture ends only in handoffs by design: stable adoption goes to the lifecycle owner, a stall goes to adoption recovery. There is no outcome it owns alone.",

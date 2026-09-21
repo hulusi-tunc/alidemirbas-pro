@@ -32,7 +32,7 @@
     {
       "risk": "long-forward-chain",
       "description": "Depth from entry to the furthest node along non-backward edges. A layout that assumes a short chain will need vertical scroll or compression.",
-      "affectedCount": 34,
+      "affectedCount": 35,
       "threshold": ">=10 levels deep",
       "worst": [
         [
@@ -61,7 +61,7 @@
     {
       "risk": "backward-edges",
       "description": "An edge whose target sits earlier in reading order than its source. Needs an explicit upward-arrow or back-reference treatment, not a straight-line layout.",
-      "affectedCount": 165,
+      "affectedCount": 166,
       "threshold": ">=1 backward edge",
       "worst": [
         [
@@ -138,7 +138,7 @@
     {
       "risk": "handoff-density",
       "description": "Cross-journey and external handoffs on one graph. Each is a link leaving the current view - a layout that treats handoffs like ordinary nodes undercounts how often the reader leaves this journey.",
-      "affectedCount": 23,
+      "affectedCount": 22,
       "threshold": ">=4 handoffs",
       "worst": [
         [
