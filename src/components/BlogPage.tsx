@@ -37,7 +37,7 @@ import { JsonLdScript } from "@/components/ui/JsonLdScript";
 const T = {
   en: {
     eyebrow: "Blog",
-    title: "Writing on growth, CRM and lifecycle marketing.",
+    title: "Notes from the work: growth, CRM, measurement and experiments.",
     emptyTitle: "No posts yet.",
     /* The empty state's one sentence, split so the word "Lab" can carry the
        real link to the Lab index instead of naming it as plain text. */
@@ -47,7 +47,7 @@ const T = {
   },
   tr: {
     eyebrow: "Blog",
-    title: "Büyüme, CRM ve yaşam döngüsü pazarlaması üzerine yazılar.",
+    title: "İşin içinden notlar: growth, CRM, ölçümleme ve deneyler.",
     emptyTitle: "Henüz bir yazı yok.",
     emptyBodyBefore: "Bu arada ",
     emptyBodyLink: "Lab",

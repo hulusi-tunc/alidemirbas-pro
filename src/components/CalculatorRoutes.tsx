@@ -48,13 +48,13 @@ const T = {
 const HERO = {
   en: {
     eyebrow: "Calculators",
-    title: "Calculate marketing metrics quickly.",
-    sub: "Calculators and small tools I use for ROAS, CAC, LTV, retention, and A/B testing.",
+    title: "Start with the metric. Work through the result.",
+    sub: "Practical calculators for acquisition, revenue, retention, experimentation and CRM. Each tool keeps the formula, the result and the limits of that result close together.",
   },
   tr: {
     eyebrow: "Hesaplayıcılar",
-    title: "Pazarlama metriklerini hızlıca hesapla.",
-    sub: "ROAS, CAC, LTV, retention ve A/B testleri gibi metrikler için kullandığım hesaplayıcılar ve küçük araçlar.",
+    title: "Metrikten başla, sonucu adım adım değerlendir.",
+    sub: "Kullanıcı kazanımı, gelir, retention, deneyler ve CRM için pratik hesaplayıcılar. Her araç formülü, sonucu ve sonucun sınırlarını aynı yerde tutar.",
   },
 };
 

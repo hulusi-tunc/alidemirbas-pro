@@ -94,20 +94,15 @@ export const copy = {
     },
     lab: {
       label: "Lab",
-      title: "Things I'm working on",
+      title: "Tools, libraries and experiments from the work.",
       // REDESIGN ROUND (LabIndexPage.tsx): rewritten for the new title ->
-      // tags -> proof -> description -> CTA hierarchy. `tags` is now PURE
+      // tags -> proof -> description -> CTA hierarchy. `tags` is PURE
       // semantic taxonomy (no numbers mixed in) and `proof` is a single,
-      // separately-rendered quantitative highlight - `null` where a
-      // project genuinely has none (Google Ads Explorer). Every number
-      // still traces to something already established real elsewhere in
-      // this codebase: 26/9 from claude-lifecycle's own README, 211 from
-      // the real ab-tests.json count, 11 from dashboard-builder's own
-      // templates, 75+ from numerspace.com's real tool count - none of
-      // that changed, only which of it surfaces on this page did. The
-      // Journey Library's proof still uses the {count}/{categories}
-      // template tokens (withLibraryCount fills them at render), not a
-      // hardcoded "255" - same live-derivation discipline as its desc.
+      // separately-rendered evidence line. Where a proof uses a number,
+      // it traces to live project data: the A/B dataset, Dashboard
+      // Builder's template list or Numerspace's generated catalogue.
+      // Journey counts stay out of the marketing copy so the page does
+      // not need rewriting when the canonical library changes.
       // Link labels are standardized site-wide per the new CTA system:
       // "Open the project page" for the one internal route each project has (a
       // project with no internal page just skips it), "GitHub"/"Live
@@ -116,24 +111,22 @@ export const copy = {
       // LabIndexPage.tsx (verified - not by SiteFooter or the header's
       // LabNavDropdown, which only read name/desc/links), so this
       // reshape doesn't touch either of those.
-      intro: "This is where I turn recurring problems from the work into open-source tools, libraries and small experiments. Most are about growth, CRM and analytics. Occasionally something else.",
+      intro: "Most projects here began with a recurring problem: a journey that was hard to map, a test that was easy to misread or a report whose numbers did not quite agree. I built the tool I wanted to use, then kept it open for others to inspect and adapt.",
       viewAll: "Explore the archive",
       // `short` is the project's compact name - the hero's tab rail, the
       // header dropdown and the section eyebrows all use it, because the
       // full names run to five words and a tab cannot. `tagline` is the
       // one-line claim under the name in the dropdown and the hero rail;
-      // every number in one traces to the same `proof` already here, and
-      // the {count}/{categories} tokens are filled by withJourneyCount at
-      // render exactly like `desc`.
+      // any number in one must trace to the same source as `proof`.
       projects: [
         {
           name: "Journey Builder",
           slug: "claude-lifecycle",
           short: "Journey Builder",
-          tagline: "From event data to usable journeys",
-          desc: "Reads the events you already track, tells you which journeys your data can support, then builds each one step by step.",
+          tagline: "Turn the signals you track into journeys you can run",
+          desc: "Reads the events and parameters already available, shows which journey patterns the data can support, then builds the trigger, decisions, waits, channel steps and exits.",
           tags: ["Lifecycle", "CRM", "Claude Code"],
-          proof: "26 journey patterns",
+          proof: "Data quality checked before generation",
           links: [
             { label: "Open the project page", href: "/lab/claude-lifecycle" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
@@ -144,18 +137,18 @@ export const copy = {
           name: "Journey Library",
           slug: "lifecycle-card-archive",
           short: "Journey Library",
-          tagline: "{count} journeys, {categories} categories",
-          desc: "{count} journeys across {categories} categories. Each one is a flow that shows what starts it, where it branches and when it ends.",
+          tagline: "Read the trigger, branches and outcome in one flow",
+          desc: "A domain-neutral reference library for lifecycle work. Each journey makes the entry signal, decisions, timing, channel roles, stop conditions and measurement plan visible.",
           tags: ["Lifecycle", "Library"],
-          proof: "{count} journeys · {categories} categories",
+          proof: "Branching flows · no message copy",
           links: [{ label: "Open the project page", href: "/lab/journeys" }],
         },
         {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
           short: "A/B Test Playbook",
-          tagline: "Test, learn, improve",
-          desc: "{abTestCount} A/B test scenarios. Each comes with a hypothesis, one primary metric, guardrails and the checks that keep the test valid.",
+          tagline: "Move from an observed problem to a valid test",
+          desc: "A structured experiment library. Each scenario keeps the hypothesis, the one variable that changes, the decision metric, guardrails and setup risks together.",
           tags: ["A/B testing", "CRO", "Claude Code"],
           proof: "{abTestCount} scenarios",
           links: [
@@ -167,8 +160,8 @@ export const copy = {
           name: "Dashboard Builder",
           slug: "dashboard-builder",
           short: "Dashboard Builder",
-          tagline: "Compare metrics across platforms",
-          desc: "Checks reports exported from different platforms, identifies which metrics can be compared safely, and turns the result into a dashboard.",
+          tagline: "Check the comparison before drawing the chart",
+          desc: "Reviews reports from different platforms, classifies which metrics can be compared safely and leaves out combinations that would produce a misleading dashboard.",
           tags: ["Analytics", "Data quality", "Claude Code"],
           proof: "{dashboardTemplateCount} dashboard templates",
           links: [
@@ -180,8 +173,8 @@ export const copy = {
           name: "Google Ads Change History",
           slug: "google-ads-change-history-dashboard",
           short: "Google Ads Change History",
-          tagline: "Search Google Ads changes in one place",
-          desc: "Turn Google Ads change history into a searchable dashboard. Review campaigns, categories, before-and-after values, and timestamps in one place.",
+          tagline: "Find the change behind the movement",
+          desc: "Turns an exported Google Ads change history into a searchable offline dashboard. Filter by account, campaign, date or category, then inspect the old and new values together.",
           tags: ["Google Ads", "Analytics", "Python"],
           proof: "No dependencies · Built-in self-test",
           links: [
@@ -193,8 +186,8 @@ export const copy = {
           name: "Numerspace",
           slug: "numerspace",
           short: "Numerspace",
-          tagline: "{numerspaceCount} free calculators, no account",
-          desc: "Free calculators for marketing, finance, health, career and everyday decisions. No account needed.",
+          tagline: "Open a calculator, enter what you know, check the result",
+          desc: "A bilingual library of practical calculators for marketing, money, health, work and everyday questions. No account, email gate or download required.",
           tags: ["Web app", "Calculators"],
           // Was "75+ tools" - stale. numerspace.com's own sitemap lists 97
           // calculator pages per language across 13 tool-bearing categories
@@ -510,8 +503,8 @@ export const copy = {
       metaTitle: "Tools I use - Ali Demirbaş",
       metaDesc: "The tools I use for measurement, analysis and testing.",
       eyebrow: "Tools",
-      title: "Tools I use day to day.",
-      sub: "The tools I use across analytics, CRM, measurement, SEO, reporting, and productivity.",
+      title: "The tools behind the work.",
+      sub: "What I use to collect data, understand behavior, run lifecycle programs, test ideas and turn the result into something people can act on.",
       // Home page teaser only - the /stack page keeps its own title/sub above.
       homeTitle: "Tools I use",
       homeIntro: "Tools I use to collect data, analyze it, run tests, and turn findings into action.",
@@ -605,8 +598,8 @@ export const copy = {
       },
       library: {
         eyebrow: "The library",
-        title: "{count} journeys, filed by category.",
-        body: "Open any of them and follow it step by step. They're built around the process itself, not a sector, which is why no two journeys end up being copies of each other.",
+        title: "Open a journey and follow the decisions step by step.",
+        body: "The flows are organized around lifecycle problems rather than industries. Each one shows the trigger, decisions, timing, channel roles, exits and measurement plan without prescribing the message copy.",
         cta: "Open the Journey Library",
         nodes: "nodes",
         moreCategories: "more",
@@ -646,8 +639,8 @@ export const copy = {
             a: "A GA4 connection or a CSV export. A data quality score is calculated first; journey depth follows that score.",
           },
           {
-            q: "How many patterns are there?",
-            a: "26. Abandoned cart, trial conversion and win-back are three of them. Which ones can be built depends on the events in your data.",
+            q: "Which journey patterns can it build?",
+            a: "The available patterns depend on the events and parameters in your data. If a pattern is supported, it can be built; if not, the builder shows which signal is missing instead of assuming it exists.",
           },
           {
             q: "Does it write the message copy too?",
@@ -960,17 +953,17 @@ export const copy = {
     },
     lab: {
       label: "Lab",
-      title: "Üzerinde çalıştıklarım",
-      intro: "İşte tekrar tekrar karşıma çıkan problemleri açık kaynak araçlara, kütüphanelere ve küçük deneylere dönüştürdüğüm yer. Çoğu büyüme, CRM ve analitik üzerine. Bazen başka bir şey.",
+      title: "İşin içinden çıkan araçlar, kütüphaneler ve deneyler.",
+      intro: "Buradaki projelerin çoğu tekrar karşıma çıkan bir problemle başladı: haritalaması zor bir journey, yanlış okunmaya açık bir test ya da rakamları birbiriyle uyuşmayan bir rapor. Önce kullanmak istediğim aracı yaptım, sonra başkalarının da inceleyip uyarlayabilmesi için açık tuttum.",
       projects: [
         {
           name: "Journey Oluşturucu",
           slug: "claude-lifecycle",
           short: "Journey Oluşturucu",
-          tagline: "Event verisinden journey kurgusuna",
-          desc: "Mevcut event verisine bakıp hangi journey'lerin kurulabileceğini söyler, sonra her birini adımlarıyla birlikte kurar.",
+          tagline: "Takip ettiğin sinyalleri çalışabilir journey'lere dönüştür",
+          desc: "Mevcut event ve parametreleri okur, verinin hangi journey desenlerini desteklediğini gösterir; ardından tetikleyici, karar, bekleme, kanal adımları ve çıkışları kurar.",
           tags: ["Lifecycle", "CRM", "Claude Code"],
-          proof: "26 journey deseni",
+          proof: "Üretimden önce veri kalitesi kontrolü",
           links: [
             { label: "Proje sayfasını aç", href: "/tr/lab/claude-lifecycle" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/claude-lifecycle" },
@@ -981,18 +974,18 @@ export const copy = {
           name: "Journey Kütüphanesi",
           slug: "lifecycle-card-archive",
           short: "Journey Kütüphanesi",
-          tagline: "{count} journey, {categories} kategori",
-          desc: "{categories} kategoride {count} journey. Her biri neyin başlattığını, nerede dallandığını ve ne zaman bittiğini gösteren bir akış şeması.",
+          tagline: "Tetikleyiciyi, dalları ve sonucu tek akışta oku",
+          desc: "Lifecycle çalışmaları için sektörden bağımsız bir referans kütüphanesi. Her journey giriş sinyalini, kararları, zamanlamayı, kanal rollerini, durma koşullarını ve ölçüm planını gösterir.",
           tags: ["Lifecycle", "Kütüphane"],
-          proof: "{count} journey · {categories} kategori",
+          proof: "Dallanan akışlar · mesaj metni yok",
           links: [{ label: "Proje sayfasını aç", href: "/tr/lab/journeys" }],
         },
         {
           name: "A/B Test Playbook",
           slug: "ab-test-playbook",
           short: "A/B Test Playbook",
-          tagline: "Test et, öğren, geliştir",
-          desc: "{abTestCount} A/B test senaryosu. Her birinde hipotez, birincil metrik, guardrail'ler ve testi doğru kurmak için gereken kontroller var.",
+          tagline: "Gözlenen problemden geçerli bir teste ilerle",
+          desc: "Yapılandırılmış bir deney kütüphanesi. Her senaryoda hipotez, değişen tek alan, karar metriği, guardrail'ler ve kurulum riskleri birlikte yer alır.",
           tags: ["A/B test", "CRO", "Claude Code"],
           proof: "{abTestCount} senaryo",
           links: [
@@ -1004,8 +997,8 @@ export const copy = {
           name: "Dashboard Oluşturucu",
           slug: "dashboard-builder",
           short: "Dashboard Oluşturucu",
-          tagline: "Farklı platformların metriklerini karşılaştır",
-          desc: "Farklı platformlardan aldığın raporları kontrol eder, hangi metriklerin güvenle karşılaştırılabildiğini belirler ve sonucu dashboard'a çevirir.",
+          tagline: "Grafiği çizmeden önce karşılaştırmayı kontrol et",
+          desc: "Farklı platformlardan gelen raporları inceler, hangi metriklerin güvenle karşılaştırılabildiğini sınıflandırır ve yanıltıcı bir dashboard üretecek eşleşmeleri dışarıda bırakır.",
           tags: ["Analitik", "Veri kalitesi", "Claude Code"],
           proof: "{dashboardTemplateCount} dashboard şablonu",
           links: [
@@ -1017,8 +1010,8 @@ export const copy = {
           name: "Google Ads Değişiklik Geçmişi",
           slug: "google-ads-change-history-dashboard",
           short: "Google Ads Değişiklik Geçmişi",
-          tagline: "Google Ads değişikliklerini tek yerde ara",
-          desc: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a dönüştürür. Kampanya, kategori, eski-yeni değer ve zaman bilgilerini tek yerde incele.",
+          tagline: "Hareketin arkasındaki değişikliği bul",
+          desc: "Dışa aktardığın Google Ads değişiklik geçmişini çevrimdışı çalışan, aranabilir bir dashboard'a dönüştürür. Hesap, kampanya, tarih veya kategoriye göre filtreleyip eski ve yeni değeri birlikte inceleyebilirsin.",
           tags: ["Google Ads", "Analitik", "Python"],
           proof: "Bağımlılık yok · Yerleşik self-test",
           links: [
@@ -1030,8 +1023,8 @@ export const copy = {
           name: "Numerspace",
           slug: "numerspace",
           short: "Numerspace",
-          tagline: "{numerspaceCount} ücretsiz hesaplayıcı, üyelik gerekmiyor",
-          desc: "Pazarlama, finans, sağlık, kariyer ve günlük kararlar için ücretsiz hesaplayıcılar. Üyelik gerekmiyor.",
+          tagline: "Aracı aç, bildiklerini gir, sonucu kontrol et",
+          desc: "Pazarlama, finans, sağlık, iş ve günlük sorular için iki dilli pratik hesaplayıcılar. Üyelik, e-posta formu veya indirme gerekmiyor.",
           tags: ["Web uygulaması", "Hesaplayıcılar"],
           proof: "{numerspaceCount} hesaplayıcı · {numerspaceCategories} kategori",
           links: [
@@ -1292,8 +1285,8 @@ export const copy = {
       metaTitle: "Kullandığım araçlar - Ali Demirbaş",
       metaDesc: "Ölçümleme, analiz ve test için kullandığım araçlar.",
       eyebrow: "Araçlar",
-      title: "Çalışırken kullandığım araçlar.",
-      sub: "Analitik, CRM, ölçümleme, SEO, raporlama ve üretkenlik tarafında günlük iş akışımda kullandığım araçlar.",
+      title: "Yaptığım işin arkasındaki araçlar.",
+      sub: "Veriyi toplamak, kullanıcı davranışını anlamak, lifecycle programlarını yürütmek, fikirleri test etmek ve sonucu aksiyona çevirmek için kullandığım araçlar.",
       homeTitle: "Kullandığım araçlar",
       homeIntro: "Veriyi toplamak, analiz etmek, test etmek ve aksiyona çevirmek için kullandığım araçlar.",
       homeMore: "Tüm araçları gör",
@@ -1378,8 +1371,8 @@ export const copy = {
       },
       library: {
         eyebrow: "Kütüphane",
-        title: "{count} journey, kategoriye göre dosyalanmış.",
-        body: "Her birini açıp adım adım takip edebilirsin. Sektöre göre değil, sürecin kendisine göre kurulmuş akışlar. Bu yüzden iki journey birbirinin kopyası olmuyor.",
+        title: "Bir journey aç, kararları adım adım takip et.",
+        body: "Akışlar sektöre göre değil, lifecycle problemine göre düzenlenir. Her biri tetikleyiciyi, kararları, zamanlamayı, kanal rollerini, çıkışları ve ölçüm planını mesaj metni dayatmadan gösterir.",
         cta: "Journey Kütüphanesi'ni aç",
         nodes: "düğüm",
         moreCategories: "kategori daha",
@@ -1419,8 +1412,8 @@ export const copy = {
             a: "GA4 bağlantısı ya da CSV dışa aktarımı. Önce veri kalitesi skoru hesaplanır; journey derinliği bu skora göre belirlenir.",
           },
           {
-            q: "Kaç desen var?",
-            a: "26. Terk edilmiş sepet, deneme dönüşümü ve geri kazanım bunlardan üçü. Hangilerinin kurulabileceği verindeki event'lere bağlı.",
+            q: "Hangi journey desenlerini kurabilir?",
+            a: "Kullanılabilir desenler verindeki event ve parametrelere bağlıdır. Veri destekliyorsa desen kurulabilir; desteklemiyorsa sistem sinyali varmış gibi davranmak yerine neyin eksik olduğunu gösterir.",
           },
           {
             q: "Mesaj metinlerini de yazıyor mu?",

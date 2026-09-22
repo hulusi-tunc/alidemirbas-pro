@@ -127,6 +127,24 @@ const VARIABLE_LABEL: Record<AbVariableKind, string> = {
   wording: "Wording",
 };
 
+/* The source dataset is authored in Turkish. English records already carry
+   an editorial title and summary, but the long run notes do not have a
+   verified translation yet. English pages therefore use a shared,
+   methodology-safe checklist built only from fields that can be rendered
+   without translating or inventing a treatment. Turkish pages keep the
+   record-specific KPI notes, checks and guardrails below. */
+const EN_RUN_GUIDANCE = {
+  primary: "Use this as the decision metric. Supporting metrics can explain the movement, but they should not replace the metric chosen before launch.",
+  variable: "Change only this element between the control and the variant. Keep copy, placement, timing and surrounding design stable unless one of them is the named variable.",
+  guardrail: "Choose at least one metric that must not get worse while the primary KPI improves. The right guardrail depends on the risk this change creates.",
+  setup: [
+    "Write the sample-size or duration rule before launch.",
+    "Do not run another experiment on the same surface and audience at the same time.",
+    "Check tracking and exposure before reading the result.",
+    "Stop early only when a safety or business guardrail is clearly breaking.",
+  ],
+} as const;
+
 const DIFF_SIGN: Record<string, string> = { add: "+", remove: "−", change: "≠", move: "↔" };
 
 /** The photograph behind the screens, and whether it is dark - the role
@@ -339,7 +357,57 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
      where the record's own hypothesis ends in one. */
   const card = "flex w-[min(22rem,85vw)] shrink-0 snap-start";
   const tile = "w-full bg-paper-soft ring-0";
-  const run = lang === "en" ? null : (
+  const englishRun = (
+    <section className="mt-14">
+      <CardCarousel
+        label={t.runStrip}
+        prevLabel={t.prev}
+        nextLabel={t.next}
+        heading={
+          <h2 className="flex items-center gap-3 text-base font-semibold text-ink-950">
+            <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-700 [&>svg]:size-5">
+              <ClipboardList />
+            </span>
+            {t.run}
+          </h2>
+        }
+      >
+        <div data-card className={card}>
+          <InfoTile icon={<Target />} title={t.primaryKpi} className={tile}>
+            <p className="text-2xl font-semibold tracking-tight text-ink-950">{kpi}</p>
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{EN_RUN_GUIDANCE.primary}</p>
+          </InfoTile>
+        </div>
+        <div data-card className={card}>
+          <InfoTile icon={<Eye />} tint="bg-amber-50 text-amber-700" title={t.whatChanges} className={tile}>
+            <p className="text-xl font-semibold tracking-tight text-ink-950">{displaySlot}</p>
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{EN_RUN_GUIDANCE.variable}</p>
+          </InfoTile>
+        </div>
+        <div data-card className={card}>
+          <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailMetrics} className={tile}>
+            <p className="text-sm leading-relaxed text-pretty text-ink-muted">{EN_RUN_GUIDANCE.guardrail}</p>
+          </InfoTile>
+        </div>
+        <div data-card className={card}>
+          <InfoTile icon={<Ban />} tint="bg-rose-50 text-rose-700" title={t.neverDo} className={tile}>
+            <ol className="flex list-none flex-col gap-3 p-0">
+              {EN_RUN_GUIDANCE.setup.map((item, i) => (
+                <li key={item} className="flex gap-3 text-sm leading-relaxed text-pretty text-ink-700">
+                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper text-xs font-semibold text-ink-700 tabular-nums ring-1 ring-ink-950/[0.06]">
+                    {i + 1}
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ol>
+          </InfoTile>
+        </div>
+      </CardCarousel>
+    </section>
+  );
+
+  const turkishRun = (
     /* The cards are grey, the page stays white (Hulusi, 2026-09-20: "add a
        grey background" - then "not the section, the cards"): each card on
        the site's soft surface with no hairline, the way the phone menu's
@@ -406,6 +474,8 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
       </CardCarousel>
     </section>
   );
+
+  const run = lang === "en" ? englishRun : turkishRun;
 
   return (
     <div className="px-4 py-10 md:px-8 md:py-14">
