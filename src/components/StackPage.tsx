@@ -133,12 +133,12 @@ function ToolCard({ name, tool, tag, tint }: { name: string; tool: Tool; tag: st
   return (
     <div className={`flex h-full items-start gap-4 rounded-card p-5 ${tint}`}>
       {/* Real favicon, same `resolveLogo(tool)` helper/domain-per-tool data
-          `StackShowcase.tsx` already uses on Home - not re-fetched or
-          re-derived here. `alt=""`: decorative next to the tool's own
-          visible name right beside it (unlike Home's grid, where the
-          logo is the ONLY label on a bare tile and needs its own alt). */}
+          `StackShowcase.tsx` already uses on Home. The source requests
+          128px icons; quality=100 and the slightly tighter padding keep the
+          small marks crisp without inventing replacement logos. `alt=""`
+          because the visible tool name sits immediately beside it. */}
       <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-paper">
-        <Image src={resolveLogo(tool)} alt="" fill sizes="56px" className="object-contain p-3" />
+        <Image src={resolveLogo(tool)} alt="" fill sizes="56px" quality={100} className="object-contain p-2.5" />
       </span>
       <div className="min-w-0">
         <p className="text-base leading-snug font-semibold tracking-tight text-ink-950">{name}</p>
@@ -149,14 +149,31 @@ function ToolCard({ name, tool, tag, tint }: { name: string; tool: Tool; tag: st
 }
 
 function Groups({ lang }: { lang: Lang }) {
+  const navLabel = lang === "tr" ? "Araç kategorilerine hızlı geçiş" : "Jump to a tool category";
+
   return (
     <Section tone="paper" size="md">
       <PortraitContainer>
+        <nav aria-label={navLabel} className="mb-12">
+          <div className="no-scrollbar -mx-6 flex gap-2 overflow-x-auto px-6 sm:mx-0 sm:flex-wrap sm:px-0">
+            {stackGroups.map((group) => (
+              <a
+                key={group.id}
+                href={`#${group.id}`}
+                className="shrink-0 rounded-md bg-paper-soft px-3.5 py-2 text-sm font-medium text-ink-muted transition-colors hover:bg-surface-brand-subtle hover:text-ink-brand"
+              >
+                {group.nav[lang]}
+              </a>
+            ))}
+          </div>
+        </nav>
+
         <div className="flex flex-col gap-10">
           {stackGroups.map((group, gi) => {
             const tint = GROUP_TINT[group.title.en] ?? FALLBACK_TINT;
             return (
-            <Reveal key={group.title.en} delay={gi * 40}>
+            <div key={group.id} id={group.id} className="scroll-mt-28">
+            <Reveal delay={gi * 40}>
               {/* A real subhead, at the same size and weight the calculator
                   pages give theirs (`EditorialColumn`). It was a 12px
                   muted uppercase label, which under-set a genuine section
@@ -171,6 +188,7 @@ function Groups({ lang }: { lang: Lang }) {
                 <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${tint.dot}`} />
                 {group.title[lang]}
               </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">{group.desc[lang]}</p>
               {/* 2-column card grid at sm+ (matches the reference), 1
                   column on mobile. A lone-tool category (e.g. "CRO / A-B
                   Test / Experimentation") simply renders one card. */}
@@ -180,6 +198,7 @@ function Groups({ lang }: { lang: Lang }) {
                 ))}
               </div>
             </Reveal>
+            </div>
             );
           })}
         </div>

@@ -1,6 +1,12 @@
 // Ported from alidemirbas.com.tr/stack (the cv repo's stack-data.ts).
 export type Tool = { name: string; domain: string; logo?: string; tag: { en: string; tr: string } };
-export type ToolGroup = { title: { en: string; tr: string }; tools: Tool[] };
+export type ToolGroup = {
+  id: string;
+  nav: { en: string; tr: string };
+  title: { en: string; tr: string };
+  desc: { en: string; tr: string };
+  tools: Tool[];
+};
 
 // Logos come from each tool's own domain (Google favicon service) so every
 // tile renders - even brands that aren't on icon sets.
@@ -12,7 +18,13 @@ export const resolveLogo = (tool: Tool) => tool.logo ?? logoSrc(tool.domain);
 
 export const stackGroups: ToolGroup[] = [
   {
+    id: "web-product-analytics",
+    nav: { en: "Web Analytics", tr: "Web Analitiği" },
     title: { en: "Web & Product Analytics", tr: "Web ve Ürün Analitiği" },
+    desc: {
+      en: "For understanding user behavior, event flows, and web performance.",
+      tr: "Kullanıcı davranışını, event akışlarını ve web performansını anlamak için.",
+    },
     tools: [
       { name: "Mixpanel", domain: "mixpanel.com", tag: { en: "Product analytics", tr: "Ürün analitiği" } },
       { name: "Hotjar", domain: "hotjar.com", tag: { en: "Heatmaps & recordings", tr: "Isı haritaları ve oturum kayıtları" } },
@@ -23,7 +35,13 @@ export const stackGroups: ToolGroup[] = [
     ],
   },
   {
+    id: "mobile-analytics-measurement",
+    nav: { en: "Mobile Analytics", tr: "Mobil Analitik" },
     title: { en: "Mobile Analytics & Measurement", tr: "Mobil Analitik ve Ölçümleme" },
+    desc: {
+      en: "For attribution, app behavior, and mobile measurement.",
+      tr: "Attribution, uygulama davranışı ve mobil ölçümleme için.",
+    },
     tools: [
       { name: "Adjust", domain: "adjust.com", tag: { en: "Mobile measurement & attribution", tr: "Mobil ölçümleme ve attribution" } },
       { name: "AppsFlyer", domain: "appsflyer.com", tag: { en: "Mobile attribution", tr: "Mobil attribution" } },
@@ -32,7 +50,13 @@ export const stackGroups: ToolGroup[] = [
     ],
   },
   {
+    id: "crm-engagement",
+    nav: { en: "CRM", tr: "CRM" },
     title: { en: "CRM & Engagement", tr: "CRM ve Etkileşim" },
+    desc: {
+      en: "For segmentation, lifecycle messaging, and personalization.",
+      tr: "Segmentasyon, lifecycle iletişimi ve kişiselleştirme için.",
+    },
     tools: [
       { name: "Insider", domain: "useinsider.com", tag: { en: "CRM, personalization & experimentation", tr: "CRM, kişiselleştirme ve deneyler" } },
       { name: "Braze", domain: "braze.com", tag: { en: "Customer engagement", tr: "Müşteri etkileşimi" } },
@@ -42,7 +66,13 @@ export const stackGroups: ToolGroup[] = [
     ],
   },
   {
+    id: "seo-content",
+    nav: { en: "SEO", tr: "SEO" },
     title: { en: "SEO & Content", tr: "SEO ve İçerik" },
+    desc: {
+      en: "For organic visibility, technical checks, and content research.",
+      tr: "Organik görünürlük, teknik kontroller ve içerik araştırması için.",
+    },
     tools: [
       { name: "Ahrefs", domain: "ahrefs.com", tag: { en: "SEO analysis", tr: "SEO analizi" } },
       { name: "Semrush", domain: "semrush.com", tag: { en: "SEO & search analytics", tr: "SEO ve arama analizi" } },
@@ -51,7 +81,13 @@ export const stackGroups: ToolGroup[] = [
     ],
   },
   {
+    id: "bi-data-visualization",
+    nav: { en: "BI", tr: "BI" },
     title: { en: "BI & Data Visualization", tr: "BI ve Veri Görselleştirme" },
+    desc: {
+      en: "For bringing data together, reporting it, and making it easier to read.",
+      tr: "Veriyi bir araya getirip raporlamak ve daha okunabilir hâle getirmek için.",
+    },
     tools: [
       { name: "Data Studio", domain: "datastudio.google.com", logo: "https://www.gstatic.com/analytics-lego/svg/favicon_data_studio.png", tag: { en: "Data visualization", tr: "Veri görselleştirme" } },
       { name: "Tableau", domain: "tableau.com", tag: { en: "Data visualization", tr: "Veri görselleştirme" } },
@@ -62,7 +98,13 @@ export const stackGroups: ToolGroup[] = [
     ],
   },
   {
+    id: "work-management",
+    nav: { en: "Work Management", tr: "İş Yönetimi" },
     title: { en: "Work Management", tr: "İş Yönetimi" },
+    desc: {
+      en: "For planning, documentation, and keeping team work on track.",
+      tr: "Planlama, dokümantasyon ve ekip işlerini takip etmek için.",
+    },
     tools: [
       { name: "Jira", domain: "atlassian.com", tag: { en: "Project management", tr: "Proje yönetimi" } },
       { name: "Notion", domain: "notion.so", tag: { en: "Notes & documentation", tr: "Notlar ve dokümantasyon" } },
@@ -70,14 +112,26 @@ export const stackGroups: ToolGroup[] = [
     ],
   },
   {
+    id: "ai-productivity",
+    nav: { en: "AI", tr: "AI" },
     title: { en: "AI & Productivity", tr: "Yapay Zekâ ve Üretkenlik" },
+    desc: {
+      en: "For research, idea development, and day-to-day productivity.",
+      tr: "Araştırma, fikir geliştirme ve günlük üretkenlik için.",
+    },
     tools: [
       { name: "ChatGPT", domain: "openai.com", tag: { en: "Research & productivity", tr: "Araştırma ve üretkenlik" } },
       { name: "Claude", domain: "claude.ai", tag: { en: "Research & productivity", tr: "Araştırma ve üretkenlik" } },
     ],
   },
   {
+    id: "design-prototyping",
+    nav: { en: "Design", tr: "Tasarım" },
     title: { en: "Design & Prototyping", tr: "Tasarım ve Prototipleme" },
+    desc: {
+      en: "For interface work, prototyping, and visual content.",
+      tr: "Arayüz, prototip ve görsel içerik üretmek için.",
+    },
     tools: [
       { name: "Figma", domain: "figma.com", tag: { en: "Design & prototyping", tr: "Tasarım ve prototipleme" } },
       { name: "Framer", domain: "framer.com", tag: { en: "Web design & prototyping", tr: "Web tasarımı ve prototipleme" } },
