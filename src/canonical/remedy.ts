@@ -2762,21 +2762,17 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept, carry a reference the requester can quote back, and survive until somebody answers"
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_session is true and the request, reference and current state are already visible in the product where the requester raised it"
         },
         {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the requester raised it inside the product and is still there, where the request and its own state already are"
+          "role": "persistent",
+          "channels": ["email"],
+          "when": "the requester is no longer in that session, or the acknowledgement or resolution needs to survive until they return"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "next-eligible-role",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -2793,8 +2789,8 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "That the request exists, the reference it can be quoted under, who owns it now and what happens next - said once, with no outcome attached to it.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "in-session",
+            "persistent"
           ],
           "destination": {
             "target": "support-request",
@@ -2818,8 +2814,8 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "That the thing raised is already done and which resolution closed it - instead of an acknowledgement promising attention to something that needs none.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "in-session",
+            "persistent"
           ],
           "destination": {
             "target": "support-request",
@@ -2844,8 +2840,8 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "That the request is closed and that a resolution was reached, sent because its own state changed rather than because a period elapsed.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "in-session",
+            "persistent"
           ],
           "destination": {
             "target": "support-request",
