@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowRightLeft, CheckCircle2, Clock, Cog, Flag, LogOut, Mail, Route, Split, UserRound, Zap } from "lucide-react";
+import { ArrowRightLeft, Bell, CheckCircle2, Clock, Cog, Flag, LogOut, Mail, MessageCircle, MessageSquareText, Route, Smartphone, Split, UserRound, Zap } from "lucide-react";
 
 import type { FlowNode } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
@@ -320,6 +320,30 @@ const KIND = {
 
 type Kind = (typeof KIND)[keyof typeof KIND];
 
+const CHANNEL_CARD_ACCENT: Record<ChannelId, string> = {
+  email: "border-t-violet-500",
+  push: "border-t-sky-500",
+  sms: "border-t-teal-500",
+  "in-app": "border-t-amber-500",
+  whatsapp: "border-t-emerald-500",
+  sales: "border-t-rose-500",
+  task: "border-t-orange-500",
+};
+
+function ChannelGlyph({ id }: { id: ChannelId }) {
+  if (id === "email") return <Mail aria-hidden />;
+  if (id === "push") return <Bell aria-hidden />;
+  if (id === "sms") return <MessageSquareText aria-hidden />;
+  if (id === "in-app") return <Smartphone aria-hidden />;
+  if (id === "whatsapp") return <MessageCircle aria-hidden />;
+  return <UserRound aria-hidden />;
+}
+
+function uniqueChannels(groups: readonly (readonly ChannelId[])[], routes: readonly { id: ChannelId }[]): ChannelId[] {
+  const source = groups.length ? groups.flat() : routes.map((r) => r.id);
+  return [...new Set(source)];
+}
+
 /** The trigger's evidence-source pill (SignalSource is a closed 4-value
     enum, not canonical free prose) - a small bilingual lookup, same shape
     as CARD_TEXT below, not per-journey content. */
@@ -447,7 +471,7 @@ export function TriggerCard({ node, onOpen, entryLabel, lang = "en" }: { node: F
           {entryLabel}
         </span>
       ) : null}
-      <Shell onClick={onOpen} ariaLabel={node.headline} className="rounded-2xl bg-primary-600 px-3.5 py-3 text-white ring-1 ring-primary-700/40 shadow-[0_10px_24px_-14px_rgb(46_92_255/0.6)]">
+      <Shell onClick={onOpen} ariaLabel={node.headline} className="rounded-2xl bg-ink-950 px-3.5 py-3 text-white ring-1 ring-ink-900/70 shadow-[0_12px_28px_-16px_rgb(10_16_32/0.65)]">
         <span className="flex items-center gap-2">
           <Tile kind={{ tile: "bg-white/15 text-white", ink: "" }}>
             <Zap aria-hidden />
@@ -468,26 +492,29 @@ export function TriggerCard({ node, onOpen, entryLabel, lang = "en" }: { node: F
 export function HandoffCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
   const w = CARD_TEXT[lang];
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.handoff}`}>
-      <KindRow kind={KIND.handoff} icon={<ArrowRightLeft aria-hidden />}>
-        {w.handoff}
-      </KindRow>
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
-      <span className="mt-2 flex [[data-lod=far]_&]:hidden">
-        <Pill>{node.external ? w.external : w.internal}</Pill>
-      </span>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="flex max-w-[252px] items-center gap-2 rounded-full bg-indigo-50/60 py-1.5 pr-3 pl-1.5 ring-1 ring-indigo-200 shadow-[0_1px_2px_rgb(10_16_32/0.04)]"
+    >
+      <Tile kind={KIND.handoff}><ArrowRightLeft aria-hidden /></Tile>
+      <span className="line-clamp-1 text-[12.5px] font-medium text-indigo-800 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</span>
+      {node.external ? <span className="text-[10px] text-indigo-500 [[data-lod=far]_&]:hidden">{w.external}</span> : null}
     </Shell>
   );
 }
 
-export function OutcomeCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
-  const w = CARD_TEXT[lang];
+export function OutcomeCard({ node, onOpen }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.outcome}`}>
-      <KindRow kind={KIND.outcome} icon={<Flag aria-hidden />}>
-        {w.outcome}
-      </KindRow>
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="flex max-w-[244px] items-center gap-2 rounded-full bg-emerald-50/70 py-1.5 pr-3 pl-1.5 ring-1 ring-emerald-200"
+    >
+      <Tile kind={KIND.outcome}><Flag aria-hidden /></Tile>
+      <span className="line-clamp-1 text-[12.5px] font-medium text-emerald-800 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</span>
     </Shell>
   );
 }
@@ -548,11 +575,19 @@ export function ExitCard({ node, onOpen, terminalLabel }: { node: FlowNode; onOp
 function RouterCard({ node, onOpen, priority, lang }: { node: FlowNode; onOpen: () => void; priority: readonly ChannelId[]; lang: Lang }) {
   const w = CARD_TEXT[lang];
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.router} py-2.5`}>
-      <KindRow kind={KIND.router} icon={<Route aria-hidden />}>
-        {w.channelSelection}
-      </KindRow>
-      <ChannelPriorityRow groups={priority.map((id) => [id])} lang={lang} ranked />
+    <Shell onClick={onOpen} ariaLabel={node.headline} fit className="flex max-w-[264px] items-center gap-2 rounded-full bg-paper px-2.5 py-2 ring-1 ring-cyan-200 shadow-[0_1px_2px_rgb(10_16_32/0.04)]">
+      <Tile kind={KIND.router}><Route aria-hidden /></Tile>
+      <span className="text-[12px] font-medium text-ink-600 [[data-lod=far]_&]:hidden">{w.channelSelection}</span>
+      <span className="flex items-center gap-1 [[data-lod=far]_&]:hidden">
+        {priority.map((id, i) => (
+          <span key={id} className="flex items-center gap-1">
+            {i > 0 ? <span className="text-[11px] text-ink-300">→</span> : null}
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[id].pill}`}>
+              {CHANNEL_LABEL[id][lang]}
+            </span>
+          </span>
+        ))}
+      </span>
     </Shell>
   );
 }
@@ -580,26 +615,38 @@ function RouterCard({ node, onOpen, priority, lang }: { node: FlowNode; onOpen: 
    collapsed into this same card (journey-canvas-layout.ts) - the router's
    own full logic is still one click away too, surfaced in the panel under
    its own "Routing logic" section (NodeDetailPanel's `collapsedRouter`). */
+function HumanActionCard({ node, onOpen, humanLabels, lang = "en" }: {
+  node: FlowNode;
+  onOpen: () => void;
+  humanLabels: readonly { id: ChannelId; label: string }[];
+  lang?: Lang;
+}) {
+  const title = humanLabels.length
+    ? humanLabels.map((r) => r.label).join(" / ")
+    : CARD_TEXT[lang].human;
+  return (
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="flex max-w-[268px] items-center gap-2 rounded-full bg-amber-50/70 py-1.5 pr-3 pl-1.5 ring-1 ring-amber-200 shadow-[0_1px_2px_rgb(10_16_32/0.04)]"
+    >
+      <Tile kind={KIND.human}><UserRound aria-hidden /></Tile>
+      <span className="shrink-0 text-[12px] font-semibold text-amber-800 [[data-lod=far]_&]:hidden">{title}</span>
+      <span className="line-clamp-1 text-[11.5px] text-ink-500 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</span>
+    </Shell>
+  );
+}
+
 export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, lang = "en" }: {
   node: FlowNode;
   onOpen: () => void;
   lang?: Lang;
-  /** The journey's message-delivery surfaces, localised and ordered - the
-      fallback shown only when nothing more specific (`channelPriority`)
-      is known for this exact action. */
   messageLabels: readonly { id: ChannelId; label: string }[];
-  /** The journey's human routes (sales, task), same fallback role. */
   humanLabels: readonly { id: ChannelId; label: string }[];
 }) {
   const w = CARD_TEXT[lang];
-  const isHuman = node.execution === "human";
-  const kind = isHuman ? KIND.human : KIND.message;
-  const far = isHuman ? FAR.human : FAR.message;
-  const routes = isHuman ? humanLabels : messageLabels;
-  /* The journey's own declared plan for THIS touch first (channelPlan -
-     ordered roles, each with its channels), then a priority inherited from
-     an adjacent router's prose, then the journey's whole roster. Each step
-     down is a step further from "what this touch actually does". */
+  const routes = messageLabels;
   const plan = node.channelPlan;
   const priority = node.channelPriority;
   const groups: readonly (readonly ChannelId[])[] = plan?.length
@@ -607,37 +654,38 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
     : (priority?.length ?? 0) >= 2
       ? priority!.map((id) => [id])
       : [];
-  /* `channelPlan` is the journey's own declared role list - ranked only
-     when `channelStrategy.fallback` says those roles are actually tried
-     in that order (see `ChannelPriorityRow`). `channelPriority` is
-     inherited from an adjacent router node the display graph collapsed
-     into this same card - that router's sequence is already a resolved
-     cascade by construction, the same as `RouterCard` reads it, so it is
-     always ranked. */
-  const ranked = plan?.length ? node.channelStrategyFallback === "next-eligible-role" : true;
-  const title = actionTitle(node, lang) ?? (isHuman ? w.human : w.message);
+
+  const channels = uniqueChannels(groups, routes);
+  const firstChannel = channels[0] ?? null;
+  const stage = actionTitle(node, lang) ?? w.message;
+  const routed = (priority?.length ?? 0) >= 2;
+  const simultaneous = node.channelStrategySimultaneous === true;
+  const channelTitle = routed
+    ? stage
+    : channels.length
+      ? channels.map((id) => CHANNEL_LABEL[id][lang]).join(simultaneous ? " + " : " / ")
+      : stage;
+  const accent = firstChannel ? CHANNEL_CARD_ACCENT[firstChannel] : "border-t-ink-300";
+  const tileKind = firstChannel ? { tile: CHANNEL_HUE[firstChannel].tile, ink: "" } : KIND.message;
+
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${far} py-2.5`}>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      className={`${CARD} ${FAR.message} border-t-[3px] ${accent} py-2.5`}
+    >
       <span className="flex items-center gap-2">
-        <Tile kind={kind}>{isHuman ? <UserRound aria-hidden /> : <Mail aria-hidden />}</Tile>
-        <span className="text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{title}</span>
-      </span>
-      {/* One line of what this message says - see the note above on why a
-          preview and not a paragraph. Clamped to a single line so the card
-          stays a card; `line-clamp-1` rather than the 2 the other bodies use,
-          because this one sits under a title that already names the touch. */}
-      <p className="mt-1.5 line-clamp-1 text-[13px] leading-snug text-ink-600 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
-      {groups.length ? (
-        <ChannelPriorityRow groups={groups} lang={lang} ranked={ranked} />
-      ) : routes.length > 0 ? (
-        <span className="mt-2.5 flex flex-wrap gap-1 [[data-lod=far]_&]:hidden">
-          {routes.map((r) => (
-            <span key={r.id} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[r.id].pill}`}>
-              {r.label}
-            </span>
-          ))}
+        <Tile kind={tileKind}>
+          {firstChannel ? <ChannelGlyph id={firstChannel} /> : <Mail aria-hidden />}
+        </Tile>
+        <span className="min-w-0 flex-1 text-[14px] leading-snug font-semibold text-ink-950 [[data-lod=far]_&]:hidden">
+          {channelTitle}
         </span>
-      ) : null}
+        {!routed && stage !== channelTitle ? (
+          <span className="max-w-[108px] truncate text-right text-[11px] font-medium text-ink-400 [[data-lod=far]_&]:hidden">{stage}</span>
+        ) : null}
+      </span>
+      <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-700 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
     </Shell>
   );
 }
@@ -668,8 +716,11 @@ export function ActionCard({ node, onOpen, messageLabels, humanLabels, lang = "e
   // the message too and mislabel it a router. Only a plain action (no
   // execution) with a self-detected priority is an actual, undrawn router -
   // the rare case journey-canvas-layout.ts's collapse did not absorb.
-  if (node.execution === "communication" || node.execution === "human") {
+  if (node.execution === "communication") {
     return <CommunicationCard node={node} onOpen={onOpen} messageLabels={messageLabels} humanLabels={humanLabels} lang={lang} />;
+  }
+  if (node.execution === "human") {
+    return <HumanActionCard node={node} onOpen={onOpen} humanLabels={humanLabels} lang={lang} />;
   }
   const priority = node.channelPriority;
   if (priority && priority.length >= 2) return <RouterCard node={node} onOpen={onOpen} priority={priority} lang={lang} />;
@@ -696,13 +747,14 @@ export function ActionCard({ node, onOpen, messageLabels, humanLabels, lang = "e
     );
   }
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.internal}`}>
-      <KindRow kind={KIND.internal} icon={<Cog aria-hidden />}>
-        {w.internalAction}
-      </KindRow>
-      {/* The canonical sentence itself, clamped short - a glance, not a read;
-          the full text is in the detail panel, never a paraphrase. */}
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="flex max-w-[252px] items-center gap-2 rounded-full bg-paper-soft py-1.5 pr-3 pl-1.5 ring-1 ring-line-soft"
+    >
+      <Tile kind={KIND.internal}><Cog aria-hidden /></Tile>
+      <span className="line-clamp-1 text-[12px] font-medium text-ink-600 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</span>
     </Shell>
   );
 }
@@ -711,39 +763,25 @@ export function ConditionCard({
   node,
   waitNode,
   onOpen,
-  lang = "en",
 }: {
   node: FlowNode;
-  /** Family B (`collapsibleWaitFollowers`, journey-canvas-layout.ts): the
-      wait this condition is the sole, exclusive successor of - both its
-      "on event" and "on timeout" arms land here and nothing else points at
-      it, so "wait, then read what happened" is one reading unit and gets
-      one card rather than two. The wait's own canonical node is absorbed
-      exactly like a permission gate or a bookkeeping step (full prose kept,
-      reachable from the detail panel's "Represented canonical steps") - this
-      component only draws its duration as a compact strip above the
-      question. Undefined for every ordinary condition. */
   waitNode?: FlowNode;
   onOpen: () => void;
   lang?: Lang;
 }) {
-  const w = CARD_TEXT[lang];
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.condition} py-2.5`}>
-      {waitNode ? (
-        <span className="mb-2 flex items-center gap-1.5 border-b border-line-soft pb-2 text-[11px] font-medium text-teal-700 [[data-lod=far]_&]:hidden">
-          <Clock aria-hidden className="size-3 shrink-0" />
-          <span className="line-clamp-1">{waitLabel(waitNode)}</span>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="max-w-[280px] rounded-2xl bg-emerald-50/80 px-3 py-2 ring-1 ring-emerald-200 shadow-[0_1px_2px_rgb(10_16_32/0.03)]"
+    >
+      <span className="flex items-center justify-center gap-1.5 [[data-lod=far]_&]:hidden">
+        {waitNode ? <Clock aria-hidden className="size-3 shrink-0 text-teal-600" /> : <Split aria-hidden className="size-3 shrink-0 text-emerald-600" />}
+        <span className="line-clamp-2 text-[12px] leading-snug font-semibold text-emerald-800">
+          {waitNode ? `${waitLabel(waitNode)} · ${cardSummary(node.headline)}` : cardSummary(node.headline)}
         </span>
-      ) : null}
-      <KindRow kind={KIND.condition} icon={<Split aria-hidden />}>
-        {w.decision}
-      </KindRow>
-      {/* Branch count used to show here too - dropped: the branches
-          themselves, labelled, are drawn right below on the canvas, so a
-          count added nothing a reader couldn't already see. Still on
-          FlowNode (`branchCount`) for anything else that wants it. */}
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
+      </span>
     </Shell>
   );
 }
