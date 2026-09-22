@@ -568,7 +568,15 @@ function EdgeShape({ edge, hi }: { edge: LaidOutEdge; hi?: "on" | "off" }) {
           className="overflow-visible"
         >
           <div className="flex justify-center [[data-lod=far]_&]:hidden">
-            <span className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-medium whitespace-nowrap text-ink-700 ring-1 ring-ink-950/[0.08] group-data-[hi=on]:text-primary-700 group-data-[hi=on]:ring-primary-300">
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ring-1 transition-colors ${
+                edge.kind === "branch"
+                  ? "bg-emerald-50 text-emerald-800 ring-emerald-200"
+                  : edge.kind === "wait-event" || edge.kind === "wait-timeout"
+                    ? "bg-teal-50 text-teal-800 ring-teal-200"
+                    : "bg-paper text-ink-700 ring-ink-950/[0.08]"
+              } group-data-[hi=on]:text-primary-700 group-data-[hi=on]:ring-primary-300`}
+            >
               {edge.label}
             </span>
           </div>
