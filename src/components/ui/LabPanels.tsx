@@ -1331,7 +1331,7 @@ const ST = {
     exits: "Journey'lerin bittiği yer",
     channelMix: "Kanala göre adımlar",
     control: "Kontrol · alan görünür",
-    treatment: "Varyant · bağlantı arkasında",
+    treatment: "Variant · bağlantı arkasında",
     coupon: "Kupon kodu",
     apply: "Uygula",
     couponLink: "Kupon kodunuz var mı?",

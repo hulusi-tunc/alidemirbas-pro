@@ -38,8 +38,8 @@ export function JourneyCanvasPreview({ lang, size = "md" }: { lang: Lang; size?:
     },
     tr: {
       label: "Journey şeması",
-      trigger: "Tetikleyici", condition: "Koşul", wait: "Bekleme", action: "Aksiyon",
-      outcome: "Sonuç", exit: "Çıkış", handoff: "Devir",
+      trigger: "Trigger", condition: "Koşul", wait: "Bekleme", action: "Aksiyon",
+      outcome: "Sonuç", exit: "Çıkış", handoff: "Handoff",
     },
   }[lang];
   // Node kind -> a fixed, semantic colour (same seven kinds as before,

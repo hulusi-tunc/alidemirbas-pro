@@ -370,10 +370,10 @@ const CARD_TEXT = {
     fallback: "Fallback",
   },
   tr: {
-    trigger: "Tetikleyici",
+    trigger: "Trigger",
     decision: "Karar",
     wait: "Bekleme",
-    handoff: "Devir",
+    handoff: "Handoff",
     outcome: "Sonuç",
     exit: "Çıkış",
     external: "Dış",
@@ -383,7 +383,7 @@ const CARD_TEXT = {
     internalAction: "İç işlem",
     channelSelection: "Kanal seçimi",
     primary: "Öncelikli",
-    fallback: "Yedek",
+    fallback: "Fallback",
   },
 } as const;
 

@@ -22,13 +22,13 @@ const PRIORITY_LABEL: Record<Lang, string> = { en: "Channel priority", tr: "Kana
 const REPRESENTS_LABEL: Record<Lang, string> = { en: "Represented canonical steps", tr: "Temsil edilen kanonik adımlar" };
 
 const KIND_LABEL: Record<FlowNode["kind"], Record<Lang, string>> = {
-  trigger: { en: "Trigger", tr: "Tetikleyici" },
+  trigger: { en: "Trigger", tr: "Trigger" },
   action: { en: "Internal action", tr: "İç işlem" },
   condition: { en: "Condition", tr: "Koşul" },
   wait: { en: "Wait", tr: "Bekleme" },
   outcome: { en: "Outcome", tr: "Sonuç" },
   exit: { en: "Exit", tr: "Çıkış" },
-  handoff: { en: "Handoff", tr: "Devir" },
+  handoff: { en: "Handoff", tr: "Handoff" },
 };
 
 /** `action` alone reads as "Internal action" above regardless of

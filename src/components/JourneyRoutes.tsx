@@ -40,6 +40,7 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
   const resolved = resolveDetailSlug(slug);
   if (!resolved) return {};
   const { detail, merged, preset } = resolved;
+  const localizedDetail = localizedJourneyDetail(detail, lang);
   const suffix = lang === "en" ? "Journey Library" : "Journey Kütüphanesi";
 
   /* A preset is its own page: its own title, its own canonical, the parent's
@@ -60,15 +61,15 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
      is not a second canonical page for the same journey. */
   if (merged) {
     return {
-      title: `${merged.from} → ${detail.id} - ${suffix}`,
-      description: detail.purpose,
+      title: `${merged.from} → ${localizedDetail.id} - ${suffix}`,
+      description: localizedDetail.purpose,
       robots: { index: false, follow: true },
       alternates: { canonical: `${SITE_URL}${basePathFor(lang)}/${detail.slug}` },
     };
   }
   return {
-    title: `${detail.id} ${detail.shortName ?? detail.name} - ${suffix}`,
-    description: detail.purpose,
+    title: `${localizedDetail.id} ${localizedDetail.shortName ?? localizedDetail.name} - ${suffix}`,
+    description: localizedDetail.purpose,
     alternates: pageAlternates(`/lab/journeys/${detail.slug}`, lang),
   };
 }

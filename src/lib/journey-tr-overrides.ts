@@ -52,8 +52,8 @@ import type { Lang } from "@/lib/content";
    full, closed translation, not a partial lookup with an English
    fallback baked in for the ones missing. */
 const CATEGORY_TITLE_TR: Readonly<Record<string, string>> = {
-  "Acquisition, intent & qualification": "Kazanım, niyet ve yeterlilik",
-  "Activation, onboarding & early value": "Aktivasyon, onboarding ve erken değer",
+  "Acquisition, intent & qualification": "Acquisition, niyet ve qualification",
+  "Activation, onboarding & early value": "Activation, onboarding ve erken değer",
   "Engagement, health, retention & churn prevention": "Etkileşim, sağlık, elde tutma ve kayıp önleme",
   "Consent, preferences, communication & contactability": "Onay, tercihler, iletişim ve ulaşılabilirlik",
   "Feedback, advocacy, referral & relationship signals": "Geri bildirim, savunuculuk, referans ve ilişki sinyalleri",
@@ -62,7 +62,7 @@ const CATEGORY_TITLE_TR: Readonly<Record<string, string>> = {
   "Access, entitlement, credentials & capability": "Erişim, yetki, kimlik bilgileri ve yetkinlik",
   "Identity, verification, authentication & account integrity": "Kimlik, doğrulama, kimlik denetimi ve hesap bütünlüğü",
   "Account structure, identity relationships & entity reconciliation": "Hesap yapısı, kimlik ilişkileri ve varlık eşleştirme",
-  "Entity merge, account closure, data lifecycle & terminal states": "Varlık birleştirme, hesap kapatma, veri yaşam döngüsü ve nihai durumlar",
+  "Entity merge, account closure, data lifecycle & terminal states": "Varlık birleştirme, hesap kapatma, data lifecycle ve nihai durumlar",
   "Integrations, synchronization, external systems & data consistency": "Entegrasyonlar, senkronizasyon, dış sistemler ve veri tutarlılığı",
   "Processing, queues, async work & operational reliability": "İşleme, kuyruklar, asenkron işler ve operasyonel güvenilirlik",
   "Transactions, payments, billing & financial outcomes": "İşlemler, ödemeler, faturalama ve finansal sonuçlar",
@@ -110,7 +110,7 @@ export function localizedCategoryTitle(title: string, lang: Lang): string {
     stays whatever `OVERRIDES` below says or English if that has nothing
     for it. */
 const EDGE_LABEL_TR: Readonly<Record<string, string>> = {
-  "on event": "olay gerçekleşirse",
+  "on event": "event gerçekleşirse",
   "on timeout": "süre dolarsa",
 };
 
@@ -119,7 +119,7 @@ const META_PREFIX_TR: readonly (readonly [string, string])[] = [
   ["not enough on its own: ", "tek başına yeterli değil: "],
   ["requires: ", "gerekli: "],
   ["carries: ", "taşır: "],
-  ["suppresses: ", "bastırır: "],
+  ["suppresses: ", "suppression: "],
 ];
 
 const META_EXACT_TR: Readonly<Record<string, string>> = {
@@ -146,7 +146,7 @@ function localizeMeta(m: string): string {
     is canonical content and is whatever `OVERRIDES` supplies. */
 function localizeWaitDetail(detail: string): string {
   let out = detail;
-  if (out.startsWith("timeout after ")) out = "zaman aşımı: " + out.slice("timeout after ".length);
+  if (out.startsWith("timeout after ")) out = "timeout: " + out.slice("timeout after ".length);
   out = out.replace(/\(recommended: /g, "(önerilen: ").replace(/\(example: /g, "(örnek: ");
   out = out.replace(/; configure ([\w.]+)\)/g, "; şunu ayarla: $1)");
   out = out.replace(/\(configure ([\w.]+)\)/g, "($1 ayarlanmalı)");
@@ -236,7 +236,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Ödenmemiş tutar bildirimi gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: bu rezervasyona dair hizmet iletişimi izni, ulaşılabilir bir hedef, hizmet baskı sınıfı ve bu rezervasyonu şu anda tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışının bulunmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: bu rezervasyona dair hizmet iletişimi izni, ulaşılabilir bir hedef, hizmet contact pressure sınıfı ve bu rezervasyonu şu anda tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışının bulunmaması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -457,7 +457,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Alındı bildirimi gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "sert kapılar bu amaçla iletişime izin veriyor ve iletişim noktası ulaşılabilir durumda; hiçbir baskı sınırı uygulanmaz, çünkü bu mesaj kişiye borçlu olunan bir mesajdır" },
+        { label: "Gönderilebilir", detail: "zorunlu kontroller bu amaçla iletişime izin veriyor ve iletişim noktası ulaşılabilir durumda; bu mesaj kişiye borçlu olunduğu için contact pressure limiti uygulanmaz" },
         { label: "Engellendi", detail: "sert bir kapı durduruyor; hangi kapının durdurduğu kaydedilir ve talep yine de sahibine ulaşır" },
       ],
     },
@@ -542,7 +542,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Bildirim gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu kişiyi şu anda tutan daha yüksek öncelikli bir ticaret-kurtarma akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, bu kişiyi şu anda tutan daha yüksek öncelikli bir ticaret-kurtarma akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -601,7 +601,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.state": {
       headline: "Sipariş yerine oturduğuna göre, karşılama hâlâ doğru şey mi?",
       edges: [
-        { label: "Karşılama zamanı", detail: "ilk satın alma geçerli, ikinci bir satın alma kaydı yok ve yaşam döngüsü iletişimi izni hâlâ geçerli" },
+        { label: "Karşılama zamanı", detail: "ilk satın alma geçerli, ikinci bir satın alma kaydı yok ve lifecycle iletişimi izni hâlâ geçerli" },
         { label: "Zaten geri dönmüş", detail: "karşılama gönderilmeden önce bu kişinin ikinci bir satın alma kaydı oluşmuş" },
         { label: "İlişki sona ermiş", detail: "kişi iznini geri çekti ya da ilk satın alma iptal edildi veya tamamen geri alındı" },
       ],
@@ -609,7 +609,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Karşılama gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi izni, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu kişiyi şu anda tutan daha yüksek öncelikli bir akışın bulunmaması" },
+        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: lifecycle iletişimi izni var, ulaşılabilir bir kanal var, contact pressure limiti aşılmadı ve kişiyi daha yüksek öncelikli bir journey tutmuyor" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -646,7 +646,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     },
     "x.prompted": {
       headline: "Karşılandı ve teklif yapıldı",
-      detail: "bu örnek yeniden açılmaz; teklifin kabul edilip edilmediğini gözlemek olağan yaşam döngüsünün işidir",
+      detail: "bu örnek yeniden açılmaz; teklifin kabul edilip edilmediğini gözlemek olağan lifecycle'ın işidir",
     },
     "x.closed": {
       headline: "Karşılama yapılmadan kapandı",
@@ -758,7 +758,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Öneri gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu kişiyi şu anda tutan daha yüksek öncelikli bir teklif akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, bu kişiyi şu anda tutan daha yüksek öncelikli bir teklif akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -819,7 +819,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Teklif gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu kişiyi şu anda tutan daha yüksek öncelikli bir akışın bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, bu kişiyi şu anda tutan daha yüksek öncelikli bir akışın bulunmaması ve yürürlükte bekleme süresi olmaması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -882,7 +882,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.date": {
       headline: "Bu tarih hâlâ bizim kutlayacağımız bir şey mi?",
       edges: [
-        { label: "Kutla", detail: "tarih kişinin kendi verdiği ya da kendi kaydının ulaştığı bir tarih, ilişki açık, bu dönem daha önce kutlanmamış ve gönderim yolu geçiliyor - yaşam döngüsü iletişimi için amaç düzeyinde izin, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu kişiyi şu anda tutan daha yüksek öncelikli bir akışın bulunmaması" },
+        { label: "Kutla", detail: "tarih kişinin verdiği ya da kaydından türetilen bir tarih, ilişki açık, bu dönem daha önce kutlanmadı ve gönderim kontrolleri geçiliyor: amaç düzeyinde lifecycle izni var, ulaşılabilir bir kanal var, contact pressure limiti aşılmadı ve kişiyi daha yüksek öncelikli bir journey tutmuyor" },
         { label: "İlişki sona ermiş", detail: "hesap kapalı, kişi bu tür iletişim için iznini geri çekmiş ya da rahatsız edilmemeyi istemiş" },
         { label: "Dönem tükenmiş", detail: "bu dönem zaten kutlanmış ya da tarih geçmiş ve dönem mesaj gönderilmeden kapanmış" },
         { label: "Gönderilemez", detail: "bir gönderim yolu kapısı bunu durduruyor ya da daha yüksek öncelikli bir tarih kutlaması bu kişinin penceresini tutuyor; gerekçe kaydedilir" },
@@ -917,7 +917,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.state": {
       headline: "Bu üyelik bizim karşılayacağımız bir üyelik mi?",
       edges: [
-        { label: "Karşılama gerekli", detail: "üyelik aktif, bu üyeliğe karşı kayıtlı bir karşılama yok ve yaşam döngüsü iletişimi izni hâlâ geçerli" },
+        { label: "Karşılama gerekli", detail: "üyelik aktif, bu üyeliğe karşı kayıtlı bir karşılama yok ve lifecycle iletişimi izni hâlâ geçerli" },
         { label: "Üyelik artık geçerli değil", detail: "kayıt geri alınmış, üyelik karşılama gönderilmeden iptal edilmiş ya da kişi iznini geri çekmiş" },
         { label: "Zaten karşılanmış", detail: "bu üyeliğe karşı kayıtlı bir karşılama zaten var" },
       ],
@@ -925,7 +925,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Karşılama gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi izni, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması" },
+        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: lifecycle iletişimi izni var, ulaşılabilir bir kanal var, contact pressure limiti aşılmadı ve üyeliği daha yüksek öncelikli bir journey tutmuyor" },
         { label: "Engellendi", detail: "bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -991,7 +991,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Anlatım gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: promosyon iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: promosyon iletişimi izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
         { label: "Engellendi", detail: "bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -1102,7 +1102,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Duyuru gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: yaşam döngüsü iletişimi izni, ulaşılabilir bir hedef, yaşam döngüsü baskı sınırı ve bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması" },
+        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: lifecycle iletişimi izni var, ulaşılabilir bir kanal var, contact pressure limiti aşılmadı ve üyeliği daha yüksek öncelikli bir journey tutmuyor" },
         { label: "Engellendi", detail: "bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -1163,7 +1163,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable1": {
       headline: "İlk hatırlatma gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, yürürlükte bir soğuma süresi olmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, yürürlükte bir cooldown olmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -1207,14 +1207,14 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable2-hv": {
       headline: "Yüksek değerli ikinci hatırlatma gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, yürürlükte bir soğuma süresi olmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, yürürlükte bir cooldown olmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
     "c.sendable2-std": {
       headline: "İkinci hatırlatma gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, yürürlükte bir soğuma süresi olmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, yürürlükte bir cooldown olmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -1274,7 +1274,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable1": {
       headline: "İlk hatırlatma gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir soğuma süresi olmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir cooldown olmaması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -1310,14 +1310,14 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable2-hv": {
       headline: "Yüksek değerli ikinci hatırlatma gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir soğuma süresi olmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir cooldown olmaması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
     "c.sendable2-std": {
       headline: "İkinci hatırlatma gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon baskı sınırı, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir soğuma süresi olmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon contact pressure limiti, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir cooldown olmaması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -1462,7 +1462,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   "ACQ-01": {
   shortName: "Anonim Kimlik Çözümlemesi",
   name: "Anonim niyet → bilinen kimlik → yeterli giriş",
-  purpose: "Anlamlı ama anonim bir niyet sinyalini, bir kimlik uydurmadan kimlik çözümleme sürecinden geçirmek ve yaşam döngüsüne girişi, kimliğin çözülmüş olmasından ayrı bir soru olarak ele almak.",
+  purpose: "Anlamlı ama anonim bir niyet sinyalini, bir kimlik uydurmadan kimlik çözümleme sürecinden geçirmek ve lifecycle'a girişi, kimliğin çözülmüş olmasından ayrı bir soru olarak ele almak.",
   nodes: {
     "t.threshold": {
       headline: "Anonim niyet eşiği aşıldı",
@@ -1487,10 +1487,10 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       timeoutReason:
         "anonim niyet de diğer her kanıt gibi bayatlar; çözülmemiş bir profil, bir isim bekleyerek süresiz açık tutulmaz",
     },
-    "c.eligible": { headline: "Artık bilinen profil bir yaşam döngüsüne girmeye uygun mu?", edges: [{ label: "Uygun", detail: "aday yaşam döngüsünün uygunluk kuralları birleştirilmiş profilde geçerli ve bu yaşam döngüsünün yapacağı şey için yasal bir dayanak mevcut" }, { label: "Uygun değil", detail: "uygunluk sağlanmıyor ya da iletişim için yasal bir dayanak yok - kimliğin çözüldüğü ama iznin hiç verilmediği sıradan durum dahil" }] },
+    "c.eligible": { headline: "Artık bilinen profil bir lifecycle'a girmeye uygun mu?", edges: [{ label: "Uygun", detail: "aday lifecycle'ın uygunluk kuralları birleştirilmiş profilde geçerli ve bu lifecycle'ın yapacağı şey için yasal bir dayanak mevcut" }, { label: "Uygun değil", detail: "uygunluk sağlanmıyor ya da iletişim için yasal bir dayanak yok - kimliğin çözüldüğü ama iznin hiç verilmediği sıradan durum dahil" }] },
     "x.stale": { headline: "anonim, niyet bayatladı, kimlik talep edilmedi", detail: "niyet eşiğinin yeniden aşılması yeni bir örnek açar; hiçbir şey birleştirilmedi ve beklemenin kendisi bir izin anlamına gelmedi" },
     "h.qualification": { headline: "Yeterlilik durumu değişikliği → yönlendir, tekrar yönlendir veya çıkış", detail: "bilinen, uygun bir profilin ilk kez yeterlilik sürecine girmesi" },
-    "x.known-only": { headline: "bilinen profil, yaşam döngüsüne girilmedi", detail: "ACQ-06, altta yatan veri değiştiğinde uygunluğu yeniden değerlendirir; bilinir hale gelmek kendi başına nurture'ı başlatmaz" },
+    "x.known-only": { headline: "bilinen profil, lifecycle'a girilmedi", detail: "ACQ-06, altta yatan veri değiştiğinde uygunluğu yeniden değerlendirir; bilinir hale gelmek kendi başına nurture'ı başlatmaz" },
   },
   },
   "ACQ-02": {
@@ -1502,35 +1502,35 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.record": { headline: "Yakalama kaynağını, kişinin belirttiği bağlamı ve bunun kanıtladığı niyeti kaydet - her biri izinden ayrı olarak saklanır; izin ise yalnızca gerçekten verildiği yerde, kendi başına bir gerçek olarak kaydedilir" },
     "c.ready": { headline: "Yakalanan ilgi, kişinin şu an hazır olduğu bir hedefi zaten belirtiyor mu?", edges: [{ label: "Hedef belirtilmiş ve girilebilir", detail: "belirtilen talep şu anda girilebilecek bir hedefle eşleşiyor - deneme sürümü, satış görüşmesi, teklif, rezervasyon, başvuru, onboarding" }, { label: "Hedefsiz ilgi", detail: "ilgi gerçek ama bir hedef belirtmiyor, ya da belirttiği hedefe hazır olduğu kanıtlanmamış" }] },
     "h.destination": { headline: "external:destination-lifecycle", detail: "girilebilir bir hedefle eşleşen, açıkça belirtilmiş bir talep" },
-    "c.disqualifier": { headline: "Bu müşteri adayı için diskalifiye eden bir koşul geçerli mi?", edges: [{ label: "Diskalifiye edildi", detail: "yetkili bir kural bunu eliyor - hizmet verilen pazarın dışında, bir rakip, geçersiz bir iletişim bilgisi ya da bu kapsamda zaten aktif bir müşteri olması" }, { label: "Diskalifiye eden koşul yok", detail: "müşteri adayı meşru, sadece henüz hiçbir hedefe hazır değil" }] },
+    "c.disqualifier": { headline: "Bu lead'i eleyen bir koşul var mı?", edges: [{ label: "Elendi", detail: "yetkili bir kural lead'i eliyor: hizmet verilen pazarın dışında, bir rakip, geçersiz iletişim bilgisi ya da bu kapsamda zaten aktif bir müşteri" }, { label: "Eleyen koşul yok", detail: "lead geçerli ancak henüz aksiyona hazır değil" }] },
     "h.reason": { headline: "Yeterlilik durumu değişikliği → yönlendir, tekrar yönlendir veya çıkış", detail: "yakalama sırasında tespit edilen diskalifiye eden bir koşul" },
-    "h.education": { headline: "Araştıran müşteri adayı → sınırlı bilgilendirme → ilerleme veya sonlandırma", detail: "hazır olduğu bir hedefi bulunmayan meşru ilgi" },
+    "h.education": { headline: "Lead Nurture → sınırlı temas → ilerleme veya çıkış", detail: "henüz aksiyona hazır olmayan geçerli bir lead" },
   },
   },
   "ACQ-03": {
-  shortName: "Niyet Yükselmesi Devri",
-  name: "Niyet yükselmesi → daha yüksek niyetli sürece devir",
-  purpose: "Düşük niyetli bir yaşam döngüsündeki biri artık o döngüye uymayan bir şey yaptığında sahipliği devretmek ve geride bırakılan sürecin gerçekten sessizleştiğinden emin olmak.",
+  shortName: "Yüksek Niyet / Satışa Handoff",
+  name: "Niyet yükselmesi → daha yüksek niyetli journey'ye handoff",
+  purpose: "Düşük niyetli bir lifecycle'daki kişi daha güçlü bir sinyal verdiğinde sahipliği doğru journey'ye handoff etmek ve önceki journey'nin gönderimlerini durdurmak.",
   nodes: {
     "t.crossed": { headline: "Niyet eşiği aşıldı" },
     "c.strength": { headline: "Sinyal, gürültü değil gerçek bir yükselme sayılacak kadar güçlü mü?", edges: [{ label: "Gerçek yükselme", detail: "güçlü kanıt taşıyan bir eylem, ya da tekrarlanan orta düzey bir eylem - ve şu anı yansıtacak kadar taze" }, { label: "Gürültü", detail: "tek başına zayıf bir sinyal, ya da zaten bayatlamış güçlü bir sinyal" }] },
-    "a.resolve": { headline: "Bu varlık için kişiyi şu anda hangi sürecin sahiplendiğini ve yeni niyetin hangi yaşam döngüsüne ait olduğunu belirle" },
+    "a.resolve": { headline: "Bu varlıkta kişiyi hangi journey'nin tuttuğunu ve yeni niyetin hangi lifecycle'a ait olduğunu belirle" },
     "x.unchanged": { headline: "sahiplikte değişiklik yok", detail: "daha sonra gelen, daha güçlü ya da tekrarlanan bir sinyal yeni bir örnek açar" },
-    "c.higher": { headline: "Yeni niyet için daha yüksek öncelikli bir süreç var mı?", edges: [{ label: "Daha yüksek öncelikli süreç var", detail: "yeni niyet, mevcut sahibinden daha yüksek öncelikli bir yaşam döngüsüyle eşleşiyor" }, { label: "Daha yüksek yok", detail: "mevcut süreç, bu varlık için kayıtlı en güçlü niyeti zaten temsil ediyor" }] },
-    "a.suppress": { headline: "Devir tamamlanmadan önce, ayrılan sürecin kuyruktaki ve gönderim aşamasındaki iletilerini durdur; böylece yerine geçilen durum için yazılmış hiçbir şey ondan sonra ulaşmaz" },
+    "c.higher": { headline: "Yeni niyet için daha yüksek öncelikli bir süreç var mı?", edges: [{ label: "Daha yüksek öncelikli süreç var", detail: "yeni niyet, mevcut sahibinden daha yüksek öncelikli bir lifecycle ile eşleşiyor" }, { label: "Daha yüksek yok", detail: "mevcut süreç, bu varlık için kayıtlı en güçlü niyeti zaten temsil ediyor" }] },
+    "a.suppress": { headline: "Handoff tamamlanmadan önce önceki journey'nin kuyruktaki ve gönderim aşamasındaki mesajlarını suppression'a al" },
     "x.retained": { headline: "sahiplik mevcut süreçte kalır", detail: "ileride yaşanacak bir yükselme bu soruyu yeniden açar; mevcut süreçte hiçbir şey değişmedi" },
     "h.escalate": { headline: "external:higher-intent-lifecycle", detail: "bu varlık için niyet önemli ölçüde arttı" },
   },
   },
   "ACQ-04": {
-  shortName: "Yüksek Niyetli Müşteri Adayı Yönlendirmesi",
+  shortName: "Yüksek Niyetli Lead Routing",
   name: "Yüksek niyetli eylem → yeterlilik → insan veya otomatik yönlendirme",
   purpose: "Ticari açıdan ciddi bir eylemden sonra, bir sonraki adımın bir kişinin değerlendirmesini mi gerektirdiğine yoksa otomatik olarak devam edebileceğine karar vermek - ve herhangi bir şey oluşturmadan önce zaten var olanı belirlemek.",
   nodes: {
     "t.high-intent": { headline: "Yüksek niyetli ticari eylem" },
     "a.resolve": { headline: "Herhangi bir şey oluşturmadan önce mevcut hesabı ve açık fırsatları belirle; böylece tekrarlanan ya da yinelenen bir talep, aynı kişi için ikinci bir kayıt açmak yerine var olanı günceller" },
     "c.converted": { headline: "Bu hesap, bu eylemin hedeflediği noktaya zaten ulaştı mı?", edges: [{ label: "Zaten ulaşıldı", detail: "sistem kaydı, bu varlık kapsamı için hedef durumun zaten ulaşıldığını gösteriyor" }, { label: "Henüz değil", detail: "bu kapsam için bir hedef durum mevcut değil" }] },
-    "h.reached": { headline: "Ticari hedefe ulaşıldı → kazanım baskılaması → yaşam döngüsü devri", detail: "hedefe zaten ulaşıldıktan sonra gelen yüksek niyetli bir eylem" },
+    "h.reached": { headline: "Ticari hedef tamamlandı → acquisition suppression → lifecycle handoff", detail: "hedef tamamlandıktan sonra gelen yüksek niyetli bir aksiyon" },
     "c.human": { headline: "Bu eylem insan değerlendirmesi gerektiriyor mu?", edges: [{ label: "İnsan değerlendirmesi gerekli", detail: "değer, karmaşıklık, sözleşme koşulları ya da talebin kendisi bir kişi istiyor" }, { label: "Otomatik devam yeterli", detail: "talep kendi kendine yürütülebilir ve açık; bir kişinin dahil olması değerlendirme katmadan yalnızca gecikme yaratır" }] },
     "a.assign": { headline: "Dahili ticari kaydı oluştur ya da güncelle, bir sahip ata ve bunu gerekli kılan kanıtı taşıyan bir görev oluştur - sahiplik değişiklikleri eklenerek kaydedilir, böylece kimin sahip olduğuna dair iz kaybolmaz" },
     "h.automated": { headline: "external:automated-continuation", detail: "insan değerlendirmesi gerektirmeyen, kendi kendine yürütülebilir bir talep" },
@@ -1549,7 +1549,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.in-progress": { headline: "yeterlilik sürüyor, henüz ticari yükselme yok", detail: "bir sonraki yetkili durum değişikliği yeni bir örnek açar" },
     "x.not-yet": { headline: "uygun değil, hiçbir şey elemiyor", detail: "yeni bir kanıt, önce hiçbir şeyin geri alınması gerekmeden bunu QUALIFYING durumuna taşıyabilir" },
     "c.why": { headline: "Neden diskalifiye edildi?", edges: [{ label: "Nihai uyumsuzluk", detail: "hesaba asla hizmet verilemez - kalıcı olarak pazarın dışında, yapısal olarak uygun değil ya da yasaklı" }, { label: "Zamanlama", detail: "uyum doğru ama an yanlış" }, { label: "Eksik gereklilik", detail: "belirli bir gereklilik karşılanmıyor ve ileride karşılanabilir" }, { label: "Yinelenen veya mevcut ilişki", detail: "kayıt, zaten var olan bir hesabı yineliyor ya da ilişki başka bir yerde zaten mevcut" }] },
-    "w.recycle": { headline: "müşteri adayı yeniden değerlendirmeye alınırken kaydedilen yeniden giriş koşuluna veya tarihine ulaşılana kadar", detail: "Yeniden değerlendirme, nedenle birlikte kaydedilen koşula veya tarihe bağlıdır; bekleme bu kayıtlı zaman noktasında sona erer ve hiçbir tarih uydurulmaz. (qualification_state.recycle ayarlanmalı)" },
+    "w.recycle": { headline: "lead için kaydedilen yeniden giriş koşulu veya tarihi gelene kadar", detail: "Yeniden değerlendirme, nedenle birlikte kaydedilen koşula veya tarihe bağlıdır; bekleme bu noktada sona erer ve sistem yeni bir tarih uydurmaz. (qualification_state.recycle ayarlanmalı)" },
     "x.terminal": { headline: "diskalifiye edildi, nihai uyumsuzluk", detail: "bu nedenden dolayı yok - yalnızca ne sunduğumuzdaki bir değişiklik bunu değiştirebilir, bu da hesapta değil kuralda bir değişikliktir" },
     "a.mark-recycle": { headline: "RECYCLE_ELIGIBLE durumunu, zamanlama nedeniyle ve yeniden değerlendirmeyi anlamlı kılacak koşul veya tarihle birlikte kaydet; böylece geri dönüş bir periyoda değil gerçek bir şeye bağlı olur" },
     "w.requirement": { headline: "ilerlemeyi engelleyen, adı belirtilen gerekliliğin karşılandığı kaydedilene kadar", detail: "Gerekliliğin geçerlilik süresi doluyor. (qualification_state.requirement ayarlanmalı)" },
@@ -1579,7 +1579,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   "ACQ-07": {
   shortName: "Niyet Zayıflaması",
-  name: "Niyet zayıflaması → önceliği düşür → soğuma veya çıkış",
+  name: "Niyet zayıflaması → önceliği düşür → cooldown veya çıkış",
   purpose: "Bir kişiyi bir kez yaptığı bir şeyin gücüne dayanarak takip etmek yerine, arkasındaki kanıt bayatladığında kayıtlı yüksek niyet durumunun süresinin dolmasına izin vermek.",
   nodes: {
     "t.stale": { headline: "Niyet tazelik eşiği aşıldı" },
@@ -1590,14 +1590,14 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.suppress": { headline: "Daha yüksek niyet için yazılmış takip iletişimini durdur; bu öncelikte kuyrukta bekleyen her şey dahil" },
     "c.relationship": { headline: "Zayıflayan niyetin altında hangi ilişki var?", edges: [{ label: "Mevcut müşteri", detail: "kişi veya hesap zaten aktif bir ürün veya hizmet ilişkisine sahip" }, { label: "Müşteri değil", detail: "aktif bir ilişki mevcut değil" }] },
     "h.customer": { headline: "external:customer-lifecycle", detail: "aktif bir müşteri ilişkisi üzerinde zayıflayan kazanım niyeti" },
-    "w.cooldown": { headline: "niyeti yeniden açmaya yetecek kadar güçlü yeni bir davranışsal sinyal gelene kadar", detail: "Bu niyet bağlamı için soğuma süresi doluyor; süre içinde gelen güçlü bir sinyal niyeti yeniden yükseltir, süre sonunda ise zayıflayan niyet herhangi bir karar kaydedilmeden kapatılır. (intent_decay.cooldown ayarlanmalı)" },
-    "h.re-escalate": { headline: "Niyet yükselmesi → daha yüksek niyetli sürece devir", detail: "soğuma sırasında gelen yeni güçlü bir sinyal" },
+    "w.cooldown": { headline: "niyeti yeniden açacak kadar güçlü yeni bir davranış sinyali gelene kadar", detail: "Bu niyet bağlamında cooldown işler. Süre içinde gelen güçlü bir sinyal niyeti yeniden yükseltir; süre dolarsa zayıflayan niyet karar kaydı oluşturmadan kapanır. (intent_decay.cooldown ayarlanmalı)" },
+    "h.re-escalate": { headline: "Niyet yükselmesi → daha yüksek niyetli journey'ye handoff", detail: "cooldown sırasında gelen yeni ve güçlü bir sinyal" },
     "x.cooled": { headline: "niyetin süresi doldu, izin değişmedi, karar kaydedilmedi", detail: "yeni güçlü bir sinyal, sıfırdan yeni bir niyet durumu oluşturur" },
   },
   },
   "ACQ-08": {
   shortName: "Kazanım Çıkış Devri",
-  name: "Ticari hedefe ulaşıldı → kazanım baskılaması → yaşam döngüsü devri",
+  name: "Ticari hedef tamamlandı → acquisition suppression → lifecycle handoff",
   purpose: "Kazanım sürecinin var olma amacı olan sonuç kaydedildiği anda sahipliği bırakmasını sağlamak ve zaten kuyruğa alınmış olanı durdurmak.",
   nodes: {
     "t.destination": { headline: "Yetkili hedef olayı" },
@@ -1610,23 +1610,23 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   },
   "ACQ-09": {
-  shortName: "Müşteri Adayı Besleme",
-  name: "Araştıran müşteri adayı → sınırlı bilgilendirme → ilerleme veya sonlandırma",
-  purpose: "Meşru ama henüz hazır olmayan bir müşteri adayına, işe yarayıp yaramadığına bakılmaksızın sona eren, faydalı bir bilgilendirme penceresi sunmak.",
+  shortName: "Lead Nurture",
+  name: "Lead henüz hazır değil → sınırlı nurture → ilerleme veya çıkış",
+  purpose: "Geçerli ancak henüz aksiyona hazır olmayan bir lead'e, süresi ve temas sayısı baştan belirlenmiş bir nurture akışı sunmak.",
   nodes: {
-    "t.not-ready": { headline: "Geçerli müşteri adayı, hedefe hazır değil" },
+    "t.not-ready": { headline: "Lead henüz aksiyona hazır değil" },
     "c.basis": { headline: "Bu tür bir iletişim için açık izin ve yasal bir dayanak var mı?", edges: [{ label: "Dayanak mevcut", detail: "izin verildi ve bu tür bilgilendirmeyi kapsıyor" }, { label: "Dayanak yok", detail: "yakalama sırasında izin verilmedi ya da mevcut dayanak bunu kapsamıyor - bu sıradan bir durumdur, çünkü bir formu göndermek onay anlamına gelmez" }] },
     "a.educate": { headline: "Kişinin sürece girmesine gerçekte neden olan konuya uygun bilgilendirme gönder - genel bir dizi değil, aralıklarla tekrarlanan satış baskısı da değil" },
-    "w.first": { headline: "müşteri adayı belirttiği konuda ilerleyen bir şey yapana kadar, ya da bu iletişimin dayandığı izin geri çekilene kadar, ya da izinli hiçbir hedefe artık ulaşılamaz hale gelene kadar", detail: "Son bilgilendirmeden önceki aralık, ilkinin okunup kişinin kendi zamanında değerlendirilmesine yetecek kadar uzun, girişte sabitlenen pencerenin içinde kalacak kadar kısadır." },
-    "c.still-open": { headline: "Müşteri adayı hâlâ bu pencerenin açıldığı müşteri adayı mı?", edges: [{ label: "Bu arada ilerledi", detail: "ilk bilgilendirmeden bu yana bir ilerleme sinyali kaydedildi - pencere işini zaten görmüştür, son temas buna harcanmaz" }, { label: "İzin geri çekildi", detail: "bu beslemenin dayandığı yasal dayanak veya izin artık bunu kapsamıyor" }, { label: "Ulaşım yolu kayboldu", detail: "bu kişi için izinli hiçbir hedefe artık ulaşılamıyor" }, { label: "Hâlâ hazır değil", detail: "hiçbir ilerleme kaydedilmedi, giriş nedeni hâlâ yanıtsız, izin hâlâ bunu kapsıyor ve ulaşılabilir bir hedef duruyor" }] },
+    "w.first": { headline: "lead ilerleme sinyali verene, izin geri çekilene veya izinli hiçbir kanala ulaşılamayana kadar", detail: "İlk ve son temas arasındaki süre, ilk mesajın değerlendirilebileceği kadar uzun; journey penceresini aşmayacak kadar kısa olmalıdır." },
+    "c.still-open": { headline: "Lead hâlâ aynı nurture kapsamında mı?", edges: [{ label: "İlerledi", detail: "ilk temastan bu yana ilerleme sinyali kaydedildi; son temas gönderilmez" }, { label: "İzin geri çekildi", detail: "nurture'ın dayandığı yasal dayanak veya izin artık geçerli değil" }, { label: "Ulaşılabilir kanal yok", detail: "bu kişi için izinli ve ulaşılabilir bir kanal kalmadı" }, { label: "Hâlâ hazır değil", detail: "ilerleme kaydedilmedi, giriş nedeni hâlâ geçerli, izin devam ediyor ve ulaşılabilir bir kanal var" }] },
     "a.educate2": { headline: "Pencerenin son bilgilendirmesini gönder - aynı giriş nedeni üzerinden ve ilkinin zaten kapsadığının ötesinde; onun tekrarı değil, bilgilendirme kılığına girmiş satış baskısı da değil" },
     "x.no-basis": { headline: "beklemede, besleme başlatılmadı", detail: "daha sonra verilen izin bunu normal şekilde yeniden açar; yakalamanın kendisi hiçbir zaman onay sayılmadı ve bu süre boyunca hiçbir şey gönderilmedi" },
-    "w.window": { headline: "müşteri adayı belirttiği konuda ilerleyen bir şey yapana - yanıt verene, talepte bulunana, satın alma adımı atana - kadar, ya da kişi bu iletişimin dayandığı izni geri çekene kadar, ya da bu kişi için izinli hiçbir hedefe artık ulaşılamaz hale gelene kadar", detail: "Sınırlı besleme penceresi, müşteri adayı sürece girdiğinde sabitlenir ve bilgilendirme işe yarasın ya da yaramasın sona erer; pencere içindeki etkileşim onu uzatmaz. (bounded_education.window ayarlanmalı)" },
+    "w.window": { headline: "lead yanıt, talep veya satın alma adımıyla ilerleyene; izin geri çekilene ya da izinli hiçbir kanala ulaşılamayana kadar", detail: "Nurture penceresi journey girişinde sabitlenir ve etkileşim olsa da uzamaz. Süre dolduğunda journey kapanır. (bounded_education.window ayarlanmalı)" },
     "c.window-event": { headline: "Beklemeyi ne sonlandırdı?", edges: [{ label: "İlerleme kaydetti", detail: "anlamlı bir ilerleme sinyali geldi" }, { label: "İzin geri çekildi", detail: "bu beslemenin dayandığı yasal dayanak veya izin artık bunu kapsamıyor" }, { label: "Ulaşım yolu kayboldu", detail: "bu kişi için izinli hiçbir hedefe artık ulaşılamıyor" }] },
     "a.sunset": { headline: "Pencereyi kapat ve ilerleme kaydedilmeden sona erdiğini kaydet - bu, kişi hakkında bir yargı değil, bu denemeye dair bir gerçektir" },
     "h.progressed": { headline: "Niyet yükselmesi → daha yüksek niyetli sürece devir", detail: "bu kişinin ihtiyacını değiştirecek kadar güçlü bir ilerleme sinyali" },
     "a.stop-permission": { headline: "Bu örnek için kuyrukta bekleyen beslemeyi geçersiz kıl ve nedeni ekle. Yalnızca ilerlemeyle veya kendi süresiyle sona eren bir pencere, dayandığı izin ortadan kalktıktan sonra da göndermeye devam eder" },
-    "a.stop-contactability": { headline: "Bu besleme yolunu, ilgisizlik olarak kaydetmeden durdur. Çalışmayı bırakan bir hedef, kişinin hâlâ ilgili olup olmadığı konusunda hiçbir şey söylemez; yol hatasını ilgisizlik olarak kaydetmek müşteri adayını iki kez kaybetmek demektir" },
+    "a.stop-contactability": { headline: "Nurture'ı ilgisizlik olarak işaretlemeden durdur. Kanalın çalışmaması, lead'in ilgisini kaybettiği anlamına gelmez" },
     "x.sunset": { headline: "besleme penceresi ilerleme olmadan kapandı", detail: "yeni bir gelen sinyal veya yeni bir talep yeni bir pencere açabilir; aynı bilgilendirmeye anında yeniden giriş engellenir" },
     "x.permission-ended": { headline: "besleme durduruldu; izin artık bunu kapsamıyor", detail: "yeni ve geçerli bir izin, yeni bir uygun neden ile birleşince yeni bir pencere başlar" },
     "x.unreachable": { headline: "besleme durduruldu; izinli hiçbir yola ulaşılamıyor", detail: "giriş nedeni hâlâ geçerliyken onarılan veya yeni izin verilen bir yol beslemeyi yeniden başlatır" },
@@ -1634,7 +1634,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   "ACQ-10": {
   shortName: "Ticari Ret Yönlendirmesi",
-  name: "Açık ticari ret → gerekçe → nihai, soğuma veya yeniden değerlendirme",
+  name: "Açık ticari ret → gerekçe → kapat, cooldown'a al veya yeniden değerlendir",
   purpose: "Olumsuz bir ticari sonucu, hepsini 'kaybedildi' başlığı altına kaydetmek yerine nedenine göre yönlendirmek.",
   nodes: {
     "t.decline": { headline: "Açık ret veya yetkili kayıp sonucu" },
@@ -1642,9 +1642,9 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.reason": { headline: "Hangi neden ailesi geçerli?", edges: [{ label: "NOT_FIT", detail: "uyumsuzluk yapısal ve değişmeyecek" }, { label: "TIMING", detail: "uyum doğru, an yanlış" }, { label: "NO_PRIORITY", detail: "gerçek bir uyum var ama harekete geçmek için şu anda bir yetki yok" }, { label: "PROCUREMENT_BLOCK", detail: "bizim hakkımızda bir yargı değil, bir süreç veya politika engeli" }, { label: "PRICE", detail: "değer önerisi bu anda fiyatı karşılamadı" }, { label: "COMPETITOR", detail: "başka bir tedarikçi seçildi - bunun bir süresi, dolayısıyla bir sonu var" }, { label: "NO_RESPONSE", detail: "fırsat, kimsenin gerçekten karar vermediği bir sessizlik nedeniyle kapatıldı" }, { label: "OTHER", detail: "neden sınıflandırılmamış ve kaydedildiği haliyle yönlendirilemiyor" }] },
     "x.terminal": { headline: "reddedildi, nihai uyumsuzluk", detail: "bu nedenden dolayı yok - değişmesi gereken şey bu hesabın kararı değil, sattığımız şey olurdu" },
     "c.reentry": { headline: "Bir yeniden giriş olayı, tarihi veya koşulu gerçekten biliniyor mu?", edges: [{ label: "Biliniyor", detail: "bir sözleşme sonu, bütçe döngüsü, proje tarihi ya da adı belirtilmiş bir koşul, ret ile birlikte kaydedildi" }, { label: "Bilinmiyor", detail: "neden geçici ama ne zaman geri dönüleceğini gösteren hiçbir şey kaydedilmedi" }] },
-    "h.decay": { headline: "Niyet zayıflaması → önceliği düşür → soğuma veya çıkış", detail: "bir karar yerine sessizlik nedeniyle kapatılan bir fırsat" },
+    "h.decay": { headline: "Niyet zayıflaması → önceliği düşür → cooldown veya çıkış", detail: "bir karar yerine sessizlik nedeniyle kapatılan bir fırsat" },
     "h.classify": { headline: "Karar talebi → doğrula → yönlendir, reddet veya beklet", detail: "OTHER olarak kaydedilen bir ret" },
-    "w.reentry": { headline: "müşteri adayı yeniden değerlendirmeye alınırken kaydedilen yeniden giriş koşuluna veya tarihine ulaşılana kadar", detail: "Yeniden giriş beklemesi, nedenle birlikte kaydedilen olay, tarih veya koşulda sona erer; hiçbiri bilinmiyorsa hiçbir şey planlanmaz. (commercial_decline.reentry ayarlanmalı)" },
+    "w.reentry": { headline: "lead için kaydedilen yeniden giriş koşulu veya tarihi gelene kadar", detail: "Bekleme; ret nedeniyle birlikte kaydedilen event, tarih veya koşul gerçekleştiğinde sona erer. Hiçbiri bilinmiyorsa yeni temas planlanmaz. (commercial_decline.reentry ayarlanmalı)" },
     "x.cooldown": { headline: "reddedildi, yeniden değerlendirmeye uygun, hiçbir şey planlanmadı", detail: "yeni bir gelen sinyal, ya da daha sonra kaydedilecek bir yeniden giriş koşulu; sessizliği doldurmak için bir periyot uydurulmaz" },
     "h.requalify": { headline: "Yeterlilik durumu değişikliği → yönlendir, tekrar yönlendir veya çıkış", detail: "kaydedilen yeniden giriş koşulunun karşılanması" },
   },
@@ -1657,10 +1657,10 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "t.started": { headline: "Süreç başladı" },
     "c.eligible": { headline: "Bu süreç bu kişi için hiç kurtarılabilir mi?", edges: [{ label: "Uygun", detail: "kimlik, ulaşılabilir bir kişiyle eşleşiyor; süreç ürünler ve bir hedefle sürdürülebilir durumda; bunun için açık bir örnek yok; üzerinde kayıtlı bir ödeme hatası yok ve ticari kurtarma izni kayıtlı" }, { label: "Uygun değil", detail: "bunlardan herhangi biri sağlanmıyor - neden, işlem yapılmama nedeni olarak kaydedilir" }] },
     "a.open": { headline: "Kurtarma örneğini mantıksal sürece karşı aç ve terk sayacını sürecin açıldığı andan değil, üzerindeki son etkinlikten başlat. İlk temastan önceki etkinlik sayacı ileri alır; ilk temastan sonraki hiçbir şey pencereyi uzatmaz" },
-    "x.no-action": { headline: "hiçbir temas gönderilmedi; bunu durduran engel kaydedildi", detail: "yeni bir mantıksal süreç yeni bir örnektir; bu süreç sona erdiğinde veya baskılandığında geçerli soğuma süresine tabidir" },
+    "x.no-action": { headline: "hiçbir temas gönderilmedi; bunu durduran engel kaydedildi", detail: "yeni bir mantıksal süreç yeni bir örnektir; bu süreç sona erdiğinde veya baskılandığında aktif cooldown'a tabidir" },
     "w.abandon": { headline: "mantıksal süreç sistem kaydında tamamlanana kadar, ya da kişi mantıksal süreci iptal edene kadar, ya da platform mantıksal sürecin süresini doldurana kadar, ya da süreçteki tüm ürünler kaldırılana kadar, ya da yetkili bir sağlayıcı yanıtı bir ödeme denemesini başarısız olarak sınıflandırana kadar", detail: "İlk kontrol, kişinin süreç içinde duraklamadığından, gerçekten ayrıldığından emin olacak kadar - ama niyet tazeliğini yitirmeden önce - son etkinlikten sonra bekler. (örnek: 30–60 dakika; recovery.first_check ayarlanmalı)" },
     "c.state": { headline: "Süreç şu anda ne durumda?", edges: [{ label: "Hâlâ sürdürülebilir", detail: "süreç ürünler ve bir devam hedefiyle açık, ve buna karşı bir sipariş verilmedi" }, { label: "Tamamlandı", detail: "sürece karşı herhangi bir kanaldan bir sipariş veya tamamlanma kaydedildi" }, { label: "İptal edildi, süresi doldu veya boşaltıldı", detail: "kişi iptal etti, platform süresini doldurdu ya da tüm ürünler kaldırıldı" }, { label: "Yerine yenisi geçti", detail: "aynı kişi için daha yeni bir mantıksal süreç var ve yerine geçme kuralı geçerli" }, { label: "Ödeme başarısız", detail: "bu sürece karşı bir ödeme hatası kaydedildi" }] },
-    "c.sendable": { headline: "İlk temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon baskı sınırı aşılmadı, hesapta daha yüksek öncelikli bir çakışma yok ve yürürlükte bir soğuma süresi yok" }, { label: "Baskılandı", detail: "bir engel bunu durduruyor; engel neden olarak kaydedilir" }] },
+    "c.sendable": { headline: "İlk temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon contact pressure limiti aşılmadı, hesapta daha yüksek öncelikli bir çakışma yok ve yürürlükte bir cooldown yok" }, { label: "Gönderilmez", detail: "suppression gerekçesi kaydedilir" }] },
     "x.converted": { headline: "tamamlandı; süreç sonuna ulaştı", detail: "yeni bir mantıksal süreç yeni bir örnektir; bu örnek dönüşüm gerçekleşmiş olarak kapatılır" },
     "x.invalid": { headline: "tamamlanmadan kapandı - iptal edildi, süresi doldu veya boşaltıldı; başka hiçbir şey gönderilmez", detail: "yeni bir mantıksal süreç yeni bir örnektir" },
     "x.superseded": { headline: "aynı kişi için daha yeni bir süreç tarafından yerine geçildi", detail: "bu süreç için hiçbir şey yapılmaz; kurtarmayı daha yeni süreç yürütür" },
@@ -1677,14 +1677,14 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.note-return": { headline: "Geri dönüşü kaydet ve yeni son etkinlikten itibaren bir bekleme süresini daha başlat. Geri dönüp yeniden ayrılan bir kişi karar veriyordur; ikinci temas bir kez ertelenir, ne atlanır ne de hızlandırılır" },
-    "c.sendable2": { headline: "İkinci temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli ve temas bütçesi tükenmedi" }, { label: "Baskılandı", detail: "bir engel bunu durduruyor; engel kaydedilir" }] },
+    "c.sendable2": { headline: "İkinci temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli ve temas bütçesi tükenmedi" }, { label: "Gönderilmez", detail: "suppression gerekçesi kaydedilir" }] },
     "w.resumed": { headline: "mantıksal süreç sistem kaydında tamamlanana kadar, ya da kişi mantıksal süreci iptal edene kadar, ya da platform mantıksal sürecin süresini doldurana kadar, ya da süreçteki tüm ürünler kaldırılana kadar, ya da yetkili bir sağlayıcı yanıtı bir ödeme denemesini başarısız olarak sınıflandırana kadar", detail: "Bir geri dönüşten sonra, aynı ilk kontrol aralığı yeni son etkinlikten itibaren tekrar işler. (örnek: 30–60 dakika; recovery.first_check ayarlanmalı)" },
     "a.touch2": { headline: "Muhtemel engeli - kargo, iade, güven, soru sorabileceği bir yol - aynı bağlantıyla sürece geri dönerek ele al. Yine sistemin iddia etmediği hiçbir şey iddia edilmez" },
     "w.final": { headline: "mantıksal süreç sistem kaydında tamamlanana kadar, ya da kişi mantıksal süreci iptal edene kadar, ya da platform mantıksal sürecin süresini doldurana kadar, ya da süreçteki tüm ürünler kaldırılana kadar, ya da yetkili bir sağlayıcı yanıtı bir ödeme denemesini başarısız olarak sınıflandırana kadar", detail: "Kurtarma süresi, platformun kendi sürdürülebilirlik süresinden önce sona erer; böylece son temas hiçbir zaman zaten kapanmış bir sürece işaret etmez. (örnek: 3–7 gün; recovery.lifetime ayarlanmalı)" },
     "c.state3": { headline: "Kurtarma süresinin sonunda süreç ne durumda?", edges: [{ label: "Tamamlandı", detail: "sürece karşı bir sipariş veya tamamlanma kaydedildi" }, { label: "İptal edildi, süresi doldu veya boşaltıldı", detail: "sürece artık geri dönülemez" }, { label: "Yerine yenisi geçti", detail: "aynı kişi için daha yeni bir mantıksal süreç var ve yerine geçme kuralı geçerli" }, { label: "Ödeme başarısız", detail: "bu sürece karşı bir ödeme hatası kaydedildi" }, { label: "Hâlâ açık", detail: "süreç açık ve sürdürülebilir" }] },
     "c.final-enabled": { headline: "Son bildirim etkin mi ve belirtilecek gerçek bir son tarih var mı?", edges: [{ label: "Etkin, son tarih belirtilmiş", detail: "şirket son bildirimi etkinleştirmiş (recovery.final_notice_enabled), platform bu süreç için bir son tarih belirtiyor ve gönderim yolu geçerli" }, { label: "Devre dışı, ya da gerçek bir son tarih yok", detail: "son bildirim devre dışı, ya da bildirimin doğru şekilde belirtebileceği bir son tarih yok" }] },
     "a.touch3": { headline: "Sürecin gerçek son tarihinde kapanacağını bir kez söyle ve bağlantıyı ver. Sistemin iddia etmediği hiçbir aciliyet, ve politika son temas için özel olarak izin vermedikçe hiçbir teşvik kullanılmaz" },
-    "x.lapsed": { headline: "kurtarma süresi, süreç hâlâ açıkken doldu; başka hiçbir şey gönderilmez", detail: "yeni bir mantıksal süreç yeni bir örnektir ve soğuma süresi işlerken sessizce başlar" },
+    "x.lapsed": { headline: "kurtarma süresi, süreç hâlâ açıkken doldu; başka hiçbir şey gönderilmez", detail: "yeni bir mantıksal süreç yeni bir örnektir ve cooldown işlerken sessizce başlar" },
     "w.close": { headline: "mantıksal süreç sistem kaydında tamamlanana kadar, ya da kişi mantıksal süreci iptal edene kadar, ya da platform mantıksal sürecin süresini doldurana kadar, ya da süreçteki tüm ürünler kaldırılana kadar, ya da yetkili bir sağlayıcı yanıtı bir ödeme denemesini başarısız olarak sınıflandırana kadar", detail: "Son bekleme, platformun kendi son tarihi dolduğunda sona erer; ondan sonra hiçbir şey gönderilmez. (önerilen: platformun belirttiği expires_at değeri; recovery.process_expiry ayarlanmalı)" },
     "c.close": { headline: "Son beklemeyi ne sonlandırdı?", edges: [{ label: "Tamamlandı", detail: "sürece karşı bir sipariş veya tamamlanma kaydedildi" }, { label: "Ödeme başarısız", detail: "bu sürece karşı bir ödeme hatası kaydedildi" }, { label: "Tamamlanmadan kapandı", detail: "süreç iptal edildi, süresi doldu ya da boşaltıldı" }] },
   },
@@ -1697,7 +1697,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "t.selected": { headline: "Seçim kaydedildi" },
     "c.eligible": { headline: "Bu seçim bu kişi için hiç kurtarılabilir mi?", edges: [{ label: "Uygun", detail: "kimlik, ulaşılabilir bir kişiyle eşleşiyor; en az bir ürün mevcut; bu ürünler için açık bir süreç yok; bu seçim için açık bir örnek yok ve ticari kurtarma izni kayıtlı" }, { label: "Uygun değil", detail: "bunlardan herhangi biri sağlanmıyor - neden, işlem yapılmama nedeni olarak kaydedilir" }] },
     "a.open": { headline: "Kurtarma örneğini seçime karşı aç ve sayacı üzerindeki son etkinlikten başlat. İlk temastan önceki etkinlik sayacı ileri alır; ilk temastan sonraki hiçbir şey pencereyi uzatmaz" },
-    "x.no-action": { headline: "hiçbir temas gönderilmedi; bunu durduran engel kaydedildi", detail: "yeni bir seçim yeni bir örnektir; bu seçim sona erdiğinde veya baskılandığında geçerli soğuma süresine tabidir" },
+    "x.no-action": { headline: "hiçbir temas gönderilmedi; bunu durduran engel kaydedildi", detail: "yeni bir seçim yeni bir örnektir; bu seçim sona erdiğinde veya baskılandığında aktif cooldown'a tabidir" },
     "w.settle": { headline: "seçimden en az bir ürünü içeren bir sipariş veya tamamlanma kaydedilene kadar, ya da kişi seçimdeki tüm ürünleri kaldırana kadar, ya da seçim silinene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar, ya da en az bir ürün kalırken seçime bir ürün eklenene veya seçimden kaldırılana kadar", detail: "İlk kontrol, kişinin duraklamadığından, gerçekten ayrıldığından emin olacak kadar - ama seçimin hatırlanması muhtemel olduğu süreyi aşmadan - son seçim etkinliğinden sonra bekler. (örnek: 1–4 saat; selection.first_check ayarlanmalı)" },
     "c.state": { headline: "Seçim şu anda ne durumda?", edges: [{ label: "Dönüştü", detail: "seçimden herhangi bir ürünü içeren bir sipariş kaydedildi" }, { label: "Temizlendi", detail: "kişi tüm ürünleri kaldırdı ya da seçimi sildi" }, { label: "Sürece taşındı", detail: "seçimden bir süreç başlatıldı" }, { label: "Değişti, hâlâ duruyor", detail: "bir ürün eklendi veya kaldırıldı ve en az biri kalıyor - kişi hâlâ karar veriyor" }, { label: "Hâlâ duruyor", detail: "seçim olduğu gibi duruyor" }] },
     "x.converted": { headline: "dönüştü; seçili bir ürünü içeren bir sipariş kaydedildi", detail: "yeni bir seçim yeni bir örnektir; bu örnek dönüşüm gerçekleşmiş olarak kapatılır" },
@@ -1712,17 +1712,17 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     },
     "a.rearm": { headline: "Değişikliği kaydet ve ilk beklemeyi, sınırlı sayıda olmak üzere, yeni son etkinlikten itibaren yeniden başlat. Seçimini hâlâ düzenleyen bir kişi unutmuyor, karar veriyordur" },
     "c.availability": { headline: "Bunlardan herhangi biri hâlâ işleme alınabilir mi?", edges: [{ label: "En az bir ürün mevcut", detail: "platform, seçili ürünlerden en az birinin mevcut olduğunu belirtiyor" }, { label: "Hiçbiri mevcut değil", detail: "platform, seçili ürünlerin tamamının mevcut olmadığını belirtiyor" }] },
-    "c.sendable": { headline: "İlk temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon baskı sınırı aşılmadı, kişi üzerinde daha yüksek öncelikli bir çakışma yok ve yürürlükte bir soğuma süresi yok" }, { label: "Baskılandı", detail: "bir engel bunu durduruyor; engel neden olarak kaydedilir" }] },
+    "c.sendable": { headline: "İlk temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon contact pressure limiti aşılmadı, kişi üzerinde daha yüksek öncelikli bir çakışma yok ve yürürlükte bir cooldown yok" }, { label: "Gönderilmez", detail: "suppression gerekçesi kaydedilir" }] },
     "x.unavailable": { headline: "seçili tüm ürünler mevcut değil; işleme alınamayan ürünler hakkında hiçbir şey gönderilmez", detail: "mevcudiyetin geri gelmesi, burada bir yeniden giriş değil, daha sonraki bir mevcudiyet süreci için yetkili bir olaydır" },
     "a.touch1": { headline: "Seçimi şu anki haliyle göster - yalnızca platformun mevcut olduğunu belirttiği ürünleri - ve onu yeniden açan bağlantıyı ver. Sistemin iddia etmediği hiçbir şeyi iddia etme: ne rezerve stok, ne tutulan fiyat, ne indirim, ne son tarih" },
     "a.record-no-action": { headline: "Temasın hangi seçim için hangi engel tarafından durdurulduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülmüş bir sonuç olur" },
     "w.second": { headline: "seçimden en az bir ürünü içeren bir sipariş veya tamamlanma kaydedilene kadar, ya da kişi seçimdeki tüm ürünleri kaldırana kadar, ya da seçim silinene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar, ya da platform seçimdeki bir ürünün artık satın alınamaz olduğunu belirtene kadar, ya da platform seçimdeki bir üründe fiyat değişikliği belirtene kadar", detail: "İkinci kontrol, kişinin ilk temasa kendi zamanında tepki verme fırsatı bulmasından sonra, ama seçim hatırlanabilir olmaktan çıkmadan önce yapılır. (örnek: 2–4 gün; selection.second_check ayarlanmalı)" },
     "c.state2": { headline: "Seçim şu anda ne durumda ve onunla ilgili bir şey değişti mi?", edges: [{ label: "Dönüştü", detail: "seçimden herhangi bir ürünü içeren bir sipariş kaydedildi" }, { label: "Temizlendi", detail: "kişi tüm ürünleri kaldırdı ya da seçimi sildi" }, { label: "Sürece taşındı", detail: "seçimden bir süreç başlatıldı" }, { label: "Hiçbiri mevcut değil", detail: "platform artık seçili ürünlerin tamamının mevcut olmadığını belirtiyor" }, { label: "Hâlâ duruyor", detail: "en az bir ürün, değişmiş olsun ya da olmasın, hâlâ duruyor ve mevcut" }] },
-    "c.sendable2": { headline: "İkinci temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli ve temas bütçesi tükenmedi" }, { label: "Baskılandı", detail: "bir engel bunu durduruyor; engel kaydedilir" }] },
+    "c.sendable2": { headline: "İkinci temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli ve temas bütçesi tükenmedi" }, { label: "Gönderilmez", detail: "suppression gerekçesi kaydedilir" }] },
     "a.touch2": { headline: "Seçimi, tutulan bir üründe platformun belirttiği gerçek bir değişiklikle - mevcudiyet geri geldi, fiyat değişti - birlikte yeniden göster ve aynı bağlantıyı ver. Sistemin iddia etmediği hiçbir aciliyet, ve politika son temas için özel olarak izin vermedikçe hiçbir teşvik kullanılmaz" },
     "w.final": { headline: "seçimden en az bir ürünü içeren bir sipariş veya tamamlanma kaydedilene kadar, ya da kişi seçimdeki tüm ürünleri kaldırana kadar, ya da seçim silinene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar", detail: "Kurtarma süresi, tutulan bir seçimin hâlâ bir kayıt değil bir niyet olarak sayıldığı dönemdir; bu sürenin ötesinde hiçbir şey gönderilmez. (örnek: 7–14 gün; selection.lifetime ayarlanmalı)" },
     "c.state3": { headline: "Kurtarma süresinin sonunda seçim ne durumda?", edges: [{ label: "Dönüştü", detail: "seçimden herhangi bir ürünü içeren bir sipariş kaydedildi" }, { label: "Temizlendi", detail: "kişi tüm ürünleri kaldırdı ya da seçimi sildi" }, { label: "Sürece taşındı", detail: "seçimden bir süreç başlatıldı" }, { label: "Hâlâ duruyor", detail: "seçim duruyor; başka hiçbir şey gönderilmez" }] },
-    "x.lapsed": { headline: "kurtarma süresi, seçim hâlâ dururken doldu; başka hiçbir şey gönderilmez", detail: "yeni bir seçim yeni bir örnektir ve soğuma süresi işlerken sessizce başlar" },
+    "x.lapsed": { headline: "kurtarma süresi, seçim hâlâ dururken doldu; başka hiçbir şey gönderilmez", detail: "yeni bir seçim yeni bir örnektir ve cooldown işlerken sessizce başlar" },
   },
   },
   "ACQ-13": {
@@ -1736,17 +1736,17 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.resolved": { headline: "çözümlendi; konu için bir seçim, süreç veya satın alma kaydedildi ve bunu kendi süreci yürütüyor", detail: "yeni bir ilgi anahtarı yeni bir ilgidir" },
     "a.record-no-action": { headline: "Hiçbir şeyin gönderilmeme nedenini kaydet - yeterli bulunmadı, mevcut değil, zaten tutuluyor, izin yok ya da gönderim yolunda bir engel var - böylece burada sık görülen sonuç olan işlem yapılmaması ölçülmüş bir sonuç olur" },
     "w.settle": { headline: "kişiye karşı bir süreç başlatılmadan sistem kaydında bir seçim kaydedilene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar, ya da kişi için herhangi bir konuda yetkili bir satın alma gerçekleşene kadar", detail: "Temas, kişinin konuda duraklamadığından, gerçekten ayrıldığından emin olacak kadar - ama ilgi tazeliğini yitirmeden önce - son ilgiden sonra bekler. (örnek: 12–48 saat; interest.settle_window ayarlanmalı)" },
-    "x.no-action": { headline: "hiçbir temas gönderilmedi; neden kaydedildi - bu sürecin sık görülen sonucu", detail: "aynı ilgi anahtarının soğuma süresi içinde yeniden yeterli bulunması aynı ilgidir; yeni bir anahtar yeni bir ilgidir" },
+    "x.no-action": { headline: "hiçbir temas gönderilmedi; neden kaydedildi - bu sürecin sık görülen sonucu", detail: "aynı ilgi anahtarının cooldown içinde yeniden yeterli bulunması aynı ilgidir; yeni bir anahtar yeni bir ilgidir" },
     "c.state": { headline: "İlgi hâlâ çözümlenmedi mi ve konusu hâlâ mevcut mu?", edges: [{ label: "Çözümlenmedi, konu mevcut", detail: "bir seçim, sipariş veya süreç izlenmedi ve platform konunun mevcut olduğunu belirtiyor" }, { label: "Bu arada çözümlendi", detail: "konu için bir seçim, sipariş veya süreç kaydedildi" }, { label: "Konu kayboldu", detail: "platform artık konunun mevcut olmadığını belirtiyor" }] },
-    "c.sendable": { headline: "Temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon baskı sınırı aşılmadı, kişi üzerinde daha yüksek öncelikli bir çakışma yok ve yürürlükte bir soğuma süresi yok" }, { label: "Baskılandı", detail: "bir engel bunu durduruyor; engel neden olarak kaydedilir" }] },
+    "c.sendable": { headline: "Temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon contact pressure limiti aşılmadı, kişi üzerinde daha yüksek öncelikli bir çakışma yok ve yürürlükte bir cooldown yok" }, { label: "Gönderilmez", detail: "suppression gerekçesi kaydedilir" }] },
     "x.unavailable": { headline: "konu artık mevcut değil; kişinin işleme alamayacağı bir şey hakkında hiçbir şey gönderilmez", detail: "yeni bir ilgi anahtarı yeni bir ilgidir" },
     "a.touch1": { headline: "Baktıkları şeyi şu anki haliyle göster ve ona geri dönecek bir yol ver. Sistemin iddia etmediği hiçbir şeyi iddia etme: ne rezerve stok, ne tutulan fiyat, ne indirim, ne de ne kastettiklerine dair bir varsayım" },
     "w.after": { headline: "kişiye karşı bir süreç başlatılmadan sistem kaydında bir seçim kaydedilene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar, ya da kişi için herhangi bir konuda yetkili bir satın alma gerçekleşene kadar", detail: "Tek temastan sonra örnek, yalnızca bir çözümlenmeyi gözlemleyecek kadar açık kalır; ardından süresi dolar ve başka hiçbir şey gönderilmez. (örnek: 3–7 gün; interest.lifetime ayarlanmalı)" },
-    "x.lapsed": { headline: "bir kez temas edildi, çözümlenmedi; başka hiçbir şey gönderilmez", detail: "yeni bir ilgi anahtarı yeni bir ilgidir ve soğuma süresi işlerken sessizce başlar" },
+    "x.lapsed": { headline: "bir kez temas edildi, çözümlenmedi; başka hiçbir şey gönderilmez", detail: "yeni bir ilgi anahtarı yeni bir ilgidir ve cooldown işlerken sessizce başlar" },
   },
   },
   "ACQ-285": {
-  shortName: "Yeni Müşteri Adayı Karşılama",
+  shortName: "Yeni Lead Karşılama",
   name: "Yakalanan ilgi → hazır olma kontrolü → hedefe uygun ilk temas",
   purpose: "Belirtilen bir ilgiyi, o ilginin gerçekte talep ettiği şeyle yanıtlamak ve kişinin kendisi hakkında söylediklerinin haklı kıldığı noktaya kadar ilerletmek.",
   nodes: {
@@ -1762,7 +1762,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.delivered": { headline: "karşılandı, sürekli iletişime izin verilmedi", detail: "izin taşıyan daha sonraki bir yakalama, sınırlı yolu açar" },
     "w.follow-up": { headline: "kişi nereye gittiğini belirten bir şey yapana kadar - bir yanıt, bir görüşme talebi, bir satın alma - ya da bu iletişimin dayandığı izni geri çekene kadar", detail: "Zaman aşımı: karşılamanın ötesine geçmeden önce, kişiye kendi başına bir hedef belirtmesi için zaman tanınır. (welcome.follow_up ayarlanmalı)" },
     "c.still-open": {
-      headline: "Bu hâlâ hiçbir şey belirtmemiş bir müşteri adayı mı?",
+      headline: "Bu hâlâ hiçbir şey belirtmemiş bir lead mi?",
       edges: [
         { label: "Hazır olduğunu belirtti", detail: "kişi karşılamadan bu yana, artık hazır olduğu bir hedefi belirten bir şey yaptı" },
         { label: "İzin geri çekildi", detail: "yakalama sırasında kaydedilen izin artık sürekli iletişimi kapsamıyor" },
@@ -1781,7 +1781,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   name: "Yeni kayıt → onboarding rotası → uygun yol",
   purpose: "Değere ulaşmak için fiilen gereken işten yola çıkarak onboarding yolunu seç, bu iş başlamadan önce.",
   nodes: {
-    "t.entry": { headline: "Yetkili yaşam döngüsü girişi" },
+    "t.entry": { headline: "Yetkili lifecycle girişi" },
     "a.context": { headline: "Onboarding bağlamını oku: belirtilen hedef, rol, ürün veya kullanım senaryosu, kurulum karmaşıklığı, hesap veya organizasyon türü, varsa uygulama gereksinimi ve yardım talebi. Plan katmanı bunların hiçbirinin yerine geçmez" },
     "c.assisted": { headline: "Buradaki değere ulaşmak destekli onboarding gerektiriyor mu?", edges: [{ label: "Destekli", detail: "kurulum işi gerçekten bir kişi gerektiriyor: bir uygulama, bir geçiş, hesabın tek başına tamamlayamayacağı bir yapılandırma veya açıkça talep edilen bir yardım" }, { label: "Kendi kendine", detail: "kurulum işi, değeri veya planı ne olursa olsun, hesabın tek başına tamamlayabileceği kapsamda" }] },
     "a.assisted": { headline: "Destekli rotayı kaydet ve bu onboarding'e bir insan sahip atayan iç görevi oluştur - rota, onboarding'in bir özelliğidir ve sonraki her adıma taşınır" },
@@ -1853,7 +1853,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "h.activated": { headline: "Aktivasyona ulaşıldı → onboarding'i durdur → benimseme devri", detail: "görüşme olsun olmasın aktivasyona ulaşıldı" },
     "x.declined": { headline: "yardım reddedildi, bekleme süresi devrede", detail: "bekleme süresinden sonra yaşanan yeni bir zorlanma yeniden nitelik kazanabilir; zaten hayır demiş birine aynı teklif tekrar gönderilmez" },
     "a.final": { headline: "Son bir kendi kendine seçenek gönder ve dur. Görüşme üçüncü kez teklif edilmez" },
-    "x.normal": { headline: "kurtarma girişimi kapandı, olağan yaşam döngüsü devam ediyor", detail: "bekleme süresinden sonra, açık ve aktifleşmemiş bir örnekte yaşanan yeni bir zorlanma" },
+    "x.normal": { headline: "kurtarma girişimi kapandı, olağan lifecycle devam ediyor", detail: "bekleme süresinden sonra, açık ve aktifleşmemiş bir örnekte yaşanan yeni bir zorlanma" },
     "w.session": { headline: "destekli görüşmenin sonucu kaydedilene ya da randevu sistem kaydında iptal edilene kadar", detail: "zaman aşımı: Planlanan görüşme saati artı kısa bir ek süre. (struggling_user.session üzerinden yapılandırılır)" },
     "c.outcome": { headline: "Yardımın ardından aktivasyon gerçekleşti mi?", edges: [{ label: "Aktifleşti", detail: "yetkili aktivasyon olayı görüşmenin ardından kaydedildi" }, { label: "Hâlâ aktifleşmedi", detail: "görüşme gerçekleşti ama değer hâlâ üretilmedi" }] },
     "x.no-outcome": { headline: "görüşme sonucu kaydedilmedi", detail: "bu örnekte yardım teklifi tekrarlanmaz; bekleme süresinden sonraki yeni bir zorlanma ayrı bir konudur" },
@@ -1872,7 +1872,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.not-activation": { headline: "aktivasyon kaydedilmedi; onboarding değişmeden sürüyor", detail: "gerçek olay meydana geldiğinde üründen gelir ve uygun bir örnek açar" },
     "a.invalidate": { headline: "Onboarding'de kalan her şeyi geçersiz kıl: bekleyen kurulum hatırlatmaları, onboarding harekete geçirme çağrıları, artık doğru olmayan tamamlanmamış-adım mesajları ve amacı az önce ortadan kalkmış yardım uyarıları - kuyrukta bekleyenler dahil" },
     "c.mandatory": { headline: "Bekleyen zorunlu bir operasyonel gereksinim var mı?", edges: [{ label: "Hâlâ gereken bir şey var", detail: "operasyonel bir yükümlülük karşılanmadı - bir doğrulama, bir fatura bilgisi, bir uyumluluk adımı - bunların hiçbiri değeri engellemedi ama hepsinin gerçekleşmesi gerekiyor" }, { label: "Bekleyen bir şey yok", detail: "olağan kullanımın ötesinde kalan bir yükümlülük yok" }] },
-    "a.spin-off": { headline: "Bekleyen operasyonel gereksinimi kendi yaşam döngüsüne devret. Bu, onboarding'i açık tutmaz ve onboarding onun adına mesaj göndermeye devam etmez" },
+    "a.spin-off": { headline: "Bekleyen operasyonel gereksinimi kendi lifecycle'ına handoff et. Bu, onboarding'i açık tutmaz ve onboarding onun adına mesaj göndermeye devam etmez" },
     "h.adoption": { headline: "Erken benimseme → kullanım derinliği → alışkanlık veya kararlı kullanım", detail: "aktivasyon kaydedildi ve onboarding kapandı" },
   },
   },
@@ -1953,12 +1953,12 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   "CMS-201": {
   shortName: "İletişim Yükümlülüğü Oluşturma",
-  name: "İş olayı → iletişim yükümlülüğü → oluştur veya bastır",
+  name: "İş event'i → iletişim yükümlülüğü → oluştur veya suppression uygula",
   purpose: "Herhangi bir mesaj var olmadan önce, olan bitenle ilgili gerçekten birine borçlu olunup olunmadığına karar ver.",
   nodes: {
-    "t.event": { headline: "Yetkili iş olayı" },
-    "a.evaluate": { headline: "Olay türünü, alıcıyı, bu olay için gerçekten bir iletişim gerekliliği olup olmadığını, amacı, aciliyeti, varlığın mevcut durumunu, halihazırda bekleyen eşdeğer bir iletişimi ve geçerli iletişim kurallarını değerlendir" },
-    "c.required": { headline: "Bu olay ve bu alıcı için bir iletişim gerekliliği var mı?", edges: [{ label: "Var", detail: "bir kural, bir sözleşme veya tanımlı bir beklenti, bu alıcıya bu konuda bir mesaj borçlu olunduğunu söylüyor" }, { label: "Yok", detail: "bu alıcıya bu olay hakkında bilgi verilmesini gerektiren hiçbir şey yok" }] },
+    "t.event": { headline: "Yetkili iş event'i" },
+    "a.evaluate": { headline: "Event türünü, alıcıyı, iletişim gerekliliğini, amacı, aciliyeti, güncel state'i, bekleyen eşdeğer iletişimi ve geçerli gönderim kurallarını değerlendir" },
+    "c.required": { headline: "Bu event ve alıcı için iletişim yükümlülüğü var mı?", edges: [{ label: "Var", detail: "bir kural, sözleşme veya tanımlı beklenti bu alıcıya mesaj gönderilmesini gerektiriyor" }, { label: "Yok", detail: "bu alıcıya event hakkında bilgi verilmesini gerektiren bir kural yok" }] },
     "c.existing": { headline: "Atomik olmayan bir okumanın gösterebildiği kadarıyla, bu alıcı için hâlihazırda bekleyen eşdeğer bir iletişim var mı?", edges: [{ label: "Var ve bunu içine alabilir", detail: "çözülmemiş bir yükümlülük aynı konuyu kapsıyor ve semantik, bunun güncellenmesine izin veriyor" }, { label: "Henüz görünmüyor veya birleştirilemez", detail: "bu okumaya göre bunu kapsayan bekleyen bir şey yok, ya da ikisi gerçekten farklı mesajlar - kimliği asıl kesinleştiren yetkili adım a.create'dir, bu dal yalnızca denemeye değip değmediğine karar verir" }] },
     "a.suppress": { headline: "Hiçbir yükümlülük oluşturulmadığını ve nedenini kaydet. Her olayın bir mesaj üretmesi, insanların hepsini görmezden gelmeyi öğrenmesine yol açar; sonunda önemli olan mesaj da kimsenin açmadığı bir akışın içinde kalır" },
     "a.reuse": { headline: "İkincisini oluşturmak yerine mevcut yükümlülüğü güncelle. Yinelenen bir olayın yinelenen bir mesaj üretmesi, alıcıya aynı şeyin iki kez söylenmesi demektir ve ikinci bildirim, birincisinden şüphe duyulmasına yol açar" },
@@ -1989,22 +1989,22 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.ready": { headline: "Çözümlenen alıcı ve onlar için şu anda geçerli olan hedeflerle birlikte READY_FOR_CHANNEL_SELECTION durumunu kaydet" },
     "x.no-route": { headline: "CONTACT_ROUTE_UNAVAILABLE; yükümlülük karşılanmamış durumda", detail: "yeni geçerli hale gelen bir hedef, bu yükümlülük hâlâ geçerliyken yönlendirmeyi yeniden açar" },
     "w.authorization": { headline: "gerekli doğrulama veya yetkilendirme tamamlanana, reddedilene ya da tamamlanamaz hale gelene kadar", detail: "iletişimin geçerli kaldığı zaman penceresi kadar sonra zaman aşımına uğrar" },
-    "h.permission": { headline: "İletişim amacı → izin ve tercih kontrolü → izin ver, bastır veya alternatif kullan", detail: "kullanılabilir hedefleri olan, çözümlenmiş bir alıcı" },
+    "h.permission": { headline: "İletişim amacı → izin ve tercih kontrolü → gönder, suppression uygula veya alternatif kullan", detail: "kullanılabilir kanalları olan, çözümlenmiş bir alıcı" },
     "c.auth": { headline: "Yetkilendirme nasıl sonuçlandı?", edges: [{ label: "Tamamlandı", detail: "hedef artık bu içerik için yeterli" }, { label: "Reddedildi veya imkânsız", detail: "hedef yeterli hale getirilemiyor" }] },
   },
   },
   "CMS-203": {
   shortName: "Kanal Uygunluğu Çözümleme",
-  name: "İletişim amacı → izin ve tercih kontrolü → izin ver, bastır veya alternatif kullan",
+  name: "İletişim amacı → izin ve tercih kontrolü → gönder, suppression uygula veya alternatif kullan",
   purpose: "Çalışan bir hedefin, amacı göz önünde bulundurulduğunda, bu belirli mesajı taşıyıp taşıyamayacağına karar ver.",
   nodes: {
     "t.resolved": { headline: "Alıcı ve hedefler çözümlendi" },
-    "a.purpose": { headline: "İletişimin amacını sınıflandır - işlemsel, güvenlik, hizmet, zorunlu bildirim, operasyonel, pazarlama veya tanımlı başka bir amaç. Hangi izin kurallarının uygulanacağına amaç karar verir; yanlış sınıflandırma, bir güvenlik uyarısının bir pazarlama tercihi altında bastırılmasına yol açan şeydir" },
-    "a.evaluate": { headline: "Geçerli izni, onayı, kanal tercihini, zorunlu teslim kurallarını ve bastırma durumunu bu amaca göre değerlendir. Bastırma durumu, gönderen tarafında tutulanı da kapsar; izinle birlikte burada okunmasının nedeni budur: sonlandırma bastırması (CON-300, CON-38 tarafından tutulur) kişinin izin kaydı hâlâ evet derken kendi gönderimimize karşı kaydedilir, bu nedenle tanıtım ve yaşam döngüsü amaçlarını kapatır, hizmet, işlemsel, güvenlik ve zorunlu amaçları açık bırakır - amaç kontrolünde yalnızca izne bakan bir mesaj bu bastırmanın içinden doğruca geçip gider. Burada okunan, yetkili izin durumudur - bu akış onu yalnızca tek bir mesaj için değerlendirir, asla belirlemez" },
+    "a.purpose": { headline: "İletişimin amacını sınıflandır: işlemsel, güvenlik, hizmet, zorunlu bildirim, operasyonel, pazarlama veya tanımlı başka bir amaç. Uygulanacak izin ve suppression kurallarını bu sınıf belirler" },
+    "a.evaluate": { headline: "Geçerli izni, onayı, kanal tercihini, zorunlu teslim kurallarını ve suppression state'ini iletişim amacına göre değerlendir. Suppression gönderen tarafta tutuluyorsa izin hâlâ açık olsa bile tanıtım ve lifecycle mesajlarını engeller; hizmet, işlemsel, güvenlik ve zorunlu iletişim kendi kurallarıyla devam eder" },
     "c.rules": { headline: "Bu amaç ve bu kanallar için izin kuralları tanımlı mı?", edges: [{ label: "Tanımlı", detail: "kurallar, hangi kanalların bu amacı taşıyabileceğini ve herhangi bir teslimin zorunlu olup olmadığını belirtir" }, { label: "Tanımlı değil", detail: "bu amacın bu kanalları kullanıp kullanamayacağına dair hiçbir şey belirtilmemiş" }] },
     "c.per-channel": { headline: "Değerlendirme sonucunda ne kullanılabilir kalıyor?", edges: [{ label: "En az bir kanala izin veriliyor", detail: "bir kanal bu amacı bu alıcıya taşıyabilir" }, { label: "Tercih edilen kanala izin verilmiyor ve iletişim zorunlu", detail: "alıcının tercihi olağan yolu kapatıyor, ancak bir kural yine de teslimi zorunlu kılıyor" }, { label: "İzin verilen hiçbir yol yok", detail: "bu amaç için tüm kanallar kapalı" }] },
     "h.review": { headline: "Karar talebi → doğrula → yönlendir, reddet veya beklet", detail: "izin kuralları tanımlanmamış bir iletişim amacı" },
-    "a.candidates": { headline: "Bu amaç için izin verilen kanalları, her birini izin veren kuralla birlikte kaydet. Kuralın kaydedilmesi, göndermeyi savunulabilir ve bastırmayı açıklanabilir kılan şeydir" },
+    "a.candidates": { headline: "Bu amaç için izin verilen kanalları ve her kanala izin veren kuralı kaydet. Böylece hem gönderim hem suppression kararı açıklanabilir kalır" },
     "a.alternate": { headline: "Zorunlu teslim kurallarının fiilen izin verdiği alternatif yolları değerlendir. Zorunlu olması, herhangi bir kanalın işe yarayacağı anlamına gelmez - hangi kanalların bir tercihi aşabileceğini kurallar belirler, kullanılabilecek olanlar yalnızca bunlardır" },
     "a.undeliverable": { headline: "Amacı ve her yolu kapatan kuralı belirterek UNDELIVERABLE_BY_POLICY durumunu kaydet. Bu bir teslim hatası değil, bir politika sonucudur; bunu bir hata olarak kaydetmek, değişmeyecek bir kurala karşı bir yeniden deneme döngüsüne sokar" },
     "h.route": { headline: "Kanal seçimi → yolu belirle → mesajı hazırla", detail: "bu amaç için izin verilen en az bir kanal" },
@@ -2020,29 +2020,29 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   purpose: "Yükümlülüğü fiilen karşılayan en küçük kanal kümesini seç ve mesajı bunlar için oluştur.",
   nodes: {
     "t.permitted": { headline: "İzin verilen kanallar mevcut" },
-    "a.evaluate": { headline: "Amacı, aciliyeti, alıcının tercihlerini, her kanalın yeteneğini, içeriğin gereksinimlerini, teslim güvenilirliğini, yedekleme politikasını ve tanımlıysa maliyeti veya önceliği değerlendir" },
+    "a.evaluate": { headline: "Amacı, aciliyeti, alıcının tercihlerini, kanal yeteneklerini, içerik gereksinimlerini, teslim güvenilirliğini, fallback politikasını ve tanımlıysa maliyet veya önceliği değerlendir" },
     "a.select": { headline: "Birincil yolu seç - yükümlülüğü karşılayabilecek en küçük geçerli küme. Mevcut her kanaldan göndermek titizlik değildir; tek bir olayın dört kez gelmesidir ve alıcı bu tekrarı sistemde bir arıza olarak okur" },
     "c.multi": { headline: "Yükümlülük gerçekten birden fazla kanal gerektiriyor mu?", edges: [{ label: "Açıkça, evet", detail: "bir kural veya yükümlülüğün kendi gerekliliği, birden fazla kanaldan teslim istiyor" }, { label: "Tek yol, bir yedek tutularak", detail: "tek bir kanal yükümlülüğü karşılıyor" }] },
     "a.coordinate": { headline: "Her biri diğerlerinden haberdar olacak şekilde açıkça koordine edilmiş teslimler oluştur; böylece yükümlülük her kanal için bir kez değil, tek seferde kapanır. Koordinesiz paralel gönderimler, üç kez kapanan bir yükümlülük ve kendisine üç kez bildirim yapılan bir alıcı üretir" },
-    "a.single": { headline: "Tek birincil yolu ve başarısız olması durumunda denenecek yedeği kaydet. Yedek beklemede tutulur - şu anda ikinci bir mesaj değil, sonrası için bir yoldur" },
+    "a.single": { headline: "Tek birincil kanalı ve başarısız olursa kullanılacak fallback kanalı kaydet. Fallback beklemede tutulur; aynı anda ikinci bir mesaj göndermez" },
     "a.prepare": { headline: "Kanala uygun mesaj örneğini, iş gerçeklerini bağımsız olarak yeniden ifade etmek yerine onlara referans vererek hazırla ve message_id'yi obligation_id'den deterministik biçimde türet - aynı yükümlülük için hazırlığın yeniden çağrılması (yeniden iletilen bir tetikleyici, yeniden denenen bir çağrı), ikinci bir hazırlanmış örnek yerine aynı message_id'ye karşılık gelir. Kanal seçimi gerçekleri asla değiştirmez - kısaltılmış bir mesaj tam olandan daha azını söyler, ama farklı bir şey söylememelidir" },
-    "h.send-ready": { headline: "Mesaj hazırlandı → durumu yeniden doğrula → gönder veya bastır", detail: "seçilmiş bir yol üzerinde hazırlanmış bir mesaj örneği" },
+    "h.send-ready": { headline: "Mesaj hazırlandı → state'i yeniden doğrula → gönder veya suppression uygula", detail: "seçilmiş kanala göre hazırlanmış bir mesaj" },
   },
   },
   "CMS-205": {
   shortName: "Gönderim Uygunluğu Kontrolü",
-  name: "Mesaj hazırlandı → durumu yeniden doğrula → gönder veya bastır",
+  name: "Mesaj hazırlandı → state'i yeniden doğrula → gönder veya suppression uygula",
   purpose: "Mesajın gönderilmeden hemen önce hâlâ doğru olup olmadığını kontrol et, değilse durdur.",
   nodes: {
     "t.ready": { headline: "Mesaj gönderime hazır duruma ulaşıyor" },
     "a.reread": { headline: "Mesajın tarif ettiği yetkili durumu yeniden oku. Hazırlık ile gönderim arasında randevu iptal edilmiş, ödeme başarıyla tamamlanmış veya onay geri alınmış olabilir - ve bunların her biri yararlı bir mesajı zarar verici bir mesaja dönüştürür. Mesajın kaynaklandığı akış bir rekabet exclusionGroup'u ve kapsamı (GLB-01) tanımlıyorsa, bu yeniden okuma OPS-131'in o (exclusion_group, scope_instance_id) için geçerli olan mevcut sahibini de içerir - gönderim yolunun kendi 3. adımı olan \"akış rekabeti ve önceliği\", hiçbir somut düğümün gerçekleştirmediği bir aşama olarak bırakılmak yerine burada uygulanır, çünkü bu, hangi akıştan geldiğinden bağımsız olarak, rekabetteki her üyenin her mesajının teslimattan hemen önce geçtiği tek noktadır" },
     "c.valid": { headline: "İletişim hâlâ geçerli mi?", edges: [{ label: "Hâlâ geçerli", detail: "mesajın nedeni ve konusu hâlâ geçerliliğini koruyor, ve kaynaklandığı akış bir rekabet alanı tanımlıyorsa, o akış hâlâ kendi (exclusion_group, scope_instance_id) değeri için OPS-131'in geçerli sahibi durumunda" }, { label: "Yerine yeni süreç geçti veya çözüldü", detail: "mesajın konu aldığı olay geri alınmış, iptal edilmiş veya çözülmüş, YA DA mesaj kuyruğa alındıktan sonra kaynaklandığı akış, tanımladığı rekabet kapsamının sahipliğini kaybetmiş - kaybeden bir yarışmacının kuyruğa alınmış mesajı, sadece kaybetmeden önce kuyruğa girdiği için çalışmaya devam etmez (GLB-07)" }, { label: "Alıcı veya kanal artık geçerli değil", detail: "yönlendirmeden bu yana hedef başarısız oldu veya alıcı değişti" }] },
     "c.content": { headline: "İçerik, hazırlıktan bu yana değişmiş verilere mi dayanıyor?", edges: [{ label: "Değişti", detail: "mesajdaki bir tutar, tarih, durum veya ad artık güncel değil" }, { label: "Değişmedi", detail: "mesajın belirttiği her şey hâlâ güncel" }] },
-    "a.suppress": { headline: "Güncelliğini yitirmiş mesajı bastır ve nedenini kaydet. İptal edilmiş bir randevu için gönderilen bir hatırlatma birini boşuna bir yere getirir; ödeme başarılı olduktan sonra gönderilen bir ödeme başarısızlığı bildirimi ise bir destek talebine yol açar ve sonraki her bildirimin güvenilirliğine zarar verir" },
+    "a.suppress": { headline: "Güncelliğini yitirmiş mesajı suppression'a al ve gerekçeyi kaydet. İptal edilen randevu için hatırlatma ya da tamamlanan ödeme için hata bildirimi gönderme" },
     "h.reroute": { headline: "İletişim yükümlülüğü → alıcıyı çöz → hazır, beklemede veya başarısız", detail: "gönderilmeden önce alıcısı veya hedefi geçerliliğini yitirmiş bir mesaj" },
     "a.regenerate": { headline: "Göndermeden önce içeriği güncel verilerden yeniden oluştur. Güncelliğini yitirmiş bir tutar, tarih veya durum göndermek, hiçbir şey göndermemekten daha kötüdür; çünkü alıcı buna göre hareket eder ve sonra bunun yanlış olduğu kendisine söylenmek zorunda kalınır" },
     "a.send": { headline: "Mesajı, ne kontrol edildiğini ve hangi sürüme karşı kontrol edildiğini belirterek gönderim anında doğrulanmış olarak kaydet ve devrettiği gönderim için attempt_id türet. Bu mekanizma her message_id için en fazla bir kez çalışır - CMS-208'in kendi kurtarma döngüsü, bu mekanizmaya geri dönmek yerine akışın ilerisinde bağımsız olarak yeniden dener - dolayısıyla a.send, message_id üzerinde idempotenttir: yeniden iletilen bir t.ready, ikinci bir attempt_id türetip sağlayıcıya yinelenen bir gönderim riski almak yerine, zaten türetilmiş olan attempt_id'yi yeniden kullanır. Geçmişte gönderilmiş mesajlar sonradan asla değiştirilmez - gönderilen şey gönderilmiştir, ve bunu yeniden yazmak yanlış bir şeyin gittiğine dair kanıtı ortadan kaldırır" },
-    "x.suppressed": { headline: "güncelliğini yitirmiş mesaj bastırıldı; hiçbir şey gönderilmedi", detail: "yükümlülük karşılanmış olarak değil, yerine yenisi geçmiş olarak kapanır. Aynı konudaki yeni bir olay kendi yükümlülüğünü oluşturur" },
+    "x.suppressed": { headline: "güncelliğini yitirmiş mesaj suppression'a alındı; gönderim yapılmadı", detail: "yükümlülük tamamlandı olarak değil, yerine yenisi geçti olarak kapanır. Aynı konudaki yeni bir event kendi yükümlülüğünü oluşturur" },
     "h.attempt": { headline: "Gönderim denemesi → kabul edildi, başarısız oldu veya bilinmiyor", detail: "teslimattan hemen önce doğrulanmış bir mesaj" },
   },
   },
@@ -2285,34 +2285,34 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   },
   "CON-38": {
-  shortName: "İletişim Durdurma",
-  name: "İletişim durdurma → gerekçe → serbest bırak veya sürdür",
-  purpose: "Bir şeyin gönderilmeme nedenini bir yokluk olarak değil, açık, kapsamı belli, serbest bırakılabilir bir durum olarak ifade etmek.",
+  shortName: "Suppression",
+  name: "Suppression → gerekçe ve kapsam → kaldır veya sürdür",
+  purpose: "Bir gönderimin neden engellendiğini açık, kapsamı belli ve kaldırılabilir bir state olarak kaydetmek.",
   nodes: {
-    "t.suppression": { headline: "Durdurma koşulu etkinleşti" },
-    "a.record": { headline: "Gerekçeyi, kapsamı, kaynağı, başlangıç zamanını ve varsa serbest bırakma koşulunu kaydet. Kapsam, gerekçe kadar önem taşır: kapsam olmadan hiçbir alt sistem neyin hâlâ izinli olduğunu bilemez" },
-    "c.kind": { headline: "Bu durdurmanın tanımlanabilir bir serbest bırakma koşulu var mı?", edges: [{ label: "Geçici", detail: "bir koşul veya belirli bir zaman bunu sona erdirecek - bir soğuma süresi, bir olay, bir sıklık penceresi, kapanan bir vaka" }, { label: "Kalıcı", detail: "yetkili bir durum değişene kadar sürer - bir geri çekme, yasal bir kısıtlama, geçersiz bir iletişim noktası" }] },
-    "w.release": { headline: "durdurmayı sonlandırmak için kaydedilen koşul karşılanana kadar", detail: "zaman aşımı: gerekçeye uygun bir gözden geçirme süresinin ardından. (configure communication_suppression.release)" },
-    "x.persistent": { headline: "temel durum değişene kadar durduruldu", detail: "buna neden olan durumdaki bir değişiklik yeni bir değerlendirme açar. Burada hiçbir şey silinmedi - kişi, geçmişi ve kaydı olduğu gibi duruyor, yalnızca gönderim durduruldu" },
-    "a.reevaluate": { headline: "Etkilenen süreçlerin şimdi ne yapması gerektiğini yeniden değerlendir ve buna göre hareket et. Durdurma sırasında bekletilenler yeniden gönderilmez - o mesajlar, o zamandan beri değişmiş bir durumu anlatıyordu ve bir haftalık birikimi tek seferde teslim etmek, serbest bırakmayı durdurmanın kendisinden daha kötü hale getirir" },
-    "c.still": { headline: "Gözden geçirmede, gerekçe hâlâ geçerli mi?", edges: [{ label: "Hâlâ geçerli", detail: "buna neden olan koşul ortadan kalkmadı" }, { label: "Artık geçerli değil", detail: "serbest bırakma olayı tetiklenmese de gerekçe geçerliliğini yitirdi" }] },
-    "x.released": { headline: "durdurma kaldırıldı; mevcut durum yeniden değerlendirildi, birikim iptal edildi", detail: "yeni bir durdurma koşulu kendi gerekçesi ve kapsamıyla kendi örneğini açar" },
+    "t.suppression": { headline: "Suppression koşulu aktif oldu" },
+    "a.record": { headline: "Suppression gerekçesini, kapsamını, kaynağını, başlangıç zamanını ve varsa kaldırma koşulunu kaydet" },
+    "c.kind": { headline: "Suppression'ın tanımlı bir kaldırma koşulu var mı?", edges: [{ label: "Geçici", detail: "belirli bir süre, event, frequency penceresi veya kapanan bir vaka suppression'ı kaldıracak" }, { label: "Kalıcı", detail: "izin geri çekme, yasal kısıtlama veya geçersiz iletişim noktası gibi yetkili state değişene kadar sürer" }] },
+    "w.release": { headline: "suppression'ı kaldıracak koşul gerçekleşene kadar", detail: "timeout: gerekçeye uygun review süresinin ardından. (communication_suppression.release ayarlanmalı)" },
+    "x.persistent": { headline: "temel state değişene kadar suppression devam eder", detail: "koşul değiştiğinde yeni bir değerlendirme açılır; kişi ve geçmiş kayıtları korunur, yalnızca gönderim engellenir" },
+    "a.reevaluate": { headline: "Etkilenen journey'lerin güncel state'e göre ne yapması gerektiğini yeniden değerlendir. Suppression sırasında bekleyen mesajları sonradan toplu göndermeden iptal et" },
+    "c.still": { headline: "Suppression gerekçesi hâlâ geçerli mi?", edges: [{ label: "Hâlâ geçerli", detail: "suppression'a neden olan koşul devam ediyor" }, { label: "Artık geçerli değil", detail: "kaldırma event'i gelmese de gerekçe geçerliliğini yitirdi" }] },
+    "x.released": { headline: "suppression kaldırıldı; güncel uygunluk yeniden hesaplandı, bekleyen mesajlar iptal edildi", detail: "yeni bir suppression koşulu kendi gerekçesi ve kapsamıyla yeni bir instance açar" },
   },
   },
   "CON-39": {
-  shortName: "İletişim Soğuma Süresi",
-  name: "İletişim soğuma süresi → isteğe bağlı mesajlaşmayı bekletme → yeniden değerlendirme",
+  shortName: "İletişim Cooldown'u",
+  name: "Cooldown → isteğe bağlı iletişimi beklet → yeniden değerlendir",
   purpose: "İzne dokunmadan ve gerekenden fazlasını kapsamadan, isteğe bağlı iletişim yükünü bir süreliğine azaltmak.",
   nodes: {
-    "t.cooldown": { headline: "Soğuma süresini tetikleyen olay" },
-    "a.create": { headline: "Soğuma süresini, gerekçesinin gerçekten haklı çıkardığı kapsamla oluştur; gerekçeyi, kapsamı, başlangıcı ve ya bir bitiş zamanını ya da erken sonlandıracak koşulu kaydet. cooldown_context'i kendisi oluşturur" },
+    "t.cooldown": { headline: "Cooldown'u başlatan event" },
+    "a.create": { headline: "Cooldown'u gerekçesiyle uyumlu kapsamda oluştur; gerekçeyi, kapsamı, başlangıcı, bitiş zamanını veya erken bitirme koşulunu kaydet" },
     "c.scope": { headline: "Bu gerekçe, zorunlu veya güvenlik iletişimini de bekletmeyi haklı çıkarıyor mu?", edges: [{ label: "Yalnızca isteğe bağlı", detail: "olağan durum - gerekçe güvenlikle değil yükle ilgili" }, { label: "Politika genişletiyor", detail: "belirli bir politika, bekletilmesi gereken zorunlu iletişimi adıyla belirtiyor ve nedenini açıklıyor" }] },
-    "w.cooldown": { headline: "soğuma süresini oluşturan koşulda yetkili bir değişiklik olana kadar", detail: "zaman aşımı: soğuma süresinin ardından" },
-    "a.policy-scope": { headline: "Soğuma süresini yalnızca politikanın belirttiği zorunlu iletişimi kapsayacak şekilde genişlet; bunu hangi politikanın yaptığını kaydet - böylece genişletme miras alınmış değil, izlenebilir olur" },
+    "w.cooldown": { headline: "cooldown'u oluşturan koşul değişene kadar", detail: "timeout: cooldown süresi dolduğunda" },
+    "a.policy-scope": { headline: "Cooldown kapsamını yalnızca politikanın açıkça belirttiği zorunlu iletişimlere genişlet ve ilgili politikayı kaydet" },
     "c.basis": { headline: "Temel koşul nasıl değişti?", edges: [{ label: "Gerekçe ortadan kalktı", detail: "sessiz dönemi haklı çıkaran durum beklenenden erken çözüldü" }, { label: "Gerekçe ağırlaştı", detail: "durum, zamana bağlı bir bekletme yerine açık, gerekçeli bir durdurmayı gerektirir hale geldi" }] },
-    "a.reevaluate": { headline: "Şu anda neyin uygun olduğunu yeniden değerlendir ve buna göre hareket et. Soğuma süresi başladığında kuyrukta bekleyen her şey serbest bırakılmak yerine iptal edilir - birikimi boşaltarak sona eren bir soğuma süresi, bir gecikmeden başka bir şey sağlamamış olur" },
-    "h.suppression": { headline: "İletişim durdurma → gerekçe → serbest bırak veya sürdür", detail: "kendi nedenini aşan bir soğuma süresi" },
-    "x.released": { headline: "soğuma süresi sona erdi; mevcut uygunluk yeniden hesaplandı, birikim iptal edildi", detail: "soğuma süresini tetikleyen yeni bir olay, kendi gerekçesi ve kapsamıyla yeni bir örnek oluşturur" },
+    "a.reevaluate": { headline: "Güncel uygunluğu yeniden değerlendir. Cooldown sırasında kuyrukta bekleyen mesajları sonradan göndermek yerine iptal et" },
+    "h.suppression": { headline: "Suppression → gerekçe ve kapsam → kaldır veya sürdür", detail: "gerekçesini aşan bir cooldown" },
+    "x.released": { headline: "cooldown sona erdi; uygunluk yeniden hesaplandı, bekleyen mesajlar iptal edildi", detail: "cooldown'u tetikleyen yeni bir event, kendi gerekçesi ve kapsamıyla yeni bir instance açar" },
   },
   },
   "CON-40": {
@@ -2484,7 +2484,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.request": { headline: "Bu spesifik deneyim hakkında, kişinin az önce yaşadığı şeyle ilgili olduğunu anlayacağı şekilde geri bildirim iste" },
     "x.not-now": { headline: "ilke olarak uygun, ancak soru sorulmadı", detail: "bu deneyim için varsa bir sonraki an - talep, bütçe açılır açılmaz tetiklenmek üzere kuyruğa alınmaz" },
     "w.response": { headline: "kişi geri bildirim gönderene kadar", detail: "Zaman aşımı: Talep, kişinin kendi zamanında yanıt verebilmesi için yeterince açık kalır ve ardından kapanır; asla tekrarlanmaz. (örnek: 3-7 gün; configure feedback_request.response_window)" },
-    "x.received": { headline: "geri bildirim alındı; ne anlama geldiğini FBK-43 belirler", detail: "bu sürecin görevi talep aşamasında sona erdi; gelen yanıtın kendi yaşam döngüsü var" },
+    "x.received": { headline: "geri bildirim alındı; ne anlama geldiğini FBK-43 belirler", detail: "bu sürecin görevi talep aşamasında sona erdi; gelen yanıtın kendi lifecycle'ı var" },
     "x.no-response": { headline: "soruldu, yanıt gelmedi", detail: "gelecekteki bir deneyim hakkında yeniden soru sorulabilir; burada hiçbir şey sinyal olarak kaydedilmez, çünkü sessizlik memnuniyetsizlik değildir ve sonraki hiçbir süreç bunu öyleymiş gibi okuyamaz" },
   },
   },
@@ -2521,7 +2521,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.route": { headline: "Bu, operasyonel olarak ne anlama geliyor?", edges: [{ label: "Övgü", detail: "olumlu, arkasında somut bir gerekçe var" }, { label: "Hizmet sorunu veya şikayet", detail: "bir şey yanlış gitti, ya da yanlış gittiği iddia ediliyor" }, { label: "Yardım talebi", detail: "bir arıza bildirmek yerine bir konuda yardıma ihtiyaçları var" }, { label: "Ürün geri bildirimi", detail: "bu kişiye karşı herhangi bir yükümlülük doğurmayan, ürünle ilgili bir gözlem" }, { label: "Genel yorum", detail: "saklanmaya değer, yapılacak bir şey yok" }, { label: "Anlamı belirsiz", detail: "anlam, yönlendirme yapılabilecek kadar güvenilir şekilde belirlenemiyor" }] },
     "a.persist-positive": { headline: "Bunu tarihli, kapsamı belirli, olumlu bir ilişki kanıtı parçası olarak kaydet. Bir etiket değil, bir durum değil, bir savunucu işareti değil - bir ana dair bir gerçek" },
     "c.existing": { headline: "Açık bir sorun veya vaka bunu zaten kapsıyor mu?", edges: [{ label: "Zaten açık", detail: "aynı deneyim veya varlıkla ilgili açık bir sorun, anlattıklarıyla eşleşiyor" }, { label: "Açık bir şey yok", detail: "eşleşen açık bir sorun yok" }] },
-    "a.obligation": { headline: "Sahip sürecinde iş kalemini, iki kaydın bağlantılı kalması için geri bildirim kaydı kimliğini de taşıyarak oluştur. Bu noktadan itibaren sorunun kendi yaşam döngüsü ve kendi sahibi vardır; bu kayıt bağımsız olarak açık kalır, çünkü sorunun kapanması ile kişiye geri dönüş yapılması iki farklı olaydır. Talep sahibi burada değil, support_request_received üzerine REM-305 tarafından bilgilendirilir" },
+    "a.obligation": { headline: "Sahip süreçte iş kalemini, iki kaydın bağlantılı kalması için geri bildirim kayıt kimliğiyle oluştur. Bu noktadan itibaren sorunun kendi lifecycle'ı ve sahibi vardır; kayıt bağımsız olarak açık kalır çünkü sorunun kapanması ile kişiye geri dönüş yapılması iki farklı event'tir. Talep sahibi burada değil, support_request_received üzerine REM-305 tarafından bilgilendirilir" },
     "a.product": { headline: "Bunu kanıt olarak ürün girdisine ilet. Karşılığında bu kişiye hiçbir şey borçlu değiliz ve kendilerine hiçbir söz verilmez" },
     "c.acknowledge": { headline: "Bir teyit uygun mu?", edges: [{ label: "Teyit edilmeye değer", detail: "bize doğrudan hitap ettiler ve bir yanıt bekliyor olabilirler" }, { label: "Gerekli değil", detail: "bir teyit gürültüden başka bir şey olmaz" }] },
     "h.triage": { headline: "Karar talebi → doğrula → yönlendir, reddet veya beklet", detail: "güvenilir şekilde sınıflandırılamayan geri bildirim" },
@@ -2534,7 +2534,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.stored": { headline: "kaydedildi; borçlu olunan bir şey yok", detail: "kayıt, ilişki kanıtına katkıda bulunur ve başka bir şeye ihtiyaç duymaz" },
     "a.acknowledge-positive": { headline: "Söyledikleri spesifik şeyi teyit et. Bir övgüye karşılık gönderilen kalıp bir teşekkür, sessizlikten daha kötüdür, çünkü kimsenin okumadığını kanıtlar" },
     "c.contribution": { headline: "Yeniden kullanılabilir bir şey mi sundular - yazılı bir yorum, bir alıntı, bir hikaye?", edges: [{ label: "Bir şey sundu", detail: "sorumuza verdikleri yanıtın ötesinde bir içerik sağladılar" }, { label: "Sadece geri bildirim", detail: "sadece yanıt verdiler, başka bir şey yok" }] },
-    "x.attached": { headline: "mevcut vakaya eklendi", detail: "sonucu vakanın kendi yaşam döngüsü belirler; geri bildirim kaydı kanıt olarak kalır" },
+    "x.attached": { headline: "mevcut vakaya eklendi", detail: "sonucu vakanın kendi lifecycle'ı belirler; geri bildirim kaydı kanıt olarak kalır" },
     "c.actionable": { headline: "Üzerinde işlem yapılabilir operasyonel bir sorun var mı?", edges: [{ label: "İşlem yapılabilir", detail: "düzeltilebilecek somut bir şey var ve bunu düzeltmek bize düşer" }, { label: "İşlem yapılamaz", detail: "karşılayamadığımız bir deneyim, düzeltilecek operasyonel bir şey yok" }] },
     "x.open": { headline: "yükümlülük devam ediyor; süreç kapanmadı", detail: "sonucun daha sonra gelmesi, süreci kapatmak üzere bunu yeniden açar; yükseltmeyi sorunun kendi süreci yönetir ve burada hiçbir şey kaydın tamamlandığı izlenimini vermez" },
     "w.followup": { headline: "söz verilen geri dönüş yapılana kadar", detail: "Zaman aşımı: Söz verilen bir geri dönüş, yalnızca bu sözün kişi için hâlâ bir anlam taşıdığı süre boyunca beklenir; bu sürenin ötesinde bu, tutulmamış bir söz haline gelir ve öyle olarak yükseltilir. Söz, kendi tarihini taşır. (configure feedback.promise_window)" },
@@ -2671,7 +2671,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.aged": { headline: "ufkunu aşmış, hâlâ açık", detail: "eskimiş bir yükümlülüğe ne olacağı bir muhasebe kararıdır - değersizleştirmek kendi yetkisine sahip bir politika eylemidir ve bu süreç bu kararı vermez" },
     "a.version": { headline: "Yükümlülüğü sürümle ve finansal durumu mutabakat et. Bir düzeltme, orijinal tutarın üzerine yazılmaz - yükümlülüğün geçmişi, sonradan çıkacak her itiraz veya mutabakatın referans aldığı şeydir; sessizce değiştirilmiş bir bakiye kimseye açıklanamaz" },
     "h.due": { headline: "Vade durumu değişikliği → önceliği yeniden hesapla → çöz veya yükselt", detail: "yükümlülüğün vadesinin gelmesi veya geçmesi" },
-    "x.adjusted": { headline: "yükümlülük düzeltildi; önceki sürümler korunuyor", detail: "düzeltilen yükümlülük, kendi yaşam döngüsüne yeni tutarından devam eder" },
+    "x.adjusted": { headline: "yükümlülük düzeltildi; önceki sürümler korunuyor", detail: "düzeltilen yükümlülük kendi lifecycle'ında yeni tutarıyla devam eder" },
   },
   },
   "FIN-134": {
@@ -2698,7 +2698,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "h.grace": { headline: "Ek süreye giriş → geçici devamlılık → kurtar veya sonlandır", detail: "ödenmemiş bir yükümlülüğün ek süreye girmesi" },
     "h.overdue": { headline: "Vade durumu değişikliği → önceliği yeniden hesapla → çöz veya yükselt", detail: "ödenmemiş bir yükümlülüğün vadesinin geçmesi" },
     "h.restrict": { headline: "Erişim askıya alma → kısıtlı durum → geri yükle veya sonlandır", detail: "bir yükümlülük ödenmemişken politikanın yeteneği kısıtlaması" },
-    "w.final": { headline: "yükümlülük ana sistemde karşılanana veya sahibi geri dönüş yolunu takip etmeyi bırakana kadar", detail: "zaman aşımı: Kurtarma penceresi, yükümlülük sınıfının kendi ek süre veya sonuç politikasıdır. Sona ermesi, ek süre, vadesi geçmiş veya kısıtlama yaşam döngüsüne ait olan sonucun kendisidir - burada icat edilmiş bir uzatma değildir. (yapılandırma: payment.recovery_window)" },
+    "w.final": { headline: "yükümlülük ana sistemde karşılanana veya sahibi geri dönüş yolunu takip etmeyi bırakana kadar", detail: "zaman aşımı: Kurtarma penceresi, yükümlülük sınıfının kendi ek süre veya sonuç politikasıdır. Sürenin sona ermesi ödeme, gecikme veya kısıtlama lifecycle'ının sonucudur; burada yeni bir uzatma üretilmez. (yapılandırma: payment.recovery_window)" },
   },
   },
   "FIN-136": {
@@ -3144,7 +3144,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.dependents": { headline: "Bu değişiklik kimlik bilgilerini, ulaşılabilirliği veya izinleri etkiliyor mu?", edges: [{ label: "Bağımlılar etkilendi", detail: "öznitelik bir kimlik bilgisi, bir iletişim noktası veya bir iznin temeli olarak kullanılıyor" }, { label: "Hiçbir şey buna bağlı değil", detail: "öznitelik yalnızca betimleyici" }] },
     "a.reconcile": { headline: "Her bağımlıyı bağımsız olarak yeniden değerlendir. Yeni bir e-posta adresi, eskisinin ne teslim edilebilirliğini ne de rızasını devralır - yeni adres, politika açıkça aksini söylemedikçe kendi ulaşılabilirlik durumu ve kendi izniyle, ikisi de boş olarak başlar. Eski değere bağlı kimlik bilgileri kendi koşullarına göre değerlendirilir, buna dayanan izinler de öyle" },
     "x.updated": { headline: "kimlik güncellendi; önceki değere bağlı hiçbir şey yoktu", detail: "aynı özniteliğe yapılacak bir sonraki değişiklik kendi hassasiyetine göre değerlendirilir" },
-    "x.reconciled": { headline: "kimlik güncellendi; her bağımlı kendi koşullarına göre yeniden değerlendirildi", detail: "sonrasında ne olacağına her bağımlının kendi süreci karar verir - ulaşılabilirlik, izin ve kimlik bilgisi yaşam döngüleri ayrı ayrı tetiklenir, çünkü bunların sahipleri ve kuralları farklıdır" },
+    "x.reconciled": { headline: "kimlik güncellendi; her bağımlı kendi koşullarına göre yeniden değerlendirildi", detail: "sonraki adımı her bağımlının kendi journey'si belirler; ulaşılabilirlik, izin ve kimlik bilgisi lifecycle'ları farklı sahip ve kurallarla ayrı ayrı tetiklenir" },
   },
   },
   "IDN-90": {
@@ -3436,7 +3436,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "h.escalate": { headline: "Karar talebi → doğrula → yönlendir, reddet veya beklet", detail: "kalan adayları arasında politikayla çözülebilir bir öncelik bulunmayan bir rekabet" },
     "a.suppress-losers": { headline: "Kazanmayan her adayın kendi tanımlı onLoss davranışını uygula - engellendi, duraklatıldı, yerine yeni süreç geçti ya da çıkış; asla uydurulmuş veya varsayılan bir davranış değil - ve o adayın çalıştırılmak üzere zaten kuyruğa alınmış olan her şeyini, tetiklenmeden önce geçersiz kıl: kaybeden bir adayın kuyruğa alınmış mesajı veya eylemi, sırf kaybetmeden önce kuyruğa alınmış olduğu için çalışma hakkı kazanmaz (GLB-07)" },
     "w.ownership": { headline: "kazanan aday çözülene, süresi dolana, başarısız olana ya da bu kapsam örneği için başka bir şekilde uygunluğunu yitirene kadar", detail: "kazanan adayın kendi geçerli politikası makul bir azami sahiplik süresi belirtiyorsa, sınırlı bir kontrol aralığı geçtiğinde zaman aşımına uğrar; aksi halde serbest bırakma olayının kendisinin ötesinde zaman aşımına dayalı bir kontrol borcu yoktur" },
-    "a.reevaluate": { headline: "(exclusion_group, scope_instance_id) için hakemliği, herhangi birinin son kazandığı veya kaybettiği andaki konumundan değil, güncel yetkili durumdan yeniden çalıştır (GLB-06). Daha önce engellenmiş bir aday hiçbir zaman kaldığı yerden basitçe devam ettirilmez (GLB-10) - tıpkı yeni bir aday gibi yeniden girer; güncel uygunluk, niyet, varlık durumu, izin, soğuma süresi (cooldown) ve hedef tamamlanması açısından değerlendirilir - GLB-06'nın kendisinin adlandırdığı aynı liste" },
+    "a.reevaluate": { headline: "(exclusion_group, scope_instance_id) için hakemliği, herhangi birinin son kazandığı veya kaybettiği andaki konumundan değil, güncel yetkili durumdan yeniden çalıştır (GLB-06). Daha önce engellenmiş bir aday hiçbir zaman kaldığı yerden basitçe devam ettirilmez (GLB-10) - tıpkı yeni bir aday gibi yeniden girer; güncel uygunluk, niyet, varlık durumu, izin, cooldown (cooldown) ve hedef tamamlanması açısından değerlendirilir - GLB-06'nın kendisinin adlandırdığı aynı liste" },
   },
   },
   "REL-100": {
@@ -3489,7 +3489,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.authority": { headline: "Bu ilişkinin kurulması taraflardan birinin doğrulamasını veya onayını gerektiriyor mu?", edges: [{ label: "Doğrulama veya onay gerekli", detail: "ilişki, bir tarafın kabul etmesi gereken haklar, sorumluluk veya görünürlük sağlıyor" }, { label: "Hiçbiri gerekli değil", detail: "ilişki idari niteliktedir ve onay gerektiren hiçbir şey sağlamaz" }] },
     "h.verify": { headline: "Doğrulama gereksinimi → kanıt topla → engellenen süreci sürdür", detail: "oluşturulması doğrulama veya onaya bağlı bir ilişki" },
     "c.valid": { headline: "İlişki, mevcut kanıtlara göre geçerli mi?", edges: [{ label: "Geçerli", detail: "dayanak yeterlidir ve bu varlık türleri arasında ilişkiye izin verilmektedir" }, { label: "Kanıt bekleniyor", detail: "ilişki makul görünüyor ancak dayanak henüz yeterli değil" }, { label: "Geçersiz", detail: "ilişkiye izin verilmiyor ya da dayanak buna ters düşüyor" }] },
-    "a.activate": { headline: "Türü, yönü, kapsamı ve yürürlük zamanıyla birlikte ACTIVE_RELATIONSHIP kaydını oluştur. Bir ilişki kurmak iki varlığı birbirine bağlar, hiçbir şeyi birleştirmez - her iki varlık da kendi kimliğini, kendi yaşam döngüsünü ve kendi geçmişini korur" },
+    "a.activate": { headline: "Türü, yönü, kapsamı ve yürürlük zamanıyla birlikte ACTIVE_RELATIONSHIP kaydını oluştur. Bir ilişki kurmak iki varlığı birbirine bağlar, hiçbir şeyi birleştirmez - her iki varlık da kendi kimliğini, kendi lifecycle'ını ve kendi geçmişini korur" },
     "x.pending": { headline: "PENDING_EVIDENCE; ilişki etkin değil", detail: "yeterli dayanağın sonradan sağlanması ilişkiyi etkinleştirir. Bekleyen bir ilişkiden hiçbir şey doğmaz; bekleyen ile etkin arasındaki fark da budur" },
     "x.rejected": { headline: "REJECTED; ilişki oluşturulmadı", detail: "farklı bir dayanak kendi koşullarına göre ayrıca değerlendirilir" },
     "x.active": { headline: "ACTIVE_RELATIONSHIP", detail: "üzerindeki değişiklikler REL-92'ye, sonlanması ise REL-93'e aittir" },
@@ -3630,7 +3630,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   "RET-21": {
   shortName: "Etkileşim Yeniden Sınıflandırması",
-  name: "Etkileşim durumu değişikliği → yeniden sınıflandırma → uygun yaşam döngüsü",
+  name: "Etkileşim durumu değişikliği → yeniden sınıflandırma → uygun lifecycle",
   purpose: "Etkileşimi her iki yöne de hareket edebilen bir durum olarak ele alın ve bir hareketin harekete geçmeye değip değmediğine ayrı olarak karar verin.",
   nodes: {
     "t.changed": { headline: "Etkileşim durumu belirgin şekilde değişti" },
@@ -3902,7 +3902,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.release": { headline: "Kapasiteyi serbest bırak ve tutmayı SERBEST BIRAKILDI olarak kaydet. Serbest bırakma işlemi idempotenttir - zaten serbest bırakılmış bir tutmayı tekrar serbest bırakmak, kapasiteyi ikinci kez iade etmek yerine hiçbir şeyi değiştirmez; bu iki davranış arasındaki fark, tek bir slota kaç kişinin rezerve edilebileceğini belirler" },
     "c.still-needed": { headline: "Tutulan kapasite hâlâ aktif bir şey tarafından gerekli mi?", edges: [{ label: "Artık gerekli değil", detail: "bu kapasitenin tutulmasına bağlı başka hiçbir şey yok" }, { label: "Hâlâ gerekli", detail: "aynı talep sahibine ait başka bir aktif rezervasyon adımı buna bağlı" }] },
     "x.expired": { headline: "SÜRESİ DOLDU; kapasite serbest bırakıldı ve tekrar müsait", detail: "aynı talep sahibi, hâlâ boşsa aynı slot için yeni bir tutma alabilir; bu, mevcut tutmanın uzatılması değil, yeni bir tutmadır" },
-    "x.consumed": { headline: "onaylanan bir rezervasyona dönüştürüldü; kapasite bir daha hiç boşa geçmedi", detail: "kapasiteye artık rezervasyon sahiptir. Bir iptal, bu tutma üzerinden değil, iptal yaşam döngüsü üzerinden kapasiteyi serbest bırakır" },
+    "x.consumed": { headline: "onaylanan bir rezervasyona dönüştürüldü; kapasite bir daha hiç boşa geçmedi", detail: "kapasiteye artık rezervasyon sahiptir. Bir iptal, bu tutma üzerinden değil, iptal lifecycle'ı üzerinden kapasiteyi serbest bırakır" },
     "x.released": { headline: "SERBEST BIRAKILDI; kapasite tekrar müsait", detail: "bu tutmaya karşı tekrarlanan bir serbest bırakma işlemi, kapasiteyi ikinci kez iade etmek yerine hiçbir etkisi olmayan bir işlemdir" },
   },
   },
@@ -3939,13 +3939,13 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.determine": { headline: "Bu rezervasyonun gerçekten ihtiyaç duyduğu hizmet öncesi gereksinimleri belirle - formlar, belgeler, talimatlar, kaynak hazırlığı, doğrulama, ön ödeme, giriş yapma zorunluluğu, sağlayıcı hazırlığı. Hangilerinin geçerli olduğu, standart bir liste değil, bu hizmetin bir özelliğidir; standart listeyi uygulamak, insanlardan randevularının ihtiyaç duymadığı şeyleri istemek anlamına gelir" },
     "c.existing": { headline: "Her ön koşul zaten karşılanmış veya zaten yürütülüyor mu?", edges: [{ label: "Zaten halledildi", detail: "gereksinim karşılandı, veya buna yönelik bir süreç zaten aktif" }, { label: "Eksik", detail: "gereksinim ne karşılanmış ne de devam ediyor" }] },
     "a.skip": { headline: "Tekrarlama. Geçen ay tamamlanmış bir doğrulama tamamlanmıştır; onu yeniden çalıştırmak tek bir gereksinim için ikinci bir süreç açar ve müşteriden zaten verdiği bir şeyi tekrar ister" },
-    "a.initiate": { headline: "Her eksik ön koşulu kendi yaşam döngüsünde başlat. Bunlar çalışırken rezervasyonun zamanı değişmez ve hiçbiri rezervasyonun sahibi değildir" },
+    "a.initiate": { headline: "Her eksik ön koşulu kendi lifecycle'ında başlat. Bunlar çalışırken rezervasyonun zamanı değişmez ve hiçbiri rezervasyonun sahibi değildir" },
     "w.prepare": { headline: "Müşteriye ait tüm ön koşullar tamamlanmış olarak kaydedilene, veya rezervasyon iptal edilene, ertelenene ya da esaslı biçimde değişene kadar bekle", detail: "zaman aşımı: Kontrol noktası, hizmet öncesi politikanın bu hizmet sınıfı için planlanan zamandan önce tanımladığı süredir; kontrol noktasında karşılanmamış olan her şey, daha fazla beklenmeden yükseltilir. (yapılandırma: scheduling.readiness_checkpoint)" },
     "c.event": { headline: "Bekleyişi ne sonuçlandırdı?", edges: [{ label: "Hazırlık tamamlandı", detail: "kontrol noktasından önce her ön koşul tamamlandı" }, { label: "Rezervasyon değişti", detail: "rezervasyon ertelendi, iptal edildi veya esaslı biçimde değiştirildi" }] },
     "c.critical": { headline: "Çözülmemiş bir ön koşul hizmetin verilmesi için kritik mi?", edges: [{ label: "Kritik", detail: "hizmet onsuz düzgün verilemez" }, { label: "Kritik değil", detail: "hizmet devam edebilir ve gereksinim sonradan tamamlanabilir" }] },
     "a.ready": { headline: "Hangi ön koşulların tamamlandığını ve hangilerinin eksik ama kritik olmadığını belirterek HAZIR veya YAKLAŞAN olarak kaydet. Bir hatırlatmanın gönderilmiş olması, hazırlığın tamamlanmış olmasından ayrı kaydedilir; çünkü ilki bizim yaptığımız bir şeydir, ikincisi ise gerçekleşen bir şeydir" },
     "x.superseded": { headline: "hazırlık, rezervasyondaki bir değişiklikle geçersiz kılındı", detail: "sonrasında ne olacağını erteleme veya iptal belirler. Hazırlık, taşınmak yerine yeni rezervasyona göre yeniden türetilir; çünkü farklı bir zaman farklı şeylere ihtiyaç duyabilir" },
-    "a.at-risk": { headline: "Politikaya göre RİSK_ALTINDA veya BEKLETİLDİ olarak kaydet, eksik ön koşulu belirterek. Onaylanmış zaman burada değiştirilmez - bir hazırlığın başarısız olması birini yükseltmek veya biriyle iletişime geçmek için bir neden yaratır; randevuyu ötelemek ise erteleme yaşam döngüsüne ait bir rezervasyon kararıdır" },
+    "a.at-risk": { headline: "Eksik ön koşulu belirterek politikaya göre RİSK_ALTINDA veya BEKLETİLDİ olarak kaydet. Onaylanmış zamanı değiştirme; randevuyu ötelemek erteleme lifecycle'ına ait ayrı bir rezervasyon kararıdır" },
     "x.upcoming": { headline: "HAZIR veya YAKLAŞAN; taahhüt geçerliliğini koruyor ve koşulları kaydedilen durumda", detail: "hizmet zamanındaki yeniden doğrulama, bu hazırlık kaydını değil, rezervasyonun o anki güncel durumunu okur; bu kayıt yazıldığı anda doğruydu" },
     "h.escalate": { headline: "Sorumluluk yükseltme → üst yetkili → çözüm veya iade", detail: "hizmet öncesi kontrol noktasında çözülmemiş kritik bir ön koşul" },
   },
@@ -4151,7 +4151,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "w.rebook": { headline: "Aynı taahhüt için yeni bir rezervasyon oluşturulana, veya müşteri başka bir rezervasyonu reddedene kadar bekle", detail: "zaman aşımı: Teklif, içinde belirtilen pencere boyunca geçerlidir; pencere geçtiğinde örnek kapanır ve teklif tekrar sunulmaz. (örnek: 7 gün–14 gün; yapılandırma: no_show.rebooking_window)" },
     "x.closed": { headline: "yeniden rezervasyon olmadan kapatıldı", detail: "müşteriden sonradan gelen bir talep, bu değil, olağan yol üzerinden rezervasyonu yeniden açar" },
     "c.outcome": { headline: "Teklif nasıl sonuçlandı?", edges: [{ label: "Yeniden rezerve edildi", detail: "aynı taahhüde karşı yeni bir rezervasyon var" }, { label: "Reddedildi", detail: "müşteri başka bir rezervasyon istemediğini söyledi" }] },
-    "x.rebooked": { headline: "yeniden rezerve edildi", detail: "yeni rezervasyonun kendi yaşam döngüsü var ve sonraki bir kaçırma yine buraya girer" },
+    "x.rebooked": { headline: "yeniden rezerve edildi", detail: "yeni rezervasyonun kendi lifecycle'ı var ve sonraki bir kaçırma yine buraya girer" },
   },
   },
   "SCH-282": {
@@ -4253,12 +4253,12 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   purpose: "Başarısız bir yenileme ödemesi tahsil edilmeye çalışılırken ilişkinin ne yapacağına, otomatik olarak sonlandırmadan karar vermek.",
   nodes: {
     "t.failed": { headline: "Yenileme ödemesi başarısız oldu" },
-    "a.recovery": { headline: "Başarısızlığı, sınıflandırma ve tahsilatın sahibi olan ödeme tahsilatı yaşam döngüsüne ilet. Bu süreç parayı takip etmez; o süreç işlerken ilişkinin durumunu tutar - ilişkiyi tamamen devretmemesinin nedeni budur" },
+    "a.recovery": { headline: "Başarısızlığı, sınıflandırma ve tahsilatın sahibi olan ödeme tahsilatı lifecycle'ına handoff et. Bu journey parayı takip etmez; tahsilat sürerken ilişkinin durumunu tutar" },
     "c.policy": { headline: "Yönetici politika, bu ilişki için ek süre veya düşme anlamını tanımlıyor mu?", edges: [{ label: "Tanımlı", detail: "politika, tahsilat sırasında ilişkinin hangi durumu alacağını, hangi erişimi ne kadar süreyle koruyacağını belirtiyor" }, { label: "Tanımlı değil", detail: "başarısız bir yenileme ödemesi ile düşme arasında ne olacağını kapsayan bir politika yok" }] },
     "a.state": { headline: "Politikanın tahsilat sırasında tanımladığı ilişki durumunu uygula - ACTIVE_IN_GRACE, RENEWAL_PENDING, RESTRICTED veya LAPSE_PENDING. Karşı tarafın hangi erişimi koruyacağı bu durumdan ve politikadan belirlenir; her şeyi çalışır bırakmak veya her şeyi kapatmak gibi bir varsayımdan asla belirlenmez" },
     "h.undefined": { headline: "Karar talebi → doğrulama → yönlendirme, ret veya bekletme", detail: "ek süre veya düşme anlamı tanımlanmamış, başarısız bir yenileme ödemesi" },
     "c.restrict": { headline: "Tahsilat durumu, kullanım kabiliyetini kısıtlıyor mu?", edges: [{ label: "Kısıtlıyor", detail: "politika, tahsilat sırasında ilişkinin ne için kullanılabileceğini sınırlıyor" }, { label: "Tam erişim devam ediyor", detail: "politika, ek süre boyunca ilişkiyi tam olarak kullanılabilir tutuyor" }] },
-    "a.restrict": { headline: "Kısıtlamayı, politikanın tanımladığı kapsamla birlikte erişim yaşam döngüsüne ilet. Neyin nasıl kapatılacağının sahipliği orada kalır; ilişkinin sözleşmesel durumunun sahipliği ise burada kalır" },
+    "a.restrict": { headline: "Kısıtlamayı, politikanın tanımladığı kapsamla birlikte erişim lifecycle'ına handoff et. Neyin nasıl kapatılacağının sahipliği orada, ilişkinin sözleşmesel durumunun sahipliği burada kalır" },
     "w.recovery": { headline: "yükümlülük sistem kaydında karşılanana ya da yükümlülüğe yönelik yetkili bir alternatif çözüm üzerinde anlaşılana kadar", detail: "zaman aşımı süresi: Ek süre durumu, bu abonelik sınıfı için ek süre politikasının tanımladığı kadar sürer; bitişi bir sonuçtur, burada icat edilmiş bir uzatma değildir. (önerilen: politikanın bu abonelik sınıfı için tanımladığı ek süre son tarihi; yapılandır: renewal_payment.grace_deadline)" },
     "c.outcome": { headline: "Yükümlülük nasıl çözüldü?", edges: [{ label: "Ödeme tahsil edildi", detail: "asıl yükümlülük yetkili biçimde karşılandı" }, { label: "Alternatif bir çözüm onaylandı", detail: "farklı bir yöntem, kısmi bir düzenleme veya bir feragat bunu çözdü" }] },
     "a.lapse": { headline: "Bu ilişkinin kendi anlamının tanımladığı sonucu kaydet - LAPSED, EXPIRED veya NON_RENEWED. Bunlar gerçekten farklı şeyler için farklı kelimelerdir; hangisinin geçerli olduğu, karşı tarafa ne söyleneceğini ve sonrasında ne yapabileceğini değiştirir" },
@@ -4344,33 +4344,33 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.dates": { headline: "Yönetici politika, askıya alma sırasında yenileme veya bitiş tarihlerini kaydırıyor mu?", edges: [{ label: "Politika kaydırıyor", detail: "koşullar, askıda kalındığı sürece ilişkinin tarihlerini açıkça uzatıyor ya da duraklatıyor" }, { label: "Politika olduğu gibi bırakıyor", detail: "koşullar duraklatma hakkında hiçbir şey söylemiyor ya da tarihleri açıkça sabit tutuyor" }] },
     "a.adjust": { headline: "Politikanın tanımladığı ayarlamayı uygula; dönemi sessizce düzenlemek yerine bunu, dayanağıyla birlikte bir ayarlama olarak kaydet. Tarihlerin kayması bir kuralın sonucudur ve kayıt hangi kuralın bu olduğunu belirtmelidir" },
     "a.keep": { headline: "Yenileme ve bitiş tarihlerini olduğu yerde bırak. Bunları sessizce ileriye çekmek, kimsenin uzatılmasına onay vermediği bir ilişkiyi uzatır ve aylar sonra, karşı tarafın haberi olmadığı bir tarihte beklemediği bir ücret olarak karşısına çıkar" },
-    "a.restrict": { headline: "SUSPENDED olarak kaydet ve askıya almanın gerektirdiği kabiliyet kısıtlamasını, neyin nasıl kapatılacağının sahibi olan erişim yaşam döngüsüne ilet. Bu süreç ilişkinin sözleşmesel durumunun sahibidir; askıya alınmış, iptal edilmiş demek değildir ve ilişki bundan tamamen sağ çıkar" },
+    "a.restrict": { headline: "SUSPENDED olarak kaydet ve gerekli erişim kısıtlamasını, uygulamanın sahibi olan erişim lifecycle'ına handoff et. Bu journey ilişkinin sözleşmesel durumunu tutar; askıya alınmış olmak iptal edilmiş olmak değildir" },
     "w.suspension": { headline: "askıya almanın nedeni çözülene ya da nihai bir karar kaydedilene kadar", detail: "zaman aşımı süresi: Politikanın tanımladığı azami askıya alma süresi. (yapılandır: relationship_suspension.suspension)" },
     "c.outcome": { headline: "Askıya alma nasıl sonuçlandı?", edges: [{ label: "Neden çözüldü", detail: "belirtilen geri yükleme koşulu yetkili biçimde karşılandı" }, { label: "Nihai bir karar alındı", detail: "ilişki devam etmek yerine sona erecek" }] },
     "h.review": { headline: "Karar talebi → doğrulama → yönlendirme, ret veya bekletme", detail: "azami süresine karara bağlanmadan ulaşan bir askıya alma" },
     "a.revalidate": { headline: "İlişkinin güncel koşullarını yeniden oku ve kabiliyeti bunlardan yeniden oluştur. Askıya alma anında alınmış bir anlık görüntüden geri yüklemek, ilişkinin artık içermeyebileceği bir hakkı geri verebilir - plan değişmiş olabilir, dönem farklı bir kapsamla yenilenmiş olabilir ve aylarca süren bir askıya alma genellikle bunlardan en az birine denk gelir" },
     "h.end": { headline: "İlişki sonu → nihai mutabakat → eski veya süresi dolmuş durum", detail: "devam etmeyecek, askıya alınmış bir ilişki" },
     "c.still": { headline: "İlişki hâlâ var mı ve geri yüklemeyi hâlâ destekliyor mu?", edges: [{ label: "Evet", detail: "ilişki sağlam ve güncel koşulları devam etmeyi destekliyor" }, { label: "Hayır", detail: "ilişki askıdayken sona erdi, düştü veya süresi doldu" }] },
-    "a.restore": { headline: "Yeniden ACTIVE olarak kaydet ve kabiliyet geri yüklemesini, önceden sahip olduğu şeye değil ilişkinin güncel koşullarına dayanarak erişim yaşam döngüsüne ilet" },
+    "a.restore": { headline: "Yeniden ACTIVE olarak kaydet ve erişimi, eski haklara değil ilişkinin güncel koşullarına göre geri yüklemek üzere erişim lifecycle'ına handoff et" },
     "x.restored": { headline: "güncel koşullarla ACTIVE durumuna geri yüklendi", detail: "sonraki bir askıya alma, kendi nedeni ve kendi geri yükleme koşuluyla yeni bir askıya almadır. Öncekisi kayıtta kalır" },
   },
   },
   "SUB-170": {
   shortName: "Süregelen İlişki Sonu Mutabakatı",
   name: "İlişki sonu → nihai mutabakat → eski veya süresi dolmuş durum",
-  purpose: "İlişkinin tanıdığı hakları durdururken, yarattığı her şeyin kendi yaşam döngüsünü sürdürmesine izin vermek.",
+  purpose: "İlişkinin tanıdığı hakları durdururken, yarattığı her şeyin kendi lifecycle'ını sürdürmesine izin vermek.",
   nodes: {
     "t.end": { headline: "İlişki sonu yürürlüğe girdi" },
     "a.record": { headline: "Sonlanma nedenini, yürürlük bitişini, son dönemi ve sonlandıran yetkiyi kaydet. Beş nedenden hangisinin geçerli olduğu saklanır - iptal edildi, yenilenmedi, süresi doldu, feshedildi ve düştü, bunu sonradan okuyan herkes için ve karşı tarafın sonrasında ne yapabileceği açısından farklı anlamlara gelir" },
     "a.stop": { headline: "İlişkiye bağlı gelecekteki etkinlikleri durdur - planlı yenilemeler, tekrarlayan teslimatlar, yaklaşan ücretlendirmeler, sıraya alınmış ilişki kapsamlı iletişimler. Durdurulan şey gelecektir. Zaten teslim edilmiş ya da zaten borçlu olunan hiçbir şeye dokunulmaz" },
-    "a.entitlement-loss": { headline: "Hak geri alımını burada bir şeyi kapatmak yerine hak tanıma yaşam döngüsüne ilet. Hangi hakların bir sonlanmadan sağ çıkacağı ve hangilerinin çıkmayacağı, hakların kendi özelliğidir; bunu yerel olarak karara bağlayan bir ilişki kaydı, sonunda kimin ne yapabileceği konusunda hak tanıma yaşam döngüsüyle çelişir" },
-    "a.wind-down": { headline: "Her bağımlı alanın ihtiyaç duyduğu tasfiye sürecini ilet - hizmetten çıkarma, nihai faturalandırma, varsa borçlu olunan iade veya kredi, açık teslimatlar ve geçerliyse veri saklama. Her biri kendi yaşam döngüsünde işler ve kendi sonucuna ulaşır; hiçbiri burada uygulanmaz" },
+    "a.entitlement-loss": { headline: "Hak geri alımını burada uygulamak yerine hak tanıma lifecycle'ına handoff et. Hangi hakların sonlandırmadan sonra süreceği, hakkın kendi kuralıdır; burada ayrıca karar verilirse iki lifecycle çelişebilir" },
+    "a.wind-down": { headline: "Her bağımlı alanın ihtiyaç duyduğu tasfiye sürecini ilet - hizmetten çıkarma, nihai faturalandırma, varsa borçlu olunan iade veya kredi, açık teslimatlar ve geçerliyse veri saklama. Her biri kendi lifecycle'ında işler ve kendi sonucuna ulaşır; hiçbiri burada uygulanmaz" },
     "c.obligations": { headline: "İlişki aktifken oluşan geçerli yükümlülükler hâlâ var mı?", edges: [{ label: "Var", detail: "dönem boyunca oluşan açık siparişler, ödenmemiş tutarlar, borçlu olunan iadeler, anlaşmazlıklar veya telafiler hâlâ geçerli" }, { label: "Yok", detail: "dönem boyunca oluşan her şey zaten çözüme kavuşmuş" }] },
-    "a.preserve": { headline: "Bu yükümlülükleri koru ve kendi yaşam döngülerinde çözüme kavuşmalarına izin ver. Abonelik aktifken verilen bir sipariş hâlâ borçludur, hâlâ borçlu olunan bir iade hâlâ borçludur ve hâlâ açık olan bir anlaşmazlık hâlâ açıktır. Sonlanma gelecekteki hakları durdurur, her iki yönde de zaten yapılmış taahhütleri iptal etmez" },
+    "a.preserve": { headline: "Bu yükümlülükleri koru ve kendi lifecycle'larında sonuçlanmalarına izin ver. Abonelik aktifken oluşan sipariş, iade veya anlaşmazlık sonlandırmayla ortadan kalkmaz; sonlandırma yalnızca gelecekteki hakları durdurur" },
     "c.complete": { headline: "İlişkiye özgü operasyonel yükümlülükler tamamlandı mı?", edges: [{ label: "Tamamlandı", detail: "bu ilişkinin kendisinin gerektirdiği tasfiye süreci sona erdi" }, { label: "Hâlâ sürüyor", detail: "hizmetten çıkarma, nihai faturalandırma veya ilişki kapsamındaki başka bir tasfiye süreci hâlâ devam ediyor" }] },
-    "a.terminal": { headline: "İlişkinin kendi anlamının tanımladığı nihai durumu kaydet - FORMER, EXPIRED veya TERMINATED. Bu, ilişkinin sona ermesidir. Hesabın kapanması ya da verinin silinmesi değildir; bunların ikisi de kendi yetkisi ve kendi yaşam döngüsü olan ayrı kararlardır ve hiçbiri bundan otomatik olarak doğmaz" },
+    "a.terminal": { headline: "İlişkinin kendi anlamının tanımladığı nihai durumu kaydet - FORMER, EXPIRED veya TERMINATED. Bu, ilişkinin sona ermesidir. Hesabın kapanması ya da verinin silinmesi değildir; bunların ikisi de kendi yetkisi ve kendi lifecycle'ı olan ayrı kararlardır ve hiçbiri bundan otomatik olarak doğmaz" },
     "w.winddown": { headline: "tasfiye süreci tamamlanana kadar", detail: "zaman aşımı süresi: Sonda hâlâ süren ilişkiye özgü yükümlülüklere, politikanın tanımladığı tasfiye penceresi verilir; bu sürenin ötesinde tasfiye süreci sorumluya yükseltilir. (yapılandır: continuing_relationship.winddown)" },
-    "x.former": { headline: "FORMER, EXPIRED veya TERMINATED; hesap, geçmiş ve sağ kalan yükümlülükler geçerliliğini korur", detail: "yeni bir abonelik, sözleşme ya da üyelik, bu ilişkinin devamı değil yeni bir ilişkidir. Geçmişi okunabilir kalır ve dönemi boyunca meşru şekilde oluşturduğu her şey, kendi yaşam döngüsü onu çözene kadar borçlu kalmaya devam eder" },
+    "x.former": { headline: "FORMER, EXPIRED veya TERMINATED; hesap, geçmiş ve devam eden yükümlülükler korunur", detail: "yeni abonelik, sözleşme veya üyelik yeni bir ilişkidir. Geçmiş okunabilir kalır; açık yükümlülükler kendi lifecycle'ı sonuçlandırana kadar devam eder" },
     "h.escalate": { headline: "Sorumluluk yükseltmesi → üst makam → çözüm veya iade", detail: "penceresini aşan bir ilişki tasfiyesi" },
   },
   },
@@ -4434,7 +4434,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.recheck-final": { headline: "Varlık hâlâ ek süre içinde ve çözülmemiş mi?", edges: [{ label: "Hâlâ çözülmemiş", detail: "kurtarma gerçekleşmedi ve varlık, zaman aşımı tetiklendiğinden bu yana sonlandırılmadı" }, { label: "Zaten çözüldü", detail: "zaman aşımının tetiklenmesi ile bu yeniden okuma arasında kurtarma veya sonlandırma gerçekleşti" }] },
     "x.recovered": { headline: "pencere içinde kurtarıldı", detail: "sonraki bir düşüş, yeni bir ek süre ve yeni bir örnek açar" },
     "a.lost": { headline: "Pencerenin kapandığını, artık neyin kullanılamaz olduğunu ve farklı koşullarla bile olsa bir geri dönüş yolu olup olmadığını açıkça söyle. Pencerenin kapandığı kendisine söylenmeyen bir sahip, açık olduğunu varsaymaya devam eder" },
-    "x.lost": { headline: "pencere kurtarılmadan kapandı", detail: "daha sonra verilen bir geçerlilik yeni bir yaşam döngüsü başlatır; buraya yeniden girmek için yeni bir düşüş gerekir" },
+    "x.lost": { headline: "pencere kurtarılmadan kapandı", detail: "daha sonra verilen bir geçerlilik yeni bir lifecycle başlatır; buraya yeniden girmek için yeni bir düşüş gerekir" },
   },
   },
   "TIM-281": {
@@ -4578,7 +4578,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.verified": { headline: "Kapatma yürürlüğe girdi mi?", edges: [{ label: "Kapatıldı", detail: "hesap artık yasaklı işlemlere izin vermiyor" }, { label: "Tam uygulanmadı", detail: "hesap bir yerlerde hâlâ etkin durumda" }] },
     "c.recheck": { headline: "Bu engel giderildikten sonra önünde başka bir şey var mı?", edges: [{ label: "Engel yok", detail: "geriye hiçbir engel kalmadı" }, { label: "Yeni engeller", detail: "birini gidermek başkalarını ortaya çıkardı ya da olduğu gibi bıraktı" }] },
     "x.lapsed": { headline: "engeller giderilmeden kapatma talebinin süresi doldu", detail: "yeni bir talep, o sırada geçerli olan engellere karşı yeniden değerlendirilir" },
-    "a.confirm-closure": { headline: "Hesap ilişkisinin kapandığını onaylayın ve kapatmanın ne olmadığını açıkça belirtin - bu bir abonelik iptali değildir, bir veri silme işlemi de değildir; ikisinin de kendi yaşam döngüsü ve kendi kanıtı vardır. Bu bildirim yalnızca kapatma doğrulandıktan sonra gönderilir, talep anında asla gönderilmez" },
+    "a.confirm-closure": { headline: "Hesap ilişkisinin kapandığını doğrula ve bunun abonelik iptali ya da veri silme olmadığını açıkça belirt. Her ikisinin de ayrı lifecycle'ı ve kanıtı vardır. Bildirimi talep anında değil, kapatma doğrulandıktan sonra gönder" },
     "h.escalate": { headline: "Sorumluluk eskalasyonu → üst yetkili → çözüm veya geri dönüş", detail: "tam olarak uygulanmamış bir kapatma" },
     "x.still-blocked": { headline: "bir engel giderildi, kalan engeller görünür kılındı", detail: "kalan her engel ayrı ayrı belirtilip kendi başına çözülür ve kapatma yeniden talep edilir - hepsini tek bir mesajda toplamak, hesap sahibine üzerinde hareket edebileceği hiçbir şey söylemez" },
     "h.dependencies": { headline: "Hesap kapatma → dış ve ticari bağımlılıkların uzlaştırılması → sonuçlandırma", detail: "hesabın kendisinde yürürlüğe girmiş bir kapatma" },
@@ -4614,7 +4614,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.guard": { headline: "Yeniden etkinleşmeye karşı önlem alın. Eski bir oturum açma kaydı, sıraya alınmış bir katılım adımı ya da gecikmiş bir senkronizasyon, kapatılmış bir hesabı geri getirmemelidir - kapatma, sonraki olayların karşı kontrol edildiği bir durumdur; bu olayların sessizce üzerine yazabileceği bir şey değildir" },
     "c.remaining": { headline: "Bu hesaba karşı bekleyen yükümlülükler var mı?", edges: [{ label: "Yükümlülükler var", detail: "bir nihai fatura, bir iade, bir veri dışa aktarımı, bir ürün iadesi, açık bir destek talebi, yasal bir saklama yükümlülüğü ya da dış bir bağımlılık hâlâ bekliyor" }, { label: "Bekleyen yok", detail: "hesabın ne borcu var ne de alacağı" }] },
     "a.scope": { headline: "Yalnızca bu yükümlülüklerin gerektirdiği, tek tek belirlenmiş süreçlere izin verin. Genel bir istisna olarak bırakılan bir tasfiye, üzerinde farklı bir etiket taşıyan açık bir hesaptan ibarettir" },
-    "x.former": { headline: "FORMER; ilişki sona erdi ve geçmiş kayıt bozulmadan duruyor", detail: "geri dönen bir müşteri, bu ilişkiyi canlandırmak yerine yeni bir ilişki açar. Nihai bir ilişki durumu, kayıtların hiç var olmadığı anlamına gelmez - bunları silmek, kendi talebi, kendi kapsamı ve kendi yetkisi olan ayrı bir yaşam döngüsüdür" },
+    "x.former": { headline: "FORMER; ilişki sona erdi ve geçmiş kayıt bozulmadan duruyor", detail: "geri dönen bir müşteri, bu ilişkiyi canlandırmak yerine yeni bir ilişki açar. Nihai bir ilişki durumu, kayıtların hiç var olmadığı anlamına gelmez - bunları silmek, kendi talebi, kendi kapsamı ve kendi yetkisi olan ayrı bir lifecycle'dır" },
     "w.winddown": { headline: "bekleyen tüm operasyonel yükümlülükler tamamlanana kadar", detail: "zaman aşımı: Tasfiye için tanınan süre ufku. (yapılandırma: closure_wind.winddown)" },
     "h.escalate": { headline: "Sorumluluk eskalasyonu → üst yetkili → çözüm veya geri dönüş", detail: "kendi süre ufkunu aşan bir tasfiye" },
   },
@@ -4656,7 +4656,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Soru gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: bu amaç için izin, ulaşılabilir bir hedef, hizmet baskı sınırı, yürürlükte bekleme süresi olmaması ve bu kişiyi şu anda tutan daha yüksek öncelikli bir ulaşılabilirlik akışının bulunmaması" },
+        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: bu amaç için izin var, ulaşılabilir bir kanal var, hizmet contact pressure limiti aşılmadı, aktif bir bekleme süresi yok ve kişiyi daha yüksek öncelikli bir ulaşılabilirlik journey'si tutmuyor" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir ve mesaj başka bir yola zorlanmaz" },
       ],
     },
@@ -4700,7 +4700,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.suppress": {
-      headline: "Bu kişi için pazarlama iletişimini gönderen tarafta durdur - kendisine gönderilen her tanıtım ve yaşam döngüsü mesajını kapsar, bunun ötesine geçmez - ve gerekçeyi, okunduğu dönemi ve durdurmayı kaldıracak koşulu birlikte kaydet. Kişinin kendi izin kaydına dokunulmaz: sessizlik bir çıkış talebi değildir ve buraya öyle yazmak, kişinin hiç vermediği bir kararı kaydına geçirmek olur.",
+      headline: "Bu kişi için pazarlama iletişimini gönderen tarafta durdur - kendisine gönderilen her tanıtım ve lifecycle mesajını kapsar, bunun ötesine geçmez - ve gerekçeyi, okunduğu dönemi ve durdurmayı kaldıracak koşulu birlikte kaydet. Kişinin kendi izin kaydına dokunulmaz: sessizlik bir çıkış talebi değildir ve buraya öyle yazmak, kişinin hiç vermediği bir kararı kaydına geçirmek olur.",
     },
     "c.notify": {
       headline: "Sonlandırma kişiye bildirilebilir mi?",
@@ -4713,7 +4713,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Pazarlama iletişiminin sona erdiğini bildir, zaten pazarlama olmadığı için sürmeye devam edecekleri - kişinin elindeki, borçlu olduğu ya da alacaklı olduğu her şeyi - adıyla say ve istediğinde geri dönebileceği yolu bırak. Bu, kendi gönderimimiz hakkında bir bildirimdir; teşekkür etmek ya da bir kez daha sormak yerine bunu söyler.",
     },
     "h.enforce": {
-      headline: "İletişim Durdurma",
+      headline: "Suppression",
       detail: "bu kişi için pazarlama iletişiminin sona ermesi ve durdurmanın artık durdurma durumlarını yöneten mekanizma tarafından tutulması, kapsamlanması ve kaldırılması gerekmesi",
     },
     "h.frequency": {
@@ -4933,12 +4933,12 @@ function trHandoffHeadline(node: FlowNode, fallback: string): string {
 const EXTERNAL_TARGET_TR: Readonly<Record<string, string>> = {
   "external:advocacy-contribution": "Referans ve savunuculuk akışı",
   "external:consequence-owner": "Yaptırım sahibi",
-  "external:customer-lifecycle": "Müşteri yaşam döngüsü",
+  "external:customer-lifecycle": "Müşteri lifecycle'ı",
   "external:external-status-reconciliation": "Dış durum mutabakatı",
   "external:health-monitoring": "Sağlık izleme",
   "external:human-in-the-loop-lifecycle": "İnsan denetimli süreç",
   "external:operational-resolution": "Operasyonel çözüm",
-  "external:renewal-lifecycle": "Yenileme yaşam döngüsü",
+  "external:renewal-lifecycle": "Yenileme lifecycle'ı",
   "external:sales-assignment": "Satış ataması",
 };
 

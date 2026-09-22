@@ -95,7 +95,7 @@ export const categoryLabel = (c: string, lang: Lang) => CATEGORY_LABEL[c]?.[lang
    actually reach a page carry an approved Turkish label; anything else
    falls through to the stored value rather than being invented here. */
 export const SETUP_LABEL: Record<string, { en: string; tr: string }> = {
-  "control-vs-treatment": { en: "control-vs-treatment", tr: "kontrol / varyant" },
+  "control-vs-treatment": { en: "control-vs-treatment", tr: "control / variant" },
   "option-vs-option": { en: "option-vs-option", tr: "seçenek / seçenek" },
   element: { en: "element", tr: "öğe" },
   change: { en: "change", tr: "değişiklik" },

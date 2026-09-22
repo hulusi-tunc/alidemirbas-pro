@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,6 +22,9 @@ type LabProject = { name: string; href: string; slug?: string };
    without SiteHeader passing `lang` through (see LabNavDropdown's own note
    on why translated strings, not `lang`, cross that boundary today). */
 const TRIGGER_LABEL = { en: { open: "Open menu", close: "Close menu" }, tr: { open: "Menüyü aç", close: "Menüyü kapat" } } as const;
+const subscribeToClient = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 /* Below md, SiteHeader's own <nav> and CTA are both display:none with no
    replacement - this is that replacement.
@@ -74,8 +77,7 @@ export function MobileNav({
      to its own padding. Nothing about the classes was wrong; the panel was
      simply measuring the wrong box. `mounted` keeps this off the server
      render, where there is no document to portal into. */
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(subscribeToClient, getClientSnapshot, getServerSnapshot);
   const pathname = usePathname();
   const trigger = pathname?.startsWith("/tr") ? TRIGGER_LABEL.tr : TRIGGER_LABEL.en;
   const panelRef = useRef<HTMLDivElement | null>(null);
