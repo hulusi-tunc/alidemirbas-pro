@@ -268,6 +268,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
           <Side
             label={roleLabel(test.sideA!.role, t.roles.control)}
             letter="A"
+            description={lang === "tr" ? test.sideA!.label : null}
             screen={{ surface: test.surface, element, kind, side: "a", presence: presenceOf("a"), behavior: test.differenceBehavior, slot: test.testedSlot, lang, address: surfaceLabel(test.surface, lang) }}
           />
           <div className="flex items-center justify-center">
@@ -278,6 +279,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
           <Side
             label={roleLabel(test.sideB!.role, t.roles.variant)}
             letter="B"
+            description={lang === "tr" ? test.sideB!.label : null}
             screen={{ surface: test.surface, element, kind, side: "b", presence: presenceOf("b"), behavior: test.differenceBehavior, slot: test.testedSlot, lang, address: surfaceLabel(test.surface, lang) }}
             change={diffWord ? { sign: diffSign, word: diffWord, slot: displaySlot } : undefined}
           />
@@ -423,11 +425,13 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
 function Side({
   label,
   letter,
+  description,
   screen,
   change,
 }: {
   label: string;
   letter: string;
+  description?: string | null;
   screen: { surface: string; element: AbElementKind; kind: AbVariableKind; side: "a" | "b"; presence: "absent" | "present" | null; behavior: string; slot: string | null; lang: Lang; address: string };
   change?: { sign: string; word: string; slot: string };
 }) {
@@ -453,7 +457,10 @@ function Side({
           </span>
         ) : null}
       </div>
-      <AbScreen {...screen} label={label} ring={Boolean(change)} className="flex-1" />
+      {description ? (
+        <p className={`mb-3 px-1 text-sm leading-snug ${STAGE.dark ? "text-white/80" : "text-ink-700"}`}>{description}</p>
+      ) : null}
+      <AbScreen {...screen} label={description ? `${label}: ${description}` : label} ring={Boolean(change)} className="flex-1" />
     </div>
   );
 }

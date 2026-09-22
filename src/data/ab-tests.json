@@ -5,7 +5,7 @@
   "category": "Cart & Checkout",
   "surface": "cart",
   "question": "CTA buton rengi dönüşümü etkiler mi?",
-  "hypothesis": "Buton rengi klasik bir test konusudur ama genelde yanlış kurulur: “kırmızı mı yeşil mi daha iyi” evrensel bir cevabı yoktur, sayfanın geri kalan renk paletiyle kontrastı önemlidir. Marka renginden sapan ama sayfada öne çıkan bir renk genelde kazanır — rengin kendisi değil, göze çarpma derecesi test edilir.",
+  "hypothesis": "CTA renginin etkisi rengin kendisinden çok, sayfanın geri kalanına göre ne kadar ayırt edildiğine bağlı olabilir. Bu testte yalnızca buton rengi değişir; metin, boyut, konum ve çevresindeki tasarım aynı kalır.",
   "setupType": "unresolved",
   "comparisonMode": "element",
   "differenceBehavior": "change",
@@ -447,7 +447,7 @@
   "category": "Cart & Checkout",
   "surface": "checkout",
   "question": "Adres formundaki alan sayısını azaltmak tamamlamayı artırır mı?",
-  "hypothesis": "Her ek form alanı bir sürtünme noktasıdır. Posta koduyla otomatik il/ilçe doldurma veya adres önerisi kullanmak, mobilde yazma yükünü ciddi biçimde azaltabilir.",
+  "hypothesis": "Adres formunda yalnızca gerçekten gerekli alanları bırakmak yazma yükünü azaltabilir ve özellikle mobilde adres adımının tamamlanmasını kolaylaştırabilir. Bu testte otomatik doldurma, adres önerisi ve validasyon davranışı değiştirilmez.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "structural",
   "differenceBehavior": "remove",
@@ -498,7 +498,7 @@
   ],
   "guardrails": [
    "Otomatik doldurmayı düzenlenemez yapmayın.",
-   "Kargo için gerçekten gereken alanı kaldırmayın; hassas alanlarda önce kural 14’teki ara yöntemleri değerlendirin.",
+   "Kargo için gerçekten gereken alanı kaldırmayın; hassas alanlarda alternatif yöntemleri değerlendirin.",
    "Aynı testte hem alan sayısını hem validasyon kurallarını değiştirmeyin.",
    "Hata mesajlarını alan altından kaldırmayın.",
    "Test süresince kargo entegrasyonunu değiştirmeyin."
@@ -510,11 +510,11 @@
   },
   "sideB": {
    "role": "variant",
-   "label": "Alan sayısı azaltılmış; posta kodundan otomatik doldurma veya adres önerisi kullanılıyor",
-   "sourceBasis": "Mekanizma 'Posta koduyla otomatik il/ilçe doldurma veya adres önerisi kullanmak ... yazma yükünü azaltabilir'"
+   "label": "Gereksiz veya isteğe bağlı adres alanları kaldırılmış; kalan alanların davranışı aynı",
+   "sourceBasis": "Yalnızca formdaki alan sayısı azaltılıyor."
   },
   "seoTitle": "Reducing Address Form Fields in Checkout A/B Test",
-  "seoDescription": "An experiment idea cutting address fields via postcode autofill or address suggestions. Inspect both arms, the friction rationale and the step metric."
+  "seoDescription": "An A/B test that removes only unnecessary address fields while keeping autofill, validation and field behavior unchanged. Review completion and address quality."
  },
  {
   "id": "AB-008",
@@ -1106,7 +1106,7 @@
   "category": "Cart & Checkout",
   "surface": "checkout",
   "question": "Zorunlu ve isteğe bağlı alanları açıkça işaretlemek doldurma oranını artırır mı?",
-  "hypothesis": "Formdaki hangi alanın zorunlu, hangisinin isteğe bağlı olduğu genelde belirsizdir; kullanıcı emin olmadığı alanı da doldurur ya da doldurmayıp hata mesajıyla karşılaşır. İkisini de açıkça işaretlemek bu belirsizliği kaldırabilir.",
+  "hypothesis": "Zorunlu ve isteğe bağlı alanlar açıkça ayırt edilmediğinde kullanıcı hangi alanı atlayabileceğini anlamakta zorlanabilir. Alan durumunu görünür biçimde işaretlemek bu belirsizliği azaltabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "change",
@@ -1231,9 +1231,9 @@
    }
   ],
   "guardrails": [
-   "Toplam tutarı ödeme bilgisi alındıktan sonra göstermeyin; gizlenen fiyat kabul edilemez (kural 6).",
+   "Toplam tutarı ödeme bilgisi alındıktan sonra göstermeyin; fiyatı kullanıcıdan gizlemeyin.",
    "Aynı testte adım sırası ile adım sayısını birlikte değiştirmeyin.",
-   "Ödeme güvenlik doğrulamalarını sıralama testinin kapsamına almayın (kural 6).",
+   "Ödeme güvenlik doğrulamalarını sıralama testinin kapsamına almayın.",
    "Adrese bağlı yöntemleri test öncesi teknik olarak doğrulamadan varyantı açmayın.",
    "Tamamlama arttı diye ödeme hata oranına bakmadan kazandı demeyin."
   ],
@@ -1306,7 +1306,7 @@
    }
   ],
   "guardrails": [
-   "Kullanıcının akıştan çıkmasını tamamen engelleyen bir tasarım kurmayın (kural 6).",
+   "Kullanıcının akıştan çıkmasını tamamen engelleyen bir tasarım kurmayın.",
    "Yasal olarak bulunması gereken bağlantıları (mesafeli satış, iade, gizlilik) kaldırmayın.",
    "Aynı testte bağlantı temizliği ile adım sayısını birlikte değiştirmeyin.",
    "Güven rozetlerini ve iletişim bilgisini dikkat dağıtıcı sayıp birlikte kaldırmayın.",
@@ -1331,7 +1331,7 @@
   "category": "Cart & Checkout",
   "surface": "checkout",
   "question": "Seçimi onaylayan geri bildirim vermek hatayı azaltır mı?",
-  "hypothesis": "Kullanıcı bir seçim yaptığında (beden, adet, teslimat günü) bunun alındığını açıkça göstermek belirsizliği kaldırır ve tekrar tıklamayı önler. Karşı tarafta: her seçime eklenen onay öğesi arayüzü kalabalıklaştırır, sayfa zıplamasına yol açabilir ve deneyimli kullanıcıyı yavaşlatır.",
+  "hypothesis": "Bir seçimden sonra kısa bir yazılı onay göstermek, kullanıcının işlemin kaydedildiğini anlamasını kolaylaştırabilir ve tekrar tıklamayı azaltabilir. Ek geri bildirim arayüzü kalabalıklaştırmamalı veya sayfa yerleşimini oynatmamalıdır.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -1394,11 +1394,11 @@
   },
   "sideB": {
    "role": "variant",
-   "label": "Seçimin alındığını bildiren, yalnızca renk değişimine dayanmayan açık bir onay öğesi (ikon veya yazılı metin) eklenmiş",
-   "sourceBasis": "Soru 'Seçimi onaylayan geri bildirim vermek hatayı azaltır mı?'"
+   "label": "Seçimin kaydedildiğini belirten kısa bir yazılı onay mesajı gösteriliyor",
+   "sourceBasis": "Yalnızca seçim sonrası yazılı geri bildirim ekleniyor."
   },
   "seoTitle": "A/B Test: Confirming Choices Made During Checkout",
-  "seoDescription": "An experiment idea adding an icon or text confirming a size, quantity or delivery choice registered. Read both arms, the clutter caveat and the metric."
+  "seoDescription": "Add a short text confirmation after a size, quantity or delivery choice and measure whether it reduces repeat clicks and selection errors."
  },
  {
   "id": "AB-020",
@@ -1456,11 +1456,11 @@
    }
   ],
   "guardrails": [
-   "Pazarlama izni, veri paylaşımı veya ek ücretli hizmeti önceden işaretli getirmeyin; bu bir test değişkeni değildir (kural 6).",
+   "Pazarlama izni, veri paylaşımı veya ek ücretli hizmeti önceden işaretli getirmeyin; bunları test değişkeni yapmayın.",
    "Kullanıcının ödeyeceği tutarı artıran bir seçeneği varsayılan yapmayın.",
    "Varsayılanı fark edilmeyecek kadar silik göstermeyin.",
    "Aynı testte varsayılan ile seçeneklerin sırasını birlikte değiştirmeyin.",
-   "Hedef pazarın izin kurallarını doğrulamadan varyant kurmayın (kural 11)."
+   "Hedef pazarın izin kurallarını doğrulamadan varyantı yayına almayın."
   ],
   "sideA": {
    "role": "control",
@@ -1531,7 +1531,7 @@
    }
   ],
   "guardrails": [
-   "Gerçek işlemi yapay olarak yavaşlatıp adımları uzatmayın — gösterilen süre gerçek işlem süresini aşarsa bu manipülasyondur (kural 6).",
+   "Gerçek işlemi yapay olarak yavaşlatıp daha uzun bir yükleme süresi göstermeyin.",
    "Gerçekleşmeyen bir adımı (ör. çalışmayan bir “dolandırıcılık taraması”) ekrana koymayın.",
    "Aynı testte yükleme ekranı biçimi ile ödeme akışının adım sayısını birlikte değiştirmeyin.",
    "Hata durumunda kullanıcıyı adımlı ekranda takılı bırakmayın; başarısızlık anında net bir hata mesajına geçin.",
@@ -1556,7 +1556,7 @@
   "category": "Cart & Checkout",
   "surface": "checkout",
   "question": "Ödeme yöntemi ikonlarını checkout’tan önce görünür yapmak güveni artırır mı?",
-  "hypothesis": "Kullanıcı ödeme adımına gelmeden önce hangi kartların veya yöntemlerin kabul edildiğini bilmek ister; bu bilgi genelde yalnızca ödeme sayfasında ortaya çıkar. İkonları daha erken (ürün sayfası veya sepette) göstermek, desteklenmeyen bir yöntemi kullanan ziyaretçinin akışı erkenden terk etmesini önleyebilir — ama fazla ikon görsel gürültü yaratabilir.",
+  "hypothesis": "Sepette kabul edilen ödeme yöntemlerini göstermek, kullanıcı checkout'a geçmeden önce seçenekleri netleştirebilir. Buna karşılık ek ikonlar sepet alanını kalabalıklaştırabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -1619,11 +1619,11 @@
   },
   "sideB": {
    "role": "variant",
-   "label": "Ödeme yöntemi ikonları checkout öncesinde, ürün sayfası veya sepette de gösteriliyor",
-   "sourceBasis": "Mekanizma ikonları daha erken (ürün sayfası veya sepette) gösterme müdahalesini tanımlıyor"
+   "label": "Kabul edilen ödeme yöntemi ikonları sepette, checkout CTA'sından önce gösteriliyor",
+   "sourceBasis": "Ödeme yöntemi bilgisi yalnızca sepette daha erken gösteriliyor."
   },
   "seoTitle": "Testing Payment Method Icons Before Checkout",
-  "seoDescription": "An experiment idea surfacing accepted payment icons on the product page and cart, not only at payment. Review the arms and the visual noise caveat."
+  "seoDescription": "Show accepted payment-method icons in the cart before checkout, compared with showing them only at payment. Track completion and visual clutter."
  },
  {
   "id": "AB-023",
@@ -1852,7 +1852,7 @@
   "setupType": "option-vs-option",
   "comparisonMode": "structural",
   "differenceBehavior": "change",
-  "testedSlot": "ürün ızgarası kolon sayısı",
+  "testedSlot": "mobil ürün ızgarası kolon sayısı",
   "primaryKpi": {
    "label": "Dönüşüm Oranı (CR)",
    "explanation": "Liste sayfasından gelen satış."
@@ -2574,7 +2574,7 @@
   "category": "Category & Listing",
   "surface": "plp",
   "question": "Daha önce görülen ürünleri işaretlemek işe yarar mı?",
-  "hypothesis": "Ziyaret edilmiş ürünleri işaretlemek uzun listelerde nerede kalındığını gösterir ve aynı ürünü tekrar açma kaybını önler. Karşı tarafta: işaret ürünü “elenmiş” gibi gösterip tekrar değerlendirilmesini engelleyebilir ve kararsız kullanıcının geri dönmesini zorlaştırabilir.",
+  "hypothesis": "Daha önce açılmış ürün kartına küçük bir 'Görüldü' etiketi eklemek, uzun listelerde nerede kalındığını hatırlatabilir. Etiket aynı zamanda ürünü elenmiş gibi göstererek yeniden değerlendirmeyi azaltabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -2637,11 +2637,11 @@
   },
   "sideB": {
    "role": "variant",
-   "label": "Daha önce görülen ürünler işaretleniyor (soluklaştırma veya etiket)",
-   "sourceBasis": "Mekanizma ziyaret edilmiş ürünleri işaretlemenin uzun listelerde nerede kalındığını gösterdiğini anlatıyor"
+   "label": "Daha önce açılmış ürün kartlarında küçük bir 'Görüldü' etiketi gösteriliyor",
+   "sourceBasis": "Tek değişken, ziyaret edilmiş ürün kartındaki etikettir."
   },
   "seoTitle": "Marking Already-Viewed Products A/B Test Example",
-  "seoDescription": "An experiment idea that dims or tags products a shopper already opened. Review both arms, the orientation argument and the pre-eliminated look risk."
+  "seoDescription": "Add a small Viewed badge to product cards the shopper already opened and measure orientation, re-open behavior and conversion."
  },
  {
   "id": "AB-037",
@@ -2866,7 +2866,7 @@
   "category": "Category & Listing",
   "surface": "plp",
   "question": "Listede en erken teslimat bilgisini göstermek işe yarar mı?",
-  "hypothesis": "Ürün kartında en erken teslim tarihini göstermek acelesi olan kullanıcı için belirleyici olabilir ve ürün sayfasına girmeden eleme yapmasını sağlar. Riski: geç teslimat gösterilen ürünler baştan elenir, tarih hesabı yanlışsa güven kaybı ve iptal doğurur, ayrıca kart kalabalıklaşır.",
+  "hypothesis": "Ürün kartında tahmini en erken teslim tarihini göstermek, teslimat süresini önemseyen ziyaretçinin ürünü daha erken değerlendirmesine yardımcı olabilir. Yanlış veya sık değişen tarih bilgisi ise güveni azaltabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -2929,11 +2929,11 @@
   },
   "sideB": {
    "role": "variant",
-   "label": "Ürün kartında en erken teslimat bilgisi (tarih veya gün sayısı) gösteriliyor",
-   "sourceBasis": "Mekanizma en erken teslim tarihini göstermenin acelesi olan kullanıcı için belirleyici olabileceğini anlatıyor"
+   "label": "Ürün kartında tahmini en erken teslim tarihi gösteriliyor",
+   "sourceBasis": "Yalnızca teslim tarihi bilgisi karta ekleniyor."
   },
   "seoTitle": "Earliest Delivery Date on Product Cards A/B Test",
-  "seoDescription": "What happens when a listing card carries the earliest delivery date instead of nothing. Read the two arms, the pre-filtering risk and how the test is framed."
+  "seoDescription": "Add the estimated earliest delivery date to listing cards and measure whether earlier delivery visibility helps product selection without increasing cancellations."
  },
  {
   "id": "AB-041",
@@ -3237,7 +3237,7 @@
  },
  {
   "id": "AB-045",
-  "slug": "stokta-olmayan-urunleri-listede-gri-gosterip-birakmak-mi-tamamen-gizlemek-mi-dah",
+  "slug": "stokta-olmayan-urunleri-gosterme",
   "category": "Category & Listing",
   "surface": "plp",
   "question": "Stokta olmayan ürünleri listede gri gösterip bırakmak mı, tamamen gizlemek mi daha iyi çalışıyor?",
@@ -3312,11 +3312,11 @@
  },
  {
   "id": "AB-046",
-  "slug": "bos-durumda-henuz-veri-yokken-yonlendirici-bir-aksiyon-karti-gostermek-etkilesim",
+  "slug": "bos-durumda-aksiyon-karti",
   "category": "Dashboard",
   "surface": "dashboard",
   "question": "Boş durumda (henüz veri yokken) yönlendirici bir aksiyon kartı göstermek etkileşimi artırır mı?",
-  "hypothesis": "Yeni kaydolan bir kullanıcı dashboard’u ilk açtığında ekran genelde boştur — grafik, liste veya widget’ları dolduracak veri henüz yoktur. Boş bir tablo veya “veri yok” mesajı kullanıcıyı ne yapması gerektiği konusunda yalnız bırakır; somut bir sonraki-aksiyon kartı bu boşluğu bir davete çevirebilir.",
+  "hypothesis": "Yeni bir kullanıcı dashboard'u veri oluşmadan açtığında boş bir ekranla karşılaşabilir. Yalnızca 'veri yok' mesajı göstermek yerine, yapılabilecek ilk işi anlatan bir aksiyon kartı eklemek ilk etkileşimi artırabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -3462,7 +3462,7 @@
  },
  {
   "id": "AB-048",
-  "slug": "kullanilmayan-bir-ozelligi-dashboard-da-tek-seferlik-bir-ipucu-kartiyla-tanitmak",
+  "slug": "dashboard-ipucu-karti",
   "category": "Dashboard",
   "surface": "dashboard",
   "question": "Kullanılmayan bir özelliği dashboard’da tek seferlik bir ipucu kartıyla tanıtmak kullanımını artırır mı?",
@@ -3895,7 +3895,7 @@
    "Açılan alanı sayfayı zıplatarak göstermeyin; içerik kayması ayrı bir değişkendir.",
    "Aynı testte hem kademeli açma hem alan sayısı azaltma yapmayın.",
    "İsteğe bağlı alanların doldurulma oranı düştü diye testi hemen kesmeyin; tamamlama artışıyla birlikte değerlendirin.",
-   "Kademeli açmayı hassas alanı gizlemek için kullanmayın; hassas alan için kural 14’teki yöntemler geçerlidir."
+   "Kademeli açmayı hassas bir alanı gizlemek için kullanmayın; hassas bilgi için alternatif yöntemleri değerlendirin."
   ],
   "sideA": {
    "role": "option-a",
@@ -4270,7 +4270,7 @@
    "Hangi verilerin alındığını gizleyen bir buton metni kullanmayın.",
    "Aynı testte hem sosyal giriş eklemeyi hem form alanı azaltmayı yapmayın.",
    "Kayıt arttı diye aktivasyona bakmadan kazandı demeyin.",
-   "Kimlik doğrulama akışının güvenlik adımlarını sürtünme diye testin konusu yapmayın (kural 6)."
+   "Kimlik doğrulama akışının güvenlik adımlarını sürtünme diye testin konusu yapmayın."
   ],
   "sideA": {
    "role": "control",
@@ -4341,7 +4341,7 @@
    }
   ],
   "guardrails": [
-   "İki adımlı doğrulamayı veya kimlik doğrulamayı bu testin kapsamına almayın; bunlar koruma amaçlıdır (kural 6).",
+   "İki adımlı doğrulamayı veya kimlik doğrulamayı bu testin kapsamına almayın; bunlar koruma amaçlıdır.",
    "Kod teslim altyapısı kararsızken testi başlatmayın; altyapıyı ölçmüş olursunuz.",
    "Şifreli girişi aynı anda kaldırıp geri dönüşü olmayan bir varyant kurmayın.",
    "Kod geçerlilik süresini test ortasında değiştirmeyin.",
@@ -4416,7 +4416,7 @@
    }
   ],
   "guardrails": [
-   "Kaydı erteleyip sonra kullanıcıyı kapatılamayan bir ekranla kayda zorlamayın (kural 6).",
+   "Kaydı erteleyip sonra kullanıcıyı kapatılamayan bir ekranla kayda zorlamayın.",
    "İşlemi tamamlatıp ardından sonucu kayıt arkasına kilitlemeyin.",
    "Aynı testte hem zamanlamayı hem kayıt formunun alanlarını değiştirmeyin.",
    "Aksiyon tamamlama arttı diye kayıt kaybını ölçmeden kazandı demeyin.",
@@ -4491,7 +4491,7 @@
    }
   ],
   "guardrails": [
-   "Kapatılamayan veya kapatma düğmesi gizlenmiş modal önermeyin (kural 6).",
+   "Kapatılamayan veya kapatma düğmesi gizlenmiş modal önermeyin.",
    "Modalın arka planını karartma yoğunluğunu aynı testte değiştirmeyin; bu ayrı bir değişkendir.",
    "Veri girilmiş bir modalı dışına tıklayınca uyarısız kapatan varyantı kazanan ilan etmeyin.",
    "Mobilde modalı ekranın yarısına sıkıştırıp masaüstü sonucuyla karşılaştırmayın.",
@@ -4570,7 +4570,7 @@
    "Aynı testte adım sayısını da değiştirmeyin.",
    "Tarayıcı geri hareketini engelleyen bir varyant kurmayın.",
    "Geri dönüş az kullanıldı diye faydasız saymayın; nadir ama kritik bir kurtarma yolu olabilir.",
-   "Ödeme adımında geri dönüşü test ederken işlem güvenliği kontrollerini zayıflatmayın (kural 6)."
+   "Ödeme adımında geri dönüşü test ederken işlem güvenliği kontrollerini zayıflatmayın."
   ],
   "sideA": {
    "role": "control",
@@ -4741,7 +4741,7 @@
   "category": "Forms & Signup",
   "surface": "form",
   "question": "Modal formda arka planı soldurmak dikkati topluyor mu?",
-  "hypothesis": "Arka planı karartmak veya bulanıklaştırmak modalı öne çıkarır ve form dışındaki her şeyi görsel olarak susturur. Karşı tarafta: karartma kullanıcının bağlamını kaybetmesine yol açar, hangi sayfadan geldiğini hatırlamasını zorlaştırır ve yoğun karartma kapana kısılma hissi verebilir.",
+  "hypothesis": "Modal açıldığında sayfanın arka planını karartmak formu görsel olarak öne çıkarabilir. Çok güçlü karartma ise bağlam hissini azaltabilir ve kullanıcıya kapana kısılmışlık hissi verebilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -4791,7 +4791,7 @@
    }
   ],
   "guardrails": [
-   "Kapatma yolu bırakmayan bir karartma kurmayın (kural 6).",
+   "Kapatma yolu bırakmayan bir karartma kurmayın.",
    "Aynı testte karartma yoğunluğu ile modal içeriğini birlikte değiştirmeyin.",
    "Karar için gereken bilgiyi arkada karartılmış hâlde bırakmayın.",
    "Veri girilmiş formu dışına tıklayınca uyarısız kapatmayın.",
@@ -4799,16 +4799,16 @@
   ],
   "sideA": {
    "role": "control",
-   "label": "Modal açıkken arka plan düz, karartma veya bulanıklaştırma yok",
-   "sourceBasis": "Mekanizma: karartma olmayınca kullanıcı bağlamını korur (karşı argümandan çıkarım)"
+   "label": "Modal açıkken arka plan karartılmıyor",
+   "sourceBasis": "Kontrol kolunda arka plan olduğu gibi kalıyor."
   },
   "sideB": {
    "role": "variant",
-   "label": "Modal açıkken arka plan karartılmış veya bulanıklaştırılmış",
-   "sourceBasis": "Mekanizma: arka planı karartmak veya bulanıklaştırmak modalı öne çıkarır"
+   "label": "Modal açıkken arka plan yarı saydam koyu katmanla karartılıyor",
+   "sourceBasis": "Yalnızca arka plan karartması ekleniyor."
   },
   "seoTitle": "Dimming the Background Behind a Modal Form A/B Test",
-  "seoDescription": "A modal over a plain background, against one over a dimmed or blurred page. Weighs concentrated attention against the loss of surrounding context."
+  "seoDescription": "Compare a modal over the normal page with the same modal over a dimmed backdrop, tracking form completion and abandonment."
  },
  {
   "id": "AB-066",
@@ -4942,7 +4942,7 @@
   ],
   "guardrails": [
    "Serbest giriş imkânını tamamen kaldırıp kullanıcıyı hazır tutarlara hapsetmeyin.",
-   "Yüksek bir tutarı önceden seçili getirip kullanıcıyı fark etmeden ona yönlendirmeyin; ödenecek tutarı artıran varsayılan kural 6 sınırındadır (bkz. cart-checkout → varsayılan işaretli seçenekler).",
+   "Yüksek bir tutarı önceden seçili getirip kullanıcıyı fark etmeden daha yüksek bir ödemeye yönlendirmeyin.",
    "Aynı testte butonların varlığı ile buton tutarlarını birlikte değiştirmeyin.",
    "Tamamlama arttı diye ortalama tutara bakmadan kazandı demeyin.",
    "Tutarları görünmez küçüklükte yazıp seçim yapmayı zorlaştırmayın."
@@ -5037,7 +5037,7 @@
  },
  {
   "id": "AB-069",
-  "slug": "asil-formdan-once-kucuk-bir-isindirma-sorusu-sormak-tamamlama-oranini-artirir-mi",
+  "slug": "form-oncesi-isindirma-sorusu",
   "category": "Forms & Signup",
   "surface": "form",
   "question": "Asıl formdan önce küçük bir ısındırma sorusu sormak tamamlama oranını artırır mı?",
@@ -5140,7 +5140,7 @@
    },
    {
     "label": "Kayıt Sonrası Şikâyet",
-    "explanation": "Verilen sözle kayıt sonrası gönderim davranışı tutarsızsa bu artmamalı — artıyorsa ayrı, engelleyici bir bulgudur (kural 6)."
+    "explanation": "Verilen güvence ile kayıt sonrası iletişim veya veri kullanımı tutarsızsa şikâyet oranı artmamalı."
    }
   ],
   "whatToTest": [
@@ -5166,11 +5166,11 @@
    }
   ],
   "guardrails": [
-   "Vermediğiniz bir sözü yazmayın — “asla paylaşmayız” derken üçüncü taraf pazarlama ortaklarıyla paylaşıyorsanız bu kural 6 ihlalidir.",
+   "Gerçekte sağlayamadığınız bir gizlilik güvencesi yazmayın; örneğin veri üçüncü taraflarla paylaşılıyorsa 'asla paylaşmayız' demeyin.",
    "Aynı testte güvence metnini ve form alan sayısını birlikte değiştirmeyin.",
    "Metni, gerçek bir gizlilik politikası bağlantısının yerine geçecek şekilde sunmayın — ayrıntılı politika hâlâ erişilebilir olmalı.",
    "Güvence metnini o kadar büyük veya göze batan yapmayın ki asıl formu gölgelesin.",
-   "Hedef pazarın veri koruma mevzuatının gerektirdiği açık rıza metnini bu güvence cümlesiyle karıştırıp eksik bırakmayın (kural 11)."
+   "Güvence metnini, hedef pazarın veri koruma mevzuatının gerektirdiği açık rıza veya bilgilendirme metninin yerine kullanmayın."
   ],
   "sideA": {
    "role": "control",
@@ -5187,7 +5187,7 @@
  },
  {
   "id": "AB-071",
-  "slug": "tek-secimlik-bir-alanda-radio-button-mu-acilir-liste-dropdown-mu-daha-cok-tamaml",
+  "slug": "radio-button-vs-dropdown",
   "category": "Forms & Signup",
   "surface": "form",
   "question": "Tek seçimlik bir alanda radio button mu, açılır liste (dropdown) mu daha çok tamamlatıyor?",
@@ -5715,12 +5715,12 @@
   "slug": "uzman-veya-kurucu-gorunurlugu-guveni-artirir-mi",
   "category": "Home & Landing",
   "surface": "home",
-  "question": "Uzman veya kurucu görünürlüğü güveni artırır mı?",
-  "hypothesis": "Arkasında gerçek bir insan olduğunu göstermek (kurucu fotoğrafı ve imzası, alan uzmanının açıklaması) soyut bir markayı somutlaştırır. Karşı tarafta: kişi öne çıkarıldığında marka küçük ölçekli görünebilir, kurumsal alıcıda “tek kişilik iş” algısı yaratabilir ve kişiye bağımlılık riski doğar.",
+  "question": "Gerçek bir uzman profilini görünür yapmak güveni artırır mı?",
+  "hypothesis": "Sayfada gerçek bir alan uzmanını adı, fotoğrafı ve kısa rol açıklamasıyla göstermek markayı daha somut ve ulaşılabilir hissettirebilir. Buna karşılık kişi vurgusu, özellikle kurumsal ziyaretçilerde markanın ölçeğine ilişkin algıyı değiştirebilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
-  "testedSlot": "uzman ve kurucu görünürlüğü",
+  "testedSlot": "uzman profil bloğu",
   "primaryKpi": {
    "label": "Ana Aksiyon Tamamlama Oranı",
    "explanation": "Kişi görünürlüğü aksiyonu artırıyor mu?"
@@ -5746,44 +5746,44 @@
   "whatToTest": [
    {
     "label": "Varlık",
-    "explanation": "Gerçek bir kişiyi göstermek aksiyonu artırıyor mu?"
+    "explanation": "Uzman profil bloğu ana aksiyon tamamlama oranını değiştiriyor mu?"
    },
    {
-    "label": "Rol",
-    "explanation": "Kurucu mu, alan uzmanı mı daha çok güven veriyor?"
+    "label": "Etkileşim",
+    "explanation": "Ziyaretçiler uzman bloğunda duruyor veya ilgili bağlantıya tıklıyor mu?"
    },
    {
-    "label": "Biçim",
-    "explanation": "Fotoğraf mı, kısa bir açıklama metni mi, ikisi birlikte mi?"
+    "label": "Kurumsal segment",
+    "explanation": "Kurumsal nitelikli taleplerin oranı etkileniyor mu?"
    },
    {
-    "label": "Ölçek algısı",
-    "explanation": "Kişi vurgusu markayı küçük gösterip kurumsal alıcıyı caydırıyor mu?"
+    "label": "Sayfa akışı",
+    "explanation": "Ek blok ana CTA'nın görünürlüğünü veya kaydırma davranışını bozuyor mu?"
    },
    {
-    "label": "Segment",
-    "explanation": "Bireysel ve kurumsal ziyaretçi farklı mı tepki veriyor?"
+    "label": "Güven",
+    "explanation": "Ölçülüyorsa güven veya marka algısı anketinde fark oluşuyor mu?"
    }
   ],
   "guardrails": [
-   "Stok fotoğrafı gerçek kurucu veya uzman gibi sunmayın.",
+   "Stok fotoğrafı gerçek uzman gibi sunmayın.",
    "Sahip olunmayan unvan veya yetkinlik atfetmeyin.",
-   "Aynı testte kişi görselini ve metnini ayrı ayrı değil, birlikte tek değişken sayarak kurgulayın; ikisini bağımsız değiştirmeyin.",
-   "Uzman görüşünü ürün iddiasının yerine geçirip doğrulanamaz bir vaat üretmeyin.",
-   "Düzenlemeye tabi alanlarda (sağlık, finans, hukuk) uzman ifadesini hedef pazarın kuralını doğrulamadan yayınlamayın."
+   "Aynı testte uzman bloğunun varlığı dışında sayfa metnini veya CTA'yı değiştirmeyin.",
+   "Uzman görüşünü doğrulanamaz bir ürün iddiasının yerine kullanmayın.",
+   "Düzenlemeye tabi alanlarda uzman ifadesini yayınlamadan önce ilgili kuralları doğrulayın."
   ],
   "sideA": {
    "role": "control",
-   "label": "Sayfada kurucu veya uzman görünürlüğü yok",
-   "sourceBasis": "Soru: uzman veya kurucu görünürlüğü güveni artırır mı (ekleme testi)"
+   "label": "Sayfada uzman profil bloğu yok",
+   "sourceBasis": "Kontrol kolunda kişi görünürlüğü bulunmuyor."
   },
   "sideB": {
    "role": "variant",
-   "label": "Kurucu fotoğrafı ve imzası veya alan uzmanının açıklaması eklenmiş",
-   "sourceBasis": "Mekanizma: arkasında gerçek bir insan olduğunu göstermek soyut bir markayı somutlaştırır"
+   "label": "Sayfaya gerçek bir alan uzmanının profil bloğu eklenmiş",
+   "sourceBasis": "Aynı sayfaya yalnızca uzman profil bloğu ekleniyor."
   },
-  "seoTitle": "Testing Founder or Expert Visibility on a Landing Page",
-  "seoDescription": "Add a founder photo and signature or an expert note to the page. See the control, the small-company perception risk and the KPI the test follows."
+  "seoTitle": "Expert Profile Block on a Landing Page A/B Test",
+  "seoDescription": "Add one real expert profile block to a landing page and measure whether it changes the primary action without hurting qualified demand."
  },
  {
   "id": "AB-079",
@@ -6015,12 +6015,12 @@
   "slug": "sayfanin-bittigi-izlenimi-veren-tasarim-kaydirmayi-durduruyor-mu",
   "category": "Home & Landing",
   "surface": "home",
-  "question": "Sayfanın bittiği izlenimi veren tasarım kaydırmayı durduruyor mu?",
-  "hypothesis": "Tam ekran kaplayan bir bölüm veya güçlü bir yatay ayırıcı, ziyaretçide sayfanın sona erdiği izlenimi yaratabilir ve altındaki içerik hiç görülmez. Bu genelde fark edilmeyen bir kayıptır: içerik oradadır, ölçümde “okunmadı” görünür ve içeriğin kendisi suçlanır. Ayırıcıyı yumuşatmak veya alttan bir parça göstermek kaydırmayı sürdürebilir.",
+  "question": "Bir sonraki bölümden küçük bir parça göstermek kaydırmayı artırır mı?",
+  "hypothesis": "İlk ekran tam bir bölüm sınırında bittiğinde sayfa bitmiş gibi algılanabilir. Bir sonraki bölümün üst kısmını ilk ekranda görünür bırakmak, aşağıda içerik olduğunu daha açık gösterebilir.",
   "setupType": "control-vs-treatment",
-  "comparisonMode": "element",
+  "comparisonMode": "structural",
   "differenceBehavior": "change",
-  "testedSlot": "sayfa sonu izlenimi",
+  "testedSlot": "sonraki bölüm görünürlüğü",
   "primaryKpi": {
    "label": "Ana Aksiyon Tamamlama Oranı",
    "explanation": "Kaydırma artışı aksiyona dönüşüyor mu?"
@@ -6074,16 +6074,16 @@
   ],
   "sideA": {
    "role": "control",
-   "label": "Tam ekran yüksekliğinde bölüm veya güçlü yatay ayırıcıyla biten, sayfanın bittiği izlenimini veren görünüm",
-   "sourceBasis": "Mekanizma: 'Tam ekran kaplayan bir bölüm veya güçlü bir yatay ayırıcı ... ziyaretçide sayfanın sona erdiği izlenimi yaratabilir'"
+   "label": "İlk ekran bölüm sonunda tamamen bitiyor; sonraki bölüm görünmüyor",
+   "sourceBasis": "Kontrol kolunda aşağıdaki bölümden görsel ipucu yok."
   },
   "sideB": {
    "role": "variant",
-   "label": "Bölüm sınırı yumuşatılmış veya alttaki içerikten bir parça görünen, kaydırmayı sürdüren geçiş",
-   "sourceBasis": "whatToTest: 'Kesinti: Bölüm sınırını yumuşatmak kaydırma derinliğini artırıyor mu?' / 'İpucu: Alttaki içerikten bir parça göstermek devam ettiriyor mu?'"
+   "label": "İlk ekranda bir sonraki bölümün üst kısmı görünür kalıyor",
+   "sourceBasis": "Tek değişken, sonraki bölümün ilk ekranda görünmesidir."
   },
-  "seoTitle": "Does a False Page Ending Stop Scrolling? A/B Test Idea",
-  "seoDescription": "Section breaks can make a page look finished. Compare a hard ending with a softened transition and see the setup, the hidden loss and the KPI."
+  "seoTitle": "Showing the Next Section Above the Fold A/B Test",
+  "seoDescription": "Compare a clean full-screen section ending with a version that reveals the top of the next section, using scroll depth as the primary signal."
  },
  {
   "id": "AB-083",
@@ -6166,7 +6166,7 @@
   "category": "Home & Landing",
   "surface": "home",
   "question": "Uzun sayfada bölüm navigasyonu işe yarıyor mu?",
-  "hypothesis": "Sayfa içi bağlantılar (sabit bir bölüm menüsü veya içindekiler) ziyaretçinin aradığı bölüme atlamasını sağlar. Riski: navigasyon ziyaretçiyi tek bir bölüme götürüp geri kalan ikna içeriğini atlatabilir; ayrıca ekranda yer kaplar ve mobilde dar alanda sıkışır.",
+  "hypothesis": "Uzun sayfaya sabit bir bölüm navigasyonu eklemek, ziyaretçinin aradığı bölüme daha hızlı ulaşmasını sağlayabilir. Navigasyon ekran alanı kullandığı için özellikle mobilde ana içeriği sıkıştırmamalıdır.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -6224,16 +6224,16 @@
   ],
   "sideA": {
    "role": "control",
-   "label": "Bölüm navigasyonu (sabit menü/içindekiler) olmayan uzun sayfa",
-   "sourceBasis": "whatToTest: 'Varlık: Bölüm navigasyonu eklemek aksiyonu artırıyor mu?'"
+   "label": "Uzun sayfada bölüm navigasyonu yok",
+   "sourceBasis": "Kontrol kolunda ek sayfa içi navigasyon bulunmuyor."
   },
   "sideB": {
    "role": "variant",
-   "label": "Sabit menü veya içindekiler biçiminde bölüm navigasyonu eklenmiş sayfa",
-   "sourceBasis": "Mekanizma: 'Sayfa içi bağlantılar ... ziyaretçinin aradığı bölüme atlamasını sağlar'"
+   "label": "Sayfanın üstünde kaydırırken sabit kalan bölüm navigasyonu var",
+   "sourceBasis": "Yalnızca sticky bölüm navigasyonu ekleniyor."
   },
   "seoTitle": "Testing a Sticky Section Menu on a Long Landing Page",
-  "seoDescription": "Add a sticky section menu or table of contents to a long page. Examine both arms, the risk of visitors skipping content and the metric tracked."
+  "seoDescription": "Add a sticky section navigation to a long page and measure whether faster jumps to key content improve the primary action without hurting mobile usability."
  },
  {
   "id": "AB-085",
@@ -6291,7 +6291,7 @@
    }
   ],
   "guardrails": [
-   "Reddetme seçeneğini okunmaz derecede soluk veya küçük yapan bir varyant kurmayın (kural 6).",
+   "Reddetme seçeneğini okunamayacak kadar soluk veya küçük yapmayın.",
    "Reddedeni aynı oturumda tekrar tekrar aynı teklifle karşılamayın.",
    "Anlık kabul düştü diye testi hemen kesmeyin; toplam ve sonraki davranışa bakın.",
    "Yasal izin gerektiren alanlarda (iletişim izni, çerez) reddetme seçeneğini zorlaştırmayı test konusu yapmayın.",
@@ -6316,7 +6316,7 @@
   "category": "Home & Landing",
   "surface": "home",
   "question": "Sayfanın üstündeki fayda çubuğu aksiyonu artırıyor mu?",
-  "hypothesis": "Başlığın hemen üstünde veya altında duran ince bir şerit (ücretsiz kargo, iade süresi, teslimat vaadi) en sık sorulan üç soruyu kaydırmadan cevaplar. Karşı tarafta: şerit reklam bandına benzeyip görmezden gelinebilir, dikkat çekerse asıl başlığın önüne geçer ve ekranın en değerli bölümünden yer alır.",
+  "hypothesis": "Başlığın hemen altında ücretsiz kargo, iade ve teslimat gibi üç kısa bilgiyi özetleyen ince bir fayda çubuğu, temel soruları erken yanıtlayabilir. Ek şerit ana başlık ve CTA ile görsel olarak rekabet etmemelidir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -6374,16 +6374,16 @@
   ],
   "sideA": {
    "role": "control",
-   "label": "Başlığın üstünde veya altında fayda çubuğu yok",
-   "sourceBasis": "whatToTest: 'Varlık: Fayda çubuğu eklemek aksiyonu artırıyor mu?'"
+   "label": "Başlığın altında fayda çubuğu yok",
+   "sourceBasis": "Kontrol kolunda ek fayda özeti bulunmuyor."
   },
   "sideB": {
    "role": "variant",
-   "label": "Başlığın üstünde veya altında en sık sorulan üç konuyu özetleyen ince fayda çubuğu",
-   "sourceBasis": "Mekanizma: 'Başlığın hemen üstünde veya altında duran ince bir şerit (ücretsiz kargo, iade süresi, teslimat vaadi)'"
+   "label": "Başlığın hemen altında üç kısa faydayı özetleyen ince bir çubuk var",
+   "sourceBasis": "Yalnızca başlık altına fayda çubuğu ekleniyor."
   },
   "seoTitle": "Slim Benefit Bar Near the Homepage Headline A/B Test",
-  "seoDescription": "Add a slim bar answering the three most common questions near the headline. See both arms, the cost of that screen space and the tracked KPI."
+  "seoDescription": "Add a slim three-item benefit bar directly below the headline and measure its effect on the primary action and first-screen attention."
  },
  {
   "id": "AB-087",
@@ -6765,12 +6765,12 @@
   "slug": "ziyaretcinin-geldigi-kaynaga-uygun-referans-gostermek-ise-yarar-mi",
   "category": "Home & Landing",
   "surface": "home",
-  "question": "Ziyaretçinin geldiği kaynağa uygun referans göstermek işe yarar mı?",
-  "hypothesis": "Ziyaretçiyle aynı sektörden veya aynı kanaldan gelen bir müşterinin referansı “benim gibi biri” etkisi yaratır. Riski: kaynak eşleştirmesi yanlışsa alakasız bir referans gösterilir, ayrıca her kaynak için ayrı referans yönetmek sürdürülemez hâle gelebilir.",
+  "question": "Ziyaretçinin geldiği kanala uygun referans göstermek işe yarar mı?",
+  "hypothesis": "Ziyaretçinin geldiği pazarlama kanalına uygun bir müşteri referansı göstermek mesajın daha ilgili hissedilmesini sağlayabilir. Yanlış eşleştirme veya zayıf referans ise sabit bir referanstan daha kötü çalışabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "change",
-  "testedSlot": "kaynağa göre referans",
+  "testedSlot": "edinim kanalına göre referans",
   "primaryKpi": {
    "label": "Ana Aksiyon Tamamlama Oranı",
    "explanation": "Eşleştirme aksiyonu artırıyor mu?"
@@ -6824,16 +6824,16 @@
   ],
   "sideA": {
    "role": "control",
-   "label": "Tüm ziyaretçilere kaynaktan bağımsız aynı sabit referans",
-   "sourceBasis": "whatToTest'teki 'Yedek: Tanınmayan kaynaktan gelene hangi referans gösteriliyor?' maddesi bir varsayılan/sabit referansın var olduğunu ima ediyor"
+   "label": "Tüm ziyaretçilere aynı sabit müşteri referansı gösteriliyor",
+   "sourceBasis": "Kontrol kolunda kaynak kişiselleştirmesi yok."
   },
   "sideB": {
    "role": "variant",
-   "label": "Ziyaretçinin geldiği kaynağa (sektör/kanal) uygun eşleştirilmiş referans",
-   "sourceBasis": "Mekanizma: 'Ziyaretçiyle aynı sektörden veya aynı kanaldan gelen bir müşterinin referansı benim gibi biri etkisi yaratır'"
+   "label": "Ziyaretçinin geldiği edinim kanalına uygun müşteri referansı gösteriliyor",
+   "sourceBasis": "Yalnızca referans, edinim kanalına göre eşleştiriliyor."
   },
-  "seoTitle": "Matching Testimonials to the Traffic Source A/B Test",
-  "seoDescription": "Match the testimonial to the visitor's channel or sector. Compare it with one fixed quote and see the mismatch risk and the KPI being tracked."
+  "seoTitle": "Channel-Matched Testimonial A/B Test",
+  "seoDescription": "Compare one fixed testimonial with a testimonial matched to the visitor's acquisition channel, tracking the primary action and mismatch risk."
  },
  {
   "id": "AB-093",
@@ -7141,7 +7141,7 @@
   "category": "Home & Landing",
   "surface": "home",
   "question": "Ziyaretçiyi kendi diliyle karşılamak işe yarar mı?",
-  "hypothesis": "Tarayıcı diline veya konuma göre karşılama ifadesini uyarlamak yakınlık kurar ve doğru yere geldiğini hissettirir. Riski: yanlış tespit edilen dil rahatsız eder, yarım çevrilmiş bir sayfa güveni düşürür ve karşılama dili ile içerik dili farklı olursa kafa karışıklığı yaratır.",
+  "hypothesis": "Tarayıcı diline göre karşılama cümlesini uyarlamak, ziyaretçinin doğru dilde içerik gördüğünü daha erken hissettirebilir. Dil tespiti yanlışsa veya sayfanın geri kalanı aynı dilde değilse bu yaklaşım güveni azaltabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "change",
@@ -7204,11 +7204,11 @@
   },
   "sideB": {
    "role": "variant",
-   "label": "Tarayıcı diline veya konuma göre uyarlanmış karşılama ifadesi",
-   "sourceBasis": "Mekanizma: 'Tarayıcı diline veya konuma göre karşılama ifadesini uyarlamak yakınlık kurar'"
+   "label": "Karşılama ifadesi tarayıcı diline göre uyarlanıyor",
+   "sourceBasis": "Yalnızca browser-language sinyali kullanılıyor."
   },
   "seoTitle": "Testing a Language-Adapted Greeting on the Homepage",
-  "seoDescription": "Adapt the greeting to browser language or location. Compare it with a single default-language greeting and see the detection risks and the KPI."
+  "seoDescription": "Adapt only the greeting to the browser language and compare it with the default-language greeting, while keeping the rest of the page unchanged."
  },
  {
   "id": "AB-098",
@@ -7290,12 +7290,12 @@
   "slug": "sosyal-medya-takipci-veya-begeni-sayisini-gostermek-guveni-artirir-mi",
   "category": "Home & Landing",
   "surface": "home",
-  "question": "Sosyal medya takipçi veya beğeni sayısını göstermek güveni artırır mı?",
-  "hypothesis": "Bir marka sayfasının yanında görünen takipçi veya beğeni sayısı, ürünün başkaları tarafından da tercih edildiğini gösteren dolaylı bir sosyal kanıttır. Risk, sayının küçük veya büyümekte olduğu bir markada beklenenin tersi bir etki yaratmasıdır — düşük bir sayı, kanıt yerine şüphe uyandırabilir.",
+  "question": "Sosyal medya takipçi sayısını göstermek güveni artırır mı?",
+  "hypothesis": "Markanın gerçek sosyal medya takipçi sayısını görünür göstermek dolaylı bir sosyal kanıt sağlayabilir. Takipçi sayısının düşük veya bağlamdan kopuk görünmesi ise ters etki yaratabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
-  "testedSlot": "sosyal medya sayaçları",
+  "testedSlot": "sosyal medya takipçi sayacı",
   "primaryKpi": {
    "label": "Dönüşüm Oranı (CR)",
    "explanation": "Sayaç göstermek satın alma veya kayıt oranını artırıyor mu?"
@@ -7341,7 +7341,7 @@
    }
   ],
   "guardrails": [
-   "Gerçek olmayan veya şişirilmiş bir sayıyı göstermeyin (kural 6).",
+   "Gerçek olmayan veya şişirilmiş bir takipçi ya da beğeni sayısı göstermeyin.",
    "Aynı testte sayacın biçimini ve konumunu birlikte değiştirmeyin.",
    "Sayı küçükken büyük bir görsel ağırlıkla öne çıkarmayın; ağırlığı sayının gerçek gücüne göre ayarlayın.",
    "Farklı platformlardan gelen sayıları tek bir toplam gibi birleştirip yanıltıcı bir büyüklük izlenimi yaratmayın.",
@@ -7349,24 +7349,24 @@
   ],
   "sideA": {
    "role": "control",
-   "label": "Sosyal medya takipçi veya beğeni sayısı gösterilmiyor",
-   "sourceBasis": "Soru: 'Sosyal medya takipçi veya beğeni sayısını göstermek güveni artırır mı?' — göstermek fiili yokluk hâlini ima ediyor"
+   "label": "Sosyal medya takipçi sayısı gösterilmiyor",
+   "sourceBasis": "Kontrol kolunda sayaç yok."
   },
   "sideB": {
    "role": "variant",
-   "label": "Marka sayfasının yanında takipçi veya beğeni sayacı gösteriliyor",
-   "sourceBasis": "Mekanizma: 'Bir marka sayfasının yanında görünen takipçi veya beğeni sayısı ... dolaylı bir sosyal kanıttır'"
+   "label": "Marka bağlantısının yanında güncel takipçi sayısı gösteriliyor",
+   "sourceBasis": "Yalnızca takipçi sayısı ekleniyor."
   },
-  "seoTitle": "Showing Social Media Follower Counts A/B Test Example",
-  "seoDescription": "Show follower or like counts next to a brand link. Compare it with the control and see when a small number can raise doubt instead of trust."
+  "seoTitle": "Showing Social Follower Count A/B Test",
+  "seoDescription": "Show a current social follower count beside the brand link and compare it with no count, tracking conversion and trust signals."
  },
  {
   "id": "AB-100",
-  "slug": "sayfa-acilisinda-icerigi-kismen-kaplayan-buyuk-bir-karsilama-ekrani-ilgiyi-artir",
+  "slug": "buyuk-karsilama-ekrani",
   "category": "Home & Landing",
   "surface": "home",
   "question": "Sayfa açılışında içeriği kısmen kaplayan büyük bir karşılama ekranı ilgiyi artırır mı?",
-  "hypothesis": "Küçük bir pop-up’tan farklı olarak, kısmi karşılama ekranı sayfanın büyük bir kısmını (genelde ilk ekranın tamamına yakınını) tek bir mesaj veya teklifle kaplar, altındaki içeriğin bir kısmı kenarlarda görünür kalır. Amaç dikkati tek bir noktaya toplamaktır; risk, ziyaretçinin asıl sayfaya hiç ulaşmadan ayrılmasıdır.",
+  "hypothesis": "Sayfanın ilk görünümünün büyük bölümünü kaplayan bir karşılama katmanı dikkati tek bir mesaj veya teklife çekebilir. Aynı uygulama, ziyaretçinin asıl içeriğe ulaşmasını zorlaştırarak terk oranını da artırabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -7416,7 +7416,7 @@
    }
   ],
   "guardrails": [
-   "Kapatma işaretini gizleyip ziyaretçiyi teklifi kabul etmeye zorlamayın (kural 6).",
+   "Kapatma işaretini gizleyip ziyaretçiyi teklifi kabul etmeye zorlamayın.",
    "Aynı testte ekranın kapsamını ve içeriğini birlikte değiştirmeyin.",
    "Ekranı, arama motoru botlarının asıl içeriği görmesini engelleyecek şekilde kurmayın.",
    "Mobilde ekranı kapatma alanını dokunma hedefi için çok küçük bırakmayın.",
@@ -7437,7 +7437,7 @@
  },
  {
   "id": "AB-101",
-  "slug": "anasayfayi-tek-bir-anlati-yerine-ziyaretci-tipine-gore-ayri-bloklara-bolmek-iler",
+  "slug": "ziyaretci-tipine-gore-anasayfa",
   "category": "Home & Landing",
   "surface": "home",
   "question": "Anasayfayı tek bir anlatı yerine ziyaretçi tipine göre ayrı bloklara bölmek ilerlemeyi artırır mı?",
@@ -7741,7 +7741,7 @@
   "category": "Mobile App",
   "surface": "mobile",
   "question": "Yükleme ekranı mesajı satışı etkiler mi?",
-  "hypothesis": "Yükleme ekranları çoğunlukla boş geçer. Bu anlarda kampanya veya avantaj bilgisi göstermek dikkati çekebilir ve bekleme algısını yumuşatabilir.",
+  "hypothesis": "Yükleme ekranında tek bir kampanya mesajı göstermek bekleme anını iletişim alanına çevirebilir. Mesaj, yükleme süresini uzatmamalı ve kullanıcıya gerçekte olmayan bir avantaj vaat etmemelidir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -7804,11 +7804,11 @@
   },
   "sideB": {
    "role": "variant",
-   "label": "Yükleme ekranında kampanya veya avantaj mesajı gösteriliyor (ör. \"%70'e varan indirim\")",
-   "sourceBasis": "Mekanizma: 'Bu anlarda kampanya veya avantaj bilgisi göstermek dikkati çekebilir'"
+   "label": "Yükleme ekranında tek bir kampanya mesajı gösteriliyor",
+   "sourceBasis": "Yalnızca yükleme ekranına kampanya mesajı ekleniyor."
   },
   "seoTitle": "Promo Message on the App Loading Screen A/B Test Idea",
-  "seoDescription": "Fill the usually empty loading screen with a campaign message. Compare it with a plain splash screen and see the KPI this experiment tracks."
+  "seoDescription": "Compare a plain loading screen with the same screen carrying one campaign message, keeping the actual loading time unchanged."
  },
  {
   "id": "AB-106",
@@ -8242,7 +8242,7 @@
   ],
   "guardrails": [
    "Hazırlık ekranını sistem penceresine benzetip kullanıcıyı yanıltmayın.",
-   "İzin vermeden devam etmeyi engelleyen bir akış kurmayın (kural 6).",
+   "İzin vermeden devam etmeyi engelleyen bir akış kurmayın.",
    "Aynı testte hazırlık ekranı ile iznin istendiği anı birlikte değiştirmeyin.",
    "Sistem penceresinin kabulünü tek başına başarı sayıp toplam kabule bakmamazlık etmeyin.",
    "İzin metinlerinin düzenlendiği platformlarda mağaza kurallarını doğrulamadan varyant yayınlamayın."
@@ -8341,7 +8341,7 @@
   "category": "Mobile App",
   "surface": "mobile",
   "question": "Profil tamamlama yüzdesi göstermek eksik alanları doldurtuyor mu?",
-  "hypothesis": "Görünürde biten ama tam dolu olmayan bir gösterge (“Profiliniz %70 tamamlandı”) bitmemiş bir işi akılda tutar ve kapatma isteği yaratır — bu, ilk kayıt formunun kendisindeki adım-adım ilerleme çubuğundan (bkz. `cart-checkout.md`) farklı bir mekanizmadır: orada amaç akışta nerede olunduğunu göstermek, burada amaç kayıttan sonra kalan, isteğe bağlı alanlara geri döndürmektir.",
+  "hypothesis": "Profil tamamlanma göstergesi, kayıt sonrasında eksik kalan isteğe bağlı alanları görünür kılar ve kullanıcıya ne kadar kaldığını gösterir. Bu görünürlük eksik alanlara geri dönme ve profili tamamlama oranını artırabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -8391,7 +8391,7 @@
    }
   ],
   "guardrails": [
-   "Kullanıcının doldurmadığı hassas bir alanı (kural 14) yalnızca yüzdeyi yükseltmek için zorunlu göstermeyin; opsiyonel kalmalı.",
+   "İsteğe bağlı veya hassas bir alanı yalnızca profil yüzdesini yükseltmek için zorunlu hâle getirmeyin.",
    "Yüzdeyi gerçek doluluktan farklı hesaplayıp yapay biçimde yüksek göstermeyin.",
    "Aynı testte gösterge biçimi ile hangi alanların “profilde” sayıldığını birlikte değiştirmeyin.",
    "Göstergeyi kapatılamaz veya ertelenemez hâle getirmeyin; kullanıcı “sonra” diyebilmeli.",
@@ -8416,8 +8416,8 @@
   "category": "Pricing",
   "surface": "pricing",
   "question": "Kaç fiyat planı gösterilmeli?",
-  "hypothesis": "Az sayıda plan kararı hızlandırır ve karşılaştırma yükünü azaltır. Çok sayıda plan farklı ihtiyaçları karşılar ama seçim felcine yol açabilir ve ziyaretçiyi hiçbirini seçmemeye itebilir. Plan sayısını değiştirmek aynı zamanda hangi planın ortada kaldığını da değiştirir; bu, seçim dağılımını fiyattan bağımsız olarak kaydırır.",
-  "setupType": "control-vs-treatment",
+  "hypothesis": "Fiyat sayfasında gösterilen plan sayısı karar yükünü ve seçeneklerin birbirine göre nasıl algılandığını değiştirebilir. Uygun sayı, mevcut teklif yapısına bağlı olduğu için önce karşılaştırılacak iki plan seti açıkça tanımlanmalıdır.",
+  "setupType": "unresolved",
   "comparisonMode": "structural",
   "differenceBehavior": "change",
   "testedSlot": "plan sayısı",
@@ -8472,18 +8472,10 @@
    "Plan sayısını değiştirirken plan içeriklerini de yeniden paketlemeyin.",
    "Seçenek azaltmayı, aslında satmak istediğiniz planı tek çıkış yolu hâline getirmek için kullanmayın."
   ],
-  "sideA": {
-   "role": "control",
-   "label": "Mevcut plan sayısıyla fiyat tablosu",
-   "sourceBasis": "whatToTest: 'Plan sayısını azaltmak toplam geliri artırıyor mu?' azaltma mevcut sayıdan yapılıyor"
-  },
-  "sideB": {
-   "role": "variant",
-   "label": "Bir veya daha fazla plan çıkarılmış, azaltılmış plan sayısı",
-   "sourceBasis": "Aynı whatToTest satırı"
-  },
-  "seoTitle": "Testing How Many Pricing Plans a Page Should Show",
-  "seoDescription": "Experiment idea that removes one or more plans from a pricing table, covering how plan count shifts choice distribution and what revenue per visitor shows."
+  "sideA": null,
+  "sideB": null,
+  "seoTitle": "How Many Pricing Plans Should You Show? Test Idea",
+  "seoDescription": "An open test concept for pricing-plan count. Define two specific plan sets first, then compare revenue per visitor and plan-selection distribution."
  },
  {
   "id": "AB-115",
@@ -8917,7 +8909,7 @@
   ],
   "guardrails": [
    "Tüketiciye vergi dahil gösterimin zorunlu olduğu pazarlarda bunu test değişkeni yapmayın; orada seçim yoktur.",
-   "Hedef pazarın kuralını doğrulamadan varyant kurmayın (kural 11).",
+   "Hedef pazardaki vergi gösterim kurallarını doğrulamadan varyantı yayına almayın.",
    "Vergi hariç gösterip bunu belirten ifadeyi okunmaz küçüklükte yazmayın.",
    "Aynı testte vergi gösterimi ile kargo ücreti gösterimini birlikte değiştirmeyin.",
    "Tek pazarda ölçüp sonucu diğer pazarlara taşımayın."
@@ -8992,7 +8984,7 @@
   ],
   "guardrails": [
    "Ayrı satılmayan bir kalemin “ayrı fiyatı” varmış gibi bir değer üretmeyin.",
-   "Doğrulanamayan bir referans değeri fiyatın yanına yazmayın (kural 6).",
+   "Doğrulanamayan bir referans değeri fiyatın yanında göstermeyin.",
    "Aynı testte değer gösterimi ile paket içeriğini birlikte değiştirmeyin.",
    "Referans fiyat gösteriminin düzenlendiği pazarlarda kuralı doğrulamadan yayınlamayın.",
    "Dönüşüm arttı diye iade tarafına bakmadan kazandı demeyin."
@@ -9012,7 +9004,7 @@
  },
  {
   "id": "AB-122",
-  "slug": "ucuncu-bir-cekici-alternatif-plan-eklemek-orta-planin-secilme-oranini-artiriyor-",
+  "slug": "cekici-alternatif-ucuncu-plan",
   "category": "Pricing",
   "surface": "pricing",
   "question": "Üçüncü bir çekici-alternatif plan eklemek orta planın seçilme oranını artırıyor mu?",
@@ -9070,7 +9062,7 @@
    "Aynı testte plan sayısı ile plan fiyatlarını birlikte değiştirmeyin.",
    "Çekici-alternatif planı gerçek maliyetinin altında fiyatlandırıp asıl planları yapay biçimde pahalı göstermeyin.",
    "Orta planın içeriğini test sırasında zenginleştirmeyin; tek değişken üçüncü seçeneğin varlığıdır.",
-   "Kurumsal fiyat sayfası gizliyse bu senaryoyu `saas-b2b.md`’deki plan-varsayılanı senaryosuyla karıştırmayın — ikisi ayrı testtir."
+   "Bu testi planın varsayılan seçili gelmesi gibi ayrı bir fiyatlandırma testiyle aynı anda yürütmeyin."
   ],
   "sideA": {
    "role": "control",
@@ -9145,7 +9137,7 @@
    "Sıralamayı, plan içeriklerini veya fiyatlarını aynı anda değiştirerek test etmeyin.",
    "Pahalı planı önce göstererek ucuz planı yapay biçimde küçük veya eksik göstermeyin.",
    "Sıralamayı mobil ve masaüstünde farklı test ediyorsanız bunu ayrı bulgu olarak raporlayın, tek sonuca indirmeyin.",
-   "Enterprise/kurumsal planı bu sıralamaya dahil ediyorsanız `saas-b2b.md`’deki fiyat gizleme senaryosuyla çelişmeyin."
+   "Plan sırasını değiştirirken enterprise fiyatının görünürlüğünü aynı testte değiştirmeyin."
   ],
   "sideA": {
    "role": "option-a",
@@ -9220,7 +9212,7 @@
    "Aynı testte fiyat formatını ve fiyat seviyesini birlikte değiştirmeyin.",
    "Farklı ürünlerde tutarsız bir format kullanıp karşılaştırmayı zorlaştırmayın.",
    "Vergi veya ek ücretin küsuratını ana tutarla karıştırıp toplam tutarı belirsizleştirmeyin.",
-   "Fiyat gösteriminin yasal olarak düzenlendiği pazarlarda kuralı doğrulamadan format değiştirmeyin (kural 11)."
+   "Fiyat gösteriminin düzenlendiği pazarlarda ilgili kuralları doğrulamadan formatı değiştirmeyin."
   ],
   "sideA": {
    "role": "control",
@@ -9291,10 +9283,10 @@
    }
   ],
   "guardrails": [
-   "Doğrulanamayan veya uydurma bir referans sayı göstermeyin (kural 6) — piyasa ortalaması veya rakip fiyatı iddiası gerçek, güncel bir kaynağa dayanmalı.",
+   "Doğrulanamayan veya uydurma bir referans sayı göstermeyin; piyasa ortalaması ya da rakip fiyatı iddiası güncel bir kaynağa dayanmalı.",
    "Aynı testte referans sayının varlığını ve asıl fiyat seviyesini birlikte değiştirmeyin.",
    "Referans sayıyı gerçekçi olmayacak kadar büyük seçip asıl fiyatı yapay biçimde ucuz göstermeyin.",
-   "Rakip fiyatını isim vererek gösteriyorsanız haksız rekabet veya karşılaştırmalı reklam kurallarını hedef pazarda doğrulamadan yayınlamayın (kural 11).",
+   "Rakip fiyatını isim vererek gösteriyorsanız karşılaştırmalı reklam ve haksız rekabet kurallarını hedef pazarda doğrulayın.",
    "Referans sayıyı güncellemiyorsanız eski veya geçersiz bir rakamda donmuş bırakmayın."
   ],
   "sideA": {
@@ -9316,7 +9308,7 @@
   "category": "Product Detail Page",
   "surface": "pdp",
   "question": "Stüdyo çekimi mi, gerçek kullanıcı fotoğrafı mı daha çok satıyor?",
-  "hypothesis": "Profesyonel stüdyo çekimi ürünü kusursuz gösterir ama mesafeli durabilir. İzinli, gerçekten o kullanıcıdan alınmış bir kullanıcı fotoğrafı ürünün gerçek hayattaki halini gösterip güveni artırabilir — ama markanın algılanan kalitesini de düşürebilir. Gerçek olmayan bir fotoğrafı “kullanıcı fotoğrafı” gibi sunmak bu testin kapsamı dışındadır (CLAUDE.md kural 6).",
+  "hypothesis": "Profesyonel stüdyo çekimi ürünü kontrollü ve tutarlı gösterir. İzinli bir kullanıcı fotoğrafı ise ürünün gerçek hayattaki görünümünü daha iyi anlatabilir; buna karşılık algılanan görsel kaliteyi düşürebilir.",
   "setupType": "option-vs-option",
   "comparisonMode": "media",
   "differenceBehavior": "change",
@@ -9390,8 +9382,8 @@
   "slug": "tek-gorsel-mi-coklu-gorsel-mi-daha-etkili",
   "category": "Product Detail Page",
   "surface": "pdp",
-  "question": "Tek görsel mi, çoklu görsel mi daha etkili?",
-  "hypothesis": "Ürün fotoğrafı, e-ticarette dokunma deneyiminin yerini alır. Farklı açılardan çoklu görsel güveni artırabilir, ancak düşük kaliteli görsel en iyi testi bile boşa çıkarır.",
+  "question": "Tek ürün görseli mi, dört farklı açı mı daha etkili?",
+  "hypothesis": "Tek ürün görseli daha sade bir sayfa sunar; aynı ürünü dört sabit açıdan göstermek ise ürünün biçimi ve detayları hakkında daha fazla bilgi verebilir. Fotoğraf kalitesi ve çözünürlüğü iki kolda aynı tutulmalıdır.",
   "setupType": "option-vs-option",
   "comparisonMode": "media",
   "differenceBehavior": "add",
@@ -9449,16 +9441,16 @@
   ],
   "sideA": {
    "role": "option-a",
-   "label": "Tek ürün görseli",
-   "sourceBasis": "\"Tek görsel mi, 3-5 açıdan görsel mi daha çok güven veriyor?\""
+   "label": "Ürün sayfasında tek ana görsel gösteriliyor",
+   "sourceBasis": "Tek görsel kolu."
   },
   "sideB": {
    "role": "option-b",
-   "label": "3-5 farklı açıdan çoklu görsel",
-   "sourceBasis": "\"3-5 açıdan görsel mi daha çok güven veriyor?\""
+   "label": "Aynı ürün dört önceden belirlenmiş açıdan gösteriliyor",
+   "sourceBasis": "Çoklu görsel kolu dört sabit açıyla tanımlandı."
   },
-  "seoTitle": "Single Image vs Multiple Product Images A/B Test",
-  "seoDescription": "A test idea comparing one product photo with a three-to-five angle set, and why image quality itself can decide the outcome before the variant does."
+  "seoTitle": "One Product Image vs Four Angles A/B Test",
+  "seoDescription": "Compare one product image with four predefined product angles while keeping image quality consistent, using conversion and returns as outcomes."
  },
  {
   "id": "AB-128",
@@ -9604,11 +9596,11 @@
   },
   "sideB": {
    "role": "option-b",
-   "label": "Yorum özetini sayfanın alt kısmında / açıklama sonunda gösterme",
-   "sourceBasis": "\"sayfanın alt kısmında mı sunulduğu\""
+   "label": "Yorum özeti ürün açıklamasının hemen altında gösteriliyor",
+   "sourceBasis": "Alt konum tek ve sabit bir yer olarak tanımlandı."
   },
   "seoTitle": "Review Summary Placement A/B Test on Product Pages",
-  "seoDescription": "A test idea moving the star rating and review count between a spot under the price and the lower page, changing when social proof reaches the reader."
+  "seoDescription": "Move the star rating and review count from directly below the price to just below the product description and compare downstream conversion."
  },
  {
   "id": "AB-130",
@@ -11458,12 +11450,12 @@
   "slug": "urunun-boyutunu-anlatan-bir-referans-gostermek-ise-yarar-mi",
   "category": "Product Detail Page",
   "surface": "pdp",
-  "question": "Ürünün boyutunu anlatan bir referans göstermek işe yarar mı?",
-  "hypothesis": "Ürünün yanında bilinen bir nesne veya ölçü göstergesi bulunması, ölçek algısını netleştirir ve “sandığımdan küçükmüş” kaynaklı iadeyi azaltabilir. Riski: referans nesne ürünün önüne geçebilir, görsel dili bozabilir ve yanlış seçilmiş bir referans ölçeği daha da belirsizleştirir.",
+  "question": "Ürünün yanında ölçü çizgisi göstermek boyut algısını iyileştirir mi?",
+  "hypothesis": "Ürünün yanında sabit bir ölçü çizgisi göstermek fiziksel boyutu daha hızlı anlatabilir ve yanlış ölçek beklentisini azaltabilir. Referans, ürün fotoğrafını kapatmamalı veya ölçüyü olduğundan farklı göstermemelidir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
-  "testedSlot": "boyut referansı",
+  "testedSlot": "ürün ölçü çizgisi",
   "primaryKpi": {
    "label": "İade Oranı",
    "explanation": "Ölçek kaynaklı iade azalıyor mu?"
@@ -11517,16 +11509,16 @@
   ],
   "sideA": {
    "role": "control",
-   "label": "Ürün yanında boyut/ölçek referansı yok",
-   "sourceBasis": "Soru: 'Ürünün boyutunu anlatan bir referans göstermek işe yarar mı?'"
+   "label": "Ürün görselinde ölçü referansı yok",
+   "sourceBasis": "Kontrol kolunda ölçek işareti bulunmuyor."
   },
   "sideB": {
    "role": "variant",
-   "label": "Ürün yanında ölçek referansı (nesne/ölçü çizgisi/insan referansı) gösteriliyor",
-   "sourceBasis": "Mekanizma: 'Ürünün yanında bilinen bir nesne veya ölçü göstergesi bulunması'"
+   "label": "Ürün görselinin yanında gerçek ölçüyü gösteren çizgi var",
+   "sourceBasis": "Yalnızca ölçü çizgisi ekleniyor."
   },
-  "seoTitle": "Size Reference Objects in Product Photos: A/B Test",
-  "seoDescription": "An experiment example on scale cues: no reference against a familiar object, scale bar or human figure beside the product. Return rate is the KPI."
+  "seoTitle": "Product Measurement Line on PDP A/B Test",
+  "seoDescription": "Add a measurement line beside the product image and compare it with no scale cue, tracking conversion and size-related returns."
  },
  {
   "id": "AB-156",
@@ -11680,7 +11672,7 @@
  },
  {
   "id": "AB-158",
-  "slug": "stokta-olmayan-bir-urunun-satin-alma-butonunu-kaldirmak-mi-haber-ver-secenegi-mi",
+  "slug": "stokta-yoksa-haber-ver",
   "category": "Product Detail Page",
   "surface": "pdp",
   "question": "Stokta olmayan bir ürünün satın alma butonunu kaldırmak mı, haber ver seçeneği mi daha iyi çalışıyor?",
@@ -11734,10 +11726,10 @@
    }
   ],
   "guardrails": [
-   "Gerçekte belirsiz olan bir stok geliş tarihini kesinmiş gibi göstermeyin (kural 10) — tahminse tahmin olduğu belirtilir.",
+   "Belirsiz bir stok geliş tarihini kesinmiş gibi göstermeyin; tahminse tahmin olduğunu açıkça belirtin.",
    "Aynı testte haber ver biçimini ve alternatif ürün önerisinin varlığını birlikte değiştirmeyin.",
    "Kullanıcıdan yalnızca haber ver kaydı için gereğinden fazla bilgi istemeyin.",
-   "Haber ver akışına gerçek stok verisiyle doğrulanmamış bir aciliyet mesajı (ör. “sadece birkaç adet kalacak”) eklemeyin (kural 6).",
+   "Haber ver akışına gerçek stok verisiyle doğrulanmamış bir aciliyet mesajı eklemeyin.",
    "Butonu kaldırırken sayfanın geri kalanını (fiyat, görsel, açıklama) aynı anda yeniden düzenlemeyin — tek değişken haber ver mekanizmasının kendisidir."
   ],
   "sideA": {
@@ -11755,7 +11747,7 @@
  },
  {
   "id": "AB-159",
-  "slug": "satin-almadan-once-urunu-ozellestirme-imkani-sunmak-satin-alma-niyetini-artirir-",
+  "slug": "urun-ozellestirme-secenegi",
   "category": "Product Detail Page",
   "surface": "pdp",
   "question": "Satın almadan önce ürünü özelleştirme imkânı sunmak satın alma niyetini artırır mı?",
@@ -11830,7 +11822,7 @@
  },
  {
   "id": "AB-160",
-  "slug": "urunun-uretildigi-veya-tasarlandigi-ulkeyi-gostermek-satin-alma-kararini-etkiler",
+  "slug": "urun-koken-bilgisi",
   "category": "Product Detail Page",
   "surface": "pdp",
   "question": "Ürünün üretildiği veya tasarlandığı ülkeyi göstermek satın alma kararını etkiler mi?",
@@ -11884,10 +11876,10 @@
    }
   ],
   "guardrails": [
-   "Gerçek üretim veya tasarım yerinden farklı bir köken iddia etmeyin (kural 6, kural 10) — bu hem etik hem yasal bir ihlaldir.",
+   "Gerçek üretim veya tasarım yerinden farklı bir köken iddia etmeyin.",
    "Aynı testte köken bilgisinin varlığını ve ürün fiyatını birlikte değiştirmeyin.",
    "Köken bilgisini yalnızca algı yüksek olan ülkelerde gösterip düşük olanlarda gizleyerek seçici bir yanıltma kurmayın.",
-   "Hedef pazarın köken veya menşei etiketleme mevzuatını doğrulamadan format değiştirmeyin (kural 11).",
+   "Hedef pazarın köken veya menşei etiketleme kurallarını doğrulamadan formatı değiştirmeyin.",
    "Köken rozetini gerçek boyutundan büyük göstererek asıl ürün görselinin önüne geçirmeyin."
   ],
   "sideA": {
@@ -11905,7 +11897,7 @@
  },
  {
   "id": "AB-161",
-  "slug": "paket-icerigini-benzer-fiyat-araligindaki-urunlerden-mi-farkli-fiyat-araligindak",
+  "slug": "paket-urun-fiyat-araligi",
   "category": "Product Detail Page",
   "surface": "pdp",
   "question": "Paket içeriğini benzer fiyat aralığındaki ürünlerden mi, farklı fiyat aralığındaki ürünlerden mi oluşturmalı?",
@@ -11961,7 +11953,7 @@
   "guardrails": [
    "Aynı testte paket kompozisyonunu ve paketin toplam fiyatını birlikte değiştirmeyin.",
    "Pakete stokta olmayan veya düşük kaliteli bir ürünü yalnızca dolgu malzemesi olarak eklemeyin.",
-   "Paketin toplam değerini gerçek ayrı satış fiyatlarının toplamından farklı hesaplayıp yanıltıcı bir tasarruf iddiası kurmayın (kural 6).",
+   "Paketin toplam değerini gerçek ayrı satış fiyatlarından farklı hesaplayarak yanıltıcı bir tasarruf iddiası kurmayın.",
    "Kullanıcıyı paketin tamamını almaya zorlayıp tekli ürün seçeneğini gizlemeyin.",
    "Tamamen ilgisiz kategorilerdeki ürünleri yalnızca fiyatı doldurmak için bir araya getirmeyin."
   ],
@@ -12508,8 +12500,8 @@
   "slug": "deneme-suresi-7-14-mu-yoksa-30-gun-mu-olmali",
   "category": "SaaS & B2B",
   "surface": "saas",
-  "question": "Deneme süresi 7, 14 mü yoksa 30 gün mü olmalı?",
-  "hypothesis": "Kısa deneme aciliyet yaratır ama kullanıcı değeri görmeden biter. Uzun deneme değeri gösterir ama karar anını erteler. Optimum sürenin ölçülmesi gerekir.",
+  "question": "Deneme süresi 7 gün mü 14 gün mü olmalı?",
+  "hypothesis": "7 günlük deneme karar anını öne çekerken, 14 günlük deneme kullanıcının ürünü deneyip değer görmesi için daha fazla zaman bırakır. İki süre aynı ürün kapsamı ve aynı onboarding ile karşılaştırılmalıdır.",
   "setupType": "option-vs-option",
   "comparisonMode": "element",
   "differenceBehavior": "change",
@@ -12538,24 +12530,24 @@
   ],
   "whatToTest": [
    {
-    "label": "Süre",
-    "explanation": "7, 14 ve 30 günde ücretliye geçiş nasıl değişiyor?"
+    "label": "Ücretliye geçiş",
+    "explanation": "7 ve 14 günlük denemelerde ücretliye geçiş oranı nasıl değişiyor?"
    },
    {
     "label": "Aktivasyon",
-    "explanation": "Kullanıcı ilk değere kaçıncı günde ulaşıyor?"
+    "explanation": "Kullanıcı ilk değere hangi kolda daha sık ulaşıyor?"
    },
    {
-    "label": "Aciliyet",
-    "explanation": "Kısa deneme kurulum hızını artırıyor mu?"
+    "label": "İlk değere ulaşma",
+    "explanation": "İlk değer anına ulaşma süresi iki kolda farklı mı?"
    },
    {
-    "label": "Uzatma",
-    "explanation": "Süre sonunda uzatma teklifi kurtarma sağlıyor mu?"
+    "label": "Deneme kullanımı",
+    "explanation": "Deneme süresince aktif gün ve oturum sayısı nasıl değişiyor?"
    },
    {
     "label": "Segment",
-    "explanation": "Küçük ekip ile kurumsal farklı süre mi istiyor?"
+    "explanation": "Küçük ekipler ile daha büyük ekipler aynı süreye mı tepki veriyor?"
    }
   ],
   "guardrails": [
@@ -12575,8 +12567,8 @@
    "label": "14 günlük deneme süresi",
    "sourceBasis": "7, 14 ve 30 günde ücretliye geçiş nasıl değişiyor?"
   },
-  "seoTitle": "Trial Length: Comparing 7, 14 and 30 Days A/B Test",
-  "seoDescription": "A three-arm CRO experiment on trial duration, weighing urgency against time to see value. Review each arm, the reasoning and the paid conversion KPI used."
+  "seoTitle": "7-Day vs 14-Day Free Trial A/B Test",
+  "seoDescription": "Compare a 7-day and 14-day free trial with the same product scope and onboarding, using paid conversion as the primary outcome."
  },
  {
   "id": "AB-170",
@@ -12584,7 +12576,7 @@
   "category": "SaaS & B2B",
   "surface": "saas",
   "question": "Çok adımlı form mu, tek sayfa form mu daha çok talep getiriyor?",
-  "hypothesis": "Tek sayfa form tüm alanları baştan gösterir; ne kadar iş olduğu açıktır ama yoğun görünür. Çok adımlı form küçük taahhütlerle ilerletir, ilk adımı bitirenin devam etme olasılığı yüksektir. Bu senaryoyu kurmadan önce şunu kontrol edin: form tek ekrana sığacak şekilde yoğunlaştırılabiliyorsa (ilişkili alanlar yan yana, gereksiz alan çıkarılmış, dikey boşluk azaltılmış) önce onu test edin — adım eklemek her adımda yeni bir terk noktası açar ve çoğu formda tek sayfa kalmak daha iyi çalışır.",
+  "hypothesis": "Tek sayfa form tüm alanları baştan gösterir; çok adımlı form ise aynı alanları daha küçük gruplara böler. Hangisinin daha iyi çalıştığı alan sayısına, cihaz türüne ve kullanıcının formu tamamlama motivasyonuna göre değişebilir; bu yüzden iki yapı aynı alan setiyle karşılaştırılmalıdır.",
   "setupType": "option-vs-option",
   "comparisonMode": "structural",
   "differenceBehavior": "change",
@@ -12730,11 +12722,11 @@
  },
  {
   "id": "AB-172",
-  "slug": "deneme-suresi-bitmeden-gonderilen-mesaji-kayip-cercevesiyle-mi-kazanim-cercevesi",
+  "slug": "kayip-vs-kazanim-mesaji",
   "category": "SaaS & B2B",
   "surface": "saas",
   "question": "Deneme süresi bitmeden gönderilen mesajı kayıp çerçevesiyle mi, kazanım çerçevesiyle mi yazmalı?",
-  "hypothesis": "Aynı bilgi iki farklı çerçeveyle verilebilir: “Yükseltmezsen 3 gün sonra [X özelliğine] erişimini kaybedeceksin” (kayıp) ya da “Şimdi yükselt, [X özelliğini] kullanmaya devam et” (kazanım). Kayıp çerçevesi genelde kazanım çerçevesinden daha güçlü bir davranışsal tepki yaratır, çünkü insanlar eşdeğer bir kaybı bir kazançtan daha ağır hisseder — ama sürekli kayıp diliyle konuşmak markayı baskıcı hissettirebilir.",
+  "hypothesis": "Aynı deneme bitiş bilgisi kayıp veya kazanım çerçevesiyle yazılabilir. Kayıp dili daha fazla yükseltme yaratabilir, ancak baskıcı algılanma riskini de artırabilir; sonuç yükseltme oranı ve kullanıcı tepkisi birlikte okunmalıdır.",
   "setupType": "variant-vs-variant",
   "comparisonMode": "element",
   "differenceBehavior": "change",
@@ -12784,7 +12776,7 @@
    }
   ],
   "guardrails": [
-   "Gerçekte kaybedilmeyecek bir özelliği kaybedilecekmiş gibi göstermeyin (kural 6).",
+   "Gerçekte kaybedilmeyecek bir özelliği kaybedilecekmiş gibi göstermeyin.",
    "Aynı testte mesajın çerçevesini ve gönderim zamanlamasını birlikte değiştirmeyin.",
    "Kayıp çerçevesini, kullanıcıyı gerçek düşünme süresi olmadan anlık karara zorlayacak bir aciliyetle birleştirmeyin.",
    "Aynı mesajı kısa aralıklarla tekrar tekrar göndererek baskıyı artırmayın; sıklığı ayrıca test edin.",
@@ -12805,11 +12797,11 @@
  },
  {
   "id": "AB-173",
-  "slug": "alanin-yanina-neden-soruyoruz-aciklamasi-eklemek-amaci-belirsiz-gorunen-bir-alan",
+  "slug": "formda-neden-soruyoruz-aciklamasi",
   "category": "SaaS & B2B",
   "surface": "saas",
   "question": "Alanın yanına “neden soruyoruz” açıklaması eklemek, amacı belirsiz görünen bir alanı doldurtur mu?",
-  "hypothesis": "Bir lead formundaki “şirket büyüklüğü” veya “yıllık bütçe” gibi bir alan, kullanıcıya neden sorulduğu açık değilse doldurmayı geciktirir veya alanın boş bırakılmasına yol açar. Bu, `forms-signup.md`’deki gizlilik güvencesinden farklı bir tereddüttür: orada endişe “bu bilgi paylaşılır mı”, burada “bu bilgi neden isteniyor”dur. Alanın hemen yanına kısa bir gerekçe eklemek (“Şirket büyüklüğünüzü size doğru planı önerebilmek için soruyoruz”) bu belirsizliği giderebilir, ama her alana gerekçe eklemek formu ağırlaştırır ve gerçekten önemli bir gerekçenin fark edilmesini zorlaştırır.",
+  "hypothesis": "Şirket büyüklüğü veya yıllık bütçe gibi amacı ilk bakışta açık olmayan alanlarda kullanıcı neden bu bilginin istendiğini anlamayabilir. Alanın yanında kısa ve gerçek kullanım amacını açıklayan bir gerekçe göstermek doldurma oranını artırabilir; gereksiz açıklama ise formu ağırlaştırabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -12860,9 +12852,9 @@
   ],
   "guardrails": [
    "Aynı testte gerekçe metni ile alanın zorunlu/isteğe bağlı durumunu birlikte değiştirmeyin.",
-   "Gerekçeyi, alanın gerçek kullanım amacını gizleyen yanıltıcı bir cümleyle yazmayın (kural 10).",
+   "Gerekçeyi alanın gerçek kullanım amacını gizleyen yanıltıcı bir cümleyle yazmayın.",
    "Her alana gerekçe ekleyip hangisinin fark yarattığını ölçemez hâle gelmeyin.",
-   "Hassas bir alan (kimlik no, doğum tarihi vb.) için yalnızca gerekçe eklemeyi tek çözüm gibi sunmayın — kural 14’teki diğer yöntemler de değerlendirilmeli.",
+   "Hassas bir alan için yalnızca açıklama eklemeyi tek çözüm gibi sunmayın; veri ihtiyacını ve alternatif yöntemleri de değerlendirin.",
    "Gerekçe metnini alanın kendisinden daha büyük veya dikkat çekici yapıp formu ağırlaştırmayın."
   ],
   "sideA": {
@@ -12880,11 +12872,11 @@
  },
  {
   "id": "AB-174",
-  "slug": "satis-sayfasini-tek-sutunlu-mu-ikinci-bir-sutunla-yan-baglantilar-ek-bilgi-mi-ku",
+  "slug": "tek-sutun-vs-iki-sutun-satis-sayfasi",
   "category": "SaaS & B2B",
   "surface": "saas",
   "question": "Satış sayfasını tek sütunlu mu, ikinci bir sütunla (yan bağlantılar/ek bilgi) mi kurmalı?",
-  "hypothesis": "Bu senaryo `forms-signup.md`’deki form alanı sütun düzeninden farklıdır — orası formun içindeki alanların yerleşimini, bu senaryo sayfanın genel iskeletini (ana içerik + varsa yan sütun) ele alır. İkinci bir sütun (ilgili bağlantılar, ek sosyal kanıt, site içi arama) sayfaya ek bilgi katar ama gözü ana anlatıdan uzaklaştırıp dikkati bölebilir. Tek sütuna indirmek doğrusal, kesintisiz bir okuma akışı kurar; riski, yan sütunda duran bilgiye erişimin kaybolmasıdır.",
+  "hypothesis": "İkinci bir sütun ilgili bağlantılar, ek sosyal kanıt veya site içi arama gibi yardımcı içeriğe yer açar; ancak ana anlatı ve CTA ile rekabet edebilir. Tek sütunlu yapı daha doğrusal bir okuma akışı sağlayabilir, fakat yardımcı içeriğin görünürlüğünü azaltabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "structural",
   "differenceBehavior": "change",
@@ -13033,12 +13025,12 @@
   "slug": "arama-cubugu-ne-kadar-gorunur-olmali",
   "category": "Search & Filtering",
   "surface": "search",
-  "question": "Arama çubuğu ne kadar görünür olmalı?",
-  "hypothesis": "Arama çubuğunun konumu ve görünürlüğü, kullanıcının ürün keşif davranışını değiştirebilir. Bunun dönüşüme yansıyıp yansımadığı ölçülmelidir.",
+  "question": "Arama alanı header'da açık mı, menü içinde mi olmalı?",
+  "hypothesis": "Header'da sürekli görünen arama alanı aramayı daha keşfedilebilir yapabilir; menü içine alınan arama ise üst alanı sadeleştirir fakat aramaya ulaşmak için ek bir adım gerektirir.",
   "setupType": "option-vs-option",
   "comparisonMode": "element",
-  "differenceBehavior": "change",
-  "testedSlot": "arama çubuğu görünürlüğü",
+  "differenceBehavior": "move",
+  "testedSlot": "arama alanı konumu",
   "primaryKpi": {
    "label": "Dönüşüm Oranı (CR)",
    "explanation": "Arama yapanların satın alma oranı artıyor mu?"
@@ -13063,24 +13055,24 @@
   ],
   "whatToTest": [
    {
-    "label": "Konum",
-    "explanation": "Header’da mı, menü içinde mi, yalnızca ikon olarak mı?"
+    "label": "Arama kullanımı",
+    "explanation": "Header'daki açık alan mı, menü içindeki arama mı daha fazla kullanılıyor?"
    },
    {
-    "label": "Görünürlük",
-    "explanation": "Açık arama alanı mı, sadece ikon mu daha çok tıklanıyor?"
+    "label": "Arama dönüşümü",
+    "explanation": "Aramayı kullanan ziyaretçilerin dönüşüm oranı iki kolda farklı mı?"
    },
    {
-    "label": "Placeholder",
-    "explanation": "“Ürün ara…” mı, “Favori markanı yaz” mı daha etkili?"
+    "label": "Ürüne ulaşma",
+    "explanation": "Arama sonrası ürün tıklamasına ulaşma süresi değişiyor mu?"
    },
    {
-    "label": "Öneriler",
-    "explanation": "Otomatik öneri doğru ürüne ulaşmayı hızlandırıyor mu?"
+    "label": "Sonuç kalitesi",
+    "explanation": "Sonuçsuz arama ve yeniden arama oranı artıyor mu?"
    },
    {
     "label": "Cihaz",
-    "explanation": "Mobilde ve masaüstünde görünürlük ihtiyacı aynı mı?"
+    "explanation": "Mobil ve masaüstünde aynı yerleşim aynı sonucu veriyor mu?"
    }
   ],
   "guardrails": [
@@ -13092,27 +13084,27 @@
   ],
   "sideA": {
    "role": "option-a",
-   "label": "Header'da açık arama alanı",
-   "sourceBasis": "Header'da mı, menü içinde mi, yalnızca ikon olarak mı?"
+   "label": "Header'da sürekli görünür arama alanı",
+   "sourceBasis": "Arama alanı header içinde açık olarak gösteriliyor."
   },
   "sideB": {
    "role": "option-b",
-   "label": "Menü içinde arama",
-   "sourceBasis": "Header'da mı, menü içinde mi, yalnızca ikon olarak mı?"
+   "label": "Arama menü içinde açılıyor",
+   "sourceBasis": "Aramaya menü üzerinden ulaşılıyor."
   },
-  "seoTitle": "How Visible Should the Search Bar Be? A/B Test Example",
-  "seoDescription": "A three-arm CRO experiment on search entry points: an open field in the header, search inside the menu, or an icon only. See each arm and the tracked KPI."
+  "seoTitle": "Header Search Field vs Menu Search A/B Test",
+  "seoDescription": "Compare an always-visible search field in the header with search placed inside the menu, tracking search use and downstream conversion."
  },
  {
   "id": "AB-177",
   "slug": "varsayilan-arama-onerileri-donusumu-etkiliyor-mu",
   "category": "Search & Filtering",
   "surface": "search",
-  "question": "Varsayılan arama önerileri dönüşümü etkiliyor mu?",
-  "hypothesis": "Arama alanının önceki aramaları otomatik doldurup doldurmaması, keşif sürecini ve karar hızını değiştirebilir.",
+  "question": "Arama kutusunda önceki aramalar gösterilmeli mi?",
+  "hypothesis": "Arama kutusunda kullanıcının önceki aramalarını öneri olarak göstermek yeni aramayı hızlandırabilir. Aynı öneriler alakasız olduğunda keşfi daraltabilir veya ortak cihazlarda mahremiyet sorunu yaratabilir.",
   "setupType": "option-vs-option",
   "comparisonMode": "element",
-  "differenceBehavior": "add",
+  "differenceBehavior": "change",
   "testedSlot": "arama önerileri",
   "primaryKpi": {
    "label": "Dönüşüm Oranı (CR)",
@@ -13167,16 +13159,16 @@
   ],
   "sideA": {
    "role": "option-a",
-   "label": "Varsayılan arama önerisi gösterme (önceki aramalar otomatik dolduruluyor)",
-   "sourceBasis": "Arama alanının önceki aramaları otomatik doldurup doldurmaması"
+   "label": "Arama kutusu açıldığında önceki aramalar öneri olarak gösteriliyor",
+   "sourceBasis": "Önceki aramalar görünür."
   },
   "sideB": {
    "role": "option-b",
-   "label": "Boş arama kutusu / öneri yok",
-   "sourceBasis": "Boş arama kutusu popüler kategorilere yönlendiriyor mu?"
+   "label": "Arama kutusu boş açılıyor; önceki aramalar gösterilmiyor",
+   "sourceBasis": "Önceki aramalar görünmez."
   },
-  "seoTitle": "Prefilled Search Suggestions or an Empty Box A/B Test",
-  "seoDescription": "A CRO experiment comparing a search field prefilled with previous searches against an empty box with no suggestions. See both arms, the setup and the KPI."
+  "seoTitle": "Previous Searches vs Empty Search Box A/B Test",
+  "seoDescription": "Compare showing previous searches when the search box opens with an empty search box, tracking search use, conversion and privacy concerns."
  },
  {
   "id": "AB-178",
@@ -13258,8 +13250,8 @@
   "slug": "arama-sonuclarinda-varsayilan-siralama-ne-olmali",
   "category": "Search & Filtering",
   "surface": "search",
-  "question": "Arama sonuçlarında varsayılan sıralama ne olmalı?",
-  "hypothesis": "Varsayılan sıralama, kullanıcıların büyük çoğunluğunun gördüğü tek sıralamadır. İlgi düzeyi, çok satan ve fiyat sıralamaları farklı kullanıcı gruplarına hizmet eder ve marj üzerinde farklı etki yaratır.",
+  "question": "Varsayılan arama sıralaması ilgi düzeyine göre mi, çok satana göre mi olmalı?",
+  "hypothesis": "İlgi düzeyine göre sıralama sorguyla eşleşmeyi öne çıkarır; çok satana göre sıralama ise daha sık tercih edilen ürünleri yukarı taşır. İki varsayılan aynı sonuç kümesi ve aynı filtrelerle karşılaştırılmalıdır.",
   "setupType": "option-vs-option",
   "comparisonMode": "structural",
   "differenceBehavior": "change",
@@ -13288,24 +13280,24 @@
   ],
   "whatToTest": [
    {
-    "label": "Dönüşüm",
-    "explanation": "Hangi varsayılan sıralama daha yüksek dönüşüm getiriyor?"
+    "label": "Arama dönüşümü",
+    "explanation": "Hangi varsayılan sıralama daha yüksek arama dönüşümü getiriyor?"
    },
    {
-    "label": "Sepet",
-    "explanation": "Çok satan sıralaması ortalama sepet tutarını düşürüyor mu?"
+    "label": "İlk sonuç etkileşimi",
+    "explanation": "İlk dört sonuca tıklama oranı iki kolda nasıl değişiyor?"
    },
    {
-    "label": "Kontrol",
-    "explanation": "Kullanıcılar sıralamayı ne sıklıkla manuel değiştiriyor?"
+    "label": "Sıralama değiştirme",
+    "explanation": "Kullanıcı hangi kolda varsayılanı daha sık değiştiriyor?"
    },
    {
-    "label": "Uzun kuyruk",
-    "explanation": "Nadir aramalarda ilgi düzeyi daha mı iyi çalışıyor?"
+    "label": "Sepet değeri",
+    "explanation": "Varsayılan sıralama ortalama sepet tutarını etkiliyor mu?"
    },
    {
     "label": "Segment",
-    "explanation": "Yeni ve dönen kullanıcıda kazanan farklı mı?"
+    "explanation": "Yeni ve dönen kullanıcılar aynı varsayılana mı daha iyi tepki veriyor?"
    }
   ],
   "guardrails": [
@@ -13325,8 +13317,8 @@
    "label": "Çok satana göre sıralama",
    "sourceBasis": "İlgi düzeyi, çok satan ve fiyat sıralamaları..."
   },
-  "seoTitle": "Default Sort Order on the Search Results Page A/B Test",
-  "seoDescription": "A three-arm CRO experiment on the sort most users never change: relevance, best-selling or price. See each arm, the margin logic and the search KPI."
+  "seoTitle": "Relevance vs Best-Selling Default Search Sort A/B Test",
+  "seoDescription": "Compare relevance and best-selling as the default search sort while keeping the result set and filters unchanged, using search conversion as the primary KPI."
  },
  {
   "id": "AB-180",
@@ -14005,7 +13997,7 @@
  },
  {
   "id": "AB-189",
-  "slug": "misafir-olarak-odeme-yapana-tesekkur-sayfasinda-hesap-olusturma-daveti-gostermek",
+  "slug": "tesekkur-sayfasinda-hesap-daveti",
   "category": "Thank You",
   "surface": "thankyou",
   "question": "Misafir olarak ödeme yapana teşekkür sayfasında hesap oluşturma daveti göstermek kayıt oranını artırır mı?",
@@ -14080,7 +14072,7 @@
  },
  {
   "id": "AB-190",
-  "slug": "tesekkur-sayfasinda-arkadasini-davet-et-teklifini-gostermek-paylasim-oranini-art",
+  "slug": "tesekkur-sayfasinda-arkadasini-davet-et",
   "category": "Thank You",
   "surface": "thankyou",
   "question": "Teşekkür sayfasında arkadaşını davet et teklifini göstermek paylaşım oranını artırır mı?",
@@ -14134,7 +14126,7 @@
    }
   ],
   "guardrails": [
-   "Vaat edilen ödülü gerçekte vermeyin ya da koşullarını sayfada belirtmeden bırakmayın (kural 6).",
+   "Vaat edilen ödülü gerçekten sağlamadan veya koşullarını açıkça belirtmeden referral teklifi yayınlamayın.",
    "Aynı testte teşvik türü ile paylaşım kanallarının sırasını birlikte değiştirmeyin.",
    "Daveti kapatılamaz hâle getirmeyin; kullanıcı sipariş bilgisine daveti görmeden de ulaşabilmeli.",
    "Kullanıcının rızası olmadan davet linkini otomatik olarak sosyal medyada paylaşmayın.",
@@ -14155,7 +14147,7 @@
  },
  {
   "id": "AB-191",
-  "slug": "siparis-onayini-rutin-bir-bilgi-ekrani-yerine-akilda-kalici-bir-an-olarak-tasarl",
+  "slug": "siparis-onayinda-kisisellestirilmis-tesekkur",
   "category": "Thank You",
   "surface": "thankyou",
   "question": "Sipariş onayını rutin bir bilgi ekranı yerine akılda kalıcı bir an olarak tasarlamak sadakati artırır mı?",
@@ -14533,12 +14525,12 @@
   "slug": "buyuk-taahhut-butonu-mu-kucuk-adim-butonu-mu-daha-cok-ilerletiyor",
   "category": "UI Elements",
   "surface": "generic-ui",
-  "question": "Büyük taahhüt butonu mu, küçük adım butonu mu daha çok ilerletiyor?",
-  "hypothesis": "“Satın al” doğrudan sonuca gider ama hazır olmayan ziyaretçiyi durdurur. “Önce dene”, “Fiyatı gör” gibi küçük bir adım daha çok tıklanır ama ilerleyen kullanıcıların bir kısmı sonuca hiç ulaşmaz. Doğru cevap, ziyaretçinin karar aşamasına ve ürünün fiyat seviyesine bağlıdır.",
+  "question": "'Satın al' mı, 'Fiyatı gör' mü daha çok ilerletiyor?",
+  "hypothesis": "'Satın al' doğrudan yüksek taahhüt isterken, 'Fiyatı gör' bir sonraki adıma daha düşük taahhütle geçiş sunar. İki CTA metni aynı konum, boyut ve hedef akışla karşılaştırılmalıdır.",
   "setupType": "variant-vs-variant",
   "comparisonMode": "element",
   "differenceBehavior": "change",
-  "testedSlot": "CTA taahhüt büyüklüğü",
+  "testedSlot": "CTA taahhüt metni",
   "primaryKpi": {
    "label": "Nihai Dönüşüm Oranı (CR)",
    "explanation": "Huninin sonundaki tamamlama artıyor mu?"
@@ -14592,16 +14584,16 @@
   ],
   "sideA": {
    "role": "variant-a",
-   "label": "Büyük taahhüt CTA'sı: Satın al",
-   "sourceBasis": "Mechanism: Satın al doğrudan sonuca gider"
+   "label": "CTA metni: 'Satın al'",
+   "sourceBasis": "Yüksek taahhüt kolu."
   },
   "sideB": {
    "role": "variant-b",
-   "label": "Küçük adım CTA'sı: Önce dene / Fiyatı gör",
-   "sourceBasis": "Mechanism: Önce dene, Fiyatı gör gibi bir küçük adım"
+   "label": "CTA metni: 'Fiyatı gör'",
+   "sourceBasis": "Daha küçük adım kolu."
   },
-  "seoTitle": "High-Commitment CTA vs Low-Commitment CTA A/B Test",
-  "seoDescription": "A CTA experiment example comparing a Buy now ask with a smaller step such as Try first or See pricing. See both arms, the context notes and the KPI."
+  "seoTitle": "Buy Now vs See Pricing CTA A/B Test",
+  "seoDescription": "Compare Buy now with See pricing in the same CTA position and style, measuring progression and final conversion rather than clicks alone."
  },
  {
   "id": "AB-197",
@@ -14984,7 +14976,7 @@
   "category": "UI Elements",
   "surface": "generic-ui",
   "question": "Süreli kampanya duyurusunu site genelinde göstermek işe yarar mı?",
-  "hypothesis": "Belirli bir süre boyunca tüm sayfalarda görünen bir duyuru şeridi kampanyayı kaçırılmaz kılar. Riski: kullanıcılar reklam bandına benzeyen öğeleri görmezden gelmeyi öğrenmiştir, şerit her sayfada dikey alan yer ve süreklileşen bir duyuru bir süre sonra görünmez hâle gelir. (Kalıcı hizmet vaatlerini — kargo, iade, teslimat — sayfa üstünde göstermek ayrı bir senaryodur: `home-landing.md` → fayda çubuğu.)",
+  "hypothesis": "Belirli bir süre boyunca site genelinde görünen duyuru şeridi kampanya mesajını daha görünür hâle getirebilir. Buna karşılık ekran alanı kullanır ve tekrar eden ziyaretlerde fark edilmemeye başlayabilir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "add",
@@ -15034,9 +15026,9 @@
    }
   ],
   "guardrails": [
-   "Kapatılamayan bir çubuk kurmayın (kural 6).",
+   "Kapatılamayan bir duyuru çubuğu kullanmayın.",
    "Aynı testte çubuğun varlığı ile içeriğini birlikte değiştirmeyin.",
-   "Süresi dolunca gerçekten kalkmayan “süreli” kampanya duyurmayın; sayaç ve tarih gerçek olmalı (kural 6).",
+   "Süresi dolduğunda kalkmayan 'süreli' kampanya duyurusu göstermeyin; tarih ve sayaç gerçek olmalı.",
    "Çubuğu sabitleyip ekranın önemli bir kısmını kalıcı olarak kaplamayın.",
    "Çubuk tıklaması arttı diye sitenin ana dönüşümüne bakmadan kazandı demeyin."
   ],
@@ -15176,7 +15168,7 @@
    }
   ],
   "guardrails": [
-   "Karşılığı olmayan bir rozet göstermeyin; sahte bekleyen iş üretmeyin (kural 6).",
+   "Karşılığı olmayan bir bildirim rozeti göstermeyin; sahte bekleyen iş üretmeyin.",
    "Aynı testte rozet biçimi ile rozetin konumunu birlikte değiştirmeyin.",
    "Sıfırlanamayan, kullanıcının kapatamadığı bir rozet kurmayın.",
    "Rozeti yalnızca kırmızı renkle ayırt edilebilir bırakmayın.",
@@ -15326,7 +15318,7 @@
    }
   ],
   "guardrails": [
-   "Kapatılamayan veya kapatma düğmesi gizlenmiş bir pencere kurmayın (kural 6).",
+   "Kapatılamayan veya kapatma düğmesi gizlenmiş bir pencere kurmayın.",
    "Kullanıcı bir form doldururken veya ödeme yaparken pencereyi açmayın.",
    "Aynı testte açılma davranışı ile karşılama mesajını birlikte değiştirmeyin.",
    "Kapatılan pencereyi aynı oturumda tekrar açmayın.",
@@ -15476,7 +15468,7 @@
    }
   ],
   "guardrails": [
-   "Ekran okuyucu kullanıcısını önceden uyarmadan yeni sekme açan bağlantı kurmayın (erişilebilirlik guardrail’i, kural 3).",
+   "Yeni sekmede açılan bağlantıyı ekran okuyucu ve klavye kullanıcıları için anlaşılır biçimde belirtin.",
    "Aynı testte iç ve dış bağlantıların davranışını birlikte değiştirmeyin.",
    "Ödeme veya form gönderimi gibi kritik bir aksiyonu yeni sekmede açıp kullanıcıyı akıştan koparmayın.",
    "Yeni sekme davranışını yalnızca bazı tarayıcılarda tutarsız çalışacak şekilde kurmayın.",
@@ -15497,7 +15489,7 @@
  },
  {
   "id": "AB-209",
-  "slug": "buton-metnini-komut-kipiyle-mi-baslat-birinci-sahis-bildirimiyle-mi-basliyorum-y",
+  "slug": "buton-metni-komut-vs-birinci-sahis",
   "category": "UI Elements",
   "surface": "generic-ui",
   "question": "Buton metnini komut kipiyle mi (“Başlat”), birinci şahıs bildirimiyle mi (“Başlıyorum”) yazmalı?",
@@ -15572,7 +15564,7 @@
  },
  {
   "id": "AB-210",
-  "slug": "ic-promosyon-banner-i-tek-bir-motivasyona-mi-birden-fazla-secenege-mi-odaklanmal",
+  "slug": "promosyon-banner-tek-vs-cok-mesaj",
   "category": "UI Elements",
   "surface": "generic-ui",
   "question": "İç promosyon banner’ı tek bir motivasyona mı, birden fazla seçeneğe mi odaklanmalı?",
@@ -15627,7 +15619,7 @@
   ],
   "guardrails": [
    "Aynı testte banner’ın odağı ile konumunu/boyutunu birlikte değiştirmeyin.",
-   "Gerçekte sınırlı olmayan bir teklifi “bugüne özel” gibi göstermeyin (kural 6).",
+   "Gerçekte sınırlı olmayan bir teklifi 'bugüne özel' gibi göstermeyin.",
    "Çıkarılan diğer teklifleri sitenin hiçbir yerinde göstermeyip tamamen kaybettirmeyin; en azından ilgili sayfada bulunabilir olmalılar.",
    "Tıklama arttı diye tıklama sonrası tamamlamaya bakmadan kazandı demeyin.",
    "Tek motivasyonu, aslında farklı ziyaretçi segmentlerine göre değişmesi gereken bir mesajı zorla tekleştirmek için kullanmayın."
@@ -15647,15 +15639,15 @@
  },
  {
   "id": "AB-211",
-  "slug": "birden-fazla-secenek-arasindan-birini-gorsel-agirlikla-one-cikarmak-secimi-hizla",
+  "slug": "secenegi-arka-plan-rengiyle-one-cikarma",
   "category": "UI Elements",
   "surface": "generic-ui",
-  "question": "Birden fazla seçenek arasından birini görsel ağırlıkla öne çıkarmak seçimi hızlandırır mı?",
-  "hypothesis": "Kullanıcıya birden fazla eşdeğer seçenek (ör. ürün varyantı, özellik kartı, indirilecek kaynak) sunulduğunda hepsini aynı görsel ağırlıkta göstermek nötr durur ama karar yükünü tamamen kullanıcıya bırakır. Seçeneklerden birini boyut, renk veya konumla diğerlerinden görünür biçimde ağır göstermek seçimi hızlandırabilir; riski, öne çıkarılan seçeneğin gerçekten çoğunluğun ihtiyacına uymamasıdır — bu durumda ağırlık seçimi değil yalnızca tıklamayı yönlendirmiş olur. Bu, `pricing.md`’deki plan sırası veya “en popüler” rozeti senaryolarından farklıdır: onlar fiyat planlarına özgüdür, bu senaryo fiyat içermeyen herhangi bir çoklu seçenek sunumuna uygulanır.",
+  "question": "Bir seçeneği arka plan rengiyle öne çıkarmak seçimi hızlandırır mı?",
+  "hypothesis": "Eşdeğer seçeneklerden birine farklı bir arka plan rengi vermek, hangi seçeneğin öne çıkarıldığını daha hızlı fark ettirebilir. Bunun karar süresini kısaltıp kısaltmadığı ve diğer seçeneklerin seçilme davranışını bozup bozmadığı birlikte ölçülmelidir.",
   "setupType": "control-vs-treatment",
   "comparisonMode": "element",
   "differenceBehavior": "change",
-  "testedSlot": "seçenek görsel ağırlığı",
+  "testedSlot": "seçenek arka plan rengi",
   "primaryKpi": {
    "label": "Seçim Tamamlama Süresi",
    "explanation": "Görsel ağırlık karar süresini kısaltıyor mu?"
@@ -15680,44 +15672,44 @@
   ],
   "whatToTest": [
    {
-    "label": "Ağırlık",
-    "explanation": "Bir seçeneği görsel olarak öne çıkarmak toplam seçim hızını artırıyor mu?"
+    "label": "Karar süresi",
+    "explanation": "Arka plan vurgusu seçim süresini kısaltıyor mu?"
    },
    {
-    "label": "Doğruluk",
-    "explanation": "Öne çıkarılan seçenek gerçekten çoğunluğun tercih ettiği mi?"
-   },
-   {
-    "label": "Yöntem",
-    "explanation": "Boyut mu, renk mi, konum mu en güçlü ağırlık sinyalini veriyor?"
+    "label": "Seçim dağılımı",
+    "explanation": "Vurgu yalnızca tıklamayı mı kaydırıyor, toplam tamamlama da değişiyor mu?"
    },
    {
     "label": "Pişmanlık",
-    "explanation": "Öne çıkarılanı seçenlerin sonradan değiştirme oranı yükseliyor mu?"
+    "explanation": "Öne çıkarılan seçeneği seçenlerin sonradan değiştirme veya iptal oranı artıyor mu?"
+   },
+   {
+    "label": "Görünürlük",
+    "explanation": "Diğer seçeneklerin görülme ve seçilme oranı kabul edilebilir seviyede kalıyor mu?"
    },
    {
     "label": "Segment",
-    "explanation": "Deneyimli kullanıcı ile ilk kez gelen ziyaretçi ağırlığa aynı tepkiyi mi veriyor?"
+    "explanation": "İlk kez gelen ve deneyimli kullanıcılar vurguya farklı mı tepki veriyor?"
    }
   ],
   "guardrails": [
-   "Gerçek veriye dayanmayan bir seçeneği “en çok tercih edilen” gibi göstermeyin (kural 6).",
-   "Aynı testte ağırlık yöntemini (boyut/renk/konum) ve seçeneklerin içeriğini birlikte değiştirmeyin.",
-   "Diğer seçenekleri tıklanamayacak veya bulunamayacak kadar küçültmeyin.",
-   "Öne çıkarma ağırlığını kullanıcıyı gerçek ihtiyacından farklı bir seçeneğe yönlendirmek için kullanmayın.",
-   "Mobilde öne çıkarılan seçeneği büyütürken diğerlerini ekran dışına taşırmayın."
+   "Gerçek veriye dayanmayan bir seçeneği 'en çok tercih edilen' gibi göstermeyin.",
+   "Aynı testte arka plan rengiyle birlikte seçeneklerin metnini, sırasını veya boyutunu değiştirmeyin.",
+   "Kontrastı erişilebilirlik gereksinimlerinin altına düşürmeyin.",
+   "Diğer seçenekleri okunamayacak veya tıklanamayacak kadar geri plana itmeyin.",
+   "Öne çıkarılan seçeneği kullanıcının gerçek ihtiyacından farklı bir tercihe zorlayacak biçimde sunmayın."
   ],
   "sideA": {
    "role": "control",
-   "label": "Tüm seçenekler eşit görsel ağırlıkta (boyut, renk, konum) gösteriliyor",
-   "sourceBasis": "Mekanizma 'hepsini aynı görsel ağırlıkta göstermek nötr durur'"
+   "label": "Tüm seçenekler aynı arka plan rengiyle gösteriliyor",
+   "sourceBasis": "Kontrol kolunda seçenekler eşit görsel ağırlıkta."
   },
   "sideB": {
    "role": "variant",
-   "label": "Bir seçenek boyut, renk veya konumdan biriyle diğerlerinden görsel olarak öne çıkarılmış",
-   "sourceBasis": "Mekanizma 'Seçeneklerden birini boyut, renk veya konumla ... görünür biçimde ağır göstermek seçimi hızlandırabilir'"
+   "label": "Bir seçenek farklı arka plan rengiyle öne çıkarılıyor",
+   "sourceBasis": "Yalnızca seçenek arka plan rengi değişiyor."
   },
-  "seoTitle": "Highlighting One Option Among Equals: A/B Test Idea",
-  "seoDescription": "Giving one of several equal options extra visual weight through size, color or position. See both arms of the experiment, the risk and the tracked KPI."
+  "seoTitle": "Highlighting One Option With Background Color A/B Test",
+  "seoDescription": "An A/B test that changes only one option's background color to see whether visual emphasis speeds selection without harming overall completion."
  }
 ]

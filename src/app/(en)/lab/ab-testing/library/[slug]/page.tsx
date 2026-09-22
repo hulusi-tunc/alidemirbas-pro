@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AbLibraryDetailPage, abLibraryDetailMetadata } from "@/components/AbTestRoutes";
-import { ALL_AB_TEST_SLUGS } from "@/lib/ab-test-view";
+import { ALL_AB_TEST_ROUTE_SLUGS, canonicalAbTestSlug } from "@/lib/ab-test-view";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return ALL_AB_TEST_SLUGS.map((slug) => ({ slug }));
+  return ALL_AB_TEST_ROUTE_SLUGS.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -15,5 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return <AbLibraryDetailPage lang="en" slug={slug} />;
+  const canonical = canonicalAbTestSlug(slug);
+  if (canonical !== slug) redirect(`/lab/ab-testing/library/${canonical}`);
+  return <AbLibraryDetailPage lang="en" slug={canonical} />;
 }

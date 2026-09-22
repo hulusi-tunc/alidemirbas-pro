@@ -6,7 +6,7 @@ import AbTestPlaybookPage from "@/components/AbTestPlaybookPage";
 import LabShell from "@/components/LabShell";
 import { categoryLabel, surfaceLabel } from "@/components/ui/AbTestVisuals";
 import { ProductMark } from "@/components/ui/ProductFrame";
-import { AB_CATEGORIES, AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail } from "@/lib/ab-test-view";
+import { AB_CATEGORIES, AB_TEST_COUNT, AB_TEST_ROWS, SURFACES, abTestDetail, canonicalAbTestSlug } from "@/lib/ab-test-view";
 import { pageAlternates } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
@@ -17,8 +17,8 @@ type Lang = "en" | "tr";
 export const basePathFor = (lang: Lang) => (lang === "en" ? "/lab/ab-testing/library" : "/tr/lab/ab-testing/library");
 
 const T = {
-  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable A/B test scenarios. The variable under test, the primary KPI and the guardrails for each.`, back: "A/B Test Library", count: "scenarios", allScenarios: "All scenarios" },
-  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir A/B test senaryosu. Test edilen değişken, birincil KPI ve her biri için guardrail'ler.`, back: "A/B Test Kütüphanesi", count: "senaryo", allScenarios: "Tüm senaryolar" },
+  en: { title: "A/B Test Library", intro: `${AB_TEST_COUNT} searchable test ideas and ready-to-run scenarios. See the variable, primary KPI and guardrails for each.`, back: "A/B Test Library", count: "tests", allScenarios: "All tests" },
+  tr: { title: "A/B Test Kütüphanesi", intro: `${AB_TEST_COUNT} aranabilir test fikri ve uygulanabilir A/B senaryosu. Her kayıtta değişken, birincil KPI ve guardrail'ler yer alır.`, back: "A/B Test Kütüphanesi", count: "test", allScenarios: "Tüm testler" },
 };
 
 /* The gallery is a client component, so the category and surface display
@@ -70,7 +70,7 @@ export function abLibraryDetailMetadata(lang: Lang, slug: string): Metadata {
   return {
     title: abLibraryDetailTitle(lang, r),
     description: lang === "tr" ? r.hypothesis.slice(0, 155) : r.seoDescription ?? r.hypothesis.slice(0, 155),
-    alternates: pageAlternates(`/lab/ab-testing/library/${slug}`, lang),
+    alternates: pageAlternates(`/lab/ab-testing/library/${canonicalAbTestSlug(slug)}`, lang),
   };
 }
 
