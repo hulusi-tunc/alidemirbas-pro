@@ -189,7 +189,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
 
               {/* Now: the first timeline entry, its wordmark bare. */}
               <Reveal delay={260} className="flex">
-                <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                <div className="flex w-full flex-col rounded-card bg-paper p-6 ring-1 ring-ink-950/[0.06]">
                   <p className="altor-eyebrow text-ink-subtle">{t.nowLabel}</p>
                   <Image src={rows[0].logo} alt={rows[0].co} width={140} height={28} className="mt-4 h-7 w-auto max-w-[9rem] object-contain object-left" />
                   <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{t.nowRole}</p>
@@ -200,7 +200,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
               {/* Focus areas: what the work is actually about, rather than
                   repeating the location already shown on the portrait. */}
               <Reveal delay={320} className="flex">
-                <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                <div className="flex w-full flex-col rounded-card bg-paper p-6 ring-1 ring-ink-950/[0.06]">
                   <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-primary-50 text-primary-700">
                     <Target className="size-5" />
                   </span>
@@ -213,7 +213,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
 
               {/* The years, and the companies they were spent at. */}
               <Reveal delay={380} className="flex">
-                <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                <div className="flex w-full flex-col rounded-card bg-paper p-6 ring-1 ring-ink-950/[0.06]">
                   <p className="text-h3 text-ink-950">{t.experienceTitle}</p>
                   <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.experienceLine}</p>
                   <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
@@ -226,7 +226,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
 
               {/* Outside the day job, on the night plate. */}
               <Reveal delay={440} className="flex">
-                <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-[28px] bg-ink-950 p-6 text-white">
+                <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-card bg-ink-950 p-6 text-white">
                   <Image src="/lab/frames/google-ads-change-history-dashboard.jpg" alt="" aria-hidden fill sizes="(min-width: 1024px) 24rem, 50vw" className="-z-20 origin-bottom scale-[1.15] object-cover object-bottom" />
                   <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/85 via-ink-950/45 to-ink-950/30" />
                   <p className="text-lg leading-snug font-semibold text-balance">{t.outsideWork}</p>
@@ -276,7 +276,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
         <section className="bg-paper py-20 md:py-28">
           <div className="altor-container">
             <SectionHeading eyebrow={t.buildEyebrow} title={t.buildTitle} intro={t.buildIntro} />
-            <div className="mt-12 overflow-hidden rounded-[28px] bg-paper ring-1 ring-ink-950/[0.06]">
+            <div className="mt-12 overflow-hidden rounded-card bg-paper ring-1 ring-ink-950/[0.06]">
               {c.lab.projects.map((project, i) => {
                 const [primary] = project.links;
                 return (
@@ -315,7 +315,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                   <Reveal key={post.slug} delay={i * 60} className="flex">
                     <Link
                       href={lang === "en" ? `/blog/${post.slug}` : `/tr/blog/${post.slug}`}
-                      className="group flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
+                      className="group flex w-full flex-col rounded-card bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
                     >
                       <p className="altor-eyebrow text-ink-subtle">{CATEGORY_TAB_LABEL[post.category]?.[lang] ?? post.category}</p>
                       <p className="mt-3 text-lg leading-snug font-semibold text-balance text-ink-950">{post.title}</p>

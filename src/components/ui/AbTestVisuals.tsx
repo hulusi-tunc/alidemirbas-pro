@@ -340,7 +340,7 @@ function SpreadCardTile({ card, lang, decidedBy }: { card: ReturnType<typeof spr
   return (
     <Link
       href={card.href}
-      className="group/card flex flex-col rounded-[28px] bg-paper p-5 ring-1 ring-ink-950/[0.06] transition-[box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-24px_rgba(3,17,63,0.35)]"
+      className="group/card flex flex-col rounded-card bg-paper p-5 ring-1 ring-ink-950/[0.06] transition-[box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-24px_rgba(3,17,63,0.35)]"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="rounded-full bg-paper-soft px-2.5 py-0.5 text-xs font-medium text-ink-600">{surfaceLabel(card.surface, lang)}</span>

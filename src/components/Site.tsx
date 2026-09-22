@@ -338,7 +338,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
               <Reveal key={project.slug} delay={280 + i * 60} className="flex">
                 <Link
                   href={primary.href}
-                  className="group flex w-full flex-col overflow-hidden rounded-[28px] bg-gradient-to-b from-paper to-paper/50 p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl transition-[box-shadow,transform] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.45)]"
+                  className="group flex w-full flex-col overflow-hidden rounded-card bg-gradient-to-b from-paper to-paper/50 p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl transition-[box-shadow,transform] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.45)]"
                 >
                   <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
                     <LabProjectIcon slug={project.slug} className="size-5" />
@@ -360,7 +360,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
                 image, night"): the blue-hour meadow the Change History frame
                 uses, bottom-anchored like every plate, under a dark gradient
                 so the line stays readable. */}
-            <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-[28px] bg-ink-950 p-6 text-white">
+            <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-card bg-ink-950 p-6 text-white">
               <Image
                 src="/lab/frames/google-ads-change-history-dashboard.jpg"
                 alt=""
