@@ -124,9 +124,9 @@ export const copy = {
           slug: "ab-test-playbook",
           short: "A/B Test Playbook",
           tagline: "Test, learn, improve",
-          desc: "211 A/B test scenarios. Each comes with a hypothesis, one primary metric, guardrails and the checks that keep the test valid.",
+          desc: "{abTestCount} A/B test scenarios. Each comes with a hypothesis, one primary metric, guardrails and the checks that keep the test valid.",
           tags: ["A/B testing", "CRO", "Claude Code"],
-          proof: "211 scenarios",
+          proof: "{abTestCount} scenarios",
           links: [
             { label: "Open the project page", href: "/lab/ab-testing" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
@@ -139,7 +139,7 @@ export const copy = {
           tagline: "Compare metrics across platforms",
           desc: "Checks reports exported from different platforms, identifies which metrics can be compared safely, and turns the result into a dashboard.",
           tags: ["Analytics", "Data quality", "Claude Code"],
-          proof: "11 dashboard templates",
+          proof: "{dashboardTemplateCount} dashboard templates",
           links: [
             { label: "Open the project page", href: "/lab/dashboard-builder" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
@@ -162,14 +162,14 @@ export const copy = {
           name: "Numerspace",
           slug: "numerspace",
           short: "Numerspace",
-          tagline: "97 free calculators, no account",
+          tagline: "{numerspaceCount} free calculators, no account",
           desc: "Free calculators for marketing, finance, health, career and everyday decisions. No account needed.",
           tags: ["Web app", "Calculators"],
           // Was "75+ tools" - stale. numerspace.com's own sitemap lists 97
           // calculator pages per language across 13 tool-bearing categories
           // (blog posts excluded); counted, not taken from the site's own
           // "140+" marketing line.
-          proof: "97 calculators · 13 categories",
+          proof: "{numerspaceCount} calculators · {numerspaceCategories} categories",
           links: [
             { label: "Open the project page", href: "/lab/numerspace" },
             { label: "Visit Numerspace", href: "https://www.numerspace.com" },
@@ -838,7 +838,7 @@ export const copy = {
       labLink: "Open the Lab",
     },
     footer: {
-      left: "Ali Demirbaş, 2026",
+      left: "Ali Demirbaş",
       right: "Istanbul",
       quickLinks: "Pages",
       projects: "Lab projects",
@@ -938,9 +938,9 @@ export const copy = {
           slug: "ab-test-playbook",
           short: "A/B Test Playbook",
           tagline: "Test et, öğren, geliştir",
-          desc: "211 A/B test senaryosu. Her birinde hipotez, birincil metrik, guardrail'ler ve testi doğru kurmak için gereken kontroller var.",
+          desc: "{abTestCount} A/B test senaryosu. Her birinde hipotez, birincil metrik, guardrail'ler ve testi doğru kurmak için gereken kontroller var.",
           tags: ["A/B test", "CRO", "Claude Code"],
-          proof: "211 senaryo",
+          proof: "{abTestCount} senaryo",
           links: [
             { label: "Proje sayfasını aç", href: "/tr/lab/ab-testing" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/ab-test-playbook" },
@@ -953,7 +953,7 @@ export const copy = {
           tagline: "Farklı platformların metriklerini karşılaştır",
           desc: "Farklı platformlardan aldığın raporları kontrol eder, hangi metriklerin güvenle karşılaştırılabildiğini belirler ve sonucu dashboard'a çevirir.",
           tags: ["Analitik", "Veri kalitesi", "Claude Code"],
-          proof: "11 dashboard şablonu",
+          proof: "{dashboardTemplateCount} dashboard şablonu",
           links: [
             { label: "Proje sayfasını aç", href: "/tr/lab/dashboard-builder" },
             { label: "GitHub", href: "https://github.com/ali-demirbas/dashboard-builder" },
@@ -976,10 +976,10 @@ export const copy = {
           name: "Numerspace",
           slug: "numerspace",
           short: "Numerspace",
-          tagline: "97 ücretsiz hesaplayıcı, üyelik gerekmiyor",
+          tagline: "{numerspaceCount} ücretsiz hesaplayıcı, üyelik gerekmiyor",
           desc: "Pazarlama, finans, sağlık, kariyer ve günlük kararlar için ücretsiz hesaplayıcılar. Üyelik gerekmiyor.",
           tags: ["Web uygulaması", "Hesaplayıcılar"],
-          proof: "97 hesaplayıcı · 13 kategori",
+          proof: "{numerspaceCount} hesaplayıcı · {numerspaceCategories} kategori",
           links: [
             { label: "Proje sayfasını aç", href: "/tr/lab/numerspace" },
             { label: "Numerspace'i ziyaret et", href: "https://www.numerspace.com" },
@@ -1583,7 +1583,7 @@ export const copy = {
       labLink: "Lab'e git",
     },
     footer: {
-      left: "Ali Demirbaş, 2026",
+      left: "Ali Demirbaş",
       right: "İstanbul",
       quickLinks: "Sayfalar",
       projects: "Lab projeleri",

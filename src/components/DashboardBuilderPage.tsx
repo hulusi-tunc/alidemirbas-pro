@@ -14,6 +14,8 @@ import { DashboardHeroWindow } from "@/components/ui/LabProductWindows";
 import { AppBar, AppMeta, AppTitle, Badge, type BadgeTone, codeLabel, KeyValues, Table, Td, Th, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import type { SkillProductContent } from "@/components/SkillProductPage";
+import { DASHBOARD_BUILDER_PAGE_COPY as T } from "@/lib/skill-pages/dashboard-builder";
+import { resolveLabCopy } from "@/lib/lab-project-facts";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, softwareApplication } from "@/lib/schema";
 import { clsx } from "@/lib/clsx";
@@ -53,117 +55,7 @@ import { DASHBOARD_REAL } from "@/lib/lab-material";
 
 const REAL = DASHBOARD_REAL;
 
-const T = {
-  en: {
-    eyebrow: "Lab / Dashboard Builder",
-    heroTitle: "Shows which metrics are actually comparable.",
-    heroSub:
-      "A Claude Code plugin for marketing and growth data. Before it draws a chart, it checks which metrics can be compared and leaves out combinations that would be misleading.",
-    proof: ["17 tests passing", "11 dashboard templates", "No real account data in the repo"],
 
-    pipelineNote: "Each stage runs once on the same data. The dashboard and the deck are two outputs of one analysis, not two separate calculations.",
-
-    compEyebrow: "Comparability check",
-    compTitle: "Every number is classified before it's shown.",
-    compSub: "Numbers fall into four classes.",
-    compWorkedLabel: "The report template used when a rule fires. A real example.",
-    refusalNotComparable: "Not comparable",
-    refusalAsked: "What was asked",
-    refusalWhy: "Why it fails",
-    refusalCanSay: "What can still be said",
-    refusalFix: "To make it comparable",
-    revenueLabel: "Revenue by source",
-    naiveSumLabel: 'Naive "Total Revenue"',
-    trueTotalLabel: "Actual total (Shopify, system of record)",
-
-    gateEyebrow: "Before any number is trusted",
-    gateTitle: "Every metric is labeled, every dataset is checked.",
-    gateSub: "Two checks run before analysis starts. How reliable the metric mapping is, and how serious the data quality problem is.",
-    registryLabel: "Metric mapping confidence",
-    qualityLabel: "Data quality severity",
-
-    insightEyebrow: "Insight check",
-    insightTitle: "A finding passes eight questions before it's shown.",
-    insightSub: "No score, just rules. A finding that fails any of the first three is never shown.",
-    ifNoLabel: "If no:",
-    suppressQuote: '"If a finding fails the first three checks, it is not shown."',
-
-    templatesEyebrow: "Dashboards & Presentations",
-    templatesTitle: "11 templates. Only the ones your data actually supports.",
-    templatesSub: "Two kinds of template: ones for mixed, multi-domain datasets and ones for a single specific data shape. The same analysis renders as a dashboard or a deck.",
-    templatesFilterNote: "Template selection passes three filters. Data shape, business question, available evidence. No hand-picked vertical template.",
-
-    installEyebrow: "Install",
-    installTitle: "Install",
-    installSub: "Three ways in, all from the repository's own README.",
-    stepAdd: "Add the plugin to Claude Code",
-    stepTest: "Run the tests",
-    tabMarketplace: "Marketplace",
-    tabLocal: "Local plugin",
-    tabSkillsCli: "Skills CLI",
-    testNote: "17 tests pass on the current clone.",
-    viewRepo: "Read the repo",
-
-    faqEyebrow: "FAQ",
-    ctaEyebrow: "OPEN SOURCE",
-    ctaTitle: "See what your data can support.",
-  },
-  tr: {
-    eyebrow: "Lab / Dashboard Oluşturucu",
-    heroTitle: "Hangi metriklerin gerçekten karşılaştırılabileceğini gösterir.",
-    heroSub:
-      "Pazarlama ve büyüme verisi için bir Claude Code eklentisi. Grafik çizmeden önce hangi metriklerin karşılaştırılabilir olduğunu kontrol eder; yanıltıcı olacak eşleşmeleri dışarıda bırakır.",
-    proof: ["17 test geçiyor", "11 dashboard şablonu", "Repoda gerçek hesap verisi yok"],
-
-    pipelineNote: "Her aşama aynı veri üzerinde bir kez çalışır. Dashboard ve sunum aynı analizin iki farklı çıktısı, iki ayrı hesap değil.",
-
-    compEyebrow: "Karşılaştırılabilirlik kontrolü",
-    compTitle: "Her sayı gösterilmeden önce sınıflandırılır.",
-    compSub: "Sayılar dört sınıfa ayrılır.",
-    compWorkedLabel: "Bir kural tetiklendiğinde kullanılan rapor şablonu, gerçek bir örnek",
-    refusalNotComparable: "Karşılaştırılamaz",
-    refusalAsked: "Ne soruldu",
-    refusalWhy: "Neden başarısız",
-    refusalCanSay: "Yine de söylenebilen",
-    refusalFix: "Karşılaştırılabilir yapmak için",
-    revenueLabel: "Kaynağa göre gelir",
-    naiveSumLabel: 'Saf "Toplam Gelir"',
-    trueTotalLabel: "Gerçek toplam (Shopify, sistem kaydı)",
-
-    gateEyebrow: "Bir sayıya güvenilmeden önce",
-    gateTitle: "Her metrik etiketlenir, her veri seti kontrolden geçer.",
-    gateSub: "Analiz başlamadan önce iki kontrol çalışır. Metrik eşlemesi ne kadar güvenilir, veri kalitesi sorunu ne kadar ciddi.",
-    registryLabel: "Metrik eşleme güveni",
-    qualityLabel: "Veri kalitesi ciddiyeti",
-
-    insightEyebrow: "İçgörü kontrolü",
-    insightTitle: "Bir bulgu gösterilmeden önce sekiz sorudan geçer.",
-    insightSub: "Puan yok, kural var. İlk üç soruyu geçemeyen bulgu hiç gösterilmez.",
-    ifNoLabel: "Hayırsa:",
-    suppressQuote: '"İlk üç kontrolden geçmeyen bulgu gösterilmez."',
-
-    templatesEyebrow: "Dashboard'lar ve Sunumlar",
-    templatesTitle: "11 şablon. Yalnızca verinin desteklediği olanlar sunulur.",
-    templatesSub:
-      "İki tür şablon var. Karma, çok alanlı veri setleri için olanlar ve tek bir belirli veri şekli için olanlar. Aynı analiz dashboard ya da sunum olarak çıkar.",
-    templatesFilterNote: "Şablon seçimi üç filtreden geçer. Verinin şekli, iş sorusu, eldeki kanıt. Elle seçilen sektör şablonu yok.",
-
-    installEyebrow: "Kurulum",
-    installTitle: "Kurulum",
-    installSub: "Reponun kendi README'sinden üç kurulum yolu.",
-    stepAdd: "Eklentiyi Claude Code'a ekle",
-    stepTest: "Testleri çalıştır",
-    tabMarketplace: "Marketplace",
-    tabLocal: "Yerel eklenti",
-    tabSkillsCli: "Skills CLI",
-    testNote: "Mevcut klonda 17 test geçiyor.",
-    viewRepo: "Repoyu oku",
-
-    faqEyebrow: "SSS",
-    ctaEyebrow: "AÇIK KAYNAK",
-    ctaTitle: "Verinin hangi sonuçları desteklediğini gör.",
-  },
-} as const;
 
 const MARKETPLACE_CMD = `/plugin marketplace add ali-demirbas/dashboard-builder\n/plugin install dashboard-builder@dashboard-builder`;
 const LOCAL_CMD = `git clone https://github.com/ali-demirbas/dashboard-builder.git\nclaude --plugin-dir ./dashboard-builder`;
@@ -596,7 +488,7 @@ function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
 
 export default function DashboardBuilderPage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
   const copyT = copy[lang];
-  const t = T[lang];
+  const t = resolveLabCopy(T[lang]);
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? `/tr/lab/${content.slug}` : `/lab/${content.slug}`;
   const path = lang === "en" ? `/lab/${content.slug}` : `/tr/lab/${content.slug}`;

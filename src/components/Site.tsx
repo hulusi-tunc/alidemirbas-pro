@@ -17,7 +17,7 @@ import { BioTrack } from "@/components/ui/BioTrack";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
 import { Work } from "@/components/HomeWork";
-import { withJourneyCount } from "@/lib/archive";
+import { withLabProjectFacts } from "@/lib/lab-project-facts";
 import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 import {
   ALL_TOOL_SLUGS,
@@ -88,7 +88,7 @@ export function SiteHeader({
   const labProjects = t.lab.projects.map((p) => ({
     slug: p.slug,
     name: p.name,
-    tagline: withJourneyCount(p.tagline),
+    tagline: withLabProjectFacts(p.tagline),
     href: p.links[0].href,
   }));
 
@@ -344,10 +344,10 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
                     <LabProjectIcon slug={project.slug} className="size-5" />
                   </span>
                   <p className="mt-4 text-lg font-semibold text-ink-950">{project.short}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-600">{withJourneyCount(t.hero.tiles[project.slug as (typeof HERO_TILES)[number]])}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-600">{withLabProjectFacts(t.hero.tiles[project.slug as (typeof HERO_TILES)[number]])}</p>
                   <TileMini slug={project.slug} lang={lang} />
                   <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium text-ink-950">
-                    <span className="tabular-nums">{withJourneyCount(project.proof ?? "")}</span>
+                    <span className="tabular-nums">{withLabProjectFacts(project.proof ?? "")}</span>
                     <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
                   </p>
                 </Link>
@@ -645,7 +645,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
         </div>
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-line pt-6 text-sm text-ink-400 sm:flex-row">
           <div className="flex items-center gap-3">
-            <span>{t.footer.left}</span>
+            <span>{t.footer.left}, {new Date().getFullYear()}</span>
             <span aria-hidden>·</span>
             <span>{t.footer.right}</span>
           </div>
