@@ -1,4 +1,4 @@
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
 import { getAllSkillProjects, getSkillProject } from "@/lib/skill-catalog";
 import { withLabProjectFacts, resolveLabCopy } from "@/lib/lab-project-facts";
 import type { Lang } from "@/lib/content";

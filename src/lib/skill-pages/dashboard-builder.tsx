@@ -1,6 +1,6 @@
 import { Terminal } from "lucide-react";
 
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
 import { getAllSkillProjects, getSkillProject, githubUrl } from "@/lib/skill-catalog";
 import { withLabProjectFacts, resolveLabCopy } from "@/lib/lab-project-facts";
 import type { Lang } from "@/lib/content";
@@ -73,7 +73,7 @@ export const DASHBOARD_BUILDER_PAGE_COPY = {
     tabMarketplace: "Marketplace",
     tabLocal: "Local plugin",
     tabSkillsCli: "Skills CLI",
-    testNote: "17 tests pass on the current clone.",
+    testNote: "Runs the repository's test suite.",
     viewRepo: "Read the repo",
 
     faqEyebrow: "FAQ",
@@ -128,7 +128,7 @@ export const DASHBOARD_BUILDER_PAGE_COPY = {
     tabMarketplace: "Marketplace",
     tabLocal: "Yerel eklenti",
     tabSkillsCli: "Skills CLI",
-    testNote: "Mevcut klonda 17 test geçiyor.",
+    testNote: "Reponun test paketini çalıştırır.",
     viewRepo: "Repoyu oku",
 
     faqEyebrow: "SSS",

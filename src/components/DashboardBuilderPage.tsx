@@ -13,7 +13,7 @@ import { ProductBenefitStory, ProductHeading, ProductSection } from "@/component
 import { DashboardHeroWindow } from "@/components/ui/LabProductWindows";
 import { AppBar, AppMeta, AppTitle, Badge, type BadgeTone, codeLabel, KeyValues, Table, Td, Th, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
 import { DASHBOARD_BUILDER_PAGE_COPY as T } from "@/lib/skill-pages/dashboard-builder";
 import { resolveLabCopy } from "@/lib/lab-project-facts";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";

@@ -27,7 +27,7 @@ import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
 import { NUMERSPACE_PAGE_COPY as T } from "@/lib/skill-pages/numerspace";
 import { resolveLabCopy } from "@/lib/lab-project-facts";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";

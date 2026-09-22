@@ -11,7 +11,7 @@ import { ProductBenefitStory, ProductHeading, ProductSection } from "@/component
 import { ChangeCell, explorerTabLabel, explorerTabs, ExplorerWindow, explorerDelta } from "@/components/ui/LabProductWindows";
 import { AppBar, AppMeta, AppTitle, Badge, CheckRow, Field, FormLabel, Rail, Table, TabStrip, Td, Th, Toggle, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
 import { CHANGE_HISTORY_PAGE_COPY as T } from "@/lib/skill-pages/change-history";
 import { resolveLabCopy } from "@/lib/lab-project-facts";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";

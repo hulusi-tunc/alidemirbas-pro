@@ -1,38 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# alidemirbas.com.tr
 
-## Getting Started
+Personal portfolio and product playground built with Next.js.
 
-First, run the development server:
+The site is bilingual (English / Turkish) and includes:
+- personal profile and work pages
+- Lab projects
+- journey and A/B test libraries
+- calculators and text tools
+- blog content
+- an internal search API
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Production check:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Useful validators:
 
-## Learn More
+```bash
+npm run validate:canonical
+npm run validate:journey-production
+npm run validate:seo
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Repository map
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/app` — routes, sitemap, robots and API routes
+- `src/components` — shared page and UI components
+- `src/lib` — content adapters, catalogs, schemas and server-side view models
+- `src/canonical` — canonical journey data
+- `production/calculators` — calculator catalog and editorial content consumed by the site
+- `search` — search engine code and static index data consumed by `/api/search`
+- `public` — site assets
+- `scripts`, `qa`, `seo`, `production` — generation, validation and QA tooling
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Content rules
 
-## Deploy on Vercel
+Do not hard-code corpus or catalog counts into user-facing copy when a data source already exists. Derive them from the source data.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-<!-- deploy trigger: force a fresh production build (2) -->
+Old demo routes are removed rather than redirected. The site does not keep a legacy URL compatibility layer.

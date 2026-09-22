@@ -1,5 +1,5 @@
 import { Code2, MoreHorizontal, MousePointer2, Terminal } from "lucide-react";
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
 import { CodeBlock, ToolSelectorCards, type ToolOption } from "@/components/ui/InstallationStepper";
 import { getAllSkillProjects, getSkillProject, githubUrl } from "@/lib/skill-catalog";
 import { withLabProjectFacts, resolveLabCopy } from "@/lib/lab-project-facts";

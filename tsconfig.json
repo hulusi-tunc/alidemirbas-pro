@@ -37,9 +37,6 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules",
-    "reference",
-    "archive",
-    "content"
+    "node_modules"
   ]
 }
