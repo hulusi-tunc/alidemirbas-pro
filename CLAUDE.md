@@ -143,21 +143,16 @@ exports both a metadata factory and a page component — `CalculatorRoutes.tsx`,
 `copy` → both route files with `alternates: pageAlternates("/<path>", lang)` → add the path to
 the hand-maintained `routes` array in `src/app/sitemap.ts`.
 
-Three routes are EN-only by design: `experiment-a`, `experiment-b`, `qa-canvas-sweep/[id]`.
-`blog/[slug]` used to be a fourth (`src/lib/blog.ts`'s `getAllBlogPosts` returned `[]` for any
-non-`en` lang) until every post got a real `tr` translation (`blog-posts.ts`'s per-post `tr`
-field) and its own `src/app/tr/blog/[slug]/page.tsx` route.
+One route is EN-only by design: `qa-canvas-sweep/[id]`, a test-only renderer-isolation route gated by `ENABLE_QA_CANVAS_SWEEP=1`.
+`blog/[slug]` is bilingual: every post has both EN and TR content and its own route in both trees.
 
 ### Invariants that look like bugs and are not
 
-- **`[...catchall]/page.tsx` in both trees just calls `notFound()`.** With two root layouts there
-  is no app-root fallback, so an unmatched URL would render Next's generic 404 instead of the
-  tree's own locale-correct `not-found.tsx`. The catch-all makes "unknown path" a real match.
 - **The site is `noindex` sitewide** (`robots: { index: false, follow: false }` in both root
   layouts) while `src/app/robots.ts` deliberately *allows* crawling. A crawler must fetch a page
   to read its noindex tag. Do not "fix" this by adding a `Disallow`.
-- **Every route must prerender.** After `next build` every route should be `○` or `●`. The only
-  legitimate `ƒ` entries are the two `[...catchall]` routes and `/qa-canvas-sweep/[id]`.
+- **Every public route must prerender.** After `next build` public routes should be `○` or `●`.
+  `/qa-canvas-sweep/[id]` is test-only infrastructure and may remain dynamic.
 - **`src/lib/seo.ts` is 22 lines and owns every canonical and hreflang pair.** `pageAlternates`
   takes the **EN path, no trailing slash** (`""` for home); the `/tr` twin is derived.
 
@@ -335,10 +330,3 @@ The env flag gates `/qa-canvas-sweep/[id]` and is checked against the literal st
 Reports are written to `/tmp/`. `scripts/shot.mjs` is separate: puppeteer-core against the local
 Chrome app, `OUT=<dir> node scripts/shot.mjs [url]`, defaulting to port **5182**. Three workflows,
 three different ports (dev 3000, shots 5182, journey QA 4022).
-
-## Root-level markdown
-
-The many capitalized `.md` files at the repo root (`DESIGN-MIGRATION-PLAN.md`, `EXPERIMENT-1.md`,
-`*-HANDOFF.md`, `*-AUDIT.md`) are design handoffs, audits and frozen experiment dossiers. Most
-state explicitly that nothing was implemented. Treat them as background, not as a spec to follow,
-unless the current task references one.

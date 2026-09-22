@@ -829,14 +829,6 @@ export const copy = {
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "Connect on LinkedIn",
     },
-    notFound: {
-      metaTitle: "Page not found - Ali Demirbaş",
-      eyebrow: "404",
-      title: "This page doesn't exist.",
-      body: "The link may be outdated, or the page may have moved.",
-      cta: "Back to home",
-      labLink: "Open the Lab",
-    },
     footer: {
       left: "Ali Demirbaş",
       right: "Istanbul",
@@ -1573,14 +1565,6 @@ export const copy = {
       body: "Bir soru sormak, fikir paylaşmak ya da buradaki projelerden biri hakkında konuşmak istersen bana ulaşabilirsin.",
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "LinkedIn'de bağlan",
-    },
-    notFound: {
-      metaTitle: "Sayfa bulunamadı - Ali Demirbaş",
-      eyebrow: "404",
-      title: "Bu sayfa bulunamadı.",
-      body: "Bağlantı eski olabilir veya sayfa taşınmış olabilir.",
-      cta: "Ana sayfaya dön",
-      labLink: "Lab'e git",
     },
     footer: {
       left: "Ali Demirbaş",
