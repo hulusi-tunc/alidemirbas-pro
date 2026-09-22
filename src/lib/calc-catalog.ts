@@ -139,9 +139,8 @@ export const LIBRARY_GROUP: Record<string, LibraryGroup> = {
 
 /* UTM Builder and Character Counter. They have no catalog spec - no
    formula, no inputs, no outputs - so they cannot appear in LIBRARY_GROUP
-   above, which is keyed by slug against LIVE_CALCULATOR_SLUGS. The index
-   renders them in a separate "Other tools" section while keeping this key
-   for their icon/tint and shared card data. */
+   above, which is keyed by slug against LIVE_CALCULATOR_SLUGS. They still
+   live in the same index grid under the Utilities display group. */
 export const TEXT_TOOL_GROUP: LibraryGroup = "text-tools";
 
 /* Which output a calculator leads with.

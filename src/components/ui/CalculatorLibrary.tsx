@@ -74,8 +74,6 @@ const T = {
     countFiltered: (n: number, total: number) => `${n} of ${total} tools`,
     empty: "No calculators or tools match your search.",
     clear: "Clear search & filters",
-    otherTools: "Other tools",
-    otherToolsIntro: "Small utilities that don't calculate a marketing metric.",
   },
   tr: {
     searchPlaceholder: "ROAS, CAC, LTV, retention veya UTM ara...",
@@ -83,8 +81,6 @@ const T = {
     countFiltered: (n: number, total: number) => `${n} / ${total} araç`,
     empty: "Bu aramayla eşleşen hesaplayıcı veya araç yok.",
     clear: "Aramayı ve filtreleri temizle",
-    otherTools: "Diğer araçlar",
-    otherToolsIntro: "Pazarlama metriği hesaplamayan küçük yardımcı araçlar.",
   },
 } as const;
 
@@ -225,11 +221,10 @@ function FacetChip({
 }
 
 export function CalculatorLibrary({
-  lang, entries, utilityEntries, categoryFacets, heroTitle, heroSub,
+  lang, entries, categoryFacets, heroTitle, heroSub,
 }: {
   lang: Lang;
   entries: CalcEntry[];
-  utilityEntries: CalcEntry[];
   categoryFacets: CategoryFacet[];
   /** The page's title copy. Rendered here, above the search field, so the
       two read as one composed hero - search is the primary action on an
@@ -257,15 +252,9 @@ export function CalculatorLibrary({
     });
   }, [entries, query, category]);
 
-  const utilityResults = useMemo(() => {
-    if (category) return [];
-    const q = query.trim().toLowerCase();
-    return utilityEntries.filter((e) => !q || e.searchText.includes(q));
-  }, [utilityEntries, query, category]);
-
   const filtered = query.trim().length > 0 || category !== null;
-  const total = entries.length + utilityEntries.length;
-  const resultCount = results.length + utilityResults.length;
+  const total = entries.length;
+  const resultCount = results.length;
 
   return (
     <>
@@ -362,27 +351,11 @@ export function CalculatorLibrary({
             </button>
           </div>
         ) : (
-          <>
-            {results.length > 0 ? (
-              <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
-                {results.map((entry) => (
-                  <EntryCard key={entry.slug} entry={entry} />
-                ))}
-              </div>
-            ) : null}
-
-            {utilityResults.length > 0 ? (
-              <section className={results.length > 0 ? "mt-14 border-t border-line-soft pt-10" : ""}>
-                <h2 className="text-h3 text-ink-950">{t.otherTools}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-ink-muted">{t.otherToolsIntro}</p>
-                <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                  {utilityResults.map((entry) => (
-                    <EntryCard key={entry.slug} entry={entry} />
-                  ))}
-                </div>
-              </section>
-            ) : null}
-          </>
+          <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
+            {results.map((entry) => (
+              <EntryCard key={entry.slug} entry={entry} />
+            ))}
+          </div>
         )}
       </div>
     </>

@@ -95,10 +95,9 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
    about server-rendered discoverability changes), and category counts
    below are computed once from the real, unmodified `CATEGORY_LABEL`
    map and `getAllLiveSpecs()` — no category is invented, none is
-   hidden. TEXT_TOOLS (UTM Builder, Character Counter) are not calculator
-   categories: they have no formula/category record in the catalog. They
-   stay searchable on this page, but render in their own "Other tools"
-   section and disappear while a calculator category is selected. */
+   hidden. TEXT_TOOLS (UTM Builder, Character Counter) have no calculator
+   formula/category record, so the index gives them the existing Utilities
+   display group while keeping them in the same searchable card grid. */
 function calcSearchText(name: string, description: string, categoryLabel: string, aliases: string[]) {
   return [name, description, categoryLabel, ...aliases].join(" ").toLowerCase();
 }
@@ -115,8 +114,9 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
      rather than silently vanishing from the index. */
   const groupOf = (slug: string): LibraryGroup => LIBRARY_GROUP[slug] ?? "revenue-unit-economics";
 
-  /* Metric calculators form the main library. Text tools are built from
-     the same card shape below, but render in a separate utility section. */
+  /* Calculators and text tools share one library grid. TEXT_TOOL_GROUP
+     gives the two utility tools a display category without pretending they
+     have a calculator formula/category record. */
   const calcEntries: CalcEntry[] = specs.map((spec) => {
     const group = groupOf(spec.slug);
     const categoryLabel = GROUP_LABEL[group][lang];
@@ -153,10 +153,8 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
     };
   });
 
-  // The metric calculators keep the funnel order. Utility tools live in
-  // their own section below the calculator grid rather than pretending to
-  // be another metric category.
-  const entries = [...calcEntries].sort(
+  // One grid in funnel order, with Utilities last.
+  const entries = [...calcEntries, ...toolEntries].sort(
     (a, b) =>
       LIBRARY_GROUP_ORDER.indexOf(a.categoryKey as LibraryGroup) -
       LIBRARY_GROUP_ORDER.indexOf(b.categoryKey as LibraryGroup),
@@ -167,7 +165,7 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
     const g = e.categoryKey as LibraryGroup;
     groupCounts.set(g, (groupCounts.get(g) ?? 0) + 1);
   }
-  const categoryFacets: CategoryFacet[] = LIBRARY_GROUP_ORDER.filter((g) => g !== TEXT_TOOL_GROUP && groupCounts.has(g)).map((g) => ({
+  const categoryFacets: CategoryFacet[] = LIBRARY_GROUP_ORDER.filter((g) => groupCounts.has(g)).map((g) => ({
     id: GROUP_LABEL[g][lang],
     label: GROUP_LABEL[g][lang],
     count: groupCounts.get(g)!,
@@ -221,7 +219,6 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
             <CalculatorLibrary
               lang={lang}
               entries={entries}
-              utilityEntries={toolEntries}
               categoryFacets={categoryFacets}
               heroTitle={hero.title}
               heroSub={hero.sub}
