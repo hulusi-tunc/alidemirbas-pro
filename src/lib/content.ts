@@ -4,9 +4,9 @@ export const copy = {
   en: {
     nav: { about: "About", aboutHref: "/about", lab: "Lab", labHref: "/lab", calculators: "Calculators", calculatorsHref: "/calculators", blog: "Blog", blogHref: "/blog", stack: "Tools", stackHref: "/stack", contact: "Contact", contactHref: "/contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
-      line1: "I work on the data",
-      line2: "and CRM side of growth.",
-      lead: "I'm Ali Demirbaş. I work on user acquisition, CRM programs and measurement for mobile products.",
+      line1: "I'm Ali Demirbaş.",
+      line2: "I work in growth and build tools for the problems I keep running into.",
+      lead: "I currently lead mobile app growth at Aksigorta. Before that, I worked across user acquisition, CRM and analytics at Vodafone, Getir and Wingie Enuygun Group.",
       sub: "Right now I'm responsible for mobile app growth at Aksigorta. Before that, growth teams at Vodafone, Getir and Wingie Enuygun Group.",
       ctaPrimary: "Get in touch",
       ctaSecondary: "LinkedIn",
@@ -15,7 +15,7 @@ export const copy = {
         current: {
           eyebrow: "Current role",
           title: "Currently at Aksigorta",
-          body: "I lead mobile app growth across acquisition, activation, engagement and retention.",
+          body: "I lead mobile app growth, from bringing new users in to giving them a reason to return.",
           meta: "Mobile App Growth Lead",
           items: ["Acquisition", "Activation", "Engagement", "Retention"],
           cta: "More about my role",
@@ -24,7 +24,7 @@ export const copy = {
         funnel: {
           eyebrow: "Focus",
           title: "Full-Funnel Growth",
-          body: "I connect each stage of the customer journey instead of treating it as a separate problem.",
+          body: "My work has moved from digital marketing to acquisition, CRM, lifecycle and product growth. Today I connect those parts instead of treating them as separate jobs.",
           meta: "From acquisition to win-back",
           items: ["Acquisition", "Activation", "Engagement", "Retention", "Win-back"],
           cta: "How I work",
@@ -33,7 +33,7 @@ export const copy = {
         selected: {
           eyebrow: "Built from practice",
           title: "Selected Work",
-          body: "Tools and libraries built around recurring growth, CRM and analytics problems.",
+          body: "Most things I build start with a problem I keep running into at work: mapping a journey, planning a test or making a metric easier to read.",
           meta: "Open-source projects",
           items: ["Journey Library", "A/B Test Playbook", "Google Ads Change History", "Marketing Calculators"],
           cta: "Open the Lab",
@@ -42,9 +42,9 @@ export const copy = {
         industries: {
           eyebrow: "Experience",
           title: "Industries",
-          body: "Growth and digital work across products with different customers, cycles and decisions.",
+          body: "My career has taken me through insurance, telecom, quick commerce, travel, automotive and media.",
           meta: "Cross-industry experience",
-          items: ["Insurance", "Telecom", "Travel", "Automotive", "Media"],
+          items: ["Insurance", "Telecom", "Quick commerce", "Travel", "Automotive", "Media"],
           cta: "View experience",
           href: "/about",
         },
@@ -55,29 +55,29 @@ export const copy = {
     home: {
       work: {
         eyebrow: "What I do",
-        title: "I approach growth through data, testing, and user behavior.",
-        lede: "I work across measurement, lifecycle, performance analysis, and experimentation, connecting what users do with what the numbers say.",
+        title: "I connect acquisition, product behavior and CRM.",
+        lede: "Getting a user is only the beginning. I look at what happens after the click, where the experience breaks down and what could bring the user back.",
         builtFor: "Built for this",
         services: [
           {
             tool: "dashboard-builder",
-            title: "Measurement setup",
-            body: "I set up the events, attribution, and reporting needed to understand what is actually happening. When two platforms disagree, I trace the gap back to the definition or the data rather than averaging it away.",
+            title: "Build a reliable baseline",
+            body: "Before making a growth decision, I make sure the event, attribution and reporting logic can support it. When two platforms disagree, I trace the gap back to its source.",
           },
           {
             tool: "lifecycle-card-archive",
-            title: "Lifecycle and CRM programs",
-            body: "I design the journeys a user goes through from first step to win-back, including what should trigger a message, when it should stop, and what should happen next.",
+            title: "From first visit to win-back",
+            body: "I design the journey beyond the first conversion: what should happen next, which signal should trigger a message and when the journey should stop.",
           },
           {
             tool: "google-ads-change-history-dashboard",
-            title: "Performance analysis",
-            body: "I read performance together with the changes made around it. That makes it easier to separate what actually changed from what simply moved at the same time.",
+            title: "Understand what changed",
+            body: "I read performance together with the changes made around it. That helps separate a real effect from two things that simply moved at the same time.",
           },
           {
             tool: "ab-test-playbook",
-            title: "Experimentation",
-            body: "I turn questions into testable hypotheses, isolate the variable, choose the primary metric, and define the guardrails before reading the result.",
+            title: "Turn ideas into small tests",
+            body: "I turn a question into a testable hypothesis, change one thing at a time and decide how the result will be read before the test begins.",
           },
         ],
       },
@@ -90,7 +90,7 @@ export const copy = {
         more: "Open all calculators",
       },
       labMore: "Open all projects",
-      bio: { title: "How I work" },
+      bio: { title: "A career across growth, CRM and measurement." },
     },
     lab: {
       label: "Lab",
@@ -116,7 +116,7 @@ export const copy = {
       // LabIndexPage.tsx (verified - not by SiteFooter or the header's
       // LabNavDropdown, which only read name/desc/links), so this
       // reshape doesn't touch either of those.
-      intro: "Open-source tools and experiments built for problems I kept running into. Mostly growth, CRM and analytics. Occasionally something else.",
+      intro: "This is where I turn recurring problems from the work into open-source tools, libraries and small experiments. Most are about growth, CRM and analytics. Occasionally something else.",
       viewAll: "Explore the archive",
       // `short` is the project's compact name - the hero's tab rail, the
       // header dropdown and the section eyebrows all use it, because the
@@ -440,7 +440,7 @@ export const copy = {
       // the other; the two pages make different first impressions on
       // purpose.
       teaserLead:
-        "I work across a few areas, from measurement setup and ad channels to CRM and A/B testing. The job is the same in all of them: read what works from the data, then carry it back into the product and the marketing.",
+        "I started in digital marketing, then moved through user acquisition, CRM analytics, lifecycle and mobile product growth. Today I see them as different parts of the same customer journey, not separate disciplines.",
       lead:
         "I've worked on growth for different products since 2019. Measurement comes first. If the number isn't reliable, everything built on it is wasted.",
       body:
@@ -521,15 +521,15 @@ export const copy = {
       metaTitle: "Contact - Ali Demirbaş",
       metaDesc: "Get in touch by email or on LinkedIn.",
       eyebrow: "Contact",
-      title: "Let's keep in touch.",
-      sub: "If you have a question, want to share an idea, or want to talk about something on this site, feel free to get in touch.",
+      title: "Have something worth comparing notes on?",
+      sub: "If something here sparked a question, a counterpoint or a new idea, send me a note. I read every message myself.",
       linkedinLabel: "Connect on LinkedIn",
       emailPill: "Email",
       reasonsTitle: "A few reasons to reach out",
       reasons: [
-        { title: "Say hello", desc: "Introduce yourself, make a connection, or just say hi." },
-        { title: "Talk through an idea", desc: "Growth, CRM, A/B testing, measurement, or anything else worth exploring." },
-        { title: "Ask a question", desc: "About a calculator, a journey, an open-source project, or anything else on the site." },
+        { title: "Compare notes", desc: "On growth, CRM, experimentation, measurement or a problem you are working through." },
+        { title: "Talk about a project", desc: "If one of the tools or libraries here is useful, confusing or missing something." },
+        { title: "Just say hello", desc: "You do not need a formal reason. A short introduction is enough." },
       ],
       scheduleTitle: "Schedule a call",
       scheduleSub: "Book a 30 minute intro call.",
@@ -855,8 +855,8 @@ export const copy = {
       },
     },
     finalCta: {
-      title: "Reach out if you'd like to talk.",
-      body: "If you have a question, want to share an idea, or want to talk about one of the projects here, feel free to reach out.",
+      title: "If this work overlaps with yours, let's talk.",
+      body: "Send me a note about growth, CRM, measurement or one of the projects here. A question, a counterpoint or a simple hello all work.",
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "Connect on LinkedIn",
     },
@@ -872,9 +872,9 @@ export const copy = {
   tr: {
     nav: { about: "Hakkımda", aboutHref: "/tr/about", lab: "Lab", labHref: "/tr/lab", calculators: "Hesaplayıcılar", calculatorsHref: "/tr/calculators", blog: "Blog", blogHref: "/tr/blog", stack: "Araçlar", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
-      line1: "Büyüme işinin",
-      line2: "veri ve CRM tarafındayım.",
-      lead: "Ben Ali Demirbaş. Mobil ürünlerde kullanıcı kazanımı, CRM programları ve ölçüm altyapısı üzerine çalışıyorum.",
+      line1: "Ben Ali Demirbaş.",
+      line2: "Büyüme üzerine çalışıyor, karşıma çıkan problemler için araçlar geliştiriyorum.",
+      lead: "Şu anda Aksigorta'da mobil uygulamanın büyümesinden sorumluyum. Öncesinde Vodafone, Getir ve Wingie Enuygun Group'ta kullanıcı kazanımı, CRM ve analitik üzerine çalıştım.",
       sub: "Şu an Aksigorta'da mobil uygulamanın büyümesinden sorumluyum. Öncesinde Vodafone, Getir ve Wingie Enuygun Group'ta büyüme ekiplerindeydim.",
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
@@ -883,7 +883,7 @@ export const copy = {
         current: {
           eyebrow: "Güncel rol",
           title: "Şu anda Aksigorta'da",
-          body: "Mobil uygulamada acquisition, activation, engagement ve retention alanlarında büyümeyi yönetiyorum.",
+          body: "Yeni kullanıcı kazanmaktan uygulamaya geri dönmeleri için neden yaratmaya kadar mobil büyümeyi yönetiyorum.",
           meta: "Mobil Uygulama Büyüme Lideri",
           items: ["Acquisition", "Activation", "Engagement", "Retention"],
           cta: "Rolüm hakkında",
@@ -892,7 +892,7 @@ export const copy = {
         funnel: {
           eyebrow: "Odak",
           title: "Full-Funnel Growth",
-          body: "Müşteri yolculuğunun her aşamasını ayrı bir problem olarak değil, birbirine bağlı şekilde ele alıyorum.",
+          body: "Dijital pazarlamadan kullanıcı kazanımı, CRM, lifecycle ve ürün büyümesine uzanan bir çizgide çalıştım. Bugün bunları ayrı işler değil, birbirine bağlı parçalar olarak görüyorum.",
           meta: "Acquisition'dan win-back'e",
           items: ["Acquisition", "Activation", "Engagement", "Retention", "Win-back"],
           cta: "Nasıl çalışıyorum",
@@ -901,7 +901,7 @@ export const copy = {
         selected: {
           eyebrow: "İşin içinden çıkanlar",
           title: "Öne Çıkan İşler",
-          body: "Sık karşılaştığım growth, CRM ve analitik problemleri için geliştirdiğim araçlar ve kütüphaneler.",
+          body: "Ürettiklerimin çoğu işte tekrar tekrar karşıma çıkan bir problemle başlıyor: bir journey'yi görmek, bir testi planlamak ya da bir metriği daha kolay okumak.",
           meta: "Açık kaynak projeler",
           items: ["Journey Library", "A/B Test Playbook", "Google Ads Change History", "Pazarlama Hesaplayıcıları"],
           cta: "Lab'i aç",
@@ -910,9 +910,9 @@ export const copy = {
         industries: {
           eyebrow: "Deneyim",
           title: "Sektörler",
-          body: "Farklı müşteri yapıları, karar süreçleri ve ürün döngüleri olan sektörlerde growth ve dijital üzerine çalıştım.",
+          body: "Kariyerim boyunca sigorta, telekom, hızlı teslimat, seyahat, otomotiv ve medya sektörlerinde çalıştım.",
           meta: "Farklı sektörlerde deneyim",
-          items: ["Sigorta", "Telekom", "Seyahat", "Otomotiv", "Medya"],
+          items: ["Sigorta", "Telekom", "Hızlı teslimat", "Seyahat", "Otomotiv", "Medya"],
           cta: "Deneyimi gör",
           href: "/tr/about",
         },
@@ -921,29 +921,29 @@ export const copy = {
     home: {
       work: {
         eyebrow: "Ne yapıyorum",
-        title: "Büyümeyi veri, test ve kullanıcı davranışı üzerinden ele alıyorum.",
-        lede: "Ölçüm, lifecycle, performans analizi ve deneyler tarafında çalışıyorum; kullanıcının ne yaptığını veride ne gördüğümüzle birlikte ele alıyorum.",
+        title: "Kullanıcı kazanımı, ürün davranışı ve CRM'i birlikte ele alıyorum.",
+        lede: "Bir kullanıcıyı kazanmak yalnızca başlangıç. Tıklamadan sonra ne olduğuna, deneyimin nerede koptuğuna ve kullanıcıyı neyin geri getirebileceğine bakıyorum.",
         builtFor: "Bunun için yaptım",
         services: [
           {
             tool: "dashboard-builder",
-            title: "Ölçüm altyapısı",
-            body: "Ne olduğunu anlayabilmek için gereken event, attribution ve raporlama yapısını kuruyorum. İki platform farklı sayı verdiğinde ortalamak yerine farkın tanımdan mı, veriden mi geldiğini bulmaya çalışıyorum.",
+            title: "Güvenilir bir temel kurmak",
+            body: "Büyüme kararı vermeden önce event, attribution ve raporlama yapısının o kararı taşıyabildiğinden emin oluyorum. İki platform farklı sayı verdiğinde farkın kaynağına iniyorum.",
           },
           {
             tool: "lifecycle-card-archive",
-            title: "Lifecycle ve CRM programları",
-            body: "Kullanıcının ilk adımdan geri kazanıma kadar geçtiği journey'leri tasarlıyorum; mesajın ne zaman tetikleneceğini, ne zaman duracağını ve sonrasında ne olacağını birlikte kurguluyorum.",
+            title: "İlk ziyaretten geri kazanıma",
+            body: "İlk dönüşümden sonrasını tasarlıyorum: sırada ne olacağını, hangi sinyalin bir mesajı tetikleyeceğini ve journey'nin ne zaman duracağını birlikte kurguluyorum.",
           },
           {
             tool: "google-ads-change-history-dashboard",
-            title: "Performans analizi",
-            body: "Performansı, o dönemde yapılan değişikliklerle birlikte okuyorum. Böylece gerçekten neyin değiştiğini, sadece aynı anda hareket eden metriklerden ayırmak daha kolay oluyor.",
+            title: "Neyin değiştiğini anlamak",
+            body: "Performansı, o dönemde yapılan değişikliklerle birlikte okuyorum. Böylece gerçek bir etkiyi, yalnızca aynı anda hareket eden iki şeyden ayırmak daha kolay oluyor.",
           },
           {
             tool: "ab-test-playbook",
-            title: "Deneyler",
-            body: "Soruyu test edilebilir bir hipoteze çeviriyor, değişkeni izole ediyor, birincil metriği ve guardrail'leri sonucu görmeden önce belirliyorum.",
+            title: "Fikirleri küçük testlere çevirmek",
+            body: "Bir soruyu test edilebilir hipoteze çeviriyor, her seferinde tek şeyi değiştiriyor ve sonucu nasıl okuyacağımıza test başlamadan karar veriyorum.",
           },
         ],
       },
@@ -956,12 +956,12 @@ export const copy = {
         more: "Tüm hesaplayıcıları aç",
       },
       labMore: "Tüm projeleri aç",
-      bio: { title: "Nasıl çalışıyorum" },
+      bio: { title: "Growth, CRM ve ölçüm etrafında gelişen bir kariyer." },
     },
     lab: {
       label: "Lab",
       title: "Üzerinde çalıştıklarım",
-      intro: "Sürekli karşılaştığım problemler için yaptığım açık kaynak araçlar ve deneyler. Çoğunlukla büyüme, CRM ve analitik. Bazen başka bir şey.",
+      intro: "İşte tekrar tekrar karşıma çıkan problemleri açık kaynak araçlara, kütüphanelere ve küçük deneylere dönüştürdüğüm yer. Çoğu büyüme, CRM ve analitik üzerine. Bazen başka bir şey.",
       projects: [
         {
           name: "Journey Oluşturucu",
@@ -1223,7 +1223,7 @@ export const copy = {
       eyebrow: "Hakkımda",
       moreLink: "Hakkımda daha fazlası",
       teaserLead:
-        "Ölçüm altyapısından reklam kanallarına, CRM'den A/B testlerine kadar birkaç alanda çalışıyorum. Hepsinde yaptığım iş aynı. Neyin işe yaradığını veriden okuyup ürüne ve pazarlamaya geri taşıyorum.",
+        "Dijital pazarlamayla başladım; sonra kullanıcı kazanımı, CRM analitiği, lifecycle ve mobil ürün büyümesine doğru ilerledim. Bugün bunları ayrı uzmanlıklar değil, aynı müşteri yolculuğunun farklı parçaları olarak görüyorum.",
       lead:
         "2019'dan beri farklı ürünlerde büyüme üzerine çalışıyorum. Önce ölçüme bakıyorum. Sayı güvenilir değilse gerisi boşa gidiyor.",
       body:
@@ -1302,15 +1302,15 @@ export const copy = {
       metaTitle: "İletişim - Ali Demirbaş",
       metaDesc: "E-posta ve LinkedIn üzerinden iletişim.",
       eyebrow: "İletişim",
-      title: "İletişimde kalalım.",
-      sub: "Bir soru sormak, fikir paylaşmak ya da buradaki projelerden biri hakkında konuşmak istersen bana ulaşabilirsin.",
+      title: "Üzerine konuşmaya değer bir şey mi var?",
+      sub: "Buradaki bir şey sende soru, itiraz ya da yeni bir fikir uyandırdıysa yazabilirsin. Her mesajı kendim okuyorum.",
       linkedinLabel: "LinkedIn'de bağlantı kur",
       emailPill: "E-posta",
       reasonsTitle: "Bana neden yazabilirsin?",
       reasons: [
-        { title: "Tanışmak için", desc: "Kendini tanıtmak, bağlantı kurmak ya da sadece merhaba demek için." },
-        { title: "Bir şey konuşmak için", desc: "Büyüme, CRM, A/B testleri, ölçümleme ya da üzerinde birlikte düşünebileceğimiz başka bir konu için." },
-        { title: "Bir şey sormak için", desc: "Hesaplayıcılar, journey’ler, açık kaynak projeler veya sitedeki herhangi bir şey hakkında." },
+        { title: "Notları karşılaştırmak için", desc: "Growth, CRM, deneyler, ölçümleme ya da üzerinde çalıştığın bir problem hakkında." },
+        { title: "Bir projeyi konuşmak için", desc: "Buradaki araçlardan biri işine yaradıysa, kafanı karıştırdıysa ya da bir şeyi eksikse." },
+        { title: "Sadece merhaba demek için", desc: "Resmî bir nedene gerek yok. Kısa bir tanışma mesajı yeterli." },
       ],
       scheduleTitle: "Görüşme planla",
       scheduleSub: "30 dakikalık bir tanışma görüşmesi ayarla.",
@@ -1623,8 +1623,8 @@ export const copy = {
       },
     },
     finalCta: {
-      title: "Bir şey konuşmak istersen yazabilirsin.",
-      body: "Bir soru sormak, fikir paylaşmak ya da buradaki projelerden biri hakkında konuşmak istersen bana ulaşabilirsin.",
+      title: "Yaptığım işler seninkilerle kesişiyorsa konuşalım.",
+      body: "Growth, CRM, ölçümleme ya da buradaki projelerden biri hakkında yazabilirsin. Bir soru, bir itiraz ya da sadece merhaba; hepsi olur.",
       button: "mehmetalidemirbas@gmail.com",
       linkedin: "LinkedIn'de bağlan",
     },
