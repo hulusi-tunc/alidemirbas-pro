@@ -4131,7 +4131,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "no-show-rebooking",
     category: "scheduling",
     goal: "scheduling-commitment",
-    channels: ["email"],
+    channels: ["sms", "email"],
     name: "No-show confirmed → validate the miss → rebook or close",
     shortName: "No-Show Follow-Up",
     purpose:
@@ -4235,14 +4235,17 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       },
       "competition": "none"
     },
-    channelStrategy: {
+    "channelStrategy": {
       "roles": [
         {
+          "role": "urgent",
+          "channels": ["sms"],
+          "when": "the branch is a rebooking offer, urgent_channel_permission is true, and rebooking_window is short enough that waiting to find an email could materially reduce the chance to rebook"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the offer carries the rebooking route and should be kept - the default, and every stage in this journey"
+          "channels": ["email"],
+          "when": "the acknowledgement has no action to take, or the rebooking offer should be kept and the rebooking window does not justify an urgent interruption"
         }
       ],
       "fallback": "none",
@@ -4262,6 +4265,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say that the booking was missed as a fact, without penalty language, and give the single route to a new one within the stated window.",
           "channelRoles": [
+            "urgent",
             "persistent"
           ],
           "destination": {

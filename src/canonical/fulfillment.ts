@@ -4208,7 +4208,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "post-purchase-follow-up",
     "category": "fulfillment",
     "goal": "progression-milestone",
-    "channels": ["email"],
+    "channels": ["in-app", "push", "email"],
     "name": "Fulfillment completed → the useful next step sent → followed up, superseded or not sent",
     "shortName": "Post-Purchase Follow-Up",
     "purpose": "Once what was owed has actually arrived, send the one thing that makes it useful - how to start with it, how to look after it, what sensibly follows - and nothing else.",
@@ -4299,11 +4299,19 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and guidance_destination opens the exact next step for the fulfilled item in the product"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "there is no active session, push_token is present, and the useful next step is short enough to understand before opening its deep link"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the guidance has to be kept and returned to - the default for anything the person may need again later"
+          "channels": ["email"],
+          "when": "otherwise, especially when the guidance is something the person may need to keep and return to later"
         }
       ],
       "fallback": "none",
@@ -4323,6 +4331,8 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The one thing that makes what they received work: how to start with it, how to look after it, or what sensibly follows. No status, no request for an opinion, no repeat of the order's own confirmation.",
           "channelRoles": [
+            "in-session",
+            "low-friction",
             "persistent"
           ],
           "destination": {

@@ -4190,9 +4190,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "abandoned-selection-recovery",
     "category": "acquisition",
     "goal": "recovery-retry",
-    "channels": [
-      "email"
-    ],
+    "channels": ["push", "email"],
     "name": "Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed",
     "shortName": "Abandoned Selection Recovery",
     "purpose": "Return a person to items they selected - a cart, a basket, a saved list - and did not carry into a process, while the selection still stands and the items are still available, without asserting a state the system does not hold.",
@@ -4313,11 +4311,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "the selection has an app-resumable deep link and a currently deliverable push destination; use it for the first compact return nudge"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "no low-friction route exists, or the touch has to carry the items as they stand and survive until the person can act"
+          "channels": ["email"],
+          "when": "otherwise, and always for the later follow-up where the current selection has to remain available until the person returns"
         }
       ],
       "fallback": "none",
@@ -4338,6 +4339,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The selection as it currently stands - only the items still available - and the link that reopens it. Nothing the system does not assert.",
           "channelRoles": [
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -4996,9 +4998,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "unresolved-interest-recovery",
     "category": "acquisition",
     "goal": "recovery-retry",
-    "channels": [
-      "email"
-    ],
+    "channels": ["in-app", "email"],
     "name": "Interest inferred → qualified → resolved into a selection or purchase, or left alone",
     "shortName": "Unresolved Interest Recovery",
     "purpose": "Follow up qualified, unresolved attention to an item, category or search - browsing that ended in neither a selection nor a process - with at most one touch, and record no-action as the normal outcome whenever the attention does not qualify.",
@@ -5103,11 +5103,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the unresolved interest subject can be reopened from the current product context"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "no low-friction route exists, or the touch has to carry the thing looked at and survive until the person can act"
+          "channels": ["email"],
+          "when": "otherwise, when the subject and route back need to remain available after the session ends"
         }
       ],
       "fallback": "none",
@@ -5127,6 +5130,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The thing they looked at, as it stands now, and a route back to it. Nothing about stock, price or intent that the system does not assert.",
           "channelRoles": [
+            "in-session",
             "persistent"
           ],
           "destination": {

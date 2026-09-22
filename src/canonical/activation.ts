@@ -374,7 +374,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "onboarding-progress-next-step",
     category: "activation",
     goal: "progression-milestone",
-    channels: ["email"],
+    channels: ["in-app", "push", "email"],
     name: "Onboarding progress → next best setup step → activation",
     shortName: "Onboarding Nurture",
     purpose:
@@ -499,14 +499,22 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "precedence": "below the authoritative activation event, which supersedes it wherever it sits; above dormant lead reactivation (ACT-20) for the same person, because an onboarding already in motion is a current lifecycle and reactivation is the attempt to start one"
       , "onLoss": "superseded" }
     },
-    channelStrategy: {
+    "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "the person is already in an active product session and the next incomplete setup step can be surfaced in the place where it can be completed"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "there is no active session, a deliverable push destination exists, and the next step has a single deep link back to the exact setup state"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "no active session, or the step needs an explanation that survives until the person returns"
+          "channels": ["email"],
+          "when": "otherwise, or when the next step needs an explanation the person can keep and return to later"
         }
       ],
       "fallback": "none",
@@ -524,6 +532,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Surface the single most useful next action, read from the product's own record of what is done. Never a completed step, never the whole checklist.",
           "channelRoles": [
+            "in-session",
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -2496,7 +2506,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "adoption-stall-diagnosis",
     category: "activation",
     goal: "relationship-recovery-intervention",
-    channels: ["email", "push"],
+    channels: ["push", "email"],
     name: "Adoption stall → diagnose missing value → recover or re-route",
     shortName: "Adoption Recovery",
     purpose:
@@ -2594,24 +2604,20 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "precedence": "lowest in retention-outreach: below the declared cancellation intent (RET-28), any live risk case (RET-24), any open issue under human ownership, and the retention offer follow-up (RET-30) on the same account"
       , "onLoss": "suppressed" }
     },
-    channelStrategy: {
+    "channelStrategy": {
       "roles": [
         {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the blocker needs an explanation that survives until the person can act on it"
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "has_push_token is true and the diagnosed blocker is one concrete step the person can take from the notification"
         },
         {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a valid token exists and the blocker is a single step the person can take from the notification"
+          "role": "persistent",
+          "channels": ["email"],
+          "when": "the blocker needs enough explanation to survive until the person can act, or the push route is not applicable"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "next-eligible-role",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -2626,8 +2632,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Address the diagnosed blocker specifically - the unfinished setup, the missing integration, the misunderstanding. Not more encouragement and not a re-run of onboarding.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "low-friction",
+            "persistent"
           ],
           "destination": {
             "target": "blocker-resolution-step",

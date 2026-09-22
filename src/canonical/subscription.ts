@@ -738,7 +738,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "renewal-decision",
     category: "subscription",
     goal: "eligibility-qualification",
-    channels: ["email"],
+    channels: ["email", "in-app", "sms"],
     name: "Renewal window → eligibility → renew, non-renew or review",
     shortName: "Renewal Reminder",
     purpose:
@@ -847,14 +847,22 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "onLoss": "suppressed"
       }
     },
-    channelStrategy: {
+    "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_session is true and the decision holder can review and act on the renewal decision inside the current relationship surface"
+        },
+        {
+          "role": "urgent",
+          "channels": ["sms"],
+          "when": "urgent_channel_permission is true and the decision has entered the final actionable part of the notice period before term_end_at"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal, and every stage in this journey"
+          "channels": ["email"],
+          "when": "the notice or renewing terms must be kept, or neither contextual nor urgent routing applies"
         }
       ],
       "fallback": "none",
@@ -894,6 +902,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Put the renewal decision to whoever holds it - the terms that would apply and the point by which the notice period requires an answer, or, where the notice has already gone out this cycle, the decision needed restated without the terms it already carried.",
           "channelRoles": [
+            "in-session",
+            "urgent",
             "persistent"
           ],
           "destination": {
@@ -3564,7 +3574,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "loyalty-welcome",
     "category": "subscription",
     "goal": "progression-milestone",
-    "channels": ["email"],
+    "channels": ["in-app", "push", "email"],
     "name": "Membership enrolled → welcomed → oriented, already in use, or closed",
     "shortName": "Loyalty Program Welcome",
     "purpose": "Open an enrolled membership honestly: what it actually grants from today, where it lives, and how it is used - without borrowing the product's own onboarding or the first purchase's own welcome.",
@@ -3664,11 +3674,19 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the membership account or granted benefit is available in that session"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "the later orientation is due, there is no active session, push_token is present, and the granted benefit can be opened directly"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the touch has to carry what the membership grants and survive until the person can act on it - the default for both touches, and the only role either reaches"
+          "channels": ["email"],
+          "when": "otherwise, especially for the welcome where the membership terms and granted benefits should remain available"
         }
       ],
       "fallback": "none",
@@ -3687,6 +3705,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "What this membership grants from today, where it lives, and how it is used - stated from the membership record and nothing else.",
           "channelRoles": [
+            "in-session",
             "persistent"
           ],
           "destination": {
@@ -3714,6 +3733,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "One route to the thing the membership already grants, sent only to a member whose own usage record says they have not used it yet.",
           "channelRoles": [
+            "in-session",
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -4048,7 +4069,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "loyalty-nurture",
     "category": "subscription",
     "goal": "progression-milestone",
-    "channels": ["email"],
+    "channels": ["in-app", "push", "email"],
     "name": "Membership holding something unused → explained → used, reminded once, or closed",
     "shortName": "Loyalty Program Nurture",
     "purpose": "Tell a member what their own membership is currently holding for them that they have not used, in a bounded way that ends rather than a cadence that continues.",
@@ -4144,11 +4165,19 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the member is already in the membership surface where the unused benefit can be used"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "subject_expires_at is approaching, push_token is present, and membership_benefit_destination can open the expiring benefit directly"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the touch has to carry what is held and until when, and survive until the member can act on it - the default, and the only role either touch reaches"
+          "channels": ["email"],
+          "when": "the explanation needs to survive until the member can act, or a contextual or low-friction route is not applicable"
         }
       ],
       "fallback": "none",
@@ -4167,6 +4196,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "What this membership is holding that has not been used, what it may be used for and until when - every part of it re-read from the membership record.",
           "channelRoles": [
+            "in-session",
             "persistent"
           ],
           "destination": {
@@ -4195,6 +4225,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "That this subject expires, and when - to a member whose record still shows it unused, sent only where the subject actually has an expiry to act before - and then the plan is over.",
           "channelRoles": [
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -4461,7 +4492,9 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "optional": [
           "subject_expires_at",
           "subject_credited_at",
-          "email_address"
+          "push_token",
+          "email_address",
+          "has_active_app_session"
         ]
       }
     },
@@ -4557,7 +4590,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "reward-confirmation",
     "category": "subscription",
     "goal": "delivery-confirmation",
-    "channels": ["email"],
+    "channels": ["in-app", "push", "email"],
     "name": "Reward earned → record confirmed → stated once, or closed unstated",
     "shortName": "Reward Confirmation",
     "purpose": "Confirm a state the membership actually reached - a reward earned, credited and usable - as the record states it, and confirm nothing that the record does not.",
@@ -4647,11 +4680,19 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the credited reward plus its use route can be shown in the membership surface where it now exists"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "there is no active app session, push_token is present, and membership_reward_destination opens the credited reward directly"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the confirmation has to be kept and produced again later - the default for a record of something earned, and the only role this touch reaches"
+          "channels": ["email"],
+          "when": "otherwise, when the confirmation and its terms should remain available outside the app"
         }
       ],
       "fallback": "none",
@@ -4669,6 +4710,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "What was earned, what it may be used for and until when - read from the reward record, said once, with nothing attached to it.",
           "channelRoles": [
+            "in-session",
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -4875,7 +4918,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "loyalty-tier-change",
     "category": "subscription",
     "goal": "progression-milestone",
-    "channels": ["email"],
+    "channels": ["in-app", "push", "email"],
     "name": "Tier moved → direction checked → upgrade announced, used, or left to another journey",
     "shortName": "Loyalty Tier Upgrade",
     "purpose": "Tell a member that their membership's own standing has moved up, and say exactly what that standing now grants that it did not before - and nothing else.",
@@ -4970,11 +5013,19 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the new tier plus newly granted benefits can be shown inside the membership standing surface"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "there is no active session, push_token is present, and membership_standing_destination opens the new standing or benefit directly"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the announcement has to carry what the new standing grants and survive until the member can use it - the default, and the only role this touch reaches"
+          "channels": ["email"],
+          "when": "otherwise, when the new standing and what it grants should remain available after the moment of change"
         }
       ],
       "fallback": "none",
@@ -4993,6 +5044,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The standing the member now holds and what it grants that the previous one did not - read from the programme's own terms and said once.",
           "channelRoles": [
+            "in-session",
+            "low-friction",
             "persistent"
           ],
           "destination": {

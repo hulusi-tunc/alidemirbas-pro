@@ -318,6 +318,9 @@ export type FlowNode = {
       See `ChannelPriorityRow` (JourneyCanvasNodes.tsx) for the renderer
       rule this backs. */
   channelStrategyFallback?: ChannelStrategy["fallback"];
+  /** True only when the canonical strategy explicitly says the roles are
+      simultaneous surfaces for the same communication, not alternatives. */
+  channelStrategySimultaneous?: boolean;
 };
 
 const humanEvent = (event: string): string => {
@@ -411,6 +414,32 @@ const PUBLIC_CHANNELS: ReadonlySet<ChannelId> = new Set<ChannelId>(["email", "sm
 
 export function publicChannels(channels: readonly ChannelId[]): readonly ChannelId[] {
   return channels.filter((c) => PUBLIC_CHANNELS.has(c));
+}
+
+/** Customer-facing channels the authored touch plan actually uses.
+    Canonical `journey.channels` is intentionally broader in parts of the
+    corpus (legacy availability / potential surfaces). The public library,
+    however, must describe the journey that is actually drawn and sent.
+    Prefer the channels reached through orchestration.touch.channelRoles;
+    fall back to the declared roster only for legacy journeys with no touch
+    plan. */
+export function actualPublicChannels(j: CanonicalJourney): readonly ChannelId[] {
+  const byRole = new Map((j.channelStrategy?.roles ?? []).map((r) => [r.role, r.channels] as const));
+  const used = new Set<ChannelId>();
+  for (const touch of j.orchestration?.touches ?? []) {
+    for (const role of touch.channelRoles ?? []) {
+      for (const channel of byRole.get(role) ?? []) {
+        if (PUBLIC_CHANNELS.has(channel)) used.add(channel);
+      }
+    }
+  }
+  if (!used.size) return publicChannels(j.channels);
+
+  // Preserve the journey's authored channel order where possible; append any
+  // role-resolved channel omitted from the legacy roster defensively.
+  const ordered = publicChannels(j.channels).filter((c) => used.has(c));
+  for (const channel of used) if (!ordered.includes(channel)) ordered.push(channel);
+  return ordered;
 }
 
 const edge = (
@@ -700,6 +729,9 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
     ...(n.kind === "action" && plans.has(n.id) && j.channelStrategy?.fallback
       ? { channelStrategyFallback: j.channelStrategy.fallback }
       : {}),
+    ...(n.kind === "action" && plans.has(n.id) && j.channelStrategy?.simultaneous?.allowed
+      ? { channelStrategySimultaneous: true }
+      : {}),
   }));
 }
 
@@ -725,7 +757,7 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = await Promise.all(PUBLIC_JOUR
   categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
   nodeCount: j.nodes.length,
   goal: j.goal,
-  channels: publicChannels(j.channels),
+  channels: actualPublicChannels(j),
   preview: buildJourneyPreview(await layoutJourneyCanvas(flowNodesOf(j))),
 })));
 
@@ -844,7 +876,7 @@ function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): Journey
     purpose: j.purpose,
     categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
     goal: j.goal,
-    channels: publicChannels(j.channels),
+    channels: actualPublicChannels(j),
     entityScope: j.entity.scope,
     entityNote: j.entity.note,
     reusableRule: j.reusableRule,

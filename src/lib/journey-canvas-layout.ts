@@ -135,19 +135,14 @@ export type CanvasLayout = {
    JourneyCanvasNodes.tsx: the padding, the badges and the line-clamps all
    feed these. */
 export const SIZE: Record<CanvasNodeKind, { width: number; height: number }> = {
-  trigger: { width: 240, height: 124 },
-  /* 108 -> 140 (2026-09-20): the message card gained a one-line preview of
-     what it actually says, and the worst case measured across all 51 public
-     journeys in both locales is 138 against the old 108 slot - the card was
-     drawing 30px outside its own border. Re-measured with `offsetHeight`
-     against the button's `scrollHeight`, both unscaled layout pixels; the
-     canvas is CSS-transformed, so a `getBoundingClientRect` reading here is
-     the zoomed value and will report every card as overflowing. */
-  action: { width: 264, height: 140 },
-  condition: { width: 240, height: 100 },
-  wait: { width: 240, height: 56 },
-  handoff: { width: 240, height: 124 },
-  outcome: { width: 232, height: 100 },
+  /* The canvas is channel-first: message cards carry the visual weight;
+     decisions, waits and internal mechanics are deliberately smaller. */
+  trigger: { width: 300, height: 132 },
+  action: { width: 300, height: 132 },
+  condition: { width: 280, height: 56 },
+  wait: { width: 220, height: 44 },
+  handoff: { width: 252, height: 44 },
+  outcome: { width: 244, height: 44 },
   /* 48 -> 68 (2026-09-20). A PARTIAL fix to a pre-existing overflow, not a
      complete one - stated plainly so the next reader does not trust this
      number the way the others can be trusted.
@@ -213,7 +208,15 @@ const MERGED_WAIT_STRIP = 40;
     The one place both the ELK graph and its read-back size a node, so they
     can never disagree about how tall a merged card is. */
 function sizeOf(d: DisplayNode): { width: number; height: number } {
-  const base = SIZE[d.node.kind];
+  let base = SIZE[d.node.kind];
+
+  if (d.node.kind === "action") {
+    if (d.node.execution === "communication") base = { width: 300, height: 132 };
+    else if (d.node.execution === "human") base = { width: 252, height: 108 };
+    else if ((d.node.channelPriority?.length ?? 0) >= 2) base = { width: 280, height: 58 };
+    else base = { width: 252, height: 44 };
+  }
+
   return d.mergedWait ? { width: base.width, height: base.height + MERGED_WAIT_STRIP } : base;
 }
 
@@ -415,27 +418,29 @@ export function absorbableBookkeeping(
       if (e.kind === "node") inDegree.set(e.to, (inDegree.get(e.to) ?? 0) + 1);
     }
   }
+
   const absorbed = new Map<string, string>();
   for (const n of nodes) {
     if (n.kind !== "action" || n.execution || n.isEntry) continue;
+
+    /* Channel resolution is customer-visible behaviour, not plumbing.
+       ACQ-287/288/289 and any future journey with the same canonical shape
+       keep their router on the canvas. */
+    if ((n.channelPriority?.length ?? 0) >= 2) continue;
+
+    /* Only collapse true pass-through mechanics. Anything that merges,
+       forks, or is shared by several parents remains visible because it is
+       structurally meaningful even when it is not a customer touch. */
     if ((inDegree.get(n.id) ?? 0) !== 1) continue;
     const out = n.edges.filter((e) => e.kind === "node");
     if (out.length !== 1) continue;
     const host = byId.get(out[0].to);
     if (!host) continue;
-    /* `writesFields` (FlowNode, canonical-view.ts) carries the authored
-       `writes[].field` names raw and unlocalized - read that structural
-       fact directly rather than pattern-matching `meta`'s "writes <field>
-       (<mode>)" display line, which is Turkish prose on the TR route and
-       does not start with the English word "writes" there. Matching
-       against `meta` used to make this test vacuously pass on `/tr` for
-       any node with real, non-journal writes (an empty `.filter()` result
-       makes `.every()` true), silently absorbing a node on TR that EN
-       correctly kept drawn - see `writesFields`'s own doc for the five
-       journeys this cost before the fix. */
-    const writes = n.writesFields ?? [];
-    const journalOnly = writes.every((field) => JOURNAL_WRITE.test(field));
-    if (!journalOnly) continue;
+
+    /* Public canvas grammar is channel-first. Canonical state writes,
+       bookkeeping and measurement remain fully available in the detail
+       panel through representedSteps; they do not each need a separate
+       card merely because an implementation field is written here. */
     absorbed.set(n.id, out[0].to);
   }
   return absorbed;
@@ -761,12 +766,12 @@ const ROOT_OPTIONS: Record<string, string> = {
      breaking reverses the same edge the display graph found, so the loop
      never turns a forward edge upward instead. */
   "elk.layered.cycleBreaking.strategy": "DEPTH_FIRST",
-  "elk.spacing.nodeNode": "48",
-  "elk.layered.spacing.nodeNodeBetweenLayers": "72",
-  "elk.spacing.edgeNode": "32",
-  "elk.spacing.edgeEdge": "28",
-  "elk.layered.spacing.edgeNodeBetweenLayers": "32",
-  "elk.layered.spacing.edgeEdgeBetweenLayers": "28",
+  "elk.spacing.nodeNode": "40",
+  "elk.layered.spacing.nodeNodeBetweenLayers": "56",
+  "elk.spacing.edgeNode": "28",
+  "elk.spacing.edgeEdge": "24",
+  "elk.layered.spacing.edgeNodeBetweenLayers": "28",
+  "elk.layered.spacing.edgeEdgeBetweenLayers": "24",
   "elk.spacing.edgeLabel": "8",
   "elk.padding": `[top=${PAD_Y},left=${PAD_X},bottom=${PAD_BOTTOM},right=${PAD_X}]`,
 };
