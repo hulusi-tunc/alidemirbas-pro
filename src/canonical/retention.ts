@@ -1342,7 +1342,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "negative-experience-recovery",
     category: "retention",
     goal: "compensation-remedy",
-    channels: ["email"],
+    channels: ["in-app", "email"],
     name: "Negative experience → recovery eligibility → appropriate response",
     shortName: "Service Recovery",
     purpose:
@@ -1431,14 +1431,17 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       },
       "competition": "none"
     },
-    channelStrategy: {
+    "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the resolved experience belongs to the product context the person is currently using"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the acknowledgement should be something the person can keep - what failed, what was done, what prevents it - which is the default"
+          "channels": ["email"],
+          "when": "otherwise, because what failed, what was done and what prevents recurrence should remain available after the session"
         }
       ],
       "fallback": "none",
@@ -1459,6 +1462,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation.",
           "channelRoles": [
+            "in-session",
             "persistent"
           ],
           "mandatory": false,
@@ -2617,7 +2621,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "retention-intervention-outcome",
     category: "retention",
     goal: "reconciliation-correction",
-    channels: ["email", "in-app"],
+    channels: ["in-app", "email"],
     name: "Retention intervention → outcome → suppress, escalate or exit",
     shortName: "Retention Offer Follow-Up",
     purpose:
@@ -2708,24 +2712,20 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "onLoss": "suppressed"
       }
     },
-    channelStrategy: {
+    "channelStrategy": {
       "roles": [
         {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_session is true and the retention action can be completed in the product context the person is already using"
         },
         {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
+          "role": "persistent",
+          "channels": ["email"],
+          "when": "the person is not in an active session, or the follow-up needs to remain available after they leave"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "next-eligible-role",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -2741,8 +2741,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send one follow-up and stop.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "in-session",
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -2764,7 +2764,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "offer_status",
           "retention_episode_history"
         ],
-        "optional": []
+        "optional": [
+          "has_active_session"
+        ]
       }
     },
     measurement: {
@@ -3045,9 +3047,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "predicted-need-replenishment",
     "category": "retention",
     "goal": "recovery-retry",
-    "channels": [
-      "email"
-    ],
+    "channels": ["push", "email"],
     "name": "Depletion predicted → replenishment prompted before it → replenished, dismissed or lapsed",
     "shortName": "Predicted Need Replenishment",
     "purpose": "Prompt a person to replenish a consumable or recurring-use item shortly before its usable period is predicted to end, stating the prediction as an estimate, and stop the moment they buy, dismiss, or the cycle passes.",
@@ -3155,11 +3155,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "the first prompt is close to the predicted depletion point, a deliverable push destination exists, and the reorder route can be opened directly"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the prompt should carry the item, the estimate and the reorder route and survive until the person can act - the default for a prompt sent days ahead of a need"
+          "channels": ["email"],
+          "when": "otherwise, and always for the post-depletion follow-up where the estimate and reorder context should remain available"
         }
       ],
       "fallback": "none",
@@ -3179,6 +3182,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The item, the estimated point at which it runs out - stated as an estimate from their own purchases - and the route to reorder. Nothing about stock or price that the system does not assert.",
           "channelRoles": [
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -3713,9 +3717,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "lapsed-customer-win-back",
     "category": "retention",
     "goal": "recovery-retry",
-    "channels": [
-      "email"
-    ],
+    "channels": ["push", "email"],
     "name": "Paid relationship lapsed → outreach permitted → won back, declined or left alone",
     "shortName": "Lapsed Customer Win-Back",
     "purpose": "Invite a person whose paid relationship ended or went dormant to come back - once, honestly, with whatever has actually changed since they left - after the cancellation's own window has passed and only where the recorded reason and history do not rule it out.",
@@ -3827,11 +3829,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "the former customer still has a reachable app relationship and the return route is a direct deep link; use it for the first invitation only"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the invitation should say what changed and carry the route back, and survive until the person reads it - the default for someone who is not in the product"
+          "channels": ["email"],
+          "when": "otherwise, and always for the optional follow-up where what changed or any issued incentive needs enough context to stand on its own"
         }
       ],
       "fallback": "none",
@@ -3850,6 +3855,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "A plain invitation to come back: what actually changed since they left where something did, the route back, and nothing invented.",
           "channelRoles": [
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -4254,7 +4260,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "first-purchase-welcome",
     "category": "retention",
     "goal": "progression-milestone",
-    "channels": ["email"],
+    "channels": ["in-app", "push", "email"],
     "name": "First purchase completed → welcomed as a customer → returned, prompted or closed",
     "shortName": "First Purchase Thank You & Bounceback",
     "purpose": "Mark the moment a buyer becomes a customer for the first time, and give them one honest reason to come back - without ever speaking over the order's own transactional confirmation.",
@@ -4349,11 +4355,19 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the welcome or orientation can be shown inside the customer account where the purchase now lives"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "the bounceback stage has a real issued offer, push_token is present, and the offer route can be opened directly; this role is for the later return nudge, not the welcome"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the touch has to carry the welcome or the offer and survive until the person can act on it - the default for both touches"
+          "channels": ["email"],
+          "when": "otherwise, especially when the welcome or issued offer needs to remain available after the session ends"
         }
       ],
       "fallback": "none",
@@ -4373,6 +4387,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "They are a customer now, and this is what that means here: what happens next with what they bought, where to find it, and how to reach a person. No offer unless the business has issued one.",
           "channelRoles": [
+            "in-session",
             "persistent"
           ],
           "destination": {
@@ -4399,6 +4414,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "One reason to come back, stated as whatever the business has actually issued and for as long as it will honour it - sent only to somebody who has not already come back.",
           "channelRoles": [
+            "in-session",
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -4758,7 +4775,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "first-purchase-anniversary",
     "category": "retention",
     "goal": "progression-milestone",
-    "channels": ["email"],
+    "channels": ["in-app", "push", "email"],
     "name": "First-purchase anniversary approaching → eligibility checked → recognised or not sent",
     "shortName": "First Purchase Anniversary",
     "purpose": "Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once.",
@@ -4854,11 +4871,19 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the anniversary can be recognised naturally inside the customer account"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "there is no active session, push_token is present, and the recognition is complete as a short message with a route back to the account"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the recognition should be kept rather than glanced at - the default"
+          "channels": ["email"],
+          "when": "otherwise, when the recognition should be kept rather than glanced at"
         }
       ],
       "fallback": "none",
@@ -4876,6 +4901,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "How long this relationship has lasted, counted from the first purchase, said once and with nothing attached that the record does not carry.",
           "channelRoles": [
+            "in-session",
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -5173,11 +5200,19 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "the person is already on a relevant product or discovery surface where the recommended set can be shown and acted on without leaving context"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "there is no active session, a deliverable push destination exists, and the recommendation can be represented honestly as a compact nudge with a deep link to the set"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the set has to be browsable and survive until the person has time for it - the default"
+          "channels": ["email"],
+          "when": "otherwise, especially where the set needs enough space to explain why the items are relevant and remain browsable later"
         }
       ],
       "fallback": "none",
@@ -5196,6 +5231,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "A small set that follows from something this person actually did, with every item still available to them and the reason it is there plain from the set itself.",
           "channelRoles": [
+            "in-session",
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -5502,7 +5539,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "complementary-next-offer",
     "category": "retention",
     "goal": "progression-milestone",
-    "channels": ["email", "push", "in-app"],
+    "channels": ["in-app", "push", "email"],
     "name": "Purchase with a declared complement → matured → offered → taken, declined or closed",
     "shortName": "Cross-Sell / Next Best Offer",
     "purpose": "Offer the thing that genuinely completes something the person already owns, once the first thing has had time to be used, and stop the moment they have it.",
@@ -5599,11 +5636,19 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the complementary item can be shown beside the owned subject that makes it relevant"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "the first offer was not acted on, push_token is present, and complement_destination can open the exact item; use it for the bounded reminder"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the offer has to carry what it completes and survive until the person can act on it - the default for both touches"
+          "channels": ["email"],
+          "when": "otherwise, especially when the relationship between the owned subject and the complement needs enough space to explain"
         }
       ],
       "fallback": "none",
@@ -5623,6 +5668,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The thing that completes what they already own, named against what they own rather than on its own. Nothing about stock, price or a deadline the platform does not enforce.",
           "channelRoles": [
+            "in-session",
             "persistent"
           ],
           "destination": {
@@ -5650,6 +5696,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "One reminder of the same offer, to somebody who still does not have the complement and has not said they do not want it. Nothing new is added to make it land.",
           "channelRoles": [
+            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -6020,7 +6067,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "milestone-recognition",
     "category": "retention",
     "goal": "progression-milestone",
-    "channels": ["email", "push", "in-app"],
+    "channels": ["in-app", "push", "email"],
     "name": "A date belonging to the person approaching → eligibility checked → recognised or not sent",
     "shortName": "Birthday & Milestone",
     "purpose": "Recognise a date that belongs to the person themselves - a birthday they told us, or a milestone their own record has reached - and say so once, with nothing attached that has not been issued.",
@@ -6116,11 +6163,19 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the recognition can appear naturally inside the customer account without interrupting another task"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "there is no active session, push_token is present, and the recognition is complete as a short message with a route back to the account"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the recognition should be kept rather than glanced at - the default"
+          "channels": ["email"],
+          "when": "otherwise, when the recognition should be kept rather than glanced at"
         }
       ],
       "fallback": "none",
@@ -6138,6 +6193,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The date, said plainly and once, to somebody the relationship is still open with - and nothing attached to it that the record does not already carry.",
           "channelRoles": [
+            "in-session",
+            "low-friction",
             "persistent"
           ],
           "destination": {
