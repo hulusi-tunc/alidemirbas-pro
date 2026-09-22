@@ -50,12 +50,12 @@ const T = {
       {
         id: "which-templates",
         q: "How does it decide which of the 11 dashboard templates to offer?",
-        a: "Three filters, in order. What the data's structure can support, which business question is being asked, and what the data can answer at a defensible level of confidence. Only templates that pass all three are offered. Never a hand-picked vertical template the data doesn't support.",
+        a: "It checks three things in order: what the data structure can support, which business question is being asked, and what the data can answer with a defensible level of confidence. Only templates that pass all three are offered; it does not force a vertical template onto data that cannot support it.",
       },
       {
         id: "why-not-more-observations",
         q: "Why does it sometimes surface fewer than 5 observations, or none?",
-        a: "Every candidate finding passes eight questions before it's shown. Is it real, is it statistically supportable, is it material, is it economically significant, is it actionable. Anything that fails one of the first three is suppressed. That's deliberate: an output full of statistically meaningless movements looks thorough but is worse than a short one.",
+        a: "Every candidate finding passes eight checks before it is shown: whether the movement is real, statistically supportable, material, economically meaningful and actionable, among others. Anything that fails one of the first three checks is left out, so the output can stay short when the data does not support more.",
       },
       {
         id: "real-account-data",
@@ -88,12 +88,12 @@ const T = {
       {
         id: "which-templates",
         q: "11 dashboard şablonundan hangisini sunacağına nasıl karar veriyor?",
-        a: "Sırasıyla üç filtre. Verinin yapısı neyi destekliyor, hangi iş sorusu soruluyor, veri savunulabilir bir güven düzeyinde neyi yanıtlayabiliyor. Yalnızca üçünü de geçen şablonlar sunulur. Verinin desteklemediği, elle seçilmiş bir sektör şablonu asla.",
+        a: "Üç şeye sırayla bakar: verinin yapısı neyi destekliyor, hangi iş sorusu soruluyor ve veri bunu ne kadar güvenilir biçimde yanıtlayabiliyor. Yalnızca üçünü de geçen şablonlar sunulur; verinin desteklemediği bir sektör şablonu zorla seçilmez.",
       },
       {
         id: "why-not-more-observations",
         q: "Bazen neden 5'ten az gözlem, hatta hiç gözlem çıkmıyor?",
-        a: "Her aday bulgu gösterilmeden önce sekiz sorudan geçer. Gerçek mi, istatistiksel olarak desteklenebilir mi, önemli mi, ekonomik olarak büyük mü, aksiyona dönüştürülebilir mi. İlk üçünden birini geçemeyen gösterilmez. Bu bilinçli bir tercih. Anlamsız hareketlerle dolu bir çıktı kapsamlı görünür ama kısa bir çıktıdan daha kötüdür.",
+        a: "Her aday bulgu gösterilmeden önce sekiz kontrolden geçer: hareket gerçek mi, istatistiksel olarak desteklenebilir mi, anlamlı mı, ekonomik etkisi var mı, aksiyona dönüşebilir mi ve benzeri. İlk üç kontrolden birini geçemeyen bulgu gösterilmez; veri daha fazlasını desteklemiyorsa çıktı kısa kalır.",
       },
       {
         id: "real-account-data",

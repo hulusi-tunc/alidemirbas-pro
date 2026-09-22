@@ -54,9 +54,9 @@ const T = {
     whatItDoesTitle: "What it does",
     whatItDoesBody:
       "Turns a Google Ads change history export (CSV, TSV or flattened ChangeEvent JSON) into a single-file HTML dashboard that opens offline. Who changed what, in which account, campaign and ad group, what the old and new values were, and which category the change falls into.",
-    howItWorksTitle: "What it will and won't tell you",
+    howItWorksTitle: "What it reports and what it leaves to you",
     howItWorksBody:
-      "The tool reports, it doesn't grade. It will say a campaign hasn't changed in 23 days; it won't say that's neglect. Deciding whether a change is good, risky or overdue is deliberately out of scope, which is why the dashboard has no severity colors and no unexplained badges.",
+      "The tool reports what happened without judging it. It can show that a campaign has not changed in 23 days, but it does not call that neglect. Whether a change was good, risky or overdue stays with the person reading the data, so the dashboard avoids severity colors and unexplained badges.",
     bullets: [
       "Answers who changed this campaign's budget last week, and what it was before.",
       "Shows which campaigns haven't been touched in 30+ days, and which category of change is most common right now.",
@@ -107,9 +107,9 @@ const T = {
     whatItDoesTitle: "Ne işe yarar",
     whatItDoesBody:
       "Google Ads değişiklik geçmişi dışa aktarımını (CSV, TSV ya da düzleştirilmiş ChangeEvent JSON) çevrimdışı açılan tek dosyalık bir HTML dashboard'a çevirir. Kim neyi değiştirmiş, hangi hesap, kampanya ve reklam grubunda, eski değer neydi, yeni değer ne oldu, hangi kategoriye giriyor.",
-    howItWorksTitle: "Ne söyler, ne söylemez",
+    howItWorksTitle: "Neyi raporlar, neyi sana bırakır",
     howItWorksBody:
-      "Araç raporlar, not vermez. Bir kampanyanın 23 gündür değişmediğini söyler; bunun ihmal olduğunu söylemez. Bir değişikliğin iyi, riskli ya da gecikmiş olduğuna karar vermek bilinçli olarak kapsam dışı. Bu yüzden dashboard'da ne önem rengi ne de açıklamasız rozet var.",
+      "Araç ne olduğunu gösterir, yorum katmaz. Bir kampanyanın 23 gündür değişmediğini gösterebilir ama bunu ihmal diye etiketlemez. Değişikliğin iyi, riskli ya da gecikmiş olup olmadığına veriyi okuyan kişi karar verir; bu yüzden dashboard'da önem rengi veya açıklamasız rozet kullanılmaz.",
     bullets: [
       "Bu kampanyanın bütçesini geçen hafta kimin değiştirdiğini ve önceki değerin ne olduğunu gösterir.",
       "30+ gündür dokunulmamış kampanyaları ve şu an en sık görülen değişiklik kategorisini gösterir.",

@@ -55,13 +55,13 @@ const T = {
       "A public calculator site. 97 tools in 13 categories: finance and investing, health and fitness, work and career, tax, time and dates, marketing analytics, math and unit conversion, home, travel, pets, clothing sizes, astrology and faith. Every tool in both Turkish and English.",
     howItWorksTitle: "How it's built",
     howItWorksBody:
-      "The design constraint is friction. A calculator that needs an account gets used once. Nothing sits behind an account, a paywall or an email field.",
+      "The site is built to keep the calculation itself simple. No calculator sits behind an account, paywall or email form; you can open a tool and use it straight away.",
     bullets: [
       "Free with no registration - no subscription, no credit card, no email. Every tool works as a guest.",
       "Most calculations run in the browser. A salary, a weight, a birth date, a loan amount: none of it is stored on a server, and it's gone when you close the tab.",
       "Fully bilingual: 97 calculators in Turkish and the same 97 in English, interface and results included.",
       "Formulas are the recognised ones - Mifflin-St Jeor, Devine, Hamwi for health - alongside Turkish tax and labour regulation (SGK, GİB) for the tools that depend on it.",
-      "Responsive rather than an app: same experience on phone, tablet and desktop, nothing to download.",
+      "A responsive website rather than a native app: the same tools work on phone, tablet and desktop, with nothing to download.",
       "Tools whose inputs move - tax rates, financial figures, unit values - are revised as those standards change.",
     ],
     useTitle: "How to use it",
@@ -70,7 +70,7 @@ const T = {
     step2Title: "Find the calculator",
     step2Desc: "Search from the home page, or go through a category - Finance, Health, Marketing and the rest.",
     step3Title: "Enter your numbers",
-    step3Desc: "The result appears as you type. No account, no export step, nothing kept afterwards.",
+    step3Desc: "The result updates as you enter the inputs. No account or export step is required, and most tools keep the calculation in the browser.",
     visit: "Open numerspace.com",
     faqTitle: "Frequently asked questions",
     faq: [
@@ -109,14 +109,14 @@ const T = {
       "Herkese açık bir hesaplayıcı sitesi. 13 kategoride 97 araç: finans ve yatırım, sağlık ve fitness, iş ve kariyer, vergi, zaman ve tarih, pazarlama analitiği, matematik ve birim dönüşümü, ev, seyahat, evcil hayvan, kıyafet bedeni, astroloji ve inanç. Her araç hem Türkçe hem İngilizce.",
     howItWorksTitle: "Nasıl kurgulandı",
     howItWorksBody:
-      "Tasarım kısıtı sürtünme. Üye olman gereken bir hesaplayıcıyı bir kez kullanırsın. Hiçbir şey hesabın, ödeme duvarının ya da e-posta alanının arkasında değil.",
+      "Site, hesabı mümkün olduğunca aradan çıkarmak için kurgulandı. Hiçbir hesaplayıcı üyelik, ödeme duvarı veya e-posta formunun arkasında değil; aracı açıp doğrudan kullanabilirsin.",
     bullets: [
       "Kayıt gerektirmeyen ücretsiz kullanım. Abonelik yok, kredi kartı yok, e-posta yok.",
       "Hesaplamaların çoğu tarayıcıda çalışır. Maaş, kilo, doğum tarihi, kredi tutarı sunucuda saklanmaz ve sekmeyi kapattığında silinir.",
       "Tam iki dilli. Türkçe 97 hesaplayıcı, İngilizce aynı 97'si; arayüz ve sonuçlar dahil.",
       "Formüller kabul görmüş olanlar. Sağlıkta Mifflin-St Jeor, Devine, Hamwi; mevzuata bağlı araçlarda Türkiye mevzuatı (SGK, GİB).",
-      "Uygulama değil, duyarlı web. Telefonda, tablette ve masaüstünde aynı deneyim; indirilecek bir şey yok.",
-      "Girdisi değişen araçlar (vergi oranları, finansal veriler, birim değerleri) standartlar değiştikçe güncellenir.",
+      "Native uygulama değil, responsive bir web sitesi. Telefonda, tablette ve masaüstünde aynı araçlar çalışır; indirilecek bir şey yok.",
+      "Vergi oranı, finansal veri veya birim değeri gibi güncel girdilere bağlı araçlar, bu değerler değiştikçe güncellenir.",
     ],
     useTitle: "Nasıl kullanılır",
     step1Title: "Siteyi aç",
@@ -124,7 +124,7 @@ const T = {
     step2Title: "Hesaplayıcıyı bul",
     step2Desc: "Ana sayfadan ara ya da bir kategoriden ilerle: Finans, Sağlık, Pazarlama ve diğerleri.",
     step3Title: "Sayıları gir",
-    step3Desc: "Sonuç siz yazarken çıkıyor. Hesap yok, dışa aktarma adımı yok, sonrasında saklanan bir şey yok.",
+    step3Desc: "Sonuç bilgileri girdikçe güncellenir. Hesap açman veya bir şey dışa aktarman gerekmez; hesaplamaların çoğu tarayıcıda kalır.",
     visit: "numerspace.com'u aç",
     faqTitle: "Sık sorulan sorular",
     faq: [

@@ -215,9 +215,11 @@ export default async function JourneyDetailBody({
 
       {canvas && <JourneyCanvas {...canvas} basePath={basePath} />}
 
-      {/* The takeaway, then the notes - as tiles with icons (Hulusi,
-          2026-09-14), the rule first and full width because it is the one
-          sentence to take away. */}
+      {/* The canonical archive's deeper note fields are still authored in
+          English. Keep them on the English route only; the Turkish route
+          stays fully Turkish instead of mixing translated journey copy with
+          untranslated technical prose. */}
+      {lang === "en" ? (
       <div className={`${showCanvas ? "mt-10" : ""} grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3`}>
         <InfoTile icon={<Quote />} title={t.ruleLabel} className="sm:col-span-2 lg:col-span-3">
           <p className="max-w-4xl text-xl leading-snug font-medium text-balance text-ink-950">{detail.reusableRule}</p>
@@ -280,13 +282,14 @@ export default async function JourneyDetailBody({
           </InfoTile>
         ) : null}
       </div>
+      ) : null}
 
       {/* vNext only: the practitioner's full write-up - trigger, eligibility,
           suppressions, touch plan, measurement - closed by default. Native
           <details>, same zero-client-JS disclosure FaqAccordion already
           uses elsewhere on the site, so opening it costs nothing on every
           other journey's page weight. */}
-      {detail.practitioner ? (
+      {detail.practitioner && lang === "en" ? (
         <details className="group mt-10 rounded-2xl bg-paper ring-1 ring-ink-950/[0.06]">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 text-sm font-medium text-ink-950 marker:content-none">
             {t.practitioner.technical}

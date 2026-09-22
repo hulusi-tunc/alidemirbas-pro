@@ -30,6 +30,24 @@ const categoryLabelsFor = (lang: Lang): Record<string, string> =>
 const surfaceLabelsFor = (lang: Lang): Record<string, string> =>
   Object.fromEntries(SURFACES.map((s) => [s, surfaceLabel(s, lang)]));
 
+/* The archive's free-text records are authored in Turkish. The English
+   route uses each record's authored English SEO title/description for the
+   gallery card instead of leaking Turkish copy into English chrome. The
+   structural fields stay untouched. */
+const rowsFor = (lang: Lang) =>
+  lang === "tr"
+    ? AB_TEST_ROWS
+    : AB_TEST_ROWS.map((row) => {
+        const detail = abTestDetail(row.slug);
+        return detail
+          ? {
+              ...row,
+              question: detail.seoTitle ?? row.question,
+              hypothesis: detail.seoDescription ?? row.hypothesis,
+            }
+          : row;
+      });
+
 export function abLibraryIndexMetadata(lang: Lang): Metadata {
   const t = T[lang];
   return { title: `${t.title} - Ali Demirbaş`, description: t.intro, alternates: pageAlternates("/lab/ab-testing/library", lang) };
@@ -90,7 +108,7 @@ export function AbLibraryIndexPage({ lang }: { lang: Lang }) {
         <div className="altor-container-wide">
           <AbTestGallery
             lang={lang}
-            rows={AB_TEST_ROWS}
+            rows={rowsFor(lang)}
             categories={AB_CATEGORIES}
             surfaces={SURFACES}
             basePath={base}

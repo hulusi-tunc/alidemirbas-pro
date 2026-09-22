@@ -103,6 +103,30 @@ const T = {
   },
 } as const;
 
+const VARIABLE_LABEL: Record<AbVariableKind, string> = {
+  timing: "Timing",
+  threshold: "Threshold",
+  quantity: "Quantity",
+  ordering: "Order",
+  "ordering-nav": "Menu order",
+  hierarchy: "Information hierarchy",
+  emphasis: "Emphasis",
+  anatomy: "Component properties",
+  microcopy: "Microcopy",
+  placement: "Placement",
+  presence: "Presence",
+  behavior: "Behavior",
+  personalization: "Personalization",
+  default: "Default selection",
+  size: "Size",
+  style: "Visual style",
+  format: "Format",
+  options: "Options",
+  media: "Media",
+  layout: "Layout",
+  wording: "Wording",
+};
+
 const DIFF_SIGN: Record<string, string> = { add: "+", remove: "−", change: "≠", move: "↔" };
 
 /** The photograph behind the screens, and whether it is dark - the role
@@ -134,12 +158,15 @@ function Note({ label, note }: { label: string; note: string }) {
 
 export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: AbTestDetail; lang: Lang; breadcrumb: object }) {
   const t = T[lang];
-  const { lede, hypothesis, takeaway } = abPlaybookText(test.hypothesis);
   const mode = abSetupMode(test);
   /* What the experiment varies. Drives the diagram; exposed as a data
      attribute so the classification can be audited against the rendered
      page rather than against a copy of the rule. */
   const kind = abVariableKind(test);
+  const displayQuestion = lang === "en" ? test.seoTitle ?? test.question : test.question;
+  const displayHypothesis = lang === "en" ? test.seoDescription ?? test.hypothesis : test.hypothesis;
+  const displaySlot = lang === "en" ? VARIABLE_LABEL[kind] : test.testedSlot ?? "—";
+  const { lede, hypothesis, takeaway } = abPlaybookText(displayHypothesis);
   /* Which interface element the screens draw as real UI (ui/AbScreen.tsx). */
   const element = abElementKind(test);
   /* The one behaviour whose two sides the data fixes: on `add` the control
@@ -172,7 +199,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
         {categoryLabel(test.category, lang)}
       </p>
       <h1 data-ab-id={test.id} className="mt-5 max-w-4xl text-h1 text-balance text-ink-950">
-        {test.question}
+        {displayQuestion}
       </h1>
       {lede && <p className="mt-5 max-w-3xl text-lg leading-relaxed text-pretty text-ink-muted">{lede}</p>}
       <ul className="mt-6 flex list-none flex-wrap gap-2 p-0">
@@ -190,7 +217,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
   );
 
   const facts: { label: string; value: string }[] = [
-    { label: t.changed, value: test.testedSlot ?? "—" },
+    { label: t.changed, value: displaySlot },
     { label: t.surface, value: surfaceLabel(test.surface, lang) },
     // The same word the variant's pill uses; the raw stored value only for
     // a behaviour the two label maps do not know.
@@ -252,7 +279,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
             label={roleLabel(test.sideB!.role, t.roles.variant)}
             letter="B"
             screen={{ surface: test.surface, element, kind, side: "b", presence: presenceOf("b"), behavior: test.differenceBehavior, slot: test.testedSlot, lang, address: surfaceLabel(test.surface, lang) }}
-            change={diffWord && test.testedSlot ? { sign: diffSign, word: diffWord, slot: test.testedSlot } : undefined}
+            change={diffWord ? { sign: diffSign, word: diffWord, slot: displaySlot } : undefined}
           />
         </div>
         </ProductFrame>
@@ -265,7 +292,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
             <div className="flex flex-col gap-4">
               <div>
                 <p className="text-xs font-medium text-ink-subtle">{t.whatChanges}</p>
-                <p className="mt-1 text-lg leading-snug font-semibold text-ink-950">{test.testedSlot ?? "—"}</p>
+                <p className="mt-1 text-lg leading-snug font-semibold text-ink-950">{displaySlot}</p>
               </div>
               <p className="text-sm leading-relaxed text-pretty text-ink-muted">{t.conceptNote}</p>
             </div>
@@ -310,7 +337,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
      where the record's own hypothesis ends in one. */
   const card = "flex w-[min(22rem,85vw)] shrink-0 snap-start";
   const tile = "w-full bg-paper-soft ring-0";
-  const run = (
+  const run = lang === "en" ? null : (
     /* The cards are grey, the page stays white (Hulusi, 2026-09-20: "add a
        grey background" - then "not the section, the cards"): each card on
        the site's soft surface with no hairline, the way the phone menu's

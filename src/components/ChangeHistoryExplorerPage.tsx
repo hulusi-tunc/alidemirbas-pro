@@ -76,14 +76,14 @@ const REAL = CHANGE_HISTORY_REAL;
 const T = {
   en: {
     eyebrow: "Lab / Google Ads Change History",
-    title: "What changed in Google Ads, when, and who changed it.",
+    title: "See what changed in Google Ads, when it changed, and who changed it.",
     sub: "Turns your Google Ads change history into a searchable dashboard. Campaign, category, old value, new value and timestamp for every change, side by side.",
     ctaGithub: "View on GitHub",
     proof: ["No dependencies", "Runs fully offline", "57 built-in tests"],
 
     workedEyebrow: "One real change",
-    workedLine1: "A change log says something changed.",
-    workedLine2: "The dashboard shows what.",
+    workedLine1: "The export records that a change happened.",
+    workedLine2: "The dashboard shows exactly what changed.",
 
     explorerEyebrow: "Search and filter",
     explorerTitle: "Every change, classified and searchable.",
@@ -109,7 +109,7 @@ const T = {
     rulesStructuralLabel: "Structural",
     rulesExampleLabel: "Example: budget change set to ±20%",
     rulesExampleNote: "Matched the ±20% rule you set",
-    principleTitle: "Factual by design.",
+    principleTitle: "Reports changes without judging them.",
     principleBody: "The dashboard reports what happened. It doesn't label a change good, bad or risky.",
 
     fileEyebrow: "Portable",
@@ -133,18 +133,18 @@ const T = {
 
     faqEyebrow: "FAQ",
     ctaEyebrow: "OPEN SOURCE",
-    ctaTitle: "Look at the change history your account already keeps.",
+    ctaTitle: "Turn your account's change history into something you can search.",
   },
   tr: {
     eyebrow: "Lab / Google Ads Değişiklik Geçmişi",
-    title: "Google Ads'te ne değişti, ne zaman, kim değiştirdi.",
+    title: "Google Ads'te neyin, ne zaman ve kim tarafından değiştirildiğini gör.",
     sub: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir. Her değişikliğin kampanyası, kategorisi, eski ve yeni değeri ve zamanı yan yana.",
     ctaGithub: "GitHub'da görüntüle",
     proof: ["Bağımlılık yok", "Tamamen çevrimdışı çalışır", "57 yerleşik test"],
 
     workedEyebrow: "Gerçek bir değişiklik",
-    workedLine1: "Değişiklik günlüğü bir şeyin değiştiğini söyler.",
-    workedLine2: "Dashboard neyin değiştiğini gösterir.",
+    workedLine1: "Dışa aktarım bir değişiklik yapıldığını kaydeder.",
+    workedLine2: "Dashboard tam olarak neyin değiştiğini gösterir.",
 
     explorerEyebrow: "Arama ve filtre",
     explorerTitle: "Her değişiklik sınıflandırılmış ve aranabilir.",
@@ -170,7 +170,7 @@ const T = {
     rulesStructuralLabel: "Yapısal",
     rulesExampleLabel: "Örnek: bütçe değişimi ±%20 olarak ayarlandığında",
     rulesExampleNote: "Ayarladığın ±%20 kuralıyla eşleşti",
-    principleTitle: "Tasarım gereği tarafsız.",
+    principleTitle: "Değişiklikleri yorum katmadan gösterir.",
     principleBody: "Dashboard ne olduğunu raporlar. Bir değişikliği iyi, kötü ya da riskli diye etiketlemez.",
 
     fileEyebrow: "Taşınabilir",
@@ -194,7 +194,7 @@ const T = {
 
     faqEyebrow: "SSS",
     ctaEyebrow: "AÇIK KAYNAK",
-    ctaTitle: "Hesabının zaten tuttuğu değişiklik geçmişine bak.",
+    ctaTitle: "Hesabındaki değişiklik geçmişini aranabilir hâle getir.",
   },
 } as const;
 

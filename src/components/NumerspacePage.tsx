@@ -64,7 +64,7 @@ import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
 const T = {
   en: {
     eyebrow: "Lab",
-    heroTitle: "97 calculators. No account. Nothing stored.",
+    heroTitle: "97 calculators, no account required.",
     heroSub: "Free calculators for everyday questions, from money and health to work, time and marketing.",
     ctaVisit: "Open numerspace.com",
     heroStats: ["97 calculators", "13 categories", "Turkish + English"],
@@ -72,8 +72,8 @@ const T = {
     verifyNote: "Where a calculator uses a standard formula, the formula is shown alongside the result.",
 
     whyEyebrow: "Project",
-    whyTitle: "A calculator should answer the question, then get out of the way.",
-    whyBody: "I built Numerspace as a collection of fast, bilingual, practical calculators. Open a tool, enter what you know, get the result. No account, and the numbers you enter don't go to a server.",
+    whyTitle: "Open a calculator, enter what you know, and get the result.",
+    whyBody: "I built Numerspace as a collection of practical calculators in Turkish and English. Open a tool, enter the inputs, and see the result without creating an account. Most calculations run in the browser, so the values you enter are not sent to a server.",
 
     catEyebrow: "Categories",
     catTitle: "Categories",
@@ -92,7 +92,7 @@ const T = {
   },
   tr: {
     eyebrow: "Lab",
-    heroTitle: "97 hesaplayıcı. Üyelik gerekmiyor. Veri saklanmıyor.",
+    heroTitle: "97 hesaplayıcı, üyelik gerekmiyor.",
     heroSub: "Paradan sağlığa, işten zamana ve pazarlamaya kadar günlük sorular için ücretsiz hesaplayıcılar.",
     ctaVisit: "numerspace.com'u aç",
     heroStats: ["97 hesaplayıcı", "13 kategori", "Türkçe + İngilizce"],
@@ -100,8 +100,8 @@ const T = {
     verifyNote: "Bir hesaplayıcı standart bir formül kullandığında, formül sonuçla birlikte gösterilir.",
 
     whyEyebrow: "Proje",
-    whyTitle: "Bir hesaplayıcı soruyu yanıtlamalı, sonra yoldan çekilmeli.",
-    whyBody: "Numerspace'i hızlı, iki dilli ve pratik hesaplayıcılardan oluşan bir koleksiyon olarak kurdum. Aracı aç, bildiklerini gir, sonucu al. Hesap açmak gerekmiyor, girdiğin sayılar sunucuya gitmiyor.",
+    whyTitle: "Aracı aç, bilgileri gir, sonucu gör.",
+    whyBody: "Numerspace'i Türkçe ve İngilizce çalışan pratik hesaplayıcılardan oluşan bir site olarak kurdum. Aracı aç, bilgileri gir ve hesap oluşturmadan sonucu gör. Hesaplamaların çoğu tarayıcıda çalıştığı için girdiğin değerler sunucuya gönderilmez.",
 
     catEyebrow: "Kategoriler",
     catTitle: "Kategoriler",

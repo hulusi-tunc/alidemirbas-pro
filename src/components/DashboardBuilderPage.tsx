@@ -56,9 +56,9 @@ const REAL = DASHBOARD_REAL;
 const T = {
   en: {
     eyebrow: "Lab / Dashboard Builder",
-    heroTitle: "Tells you which numbers can sit side by side.",
+    heroTitle: "Shows which metrics are actually comparable.",
     heroSub:
-      "A Claude Code plugin for marketing and growth data. Most of the work happens before any chart is drawn. It classifies which numbers can be compared and refuses the ones that can't.",
+      "A Claude Code plugin for marketing and growth data. Before it draws a chart, it checks which metrics can be compared and leaves out combinations that would be misleading.",
     proof: ["17 tests passing", "11 dashboard templates", "No real account data in the repo"],
 
     pipelineNote: "Each stage runs once on the same data. The dashboard and the deck are two outputs of one analysis, not two separate calculations.",
@@ -86,7 +86,7 @@ const T = {
     insightTitle: "A finding passes eight questions before it's shown.",
     insightSub: "No score, just rules. A finding that fails any of the first three is never shown.",
     ifNoLabel: "If no:",
-    suppressQuote: '"Suppressing is the point of this tool, not a side effect."',
+    suppressQuote: '"If a finding fails the first three checks, it is not shown."',
 
     templatesEyebrow: "Dashboards & Presentations",
     templatesTitle: "11 templates. Only the ones your data actually supports.",
@@ -106,13 +106,13 @@ const T = {
 
     faqEyebrow: "FAQ",
     ctaEyebrow: "OPEN SOURCE",
-    ctaTitle: "See what your own data actually says.",
+    ctaTitle: "See what your data can support.",
   },
   tr: {
     eyebrow: "Lab / Dashboard Oluşturucu",
-    heroTitle: "Hangi sayıların yan yana konabileceğini söyler.",
+    heroTitle: "Hangi metriklerin gerçekten karşılaştırılabileceğini gösterir.",
     heroSub:
-      "Pazarlama ve büyüme verisi için bir Claude Code eklentisi. İşin çoğu grafik çizilmeden önce olur. Hangi sayıların yan yana konabileceğini sınıflandırır, konamayanları reddeder.",
+      "Pazarlama ve büyüme verisi için bir Claude Code eklentisi. Grafik çizmeden önce hangi metriklerin karşılaştırılabilir olduğunu kontrol eder; yanıltıcı olacak eşleşmeleri dışarıda bırakır.",
     proof: ["17 test geçiyor", "11 dashboard şablonu", "Repoda gerçek hesap verisi yok"],
 
     pipelineNote: "Her aşama aynı veri üzerinde bir kez çalışır. Dashboard ve sunum aynı analizin iki farklı çıktısı, iki ayrı hesap değil.",
@@ -140,7 +140,7 @@ const T = {
     insightTitle: "Bir bulgu gösterilmeden önce sekiz sorudan geçer.",
     insightSub: "Puan yok, kural var. İlk üç soruyu geçemeyen bulgu hiç gösterilmez.",
     ifNoLabel: "Hayırsa:",
-    suppressQuote: '"Bastırmak bu aracın yan etkisi değil, amacı."',
+    suppressQuote: '"İlk üç kontrolden geçmeyen bulgu gösterilmez."',
 
     templatesEyebrow: "Dashboard'lar ve Sunumlar",
     templatesTitle: "11 şablon. Yalnızca verinin desteklediği olanlar sunulur.",
@@ -161,7 +161,7 @@ const T = {
 
     faqEyebrow: "SSS",
     ctaEyebrow: "AÇIK KAYNAK",
-    ctaTitle: "Kendi verinin gerçekte ne söylediğine bak.",
+    ctaTitle: "Verinin hangi sonuçları desteklediğini gör.",
   },
 } as const;
 
