@@ -38,6 +38,50 @@ import type { ChannelId } from "@/canonical/types";
 
 const SECTION_PREVIEW_COUNT = 6;
 
+/* The customer-journey library has 18 real canonical categories, but showing
+   all 18 as first-level navigation makes the rail harder to scan than the
+   content itself. Keep the canonical taxonomy untouched and group only the
+   browse/navigation layer into six practitioner-friendly buckets. The
+   original category headers and card metadata still render below. */
+const CUSTOMER_CATEGORY_GROUPS = [
+  {
+    id: "acquisition-activation",
+    label: { en: "Acquisition & Activation", tr: "Kazanım ve Aktivasyon" },
+    categories: ["acquisition", "activation"],
+    iconCategory: "acquisition",
+  },
+  {
+    id: "engagement-relationships",
+    label: { en: "Engagement & Relationships", tr: "Etkileşim ve İlişki" },
+    categories: ["retention", "feedback"],
+    iconCategory: "retention",
+  },
+  {
+    id: "trust-identity-access",
+    label: { en: "Trust, Identity & Access", tr: "Güven, Kimlik ve Erişim" },
+    categories: ["consent", "access", "identity", "structure", "risk"],
+    iconCategory: "identity",
+  },
+  {
+    id: "transactions-orders",
+    label: { en: "Transactions & Orders", tr: "İşlemler ve Siparişler" },
+    categories: ["financial", "fulfillment", "remedy"],
+    iconCategory: "financial",
+  },
+  {
+    id: "subscriptions-scheduling",
+    label: { en: "Subscriptions & Scheduling", tr: "Abonelik ve Planlama" },
+    categories: ["subscription", "time", "scheduling"],
+    iconCategory: "subscription",
+  },
+  {
+    id: "documents-operations",
+    label: { en: "Documents & Operations", tr: "Belgeler ve Operasyon" },
+    categories: ["document", "rollout", "incident"],
+    iconCategory: "document",
+  },
+] as const;
+
 
 function CategorySection({
   meta,
@@ -49,6 +93,7 @@ function CategorySection({
   surface,
   emptyChannelLabel,
   humanRoutingLabel,
+  trackInRail = true,
 }: {
   meta: CategoryMeta;
   items: readonly JourneyRow[];
@@ -65,13 +110,15 @@ function CategorySection({
       reach a customer by routing to a person rather than by message
       (isHumanRoutingRow). Undefined on every other surface. */
   humanRoutingLabel?: string;
+  /** False when several canonical categories sit inside one grouped rail item. */
+  trackInRail?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, SECTION_PREVIEW_COUNT);
   const remaining = items.length - visible.length;
 
   return (
-    <section id={`cat-${meta.id}`} data-cat={meta.id} className="scroll-mt-24">
+    <section id={`cat-${meta.id}`} data-cat={trackInRail ? meta.id : undefined} className="scroll-mt-24">
       {/* The visual marker is the category's own id prefix, which is real
           addressable data (every journey in here is ACQ-nn, RET-nn, ...)
           rather than an icon invented for 26 categories nobody could
@@ -183,6 +230,45 @@ export default function JourneyGallery({
       .filter((c) => byCat.has(c.id))
       .map((c) => ({ meta: c, items: byCat.get(c.id)! }));
   }, [allRows, categories, isDefault]);
+
+  const customerGroups = useMemo(() => {
+    if (surface !== "customer-journeys" || !isDefault) return [];
+    const byId = new Map(sections.map((s) => [s.meta.id, s]));
+    const mapped = new Set<string>();
+    const grouped: Array<{
+      id: string;
+      label: string;
+      iconCategory: string;
+      sections: Array<(typeof sections)[number]>;
+      count: number;
+    }> = CUSTOMER_CATEGORY_GROUPS.map((group) => {
+      const childSections = group.categories
+        .map((id) => byId.get(id))
+        .filter((s): s is (typeof sections)[number] => Boolean(s));
+      for (const s of childSections) mapped.add(s.meta.id);
+      return {
+        id: group.id,
+        label: group.label[lang],
+        iconCategory: group.iconCategory,
+        sections: childSections,
+        count: childSections.reduce((sum, s) => sum + s.items.length, 0),
+      };
+    }).filter((group) => group.sections.length > 0);
+
+    // Defensive fallback: a future public category must never disappear just
+    // because this presentation grouping has not been updated yet.
+    for (const s of sections) {
+      if (mapped.has(s.meta.id)) continue;
+      grouped.push({
+        id: `category-${s.meta.id}`,
+        label: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr),
+        iconCategory: s.meta.id,
+        sections: [s],
+        count: s.items.length,
+      });
+    }
+    return grouped;
+  }, [surface, isDefault, sections, lang]);
 
   // Presets answer to their own names and aliases; a category or channel
   // filter does not apply to them (they are cards over a parent, not rows).
@@ -313,13 +399,21 @@ export default function JourneyGallery({
             ...(matchingPresets.length
               ? [{ id: "presets", anchor: "presets", label: labels.presetsTitle, count: matchingPresets.length, icon: <CategoryIcon id="presets" className={categoryAccent("presets").ink} /> }]
               : []),
-            ...sections.map((s) => ({
-              id: s.meta.id,
-              anchor: `cat-${s.meta.id}`,
-              label: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr),
-              count: s.items.length,
-              icon: <CategoryIcon id={s.meta.id} className={categoryAccent(s.meta.id).ink} />,
-            })),
+            ...(surface === "customer-journeys"
+              ? customerGroups.map((group) => ({
+                  id: group.id,
+                  anchor: `group-${group.id}`,
+                  label: group.label,
+                  count: group.count,
+                  icon: <CategoryIcon id={group.iconCategory} className={categoryAccent(group.iconCategory).ink} />,
+                }))
+              : sections.map((s) => ({
+                  id: s.meta.id,
+                  anchor: `cat-${s.meta.id}`,
+                  label: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr),
+                  count: s.items.length,
+                  icon: <CategoryIcon id={s.meta.id} className={categoryAccent(s.meta.id).ink} />,
+                }))),
           ]}
           active={activeCat}
         />
@@ -351,22 +445,51 @@ export default function JourneyGallery({
       ) : null}
 
       {isDefault ? (
-        <div className={clsx("flex flex-col gap-14", matchingPresets.length ? "mt-14" : "")}>
-          {sections.map((s) => (
-            <CategorySection
-              key={s.meta.id}
-              meta={s.meta}
-              items={s.items}
-              lang={lang}
-              t={t}
-              basePath={basePath}
-              labels={labels}
-              surface={surface}
-              emptyChannelLabel={emptyChannelLabel}
-              humanRoutingLabel={humanRoutingLabel}
-            />
-          ))}
-        </div>
+        surface === "customer-journeys" ? (
+          <div className={clsx("flex flex-col gap-14", matchingPresets.length ? "mt-14" : "")}>
+            {customerGroups.map((group) => (
+              <div
+                key={group.id}
+                id={`group-${group.id}`}
+                data-cat={group.id}
+                className="scroll-mt-24 flex flex-col gap-14"
+              >
+                {group.sections.map((s) => (
+                  <CategorySection
+                    key={s.meta.id}
+                    meta={s.meta}
+                    items={s.items}
+                    lang={lang}
+                    t={t}
+                    basePath={basePath}
+                    labels={labels}
+                    surface={surface}
+                    emptyChannelLabel={emptyChannelLabel}
+                    humanRoutingLabel={humanRoutingLabel}
+                    trackInRail={false}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className={clsx("flex flex-col gap-14", matchingPresets.length ? "mt-14" : "")}>
+            {sections.map((s) => (
+              <CategorySection
+                key={s.meta.id}
+                meta={s.meta}
+                items={s.items}
+                lang={lang}
+                t={t}
+                basePath={basePath}
+                labels={labels}
+                surface={surface}
+                emptyChannelLabel={emptyChannelLabel}
+                humanRoutingLabel={humanRoutingLabel}
+              />
+            ))}
+          </div>
+        )
       ) : localFiltered.length === 0 && matchingPresets.length === 0 ? (
         <div className="rounded-2xl bg-paper-soft px-6 py-16 text-center">
           <p className="text-sm text-ink-500 tabular-nums">0 / {allRows.length}</p>
