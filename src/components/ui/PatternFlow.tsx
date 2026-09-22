@@ -120,7 +120,7 @@ export const PATTERNS: Pattern[] = [
     exit: { en: "subscription_start", tr: "subscription_start" },
   },
   {
-    name: { en: "Winback", tr: "Winback" },
+    name: { en: "Winback", tr: "Geri kazanım" },
     trigger: "segment: lapsed",
     steps: [
       {

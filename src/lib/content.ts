@@ -520,9 +520,9 @@ export const copy = {
       metaTitle: "Journey Builder - Ali Demirbaş",
       metaDesc: "Reads the events you already track, tells you which journeys your data can support, then builds each one step by step.",
       eyebrow: "Lab / Journey Builder",
-      title: "Journey design from start to finish.",
-      sub: "Each journey states what starts it, where it branches, how long it waits and what happens next.",
-      proof: ["Open source", "Claude Code plugin", "Nothing to sign up for"],
+      title: "From event data to journey design.",
+      sub: "Reads the events you already track, identifies which journey patterns your data can support, and builds each flow with triggers, conditions, waits, and channel steps.",
+      proof: ["Open source", "GA4 or CSV", "Claude Code plugin"],
       /* The Install section - the repository README's own Quickstart, verbatim:
          three ways in, then the three commands the plugin answers to. */
       install: {
@@ -586,21 +586,21 @@ export const copy = {
         body: "The scope of a journey is set by the events, parameters and channels you actually have. With enough data the flow gets more detailed. Without it, the system builds a simpler structure instead of assuming data exists.",
         feature1: {
           title: "Data quality is scored first.",
-          body: "A 0-100 data quality score sets journey depth. Under 40: simple 3-5 step flows. 40-69: 4-7 steps with one branch. 70 and above: 7-12 step behavioral journeys with branching.",
+          body: "Lower-quality data produces a simpler flow. Richer data unlocks more steps and branching. The builder doesn't assume signals you don't have.",
         },
         feature2: {
           title: "Which patterns unlock depends on your data.",
-          body: "Each pattern needs a known set of events. If the data has them, the pattern opens; if not, it names the missing event. Abandoned cart, trial conversion and win-back are shown below.",
+          body: "Each pattern has a defined set of required events. If your data supports them, the pattern is available; if not, the builder shows what's missing.",
         },
         feature3: {
           title: "Each channel has its own rules.",
-          body: "Email, SMS and push have different content rules. Character limits and field structures vary, so copy is checked against the rules of the channel it will run on.",
+          body: "Email, SMS, push, and in-app messages have different fields and limits. Generated copy is validated against the rules of the channel it will run on.",
         },
       },
       carousel: {
         eyebrow: "Patterns",
-        title: "Same pattern, different depth with different data.",
-        body: "The 26 patterns are fixed; every business has different events, channels and data quality. So the patterns that can be used and the number of steps vary by dataset. Three examples below.",
+        title: "Different patterns, different flows.",
+        body: "Examples from the pattern library. Each card shows its trigger, timing, channel, branching, and exit.",
       },
       faq: {
         eyebrow: "FAQ",
@@ -627,16 +627,10 @@ export const copy = {
             a: "Journeys are starting points, not fixed recipes. Change the triggers, conditions, timing and next steps as you need.",
           },
           {
-            q: "How do I start?",
-            a: "Open the GitHub repo, add the plugin to Claude Code and connect your data. Nothing to sign up for.",
+            q: "What's the difference between Journey Builder and Journey Library?",
+            a: "Journey Builder reads your own event data, determines which patterns it can support, and generates the flows. Journey Library is a separate reference library of ready-made, domain-neutral journey structures.",
           },
         ],
-      },
-      pageCta: {
-        eyebrow: "OPEN SOURCE · GITHUB",
-        title: "Start from a ready structure.",
-        primary: "View on GitHub",
-        secondary: "Open the live demo",
       },
     },
     abTesting: {
@@ -1278,9 +1272,9 @@ export const copy = {
       metaTitle: "Journey Oluşturucu - Ali Demirbaş",
       metaDesc: "Mevcut event verisine bakıp hangi journey'lerin kurulabileceğini söyler, sonra her birini adımlarıyla birlikte kurar.",
       eyebrow: "Lab / Journey Oluşturucu",
-      title: "Baştan sona journey kurgusu.",
-      sub: "Her journey neyle başladığını, nerede dallandığını, ne kadar beklediğini ve sonra ne olacağını açıkça tanımlar.",
-      proof: ["Açık kaynak", "Claude Code eklentisi", "Kayıt gerekmiyor"],
+      title: "Event verisinden journey kurgusuna.",
+      sub: "Mevcut event verini okur, hangi journey desenlerinin kurulabileceğini belirler ve her akışı tetikleyici, koşul, bekleme ve kanal adımlarıyla oluşturur.",
+      proof: ["Açık kaynak", "GA4 veya CSV", "Claude Code eklentisi"],
       install: {
         title: "Kurulum",
         stepAdd: "Eklentiyi Claude Code'a ekle",
@@ -1342,21 +1336,21 @@ export const copy = {
         body: "Journey'nin kapsamı eldeki event'lere, parametrelere ve kanallara göre değişir. Veri yeterliyse akış detaylanır. Eksikse sistem varsayım yapmak yerine daha basit bir yapı kurar.",
         feature1: {
           title: "Veri kalitesi önce ölçülür.",
-          body: "0-100 arası bir veri kalitesi skoru journey derinliğini belirler. 40'ın altı 3-5 adımlık basit akış, 40-69 arası tek dallı 4-7 adım, 70 ve üzeri davranışsal dallanmalı 7-12 adım.",
+          body: "Veri kalitesi düşükse daha basit bir akış kurulur. Veri zenginleştikçe adım sayısı ve dallanma artar. Sistem elde olmayan sinyalleri varsaymaz.",
         },
         feature2: {
           title: "Hangi desenin kurulabileceği verine bağlı.",
-          body: "Her desen için gereken event'ler belli. Veri onları içeriyorsa desen açılır, içermiyorsa hangi event'in eksik olduğu söylenir. Terk edilmiş sepet, deneme dönüşümü ve geri kazanım desenleri aşağıda.",
+          body: "Her desenin ihtiyaç duyduğu event'ler belli. Verinde varsa desen kullanılabilir; yoksa sistem hangi event veya parametrenin eksik olduğunu gösterir.",
         },
         feature3: {
           title: "Her kanalın kendi kuralları var.",
-          body: "E-posta, SMS ve push için içerik kuralları farklıdır. Karakter sınırları ve alan yapısı değişir. Bu yüzden içerik, kullanılacağı kanalın kurallarına göre kontrol edilir.",
+          body: "E-posta, SMS, push ve uygulama içi mesajların alanları ve sınırları farklıdır. Üretilen metin, kullanılacağı kanalın kurallarına göre doğrulanır.",
         },
       },
       carousel: {
         eyebrow: "Desenler",
-        title: "Aynı desen, farklı veride farklı derinlik.",
-        body: "26 desen sabit; her işletmenin event yapısı, kanalları ve veri kalitesi farklı. Bu yüzden kullanılabilen desenler ve adım sayısı veri setine göre değişir. Üç örnek aşağıda.",
+        title: "Farklı desenler, farklı akışlar.",
+        body: "Pattern kütüphanesinden örnekler. Her kart tetikleyiciyi, zamanlamayı, kanalı, dallanmayı ve çıkışı gösteriyor.",
       },
       faq: {
         eyebrow: "SSS",
@@ -1383,16 +1377,10 @@ export const copy = {
             a: "Journey'ler katı reçete değil, başlangıç noktası. Tetikleyicileri, koşulları, zamanlamayı ve sonraki adımları değiştirebilirsin.",
           },
           {
-            q: "Nasıl başlarım?",
-            a: "GitHub deposunu aç, eklentiyi Claude Code'a ekle ve kendi verini bağla. Kayıt gerekmiyor.",
+            q: "Journey Builder ile Journey Library arasındaki fark ne?",
+            a: "Journey Builder kendi event verine bakıp hangi desenlerin kurulabileceğini belirler ve akışları üretir. Journey Library ise hazır, domain-neutral journey yapılarını inceleyebileceğin ayrı bir referans kütüphanesidir.",
           },
         ],
-      },
-      pageCta: {
-        eyebrow: "AÇIK KAYNAK · GITHUB",
-        title: "Hazır bir yapıdan başla.",
-        primary: "GitHub'da görüntüle",
-        secondary: "Canlı demoyu aç",
       },
     },
     abTesting: {
