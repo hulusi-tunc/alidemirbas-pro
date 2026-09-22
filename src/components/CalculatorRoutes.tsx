@@ -17,7 +17,7 @@ import {
   getAllLiveSpecs, getCalcSpec, toRuntimeSpec, LIVE_CALCULATOR_SLUGS,
   correctedFormulaPlainEnglish, LIBRARY_GROUP, LIBRARY_GROUP_ORDER, TEXT_TOOL_GROUP,
   type LibraryGroup,
-  GROUP_LABEL, displayName, displayNameForSlug, shortDescription,
+  GROUP_LABEL, displayName, displayNameForSlug, shortDescription, calculatorCardMeta,
 } from "@/lib/calc-catalog";
 import { getContent, type CalcContent } from "@/lib/calc-content";
 import type { Lang } from "@/lib/content";
@@ -48,13 +48,13 @@ const T = {
 const HERO = {
   en: {
     eyebrow: "Calculators",
-    title: "Marketing metric calculators.",
-    sub: "Free calculators and tools for advertising, acquisition, retention, experimentation, and unit economics. No account required.",
+    title: "Calculate marketing metrics quickly.",
+    sub: "Calculators and small tools I use for ROAS, CAC, LTV, retention, and A/B testing.",
   },
   tr: {
     eyebrow: "Hesaplayıcılar",
-    title: "Pazarlama metrikleri için hesaplayıcılar.",
-    sub: "Reklam, kullanıcı kazanımı, retention, A/B testleri ve birim ekonomisi için ücretsiz hesaplayıcılar ve araçlar. Üyelik gerekmiyor.",
+    title: "Pazarlama metriklerini hızlıca hesapla.",
+    sub: "ROAS, CAC, LTV, retention ve A/B testleri gibi metrikler için kullandığım hesaplayıcılar ve küçük araçlar.",
   },
 };
 
@@ -95,13 +95,10 @@ export function calculatorDetailMetadata(lang: Lang, slug: string): Metadata {
    about server-rendered discoverability changes), and category counts
    below are computed once from the real, unmodified `CATEGORY_LABEL`
    map and `getAllLiveSpecs()` — no category is invented, none is
-   hidden. TEXT_TOOLS (UTM Builder, Character Counter) are NOT part of
-   the searchable/filterable set: they carry no `category` field in the
-   real data model, and forcing them into the calculator taxonomy would
-   be exactly the kind of invented category this round's brief warns
-   against — they render as their own small, always-visible "Other
-   tools" list below, the same secondary-list treatment already approved
-   on Lab's index for Numerspace. */
+   hidden. TEXT_TOOLS (UTM Builder, Character Counter) are not calculator
+   categories: they have no formula/category record in the catalog. They
+   stay searchable on this page, but render in their own "Other tools"
+   section and disappear while a calculator category is selected. */
 function calcSearchText(name: string, description: string, categoryLabel: string, aliases: string[]) {
   return [name, description, categoryLabel, ...aliases].join(" ").toLowerCase();
 }
@@ -118,13 +115,8 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
      rather than silently vanishing from the index. */
   const groupOf = (slug: string): LibraryGroup => LIBRARY_GROUP[slug] ?? "revenue-unit-economics";
 
-  /* One grid, calculators and text tools together. The two tools used to
-     render as a separate "Other tools" list below it, on the grounds that
-     they carry no `category` field to file them under - but that was a
-     data problem being shown to the reader. Somebody looking for a tool on
-     this page should find all of them in one place, filterable and
-     searchable the same way; TEXT_TOOL_GROUP supplies the group the data
-     could not. */
+  /* Metric calculators form the main library. Text tools are built from
+     the same card shape below, but render in a separate utility section. */
   const calcEntries: CalcEntry[] = specs.map((spec) => {
     const group = groupOf(spec.slug);
     const categoryLabel = GROUP_LABEL[group][lang];
@@ -138,6 +130,7 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
       categoryKey: group,
       searchText: calcSearchText(name, description, categoryLabel, spec.aliases),
       href: `${base}/${spec.slug}`,
+      cardMeta: calculatorCardMeta(spec, lang),
     };
   });
 
@@ -153,30 +146,28 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
       // alias list, unlike every calculator above.
       searchText: calcSearchText(tool.title[lang], tool.desc[lang], categoryLabel, []),
       href: `${base}/${tool.slug}`,
+      cardMeta:
+        tool.slug === "utm-builder"
+          ? lang === "tr" ? "Kampanya URL parametreleri" : "Campaign URL parameters"
+          : lang === "tr" ? "Karakter ve kelime sayımı" : "Character and word count",
     };
   });
 
-  // Funnel order, not catalog order: the grid should read in the same
-  // sequence as the facet list beside it.
-  const entries = [...calcEntries, ...toolEntries].sort(
+  // The metric calculators keep the funnel order. Utility tools live in
+  // their own section below the calculator grid rather than pretending to
+  // be another metric category.
+  const entries = [...calcEntries].sort(
     (a, b) =>
       LIBRARY_GROUP_ORDER.indexOf(a.categoryKey as LibraryGroup) -
       LIBRARY_GROUP_ORDER.indexOf(b.categoryKey as LibraryGroup),
   );
 
-  /* `id` is the display label itself (not the raw group key) - the only
-     join key CalculatorLibrary needs, and every label is unique across the
-     seven groups, so this stays a plain 1:1 mapping with no separate id
-     scheme to keep in sync. Ordered by LIBRARY_GROUP_ORDER rather than by
-     count: the groups describe a funnel, and sorting them by size would
-     scramble that for no gain across seven items. Counted off `entries`
-     so the facet totals can never disagree with the grid. */
   const groupCounts = new Map<LibraryGroup, number>();
   for (const e of entries) {
     const g = e.categoryKey as LibraryGroup;
     groupCounts.set(g, (groupCounts.get(g) ?? 0) + 1);
   }
-  const categoryFacets: CategoryFacet[] = LIBRARY_GROUP_ORDER.filter((g) => groupCounts.has(g)).map((g) => ({
+  const categoryFacets: CategoryFacet[] = LIBRARY_GROUP_ORDER.filter((g) => g !== TEXT_TOOL_GROUP && groupCounts.has(g)).map((g) => ({
     id: GROUP_LABEL[g][lang],
     label: GROUP_LABEL[g][lang],
     count: groupCounts.get(g)!,
@@ -230,6 +221,7 @@ export function CalculatorIndexPage({ lang }: { lang: Lang }) {
             <CalculatorLibrary
               lang={lang}
               entries={entries}
+              utilityEntries={toolEntries}
               categoryFacets={categoryFacets}
               heroTitle={hero.title}
               heroSub={hero.sub}

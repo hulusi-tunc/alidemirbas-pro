@@ -139,10 +139,9 @@ export const LIBRARY_GROUP: Record<string, LibraryGroup> = {
 
 /* UTM Builder and Character Counter. They have no catalog spec - no
    formula, no inputs, no outputs - so they cannot appear in LIBRARY_GROUP
-   above, which is keyed by slug against LIVE_CALCULATOR_SLUGS. They are
-   still a real group in the library rather than a separate list below it:
-   somebody looking for a tool on this page should find all of them in one
-   grid, filterable and searchable the same way. */
+   above, which is keyed by slug against LIVE_CALCULATOR_SLUGS. The index
+   renders them in a separate "Other tools" section while keeping this key
+   for their icon/tint and shared card data. */
 export const TEXT_TOOL_GROUP: LibraryGroup = "text-tools";
 
 /* Which output a calculator leads with.
@@ -358,6 +357,59 @@ const SHORT_DESCRIPTION_TR: Record<string, string> = {
 export function shortDescription(spec: CalcSpec, lang: Lang): string {
   if (lang === "tr") return SHORT_DESCRIPTION_TR[spec.slug] ?? correctedFormulaPlainEnglish(spec);
   return SHORT_DESCRIPTION_EN[spec.slug] ?? correctedFormulaPlainEnglish(spec);
+}
+
+/* Short scan labels for the calculators index. These deliberately answer
+   "what does this calculate?" rather than repeating the category the user
+   already sees in the filter rail. Kept separate from the longer card
+   description: the description explains the tool; this is the one-line
+   quantity/result cue at the bottom of the card. */
+const CARD_META_EN: Record<string, string> = {
+  roas: "Revenue / ad spend",
+  cpc: "Cost per click",
+  cpm: "Cost per 1,000 impressions",
+  cac: "Customer acquisition cost",
+  aov: "Average revenue per order",
+  "gross-margin": "Gross margin rate",
+  "break-even-point": "Break-even sales level",
+  ltv: "Customer lifetime value",
+  "ltv-cac-ratio": "LTV / CAC balance",
+  "cac-payback-period": "CAC payback period",
+  "retention-rate": "Customer retention rate",
+  nrr: "Existing-customer revenue change",
+  "logo-churn": "Customer churn rate",
+  "rule-of-40": "Growth + profitability",
+  cr: "Target-action conversion rate",
+  "funnel-analysis-multistep": "Step conversion and drop-off",
+  "ab-test": "Statistical significance",
+  "sample-size-calculator": "Sample size per variant",
+  "email-performance": "Email performance metrics",
+};
+
+const CARD_META_TR: Record<string, string> = {
+  roas: "Gelir / reklam harcaması",
+  cpc: "Tıklama başına maliyet",
+  cpm: "1.000 gösterim maliyeti",
+  cac: "Müşteri edinme maliyeti",
+  aov: "Sipariş başına ortalama gelir",
+  "gross-margin": "Brüt marj oranı",
+  "break-even-point": "Başa baş satış seviyesi",
+  ltv: "Müşteri yaşam boyu değeri",
+  "ltv-cac-ratio": "LTV / CAC dengesi",
+  "cac-payback-period": "CAC geri ödeme süresi",
+  "retention-rate": "Müşteri elde tutma oranı",
+  nrr: "Mevcut müşteri gelir değişimi",
+  "logo-churn": "Müşteri kayıp oranı",
+  "rule-of-40": "Büyüme + kârlılık",
+  cr: "Hedef aksiyon dönüşüm oranı",
+  "funnel-analysis-multistep": "Adım bazlı dönüşüm ve drop-off",
+  "ab-test": "İstatistiksel anlamlılık",
+  "sample-size-calculator": "Varyant başına örneklem",
+  "email-performance": "E-posta performans metrikleri",
+};
+
+export function calculatorCardMeta(spec: CalcSpec, lang: Lang): string {
+  return lang === "tr" ? CARD_META_TR[spec.slug] ?? "" : CARD_META_EN[spec.slug] ?? "";
 }
 
 /* Same pattern as SHORT_DESCRIPTION_TR just above: a small hand-authored
