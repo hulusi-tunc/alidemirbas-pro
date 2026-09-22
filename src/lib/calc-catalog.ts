@@ -179,13 +179,13 @@ export const PRIMARY_OUTPUT: Record<string, string> = {
    band, which lists the live tools grouped the same way. One map, so the
    two cannot drift into calling the same group different things. */
 export const GROUP_LABEL: Record<LibraryGroup, { en: string; tr: string }> = {
-  ads: { en: "Ads", tr: "Reklam" },
+  ads: { en: "Advertising & Acquisition", tr: "Reklam ve Kullanıcı Kazanımı" },
   "revenue-unit-economics": { en: "Revenue & Unit Economics", tr: "Gelir ve Birim Ekonomisi" },
-  "retention-saas": { en: "Retention & SaaS", tr: "Elde Tutma ve SaaS" },
-  "conversion-funnel": { en: "Conversion & Funnel", tr: "Dönüşüm ve Huni" },
-  experimentation: { en: "Experimentation", tr: "A/B Test" },
-  "email-crm": { en: "Email & CRM", tr: "E-posta ve CRM" },
-  "text-tools": { en: "Text Tools", tr: "Metin Araçları" },
+  "retention-saas": { en: "Retention & SaaS", tr: "Retention ve SaaS" },
+  "conversion-funnel": { en: "Conversion & Funnel", tr: "Dönüşüm ve Funnel" },
+  experimentation: { en: "Experimentation & A/B Testing", tr: "Deneyler ve A/B Testleri" },
+  "email-crm": { en: "CRM & Email", tr: "CRM ve E-posta" },
+  "text-tools": { en: "Utilities", tr: "Yardımcı Araçlar" },
 };
 
 export const LIBRARY_GROUP_ORDER: readonly LibraryGroup[] = [
@@ -311,31 +311,53 @@ export function toRuntimeSpec(spec: CalcSpec): RuntimeCalcSpec {
    calculator-catalog.json itself stay untouched. Covers LIVE_CALCULATOR_
    SLUGS; a slug added here without ever being removed from that list
    keeps shortDescription's own EN fallback below from firing. */
-const SHORT_DESCRIPTION_TR: Record<string, string> = {
-  roas: "Reklam harcamasının kaç kat gelire dönüştüğünü hesaplar.",
-  cpc: "Bir reklam tıklamasının ortalama maliyetini hesaplar.",
-  cpm: "Bin gösterim başına reklam maliyetini hesaplar.",
-  cac: "Bir müşteri kazanmanın ortalama maliyetini hesaplar.",
-  aov: "Bir siparişin ortalama ne kadar gelir getirdiğini hesaplar.",
-  "gross-margin": "Satılan malın maliyetinden sonra gelirin ne kadar kaldığını hesaplar.",
-  "break-even-point": "Kâra geçmeden önce kaç birim satılması gerektiğini hesaplar.",
-  ltv: "Bir müşterinin zaman içinde ne kadar değer ürettiğini tahmin eder.",
-  "ltv-cac-ratio": "Müşteri değerini kazanım maliyetiyle kıyaslar.",
-  "cac-payback-period": "Kazanım maliyetinin kaç ayda geri kazanıldığını hesaplar.",
-  "retention-rate": "Müşterilerin dönem boyunca ne kadarının kaldığını hesaplar.",
-  nrr: "Mevcut müşterilerden gelen gelirin dönem içinde nasıl değiştiğini hesaplar.",
-  "logo-churn": "Dönem içinde kaybedilen müşteri oranını hesaplar.",
-  "rule-of-40": "Büyüme oranı ile kâr marjını tek bir puanda toplar.",
-  cr: "Fırsatların ne kadarının hedeflenen eyleme dönüştüğünü hesaplar.",
-  "funnel-analysis-multistep": "Bir huniyi adımlara böler ve her adımdaki kaybı gösterir.",
-  "ab-test": "İki varyant arasındaki farkın istatistiksel olarak anlamlı olup olmadığını test eder.",
-  "sample-size-calculator": "Bir A/B testinin ihtiyaç duyduğu ziyaretçi sayısını hesaplar.",
-  "email-performance": "Tek bir gönderimden sekiz e-posta performans metriğini birden hesaplar.",
+const SHORT_DESCRIPTION_EN: Record<string, string> = {
+  roas: "Measures the revenue generated for each unit of ad spend.",
+  cpc: "Calculates the average cost of each ad click.",
+  cpm: "Calculates the cost of 1,000 ad impressions.",
+  cac: "Calculates the average cost of acquiring a new customer.",
+  aov: "Calculates the average revenue generated per order.",
+  "gross-margin": "Calculates gross margin after direct costs are deducted.",
+  "break-even-point": "Calculates break-even volume, CAC ceiling, and ROAS floor.",
+  ltv: "Estimates the value a customer generates over their lifetime.",
+  "ltv-cac-ratio": "Compares customer lifetime value with acquisition cost.",
+  "cac-payback-period": "Calculates how many months it takes to recover acquisition cost.",
+  "retention-rate": "Calculates the share of customers retained over a period.",
+  nrr: "Measures how revenue from existing customers changes over time.",
+  "logo-churn": "Calculates customer-count churn over a given period.",
+  "rule-of-40": "Combines growth and profitability into a single SaaS metric.",
+  cr: "Calculates the share of users who complete a target action.",
+  "funnel-analysis-multistep": "Shows conversion and drop-off across multiple funnel steps.",
+  "ab-test": "Tests whether the difference between two variants is statistically significant.",
+  "sample-size-calculator": "Calculates the required sample size per A/B test variant.",
+  "email-performance": "Calculates key delivery, engagement, and revenue metrics for an email send.",
 };
+
+const SHORT_DESCRIPTION_TR: Record<string, string> = {
+  roas: "Reklam harcamasının ne kadar gelir ürettiğini hesaplar.",
+  cpc: "Bir reklam tıklamasının ortalama maliyetini hesaplar.",
+  cpm: "Bin reklam gösteriminin maliyetini hesaplar.",
+  cac: "Bir müşteri kazanmanın ortalama maliyetini hesaplar.",
+  aov: "Bir siparişin ortalama gelirini hesaplar.",
+  "gross-margin": "Doğrudan maliyetler çıktıktan sonra kalan brüt marjı hesaplar.",
+  "break-even-point": "Sabit maliyetleri karşılamak için gereken satış seviyesini, CAC tavanını ve ROAS eşiğini hesaplar.",
+  ltv: "Bir müşterinin zaman içinde üretebileceği değeri tahmin eder.",
+  "ltv-cac-ratio": "Müşteri yaşam boyu değerini kazanım maliyetiyle karşılaştırır.",
+  "cac-payback-period": "Müşteri kazanım maliyetinin kaç ayda geri kazanıldığını hesaplar.",
+  "retention-rate": "Dönem başındaki müşterilerin ne kadarının elde tutulduğunu hesaplar.",
+  nrr: "Mevcut müşterilerden gelen gelirin dönem içinde nasıl değiştiğini hesaplar.",
+  "logo-churn": "Belirli bir dönemde kaybedilen müşteri oranını hesaplar.",
+  "rule-of-40": "Büyüme oranı ile kârlılığı birlikte değerlendirir.",
+  cr: "Ziyaretçi, lead veya kullanıcıların hedeflenen aksiyonu tamamlama oranını hesaplar.",
+  "funnel-analysis-multistep": "Funnel adımlarındaki dönüşüm ve kayıp oranlarını gösterir.",
+  "ab-test": "İki varyant arasındaki farkın istatistiksel olarak anlamlı olup olmadığını test eder.",
+  "sample-size-calculator": "Bir A/B testi için varyant başına gereken örneklem büyüklüğünü hesaplar.",
+  "email-performance": "Bir e-posta gönderiminin temel teslimat, etkileşim ve gelir metriklerini hesaplar.",
+}
 
 export function shortDescription(spec: CalcSpec, lang: Lang): string {
   if (lang === "tr") return SHORT_DESCRIPTION_TR[spec.slug] ?? correctedFormulaPlainEnglish(spec);
-  return correctedFormulaPlainEnglish(spec);
+  return SHORT_DESCRIPTION_EN[spec.slug] ?? correctedFormulaPlainEnglish(spec);
 }
 
 /* Same pattern as SHORT_DESCRIPTION_TR just above: a small hand-authored
@@ -346,6 +368,12 @@ export function shortDescription(spec: CalcSpec, lang: Lang): string {
    `tr.seo.seoTitle` in production/calculators/content/{slug}.json, so the
    name is identical whether it's read from the card grid, the detail page
    H1, or a related-calculators link. Covers LIVE_CALCULATOR_SLUGS only. */
+const NAME_EN: Record<string, string> = {
+  "ab-test": "A/B Test Significance Calculator",
+  "sample-size-calculator": "A/B Test Sample Size Calculator",
+  "funnel-analysis-multistep": "Multi-Step Funnel Analysis",
+};
+
 const NAME_TR: Record<string, string> = {
   roas: "ROAS Hesaplayıcısı",
   cpc: "CPC Hesaplayıcısı",
@@ -357,14 +385,14 @@ const NAME_TR: Record<string, string> = {
   ltv: "LTV Hesaplayıcısı",
   "ltv-cac-ratio": "LTV:CAC Oranı Hesaplayıcısı",
   "cac-payback-period": "CAC Geri Ödeme Süresi Hesaplayıcısı",
-  "retention-rate": "Elde Tutma Oranı Hesaplayıcısı",
-  nrr: "Net Gelir Elde Tutma (NRR) Hesaplayıcısı",
+  "retention-rate": "Retention Oranı Hesaplayıcısı",
+  nrr: "Net Gelir Retention (NRR) Hesaplayıcısı",
   "logo-churn": "Logo Churn Hesaplayıcısı",
   "rule-of-40": "Rule of 40 Hesaplayıcısı",
   cr: "Dönüşüm Oranı Hesaplayıcısı",
-  "funnel-analysis-multistep": "Çok Adımlı Huni Analizi Hesaplayıcısı",
+  "funnel-analysis-multistep": "Çok Adımlı Funnel Analizi",
   "ab-test": "A/B Test Anlamlılık Hesaplayıcısı",
-  "sample-size-calculator": "Örneklem Büyüklüğü Hesaplayıcısı",
+  "sample-size-calculator": "A/B Test Örneklem Büyüklüğü Hesaplayıcısı",
   "email-performance": "E-posta Performansı Hesaplayıcısı",
 };
 
@@ -374,7 +402,7 @@ const NAME_TR: Record<string, string> = {
     itself stays English-only research-set data. */
 export function displayName(spec: CalcSpec, lang: Lang): string {
   if (lang === "tr") return NAME_TR[spec.slug] ?? spec.name;
-  return spec.name;
+  return NAME_EN[spec.slug] ?? spec.name;
 }
 
 /** Same lookup, keyed by slug only, for call sites that only have a slug
@@ -382,7 +410,7 @@ export function displayName(spec: CalcSpec, lang: Lang): string {
     than a full `CalcSpec`. */
 export function displayNameForSlug(slug: string, fallbackName: string, lang: Lang): string {
   if (lang === "tr") return NAME_TR[slug] ?? fallbackName;
-  return fallbackName;
+  return NAME_EN[slug] ?? fallbackName;
 }
 
 /** Homepage teaser entry - the same shape CalculatorLibrary's own

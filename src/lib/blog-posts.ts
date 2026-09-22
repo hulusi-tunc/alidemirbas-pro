@@ -140,9 +140,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "why-your-roas-looks-different-on-every-ad-platform",
-    title: "Why your ROAS looks different on every ad platform",
+    title: "Why ROAS changes from platform to platform",
     excerpt:
-      "Same campaign, same spend, three different ROAS numbers depending on which platform's dashboard you're reading. The formula isn't the problem. The attribution window is.",
+      "The same campaign can show different ROAS across platforms. Attribution windows and measurement rules are a big part of why.",
     date: "2026-08-18",
     category: "Growth Metrics",
     topic: "Advertising",
@@ -172,9 +172,9 @@ export const BLOG_POSTS: BlogPost[] = [
       { href: "/calculators/cpc", label: "CPC Calculator" },
     ],
     tr: {
-      title: "ROAS'ın her reklam platformunda neden farklı göründüğü",
+      title: "ROAS neden platformdan platforma değişiyor?",
       excerpt:
-        "Aynı kampanya, aynı harcama, hangi platformun panosuna baktığına göre üç farklı ROAS sayısı. Sorun formül değil. Atıf penceresi.",
+        "Aynı kampanyanın ROAS'ı platformdan platforma değişebilir. Bunun önemli nedenlerinden biri attribution penceresi ve ölçüm yaklaşımı.",
       pullQuote: "İki sayı da yanlış değil; farklı sorulara cevap veriyorlar.",
       sections: [
         {
@@ -204,9 +204,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "what-belongs-in-a-lifecycle-journey-vs-a-campaign",
-    title: "What actually belongs in a lifecycle journey vs. a one-off campaign",
+    title: "When to use a journey vs. a one-off campaign",
     excerpt:
-      "Not every recurring message needs a journey behind it, and not every journey should be built like a campaign. The difference is what decides whether someone enters.",
+      "Not every recurring message needs a journey. The practical difference is how and when someone enters.",
     date: "2026-08-21",
     category: "Lifecycle & CRM",
     topic: "Lifecycle Marketing",
@@ -237,9 +237,9 @@ export const BLOG_POSTS: BlogPost[] = [
       { href: "/calculators/cr", label: "Conversion Rate Calculator" },
     ],
     tr: {
-      title: "Bir yaşam döngüsü journey'sine mi, tek seferlik bir kampanyaya mı ait",
+      title: "Ne zaman journey, ne zaman tek seferlik kampanya?",
       excerpt:
-        "Her tekrarlanan mesajın arkasında bir journey olması gerekmez, her journey de bir kampanya gibi kurulmamalı. Aradaki fark, birinin ne zaman gireceğini belirleyen şey.",
+        "Her tekrarlanan iletişimin journey olması gerekmiyor. Journey ile tek seferlik kampanya arasındaki ayrımı ele alıyorum.",
       pullQuote:
         "Journey'in sadece bir kez, belirli bir tarihte, sabit bir liste için çalışıyorsa, journey adını taşıyan bir kampanyadır.",
       sections: [
@@ -270,9 +270,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "the-guardrail-metric-most-ab-tests-forget",
-    title: "The guardrail metric most A/B tests forget",
+    title: "The guardrail metrics A/B tests often miss",
     excerpt:
-      "A test can win on its primary metric and still be a net loss for the business. Guardrails exist to catch exactly that, and they're the first thing a rushed test setup skips.",
+      "A test can win on its primary metric and still cause harm elsewhere. This is where guardrail metrics matter and why.",
     date: "2026-08-23",
     category: "Experimentation",
     topic: "A/B Testing",
@@ -303,9 +303,9 @@ export const BLOG_POSTS: BlogPost[] = [
       { href: "/calculators/sample-size-calculator", label: "Sample Size Calculator" },
     ],
     tr: {
-      title: "Çoğu A/B testinin unuttuğu guardrail metriği",
+      title: "A/B testlerinde sık unutulan guardrail metrikleri",
       excerpt:
-        "Bir test birincil metriğinde kazanabilir ve yine de işletme için net bir kayıp olabilir. Guardrail'ler tam olarak bunu yakalamak için var ve aceleye getirilmiş bir test kurulumunun ilk atladığı şey onlar.",
+        "Bir test ana metriğinde kazanırken başka bir yerde zarar verebilir. Guardrail metriklerinin ne zaman ve neden gerekli olduğuna bakıyorum.",
       pullQuote:
         "Birincil metrik kazananı belirler; guardrail ise bu kazancın sayılıp sayılmayacağına karar verir.",
       sections: [

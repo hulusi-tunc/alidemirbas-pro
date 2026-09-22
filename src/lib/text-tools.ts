@@ -9,12 +9,12 @@ export const TEXT_TOOLS: readonly { slug: string; title: { en: string; tr: strin
   {
     slug: "utm-builder",
     title: { en: "UTM Builder", tr: "UTM Oluşturucu" },
-    desc: { en: "Append source, medium, campaign and content parameters to any URL.", tr: "Bir bağlantıya kaynak, mecra, kampanya ve içerik parametrelerini ekler." },
+    desc: { en: "Adds source, medium, campaign, and content parameters to a URL.", tr: "Bir bağlantıya kaynak, mecra, kampanya ve içerik parametreleri ekler." },
   },
   {
     slug: "character-counter",
     title: { en: "Character Counter", tr: "Karakter Sayacı" },
-    desc: { en: "Live character and word count against common ad and meta length limits.", tr: "Yaygın reklam ve meta uzunluk limitlerine göre canlı karakter ve kelime sayacı." },
+    desc: { en: "Counts characters and words against common ad and metadata limits.", tr: "Metni karakter ve kelime bazında ölçer ve yaygın uzunluk sınırlarıyla karşılaştırır." },
   },
 ];
 

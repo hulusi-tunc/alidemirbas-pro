@@ -112,14 +112,14 @@ function Intro({ t }: { t: (typeof copy)[Lang] }) {
    tiles keep theirs - a small identity mark, not a ground - and the cards
    sit on `paper-soft` like the calculator cards do. */
 const GROUP_TINT: Record<string, { card: string; dot: string }> = {
-  "Design & Build": { card: "bg-paper-soft", dot: "bg-fuchsia-400" },
   "Web & Product Analytics": { card: "bg-paper-soft", dot: "bg-blue-400" },
-  "Mobile / Attribution (MMP)": { card: "bg-paper-soft", dot: "bg-violet-400" },
-  "BI / Data Visualization": { card: "bg-paper-soft", dot: "bg-emerald-400" },
+  "Mobile Analytics & Measurement": { card: "bg-paper-soft", dot: "bg-violet-400" },
   "CRM & Engagement": { card: "bg-paper-soft", dot: "bg-teal-400" },
   "SEO & Content": { card: "bg-paper-soft", dot: "bg-amber-400" },
-  "CRO / A-B Test / Experimentation": { card: "bg-paper-soft", dot: "bg-rose-400" },
+  "BI & Data Visualization": { card: "bg-paper-soft", dot: "bg-emerald-400" },
   "Work Management": { card: "bg-paper-soft", dot: "bg-slate-400" },
+  "AI & Productivity": { card: "bg-paper-soft", dot: "bg-ink-300" },
+  "Design & Prototyping": { card: "bg-paper-soft", dot: "bg-fuchsia-400" },
 };
 
 const FALLBACK_TINT = { card: "bg-paper-soft", dot: "bg-ink-300" };

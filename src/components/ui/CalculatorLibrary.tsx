@@ -66,16 +66,16 @@ export type CategoryFacet = { id: string; label: string; count: number };
 
 const T = {
   en: {
-    searchPlaceholder: "Search calculators...",
+    searchPlaceholder: "Search calculators and tools...",
     // No resting total any more - it only appears while a filter is on.
-    countFiltered: (n: number, total: number) => `${n} of ${total} calculators`,
-    empty: "No calculators match your search.",
+    countFiltered: (n: number, total: number) => `${n} of ${total} tools`,
+    empty: "No calculators or tools match your search.",
     clear: "Clear search & filters",
   },
   tr: {
-    searchPlaceholder: "Hesaplayıcılarda ara...",
-    countFiltered: (n: number, total: number) => `${n} / ${total} hesaplayıcı`,
-    empty: "Bu aramayla eşleşen hesaplayıcı yok.",
+    searchPlaceholder: "Hesaplayıcılarda ve araçlarda ara...",
+    countFiltered: (n: number, total: number) => `${n} / ${total} araç`,
+    empty: "Bu aramayla eşleşen hesaplayıcı veya araç yok.",
     clear: "Aramayı ve filtreleri temizle",
   },
 } as const;
