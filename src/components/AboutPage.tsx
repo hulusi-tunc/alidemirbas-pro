@@ -273,7 +273,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
             projects are presented, and on the About page they only need to
             be named. The homepage's toolkit band (StackShowcase) went in the
             same pass, for the same reason. */}
-        <section className="bg-paper-soft py-20 md:py-28">
+        <section className="bg-paper py-20 md:py-28">
           <div className="altor-container">
             <SectionHeading eyebrow={t.buildEyebrow} title={t.buildTitle} intro={t.buildIntro} />
             <div className="mt-12 overflow-hidden rounded-[28px] bg-paper ring-1 ring-ink-950/[0.06]">

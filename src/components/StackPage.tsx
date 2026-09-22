@@ -131,7 +131,7 @@ const FALLBACK_TINT = { card: "bg-paper-soft", dot: "bg-ink-300" };
    dissolving into its own card. */
 function ToolCard({ name, tool, tag, tint }: { name: string; tool: Tool; tag: string; tint: string }) {
   return (
-    <div className={`flex items-center gap-4 rounded-card p-5 ${tint}`}>
+    <div className={`flex h-full items-start gap-4 rounded-card p-5 ${tint}`}>
       {/* Real favicon, same `resolveLogo(tool)` helper/domain-per-tool data
           `StackShowcase.tsx` already uses on Home - not re-fetched or
           re-derived here. `alt=""`: decorative next to the tool's own
@@ -141,8 +141,8 @@ function ToolCard({ name, tool, tag, tint }: { name: string; tool: Tool; tag: st
         <Image src={resolveLogo(tool)} alt="" fill sizes="56px" className="object-contain p-3" />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-base font-semibold tracking-tight text-ink-950">{name}</p>
-        <p className="mt-0.5 truncate text-sm text-ink-muted">{tag}</p>
+        <p className="text-base leading-snug font-semibold tracking-tight text-ink-950">{name}</p>
+        <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-muted">{tag}</p>
       </div>
     </div>
   );
@@ -174,7 +174,7 @@ function Groups({ lang }: { lang: Lang }) {
               {/* 2-column card grid at sm+ (matches the reference), 1
                   column on mobile. A lone-tool category (e.g. "CRO / A-B
                   Test / Experimentation") simply renders one card. */}
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {group.tools.map((tool) => (
                   <ToolCard key={tool.name} name={tool.name} tool={tool} tag={tool.tag[lang]} tint={tint.card} />
                 ))}

@@ -25,28 +25,28 @@ export const copy = {
       work: {
         eyebrow: "What I do",
         title: "I approach growth through data, testing, and user behavior.",
-        lede: "Some of the areas I work in, and the tools I built for them.",
+        lede: "I work across measurement, lifecycle, performance analysis, and experimentation, connecting what users do with what the numbers say.",
         builtFor: "Built for this",
         services: [
           {
             tool: "dashboard-builder",
             title: "Measurement setup",
-            body: "Event design in GA4 and GTM, Adjust setup, and finding where the gap comes from when two platforms report different numbers for the same week. What's left is an event structure the team can query, with every definition written down.",
+            body: "I set up the events, attribution, and reporting needed to understand what is actually happening. When two platforms disagree, I trace the gap back to the definition or the data rather than averaging it away.",
           },
           {
             tool: "lifecycle-card-archive",
             title: "Lifecycle and CRM programs",
-            body: "I design the journeys a user goes through from first step to win-back, and write down why each message actually gets sent.",
+            body: "I design the journeys a user goes through from first step to win-back, including what should trigger a message, when it should stop, and what should happen next.",
           },
           {
             tool: "google-ads-change-history-dashboard",
-            title: "Google Ads Change History",
-            body: "I track changes made across Google Ads accounts alongside date, campaign and performance data, so a shift in results doesn't turn into a guessing game.",
+            title: "Performance analysis",
+            body: "I read performance together with the changes made around it. That makes it easier to separate what actually changed from what simply moved at the same time.",
           },
           {
             tool: "ab-test-playbook",
-            title: "Test, learn, improve",
-            body: "I collected 211 A/B test scenarios covering every stage from acquisition to retention. Each one states what is being tested and how it should be measured.",
+            title: "Experimentation",
+            body: "I turn questions into testable hypotheses, isolate the variable, choose the primary metric, and define the guardrails before reading the result.",
           },
         ],
       },
@@ -876,28 +876,28 @@ export const copy = {
       work: {
         eyebrow: "Ne yapıyorum",
         title: "Büyümeyi veri, test ve kullanıcı davranışı üzerinden ele alıyorum.",
-        lede: "Çalıştığım alanlar ve bunlar için yaptığım araçlar.",
+        lede: "Ölçüm, lifecycle, performans analizi ve deneyler tarafında çalışıyorum; kullanıcının ne yaptığını veride ne gördüğümüzle birlikte ele alıyorum.",
         builtFor: "Bunun için yaptım",
         services: [
           {
             tool: "dashboard-builder",
             title: "Ölçüm altyapısı",
-            body: "GA4 ve GTM'de event tasarımı, Adjust kurulumu ve iki platform aynı hafta için farklı sayı verdiğinde farkın nereden geldiğini bulmak. Sonunda ekibin sorgulayabildiği, tanımı belli bir event yapısı kalır.",
+            body: "Ne olduğunu anlayabilmek için gereken event, attribution ve raporlama yapısını kuruyorum. İki platform farklı sayı verdiğinde ortalamak yerine farkın tanımdan mı, veriden mi geldiğini bulmaya çalışıyorum.",
           },
           {
             tool: "lifecycle-card-archive",
-            title: "Yaşam döngüsü ve CRM programları",
-            body: "Kullanıcının ilk adımdan geri kazanıma kadar geçtiği yolculukları tasarlıyorum; her mesajın neden gittiğini de yazılı hâle getiriyorum.",
+            title: "Lifecycle ve CRM programları",
+            body: "Kullanıcının ilk adımdan geri kazanıma kadar geçtiği journey'leri tasarlıyorum; mesajın ne zaman tetikleneceğini, ne zaman duracağını ve sonrasında ne olacağını birlikte kurguluyorum.",
           },
           {
             tool: "google-ads-change-history-dashboard",
-            title: "Google Ads Değişiklik Geçmişi",
-            body: "Google Ads hesaplarında yapılan değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip ediyorum; sonuç değiştiğinde tahmine değil, kayda bakıyorum.",
+            title: "Performans analizi",
+            body: "Performansı, o dönemde yapılan değişikliklerle birlikte okuyorum. Böylece gerçekten neyin değiştiğini, sadece aynı anda hareket eden metriklerden ayırmak daha kolay oluyor.",
           },
           {
             tool: "ab-test-playbook",
-            title: "Test et, öğren, geliştir",
-            body: "Kullanıcı kazanımından elde tutmaya kadar her aşama için 211 A/B test senaryosu topladım. Her birinde neyin test edildiği ve nasıl ölçüleceği yazılı.",
+            title: "Deneyler",
+            body: "Soruyu test edilebilir bir hipoteze çeviriyor, değişkeni izole ediyor, birincil metriği ve guardrail'leri sonucu görmeden önce belirliyorum.",
           },
         ],
       },

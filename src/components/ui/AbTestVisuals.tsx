@@ -340,15 +340,17 @@ function SpreadCardTile({ card, lang, decidedBy }: { card: ReturnType<typeof spr
   return (
     <Link
       href={card.href}
-      className="flex flex-col rounded-[28px] bg-paper p-5 ring-1 ring-ink-950/[0.06] transition-[box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-24px_rgba(3,17,63,0.35)]"
+      className="group/card flex flex-col rounded-[28px] bg-paper p-5 ring-1 ring-ink-950/[0.06] transition-[box-shadow,transform] duration-[var(--duration-fast)] ease-[var(--ease-out-smooth)] hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-24px_rgba(3,17,63,0.35)]"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="rounded-full bg-paper-soft px-2.5 py-0.5 text-xs font-medium text-ink-600">{surfaceLabel(card.surface, lang)}</span>
         <span className="font-mono text-[11px] text-ink-400 tabular-nums">{card.id}</span>
       </div>
       {/* The variant side, windowed on its top: the tested element sits in
-          the first screen of every page AbScreen draws. No `group` on the
-          card, so the detail page's hover zoom stays there. */}
+          the first screen of every page AbScreen draws. The card uses a
+          named group (`group/card`) so its arrow can react to hover
+          without triggering the unnamed group-hover behavior inside
+          AbScreen. */}
       <div className="mt-4 h-44 overflow-hidden rounded-xl bg-paper-soft [&>div]:h-full [&_figure]:shadow-none">
         <AbScreen
           surface={card.surface}
@@ -363,14 +365,18 @@ function SpreadCardTile({ card, lang, decidedBy }: { card: ReturnType<typeof spr
           address={surfaceLabel(card.surface, lang)}
         />
       </div>
-      <p className="mt-4 text-[15px] leading-snug font-semibold text-ink-950">{card.title}</p>
+      <p className="mt-3 flex items-center gap-2 text-xs text-ink-500">
+        <span className="shrink-0">{lang === "en" ? "Changed:" : "Değişen:"}</span>
+        <span className="min-w-0 truncate font-medium text-ink-800">{card.changeLabel}</span>
+      </p>
+      <p className="mt-3 text-[15px] leading-snug font-semibold text-ink-950">{card.title}</p>
       <p className="mt-1 text-xs text-ink-500">{categoryLabel(card.category, lang)}</p>
       <div className="mt-auto flex items-center gap-2 border-t border-line-soft pt-3.5 text-xs text-ink-500">
         <Target aria-hidden className="size-3.5 shrink-0 text-primary-600" />
         <span className="min-w-0 truncate">
           {decidedBy} <span className="font-medium text-ink-950">{card.kpi}</span>
         </span>
-        <ArrowRight aria-hidden className="ml-auto size-3.5 shrink-0 text-ink-300 transition-colors group-hover:text-primary-600" />
+        <ArrowRight aria-hidden className="ml-auto size-3.5 shrink-0 text-ink-300 transition-colors group-hover/card:text-primary-600" />
       </div>
       <span className="sr-only">{lang === "en" ? "Open scenario" : "Senaryoyu aç"}</span>
     </Link>

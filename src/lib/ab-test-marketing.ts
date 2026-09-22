@@ -94,6 +94,16 @@ export const CATEGORY_COUNTS: readonly CategoryCount[] = (() => {
    that renders fully, the rest are progressively cropped. */
 const SPREAD_IDS = ["AB-049", "AB-163", "AB-072", "AB-127", "AB-004", "AB-114", "AB-103"] as const;
 
+const SPREAD_CHANGE_LABEL: Record<(typeof SPREAD_IDS)[number], { en: string; tr: string }> = {
+  "AB-049": { en: "field label position", tr: "alan etiketi konumu" },
+  "AB-163": { en: "primary CTA offer", tr: "birincil CTA teklifi" },
+  "AB-072": { en: "primary CTA position", tr: "ana CTA konumu" },
+  "AB-127": { en: "number of product images", tr: "görsel sayısı" },
+  "AB-004": { en: "coupon code field", tr: "kupon kodu alanı" },
+  "AB-114": { en: "number of pricing plans", tr: "plan sayısı" },
+  "AB-103": { en: "signup wall strictness", tr: "kayıt duvarı sertliği" },
+};
+
 export type SpreadCard = {
   id: string;
   title: string;
@@ -104,6 +114,8 @@ export type SpreadCard = {
   /** The record's own primary KPI, in the page's language (the dataset
       stores the Turkish label; ab-test-kpi-labels maps it). */
   kpi: string;
+  /** Short label for the one thing that changes on this card. */
+  changeLabel: string;
   /** What ui/AbScreen needs to draw the record's variant side as its real
       page - the same classifiers the detail page runs (lib/ab-test-
       playbook), so a card and its detail page draw the same element. */
@@ -133,6 +145,7 @@ export function spreadCards(lang: Lang): SpreadCard[] {
       setupType: r.setupType,
       href: `${base}/${r.slug}`,
       kpi: primaryKpiLabel(r.primaryKpi.label, lang),
+      changeLabel: SPREAD_CHANGE_LABEL[id][lang],
       screen: (() => {
         const kind = abVariableKind(r);
         const presence =
