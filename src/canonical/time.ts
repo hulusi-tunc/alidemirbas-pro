@@ -840,7 +840,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "pre-expiry-window",
     category: "time",
     goal: "expiry-renewal",
-    channels: ["email"],
+    channels: ["in-app", "sms", "email"],
     name: "Expiry approaching → eligibility check → renew, complete or let expire",
     shortName: "Expiry Reminder",
     purpose:
@@ -949,14 +949,22 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         "onLoss": "suppressed"
       }
     },
-    channelStrategy: {
+    "channelStrategy": {
       "roles": [
         {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_session is true and the available_action can be completed from the current product context before the recorded expiry"
+        },
+        {
+          "role": "urgent",
+          "channels": ["sms"],
+          "when": "urgent_channel_permission is true, the entity is inside urgent_horizon, and action_destination provides a direct route to the one action that can still change the outcome"
+        },
+        {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message names an action and a boundary and must survive until the responsible actor can act - the whole strategy, since the responsible actor may hold no product session at all and nothing here establishes an imminent one-tap action that would justify SMS"
+          "channels": ["email"],
+          "when": "otherwise, and always for a purely informational notice where there is no action to take"
         }
       ],
       "fallback": "none",
@@ -975,6 +983,8 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point by which it must be taken.",
           "channelRoles": [
+            "in-session",
+            "urgent",
             "persistent"
           ],
           "destination": {
