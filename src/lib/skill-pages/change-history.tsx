@@ -32,9 +32,8 @@ const toolOptions = (lang: Lang): ToolOption[] => [
 
    EVERY CLAIM BELOW IS CHECKED AGAINST THE TOOL ITSELF, not written
    from the project's one-line description. The repository was cloned and
-   read for this page, and the two numbers on it were produced rather
-   than copied: `python3 ads_change_history.py self-test` was run and its
-   57 passing checks counted, and the file's import block was read to
+   read for this page, and its technical claims were checked against the tool itself. The
+   built-in self-test was run, and the file's import block was read to
    confirm the zero-dependency claim (argparse, csv, hashlib, json, re,
    string, sys, webbrowser, collections, datetime, difflib, pathlib -
    all standard library). The three CLI commands are the three
@@ -73,7 +72,7 @@ const T = {
     step2Desc: "Python 3 and its standard library are the only requirements - there are no dependencies to install.",
     step3Title: "Check it against its own fixtures",
     step3Desc:
-      "The built-in suite runs the whole pipeline end to end on synthetic data. 57 checks pass on the current version.",
+      "Run the built-in checks with a single command.",
     viewRepo: "Read the repository",
     copyLabel: "Copy",
     copiedLabel: "Copied",
@@ -82,22 +81,22 @@ const T = {
       {
         id: "live-api",
         q: "Does it read my Google Ads account directly?",
-        a: "Not by default. The plugin reads the file you export, which is what keeps it dependency-free and offline. If you have API access, the fetch_live_data.py script in the repo pulls change history live and writes it in the same format. That skips the export step; the plugin itself works the same way.",
+        a: "Not by default. The tool reads the file you export. If you have API access, you can use fetch_live_data.py in the repo to pull change history directly.",
       },
       {
         id: "formats",
         q: "Which export formats does it accept?",
-        a: "CSV, TSV, and pre-flattened ChangeEvent JSON. It will not read an XLSX file or a Google Sheets URL directly - export to one of those three first.",
+        a: "CSV, TSV, and flattened ChangeEvent JSON. XLSX files and Google Sheets URLs aren't read directly.",
       },
       {
         id: "offline",
         q: "Does the dashboard need to be online?",
-        a: "No. It is a single HTML file with no CDN references, so it works fully offline and can be sent to someone as one attachment. Filters, the activity timeline, the account and campaign drill-down, the category distribution and the searchable change explorer all run in the browser from data embedded in that file.",
+        a: "No. The dashboard is a single HTML file with no CDN dependency. All data is processed in the browser.",
       },
       {
         id: "sharing",
         q: "Can I share it without exposing who did what?",
-        a: "Pass --mask-users. People's names and emails become User A, User B, and the labels are kept stable across runs, so the same person carries the same label in every report. Account and campaign names are never masked. They're your own data, not someone's identity.",
+        a: "Yes. --mask-users replaces names and email addresses with labels such as User A and User B. Account and campaign names remain unchanged.",
       },
     ],
     relatedTitle: "Other Lab projects",
@@ -126,7 +125,7 @@ const T = {
     step2Desc: "Tek gereksinim Python 3 ve standart kütüphanesi. Kurulacak bağımlılık yok.",
     step3Title: "Kendi test verisiyle doğrula",
     step3Desc:
-      "Yerleşik test paketi tüm akışı sentetik veri üzerinde baştan sona çalıştırır. Mevcut sürümde 57 test geçiyor.",
+      "Temel kontrolleri tek komutla çalıştır.",
     viewRepo: "Repoyu oku",
     copyLabel: "Kopyala",
     copiedLabel: "Kopyalandı",
@@ -135,22 +134,22 @@ const T = {
       {
         id: "live-api",
         q: "Google Ads hesabımı doğrudan okuyor mu?",
-        a: "Varsayılan olarak hayır. Eklenti senin dışa aktardığın dosyayı okur; bağımlılıksız ve çevrimdışı çalışmasının sebebi bu. API erişimin varsa repodaki fetch_live_data.py betiği değişiklik geçmişini canlı çekip aynı biçimde yazar. Böylece dışa aktarma adımını atlarsın, eklentinin çalışma şekli değişmez.",
+        a: "Varsayılan olarak hayır. Araç dışa aktardığın dosyayı okur. API erişimin varsa repodaki fetch_live_data.py ile değişiklik geçmişini doğrudan çekebilirsin.",
       },
       {
         id: "formats",
         q: "Hangi dışa aktarma biçimlerini kabul ediyor?",
-        a: "CSV, TSV ve düzleştirilmiş ChangeEvent JSON. XLSX dosyasını ya da bir Google Sheets bağlantısını doğrudan okumaz; önce bu üç biçimden birine aktar.",
+        a: "CSV, TSV ve düzleştirilmiş ChangeEvent JSON. XLSX veya Google Sheets bağlantısını doğrudan okumaz.",
       },
       {
         id: "offline",
         q: "Dashboard'un çevrimiçi olması gerekiyor mu?",
-        a: "Hayır. CDN bağlantısı olmayan tek bir HTML dosyası; tamamen çevrimdışı çalışır ve tek ek olarak gönderilebilir. Filtreler, zaman çizelgesi, hesap ve kampanya kırılımı, kategori dağılımı ve aranabilir değişiklik listesi, hepsi dosyanın içindeki veriden tarayıcıda çalışır.",
+        a: "Hayır. Dashboard tek bir HTML dosyasıdır ve CDN kullanmaz. Tüm veriler tarayıcıda işlenir.",
       },
       {
         id: "sharing",
         q: "Kimin ne yaptığını göstermeden paylaşabilir miyim?",
-        a: "--mask-users ver. Kişi adları ve e-postaları User A, User B diye etiketlenir; etiketler çalıştırmalar arasında korunur, aynı kişi her raporda aynı etiketi taşır. Hesap ve kampanya adları hiçbir zaman maskelenmez. Onlar senin kendi verin, başkasının kimliği değil.",
+        a: "Evet. --mask-users ile kişi adlarını ve e-postaları User A, User B gibi etiketlere dönüştürebilirsin. Hesap ve kampanya adları değişmez.",
       },
     ],
     relatedTitle: "Diğer Lab projeleri",
