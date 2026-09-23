@@ -10,12 +10,8 @@ import { ALL_AB_TEST_SLUGS } from "@/lib/ab-test-view";
 // site won't carry that section at all.
 const routes = [
   "", "/about", "/lab", "/lab/journeys",
-  // The library's three PUBLIC product surfaces (canonical-view.ts's
-  // SURFACE_PATH). Deliberately NOT under /lab/journeys/: that segment is
-  // owned by journey slugs and their modal interceptor - see LabPage.tsx.
-  // They are ordinary /lab pages and take the default priority. The fourth,
-  // /lab/operational-workflows, was archived 2026-09-05 and is absent here
-  // because it is absent from SURFACE_PATH - archive/operational-workflows/.
+  // The library's public Customer Journey surface. It is deliberately not
+  // under /lab/journeys/: that segment belongs to journey detail slugs.
   ...Object.values(SURFACE_PATH),
   "/lab/ab-testing", "/lab/dashboard-builder", "/stack", "/contact", "/blog",
   // The Journey Builder product page. /lab/journeys above is the LIBRARY;

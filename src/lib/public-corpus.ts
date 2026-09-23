@@ -29,11 +29,10 @@ import type { CanonicalJourney } from "@/canonical/types";
    exactly as it moves it across the site's surfaces - there is no override
    field and nothing to keep in sync.
 
-   Restoring the surface to the public site is: delete this module's filter
-   (make `isPublicJourney` return true), re-add the "operational-workflows"
-   SurfaceKey in canonical-view.ts and its copy in content.ts, and restore the
-   two route shells from archive/operational-workflows/routes/. Nothing else
-   knows the surface ever left. */
+   The public website now exposes only the curated Customer Journey library.
+   Silent lifecycle states, runtime mechanisms and operational workflows stay
+   in the canonical graph because published journeys depend on them, but they
+   are not routes, search results, sitemap entries or navigation surfaces. */
 
 export const ARCHIVED_SURFACE = "operational" as const;
 
@@ -114,8 +113,7 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
 ]);
 
 export function isPublicJourney(j: Pick<CanonicalJourney, "id" | "category" | "channels" | "entity">): boolean {
-  if (EXCLUDED_FROM_PUBLIC.has(j.id)) return false;
-  return surfaceOf(j).surface !== ARCHIVED_SURFACE;
+  return PUBLIC_LIBRARY_IDS.has(j.id);
 }
 
 /** Every journey the public site is allowed to route to, list, count, or
@@ -135,15 +133,9 @@ export function isPublicJourneyId(id: string): boolean {
   return target !== undefined && PUBLIC_IDS.has(target.id);
 }
 
-/** THE LIBRARY, as the public site states it (2026-09-05, product decision):
-    the Customer Journeys surface - a public journey whose own work reaches a
-    person, by message or by routing the work to someone. This is the exact
-    listing rule canonical-view.ts's `surfaceKeyOf` applies for the
-    "customer-journeys" key; canonical-view asserts the two agree at module
-    load. The 64 silent lifecycle states and 25 runtime mechanisms are still
-    public, still routed and still counted on their OWN surface pages - they
-    are just not what "the library" means in a headline, a project card or a
-    metadata description. Every public count derives from this list. */
+/** THE LIBRARY, as the public site states it: the curated Customer Journeys
+    whose own work reaches a person, by message or by routing the work to
+    someone. Every public count and route derives from this list. */
 export function isLibraryJourney(j: Pick<CanonicalJourney, "id" | "category" | "channels" | "entity">): boolean {
   const sf = surfaceOf(j);
   return sf.surface === "customer" && (sf.sends || sf.routesToHuman);

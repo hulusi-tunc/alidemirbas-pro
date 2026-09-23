@@ -5001,12 +5001,11 @@ export function localizedJourneyDetail(detail: JourneyDetail, lang: Lang): Journ
 
    `localizedJourneyDetail` above covers the detail page. Everything ELSE
    the site renders out of the canonical library is some projection of the
-   same four naming fields: `JourneyRow` (canonical-view.ts) on the three
-   surface galleries and the landing page's largest-journey rows,
+   same four naming fields: `JourneyRow` (canonical-view.ts) on the Customer
+   Journey gallery and the landing page's largest-journey rows,
    `ShowcaseCard` (journey-marketing.ts) on the landing page's spread. They
    were all reading canonical English straight through, which is how
-   /tr/lab/lifecycle-states, /tr/lab/runtime-mechanisms and
-   /tr/lab/customer-journeys came to list every card's purpose in English.
+   /tr/lab/customer-journeys once listed every card's purpose in English.
 
    Structural typing rather than a union of the two row types on purpose:
    this function's contract is "whatever carries a journey id and these

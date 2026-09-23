@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   Activity,
@@ -13,7 +12,6 @@ import {
   ChevronDown,
   ClipboardCheck,
   ClipboardList,
-  Cog,
   Cpu,
   CreditCard,
   Database,
@@ -74,8 +72,6 @@ import type { SurfaceKey } from "@/lib/canonical-view";
 
 export const SURFACE_ICON: Record<SurfaceKey, ReactNode> = {
   "customer-journeys": <Send aria-hidden className="size-4" />,
-  "lifecycle-states": <Layers aria-hidden className="size-4" />,
-  "runtime-mechanisms": <Cog aria-hidden className="size-4" />,
 };
 
 /* ICONS (Hulusi, 2026-09-13: "everything looks super text-heavy: no icon,
@@ -215,44 +211,6 @@ export const ALL_GOALS_ICON = <Target aria-hidden />;
     is enough to navigate by. The full title still heads the section. */
 export function shortCategoryTitle(title: string): string {
   return title.split(/,| & | ve /)[0].trim();
-}
-
-/** The three public surfaces are routes, so this is navigation, not a
-    filter: the current one is a static pill, the others are links. */
-export function SurfaceTabs({
-  links,
-  active,
-  label,
-}: {
-  links: readonly { key: SurfaceKey; href: string; label: string }[];
-  active: SurfaceKey;
-  label: string;
-}) {
-  return (
-    <nav aria-label={label} className="inline-flex max-w-full flex-wrap gap-1 rounded-full bg-paper-soft p-1">
-      {links.map((l) =>
-        l.key === active ? (
-          <span
-            key={l.key}
-            aria-current="page"
-            className="flex items-center gap-2 rounded-full bg-ink-950 px-3.5 py-1.5 text-sm font-medium text-paper"
-          >
-            {SURFACE_ICON[l.key]}
-            {l.label}
-          </span>
-        ) : (
-          <Link
-            key={l.key}
-            href={l.href}
-            className="flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-ink-700 transition-colors duration-[var(--duration-fast)] hover:bg-paper hover:text-ink-950"
-          >
-            {SURFACE_ICON[l.key]}
-            {l.label}
-          </Link>
-        ),
-      )}
-    </nav>
-  );
 }
 
 /** The search field's shell; the live input (JourneyGallery) and the inert

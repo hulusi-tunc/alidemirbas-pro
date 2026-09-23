@@ -273,11 +273,9 @@ export const copy = {
         split: {
           eyebrow: "Where to start",
           title: "Start with the journeys that reach a customer.",
-          body: "Lifecycle states and delivery rules support those journeys. You will usually meet them while reading a customer flow.",
+          body: "Browse the flows by category, goal or channel, then open one to inspect its trigger, branches and outcome.",
           lines: {
             "customer-journeys": "Triggered flows that message a customer or route work to a team.",
-            "lifecycle-states": "State records that tell a journey where a person currently stands.",
-            "runtime-mechanisms": "Delivery rules for eligibility, reachability, retries and quiet periods.",
           },
           largest: "Largest journeys",
         },
@@ -287,70 +285,36 @@ export const copy = {
         },
         final: {
           eyebrow: "Start reading",
-          title: "Choose the part of the library that matches the problem.",
-          body: "Customer journeys open with the setup and measurement plan. Lifecycle states and delivery rules open on their flow diagrams. Every section can be searched by category and goal.",
+          title: "Choose the journey that matches the problem.",
+          body: "Every journey can be searched by category and goal, then opened to inspect its flow.",
         },
       },
       journeysSplit: {
-        /* The three PUBLIC product surfaces. Labels are the practitioner's
-           words; the classification itself is read from each journey by
-           src/canonical/surface.ts, never kept here. A fourth surface,
-           "operational-workflows", was archived 2026-09-05 - see
-           src/lib/public-corpus.ts and archive/operational-workflows/. */
+        /* The single public Customer Journey surface. */
         surfaceLabels: {
           "customer-journeys": "Customer journeys",
-          "lifecycle-states": "Lifecycle states",
-          "runtime-mechanisms": "Journey rules",
         },
         surfaceBlurbs: {
           "customer-journeys": "Flows that reach the customer directly. The trigger, entry criteria, touch sequence, channel roles, stop conditions and measurement plan are visible in one place.",
-          "lifecycle-states": "Records that send nothing. They hold where a person currently stands so customer journeys can decide whether to enter, continue or stop.",
-          "runtime-mechanisms": "The shared rules behind every send: eligibility, channel reachability, delivery failure, retries, cooldowns and suppression.",
         },
         surfaces: {
           "customer-journeys": {
             title: "Customer journeys",
             intro: "{count} customer journeys and {presets} ready-made presets. Each one either messages a person or hands the work to a team. A journey opens on its setup view: trigger, who enters, which channel when, what stops it, what to configure, what to measure. The flow diagram sits underneath. Search by the names you already use.",
           },
-          "lifecycle-states": {
-            title: "Lifecycle states",
-            intro: "{count} silent states. They send nothing. Each holds where a person currently is, and the journeys that do send read it before acting. Treat them as records other journeys depend on, not as campaigns.",
-          },
-          "runtime-mechanisms": {
-            title: "Journey rules",
-            intro: "{count} shared delivery rules covering eligibility, channel reachability, failed delivery, retries, cooldowns and suppression. They are not customer journeys. They are the operating layer those journeys depend on.",
-          },
         },
         railTitle: "Categories",
-        surfaceNavLabel: "Library sections",
         presetsTitle: "Presets",
         presetsIntro: "A preset is a journey tuned for one specific use. The flow, the touches and the exits stay the same; only the values, the destination and the vocabulary change. Opening a preset opens its parent with those values applied.",
         presetBadge: "Preset",
         presetOf: "preset of",
-        /* The hub's Split() section - heading over the two secondary
-           surfaces, presented smaller than Customer Journeys because
-           neither is a thing a practitioner browses to on its own (see
-           journeysSplit.surfaceBlurbs). Both stay fully live, linked and
-           searchable at their existing routes. (The fourth surface,
-           Operations, was archived 2026-09-05 - archive/operational-
-           workflows/site-copy.json holds its strings verbatim.) */
-        referenceStrip: "Part of the library. Usually opened from inside a journey rather than browsed on its own.",
-        silentBadge: "Silent state",
-        mechanismBadge: "Mechanism",
         browseAll: "Browse all {count}",
         showMore: "Show more ({count})",
         showLess: "Show less",
-        /* Per-surface singular/plural pair, same convention (and same
-           reason) as `page.decisionsLabel` above: grouping by Goal produces
-           real groups of exactly one - 5 of the 22 communication groups -
-           and "1 journeys" is wrong where "281 journeys" never was. Keyed
-           by SurfaceKey (canonical-view.ts) because the three surfaces
-           aren't all "journeys": lifecycle states and runtime mechanisms
-           need their own noun. */
+        /* Per-surface singular/plural pair, same convention as the journey
+           detail count labels. */
         journeysLabel: {
           "customer-journeys": ["journey", "journeys"],
-          "lifecycle-states": ["state", "states"],
-          "runtime-mechanisms": ["mechanism", "mechanisms"],
         },
         /* Gallery controls. `internalBadge` is the card marker for a journey
            with no channels - it has to read as a statement ("this one
@@ -1032,11 +996,9 @@ export const copy = {
         split: {
           eyebrow: "Nereden başlamalı",
           title: "Önce müşteriye ulaşan journey'lere bak.",
-          body: "Lifecycle state'leri ve gönderim kuralları bu journey'leri destekler. Onlarla genellikle bir müşteri akışını incelerken karşılaşırsın.",
+          body: "Akışları kategoriye, hedefe veya kanala göre filtrele; ardından trigger, dallanmalar ve sonucu incelemek için journey'yi aç.",
           lines: {
             "customer-journeys": "Müşteriye mesaj gönderen ya da işi bir ekibe devreden tetiklenmiş akışlar.",
-            "lifecycle-states": "Journey'ye kişinin o anda hangi durumda olduğunu söyleyen kayıtlar.",
-            "runtime-mechanisms": "Uygunluk, erişim, yeniden deneme ve sessiz kalma kuralları.",
           },
           largest: "En büyük journey'ler",
         },
@@ -1046,44 +1008,28 @@ export const copy = {
         },
         final: {
           eyebrow: "Okumaya başla",
-          title: "Probleme uyan kütüphane bölümünü seç.",
-          body: "Müşteri journey'leri kurulum ve ölçüm planıyla açılır. Lifecycle state'leri ve gönderim kuralları doğrudan akış şemasını gösterir. Her bölümde kategori ve hedefe göre arama yapabilirsin.",
+          title: "Probleme uyan journey'yi seç.",
+          body: "Journey'leri kategori ve hedefe göre arayabilir, ardından akışını inceleyebilirsin.",
         },
       },
       journeysSplit: {
         surfaceLabels: {
           "customer-journeys": "Müşteri journey'leri",
-          "lifecycle-states": "Lifecycle state'leri",
-          "runtime-mechanisms": "Journey altyapısı",
         },
         surfaceBlurbs: {
           "customer-journeys": "Doğrudan müşteriye ulaşan journey'ler. Trigger, temas sırası, kanal rolü ve ölçüm çerçevesi hazır gelir.",
-          "lifecycle-states": "Gönderim yapmadan kişinin güncel durumunu tutan kayıtlar. Müşteri journey'leri karar verirken bu state'leri okur.",
-          "runtime-mechanisms": "Journey'lerin dayandığı gönderim kuralları. Uygunluk, kanal erişimi, teslimat hatası, retry, cooldown ve suppression burada yönetilir.",
         },
         surfaces: {
           "customer-journeys": {
             title: "Müşteri journey'leri",
             intro: "{count} müşteri journey'si ve {presets} preset. Her biri ya kişiye mesaj gönderir ya da işi bir ekibe handoff eder. Detay sayfası trigger'ı, giriş koşullarını, temas sırasını, kanal rollerini, durma koşullarını ve ölçümü birlikte gösterir. Akış şeması sayfanın devamında yer alır.",
           },
-          "lifecycle-states": {
-            title: "Lifecycle state'leri",
-            intro: "{count} durum kaydı. Gönderim yapmaz; kişinin güncel state'ini tutar. Müşteri journey'leri giriş, devam ve çıkış kararlarında bu kayıtları kullanır.",
-          },
-          "runtime-mechanisms": {
-            title: "Journey altyapısı",
-            intro: "{count} gönderim mekanizması. Uygunluk, kanal erişimi, teslimat, retry, cooldown ve suppression kurallarını tanımlar. Bunlar müşteri journey'si değil; journey'lerin güvenli ve tutarlı çalışmasını sağlayan altyapıdır.",
-          },
         },
         railTitle: "Kategoriler",
-        surfaceNavLabel: "Kütüphane bölümleri",
         presetsTitle: "Preset'ler",
         presetsIntro: "Preset, bir journey'nin belirli bir kullanım için yapılandırılmış hâlidir. Akış, temaslar ve çıkışlar aynı kalır; değerler, hedef ve kullanılan isimler değişir. Preset açıldığında bu ayarlar ana journey'ye uygulanır.",
         presetBadge: "Preset",
         presetOf: "preset'i:",
-        referenceStrip: "Kütüphanenin parçası. Genellikle bir journey'nin içinden açılır; ayrı bir bölüm olarak gezmek gerekmez.",
-        silentBadge: "Lifecycle state",
-        mechanismBadge: "Gönderim kuralı",
         browseAll: "{count} kaydın tamamına bak",
         showMore: "Daha fazla göster ({count})",
         showLess: "Daha az göster",
@@ -1092,8 +1038,6 @@ export const copy = {
         // above. Keyed by SurfaceKey - see the EN block's comment.
         journeysLabel: {
           "customer-journeys": ["journey", "journey"],
-          "lifecycle-states": ["durum", "durum"],
-          "runtime-mechanisms": ["mekanizma", "mekanizma"],
         },
         internalBadge: "İç işlem",
         humanRoutingBadge: "İnsana yönlendirme",

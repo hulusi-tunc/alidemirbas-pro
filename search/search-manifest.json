@@ -2,18 +2,18 @@
   "_description": "Reproducibility + payload manifest for search-index.json. sourceVersion identifies the generator commit context by describing WHAT was read, not a timestamp (this repo's own convention for deterministic build scripts avoids Date.now()).",
   "sourceVersion": {
     "abTestRecordCount": 211,
-    "journeyRecordCount": 158,
-    "archivedJourneyRecordCount": 145,
+    "journeyRecordCount": 69,
+    "archivedJourneyRecordCount": 234,
     "mergedJourneyCount": 8,
     "presetFoldedCount": 8,
     "liveCalculatorCount": 19,
     "labProductCount": 6,
     "blogArticleCount": 5
   },
-  "totalDocuments": 399,
+  "totalDocuments": 310,
   "countsByType": {
     "ab-test": 211,
-    "journey": 158,
+    "journey": 69,
     "calculator": 19,
     "lab-product": 6,
     "blog-article": 5
@@ -21,11 +21,11 @@
   "countsByCategory": {
     "cart-and-checkout": 28,
     "search-and-discovery": 72,
-    "acquisition-and-onboarding": 78,
+    "acquisition-and-onboarding": 69,
     "mobile": 12,
     "pricing-and-monetization": 12,
     "saas-and-b2b": 16,
-    "retention-and-engagement": 17,
+    "retention-and-engagement": 12,
     "experimentation-and-testing": 4,
     "unit-economics": 4,
     "advertising-and-media": 3,
@@ -48,11 +48,11 @@
     "thankyou": 4
   },
   "countsByStage": {
-    "engagement-retention": 38,
-    "acquisition-qualification": 69,
-    "ending-closure": 7,
-    "cross-lifecycle": 115,
-    "activation-onboarding": 8
+    "engagement-retention": 33,
+    "acquisition-qualification": 61,
+    "ending-closure": 4,
+    "cross-lifecycle": 43,
+    "activation-onboarding": 7
   },
   "countsByMetric": {
     "Tıklama Oranı (CTR)": 12,
@@ -507,17 +507,17 @@
     "Rule of 40": 1,
     "Sample Size": 1
   },
-  "aliasCount": 11,
-  "relationshipCount": 386,
+  "aliasCount": 9,
+  "relationshipCount": 354,
   "sizeReport": {
     "rawSourceSizeBytes": {
-      "src/data/ab-tests.json": 635240,
+      "src/data/ab-tests.json": 627647,
       "production/journey-view-model.json": 3513393
     },
-    "searchIndexSizeBytes": 1028378,
-    "searchIndexLightSizeBytes": 656716,
+    "searchIndexSizeBytes": 798655,
+    "searchIndexLightSizeBytes": 510048,
     "averageDocumentSizeBytes": 2105,
-    "maxDocumentSizeBytes": 5163,
+    "maxDocumentSizeBytes": 4930,
     "minDocumentSizeBytes": 992
   }
 }

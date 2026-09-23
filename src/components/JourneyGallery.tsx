@@ -6,7 +6,7 @@ import { Search, X } from "lucide-react";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import IdeaCard from "@/components/ui/IdeaCard";
 import { Button } from "@/components/ui/Button";
-import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, CategoryIcon, CategoryRail, ChannelIcon, GoalIcon, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, CategoryIcon, CategoryRail, ChannelIcon, GoalIcon, SEARCH_SHELL, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
 import { FilterMenu } from "@/components/ui/FilterMenu";
 import { clsx } from "@/lib/clsx";
 import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
@@ -169,7 +169,6 @@ export default function JourneyGallery({
   basePath,
   categories,
   surface,
-  surfaceLinks,
   presets = [],
   emptyChannelLabel,
 }: {
@@ -179,12 +178,8 @@ export default function JourneyGallery({
   merged: readonly MergedRedirect[];
   basePath: string;
   categories: readonly CategoryMeta[];
-  /** Which surface this page is. The surface "filter" is the page itself
-      rather than a dropdown - the public surfaces are separate routes with
-      their own titles and metadata, so switching is a navigation, not a
-      state change. `surfaceLinks` are those surfaces, this one marked. */
+  /** The public Customer Journey surface. */
   surface: SurfaceKey;
-  surfaceLinks: readonly { key: SurfaceKey; href: string; label: string }[];
   /** Practitioner presets, shown first on the customer surface: the
       recognisable use cases a practitioner searches by name. */
   presets?: readonly PresetRow[];
@@ -317,13 +312,6 @@ export default function JourneyGallery({
 
   return (
     <div>
-      {/* Surface: the public surfaces are routes, so this is navigation
-          rather than a select - it changes the page, its title and its
-          metadata, not just the rows. */}
-      <div className="flex justify-center">
-        <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
-      </div>
-
       <div className={TOOLBAR_ROW}>
       <div className={`${SEARCH_SHELL} min-w-0 lg:flex-1`}>
         <Search aria-hidden className="size-4 shrink-0 text-ink-500" />

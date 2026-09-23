@@ -755,45 +755,20 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = await Promise.all(PUBLIC_JOUR
   preview: buildJourneyPreview(await layoutJourneyCanvas(flowNodesOf(j))),
 })));
 
-/* The product surfaces (three public since 2026-09-05; the operational
-   surface is archived, see public-corpus.ts). The rule is src/canonical/surface.ts's, read
-   per journey - the site never keeps its own notion of what is a customer
-   journey, and the old "has channels / has none" split is gone: a silent
-   customer lifecycle state and an internal operational workflow both have
-   no channels and are different products.
+/* The website exposes one Journey Library surface. Silent lifecycle states,
+   runtime mechanisms and operational workflows remain canonical dependencies
+   but are deliberately absent from the public corpus. */
+export type SurfaceKey = "customer-journeys";
 
-   Within the canonical "customer" surface, the site's own Customer
-   Journeys / Lifecycle States split is `communicating OR routesToHuman`:
-   a journey the customer's own request actually moves - by message, or by
-   putting a person on it - is a journey a practitioner looks for by name,
-   even where it never sends anything itself (ACQ-04, ACT-11, RET-24:
-   `routesToHuman: true`, `communicating: false`). Only a journey that does
-   neither is a silent lifecycle state - state a communicating journey
-   reads and writes, not a thing anyone opens looking for it. This is a
-   listing-classification choice read from src/canonical/surface.ts's own
-   `sends`/`routesToHuman` fields, not a new canonical rule - see
-   research/journey-library-user-taxonomy-audit.md §12. */
-/* THREE public surfaces since 2026-09-05. The fourth, "operational-workflows"
-   (/lab/operational-workflows, 124 journeys), was removed from the public
-   site and archived - archive/operational-workflows/README.md. It is not a
-   SurfaceKey any more because nothing public can render it: JOURNEY_ROWS
-   above is already filtered to the public corpus, so no row here ever
-   carries surface "operational". `surfaceKeyOf` states that as an invariant
-   rather than silently mapping such a row somewhere. */
-export type SurfaceKey = "customer-journeys" | "lifecycle-states" | "runtime-mechanisms";
-
-export const SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys", "lifecycle-states", "runtime-mechanisms"];
+export const SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys"];
 
 export const SURFACE_PATH: Readonly<Record<SurfaceKey, string>> = {
   "customer-journeys": "/lab/customer-journeys",
-  "lifecycle-states": "/lab/lifecycle-states",
-  "runtime-mechanisms": "/lab/runtime-mechanisms",
 };
 
 export const surfaceKeyOf = (row: Pick<JourneyRow, "id" | "surface" | "communicating" | "routesToHuman">): SurfaceKey => {
-  if (row.surface === "customer") return row.communicating || row.routesToHuman ? "customer-journeys" : "lifecycle-states";
-  if (row.surface === "mechanism") return "runtime-mechanisms";
-  throw new Error(`${row.id} is on the archived "${row.surface}" surface and must not reach a public listing - see src/lib/public-corpus.ts`);
+  if (row.surface === "customer" && (row.communicating || row.routesToHuman)) return "customer-journeys";
+  throw new Error(`${row.id} is not part of the public Customer Journey library - see src/lib/public-corpus.ts`);
 };
 
 /** Within Customer Journeys only: the practitioner-facing distinction
@@ -807,8 +782,6 @@ export const isHumanRoutingRow = (row: Pick<JourneyRow, "communicating" | "route
 
 export const SURFACE_ROWS: Readonly<Record<SurfaceKey, readonly JourneyRow[]>> = {
   "customer-journeys": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "customer-journeys"),
-  "lifecycle-states": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "lifecycle-states"),
-  "runtime-mechanisms": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "runtime-mechanisms"),
 };
 
 /** The library's rows - the Customer Journeys surface, by the same rule

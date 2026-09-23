@@ -118,24 +118,13 @@ for (const r of abTests) {
 }
 
 /* ==================================================================== JOURNEYS */
-/* PUBLIC CORPUS ONLY (2026-09-05). The Operational Workflows surface was
-   removed from the public site and archived (archive/operational-workflows/),
-   so its 124 journeys must not be search documents: a hit would link to a
-   route that 404s. The filter reads production/surface-assignment.json, the
-   validator-written projection of the SAME rule src/lib/public-corpus.ts
-   applies at build time (src/canonical/surface.ts), so the index and the
-   site cannot disagree about what is public. Merged-id aliases whose
-   survivor is archived fall out on their own below (`if (!survivor)`). */
-/* Since 2026-09-20 the same file also carries `excludedFromPublic`, the
-   52-journey scope decision (audit/public-journey-scope.md). It is a second,
-   independent reason a journey is not a search document, for the identical
-   reason as the archive: the route does not exist, so a hit would 404. Both
-   filters are applied here so there is one definition of "indexable". */
+/* PUBLIC CUSTOMER JOURNEYS ONLY. Silent lifecycle states, runtime mechanisms
+   and operational workflows stay in the canonical graph but have no public
+   routes, so they must not become search results. */
 const surfaceAssignment = rj("production/surface-assignment.json");
-const ARCHIVED_SURFACE = "operational";
 const publicJourneyIds = new Set(
   surfaceAssignment.journeys
-    .filter((r) => r.surface !== ARCHIVED_SURFACE && !r.excludedFromPublic)
+    .filter((r) => r.surface === "customer" && !r.excludedFromPublic && (r.sends || r.routesToHuman))
     .map((r) => r.id),
 );
 const journeys = rj("production/journey-view-model.json").filter((j) => publicJourneyIds.has(j.identity.id));

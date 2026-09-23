@@ -6,14 +6,13 @@ import JourneyGallery from "@/components/JourneyGallery";
 import JourneyRowCard from "@/components/JourneyRowCard";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import LabShell from "@/components/LabShell";
-import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, ChevronSelect, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW } from "@/components/ui/LibraryChrome";
+import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, ChevronSelect, SEARCH_SHELL, TOOLBAR_ROW } from "@/components/ui/LibraryChrome";
 import { ProductMark } from "@/components/ui/ProductFrame";
 import {
   CATEGORY_META,
   JOURNEY_ROWS,
   MERGED_REDIRECTS,
   PRESET_ROWS,
-  SURFACE_KEYS,
   SURFACE_PATH,
   withLibraryCount,
   type JourneyRow,
@@ -96,13 +95,8 @@ function GalleryFallback({ lang, t, basePath, rows, surface }: {
     byCat.set(j.category, arr);
   }
   const sections = CATEGORY_META.filter((c) => byCat.has(c.id)).map((c) => ({ meta: c, items: byCat.get(c.id)! }));
-  const surfaceLinks = SURFACE_KEYS.map((k) => ({ key: k, href: (lang === "en" ? "" : "/tr") + SURFACE_PATH[k], label: labels.surfaceLabels[k] }));
-
   return (
     <div>
-      <div className="flex justify-center">
-        <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
-      </div>
       <div className={`${TOOLBAR_ROW} opacity-60`}>
         <div className={`${SEARCH_SHELL} min-w-0 lg:flex-1`}>
           <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
@@ -258,15 +252,8 @@ export default function LabPage({
                 basePath={basePath}
                 categories={CATEGORY_META}
                 surface={surface}
-                surfaceLinks={SURFACE_KEYS.map((k) => ({ key: k, href: (lang === "en" ? "" : "/tr") + SURFACE_PATH[k], label: t.lab.journeysSplit.surfaceLabels[k] }))}
                 presets={surface === "customer-journeys" ? localizedPresets : []}
-                emptyChannelLabel={
-                  surface === "lifecycle-states"
-                    ? t.lab.journeysSplit.silentBadge
-                    : surface === "runtime-mechanisms"
-                      ? t.lab.journeysSplit.mechanismBadge
-                      : t.lab.journeysSplit.internalBadge
-                }
+                emptyChannelLabel={t.lab.journeysSplit.internalBadge}
               />
             </Suspense>
           ) : (
