@@ -4,9 +4,9 @@ export const copy = {
   en: {
     nav: { about: "About", aboutHref: "/about", lab: "Lab", labHref: "/lab", calculators: "Calculators", calculatorsHref: "/calculators", blog: "Blog", blogHref: "/blog", stack: "Tools", stackHref: "/stack", contact: "Contact", contactHref: "/contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
-      line1: "I'm Ali Demirbaş.",
-      line2: "I work in growth and build tools for the problems I keep running into.",
-      lead: "I currently lead mobile app growth at Aksigorta. Before that, I worked across user acquisition, CRM and analytics at Vodafone, Getir and Wingie Enuygun Group.",
+      line1: "A full stack marketer.",
+      line2: "Hi, I'm Ali.",
+      lead: "I blend growth, analytics, product marketing, and performance marketing to help products find traction and scale.",
       sub: "Right now I'm responsible for mobile app growth at Aksigorta. Before that, growth teams at Vodafone, Getir and Wingie Enuygun Group.",
       ctaPrimary: "Get in touch",
       ctaSecondary: "LinkedIn",
@@ -774,9 +774,9 @@ export const copy = {
   tr: {
     nav: { about: "Hakkımda", aboutHref: "/tr/about", lab: "Lab", labHref: "/tr/lab", calculators: "Hesaplayıcılar", calculatorsHref: "/tr/calculators", blog: "Blog", blogHref: "/tr/blog", stack: "Araçlar", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
-      line1: "Ben Ali Demirbaş.",
-      line2: "Büyüme üzerine çalışıyor, karşıma çıkan problemler için araçlar geliştiriyorum.",
-      lead: "Şu anda Aksigorta'da mobil uygulamanın büyümesinden sorumluyum. Öncesinde Vodafone, Getir ve Wingie Enuygun Group'ta kullanıcı kazanımı, CRM ve analitik üzerine çalıştım.",
+      line1: "Uçtan uca pazarlama uzmanı.",
+      line2: "Selam, ben Ali.",
+      lead: "Ürünlerin ivme kazanması ve ölçeklenmesi için büyüme, analitik, ürün pazarlaması ve performans pazarlamasını harmanlıyorum.",
       sub: "Şu an Aksigorta'da mobil uygulamanın büyümesinden sorumluyum. Öncesinde Vodafone, Getir ve Wingie Enuygun Group'ta büyüme ekiplerindeydim.",
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
