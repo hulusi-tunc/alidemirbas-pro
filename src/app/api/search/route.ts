@@ -11,7 +11,7 @@ import { NextResponse } from "next/server";
 // call to know it needs to bundle that JSON. Static JSON imports don't
 // have that problem: they become part of this route's own JS bundle at
 // build time, guaranteed present at runtime.
-import { createSearchEngine } from "../../../../search/headless-search-prototype.mjs";
+import { createSearchEngine } from "../../../../search/search-engine.mjs";
 import searchIndex from "../../../../search/search-index.json";
 import aliasesDoc from "../../../../search/search-aliases.json";
 import synonymsDoc from "../../../../search/search-synonyms.json";
