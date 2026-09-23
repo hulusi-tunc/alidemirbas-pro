@@ -49,3 +49,4 @@ export default function CharacterCounter({ lang }: { lang: "en" | "tr" }) {
     </div>
   );
 }
+

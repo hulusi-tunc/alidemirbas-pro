@@ -20,3 +20,4 @@ export const TEXT_TOOLS: readonly { slug: string; title: { en: string; tr: strin
 
 export const TEXT_TOOL_SLUGS: readonly string[] = TEXT_TOOLS.map((t) => t.slug);
 export type { Lang };
+

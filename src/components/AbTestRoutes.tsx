@@ -141,3 +141,4 @@ export function AbLibraryDetailPage({ lang, slug }: { lang: Lang; slug: string }
     </LabShell>
   );
 }
+
