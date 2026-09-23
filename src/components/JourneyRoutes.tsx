@@ -43,11 +43,10 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
   const localizedDetail = localizedJourneyDetail(detail, lang);
   const suffix = lang === "en" ? "Journey Library" : "Journey Kütüphanesi";
 
-  /* A preset is its own page: its own title, its own canonical, the parent's
-     practitioner view with the preset applied. The title and the description
-     ARE the preset's own two strings, so they take the same TR content layer
-     the page body does - a Turkish page whose <title> and meta description
-     are English is the same leak one layer up. */
+  /* A preset is its own page: its own title and its own canonical. The title
+     and description are the preset's own two strings, so they take the same
+     TR content layer the page body does - a Turkish page whose <title> and
+     meta description are English is the same leak one layer up. */
   if (preset) {
     const p = localizedPreset(preset, lang);
     return {

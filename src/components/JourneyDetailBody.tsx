@@ -1,7 +1,6 @@
 import Link from "next/link";
-import PractitionerView from "@/components/PractitionerView";
 
-import { Box, Plus, Quote, Scale, ShieldCheck, Split, Zap } from "lucide-react";
+import { Box, Quote, Scale, ShieldCheck, Split, Zap } from "lucide-react";
 
 import JourneyCanvas from "@/components/JourneyCanvas";
 import { InfoTile } from "@/components/ui/InfoTile";
@@ -17,9 +16,7 @@ import type { copy, Lang } from "@/lib/content";
     (ELK) - computed here on the server, shipped to the client island as a
     prop. Moved here from the now-retired JourneyVisualBody.tsx, whose only
     other content (a linear-chain-only "Recommended flow" card list) was a
-    partial, duplicate rendering of the same `practitioner.timeline`/
-    `.stopsWhen` data PractitionerView already covers in full - see
-    JourneyDetailBody's own comment on the technical-details disclosure. */
+    partial, duplicate rendering of the same canonical journey data. */
 export async function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof copy)[Lang]["lab"]["page"]) {
   const layout = await layoutJourneyCanvas(detail.nodes);
   const messageLabels = messageChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
@@ -66,20 +63,9 @@ const ON_LOSS_PREFIX: Record<Lang, string> = { en: "on loss:", tr: "kaybedince:"
    the graph is FOR - the one sentence a reader should leave with - and at the
    bottom of a long single column it read as a footnote.
 
-   A migrated (vNext) journey ALSO carries `detail.practitioner`: the full
-   trigger/eligibility/suppression/touch-plan/measurement write-up
-   PractitionerView renders. That used to lead the page, open, above the
-   graph - correct as documentation but wrong as a first screen: a reader
-   met a wall of ruled technical sections (Trigger, Who enters, Suppressed
-   when, Configure, Required data, Recommended flow, Channel roles, Stops
-   when, Collision & priority, Measurement...) before ever seeing the one
-   paragraph and three cards every other journey leads with, and the
-   two-thirds of journeys that qualified for the old JourneyVisualBody
-   shortcut (a partial, duplicate rendering of the same timeline/stopsWhen
-   data, retired along with it - see journeyCanvasProps's comment above)
-   got a DIFFERENT default layout again. Nothing in that write-up is lost:
-   it now sits under one native <details> disclosure, closed by default,
-   after the notes tiles - reachable by every reader, imposed on none. */
+   The deeper trigger/eligibility/suppression/touch-plan/measurement
+   documentation is intentionally not rendered here. The public page keeps
+   the graph and the concise supporting notes as its single reading layer. */
 
 /* Journey Canvas is now the single journey-detail renderer for every
    canonical journey - CanonicalFlow's old vertical-list rendering is gone
@@ -284,24 +270,6 @@ export default async function JourneyDetailBody({
       </div>
       ) : null}
 
-      {/* vNext only: the practitioner's full write-up - trigger, eligibility,
-          suppressions, touch plan, measurement - closed by default. Native
-          <details>, same zero-client-JS disclosure FaqAccordion already
-          uses elsewhere on the site, so opening it costs nothing on every
-          other journey's page weight. */}
-      {detail.practitioner && lang === "en" ? (
-        <details className="group mt-10 rounded-2xl bg-paper ring-1 ring-ink-950/[0.06]">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 text-sm font-medium text-ink-950 marker:content-none">
-            {t.practitioner.technical}
-            <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-paper-soft text-ink-500 transition-transform duration-200 group-open:rotate-45">
-              <Plus className="size-4" />
-            </span>
-          </summary>
-          <div className="border-t border-line-soft px-6 pb-6">
-            <PractitionerView view={detail.practitioner} lang={lang} t={t.practitioner} basePath={basePath} />
-          </div>
-        </details>
-      ) : null}
     </div>
   );
 }

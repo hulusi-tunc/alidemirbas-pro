@@ -4986,28 +4986,11 @@ export function localizedJourneyDetail(detail: JourneyDetail, lang: Lang): Journ
       d.name ? { ...d, name: OVERRIDES[d.journey]?.name ?? d.name } : d,
     ),
     nodes: structured.map((n) => localizeNodeContent(n, override?.nodes?.[n.id])),
-    /* The preset half of the page: the applied preset (title card, the
-       "preset of" line, the practitioner banner) and the parent's list of
-       its own presets. `localizedPreset` is the single mechanism - see its
-       own comment for every place a preset's text surfaces.
-
-       The practitioner view is otherwise English on the TR route by a
-       standing decision (see this file's header and
-       audit/locale-sweep-notes.md: its deeper technical fields are a
-       translation backlog, not a wiring bug). The preset banner is the one
-       part of it reached here, because the preset's own name and rule are
-       what the URL promises - they are also the page's <title> and its
-       meta description - and leaving them English inside a Turkish page
-       would be the same leak this table exists to close. */
+    /* The preset half of the page: the applied preset and the parent's list
+       of its own presets. `localizedPreset` is the single mechanism - see
+       its own comment for every place a preset's text surfaces. */
     preset: detail.preset ? localizedPreset(detail.preset, lang) : null,
     presets: detail.presets.map((p) => localizedPreset(p, lang)),
-    practitioner: detail.practitioner
-      ? {
-          ...detail.practitioner,
-          preset: detail.practitioner.preset ? localizedPreset(detail.practitioner.preset, lang) : null,
-          presets: detail.practitioner.presets.map((p) => localizedPreset(p, lang)),
-        }
-      : detail.practitioner,
   };
 }
 
@@ -5055,8 +5038,7 @@ export function localizedJourneyNaming<T extends JourneyNaming>(row: T, lang: La
 
    A preset is a named specialisation of a communicating customer journey -
    canonical `discovery.presets`, projected as `PresetRow` by
-   canonical-view.ts and as `PractitionerView.preset`/`.presets` by
-   practitioner-view.ts. It is the one canonical shape that is NOT a journey
+   canonical-view.ts. It is the one canonical shape that is NOT a journey
    and therefore had no slot in this file, which is keyed by journey id and
    node id: that is the whole reason every preset name and every
    `applicableWhen` sentence stood in English on the Turkish routes.
@@ -5068,10 +5050,8 @@ export function localizedJourneyNaming<T extends JourneyNaming>(row: T, lang: La
                                           landing page (JourneyLibraryPage)
      /tr/lab/customer-journeys            the preset cards above the gallery
                                           (JourneyGallery, via LabPage)
-     /tr/lab/journeys/<preset-id>         its own page - title card, the
-                                          "preset of" line, and the banner +
-                                          parent's preset list inside the
-                                          practitioner view
+     /tr/lab/journeys/<preset-id>         its own page - title card and the
+                                          "preset of" line
      <head> of that page                  `journeyMetadata`'s title and
                                           description (JourneyRoutes.tsx)
      JSON-LD                              the breadcrumb's last crumb
@@ -5156,15 +5136,10 @@ const PRESET_TR: Readonly<Record<string, PresetTranslation>> = {
 /** Every shape a preset leaves the server in. Structural, like
     `localizedJourneyNaming` above and for the same reason: the contract is
     "whatever carries a preset id and these fields", so `PresetRow`
-    (canonical-view.ts), the practitioner view's applied `preset` and the
-    parent's `presets` list all pass through the one function, and a future
-    projection is covered the moment it is passed through.
+    (canonical-view.ts) and any future projection pass through one function.
 
-    `applicableWhen` arrives as a plain string on `PresetRow` (already
-    flattened from the canonical `RuleStatement`) and as the `RuleStatement`
-    itself on the practitioner view; the label beside it is a `Label` enum
-    the page already translates from its own dictionary, so only `text`
-    changes here. */
+    `applicableWhen` arrives as a plain string on `PresetRow`, already
+    flattened from the canonical `RuleStatement`. */
 export type PresetNaming = {
   id: string;
   name: string;

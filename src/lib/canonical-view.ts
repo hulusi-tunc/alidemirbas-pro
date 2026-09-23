@@ -7,7 +7,6 @@ import {
 import { configText } from "@/canonical/config-text";
 import { eventText } from "@/canonical/events";
 import { CHANNEL_LABEL } from "@/lib/journey-channels";
-import { practitionerView, type PractitionerView } from "@/lib/practitioner-view";
 import { surfaceOf } from "@/canonical/surface";
 import { LIBRARY_JOURNEYS, PUBLIC_JOURNEYS, isPublicJourneyId } from "@/lib/public-corpus";
 import type { Preset } from "@/canonical/types";
@@ -587,14 +586,9 @@ export type JourneyDetail = {
       pre-emption ships no empty array to the browser. */
   preemptedBy: readonly { event: string; then: string }[];
   nodes: readonly FlowNode[];
-  /** vNext: the practitioner's view, projected from the journey's own
-      orchestration/timing/contact/measurement fields. Null until a journey
-      is migrated - no view is better than a half view. */
-  practitioner: PractitionerView | null;
   surface: SurfaceName;
   communicating: boolean;
-  /** Set when the URL was a preset's: the parent's detail with the preset
-      applied to its practitioner view. */
+  /** Set when the URL belongs to one of the journey's presets. */
   preset: PresetRow | null;
   presets: readonly { id: string; name: string }[];
 };
@@ -828,8 +822,7 @@ if (LIBRARY_ROWS.length !== LIBRARY_COUNT) {
 
 /** A preset is a named specialisation of a communicating customer journey
     whose only differences are config values, a destination and vocabulary.
-    It renders as its own card and its own URL and opens the parent's
-    practitioner view with the preset applied - it is never a journey. */
+    It renders as its own card and its own URL - it is never a journey. */
 export type PresetRow = {
   id: string;
   slug: string;
@@ -899,7 +892,6 @@ function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): Journey
     communicating: sf.sends,
     preset,
     presets: (j.discovery?.presets ?? []).map((p) => ({ id: p.id, name: p.name })),
-    practitioner: practitionerView(j, preset?.preset ?? null),
   };
 }
 
