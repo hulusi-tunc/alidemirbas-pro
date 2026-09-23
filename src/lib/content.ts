@@ -5,8 +5,7 @@ export const copy = {
     nav: { about: "About", aboutHref: "/about", lab: "Lab", labHref: "/lab", calculators: "Calculators", calculatorsHref: "/calculators", blog: "Blog", blogHref: "/blog", stack: "Tools", stackHref: "/stack", contact: "Contact", contactHref: "/contact", cta: "Get in touch", lang: "TR", langHref: "/tr" },
     hero: {
       line1: "A full stack marketer.",
-      line2: "Hi, I'm Ali.",
-      lead: "I blend growth, analytics, product marketing, and performance marketing to help products find traction and scale.",
+      lead: "Hi, I'm Ali. I blend growth, analytics, product marketing, and performance marketing to help products find traction and scale.",
       sub: "Right now I'm responsible for mobile app growth at Aksigorta. Before that, growth teams at Vodafone, Getir and Wingie Enuygun Group.",
       ctaPrimary: "Get in touch",
       ctaSecondary: "LinkedIn",
@@ -55,29 +54,29 @@ export const copy = {
     home: {
       work: {
         eyebrow: "What I do",
-        title: "I connect acquisition, product behavior and CRM.",
-        lede: "Getting a user is only the beginning. I look at what happens after the click, where the experience breaks down and what could bring the user back.",
+        title: "I approach growth through data, testing, and user behavior.",
+        lede: "Some of the areas I work in, and the tools I built for them.",
         builtFor: "Built for this",
         services: [
           {
             tool: "dashboard-builder",
-            title: "Build a reliable baseline",
-            body: "Before making a growth decision, I make sure the event, attribution and reporting logic can support it. When two platforms disagree, I trace the gap back to its source.",
+            title: "Measurement setup",
+            body: "Event design in GA4 and GTM, Adjust setup, and finding where the gap comes from when two platforms report different numbers for the same week. What's left is an event structure the team can query, with every definition written down.",
           },
           {
             tool: "lifecycle-card-archive",
-            title: "From first visit to win-back",
-            body: "I design the journey beyond the first conversion: what should happen next, which signal should trigger a message and when the journey should stop.",
+            title: "Lifecycle and CRM programs",
+            body: "I design the journeys a user goes through from first step to win-back, and write down why each message actually gets sent.",
           },
           {
             tool: "google-ads-change-history-dashboard",
-            title: "Understand what changed",
-            body: "I read performance together with the changes made around it. That helps separate a real effect from two things that simply moved at the same time.",
+            title: "Google Ads Change History",
+            body: "I track changes made across Google Ads accounts alongside date, campaign and performance data, so a shift in results doesn't turn into a guessing game.",
           },
           {
             tool: "ab-test-playbook",
-            title: "Turn ideas into small tests",
-            body: "I turn a question into a testable hypothesis, change one thing at a time and decide how the result will be read before the test begins.",
+            title: "Test, learn, improve",
+            body: "I collected {abTestCount} A/B test scenarios covering every stage from acquisition to retention. Each one states what is being tested and how it should be measured.",
           },
         ],
       },
@@ -775,8 +774,7 @@ export const copy = {
     nav: { about: "Hakkımda", aboutHref: "/tr/about", lab: "Lab", labHref: "/tr/lab", calculators: "Hesaplayıcılar", calculatorsHref: "/tr/calculators", blog: "Blog", blogHref: "/tr/blog", stack: "Araçlar", stackHref: "/tr/stack", contact: "İletişim", contactHref: "/tr/contact", cta: "İletişime geç", lang: "EN", langHref: "/" },
     hero: {
       line1: "Uçtan uca pazarlama uzmanı.",
-      line2: "Selam, ben Ali.",
-      lead: "Ürünlerin ivme kazanması ve ölçeklenmesi için büyüme, analitik, ürün pazarlaması ve performans pazarlamasını harmanlıyorum.",
+      lead: "Selam, ben Ali. Ürünlerin ivme kazanması ve ölçeklenmesi için büyüme, analitik, ürün pazarlaması ve performans pazarlamasını harmanlıyorum.",
       sub: "Şu an Aksigorta'da mobil uygulamanın büyümesinden sorumluyum. Öncesinde Vodafone, Getir ve Wingie Enuygun Group'ta büyüme ekiplerindeydim.",
       ctaPrimary: "İletişime geç",
       ctaSecondary: "LinkedIn",
@@ -823,29 +821,29 @@ export const copy = {
     home: {
       work: {
         eyebrow: "Ne yapıyorum",
-        title: "Kullanıcı kazanımı, ürün davranışı ve CRM'i birlikte ele alıyorum.",
-        lede: "Bir kullanıcıyı kazanmak yalnızca başlangıç. Tıklamadan sonra ne olduğuna, deneyimin nerede koptuğuna ve kullanıcıyı neyin geri getirebileceğine bakıyorum.",
+        title: "Büyümeyi veri, test ve kullanıcı davranışı üzerinden ele alıyorum.",
+        lede: "Çalıştığım alanlar ve bunlar için yaptığım araçlar.",
         builtFor: "Bunun için yaptım",
         services: [
           {
             tool: "dashboard-builder",
-            title: "Güvenilir bir temel kurmak",
-            body: "Büyüme kararı vermeden önce event, attribution ve raporlama yapısının o kararı taşıyabildiğinden emin oluyorum. İki platform farklı sayı verdiğinde farkın kaynağına iniyorum.",
+            title: "Ölçüm altyapısı",
+            body: "GA4 ve GTM'de event tasarımı, Adjust kurulumu ve iki platform aynı hafta için farklı sayı verdiğinde farkın nereden geldiğini bulmak. Sonunda ekibin sorgulayabildiği, tanımı belli bir event yapısı kalır.",
           },
           {
             tool: "lifecycle-card-archive",
-            title: "İlk ziyaretten geri kazanıma",
-            body: "İlk dönüşümden sonrasını tasarlıyorum: sırada ne olacağını, hangi sinyalin bir mesajı tetikleyeceğini ve journey'nin ne zaman duracağını birlikte kurguluyorum.",
+            title: "Yaşam döngüsü ve CRM programları",
+            body: "Kullanıcının ilk adımdan geri kazanıma kadar geçtiği yolculukları tasarlıyorum; her mesajın neden gittiğini de yazılı hâle getiriyorum.",
           },
           {
             tool: "google-ads-change-history-dashboard",
-            title: "Neyin değiştiğini anlamak",
-            body: "Performansı, o dönemde yapılan değişikliklerle birlikte okuyorum. Böylece gerçek bir etkiyi, yalnızca aynı anda hareket eden iki şeyden ayırmak daha kolay oluyor.",
+            title: "Google Ads Değişiklik Geçmişi",
+            body: "Google Ads hesaplarında yapılan değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip ediyorum; sonuç değiştiğinde tahmine değil, kayda bakıyorum.",
           },
           {
             tool: "ab-test-playbook",
-            title: "Fikirleri küçük testlere çevirmek",
-            body: "Bir soruyu test edilebilir hipoteze çeviriyor, her seferinde tek şeyi değiştiriyor ve sonucu nasıl okuyacağımıza test başlamadan karar veriyorum.",
+            title: "Test et, öğren, geliştir",
+            body: "Kullanıcı kazanımından elde tutmaya kadar her aşama için {abTestCount} A/B test senaryosu topladım. Her birinde neyin test edildiği ve nasıl ölçüleceği yazılı.",
           },
         ],
       },

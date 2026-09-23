@@ -197,11 +197,7 @@ function Hero({ t }: { t: (typeof copy)[Lang] }) {
       </div>
       <div className="altor-container">
         <Reveal delay={60}>
-          <h1 className="mx-auto max-w-4xl text-center text-h1 text-balance text-ink-950">
-            {t.hero.line1}
-            <br className="hidden sm:block" />{" "}
-            {t.hero.line2}
-          </h1>
+          <h1 className="mx-auto max-w-4xl text-center text-h1 text-balance text-ink-950">{t.hero.line1}</h1>
         </Reveal>
         <Reveal delay={120}>
           <p className="mx-auto mt-6 max-w-3xl text-center text-lg leading-relaxed text-pretty text-ink-muted">{t.hero.lead}</p>
