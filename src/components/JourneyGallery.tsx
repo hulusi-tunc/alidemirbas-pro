@@ -38,10 +38,10 @@ import type { ChannelId } from "@/canonical/types";
 
 const SECTION_PREVIEW_COUNT = 6;
 
-/* The customer-journey library has 18 real canonical categories, but showing
-   all 18 as first-level navigation makes the rail harder to scan than the
+/* The customer-journey library has 26 canonical categories, but showing
+   all 26 as first-level navigation makes the rail harder to scan than the
    content itself. Keep the canonical taxonomy untouched and group only the
-   browse/navigation layer into six practitioner-friendly buckets. The
+   browse/navigation layer into seven practitioner-friendly buckets. The
    original category headers and card metadata still render below. */
 const CUSTOMER_CATEGORY_GROUPS = [
   {
@@ -52,19 +52,19 @@ const CUSTOMER_CATEGORY_GROUPS = [
   },
   {
     id: "engagement-relationships",
-    label: { en: "Engagement & Relationships", tr: "Etkileşim ve İlişki" },
-    categories: ["retention", "feedback"],
+    label: { en: "Engagement & Communication", tr: "Etkileşim ve İletişim" },
+    categories: ["retention", "feedback", "consent", "communication"],
     iconCategory: "retention",
   },
   {
     id: "trust-identity-access",
-    label: { en: "Trust, Identity & Access", tr: "Güven, Kimlik ve Erişim" },
-    categories: ["consent", "access", "identity", "structure", "risk"],
+    label: { en: "Identity & Access", tr: "Kimlik ve Erişim" },
+    categories: ["access", "identity", "structure", "terminal"],
     iconCategory: "identity",
   },
   {
     id: "transactions-orders",
-    label: { en: "Transactions & Orders", tr: "İşlemler ve Siparişler" },
+    label: { en: "Payments & Orders", tr: "Ödeme ve Siparişler" },
     categories: ["financial", "fulfillment", "remedy"],
     iconCategory: "financial",
   },
@@ -75,9 +75,15 @@ const CUSTOMER_CATEGORY_GROUPS = [
     iconCategory: "subscription",
   },
   {
-    id: "documents-operations",
-    label: { en: "Documents & Operations", tr: "Belgeler ve Operasyon" },
-    categories: ["document", "rollout", "incident"],
+    id: "decisions-governance",
+    label: { en: "Decisions & Governance", tr: "Karar, Risk ve Kontrol" },
+    categories: ["ownership", "decision", "risk", "control"],
+    iconCategory: "decision",
+  },
+  {
+    id: "data-operations",
+    label: { en: "Data & Operations", tr: "Veri ve Operasyon" },
+    categories: ["integration", "processing", "document", "data", "rollout", "incident"],
     iconCategory: "document",
   },
 ] as const;
