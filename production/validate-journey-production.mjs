@@ -366,6 +366,21 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 298 journeys / 3953 nodes (2026-09-24). DOC-214 was
+// rebuilt in place, same id and slug, to match a reference image's
+// missing-document-collection shape - notice, two escalating reminders
+// bound to the submission's own deadline, then a handoff to a person. Its
+// old content (sending an already-issued document to a recipient) had no
+// real inbound handoffs, so nothing else needed retargeting. It was not a
+// clean fit: this same business process already exists as FBK-49 (missing
+// critical data), so DOC-214 was scoped narrower - a document specifically,
+// owed specifically by the party completing their own submission, never a
+// field/value or a document the business itself must supply (that split
+// stays DOC-211's) - and both directions got a reciprocal distinctFrom row
+// (src/canonical/feedback.ts, src/canonical/document.ts). 11 -> 10 nodes on
+// DOC-214, -1 net. Rules (423), global rules (31) and merged redirects (8)
+// are unchanged.
+//
 // FROZEN BASELINE: 298 journeys / 3954 nodes (2026-09-24). RET-26 (Service
 // Recovery) was retired entirely from the corpus, same pattern as ACT-18/
 // ACT-19/RET-293/FUL-301 above (delete + fix every reciprocal reference,
@@ -485,9 +500,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (298 journeys / 3954 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (298 journeys / 3953 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 298 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3954 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3953 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

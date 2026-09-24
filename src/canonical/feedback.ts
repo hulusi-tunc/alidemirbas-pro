@@ -2900,6 +2900,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks a process. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it.",
       },
+      {
+        journey: "DOC-214",
+        because:
+          "This journey chases any named field, document or value blocking any business process, and can raise the request internally against whoever inside the organisation holds the item. DOC-214 is the narrower, party-facing case: a document only the applicant themselves can supply to complete their own submitted application or transaction, on a fixed reminder-then-escalate cadence bound to that submission's own deadline.",
+      },
     ],
     objective: "Treat a genuinely blocking data gap as a named dependency, and keep it distinct from wanting to know more about someone.",
     eligibility: [

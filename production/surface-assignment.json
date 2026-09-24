@@ -2773,14 +2773,14 @@
     },
     {
       "id": "DOC-214",
-      "shortName": "Document Delivery",
+      "shortName": "Missing Document Follow-Up",
       "category": "document",
       "surface": "customer",
       "sends": true,
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (email, push, sms)"
     },
     {
       "id": "DOC-215",
