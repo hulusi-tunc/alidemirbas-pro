@@ -366,6 +366,18 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 302 journeys / 4000 nodes (2026-09-24). SUB-262 gained a
+// lead-time push reminder (w.lead, c.lead-withdrawn, a.push-lead) a few days
+// before the wind-down's effective end date, ahead of the existing w.window
+// wait - matching a reference image's Trigger/Email/Wait/Push/Wait/Decision
+// shape as far as it goes honestly. The image's second half (a win-back
+// discount offered after cancellation) was NOT implemented: this journey's
+// own s.no-relitigation rule is explicit that a save attempt belongs before
+// cancellation is confirmed, not after ("a different journey... this one
+// never re-litigates it") - that is RET-28's job. channels gained "push";
+// channelStrategy gained a low-friction role for it. 3997 -> 4000 nodes,
+// +3 net. Rules (423), global rules (31) and merged redirects (8) unchanged.
+//
 // FROZEN BASELINE: 302 journeys / 3997 nodes (2026-09-24). ACT-18 (Adoption
 // Recovery) was retired from the corpus entirely, at the site owner's request
 // ("kaldır her yerden") - not excluded from public listing, deleted from
@@ -418,9 +430,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (302 journeys / 3997 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (302 journeys / 4000 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 302 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3997 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 4000 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

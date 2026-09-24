@@ -61983,7 +61983,8 @@
       "category": "subscription",
       "goal": "cancellation-termination",
       "channels": [
-        "email"
+        "email",
+        "push"
       ],
       "name": "Cancellation confirmed → wind-down window → access ends or customer returns",
       "shortName": "Cancellation Confirmation",
@@ -62072,7 +62073,14 @@
             "channels": [
               "email"
             ],
-            "when": "the message has to be kept and survive until the person can act on it - both touches in this journey"
+            "when": "the message has to be kept and survive until the person can act on it - the confirmation and the ending notice"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "a short heads-up before the end date, pointing back to the full notice already sent by email"
           }
         ],
         "fallback": "none",
@@ -62092,6 +62100,20 @@
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t1.5",
+            "stage": "lead-reminder",
+            "action": "a.push-lead",
+            "after": "t1",
+            "gatedBy": "w.lead",
+            "prerequisites": [],
+            "purpose": "A short heads-up, shortly before the end date, that access is ending soon - pointing back to the full notice already sent, not repeating it.",
+            "channelRoles": [
+              "low-friction"
+            ],
+            "mandatory": false,
+            "label": "OPTIONAL_STRATEGY"
           },
           {
             "id": "t2",
@@ -62124,7 +62146,9 @@
             "surviving_items",
             "outstanding_obligations"
           ],
-          "optional": []
+          "optional": [
+            "push_token"
+          ]
         }
       },
       "measurement": {
@@ -62197,7 +62221,7 @@
             {
               "label": "Window remains",
               "when": "the effective end date is far enough out that a reminder before it would still be useful",
-              "to": "w.window"
+              "to": "w.lead"
             },
             {
               "label": "Ends immediately",
@@ -62205,6 +62229,60 @@
               "to": "c.obligations"
             }
           ]
+        },
+        {
+          "id": "w.lead",
+          "kind": "wait",
+          "until": [
+            "cancellation_withdrawn"
+          ],
+          "onEvent": "c.lead-withdrawn",
+          "timeout": {
+            "after": {
+              "key": "cancellation_wind.lead",
+              "rule": "The heads-up fires a short lead period before the effective end date - long enough to still act on, short enough to still mean something.",
+              "class": "reminder-before-attribute",
+              "default": {
+                "value": "3 days",
+                "confidence": "low",
+                "basis": "example-only",
+                "applicableWhen": "a wind-down window of at least a week",
+                "avoidWhen": "a window too short for a lead reminder to land before the end date"
+              },
+              "required": false
+            },
+            "reason": "a heads-up sent at the end date itself is not a heads-up; it has to land with enough runway left to act on",
+            "relativeTo": "attribute",
+            "attribute": "effective_end_at"
+          },
+          "onTimeout": "c.lead-withdrawn",
+          "windowExtendsOnEngagement": false,
+          "recheck": "the cancelled relationship and its effective end date re-read from the system of record before acting"
+        },
+        {
+          "id": "c.lead-withdrawn",
+          "kind": "condition",
+          "asks": "Did they withdraw the cancellation?",
+          "branches": [
+            {
+              "label": "Withdrawn",
+              "when": "an authoritative reactivation or withdrawal is recorded before the end date",
+              "to": "x.returned"
+            },
+            {
+              "label": "Still ending",
+              "when": "the relationship is still due to end",
+              "to": "a.push-lead"
+            }
+          ]
+        },
+        {
+          "id": "a.push-lead",
+          "kind": "action",
+          "does": "Say, by push, that access is ending soon - a short heads-up pointing back to the full notice already sent by email, not repeating its detail.",
+          "next": "w.window",
+          "execution": "communication",
+          "idempotencyKey": "relationship_id + a.push-lead"
         },
         {
           "id": "w.window",
