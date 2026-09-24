@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 283", journeys.length === 283);
+check(1, "active journey count = 282", journeys.length === 282);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -365,6 +365,14 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 282 journeys / 3742 nodes (2026-09-24). ACQ-285
+// (New Lead Welcome) was retired, the site owner's request. It had no
+// real inbound handoffs, only prose distinctFrom/eligibility/suppression
+// text in ACQ-09 (which owned the "no ACQ-285 instance is open"
+// precedence gate) and one distinctFrom row in RET-290, both removed.
+// 283 -> 282 journeys, -17 nodes net. Rules (423), global rules (31)
+// and merged redirects (8) are unchanged.
 //
 // FROZEN BASELINE: 283 journeys / 3759 nodes (2026-09-24). RET-28
 // (Cancellation Intent Decision Point) was retired, the site owner's
@@ -782,9 +790,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (283 journeys / 3759 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 283 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3759 &&
+  "canonical source mutation = 0 (282 journeys / 3742 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 282 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3742 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

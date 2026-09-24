@@ -3592,10 +3592,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "because": "FUL-291 speaks about the order the person is now holding - how to use it, look after it, or what follows from it. This journey speaks about the relationship that order opened, and it never explains the product."
       },
       {
-        "journey": "ACQ-285",
-        "because": "ACQ-285 welcomes somebody who has shown interest and has bought nothing. This opens only on an authoritative first purchase, and its whole subject is the second one."
-      },
-      {
         "journey": "RET-31",
         "because": "RET-31 prompts a repeat of something the person's own history says is due. Here there is no history yet - one purchase is not a cadence - so the prompt is an offer rather than a prediction."
       },

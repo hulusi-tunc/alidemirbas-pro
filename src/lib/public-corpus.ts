@@ -125,7 +125,12 @@ export const ARCHIVED_SURFACE = "operational" as const;
    its-save-window case, now states that exclusion in its own terms rather
    than by naming a journey that no longer exists, and SUB's cancellation-
    confirmation journey's one prose distinctFrom row naming RET-28 was
-   removed - taking the library to 49.
+   removed - taking the library to 49. ACQ-285 (New Lead Welcome) was
+   retired next, the site owner's request - it had no real inbound
+   handoffs, only prose distinctFrom/eligibility/suppression text in
+   ACQ-09 (which owned the "no ACQ-285 instance is open" precedence gate)
+   and one distinctFrom row in RET-290, both removed - taking the
+   library to 48.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -181,8 +186,8 @@ export const EXCLUDED_FROM_PUBLIC: ReadonlySet<string> = new Set([
     rather than only as "90 minus 21". Asserted against the derived library
     below - the two can never drift apart without failing the build. */
 export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
-  // Acquisition, intent & qualification - 8
-  "ACQ-09", "ACQ-11", "ACQ-12", "ACQ-13", "ACQ-285", "ACQ-287", "ACQ-288",
+  // Acquisition, intent & qualification - 7
+  "ACQ-09", "ACQ-11", "ACQ-12", "ACQ-13", "ACQ-287", "ACQ-288",
   "ACQ-289",
   // Activation, onboarding & early value - 5
   "ACT-13", "ACT-14", "ACT-17", "ACT-20",
