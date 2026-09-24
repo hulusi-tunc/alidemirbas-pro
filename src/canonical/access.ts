@@ -1941,7 +1941,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "access-restriction-route-back",
     category: "access",
     goal: "suspension-restoration",
-    channels: ["email"],
+    channels: ["email", "push"],
     name: "Access restricted or ending → stated route back → restored or ends",
     shortName: "Access Restriction Notice",
     purpose:
@@ -2044,9 +2044,17 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
             "email"
           ],
           "when": "the message has to be kept and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "push"
+          ],
+          "when": "sent together with the restriction notice, so a change that actually stops something is seen immediately and not just kept for later"
         }
       ],
       "fallback": "same-role-other-channel",
+      "simultaneous": { "allowed": true, "reason": "the email carries the full account of what stopped, what still works and the release condition; the push is the immediate signal that something changed. Neither substitutes for the other, and only the restriction notice sends both - the inform-only touch and the restoration confirmation are each sent once, on the persistent channel alone." },
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -2077,7 +2085,8 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it.",
           "channelRoles": [
-            "persistent"
+            "persistent",
+            "urgent"
           ],
           "mandatory": true,
           "label": "CANONICAL_RULE",
