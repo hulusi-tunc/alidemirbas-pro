@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 289", journeys.length === 289);
+check(1, "active journey count = 288", journeys.length === 288);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -365,6 +365,17 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 288 journeys / 3835 nodes (2026-09-24). INC-254
+// (Incident Update) was retired, the site owner's request. It had one
+// real inbound handoff, INC-253's h.communicate; since INC-253 is
+// itself a silent (channels: []) operational journey that cannot
+// perform a communication action directly (it only ever delegated
+// that job), the guidance-change branch was removed rather than
+// reinvented inline - INC-253's mitigation path now goes straight to
+// its own sufficiency check (c.sufficient) on every path. 289 -> 288
+// journeys, -16 nodes net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
 //
 // FROZEN BASELINE: 289 journeys / 3851 nodes (2026-09-24). SCH-266
 // (Appointment Readiness Reminder) was rebuilt as a literal
@@ -706,9 +717,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (289 journeys / 3851 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 289 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3851 &&
+  "canonical source mutation = 0 (288 journeys / 3835 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 288 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3835 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

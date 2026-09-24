@@ -86,6 +86,13 @@ export const ARCHIVED_SURFACE = "operational" as const;
    own genuine exit (x.rejected and x.verification-failed) instead of
    routing to a shared recovery engine, and DEC-183's one prose
    distinctFrom row naming it was removed - taking the library to 55.
+   INC-254 (Incident Update) was retired next, the site owner's
+   request - it had one real inbound handoff, INC-253's h.communicate;
+   since INC-253 is itself a silent (channels: []) operational journey
+   that cannot perform the communication directly, the guidance-change
+   branch was removed rather than reinvented, and INC-253's mitigation
+   path now goes straight to its own sufficiency check on every path -
+   taking the library to 54.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -161,8 +168,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Subscriptions & scheduling - 11
   "SCH-266", "SCH-277", "SCH-282", "SCH-303", "SCH-304", "SUB-163",
   "SUB-262", "SUB-296", "SUB-297", "SUB-298", "SUB-299",
-  // Risk, documents, rollout & incidents - 5
-  "DOC-214", "DOC-215", "INC-254", "RLT-279", "RSK-273",
+  // Risk, documents, rollout & incidents - 4
+  "DOC-214", "DOC-215", "RLT-279", "RSK-273",
 ]);
 
 export function isPublicJourney(j: Pick<CanonicalJourney, "id" | "category" | "channels" | "entity">): boolean {
