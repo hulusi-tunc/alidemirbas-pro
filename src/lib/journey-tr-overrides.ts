@@ -709,12 +709,15 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   "RET-292": {
   shortName: "İlk Satın Alma Yıl Dönümü",
-  name: "İlk satın alma yıl dönümü yaklaştı → uygunluk kontrol edildi → kutlandı veya gönderilmedi",
+  name: "İlk satın alma yapıldı → yıl dönümü aralığı beklendi → uygunluk kontrol edildi → kutlandı veya gönderilmedi",
   purpose: "Birinin ilk kez satın aldığı tarihin yıl dönümünü - ilişkinin kendi yaşını, ilk işleminden sayarak ve başka hiçbir şeyden değil - bir kez dile getirmek.",
   nodes: {
-    "t.approaching": {
-      headline: "İlk satın alma yıl dönümü yaklaşıyor",
-      detail: "İlk satın almadan bu yana yapılandırılmış yıl dönümü aralığı geçtiğinde tetiklenir - bekleme, bu akış başlamadan önce zaten gerçekleşmiştir.",
+    "t.purchase": {
+      headline: "İlk satın alma yapıldı",
+    },
+    "w.interval": {
+      headline: "yıl dönümü aralığı geçene ya da hesap kapanana kadar",
+      detail: "Zaman aşımı: ilişkinin kendi yapılandırılmış yıl dönümü aralığı, ilk satın almadan bu yana - daha erken değil, başka hiçbir saatte değil. (örnek: 1 yıl; şunu ayarla: first_purchase_anniversary.interval)",
     },
     "c.eligible": {
       headline: "Bu yıl dönümü hâlâ bizim kutlayacağımız bir şey mi?",
@@ -725,22 +728,32 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.recognise": {
-      headline: "İlişkinin ilk satın almadan bu yana ne kadar sürdüğünü söyle ve kaydın desteklemediği hiçbir şeyi dile getirme. Gerçekten tanımlanmış olmadıkça ödül, seviye ya da ayrıcalıktan söz etme.",
+      headline: "İlişkinin ilk satın almadan bu yana ne kadar sürdüğünü push ile söyle ve kaydın desteklemediği hiçbir şeyi dile getirme. Gerçekten tanımlanmış olmadıkça ödül, seviye ya da ayrıcalıktan söz etme.",
+    },
+    "c.opened": {
+      headline: "Kişi push'a karşılık uygulamayı açtı mı?",
+      edges: [
+        { label: "Açtı", detail: "kutlama hâlâ güncelken push'ın ardından bir uygulama oturumu geldi" },
+        { label: "Açmadı", detail: "kutlama penceresi kapanana kadar push'ın ardından bir uygulama oturumu gelmedi" },
+      ],
+    },
+    "a.show-in-app": {
+      headline: "Aynı kutlamayı hesabın içinde göster - ilişkinin ilk satın almadan bu yana ne kadar sürdüğünü - kişi artık bunu görecek bir oturumdayken.",
     },
     "a.record-no-action": {
       headline: "Neden kutlama gönderilmediğini ve hangi dönem için olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.recognised": {
       headline: "Kutlandı",
-      detail: "sonraki yıl dönümü dönemi kendi örneğini açar",
-    },
-    "x.closed": {
-      headline: "Mesaj gönderilmeden kapandı",
-      detail: "yeniden kurulan bir ilişki kendi ilk satın almasından tarihlenir ve sonraki dönemde değerlendirilir",
+      detail: "bu akış ilk satın alma yıl dönümünü, kendisini açan ilk satın alma olayından itibaren bir kez kutlar; yeni bir ilk satın alma tarihiyle birleştirilen ya da yeniden düzenlenen bir ilişki bu akışı kendi tetikleyicisinden yeniden başlatır",
     },
     "x.no-action": {
       headline: "Kutlama gönderilmedi",
-      detail: "sonraki yıl dönümü dönemi kendi örneğini açar; bu dönem sonradan telafi edilmez",
+      detail: "bu akış bu dönemi yeniden denemez; yeni bir ilk satın alma tarihiyle birleştirilen ya da yeniden düzenlenen bir ilişki bu akışı kendi tetikleyicisinden yeniden başlatır",
+    },
+    "x.closed": {
+      headline: "Mesaj gönderilmeden kapandı",
+      detail: "yeniden kurulan bir ilişki kendi ilk satın almasından tarihlenir ve bu akışı kendi tetikleyicisinden yeniden başlatır",
     },
   },
   },

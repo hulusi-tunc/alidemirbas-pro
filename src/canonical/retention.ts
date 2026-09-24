@@ -4759,7 +4759,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       },
       {
         "journey": "RET-292",
-        "because": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year or more later. This journey is the one-time moment that dates it; RET-292 is the recurring recognition of it, and the two never run at once."
+        "because": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year later. This journey is the one-time moment that dates it; RET-292 is the one-time recognition of it, and the two never run at once."
       }
     ],
     "guardrails": [
@@ -4776,7 +4776,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "category": "retention",
     "goal": "progression-milestone",
     "channels": ["in-app", "push", "email"],
-    "name": "First-purchase anniversary approaching → eligibility checked → recognised or not sent",
+    "name": "First purchase completed → anniversary interval waited → eligibility checked → recognised or not sent",
     "shortName": "First Purchase Anniversary",
     "purpose": "Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once.",
     "objective": "Mark how long the relationship has lasted, measured from the first purchase, to somebody who is still in it - without attaching anything the record does not carry.",
@@ -4899,11 +4899,34 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "prerequisites": [
             "c.eligible"
           ],
-          "purpose": "How long this relationship has lasted, counted from the first purchase, said once and with nothing attached that the record does not carry.",
+          "purpose": "How long this relationship has lasted, counted from the first purchase, said once and, if the person engages with the first notice, said again where they can dwell on it - with nothing attached that the record does not carry.",
           "channelRoles": [
             "in-session",
             "low-friction",
             "persistent"
+          ],
+          "destination": {
+            "target": "customer-account",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "a reward that has not been issued",
+              "a tier the account does not hold",
+              "a benefit tied to the anniversary that does not exist"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "recognition",
+          "action": "a.show-in-app",
+          "prerequisites": [
+            "c.opened"
+          ],
+          "purpose": "The same recognition, shown again where the person is already looking, for the person who engaged with the first notice.",
+          "channelRoles": [
+            "in-session"
           ],
           "destination": {
             "target": "customer-account",
@@ -4927,27 +4950,53 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.contest"
       ]
     },
-    "entry": "t.approaching",
+    "entry": "t.purchase",
     "nodes": [
       {
-        "id": "t.approaching",
+        "id": "t.purchase",
         "kind": "trigger",
-        "event": "first_purchase_anniversary_approaching",
+        "event": "first_purchase_completed",
         "evidence": {
           "requires": [
-            "a recorded first-purchase date for this person",
-            "the anniversary interval the company has configured, and the cycle this occurrence belongs to"
+            "an authoritative first-purchase record for this person"
           ],
           "insufficientAlone": [
             "a sign-up or account-creation date, which dates a different relationship entirely",
             "a birthday or any other date about the person rather than about the relationship",
-            "a most-recent-order date, which measures recency and not length",
-            "an anniversary interval that has already passed without a message"
+            "a most-recent-order date, which measures recency and not length"
           ],
           "source": "authoritative"
         },
-        "detail": "Fires once the configured anniversary interval has passed since the first purchase - the wait itself happens before this journey ever opens.",
-        "next": "c.eligible"
+        "next": "w.interval"
+      },
+      {
+        "id": "w.interval",
+        "kind": "wait",
+        "until": [
+          "account_closure_succeeded"
+        ],
+        "onEvent": "c.eligible",
+        "timeout": {
+          "after": {
+            "key": "first_purchase_anniversary.interval",
+            "rule": "The recognition waits for the relationship's own configured anniversary interval to elapse since the first purchase - not sooner, and on no other clock.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "1 year",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "a standard annual recognition cadence",
+              "avoidWhen": "a business that defines its own anniversary cycle on a different cadence"
+            },
+            "required": false
+          },
+          "reason": "the recognition is timed to the relationship's own configured anniversary interval, counted from the first purchase and from nothing else",
+          "relativeTo": "attribute",
+          "attribute": "first_purchase_at"
+        },
+        "onTimeout": "c.eligible",
+        "recheck": "the relationship record, first-purchase record and recognition log re-read before acting",
+        "windowExtendsOnEngagement": false
       },
       {
         "id": "c.eligible",
@@ -4977,7 +5026,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.recognise",
         "kind": "action",
-        "does": "State how long the relationship has lasted, counted from the first purchase, and say nothing the record does not support. No reward, tier or benefit unless one has actually been issued.",
+        "does": "Send a push reminder stating how long the relationship has lasted, counted from the first purchase, and say nothing the record does not support. No reward, tier or benefit unless one has actually been issued.",
         "execution": "communication",
         "idempotencyKey": "person_id + anniversary_cycle",
         "writes": [
@@ -4986,6 +5035,33 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "mode": "append"
           }
         ],
+        "next": "c.opened"
+      },
+      {
+        "id": "c.opened",
+        "kind": "condition",
+        "asks": "Did the person open the app in response to the push?",
+        "branches": [
+          {
+            "label": "Opened",
+            "when": "an app session followed the push while the recognition is still current",
+            "observes": "app session activity following the push",
+            "to": "a.show-in-app"
+          },
+          {
+            "label": "Not opened",
+            "when": "no app session followed the push before the recognition window closed",
+            "observes": "app session activity following the push",
+            "to": "x.recognised"
+          }
+        ]
+      },
+      {
+        "id": "a.show-in-app",
+        "kind": "action",
+        "does": "Show the same recognition inside the account - how long the relationship has lasted, counted from the first purchase - now that the person is in a session to see it.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + anniversary_cycle",
         "next": "x.recognised"
       },
       {
@@ -5006,24 +5082,24 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "kind": "exit",
         "state": "recognised; the anniversary was marked once for this interval",
         "class": "success",
-        "terminal": false,
-        "reEntry": "the next anniversary interval opens its own instance"
-      },
-      {
-        "id": "x.closed",
-        "kind": "exit",
-        "state": "closed without a message; the relationship this anniversary would have counted has ended",
-        "class": "invalid-state",
-        "terminal": false,
-        "reEntry": "a reopened relationship is dated from its own first purchase and is evaluated at the next interval"
+        "terminal": true,
+        "reEntry": "this journey recognises the first-purchase anniversary once, from the first-purchase event that opened it; a merged or restated relationship with a new first-purchase date starts it again from its trigger"
       },
       {
         "id": "x.no-action",
         "kind": "exit",
         "state": "no recognition sent; the reason is recorded",
         "class": "no-action",
-        "terminal": false,
-        "reEntry": "the next anniversary interval opens its own instance; this interval is not made up later"
+        "terminal": true,
+        "reEntry": "this journey does not retry this interval; a merged or restated relationship with a new first-purchase date starts it again from its trigger"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a message; the relationship this anniversary would have counted has ended",
+        "class": "invalid-state",
+        "terminal": true,
+        "reEntry": "a reopened relationship is dated from its own first purchase and starts this journey again from its trigger"
       }
     ],
     "implementation": {
@@ -5047,9 +5123,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "journeyOutcome": {
         "type": "exit",
         "refs": [
-          "x.recognised",
-          "x.closed",
-          "x.no-action"
+          "x.closed"
         ]
       },
       "guardrails": [
