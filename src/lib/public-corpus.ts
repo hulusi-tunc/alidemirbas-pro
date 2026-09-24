@@ -157,6 +157,11 @@ export const ARCHIVED_SURFACE = "operational" as const;
    removed, along with a fourth prose mention in a financial.ts
    suppression's own text and the "remedy selection (REM-157)" clause in
    REM-305's own suppression/precedence prose - taking the library to 45.
+   FUL-265 (Delivery Tracking) was retired next, the site owner's
+   request - it had no real inbound handoffs, only two prose distinctFrom
+   rows (FUL-146, REM-151) and one suppression clause in FUL-146's own
+   s.g5 naming it as the owner of in-transit delay tracking, all removed
+   or reworded - taking the library to 44.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -224,8 +229,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "FBK-41", "FBK-43",
   // Access, identity & relationship - 2
   "ACC-261", "REL-284",
-  // Transactions, fulfillment & remedies - 8
-  "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291",
+  // Transactions, fulfillment & remedies - 7
+  "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-291",
   "REM-151", "REM-305",
   // Subscriptions & scheduling - 10
   "SCH-266", "SCH-282", "SCH-303", "SCH-304", "SUB-163",

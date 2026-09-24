@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 279,
-    "customer": 130,
+    "journeys": 278,
+    "customer": 129,
     "customer-silent": 66,
-    "customer-communicating": 64,
+    "customer-communicating": 63,
     "mechanism": 25,
     "operational": 124
   },
@@ -1736,17 +1736,6 @@
       "silent": true,
       "excludedFromPublic": false,
       "reason": "silent lifecycle state: category \"fulfillment\" and a customer-worded entity"
-    },
-    {
-      "id": "FUL-265",
-      "shortName": "Delivery Tracking",
-      "category": "fulfillment",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "FUL-276",
