@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 292,
-    "customer": 143,
+    "journeys": 290,
+    "customer": 141,
     "customer-silent": 66,
-    "customer-communicating": 77,
+    "customer-communicating": 75,
     "mechanism": 25,
     "operational": 124
   },
@@ -770,17 +770,6 @@
       "reason": "silent lifecycle state: category \"time\" and a customer-worded entity"
     },
     {
-      "id": "TIM-63",
-      "shortName": "Expiry Reminder",
-      "category": "time",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (in-app, sms, email)"
-    },
-    {
       "id": "TIM-64",
       "shortName": "Expiry Validation",
       "category": "time",
@@ -856,17 +845,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "no message channel and a system-side entity or category"
-    },
-    {
-      "id": "TIM-268",
-      "shortName": "Action Required Reminder",
-      "category": "time",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
     },
     {
       "id": "TIM-274",

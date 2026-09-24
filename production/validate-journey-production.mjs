@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 292", journeys.length === 292);
+check(1, "active journey count = 290", journeys.length === 290);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -366,6 +366,22 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 290 journeys / 3867 nodes (2026-09-24). TIM-63
+// (Expiry Reminder) and TIM-268 (Action Required Reminder, the corpus's
+// generic fallback obligation reminder) were retired together, the site
+// owner's request. Neither had a real inbound handoff, but both were
+// named explicitly in several other journeys' own suppression and
+// precedence text as the generic reminder each defers to or is deferred
+// by; every one of those mentions (TIM-61, ACT-13, DOC-214's signature
+// journey, FBK-49, FIN-134, RLT-279, SCH-266, REL-284's referral-reward,
+// and SUB-163's renewal cycle) was rewritten to drop the now-
+// nonexistent reference while keeping its own real ownership claim
+// intact. TIM-61 lost its last competition-group partner
+// (obligation-reminder) in the process and its `competition` field was
+// set to the literal "none" rather than left in a group of one. 292 ->
+// 290 journeys, -29 nodes net. Rules (423), global rules (31) and
+// merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 292 journeys / 3896 nodes (2026-09-24). RET-290
 // (First Purchase Thank You & Bounceback) was rebuilt as a literal
 // two-channel cascade matching a reference image's shape exactly: the
@@ -662,9 +678,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (292 journeys / 3896 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 292 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3896 &&
+  "canonical source mutation = 0 (290 journeys / 3867 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 290 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3867 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

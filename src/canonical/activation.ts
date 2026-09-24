@@ -394,11 +394,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere - and where both are true, a named requirement outstanding and help being sought against it, this journey holds the account and the help offer is suppressed for it, because an obstacle with a name is answerable and a general offer of help is not.",
       },
-      {
-        journey: "TIM-268",
-        because:
-          "TIM-268 is a generic outstanding-obligation reminder that does not know which specific requirement blocks activation. This journey owns the reminder once a requirement is named, and TIM-268's own reminder for that obligation is suppressed while this instance holds it.",
-      },
     ],
     objective: "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
     eligibility: [
@@ -422,13 +417,10 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "label": "CANONICAL_RULE",
         "text": "The moment the requirement is met, its reminders stop, including any already scheduled."
       },
-      // NOTE: TIM-268 (src/canonical/time.ts) needs its own reciprocal edit -
-      // a distinctFrom row naming ACT-13 and honoring this suppression for the
-      // held obligation. Not made here: out of scope for activation.ts.
       {
         "id": "s.generic-reminder",
         "label": "CANONICAL_RULE",
-        "text": "This journey owns the reminder for the named requirement it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that obligation while this instance holds it."
+        "text": "This journey owns the reminder for the named requirement it holds."
       },
     ],
     contact: {

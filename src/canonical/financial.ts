@@ -764,11 +764,6 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "ACQ-11 recovers a resumable process nobody finished. This opens only where the process was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the process or the items.",
       },
-      {
-        journey: "TIM-268",
-        because:
-          "TIM-268 is the generic reminder for an obligation before any attempt has been made against it - a due date passed with silence. This journey owns the same obligation from the moment an attempt was actually made and failed; once a failed attempt is recorded, TIM-268 defers to it and stops sending its own generic reminder.",
-      },
     ],
     objective: "Get the obligation paid by responding to the failure that actually happened, while the obligation stays alive and the relationship's own state is decided elsewhere.",
     eligibility: [

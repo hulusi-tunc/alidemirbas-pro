@@ -1829,11 +1829,6 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "RLT-241 decides whether the target is in scope for the change at all. Here scope is already settled and the only open question is a prerequisite.",
       },
-      {
-        journey: "TIM-268",
-        because:
-          "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks; TIM-268 can only name the prerequisite, so it defers to this journey and sends nothing while this instance holds the target.",
-      },
     ],
     objective: "Tell the holder of a blocked target the one specific thing standing between it and the change, while there is still enough of the preparation window left for them to clear it.",
     eligibility: [
@@ -1867,7 +1862,7 @@ export const ROLLOUT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.generic-reminder",
         "label": "CANONICAL_RULE",
-        "text": "This journey owns the reminder for the change prerequisite it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that prerequisite while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
+        "text": "This journey owns the reminder for the change prerequisite it holds."
       }
     ],
     contact: {

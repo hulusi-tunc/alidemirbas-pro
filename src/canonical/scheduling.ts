@@ -3147,11 +3147,6 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "SCH-304 carries the arrival facts close to the time, on a commitment already prepared for. This carries the prerequisites a customer owes so the service can happen at all - a different, earlier question, and one SCH-304 is suppressed behind until this has finished.",
       },
-      {
-        journey: "TIM-268",
-        because:
-          "TIM-268 is the generic reminder for an obligation nothing more specific owns. This owns what a booking requires before its own occurrence, and its deadline is the occurrence itself; TIM-268 is suppressed for any prerequisite this journey holds.",
-      },
     ],
     objective: "Get the customer's side of a confirmed commitment done before it arrives, and remind them from what the booking is at the moment of sending.",
     eligibility: [

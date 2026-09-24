@@ -69,7 +69,18 @@ export const ARCHIVED_SURFACE = "operational" as const;
    same wait that already tracks cancellation_confirmed /
    cancellation_flow_abandoned on the branch where no alternative was
    offered), and no prose distinctFrom row named it elsewhere - taking the
-   library to 58. Everything below that
+   library to 58. TIM-63 (Expiry Reminder) and TIM-268 (Action Required
+   Reminder) were retired together next, the site owner's request -
+   neither had a real inbound handoff, but both were named by name in
+   several other journeys' own suppression and precedence text as the
+   generic reminder each defers to or is deferred by; every one of those
+   mentions (TIM-61, ACT-13, DOC-214's signature journey, FBK-49, FIN-134,
+   RLT-279, SCH-266, REL-284's referral-reward, and SUB-163's renewal
+   cycle) was rewritten to drop the now-nonexistent reference while
+   keeping its own real ownership claim intact. TIM-61 lost its last
+   competition-group partner in the process and its `competition` field
+   was set to the literal `"none"` rather than left in a group of one -
+   taking the library to 56. Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
    itself for the live list.
@@ -134,8 +145,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",
   // Feedback, advocacy & relationship signals - 4
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",
-  // Time, deadlines, expiry & temporary states - 4
-  "TIM-61", "TIM-63", "TIM-268", "TIM-274",
+  // Time, deadlines, expiry & temporary states - 2
+  "TIM-61", "TIM-274",
   // Access, identity & relationship - 3
   "ACC-261", "IDN-84", "REL-284",
   // Transactions, fulfillment & remedies - 10

@@ -1951,11 +1951,6 @@ export const STRUCTURE_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "FBK-42 decides whether someone has earned the relationship evidence to be asked for a referral at all. This journey starts only once that ask already produced a code; it never re-evaluates whether asking was warranted, only whether the code got shared and used.",
       },
-      {
-        journey: "TIM-268",
-        because:
-          "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns the one nudge for an unused referral code; TIM-268 would restate the same nudge without knowing what redeeming it earns, so it defers here while this instance holds the code.",
-      },
     ],
     objective: "Confirm the reward both sides earned the moment a referral code is redeemed, and send exactly one nudge back to sharing it if nobody has used it yet.",
     eligibility: [

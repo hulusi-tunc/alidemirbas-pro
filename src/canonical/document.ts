@@ -987,11 +987,6 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "DEC-183 is somebody exercising judgment against criteria. This is collecting authorized marks against a fixed artifact - nobody is deciding anything on the merits, and its failure modes are version binding, incomplete sets and expiry rather than authority to conclude.",
       },
-      {
-        journey: "TIM-268",
-        because:
-          "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns a signature owed on a specific version by a specific signer, and knows which version is being signed; TIM-268 defers to it and sends nothing while this instance holds the obligation.",
-      },
     ],
     objective: "Collect every required signature on one exact document version: request once from each required signer, remind outstanding signers once while a reminder can still change the outcome, and end honestly as fully signed, declined, superseded or expired.",
     eligibility: [
@@ -1029,7 +1024,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.generic-reminder",
         "label": "CANONICAL_RULE",
-        "text": "This journey owns the reminder for the signature it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that signature while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
+        "text": "This journey owns the reminder for the signature it holds."
       }
     ],
     contact: {

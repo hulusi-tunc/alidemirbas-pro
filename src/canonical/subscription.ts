@@ -759,11 +759,6 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "This produces a decision. SUB-164 makes the new term exist, which depends on payment, confirmation and eligibility that this journey does not touch. A relationship can be decided-to-renew and still not renew.",
       },
       {
-        journey: "TIM-63",
-        because:
-          "TIM-63 is the generic pre-expiry reminder, and a subscription sits inside its scope - so a term end fires both at the same point in the calendar. This journey owns it: it is the one that knows the renewal terms, the notice period they require and who holds the decision, and the notice it sends is an obligation of the terms rather than outreach. While this cycle's decision window is open, that journey is suppressed for the subscription and owns only the expiries no renewal cycle governs.",
-      },
-      {
         journey: "RET-292",
         because:
           "RET-292 recognises an anniversary, which carries no obligation and no deadline - nothing happens if it is ignored. This counts down to a renewal decision the governing terms require, with a notice period, a decision holder and a default the terms themselves define if nobody answers.",
@@ -843,7 +838,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "relationship-continuity",
         "scope": "subscription",
-        "precedence": "below a cancellation in motion, below an active risk state, and below an open payment recovery process on the same relationship; above the generic pre-expiry reminder (TIM-63), which is suppressed for a term end that is a renewal decision, because only this journey holds the renewal terms and the notice they oblige",
+        "precedence": "below a cancellation in motion, below an active risk state, and below an open payment recovery process on the same relationship; this journey holds the renewal terms and the notice they oblige for a term end that is a renewal decision",
         "onLoss": "suppressed"
       }
     },
