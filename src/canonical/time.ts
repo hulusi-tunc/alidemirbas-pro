@@ -1093,7 +1093,7 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Something cannot be undone",
             when: "money moved, a message went out, an external system was told, a physical action happened",
-            to: "h.forward",
+            to: "x.irreversible",
           },
           {
             label: "Nothing irreversible",
@@ -1103,14 +1103,12 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.forward",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a reversal request against a transition with irreversible effects",
-        carries: [
-          "the side effects that already ran and cannot be undone",
-          "the state the requester expected to return to, which correction has to reach forward rather than backward",
-        ],
+        id: "x.irreversible",
+        kind: "exit",
+        state: "a reversal was requested against a transition with irreversible effects; the side effects that already ran, and the state the requester expected to return to, are recorded, but correcting forward from here is not resolved by this journey - there is no remedy engine to hand it to",
+        terminal: false,
+        reEntry: "the forward correction being made is recorded against this transition's history",
+        class: "no-action",
       },
       {
         id: "a.restore",

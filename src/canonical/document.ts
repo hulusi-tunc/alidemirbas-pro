@@ -2443,7 +2443,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "x.reconciled",
           "h.review",
           "h.resign",
-          "h.remedy"
+          "x.action-on-wrong-version"
         ]
       },
       "secondary": [],
@@ -2611,20 +2611,16 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Preserve what was done and under which version it was done. The action happened - what to do about it is a separate question with its own authority, and rewriting the record to show the right version leaves an effect with no cause",
         writes: [{ field: "document_log", mode: "append" }],
-        next: "h.remedy",
+        next: "x.action-on-wrong-version",
         idempotencyKey: "document_lineage_id + conflict_id + a.preserve-history",
       },
       {
-        id: "h.remedy",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a business action taken on a non-authoritative document version",
-        carries: [
-          "what was done, under which version, and what the authoritative version says instead - conflict_id stands in for REM-157's obligation_id",
-          "the explicit fact that the history is preserved intact - the remedy addresses the consequence rather than the record",
-          "a fresh issue_id, minted at this handoff and deterministically derived from conflict_id - DOC-220 has no issue concept of its own, so REM-157's instance is opened here rather than carried",
-        ],
-        contract: { requiredFields: ["issue_id", "obligation_id"] },
+        id: "x.action-on-wrong-version",
+        kind: "exit",
+        state: "a business action was taken on a non-authoritative document version; what was done, under which version, and what the authoritative version says instead are recorded, and the history is preserved intact, but the consequence itself is not resolved here - there is no remedy engine in this journey to hand it to",
+        terminal: false,
+        reEntry: "a further inconsistency in this lineage is assessed with this record as part of its evidence",
+        class: "no-action",
       },
       {
         id: "x.reconciled",

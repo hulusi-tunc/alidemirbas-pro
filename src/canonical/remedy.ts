@@ -725,7 +725,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         "type": "exit-or-handoff",
         "refs": [
           "x.rejected",
-          "h.alternative",
+          "x.no-return-route",
           "h.undefined",
           "h.escalate",
           "h.transit"
@@ -793,21 +793,17 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Nothing to return",
             when: "the delivery was a service performed, a consumed resource, or something with no return path",
-            to: "h.alternative",
+            to: "x.no-return-route",
           },
         ],
       },
       {
-        id: "h.alternative",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a return requested against something that cannot be returned",
-        carries: [
-          "the request and the unresolved obligation behind it - original_fulfillment_id becomes REM-157's obligation_id",
-          "the fact that no return route exists, so the remedy is something else rather than nothing",
-          "a fresh issue_id, minted at this handoff and deterministically derived from return_request_id - REM-152 has no issue concept of its own, so REM-157's instance is opened here rather than carried",
-        ],
-        contract: { requiredFields: ["issue_id", "obligation_id"] },
+        id: "x.no-return-route",
+        kind: "exit",
+        state: "a return was requested against something that cannot be returned; the request and the unresolved obligation behind it are recorded, and the fact that no return route exists, but no remedy engine in this journey decides what the remedy is instead",
+        terminal: false,
+        reEntry: "the obligation being resolved another way is recorded against this request",
+        class: "no-action",
       },
       {
         id: "c.policy",
@@ -1225,31 +1221,29 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record RETURN_ACCEPTED for the full authorised scope",
         writes: [{ field: "return_log", mode: "append" }],
-        next: "h.remedy",
+        next: "x.inspected",
       },
       {
         id: "a.partial",
         kind: "action",
         does: "Record PARTIALLY_ACCEPTED, naming exactly which scope is accepted and which is not. The two are carried separately because whatever remedy follows applies to one of them and not the other",
         writes: [{ field: "return_log", mode: "append" }],
-        next: "h.remedy",
+        next: "x.inspected",
       },
       {
         id: "a.reject",
         kind: "action",
         does: "Record RETURN_REJECTED_AFTER_RECEIPT with the reason. The receipt record stands - we still physically hold the thing, and what happens to it is part of what the remedy decision now has to cover",
         writes: [{ field: "return_log", mode: "append" }],
-        next: "h.remedy",
+        next: "x.inspected",
       },
       {
-        id: "h.remedy",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a return inspected and its accepted scope established",
-        carries: [
-          "the accepted and rejected scope, separately",
-          "what we are physically holding and what has to happen to it, which the remedy decision now covers",
-        ],
+        id: "x.inspected",
+        kind: "exit",
+        state: "the return is inspected and its accepted and rejected scope established, along with what we are physically holding and what has to happen to it; no remedy engine in this journey decides what happens next",
+        terminal: false,
+        reEntry: "a remedy decision being recorded is attached to this inspection",
+        class: "no-action",
       },
     ],
     guardrails: [
@@ -1340,7 +1334,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Cannot wait",
             when: "the delay would exceed what policy or the customer accepts",
-            to: "h.alternative",
+            to: "x.replacement-unavailable",
           },
         ],
       },
@@ -1354,7 +1348,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           reason:
             "a replacement that never becomes available is a remedy that is not happening, and saying so is better than an open case that quietly ages",
         },
-        onTimeout: "h.alternative",
+        onTimeout: "x.replacement-unavailable",
         windowExtendsOnEngagement: false,
       },
       {
@@ -1374,7 +1368,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           reason:
             "a replacement outliving its deadline has stopped being the remedy in progress and become another unresolved obligation on top of the first",
         },
-        onTimeout: "h.alternative",
+        onTimeout: "x.replacement-unavailable",
         windowExtendsOnEngagement: false,
       },
       {
@@ -1390,7 +1384,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Failed or cancelled",
             when: "the replacement did not complete",
-            to: "h.alternative",
+            to: "x.replacement-unavailable",
           },
         ],
       },
@@ -1405,14 +1399,12 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.alternative",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a replacement that cannot be delivered",
-        carries: [
-          "why the replacement could not be completed",
-          "the unresolved obligation, unchanged, and whatever remedies remain available for it",
-        ],
+        id: "x.replacement-unavailable",
+        kind: "exit",
+        state: "a replacement cannot be delivered; why it could not be completed, and the unresolved obligation, unchanged, are recorded, but no remedy engine in this journey decides what remedy remains available",
+        terminal: false,
+        reEntry: "a further remedy attempt being recorded is attached to this replacement's history",
+        class: "no-action",
       },
     ],
     guardrails: [
@@ -1487,10 +1479,10 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     },
     measurement: {
       "journeyOutcome": {
-        "type": "handoff",
+        "type": "exit-or-handoff",
         "refs": [
           "h.verify",
-          "h.alternative",
+          "x.correction-failed",
           "h.escalate"
         ]
       },
@@ -1599,7 +1591,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Failed",
             when: "the correction could not produce the required outcome",
-            to: "h.alternative",
+            to: "x.correction-failed",
           },
         ],
       },
@@ -1622,14 +1614,12 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.alternative",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a correction that could not produce the required outcome",
-        carries: [
-          "what was attempted and why it failed",
-          "the unresolved obligation and whatever remedies remain available for it",
-        ],
+        id: "x.correction-failed",
+        kind: "exit",
+        state: "a correction was attempted and could not produce the required outcome; what was attempted, why it failed, and the unresolved obligation are recorded, but no remedy engine in this journey decides what remedy remains available",
+        terminal: false,
+        reEntry: "a further remedy attempt being recorded is attached to this correction's history",
+        class: "no-action",
       },
       {
         id: "h.escalate",
@@ -1646,547 +1636,6 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "Correction resolves a defective outcome by creating a new corrective action while preserving the historical fact that the original outcome was incorrect.",
-  },
-
-  /* ------------------------------------------------------------ REM-157 */
-  {
-    id: "REM-157",
-    slug: "remedy-selection",
-    category: "remedy",
-    goal: "compensation-remedy",
-    channels: ["email"],
-    name: "Remedy selection → resolve obligation → financial handoff if needed",
-    shortName: "Remedy Confirmation",
-    purpose:
-      "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
-    entity: {
-      scope: "the confirmed issue and the unresolved obligation behind it",
-      note: "The obligation is the input, not the complaint. What is owed and what someone is upset about are related and not the same, and only the first can be satisfied.",
-      instanceKey: [
-        "issue_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "FIN-137",
-        because:
-          "This decides which remedy applies. FIN-137 runs only if that decision is a refund, and then decides whether the refund is owed - a separate eligibility with separate rules.",
-      },
-      {
-        journey: "FIN-302",
-        because:
-          "This journey says which remedy will resolve the obligation, and a refund is only one of the answers it can give. FIN-302 says that money is actually moving and whether it arrived, which is two decisions further down the chain - a remedy confirmed here is never money arrived, and this journey never announces the movement.",
-      },
-      {
-        // Reciprocal row lives in SUB-298's own section (src/canonical/subscription.ts, out of this batch's scope).
-        journey: "SUB-298",
-        because:
-          "SUB-298 decides a subscription-specific consequence of its own lifecycle. This journey decides which remedy satisfies an unresolved fulfillment or service obligation, on any order - the two never resolve the same question even where the same subscription happens to be the entity behind both.",
-      },
-    ],
-    objective: "Choose the remedy that would actually satisfy the unresolved obligation, from the ones that genuinely exist.",
-    eligibility: [
-      "a confirmed issue with an unresolved obligation and no remedy yet selected",
-      "no instance of this journey is already open for the the confirmed issue and the unresolved obligation behind it",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "A refund is not the universal remedy."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "Compensation and resolution may be separate, and resolving the obligation does not require compensating for it."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "Remedies that are not actually available are not offered."
-      },
-      {
-        "id": "s.g4",
-        "label": "CANONICAL_RULE",
-        "text": "The selection starts from the unresolved obligation rather than from the complaint."
-      },
-      {
-        "id": "s.money",
-        "label": "CANONICAL_RULE",
-        "text": "No message from this journey states the money. That a refund is owed is FIN-137's decision and that it has moved is FIN-302's announcement; this journey names the remedy and nothing about the payment."
-      }
-    ],
-    contact: {
-      "defaultPriority": "service",
-      "pressureClass": "service",
-      "localCap": {
-        "value": {
-          "key": "remedy_selection.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 2,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "remedy_selection.cooldown",
-        "rule": "This journey is per the confirmed issue and the unresolved obligation behind it; a later instance concerns a different the confirmed issue and the unresolved obligation behind it and no cooldown applies between them.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule",
-          "applicableWhen": "the entity note: one instance per entity"
-        },
-        "required": false
-      },
-      "competition": {
-        "exclusionGroup": "service-request",
-        "scope": "topic",
-        "precedence": "lowest in the service-request group: it speaks only once a confirmed issue names an unresolved obligation, and while the support request acknowledgement (REM-305) or the post-purchase issue routing (REM-151) holds the case this journey is suppressed for it - a remedy offered before anybody has said the problem is real is an admission nobody made",
-        "onLoss": "suppressed"
-      }
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        }
-      ],
-      "fallback": "none",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "notice-then-confirm",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "present",
-          "action": "a.present",
-          "prerequisites": [
-            "c.choice"
-          ],
-          "purpose": "Present only the options that are genuinely available, with what each would mean",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "remedy-options",
-            "boundTo": "issue_id",
-            "mustNotClaim": [
-              "a remedy that is not actually available"
-            ]
-          }
-        },
-        {
-          "id": "t2",
-          "stage": "no-remedy",
-          "action": "a.no-remedy",
-          "prerequisites": [
-            "c.choice",
-            "c.route"
-          ],
-          "purpose": "State that the obligation is considered satisfied, or that policy provides no remedy for the facts as confirmed, and name a separate appeal or escalation route only where one actually exists.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "appeal-or-escalation-route",
-            "boundTo": "issue_id"
-          }
-        },
-        {
-          "id": "t3",
-          "stage": "remedy-confirmed",
-          "action": "a.confirm-correction",
-          "prerequisites": [
-            "c.choice",
-            "c.route"
-          ],
-          "purpose": "State which remedy resolves the obligation and what happens next.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "remedy-confirmation",
-            "boundTo": "issue_id",
-            "mustNotClaim": [
-              "a date the receiving journey has not committed to",
-              "that the remedy is complete",
-            ]
-          }
-        },
-        {
-          "id": "t3b",
-          "stage": "remedy-confirmed",
-          "action": "a.confirm-replacement",
-          "prerequisites": [
-            "c.choice",
-            "c.route"
-          ],
-          "purpose": "State which remedy resolves the obligation and what happens next.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "remedy-confirmation",
-            "boundTo": "issue_id",
-            "mustNotClaim": [
-              "a date the receiving journey has not committed to",
-              "that the remedy is complete",
-            ]
-          }
-        },
-        {
-          "id": "t3c",
-          "stage": "remedy-confirmed",
-          "action": "a.confirm-return",
-          "prerequisites": [
-            "c.choice",
-            "c.route"
-          ],
-          "purpose": "State which remedy resolves the obligation and what happens next.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "remedy-confirmation",
-            "boundTo": "issue_id",
-            "mustNotClaim": [
-              "a date the receiving journey has not committed to",
-              "that the remedy is complete",
-            ]
-          }
-        },
-        {
-          "id": "t3d",
-          "stage": "remedy-confirmed",
-          "action": "a.confirm-refund",
-          "prerequisites": [
-            "c.choice",
-            "c.route"
-          ],
-          "purpose": "State which remedy resolves the obligation and what happens next.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "remedy-confirmation",
-            "boundTo": "issue_id",
-            "mustNotClaim": [
-              "a refund: not the amount, not when it will appear, not whether it has settled",
-              "a date the receiving journey has not committed to",
-              "that the remedy is complete",
-            ]
-          }
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "issue_id",
-          "obligation_id",
-          "available_remedies",
-          "counterparty_chooses",
-          "remedy_log"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.no-remedy",
-          "h.correction",
-          "h.replacement",
-          "h.return",
-          "h.financial"
-        ]
-      },
-      "businessOutcome": {
-        "event": "remedy_selected",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "not-applicable"
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "remedy confirmation",
-        "remedy selection",
-        "choose a remedy",
-        "resolution options",
-        "refund or replacement choice"
-      ],
-      "useCases": [
-        "the remedy that would actually satisfy the obligation, chosen from the ones that exist",
-        "no remedy owed, stated with a separate appeal route"
-      ]
-    },
-    entry: "t.decision",
-    nodes: [
-      {
-        id: "t.decision",
-        kind: "trigger",
-        event: "remedy_decision_required",
-        evidence: {
-          requires: ["a confirmed issue with an unresolved obligation and no remedy yet selected"],
-          insufficientAlone: [
-            "a complaint received but not yet established as an operational fault, which is FBK-43's question",
-            "a refund request, which presumes the remedy this journey has not yet decided",
-          ],
-          source: "authoritative",
-        },
-        next: "a.obligation",
-      },
-      {
-        id: "a.obligation",
-        kind: "action",
-        does: "Identify the unresolved obligation precisely - what was owed that has not been delivered, or what was delivered that is not what was owed. The remedy is chosen to satisfy that rather than to satisfy the complaint, and compensation for the inconvenience is a separate question asked separately",
-        writes: [{ field: "remedy_log", mode: "append" }],
-        next: "a.evaluate",
-        idempotencyKey: "obligation_id + issue_id + a.obligation",
-      },
-      {
-        id: "a.evaluate",
-        kind: "action",
-        does: "Evaluate the remedies policy actually makes available for this obligation. A remedy that cannot be delivered is not offered - offering one converts a solvable problem into a broken second promise, and the second one costs more than the first",
-        next: "c.choice",
-      },
-      {
-        id: "c.choice",
-        kind: "condition",
-        asks: "Does the counterparty choose between remedies?",
-        branches: [
-          {
-            label: "They choose",
-            when: "more than one available remedy would satisfy the obligation and the preference is theirs",
-            observes: "available_remedies",
-            to: "a.present",
-          },
-          {
-            label: "No choice to make",
-            when: "one remedy applies, or policy determines it",
-            observes: "available_remedies",
-            to: "c.route",
-          },
-        ],
-      },
-      {
-        id: "a.present",
-        kind: "action",
-        does: "Present only the options that are genuinely available, with what each would mean",
-        writes: [{ field: "remedy_log", mode: "append" }],
-        next: "w.selection",
-        execution: "communication",
-        idempotencyKey: "obligation_id + issue_id + a.present",
-      },
-      {
-        id: "w.selection",
-        kind: "wait",
-        until: [
-          "remedy_selected"
-        ],
-        onEvent: "c.route",
-        timeout: {
-          "after": {
-            "key": "remedy_selection.selection",
-            "rule": "The choice of remedy is waited for a bounded period from the options being presented; an unanswered choice takes the policy default.",
-            "class": "response-window",
-            "required": true
-          },
-          "reason": "an unanswered choice leaves the obligation unresolved, and a default that policy defines is better than an open case waiting on someone who has moved on",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "a.default",
-        windowExtendsOnEngagement: false,
-        recheck: "the the confirmed issue and the unresolved obligation behind it re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "a.default",
-        kind: "action",
-        does: "Apply the remedy policy defines as the default where one exists, recording that no selection was made rather than presenting the default as a choice",
-        writes: [{ field: "remedy_log", mode: "append" }],
-        next: "c.route",
-        idempotencyKey: "obligation_id + issue_id + a.default",
-      },
-      {
-        id: "c.route",
-        kind: "condition",
-        asks: "Which remedy resolves the obligation?",
-        branches: [
-          {
-            label: "Correction or reperformance",
-            when: "what exists can be made right, or the service can be performed again",
-            observes: "available_remedies",
-            to: "a.confirm-correction",
-          },
-          {
-            label: "Replacement",
-            when: "a different instance of the thing is what satisfies the obligation",
-            observes: "available_remedies",
-            to: "a.confirm-replacement",
-          },
-          {
-            label: "Return, before anything else",
-            when: "the resource has to come back before a further remedy can be settled, and a return was not already rejected for this issue - a rejected return does not get re-selected when REM-152 routes an already-rejected return back here as an alternative; that routing already arrives at this same condition with the rejection recorded, and this branch's condition is false the second time",
-            observes: "available_remedies",
-            to: "a.confirm-return",
-          },
-          {
-            label: "Refund or credit",
-            when: "money is the remedy the obligation calls for",
-            observes: "available_remedies",
-            to: "a.confirm-refund",
-          },
-          {
-            label: "No remedy is owed",
-            when: "the obligation turns out to be satisfied, or no remedy applies under policy",
-            observes: "available_remedies",
-            to: "a.no-remedy",
-          },
-        ],
-      },
-      {
-        id: "a.confirm-correction",
-        kind: "action",
-        does: "Re-read the obligation before confirming - a correction already begun elsewhere, or an obligation satisfied meanwhile, is not confirmed as a decision still open. State that correction or reperformance is the remedy that resolves the obligation and what happens next, naming the policy default and that no selection was made where the selection window timed out. Claim no date the receiving journey has not committed to, and never that the remedy is already complete - it has been selected, not performed",
-        execution: "communication",
-        next: "h.correction",
-        idempotencyKey: "obligation_id + issue_id + a.confirm-correction",
-      },
-      {
-        id: "a.confirm-replacement",
-        kind: "action",
-        does: "Re-read the obligation before confirming - a replacement already begun elsewhere, or an obligation satisfied meanwhile, is not confirmed as a decision still open. State that a replacement is the remedy that resolves the obligation and what happens next, naming the policy default and that no selection was made where the selection window timed out. Claim no date the receiving journey has not committed to, and never that the remedy is already complete - it has been selected, not performed",
-        execution: "communication",
-        next: "h.replacement",
-        idempotencyKey: "obligation_id + issue_id + a.confirm-replacement",
-      },
-      {
-        id: "a.confirm-return",
-        kind: "action",
-        does: "Re-read the obligation before confirming - a return already begun elsewhere, or an obligation satisfied meanwhile, is not confirmed as a decision still open. State that a return is the remedy that resolves the obligation, before anything else, and what happens next, naming the policy default and that no selection was made where the selection window timed out. Claim no date the receiving journey has not committed to, and never that the remedy is already complete - it has been selected, not performed",
-        execution: "communication",
-        next: "h.return",
-        idempotencyKey: "obligation_id + issue_id + a.confirm-return",
-      },
-      {
-        id: "a.confirm-refund",
-        kind: "action",
-        does: "Re-read the obligation before confirming - a refund already begun elsewhere, or an obligation satisfied meanwhile, is not confirmed as a decision still open. State that a refund or credit is the remedy that resolves the obligation and what happens next, naming the policy default and that no selection was made where the selection window timed out. Name the remedy only - never the amount, never when it will appear, never whether it has settled, and never a date the receiving journey has not committed to or that the remedy is already complete",
-        execution: "communication",
-        next: "h.financial",
-        idempotencyKey: "obligation_id + issue_id + a.confirm-refund",
-      },
-      {
-        id: "h.correction",
-        kind: "handoff",
-        to: "REM-156",
-        on: "correction or reperformance selected",
-        carries: ["the defect and the corrected outcome required", "the affected scope"],
-      },
-      {
-        id: "h.replacement",
-        kind: "handoff",
-        to: "REM-155",
-        on: "replacement selected",
-        carries: ["the original fulfillment and the defect", "the replacement scope required"],
-      },
-      {
-        id: "h.return",
-        kind: "handoff",
-        to: "REM-152",
-        on: "a return required before the remedy can be settled",
-        carries: [
-          "the resource to be returned and why",
-          "the remedy that is waiting on it, so the return is not mistaken for the remedy itself",
-        ],
-      },
-      {
-        id: "h.financial",
-        kind: "handoff",
-        to: "FIN-137",
-        on: "a refund or credit selected as the remedy",
-        carries: [
-          "the original transaction and the unresolved scope the refund would cover",
-          "the explicit fact that this journey selected the remedy and did not decide the refund is owed",
-        ],
-      },
-      {
-        id: "a.no-remedy",
-        kind: "action",
-        does: "State that the obligation is considered satisfied, or that policy provides no remedy for the facts as confirmed, and name a separate appeal or escalation route only where one actually exists. This journey opens from a confirmed issue - reaching no remedy and saying nothing leaves the person believing the question is still open",
-        execution: "communication",
-        next: "x.no-remedy",
-        idempotencyKey: "obligation_id + issue_id + a.no-remedy",
-      },
-      {
-        id: "x.no-remedy",
-        kind: "exit",
-        state: "no remedy owed; the obligation is satisfied or none applies",
-        terminal: false,
-        reEntry:
-          "new evidence about the obligation re-opens this. Compensation for impact, if any is appropriate, is a separate decision that this outcome does not settle either way",
-        class: "success",
-      },
-    ],
-    guardrails: [
-      "A refund is not the universal remedy.",
-      "Compensation and resolution may be separate, and resolving the obligation does not require compensating for it.",
-      "Remedies that are not actually available are not offered.",
-      "The selection starts from the unresolved obligation rather than from the complaint.",
-    ],
-    reusableRule:
-      "Remedy selection should be driven by the unresolved obligation and available policy rather than by a default compensation mechanism.",
   },
 
   /* ------------------------------------------------------------ REM-158 */
@@ -2273,7 +1722,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         asks: "Did the remedy complete?",
         branches: [
           { label: "Completed", when: "the remedy's own outcome was achieved", to: "c.resolved" },
-          { label: "Failed", when: "the remedy did not complete", to: "h.alternative" },
+          { label: "Failed", when: "the remedy did not complete", to: "x.remedy-failed" },
         ],
       },
       {
@@ -2294,7 +1743,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Not resolved",
             when: "the remedy completed and the obligation is still outstanding - the replacement arrived and is also wrong",
-            to: "h.continue",
+            to: "x.obligation-remains",
           },
         ],
       },
@@ -2318,24 +1767,23 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record the remaining obligation explicitly, so what is still owed is a stated scope rather than a vague sense that something is outstanding",
         writes: [{ field: "remedy_log", mode: "append" }],
-        next: "h.continue",
+        next: "x.obligation-remains",
       },
       {
-        id: "h.continue",
-        kind: "handoff",
-        to: "REM-157",
-        on: "an obligation still outstanding after a completed remedy",
-        carries: [
-          "what the remedy did achieve and what remains owed",
-          "the fact that this remedy has already been tried, which usually changes which one is chosen next",
-        ],
+        id: "x.obligation-remains",
+        kind: "exit",
+        state: "the remedy completed but the obligation is still outstanding; what the remedy did achieve, what remains owed, and the fact that this remedy has already been tried are recorded, but no remedy engine in this journey chooses what comes next",
+        terminal: false,
+        reEntry: "a further remedy attempt being recorded is attached to this obligation's history",
+        class: "no-action",
       },
       {
-        id: "h.alternative",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a remedy that failed to complete",
-        carries: ["why it failed", "the unresolved obligation and the remedies still available"],
+        id: "x.remedy-failed",
+        kind: "exit",
+        state: "a remedy failed to complete; why it failed and the unresolved obligation are recorded, but no remedy engine in this journey decides which remedy remains available",
+        terminal: false,
+        reEntry: "a further remedy attempt being recorded is attached to this remedy's history",
+        class: "no-action",
       },
     ],
     guardrails: [
@@ -2362,13 +1810,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       scope: "the compensation case and the experience or issue that prompted it",
       note: "Independent of the remedy. A resolved problem may warrant compensation and an unresolved one may not, and the two decisions answer different questions.",
     },
-    distinctFrom: [
-      {
-        journey: "REM-157",
-        because:
-          "REM-157 chooses what satisfies the obligation. This decides whether the impact of the failure warrants something beyond that. A credit does not deliver the thing that was owed, and treating it as the remedy leaves someone holding money and the same broken outcome.",
-      },
-    ],
+    distinctFrom: [],
     entry: "t.considered",
     nodes: [
       {
@@ -2672,7 +2114,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Retry the remedy path",
             when: "the previous attempt failed in execution rather than in diagnosis",
-            to: "h.remedy",
+            to: "x.remedy-decision-owed",
           },
         ],
       },
@@ -2687,14 +2129,12 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.remedy",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a reopened issue needing a remedy decision",
-        carries: [
-          "the recalculated obligation and every remedy already tried",
-          "which of them failed in execution, which is what makes a repeat worth attempting",
-        ],
+        id: "x.remedy-decision-owed",
+        kind: "exit",
+        state: "the issue is reopened and needs a remedy decision; the recalculated obligation, every remedy already tried and which of them failed in execution are recorded, but no remedy engine in this journey makes that decision",
+        terminal: false,
+        reEntry: "a remedy decision being recorded is attached to this reopened issue",
+        class: "no-action",
       },
     ],
     guardrails: [
@@ -2764,7 +2204,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "While this journey holds the request in the service-request group, the issue assessment (REM-151) and remedy selection (REM-157) say nothing to the requester about the same problem; once ownership moves at the handoff, this journey sends nothing further (GLB-06). A requester hearing from two places before the first answer reads it as two teams who have not spoken."
+        "text": "While this journey holds the request in the service-request group, the issue assessment (REM-151) says nothing to the requester about the same problem; once ownership moves at the handoff, this journey sends nothing further (GLB-06). A requester hearing from two places before the first answer reads it as two teams who have not spoken."
       },
       {
         "id": "s.no-outcome",
@@ -2808,7 +2248,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "service-request",
         "scope": "topic",
-        "precedence": "highest in the service-request group while the request is still only a request: until ownership moves at the handoff, neither the issue assessment (REM-151) nor remedy selection (REM-157) speaks to the requester about the same problem, because the first thing somebody hears after raising a problem has to be that it arrived and who has it",
+        "precedence": "highest in the service-request group while the request is still only a request: until ownership moves at the handoff, the issue assessment (REM-151) does not speak to the requester about the same problem, because the first thing somebody hears after raising a problem has to be that it arrived and who has it",
         "onLoss": "suppressed"
       }
     },
@@ -3001,10 +2441,6 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "REM-151",
         "because": "REM-151 starts from a concrete problem with something already delivered and establishes whether an obligation exists. This runs before that question is asked: its subject is the request, not the problem, and its whole job is that the requester knows it arrived and who has it."
-      },
-      {
-        "journey": "REM-157",
-        "because": "REM-157 chooses the remedy that would satisfy an obligation already established. This states no outcome at all, because at the moment it sends there is nothing established to state."
       },
       {
         "journey": "FBK-43",

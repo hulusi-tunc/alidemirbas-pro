@@ -147,7 +147,16 @@ export const ARCHIVED_SURFACE = "operational" as const;
    its `competition` field set to the literal "none") and FIN-134's
    (which had misnamed its own real handoff target as TIM-274 rather
    than TIM-65, the journey its h.grace actually points to - corrected
-   in the same edit) - taking the library to 46.
+   in the same edit) - taking the library to 46. REM-157 (Remedy
+   Confirmation) was retired next, the site owner's request - it had 13
+   real inbound handoffs across data.ts, decision.ts, document.ts,
+   incident.ts, remedy.ts (x7), scheduling.ts (x2) and time.ts, each
+   converted into a genuine exit since no sibling journey has its own
+   remedy-selection machinery to merge into. Three prose distinctFrom
+   rows (financial.ts, remedy.ts, subscription.ts) naming it were
+   removed, along with a fourth prose mention in a financial.ts
+   suppression's own text and the "remedy selection (REM-157)" clause in
+   REM-305's own suppression/precedence prose - taking the library to 45.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -190,7 +199,7 @@ export const ARCHIVED_SURFACE = "operational" as const;
    counts, detail routes, sitemap, search index, cross-journey links and both
    locale trees all drop them from one edit. An excluded journey's cross-
    reference from a journey that stayed (FBK-43 → FBK-46,
-   REM-157 → REM-152/FIN-137, SCH-280 → SCH-180, CON-272's `distinctFrom`)
+   SCH-280 → SCH-180, CON-272's `distinctFrom`)
    renders as the target's NAME IN TEXT, never as a link - exactly what an
    archived operational target already does, no new mechanism. */
 export const EXCLUDED_FROM_PUBLIC: ReadonlySet<string> = new Set([
@@ -215,9 +224,9 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "FBK-41", "FBK-43",
   // Access, identity & relationship - 2
   "ACC-261", "REL-284",
-  // Transactions, fulfillment & remedies - 10
+  // Transactions, fulfillment & remedies - 8
   "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291",
-  "REM-151", "REM-157", "REM-305",
+  "REM-151", "REM-305",
   // Subscriptions & scheduling - 10
   "SCH-266", "SCH-282", "SCH-303", "SCH-304", "SUB-163",
   "SUB-262", "SUB-296", "SUB-297", "SUB-298", "SUB-299",

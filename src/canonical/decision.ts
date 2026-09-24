@@ -2500,7 +2500,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "They need correcting now",
             when: "the execution was wrong on its own terms - an error, or an upstream correction that invalidates it",
-            to: "h.correct",
+            to: "x.correction-owed",
           },
           {
             label: "They stand pending the new decision",
@@ -2510,14 +2510,12 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.correct",
-        kind: "handoff",
-        to: "REM-157",
-        on: "executed consequences that need correcting independently of the reconsidered decision",
-        carries: [
-          "what was executed, on whose authority and when",
-          "the explicit fact that changing the decision record does not undo any of it - the correction is its own lifecycle with its own outcome",
-        ],
+        id: "x.correction-owed",
+        kind: "exit",
+        state: "what was executed, on whose authority and when is recorded as needing correction independently of the reconsidered decision; changing the decision record does not undo any of it, and no remedy engine in this journey picks up the correction",
+        terminal: false,
+        reEntry: "the correction being recorded reopens this case with that correction as part of its history",
+        class: "no-action",
       },
       {
         id: "h.review",

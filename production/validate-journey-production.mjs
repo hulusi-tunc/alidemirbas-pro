@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 280", journeys.length === 280);
+check(1, "active journey count = 279", journeys.length === 279);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -365,6 +365,28 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 279 journeys / 3689 nodes (2026-09-24). REM-157
+// (Remedy Confirmation) was retired, the site owner's request. It was a
+// heavily-connected hub with 13 real inbound handoffs - data.ts's
+// h.remedy, decision.ts's h.correct, document.ts's h.remedy (which
+// minted a fresh issue_id at the handoff), incident.ts's h.remedy,
+// remedy.ts's REM-152 h.alternative, REM-154 h.remedy, REM-155
+// h.alternative, REM-156 h.alternative, REM-158 h.continue and
+// h.alternative, and REM-160 h.remedy, scheduling.ts's SCH-178
+// h.remainder and SCH-180 h.remedy (the latter also minting a fresh
+// issue_id), and time.ts's h.forward - each converted into a genuine
+// exit rather than reinvented inline logic, since no sibling journey
+// has its own remedy-selection machinery to merge into. Four prose
+// distinctFrom rows naming it (REM-159 and REM-305 in remedy.ts,
+// financial.ts, subscription.ts) were removed, along with the
+// "remedy selection (REM-157)" clause in REM-305's own suppression and
+// competition precedence text and a fifth prose mention in a
+// financial.ts suppression. REM-157's own TR override block was
+// deleted and the affected TR node translations in the caller
+// journeys were updated to match. 280 -> 279 journeys, -18 nodes net.
+// Rules (423), global rules (31) and merged redirects (8) are
+// unchanged.
 //
 // FROZEN BASELINE: 280 journeys / 3707 nodes (2026-09-24). TIM-274
 // (Grace Period Recovery) was retired, the site owner's request. It had
@@ -814,9 +836,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (280 journeys / 3707 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 280 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3707 &&
+  "canonical source mutation = 0 (279 journeys / 3689 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 279 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3689 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

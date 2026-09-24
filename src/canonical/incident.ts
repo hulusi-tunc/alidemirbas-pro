@@ -1201,7 +1201,7 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Some remain",
             when: "refunds, credits, compensation or unmet service obligations were created by the incident",
-            to: "h.remedy",
+            to: "x.obligations-remain",
           },
           {
             label: "None",
@@ -1211,14 +1211,12 @@ export const INCIDENT_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.remedy",
-        kind: "handoff",
-        to: "REM-157",
-        on: "obligations surviving an incident's closure",
-        carries: [
-          "the obligations, their affected scope and what created them",
-          "the explicit fact that the incident is resolved and these are not - they run on their own lifecycle at their own pace",
-        ],
+        id: "x.obligations-remain",
+        kind: "exit",
+        state: "the incident is resolved but obligations it created - refunds, credits, compensation or unmet service commitments - are recorded as still outstanding; they run on their own lifecycle, and no remedy engine in this journey picks them up",
+        terminal: false,
+        reEntry: "an obligation being resolved is recorded against this incident's history rather than reopening it",
+        class: "no-action",
       },
       {
         id: "c.review",

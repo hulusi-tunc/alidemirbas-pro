@@ -2089,7 +2089,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         "refs": [
           "x.completed",
           "h.reconcile",
-          "h.remainder",
+          "x.remainder-owed",
           "h.reschedule",
           "h.provider",
           "h.rebook"
@@ -2246,18 +2246,16 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record PARTIALLY_COMPLETED with exactly what was delivered and what remains. Attendance is not a successful outcome, and a half-delivered service recorded as complete closes something the customer is still owed - they will find out, and they will find out later than we could have told them",
         writes: [{ field: "occurrence_log", mode: "append" }],
-        next: "h.remainder",
+        next: "x.remainder-owed",
         idempotencyKey: "booking_id + a.partial",
       },
       {
-        id: "h.remainder",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a scheduled service delivered only in part",
-        carries: [
-          "the delivered scope and the remaining obligation, separately",
-          "the explicit fact that the appointment occurred, so this is a shortfall rather than a missed service",
-        ],
+        id: "x.remainder-owed",
+        kind: "exit",
+        state: "the appointment occurred but the service was delivered only in part; the delivered scope and the remaining obligation are recorded separately, and this is a shortfall rather than a missed service, but no remedy engine in this journey resolves it",
+        terminal: false,
+        reEntry: "the remaining obligation being resolved is recorded against this occurrence",
+        class: "no-action",
       },
       {
         id: "a.interrupt",
@@ -2290,7 +2288,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "A remedy",
             when: "the shortfall needs resolving rather than repeating",
-            to: "h.remainder",
+            to: "x.remainder-owed",
           },
         ],
       },
@@ -2846,7 +2844,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "x.reallocated",
           "x.cancelled-provider",
           "h.reschedule",
-          "h.remedy",
+          "x.service-obligation-owed",
           "h.financial"
         ]
       },
@@ -3040,7 +3038,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "An unresolved service obligation",
             when: "the customer still needs the service and it has not been delivered",
-            to: "h.remedy",
+            to: "x.service-obligation-owed",
           },
           {
             label: "Money to return",
@@ -3055,16 +3053,12 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.remedy",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a service obligation left unresolved by a provider-side failure",
-        carries: [
-          "the obligation as it stands and the fact that the customer did nothing wrong - provider_failure_id stands in for REM-157's obligation_id",
-          "the explicit fact that the impact of the failure is a separate question from the obligation, and compensation is decided on its own terms",
-          "a fresh issue_id, minted at this handoff and deterministically derived from provider_failure_id - SCH-180 has no issue concept of its own, so REM-157's instance is opened here rather than carried",
-        ],
-        contract: { requiredFields: ["issue_id", "obligation_id"] },
+        id: "x.service-obligation-owed",
+        kind: "exit",
+        state: "a service obligation is left unresolved by a provider-side failure; the obligation as it stands and the fact that the customer did nothing wrong are recorded, and the impact of the failure is a separate question from the obligation, but no remedy engine in this journey resolves either",
+        terminal: false,
+        reEntry: "the obligation being resolved is recorded against this failure's history",
+        class: "no-action",
       },
       {
         id: "h.financial",

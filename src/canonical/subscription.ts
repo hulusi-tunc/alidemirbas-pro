@@ -5079,10 +5079,6 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "SUB-299",
         "because": "SUB-299 states that the membership's own standing moved. This states that a single reward was credited, which can happen many times inside one standing and changes nothing about it."
-      },
-      {
-        "journey": "REM-157",
-        "because": "REM-157 confirms that a remedy for something that went wrong has been carried out. This confirms an ordinary earned state on a membership, with nothing having gone wrong."
       }
     ],
     "guardrails": [

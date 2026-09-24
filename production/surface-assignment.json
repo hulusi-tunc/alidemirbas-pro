@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 280,
-    "customer": 131,
+    "journeys": 279,
+    "customer": 130,
     "customer-silent": 66,
-    "customer-communicating": 65,
+    "customer-communicating": 64,
     "mechanism": 25,
     "operational": 124
   },
@@ -1835,17 +1835,6 @@
       "silent": true,
       "excludedFromPublic": false,
       "reason": "silent lifecycle state: category \"remedy\" and a customer-worded entity"
-    },
-    {
-      "id": "REM-157",
-      "shortName": "Remedy Confirmation",
-      "category": "remedy",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
     },
     {
       "id": "REM-158",

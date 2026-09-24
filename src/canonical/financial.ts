@@ -2745,7 +2745,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.decision",
         "label": "CANONICAL_RULE",
-        "text": "The decision to refund is not this journey's to announce. Whether a refund was approved, refused or is under review is said by the journey that decided it (FIN-137), and which remedy would resolve the obligation at all is said by the journey that chose it (REM-157). This one opens only once money is actually moving, and it is the only journey that announces that movement: the case-closure message from the support request acknowledgement (REM-305) says that the request is closed and that a resolution was reached, and states no amount, no timing and no settlement state, so the two complement each other rather than compete."
+        "text": "The decision to refund is not this journey's to announce. Whether a refund was approved, refused or is under review is said by the journey that decided it (FIN-137). This one opens only once money is actually moving, and it is the only journey that announces that movement: the case-closure message from the support request acknowledgement (REM-305) says that the request is closed and that a resolution was reached, and states no amount, no timing and no settlement state, so the two complement each other rather than compete."
       },
       {
         "id": "s.approved",
@@ -3280,10 +3280,6 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "FIN-138",
         "because": "FIN-138 moves the money and verifies it arrived, and it tells nobody - its channels are empty on purpose. This journey is what the person is told about that movement, and every claim it makes is read from FIN-138's own record rather than from the approval behind it."
-      },
-      {
-        "journey": "REM-157",
-        "because": "REM-157 says which remedy would resolve the obligation, and a refund is only one of the answers it can give. This exists only where that answer was a refund and only once the refund has been submitted: a remedy confirmed is not money arrived."
       },
       {
         "journey": "FIN-134",
