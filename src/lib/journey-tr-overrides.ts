@@ -890,11 +890,15 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   },
   "RET-295": {
-  shortName: "Doğum Günü ve Kişisel Dönüm Noktası",
-  name: "Kişiye ait bir tarih yaklaştı → uygunluk kontrol edildi → kutlandı veya gönderilmedi",
+  shortName: "Doğum Günü Akışı",
+  name: "Kişiye ait bir tarih kaydedildi → döngüsü beklendi → uygunluk kontrol edildi → kutlandı veya gönderilmedi",
   purpose: "Kişinin kendisine ait bir tarihi - bize kendi verdiği doğum gününü ya da kendi kaydının ulaştığı bir dönüm noktasını - bir kez dile getirmek ve tanımlanmamış hiçbir şeyi ona iliştirmemek.",
   nodes: {
-    "t.approaching": { headline: "Kişiye ait bir dönüm noktası yaklaşıyor" },
+    "t.recorded": { headline: "Kişiye ait bir tarih kaydedildi" },
+    "w.cycle": {
+      headline: "bu dönüm noktasının döngüsü gelene ya da izin geri çekilene kadar",
+      detail: "Zaman aşımı: dönüm noktasının kendi döngüsü, kayıtlı tarihten bu yana - daha erken değil, başka hiçbir saatte değil. (örnek: 1 yıl; şunu ayarla: milestone_recognition.cycle)",
+    },
     "c.date": {
       headline: "Bu tarih hâlâ bizim kutlayacağımız bir şey mi?",
       edges: [
@@ -905,22 +909,22 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.recognise": {
-      headline: "Tarihi ve neyi işaret ettiğini kişinin kendi diliyle söyle; kaydın desteklemediği hiçbir şeyi dile getirme. Gerçekten tanımlanmış olmadıkça ödül, indirim, seviye ya da ayrıcalıktan söz etme.",
+      headline: "Tarihi ve neyi işaret ettiğini kişinin kendi diliyle bir e-postayla söyle; kaydın desteklemediği hiçbir şeyi dile getirme. Gerçekten tanımlanmış olmadıkça ödül, indirim, seviye ya da ayrıcalıktan söz etme.",
     },
     "a.record-no-action": {
       headline: "Neden kutlama gönderilmediğini ve hangi dönem için olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.recognised": {
       headline: "Kutlandı",
-      detail: "bu dönüm noktasının sonraki dönemi ya da kişiye ait başka bir dönüm noktası kendi örneğini açar",
+      detail: "bu akış bu dönüm noktasını, kendisini açan kayıt olayından itibaren bir kez kutlar; yeni bir tarihle birleştirilen ya da yeniden düzenlenen bir kayıt, ya da kişiye ait gerçekten farklı bir dönüm noktası, bu akışı kendi tetikleyicisinden yeniden başlatır",
     },
     "x.closed": {
       headline: "Mesaj gönderilmeden kapandı",
-      detail: "izni geri gelen ve yeniden açılan bir ilişki sonraki dönemde değerlendirilir; rahatsız edilmemeyi isteyen kişi yeniden alınmaz",
+      detail: "izni geri gelen ve yeniden açılan bir ilişki, tarihin yeni bir kaydıyla bu akışı kendi tetikleyicisinden yeniden başlatır; rahatsız edilmemeyi isteyen kişi yeniden alınmaz",
     },
     "x.no-action": {
       headline: "Kutlama gönderilmedi",
-      detail: "sonraki dönem kendi örneğini açar; bu dönem sonradan telafi edilmez",
+      detail: "bu akış bu dönemi yeniden denemez; yeni bir tarihle birleştirilen ya da yeniden düzenlenen bir kayıt bu akışı kendi tetikleyicisinden yeniden başlatır",
     },
   },
   },

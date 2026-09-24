@@ -4235,6 +4235,7 @@
       "category": "acquisition",
       "goal": "recovery-retry",
       "channels": [
+        "push",
         "email"
       ],
       "name": "Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed",
@@ -4357,11 +4358,18 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "the selection has an app-resumable deep link and a currently deliverable push destination; use it for the first compact return nudge"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "no low-friction route exists, or the touch has to carry the items as they stand and survive until the person can act"
+            "when": "otherwise, and always for the later follow-up where the current selection has to remain available until the person returns"
           }
         ],
         "fallback": "none",
@@ -4382,6 +4390,7 @@
             ],
             "purpose": "The selection as it currently stands - only the items still available - and the link that reopens it. Nothing the system does not assert.",
             "channelRoles": [
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -5041,6 +5050,7 @@
       "category": "acquisition",
       "goal": "recovery-retry",
       "channels": [
+        "in-app",
         "email"
       ],
       "name": "Interest inferred → qualified → resolved into a selection or purchase, or left alone",
@@ -5147,11 +5157,18 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_app_session is true and the unresolved interest subject can be reopened from the current product context"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "no low-friction route exists, or the touch has to carry the thing looked at and survive until the person can act"
+            "when": "otherwise, when the subject and route back need to remain available after the session ends"
           }
         ],
         "fallback": "none",
@@ -5171,6 +5188,7 @@
             ],
             "purpose": "The thing they looked at, as it stands now, and a route back to it. Nothing about stock, price or intent that the system does not assert.",
             "channelRoles": [
+              "in-session",
               "persistent"
             ],
             "destination": {
@@ -7854,6 +7872,8 @@
       "category": "activation",
       "goal": "progression-milestone",
       "channels": [
+        "in-app",
+        "push",
         "email"
       ],
       "name": "Onboarding progress → next best setup step → activation",
@@ -7979,11 +7999,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "the person is already in an active product session and the next incomplete setup step can be surfaced in the place where it can be completed"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "there is no active session, a deliverable push destination exists, and the next step has a single deep link back to the exact setup state"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "no active session, or the step needs an explanation that survives until the person returns"
+            "when": "otherwise, or when the next step needs an explanation the person can keep and return to later"
           }
         ],
         "fallback": "none",
@@ -8001,6 +8035,8 @@
             ],
             "purpose": "Surface the single most useful next action, read from the product's own record of what is done. Never a completed step, never the whole checklist.",
             "channelRoles": [
+              "in-session",
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -9993,8 +10029,8 @@
       "category": "activation",
       "goal": "relationship-recovery-intervention",
       "channels": [
-        "email",
-        "push"
+        "push",
+        "email"
       ],
       "name": "Adoption stall → diagnose missing value → recover or re-route",
       "shortName": "Adoption Recovery",
@@ -10094,21 +10130,21 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "the blocker needs an explanation that survives until the person can act on it"
-          },
-          {
             "role": "low-friction",
             "channels": [
               "push"
             ],
-            "when": "a valid token exists and the blocker is a single step the person can take from the notification"
+            "when": "has_push_token is true and the diagnosed blocker is one concrete step the person can take from the notification"
+          },
+          {
+            "role": "persistent",
+            "channels": [
+              "email"
+            ],
+            "when": "the blocker needs enough explanation to survive until the person can act, or the push route is not applicable"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "next-eligible-role",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -10123,8 +10159,8 @@
             ],
             "purpose": "Address the diagnosed blocker specifically - the unfinished setup, the missing integration, the misunderstanding. Not more encouragement and not a re-run of onboarding.",
             "channelRoles": [
-              "persistent",
-              "low-friction"
+              "low-friction",
+              "persistent"
             ],
             "destination": {
               "target": "blocker-resolution-step",
@@ -12341,6 +12377,7 @@
       "category": "retention",
       "goal": "compensation-remedy",
       "channels": [
+        "in-app",
         "email"
       ],
       "name": "Negative experience → recovery eligibility → appropriate response",
@@ -12431,11 +12468,18 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_app_session is true and the resolved experience belongs to the product context the person is currently using"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the acknowledgement should be something the person can keep - what failed, what was done, what prevents it - which is the default"
+            "when": "otherwise, because what failed, what was done and what prevents recurrence should remain available after the session"
           }
         ],
         "fallback": "none",
@@ -12456,6 +12500,7 @@
             ],
             "purpose": "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation.",
             "channelRoles": [
+              "in-session",
               "persistent"
             ],
             "mandatory": false,
@@ -13660,8 +13705,8 @@
       "category": "retention",
       "goal": "reconciliation-correction",
       "channels": [
-        "email",
-        "in-app"
+        "in-app",
+        "email"
       ],
       "name": "Retention intervention → outcome → suppress, escalate or exit",
       "shortName": "Retention Offer Follow-Up",
@@ -13752,21 +13797,21 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "the message has to be kept and survive until the person can act on it"
-          },
-          {
             "role": "in-session",
             "channels": [
               "in-app"
             ],
-            "when": "the person is active in the product and the action is taken there"
+            "when": "has_active_session is true and the retention action can be completed in the product context the person is already using"
+          },
+          {
+            "role": "persistent",
+            "channels": [
+              "email"
+            ],
+            "when": "the person is not in an active session, or the follow-up needs to remain available after they leave"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "next-eligible-role",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -13782,8 +13827,8 @@
             ],
             "purpose": "Send one follow-up and stop.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "in-session",
+              "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE"
@@ -13805,7 +13850,9 @@
             "offer_status",
             "retention_episode_history"
           ],
-          "optional": []
+          "optional": [
+            "has_active_session"
+          ]
         }
       },
       "measurement": {
@@ -14083,6 +14130,7 @@
       "category": "retention",
       "goal": "recovery-retry",
       "channels": [
+        "push",
         "email"
       ],
       "name": "Depletion predicted → replenishment prompted before it → replenished, dismissed or lapsed",
@@ -14191,11 +14239,18 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "the first prompt is close to the predicted depletion point, a deliverable push destination exists, and the reorder route can be opened directly"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the prompt should carry the item, the estimate and the reorder route and survive until the person can act - the default for a prompt sent days ahead of a need"
+            "when": "otherwise, and always for the post-depletion follow-up where the estimate and reorder context should remain available"
           }
         ],
         "fallback": "none",
@@ -14215,6 +14270,7 @@
             ],
             "purpose": "The item, the estimated point at which it runs out - stated as an estimate from their own purchases - and the route to reorder. Nothing about stock or price that the system does not assert.",
             "channelRoles": [
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -14750,6 +14806,7 @@
       "category": "retention",
       "goal": "recovery-retry",
       "channels": [
+        "push",
         "email"
       ],
       "name": "Paid relationship lapsed → outreach permitted → won back, declined or left alone",
@@ -14862,11 +14919,18 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "the former customer still has a reachable app relationship and the return route is a direct deep link; use it for the first invitation only"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the invitation should say what changed and carry the route back, and survive until the person reads it - the default for someone who is not in the product"
+            "when": "otherwise, and always for the optional follow-up where what changed or any issued incentive needs enough context to stand on its own"
           }
         ],
         "fallback": "none",
@@ -14885,6 +14949,7 @@
             ],
             "purpose": "A plain invitation to come back: what actually changed since they left where something did, the route back, and nothing invented.",
             "channelRoles": [
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -15290,6 +15355,8 @@
       "category": "retention",
       "goal": "progression-milestone",
       "channels": [
+        "in-app",
+        "push",
         "email"
       ],
       "name": "First purchase completed → welcomed as a customer → returned, prompted or closed",
@@ -15385,11 +15452,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_app_session is true and the welcome or orientation can be shown inside the customer account where the purchase now lives"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "the bounceback stage has a real issued offer, push_token is present, and the offer route can be opened directly; this role is for the later return nudge, not the welcome"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the touch has to carry the welcome or the offer and survive until the person can act on it - the default for both touches"
+            "when": "otherwise, especially when the welcome or issued offer needs to remain available after the session ends"
           }
         ],
         "fallback": "none",
@@ -15409,6 +15490,7 @@
             ],
             "purpose": "They are a customer now, and this is what that means here: what happens next with what they bought, where to find it, and how to reach a person. No offer unless the business has issued one.",
             "channelRoles": [
+              "in-session",
               "persistent"
             ],
             "destination": {
@@ -15435,6 +15517,8 @@
             ],
             "purpose": "One reason to come back, stated as whatever the business has actually issued and for as long as it will honour it - sent only to somebody who has not already come back.",
             "channelRoles": [
+              "in-session",
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -15778,7 +15862,7 @@
         },
         {
           "journey": "RET-292",
-          "because": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year or more later. This journey is the one-time moment that dates it; RET-292 is the recurring recognition of it, and the two never run at once."
+          "because": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year later. This journey is the one-time moment that dates it; RET-292 is the one-time recognition of it, and the two never run at once."
         }
       ],
       "guardrails": [
@@ -15795,9 +15879,10 @@
       "category": "retention",
       "goal": "progression-milestone",
       "channels": [
-        "email"
+        "in-app",
+        "push"
       ],
-      "name": "First-purchase anniversary approaching → eligibility checked → recognised or not sent",
+      "name": "First purchase completed → anniversary interval waited → eligibility checked → recognised or not sent",
       "shortName": "First Purchase Anniversary",
       "purpose": "Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once.",
       "objective": "Mark how long the relationship has lasted, measured from the first purchase, to somebody who is still in it - without attaching anything the record does not carry.",
@@ -15891,11 +15976,18 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "persistent",
+            "role": "in-session",
             "channels": [
-              "email"
+              "in-app"
             ],
-            "when": "the recognition should be kept rather than glanced at - the default"
+            "when": "has_active_app_session is true and the anniversary can be recognised naturally inside the customer account"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "there is no active session, push_token is present, and the recognition is complete as a short message with a route back to the account"
           }
         ],
         "fallback": "none",
@@ -15911,9 +16003,32 @@
             "prerequisites": [
               "c.eligible"
             ],
-            "purpose": "How long this relationship has lasted, counted from the first purchase, said once and with nothing attached that the record does not carry.",
+            "purpose": "How long this relationship has lasted, counted from the first purchase, said once and, if the person engages with the first notice, said again where they can dwell on it - with nothing attached that the record does not carry.",
             "channelRoles": [
-              "persistent"
+              "low-friction"
+            ],
+            "destination": {
+              "target": "customer-account",
+              "boundTo": "person_id",
+              "mustNotClaim": [
+                "a reward that has not been issued",
+                "a tier the account does not hold",
+                "a benefit tied to the anniversary that does not exist"
+              ]
+            },
+            "mandatory": false,
+            "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t2",
+            "stage": "recognition",
+            "action": "a.show-in-app",
+            "prerequisites": [
+              "c.opened"
+            ],
+            "purpose": "The same recognition, shown again where the person is already looking, for the person who engaged with the first notice.",
+            "channelRoles": [
+              "in-session"
             ],
             "destination": {
               "target": "customer-account",
@@ -15937,26 +16052,53 @@
           "s.contest"
         ]
       },
-      "entry": "t.approaching",
+      "entry": "t.purchase",
       "nodes": [
         {
-          "id": "t.approaching",
+          "id": "t.purchase",
           "kind": "trigger",
-          "event": "first_purchase_anniversary_approaching",
+          "event": "first_purchase_completed",
           "evidence": {
             "requires": [
-              "a recorded first-purchase date for this person",
-              "the anniversary interval the company has configured, and the cycle this occurrence belongs to"
+              "an authoritative first-purchase record for this person"
             ],
             "insufficientAlone": [
               "a sign-up or account-creation date, which dates a different relationship entirely",
               "a birthday or any other date about the person rather than about the relationship",
-              "a most-recent-order date, which measures recency and not length",
-              "an anniversary interval that has already passed without a message"
+              "a most-recent-order date, which measures recency and not length"
             ],
             "source": "authoritative"
           },
-          "next": "c.eligible"
+          "next": "w.interval"
+        },
+        {
+          "id": "w.interval",
+          "kind": "wait",
+          "until": [
+            "account_closure_succeeded"
+          ],
+          "onEvent": "c.eligible",
+          "timeout": {
+            "after": {
+              "key": "first_purchase_anniversary.interval",
+              "rule": "The recognition waits for the relationship's own configured anniversary interval to elapse since the first purchase - not sooner, and on no other clock.",
+              "class": "attribute-bound",
+              "default": {
+                "value": "1 year",
+                "confidence": "low",
+                "basis": "example-only",
+                "applicableWhen": "a standard annual recognition cadence",
+                "avoidWhen": "a business that defines its own anniversary cycle on a different cadence"
+              },
+              "required": false
+            },
+            "reason": "the recognition is timed to the relationship's own configured anniversary interval, counted from the first purchase and from nothing else",
+            "relativeTo": "attribute",
+            "attribute": "first_purchase_at"
+          },
+          "onTimeout": "c.eligible",
+          "recheck": "the relationship record, first-purchase record and recognition log re-read before acting",
+          "windowExtendsOnEngagement": false
         },
         {
           "id": "c.eligible",
@@ -15986,7 +16128,7 @@
         {
           "id": "a.recognise",
           "kind": "action",
-          "does": "State how long the relationship has lasted, counted from the first purchase, and say nothing the record does not support. No reward, tier or benefit unless one has actually been issued.",
+          "does": "Send a push reminder stating how long the relationship has lasted, counted from the first purchase, and say nothing the record does not support. No reward, tier or benefit unless one has actually been issued.",
           "execution": "communication",
           "idempotencyKey": "person_id + anniversary_cycle",
           "writes": [
@@ -15995,6 +16137,33 @@
               "mode": "append"
             }
           ],
+          "next": "c.opened"
+        },
+        {
+          "id": "c.opened",
+          "kind": "condition",
+          "asks": "Did the person open the app in response to the push?",
+          "branches": [
+            {
+              "label": "Opened",
+              "when": "an app session followed the push while the recognition is still current",
+              "observes": "app session activity following the push",
+              "to": "a.show-in-app"
+            },
+            {
+              "label": "Not opened",
+              "when": "no app session followed the push before the recognition window closed",
+              "observes": "app session activity following the push",
+              "to": "x.recognised"
+            }
+          ]
+        },
+        {
+          "id": "a.show-in-app",
+          "kind": "action",
+          "does": "Show the same recognition inside the account - how long the relationship has lasted, counted from the first purchase - now that the person is in a session to see it.",
+          "execution": "communication",
+          "idempotencyKey": "person_id + anniversary_cycle",
           "next": "x.recognised"
         },
         {
@@ -16015,24 +16184,24 @@
           "kind": "exit",
           "state": "recognised; the anniversary was marked once for this interval",
           "class": "success",
-          "terminal": false,
-          "reEntry": "the next anniversary interval opens its own instance"
-        },
-        {
-          "id": "x.closed",
-          "kind": "exit",
-          "state": "closed without a message; the relationship this anniversary would have counted has ended",
-          "class": "invalid-state",
-          "terminal": false,
-          "reEntry": "a reopened relationship is dated from its own first purchase and is evaluated at the next interval"
+          "terminal": true,
+          "reEntry": "this journey recognises the first-purchase anniversary once, from the first-purchase event that opened it; a merged or restated relationship with a new first-purchase date starts it again from its trigger"
         },
         {
           "id": "x.no-action",
           "kind": "exit",
           "state": "no recognition sent; the reason is recorded",
           "class": "no-action",
-          "terminal": false,
-          "reEntry": "the next anniversary interval opens its own instance; this interval is not made up later"
+          "terminal": true,
+          "reEntry": "this journey does not retry this interval; a merged or restated relationship with a new first-purchase date starts it again from its trigger"
+        },
+        {
+          "id": "x.closed",
+          "kind": "exit",
+          "state": "closed without a message; the relationship this anniversary would have counted has ended",
+          "class": "invalid-state",
+          "terminal": true,
+          "reEntry": "a reopened relationship is dated from its own first purchase and starts this journey again from its trigger"
         }
       ],
       "implementation": {
@@ -16047,7 +16216,6 @@
           "optional": [
             "relationship_state",
             "push_token",
-            "email_address",
             "has_active_app_session"
           ]
         }
@@ -16056,9 +16224,7 @@
         "journeyOutcome": {
           "type": "exit",
           "refs": [
-            "x.recognised",
-            "x.closed",
-            "x.no-action"
+            "x.closed"
           ]
         },
         "guardrails": [
@@ -16213,11 +16379,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "the person is already on a relevant product or discovery surface where the recommended set can be shown and acted on without leaving context"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "there is no active session, a deliverable push destination exists, and the recommendation can be represented honestly as a compact nudge with a deep link to the set"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the set has to be browsable and survive until the person has time for it - the default"
+            "when": "otherwise, especially where the set needs enough space to explain why the items are relevant and remain browsable later"
           }
         ],
         "fallback": "none",
@@ -16236,6 +16416,8 @@
             ],
             "purpose": "A small set that follows from something this person actually did, with every item still available to them and the reason it is there plain from the set itself.",
             "channelRoles": [
+              "in-session",
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -16543,9 +16725,9 @@
       "category": "retention",
       "goal": "progression-milestone",
       "channels": [
-        "email",
+        "in-app",
         "push",
-        "in-app"
+        "email"
       ],
       "name": "Purchase with a declared complement → matured → offered → taken, declined or closed",
       "shortName": "Cross-Sell / Next Best Offer",
@@ -16642,11 +16824,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_app_session is true and the complementary item can be shown beside the owned subject that makes it relevant"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "the first offer was not acted on, push_token is present, and complement_destination can open the exact item; use it for the bounded reminder"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the offer has to carry what it completes and survive until the person can act on it - the default for both touches"
+            "when": "otherwise, especially when the relationship between the owned subject and the complement needs enough space to explain"
           }
         ],
         "fallback": "none",
@@ -16666,6 +16862,7 @@
             ],
             "purpose": "The thing that completes what they already own, named against what they own rather than on its own. Nothing about stock, price or a deadline the platform does not enforce.",
             "channelRoles": [
+              "in-session",
               "persistent"
             ],
             "destination": {
@@ -16693,6 +16890,7 @@
             ],
             "purpose": "One reminder of the same offer, to somebody who still does not have the complement and has not said they do not want it. Nothing new is added to make it land.",
             "channelRoles": [
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -17064,12 +17262,10 @@
       "category": "retention",
       "goal": "progression-milestone",
       "channels": [
-        "email",
-        "push",
-        "in-app"
+        "email"
       ],
-      "name": "A date belonging to the person approaching → eligibility checked → recognised or not sent",
-      "shortName": "Birthday & Milestone",
+      "name": "A date belonging to the person recorded → its cycle waited → eligibility checked → recognised or not sent",
+      "shortName": "Birthday Journey",
       "purpose": "Recognise a date that belongs to the person themselves - a birthday they told us, or a milestone their own record has reached - and say so once, with nothing attached that has not been issued.",
       "objective": "Mark one date the person would recognise as theirs, to somebody the relationship is still open with, without turning the recognition into an offer and without inventing the date.",
       "entity": {
@@ -17166,7 +17362,7 @@
             "channels": [
               "email"
             ],
-            "when": "the recognition should be kept rather than glanced at - the default"
+            "when": "the recognition should be kept rather than glanced at"
           }
         ],
         "fallback": "none",
@@ -17209,26 +17405,53 @@
           "s.contest"
         ]
       },
-      "entry": "t.approaching",
+      "entry": "t.recorded",
       "nodes": [
         {
-          "id": "t.approaching",
+          "id": "t.recorded",
           "kind": "trigger",
-          "event": "personal_milestone_approaching",
+          "event": "personal_milestone_date_recorded",
           "evidence": {
             "requires": [
-              "a date this person supplied about themselves, or a milestone their own record has authoritatively reached",
-              "the cycle this occurrence of that milestone belongs to"
+              "a date this person supplied about themselves, or a milestone their own record has authoritatively reached, now on file"
             ],
             "insufficientAlone": [
               "a birthday guessed, modelled or bought rather than given by the person",
               "the relationship's own anniversary, which counts the company's side of it and has its own journey",
-              "a milestone belonging to a segment rather than to this person's own record",
-              "a cycle of this milestone that has already passed without a message"
+              "a milestone belonging to a segment rather than to this person's own record"
             ],
             "source": "authoritative"
           },
-          "next": "c.date"
+          "next": "w.cycle"
+        },
+        {
+          "id": "w.cycle",
+          "kind": "wait",
+          "until": [
+            "permission_withdrawn"
+          ],
+          "onEvent": "c.date",
+          "timeout": {
+            "after": {
+              "key": "milestone_recognition.cycle",
+              "rule": "The recognition waits for this milestone's own next cycle to arrive, counted from the date the person supplied or their own record reached - not sooner, and on no other clock.",
+              "class": "attribute-bound",
+              "default": {
+                "value": "1 year",
+                "confidence": "low",
+                "basis": "example-only",
+                "applicableWhen": "a birthday or other yearly-recurring personal milestone",
+                "avoidWhen": "a milestone whose own cycle is not annual"
+              },
+              "required": false
+            },
+            "reason": "the recognition is timed to the milestone's own cycle, counted from the date on record and from nothing else",
+            "relativeTo": "attribute",
+            "attribute": "milestone_date"
+          },
+          "onTimeout": "c.date",
+          "recheck": "the milestone record, relationship record and recognition log re-read before acting",
+          "windowExtendsOnEngagement": false
         },
         {
           "id": "c.date",
@@ -17264,7 +17487,7 @@
         {
           "id": "a.recognise",
           "kind": "action",
-          "does": "Say the date and what it marks, in the person's own terms, and say nothing the record does not support. No reward, discount, tier or benefit unless one has actually been issued.",
+          "does": "Send an email saying the date and what it marks, in the person's own terms, and say nothing the record does not support. No reward, discount, tier or benefit unless one has actually been issued.",
           "execution": "communication",
           "idempotencyKey": "person_id + milestone_cycle",
           "writes": [
@@ -17293,24 +17516,24 @@
           "kind": "exit",
           "state": "recognised; the date was marked once for this cycle",
           "class": "success",
-          "terminal": false,
-          "reEntry": "the next cycle of this milestone, or a different milestone belonging to this person, opens its own instance"
+          "terminal": true,
+          "reEntry": "this journey recognises this milestone's first cycle once, from the record event that opened it; a merged or restated record with a new date, or a genuinely different milestone belonging to this person, starts it again from its trigger"
         },
         {
           "id": "x.closed",
           "kind": "exit",
           "state": "closed without a message; the relationship this recognition would have been addressed to has ended",
           "class": "invalid-state",
-          "terminal": false,
-          "reEntry": "a reopened relationship with a restored permission is evaluated at the next cycle; a person who asked to be left alone is not re-entered"
+          "terminal": true,
+          "reEntry": "a reopened relationship with a restored permission and a new record of the date starts this journey again from its trigger; a person who asked to be left alone is not re-entered"
         },
         {
           "id": "x.no-action",
           "kind": "exit",
           "state": "no recognition sent; the reason is recorded",
           "class": "no-action",
-          "terminal": false,
-          "reEntry": "the next cycle opens its own instance; this cycle is not made up later"
+          "terminal": true,
+          "reEntry": "this journey does not retry this cycle; a merged or restated record with a new date starts it again from its trigger"
         }
       ],
       "implementation": {
@@ -17324,9 +17547,7 @@
           ],
           "optional": [
             "relationship_state",
-            "push_token",
-            "email_address",
-            "has_active_app_session"
+            "email_address"
           ]
         }
       },
@@ -27288,6 +27509,8 @@
       "category": "time",
       "goal": "expiry-renewal",
       "channels": [
+        "in-app",
+        "sms",
         "email"
       ],
       "name": "Expiry approaching → eligibility check → renew, complete or let expire",
@@ -27397,11 +27620,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_session is true and the available_action can be completed from the current product context before the recorded expiry"
+          },
+          {
+            "role": "urgent",
+            "channels": [
+              "sms"
+            ],
+            "when": "urgent_channel_permission is true, the entity is inside urgent_horizon, and action_destination provides a direct route to the one action that can still change the outcome"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the message names an action and a boundary and must survive until the responsible actor can act - the whole strategy, since the responsible actor may hold no product session at all and nothing here establishes an imminent one-tap action that would justify SMS"
+            "when": "otherwise, and always for a purely informational notice where there is no action to take"
           }
         ],
         "fallback": "none",
@@ -27420,6 +27657,8 @@
             ],
             "purpose": "Tell the responsible actor what is expiring, the specific action that would change the outcome, and the point by which it must be taken.",
             "channelRoles": [
+              "in-session",
+              "urgent",
               "persistent"
             ],
             "destination": {
@@ -54675,6 +54914,8 @@
       "category": "fulfillment",
       "goal": "progression-milestone",
       "channels": [
+        "in-app",
+        "push",
         "email"
       ],
       "name": "Fulfillment completed → the useful next step sent → followed up, superseded or not sent",
@@ -54767,11 +55008,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_app_session is true and guidance_destination opens the exact next step for the fulfilled item in the product"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "there is no active session, push_token is present, and the useful next step is short enough to understand before opening its deep link"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the guidance has to be kept and returned to - the default for anything the person may need again later"
+            "when": "otherwise, especially when the guidance is something the person may need to keep and return to later"
           }
         ],
         "fallback": "none",
@@ -54791,6 +55046,8 @@
             ],
             "purpose": "The one thing that makes what they received work: how to start with it, how to look after it, or what sensibly follows. No status, no request for an opinion, no repeat of the order's own confirmation.",
             "channelRoles": [
+              "in-session",
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -58295,21 +58552,21 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "the message has to be kept, carry a reference the requester can quote back, and survive until somebody answers"
-          },
-          {
             "role": "in-session",
             "channels": [
               "in-app"
             ],
-            "when": "the requester raised it inside the product and is still there, where the request and its own state already are"
+            "when": "has_active_session is true and the request, reference and current state are already visible in the product where the requester raised it"
+          },
+          {
+            "role": "persistent",
+            "channels": [
+              "email"
+            ],
+            "when": "the requester is no longer in that session, or the acknowledgement or resolution needs to survive until they return"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "next-eligible-role",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -58326,8 +58583,8 @@
             ],
             "purpose": "That the request exists, the reference it can be quoted under, who owns it now and what happens next - said once, with no outcome attached to it.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "in-session",
+              "persistent"
             ],
             "destination": {
               "target": "support-request",
@@ -58351,8 +58608,8 @@
             ],
             "purpose": "That the thing raised is already done and which resolution closed it - instead of an acknowledgement promising attention to something that needs none.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "in-session",
+              "persistent"
             ],
             "destination": {
               "target": "support-request",
@@ -58377,8 +58634,8 @@
             ],
             "purpose": "That the request is closed and that a resolution was reached, sent because its own state changed rather than because a period elapsed.",
             "channelRoles": [
-              "persistent",
-              "in-session"
+              "in-session",
+              "persistent"
             ],
             "destination": {
               "target": "support-request",
@@ -59433,7 +59690,9 @@
       "category": "subscription",
       "goal": "eligibility-qualification",
       "channels": [
-        "email"
+        "email",
+        "in-app",
+        "sms"
       ],
       "name": "Renewal window → eligibility → renew, non-renew or review",
       "shortName": "Renewal Reminder",
@@ -59542,11 +59801,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_session is true and the decision holder can review and act on the renewal decision inside the current relationship surface"
+          },
+          {
+            "role": "urgent",
+            "channels": [
+              "sms"
+            ],
+            "when": "urgent_channel_permission is true and the decision has entered the final actionable part of the notice period before term_end_at"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the notice and the terms must be kept, and are addressed to whoever holds the decision - the default for a renewal, and every stage in this journey"
+            "when": "the notice or renewing terms must be kept, or neither contextual nor urgent routing applies"
           }
         ],
         "fallback": "none",
@@ -59586,6 +59859,8 @@
             ],
             "purpose": "Put the renewal decision to whoever holds it - the terms that would apply and the point by which the notice period requires an answer, or, where the notice has already gone out this cycle, the decision needed restated without the terms it already carried.",
             "channelRoles": [
+              "in-session",
+              "urgent",
               "persistent"
             ],
             "destination": {
@@ -62428,6 +62703,8 @@
       "category": "subscription",
       "goal": "progression-milestone",
       "channels": [
+        "in-app",
+        "push",
         "email"
       ],
       "name": "Membership enrolled → welcomed → oriented, already in use, or closed",
@@ -62528,11 +62805,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_app_session is true and the membership account or granted benefit is available in that session"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "the later orientation is due, there is no active session, push_token is present, and the granted benefit can be opened directly"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the touch has to carry what the membership grants and survive until the person can act on it - the default for both touches, and the only role either reaches"
+            "when": "otherwise, especially for the welcome where the membership terms and granted benefits should remain available"
           }
         ],
         "fallback": "none",
@@ -62551,6 +62842,7 @@
             ],
             "purpose": "What this membership grants from today, where it lives, and how it is used - stated from the membership record and nothing else.",
             "channelRoles": [
+              "in-session",
               "persistent"
             ],
             "destination": {
@@ -62578,6 +62870,8 @@
             ],
             "purpose": "One route to the thing the membership already grants, sent only to a member whose own usage record says they have not used it yet.",
             "channelRoles": [
+              "in-session",
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -62913,6 +63207,8 @@
       "category": "subscription",
       "goal": "progression-milestone",
       "channels": [
+        "in-app",
+        "push",
         "email"
       ],
       "name": "Membership holding something unused → explained → used, reminded once, or closed",
@@ -63009,11 +63305,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_app_session is true and the member is already in the membership surface where the unused benefit can be used"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "subject_expires_at is approaching, push_token is present, and membership_benefit_destination can open the expiring benefit directly"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the touch has to carry what is held and until when, and survive until the member can act on it - the default, and the only role either touch reaches"
+            "when": "the explanation needs to survive until the member can act, or a contextual or low-friction route is not applicable"
           }
         ],
         "fallback": "none",
@@ -63032,6 +63342,7 @@
             ],
             "purpose": "What this membership is holding that has not been used, what it may be used for and until when - every part of it re-read from the membership record.",
             "channelRoles": [
+              "in-session",
               "persistent"
             ],
             "destination": {
@@ -63060,6 +63371,7 @@
             ],
             "purpose": "That this subject expires, and when - to a member whose record still shows it unused, sent only where the subject actually has an expiry to act before - and then the plan is over.",
             "channelRoles": [
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -63326,7 +63638,9 @@
           "optional": [
             "subject_expires_at",
             "subject_credited_at",
-            "email_address"
+            "push_token",
+            "email_address",
+            "has_active_app_session"
           ]
         }
       },
@@ -63423,6 +63737,8 @@
       "category": "subscription",
       "goal": "delivery-confirmation",
       "channels": [
+        "in-app",
+        "push",
         "email"
       ],
       "name": "Reward earned → record confirmed → stated once, or closed unstated",
@@ -63514,11 +63830,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_app_session is true and the credited reward plus its use route can be shown in the membership surface where it now exists"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "there is no active app session, push_token is present, and membership_reward_destination opens the credited reward directly"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the confirmation has to be kept and produced again later - the default for a record of something earned, and the only role this touch reaches"
+            "when": "otherwise, when the confirmation and its terms should remain available outside the app"
           }
         ],
         "fallback": "none",
@@ -63536,6 +63866,8 @@
             ],
             "purpose": "What was earned, what it may be used for and until when - read from the reward record, said once, with nothing attached to it.",
             "channelRoles": [
+              "in-session",
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -63743,6 +64075,8 @@
       "category": "subscription",
       "goal": "progression-milestone",
       "channels": [
+        "in-app",
+        "push",
         "email"
       ],
       "name": "Tier moved → direction checked → upgrade announced, used, or left to another journey",
@@ -63838,11 +64172,25 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "has_active_app_session is true and the new tier plus newly granted benefits can be shown inside the membership standing surface"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "there is no active session, push_token is present, and membership_standing_destination opens the new standing or benefit directly"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the announcement has to carry what the new standing grants and survive until the member can use it - the default, and the only role this touch reaches"
+            "when": "otherwise, when the new standing and what it grants should remain available after the moment of change"
           }
         ],
         "fallback": "none",
@@ -63861,6 +64209,8 @@
             ],
             "purpose": "The standing the member now holds and what it grants that the previous one did not - read from the programme's own terms and said once.",
             "channelRoles": [
+              "in-session",
+              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -68322,6 +68672,7 @@
       "category": "scheduling",
       "goal": "scheduling-commitment",
       "channels": [
+        "sms",
         "email"
       ],
       "name": "No-show confirmed → validate the miss → rebook or close",
@@ -68425,11 +68776,18 @@
       "channelStrategy": {
         "roles": [
           {
+            "role": "urgent",
+            "channels": [
+              "sms"
+            ],
+            "when": "the branch is a rebooking offer, urgent_channel_permission is true, and rebooking_window is short enough that waiting to find an email could materially reduce the chance to rebook"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the offer carries the rebooking route and should be kept - the default, and every stage in this journey"
+            "when": "the acknowledgement has no action to take, or the rebooking offer should be kept and the rebooking window does not justify an urgent interruption"
           }
         ],
         "fallback": "none",
@@ -68449,6 +68807,7 @@
             ],
             "purpose": "Say that the booking was missed as a fact, without penalty language, and give the single route to a new one within the stated window.",
             "channelRoles": [
+              "urgent",
               "persistent"
             ],
             "destination": {

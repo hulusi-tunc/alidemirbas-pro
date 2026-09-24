@@ -366,6 +366,16 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 303 journeys / 4002 nodes (2026-09-24). RET-292 and RET-295 were each
+// rebuilt from an externally-recomputed "approaching" trigger into a real in-graph
+// trigger -> wait -> send shape: RET-292 gained w.interval, c.opened and a.show-in-app
+// (+3: 7 -> 10 nodes) and RET-295 gained w.cycle (+1: 7 -> 8 nodes). Both journeys'
+// touches were narrowed to the one channel they actually send on (push for RET-292,
+// email for RET-295), and both became one-shot (their new trigger event fires once per
+// person, so their exits are now terminal rather than re-instancing per cycle). One new
+// event was added to the registry: personal_milestone_date_recorded. Rules (423), global
+// rules (31) and merged redirects (8) are unchanged. 3998 -> 4002 nodes, +4 net.
+//
 // FROZEN BASELINE: 303 journeys / 3998 nodes (2026-09-21). The 69-journey quality refactor
 // (audit/refactor/69-journey-final-plan.md, product decisions locked and implemented across 8
 // commits on refactor/69-journeys) touched every one of the 69 public journeys' canonical data:
@@ -381,9 +391,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (303 journeys / 3998 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (303 journeys / 4002 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 303 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3998 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 4002 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

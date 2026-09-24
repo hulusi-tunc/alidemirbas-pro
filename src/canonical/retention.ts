@@ -6134,9 +6134,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "milestone-recognition",
     "category": "retention",
     "goal": "progression-milestone",
-    "channels": ["in-app", "push", "email"],
-    "name": "A date belonging to the person approaching → eligibility checked → recognised or not sent",
-    "shortName": "Birthday & Milestone",
+    "channels": ["email"],
+    "name": "A date belonging to the person recorded → its cycle waited → eligibility checked → recognised or not sent",
+    "shortName": "Birthday Journey",
     "purpose": "Recognise a date that belongs to the person themselves - a birthday they told us, or a milestone their own record has reached - and say so once, with nothing attached that has not been issued.",
     "objective": "Mark one date the person would recognise as theirs, to somebody the relationship is still open with, without turning the recognition into an offer and without inventing the date.",
     "entity": {
@@ -6230,19 +6230,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
-          "role": "in-session",
-          "channels": ["in-app"],
-          "when": "has_active_app_session is true and the recognition can appear naturally inside the customer account without interrupting another task"
-        },
-        {
-          "role": "low-friction",
-          "channels": ["push"],
-          "when": "there is no active session, push_token is present, and the recognition is complete as a short message with a route back to the account"
-        },
-        {
           "role": "persistent",
           "channels": ["email"],
-          "when": "otherwise, when the recognition should be kept rather than glanced at"
+          "when": "the recognition should be kept rather than glanced at"
         }
       ],
       "fallback": "none",
@@ -6260,8 +6250,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The date, said plainly and once, to somebody the relationship is still open with - and nothing attached to it that the record does not already carry.",
           "channelRoles": [
-            "in-session",
-            "low-friction",
             "persistent"
           ],
           "destination": {
@@ -6287,26 +6275,53 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.contest"
       ]
     },
-    "entry": "t.approaching",
+    "entry": "t.recorded",
     "nodes": [
       {
-        "id": "t.approaching",
+        "id": "t.recorded",
         "kind": "trigger",
-        "event": "personal_milestone_approaching",
+        "event": "personal_milestone_date_recorded",
         "evidence": {
           "requires": [
-            "a date this person supplied about themselves, or a milestone their own record has authoritatively reached",
-            "the cycle this occurrence of that milestone belongs to"
+            "a date this person supplied about themselves, or a milestone their own record has authoritatively reached, now on file"
           ],
           "insufficientAlone": [
             "a birthday guessed, modelled or bought rather than given by the person",
             "the relationship's own anniversary, which counts the company's side of it and has its own journey",
-            "a milestone belonging to a segment rather than to this person's own record",
-            "a cycle of this milestone that has already passed without a message"
+            "a milestone belonging to a segment rather than to this person's own record"
           ],
           "source": "authoritative"
         },
-        "next": "c.date"
+        "next": "w.cycle"
+      },
+      {
+        "id": "w.cycle",
+        "kind": "wait",
+        "until": [
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.date",
+        "timeout": {
+          "after": {
+            "key": "milestone_recognition.cycle",
+            "rule": "The recognition waits for this milestone's own next cycle to arrive, counted from the date the person supplied or their own record reached - not sooner, and on no other clock.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "1 year",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "a birthday or other yearly-recurring personal milestone",
+              "avoidWhen": "a milestone whose own cycle is not annual"
+            },
+            "required": false
+          },
+          "reason": "the recognition is timed to the milestone's own cycle, counted from the date on record and from nothing else",
+          "relativeTo": "attribute",
+          "attribute": "milestone_date"
+        },
+        "onTimeout": "c.date",
+        "recheck": "the milestone record, relationship record and recognition log re-read before acting",
+        "windowExtendsOnEngagement": false
       },
       {
         "id": "c.date",
@@ -6342,7 +6357,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.recognise",
         "kind": "action",
-        "does": "Say the date and what it marks, in the person's own terms, and say nothing the record does not support. No reward, discount, tier or benefit unless one has actually been issued.",
+        "does": "Send an email saying the date and what it marks, in the person's own terms, and say nothing the record does not support. No reward, discount, tier or benefit unless one has actually been issued.",
         "execution": "communication",
         "idempotencyKey": "person_id + milestone_cycle",
         "writes": [
@@ -6371,24 +6386,24 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "kind": "exit",
         "state": "recognised; the date was marked once for this cycle",
         "class": "success",
-        "terminal": false,
-        "reEntry": "the next cycle of this milestone, or a different milestone belonging to this person, opens its own instance"
+        "terminal": true,
+        "reEntry": "this journey recognises this milestone's first cycle once, from the record event that opened it; a merged or restated record with a new date, or a genuinely different milestone belonging to this person, starts it again from its trigger"
       },
       {
         "id": "x.closed",
         "kind": "exit",
         "state": "closed without a message; the relationship this recognition would have been addressed to has ended",
         "class": "invalid-state",
-        "terminal": false,
-        "reEntry": "a reopened relationship with a restored permission is evaluated at the next cycle; a person who asked to be left alone is not re-entered"
+        "terminal": true,
+        "reEntry": "a reopened relationship with a restored permission and a new record of the date starts this journey again from its trigger; a person who asked to be left alone is not re-entered"
       },
       {
         "id": "x.no-action",
         "kind": "exit",
         "state": "no recognition sent; the reason is recorded",
         "class": "no-action",
-        "terminal": false,
-        "reEntry": "the next cycle opens its own instance; this cycle is not made up later"
+        "terminal": true,
+        "reEntry": "this journey does not retry this cycle; a merged or restated record with a new date starts it again from its trigger"
       }
     ],
     "implementation": {
@@ -6402,9 +6417,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         "optional": [
           "relationship_state",
-          "push_token",
-          "email_address",
-          "has_active_app_session"
+          "email_address"
         ]
       }
     },

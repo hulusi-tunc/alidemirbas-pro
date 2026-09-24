@@ -151,7 +151,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (push, email)"
     },
     {
       "id": "ACQ-13",
@@ -162,7 +162,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, email)"
     },
     {
       "id": "ACQ-287",
@@ -217,7 +217,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "ACT-13",
@@ -272,7 +272,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push)"
+      "reason": "declares a message channel (push, email)"
     },
     {
       "id": "ACT-19",
@@ -349,7 +349,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, email)"
     },
     {
       "id": "RET-27",
@@ -393,7 +393,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (in-app, email)"
     },
     {
       "id": "RET-31",
@@ -404,7 +404,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (push, email)"
     },
     {
       "id": "RET-32",
@@ -415,7 +415,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (push, email)"
     },
     {
       "id": "RET-290",
@@ -426,7 +426,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "RET-292",
@@ -437,7 +437,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, push)"
     },
     {
       "id": "RET-293",
@@ -459,18 +459,18 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push, in-app)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "RET-295",
-      "shortName": "Birthday & Milestone",
+      "shortName": "Birthday Journey",
       "category": "retention",
       "surface": "customer",
       "sends": true,
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, push, in-app)"
+      "reason": "declares a message channel (email)"
     },
     {
       "id": "CON-31",
@@ -844,7 +844,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, sms, email)"
     },
     {
       "id": "TIM-64",
@@ -1977,7 +1977,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "FUL-301",
@@ -2142,7 +2142,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (email, in-app, sms)"
     },
     {
       "id": "SUB-164",
@@ -2241,7 +2241,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "SUB-297",
@@ -2252,7 +2252,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "SUB-298",
@@ -2263,7 +2263,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "SUB-299",
@@ -2274,7 +2274,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "SCH-171",
@@ -2417,7 +2417,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (sms, email)"
     },
     {
       "id": "SCH-282",
