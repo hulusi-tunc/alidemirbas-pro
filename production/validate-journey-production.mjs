@@ -366,6 +366,23 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 292 journeys / 3894 nodes (2026-09-24). RET-32
+// (Lapsed Customer Win-Back) was rebuilt as a literal two-channel
+// cascade matching a reference image's shape exactly: an email
+// invitation after a fixed 30-day wait, a "did they come back?" recheck
+// before it sends, then an SMS comeback discount 3-5 days later if not,
+// with its own recheck before it sends, then a final recheck after the
+// discount's own offer window - three explicit "did they return?"
+// checkpoints in total, matching the image's three decision diamonds,
+// where the corpus previously read the same intent through onEvent/
+// onTimeout wait semantics without a visible recheck node at each step.
+// channels moved from push+email to email+sms; the second touch's
+// enablement toggle (winback.follow_up_enabled) was removed since the
+// image shows an unconditional two-touch sequence. 292 journeys
+// unchanged, +3 nodes net (three new c.returned* condition nodes, one
+// new w.cooldown30 wait node, c.second removed). Rules (423), global
+// rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 292 journeys / 3891 nodes (2026-09-24). RET-30
 // (Retention Offer Follow-Up) was retired entirely, the site owner's
 // request. Its one real inbound handoff, RET-28's h.intervention, now
@@ -631,9 +648,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (292 journeys / 3891 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (292 journeys / 3894 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 292 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3891 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3894 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

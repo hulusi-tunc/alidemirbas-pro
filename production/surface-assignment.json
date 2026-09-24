@@ -360,7 +360,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (push, email)"
+      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "RET-290",

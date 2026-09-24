@@ -13000,8 +13000,8 @@
       "category": "retention",
       "goal": "recovery-retry",
       "channels": [
-        "push",
-        "email"
+        "email",
+        "sms"
       ],
       "name": "Paid relationship lapsed → outreach permitted → won back, declined or left alone",
       "shortName": "Lapsed Customer Win-Back",
@@ -13061,8 +13061,8 @@
         },
         {
           "id": "s.incentive",
-          "label": "OPTIONAL_STRATEGY",
-          "text": "If the company enables a win-back incentive (winback.incentive_policy), it appears only on the last enabled touch, once, and its issuance is recorded per person so it cannot be re-issued on the next lapse."
+          "label": "CANONICAL_RULE",
+          "text": "The comeback discount appears once, on the second and final touch, where win-back incentive policy allows one, and its issuance is recorded per person so it cannot be re-issued on the next lapse."
         },
         {
           "id": "s.sunset",
@@ -13076,12 +13076,12 @@
         "localCap": {
           "value": {
             "key": "winback.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and the second touch exists only where the company enables it.",
+            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the cascade's own length - the email invitation and the SMS comeback discount, and nothing after the second.",
             "default": {
               "value": 2,
-              "confidence": "medium",
+              "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; one invitation and one optional follow-up"
+              "applicableWhen": "GLB-24; the cascade's own length - one invitation and one comeback discount"
             },
             "required": false
           },
@@ -13113,18 +13113,18 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "low-friction",
-            "channels": [
-              "push"
-            ],
-            "when": "the former customer still has a reachable app relationship and the return route is a direct deep link; use it for the first invitation only"
-          },
-          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "otherwise, and always for the optional follow-up where what changed or any issued incentive needs enough context to stand on its own"
+            "when": "the first invitation, where what changed since they left needs enough context to stand on its own"
+          },
+          {
+            "role": "urgent",
+            "channels": [
+              "sms"
+            ],
+            "when": "the second and final touch, a time-limited comeback discount that needs to be seen before it lapses"
           }
         ],
         "fallback": "none",
@@ -13137,13 +13137,14 @@
             "id": "t1",
             "stage": "invitation",
             "action": "a.touch1",
+            "gatedBy": "w.cooldown30",
             "prerequisites": [
               "c.eligible",
+              "c.returned1",
               "c.sendable"
             ],
             "purpose": "A plain invitation to come back: what actually changed since they left where something did, the route back, and nothing invented.",
             "channelRoles": [
-              "low-friction",
               "persistent"
             ],
             "destination": {
@@ -13160,17 +13161,17 @@
           },
           {
             "id": "t2",
-            "stage": "follow-up",
+            "stage": "comeback-discount",
             "action": "a.touch2",
             "after": "t1",
-            "gatedBy": "w.response",
+            "gatedBy": "w.window1",
             "prerequisites": [
-              "c.second",
+              "c.returned2",
               "c.sendable2"
             ],
-            "purpose": "One follow-up, only where the company enables it and there is something honest to add - an incentive policy enables, or a further change - with the same route back.",
+            "purpose": "One time-limited comeback discount, with a strong call to action and the same route back.",
             "channelRoles": [
-              "persistent"
+              "urgent"
             ],
             "destination": {
               "target": "return-route",
@@ -13181,7 +13182,7 @@
               ]
             },
             "mandatory": false,
-            "label": "OPTIONAL_STRATEGY"
+            "label": "CANONICAL_RULE"
           }
         ],
         "noAction": [
@@ -13246,7 +13247,54 @@
             }
           ],
           "idempotencyKey": "person_id + relationship_id + lapse date",
-          "next": "c.sendable"
+          "next": "w.cooldown30"
+        },
+        {
+          "id": "w.cooldown30",
+          "kind": "wait",
+          "until": [
+            "relationship_repaid",
+            "purchase_completed"
+          ],
+          "onEvent": "x.won",
+          "timeout": {
+            "after": {
+              "key": "winback.cooldown30",
+              "rule": "The lapsed relationship is left alone for a fixed period before the first invitation, so outreach never lands on someone who only just left.",
+              "class": "observation-window",
+              "default": {
+                "value": "30 days",
+                "confidence": "high",
+                "basis": "corpus-rule",
+                "applicableWhen": "GLB-24; the cascade's own pace before the first touch"
+              },
+              "required": false
+            },
+            "reason": "someone who just lapsed is not yet a win-back candidate; the wait comes before anything is sent",
+            "relativeTo": "trigger"
+          },
+          "onTimeout": "c.returned1",
+          "recheck": "the relationship re-read: still lapsed, nothing opened on it, permission still recorded",
+          "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "c.returned1",
+          "kind": "condition",
+          "asks": "Did they become a customer again?",
+          "branches": [
+            {
+              "label": "Yes",
+              "when": "an authoritative record shows the relationship repaid or a purchase completed since the lapse",
+              "observes": "relationship_repaid, purchase_completed",
+              "to": "x.won"
+            },
+            {
+              "label": "No",
+              "when": "no such record exists",
+              "observes": "relationship record",
+              "to": "c.sendable"
+            }
+          ]
         },
         {
           "id": "c.sendable",
@@ -13282,7 +13330,7 @@
         {
           "id": "a.touch1",
           "kind": "action",
-          "does": "Invite them back plainly: what actually changed since they left where something did, and the route back. Nothing invented, no terms held that are not held, no discount policy does not enable",
+          "does": "Say by email what actually changed since they left: new features, product improvements, new perks - and the route back. Nothing invented, no terms held that are not held, no discount policy does not enable",
           "execution": "communication",
           "idempotencyKey": "person_id + relationship_id + lapse date + touch id",
           "writes": [
@@ -13291,10 +13339,10 @@
               "mode": "append"
             }
           ],
-          "next": "w.response"
+          "next": "w.window1"
         },
         {
-          "id": "w.response",
+          "id": "w.window1",
           "kind": "wait",
           "until": [
             "relationship_repaid",
@@ -13303,49 +13351,50 @@
           "onEvent": "x.won",
           "timeout": {
             "after": {
-              "key": "winback.response_window",
-              "rule": "The invitation is given time to be acted on in the person's own time; a follow-up inside that time is pressure on someone who already left once.",
+              "key": "winback.window1",
+              "rule": "The invitation is given a short fixed window before the cascade re-reads the relationship and moves to the comeback discount.",
               "class": "response-window",
               "default": {
                 "value": {
-                  "min": "14 days",
-                  "max": "30 days"
+                  "min": "3 days",
+                  "max": "5 days"
                 },
-                "confidence": "low",
-                "basis": "example-only"
+                "confidence": "high",
+                "basis": "corpus-rule",
+                "applicableWhen": "GLB-24; the cascade's own pace between the two touches"
               },
               "required": false
             },
-            "reason": "someone who left is not in a hurry to return; the window is weeks, not days",
+            "reason": "the cascade advances to the discount on a fixed clock, not an open-ended one",
             "relativeTo": "previous-touch"
           },
-          "onTimeout": "c.second",
+          "onTimeout": "c.returned2",
           "recheck": "the relationship re-read: still lapsed, nothing opened on it, permission still recorded",
           "windowExtendsOnEngagement": false
         },
         {
-          "id": "c.second",
+          "id": "c.returned2",
           "kind": "condition",
-          "asks": "Is a follow-up enabled, and is there something honest to add?",
+          "asks": "Did they come back?",
           "branches": [
             {
-              "label": "Enabled with something to add",
-              "when": "the company has enabled the follow-up (winback.follow_up_enabled) and either an incentive policy enables an offer for the last touch or a further change is recorded",
-              "observes": "winback.follow_up_enabled, winback.incentive_policy, change record",
-              "to": "c.sendable2"
+              "label": "Yes",
+              "when": "an authoritative record shows the relationship repaid or a purchase completed since the invitation",
+              "observes": "relationship_repaid, purchase_completed",
+              "to": "x.won"
             },
             {
-              "label": "Not enabled, or nothing to add",
-              "when": "the follow-up is disabled, or there is nothing honest to say beyond the invitation already sent",
-              "observes": "winback.follow_up_enabled, change record",
-              "to": "x.lapsed"
+              "label": "No",
+              "when": "no such record exists",
+              "observes": "relationship record",
+              "to": "c.sendable2"
             }
           ]
         },
         {
           "id": "c.sendable2",
           "kind": "condition",
-          "asks": "May the follow-up go out?",
+          "asks": "May the comeback discount go out?",
           "branches": [
             {
               "label": "Sendable",
@@ -13364,7 +13413,7 @@
         {
           "id": "a.touch2",
           "kind": "action",
-          "does": "Say once what is being added - the enabled incentive, or the further change - with the same route back, and record the incentive's issuance per person where one is issued",
+          "does": "Say by SMS about a limited-time comeback discount, with a strong call to action and the same route back, and record the incentive's issuance per person",
           "execution": "communication",
           "idempotencyKey": "person_id + relationship_id + lapse date + touch id",
           "writes": [
@@ -13377,10 +13426,10 @@
               "mode": "append"
             }
           ],
-          "next": "w.final"
+          "next": "w.offer"
         },
         {
-          "id": "w.final",
+          "id": "w.offer",
           "kind": "wait",
           "until": [
             "relationship_repaid",
@@ -13389,25 +13438,41 @@
           "onEvent": "x.won",
           "timeout": {
             "after": {
-              "key": "winback.lifetime",
-              "rule": "After the follow-up the instance stays open only to observe a return; then it lapses and the long cooldown starts.",
-              "class": "observation-window",
+              "key": "winback.offer_window",
+              "rule": "The discount is given the offer's own duration to be acted on, after which the instance closes; there is no third touch.",
+              "class": "response-window",
               "default": {
-                "value": {
-                  "min": "30 days",
-                  "max": "60 days"
-                },
+                "value": "7 days",
                 "confidence": "low",
                 "basis": "example-only"
               },
               "required": false
             },
-            "reason": "there is no third touch; the instance only observes",
+            "reason": "the discount lapses with the offer; the instance only observes until then",
             "relativeTo": "previous-touch"
           },
-          "onTimeout": "x.lapsed",
+          "onTimeout": "c.returned3",
           "recheck": "the relationship re-read from the system of record",
           "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "c.returned3",
+          "kind": "condition",
+          "asks": "Did they purchase again?",
+          "branches": [
+            {
+              "label": "Yes",
+              "when": "an authoritative record shows the relationship repaid or a purchase completed within the offer window",
+              "observes": "relationship_repaid, purchase_completed",
+              "to": "x.won"
+            },
+            {
+              "label": "No",
+              "when": "no such record exists inside the window",
+              "observes": "relationship record",
+              "to": "x.lapsed"
+            }
+          ]
         },
         {
           "id": "x.won",
@@ -13428,7 +13493,7 @@
         {
           "id": "x.lapsed",
           "kind": "exit",
-          "state": "invited, not returned; left alone for the cooldown",
+          "state": "this journey ended; invited and discounted, not returned, left alone for the cooldown",
           "class": "timeout",
           "terminal": false,
           "reEntry": "no further win-back instance until the cooldown has passed"
@@ -13448,7 +13513,7 @@
           ],
           "optional": [
             "change_record_since_lapse",
-            "has_push_token",
+            "phone_number",
             "previous_plan",
             "winback_incentive_eligibility"
           ]
@@ -13538,10 +13603,11 @@
       "guardrails": [
         "A recorded reason or history that policy lists as excluding outreach is final for the instance.",
         "The invitation says what actually changed or is plain; no change is invented.",
-        "One invitation, one optional follow-up, then a long cooldown; a person who left and was asked once has answered.",
-        "An incentive, where enabled, appears once on the last enabled touch and is recorded per person so it is never re-issued on the next lapse."
+        "The relationship is re-read for a return at three points - before the invitation, before the discount, and after the discount's own offer window - and the cascade ends the moment any of them finds one.",
+        "Exactly two touches, email then SMS, then a long cooldown; a person who left, was asked once and offered once has answered.",
+        "The comeback discount appears once, on the second and final touch, and is recorded per person so it is never re-issued on the next lapse."
       ],
-      "reusableRule": "A lapsed paid relationship is invited back at most twice, only after its cancellation's own window has passed and only where reason, history and permission allow, with whatever honestly changed and a long cooldown afterwards."
+      "reusableRule": "A lapsed paid relationship is invited back at most twice - an email invitation, then an SMS comeback discount - only where reason, history and permission allow, re-read for a return before each touch and after the last, with a long cooldown afterwards."
     },
     {
       "id": "RET-290",
