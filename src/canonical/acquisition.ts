@@ -6783,7 +6783,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "back-in-stock-alert",
     "category": "acquisition",
     "goal": "recovery-retry",
-    "channels": ["push", "email"],
+    "channels": ["push", "email", "sms"],
     "name": "Interest recorded while unavailable → availability returns → alerted → purchased or closed",
     "shortName": "Back-in-Stock Alert",
     "purpose": "Tell a person, once, that the specific item they wanted while it was unavailable can be bought again - and only while that interest is still honestly theirs.",
@@ -6838,7 +6838,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.single",
         "label": "RECOMMENDED_DEFAULT",
-        "text": "One alert per availability cycle. A second message about the same return of the same item is a repeat, not a reminder."
+        "text": "At most three alerts per availability cycle, one per channel in sequence - push, then email, then SMS - each only if the return of the same item has not yet been bought after the one before it."
       },
       {
         "id": "s.sunset",
@@ -6853,12 +6853,12 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "back_in_stock.touches",
-          "rule": "The alert runs against a budget fixed when the instance opened; the budget is the number of alerts one availability cycle may carry, and no alert is repeated because nothing could tell whether it arrived.",
+          "rule": "The cascade runs against a budget fixed when the instance opened; the budget is the number of alerts one availability cycle may carry across the three channels, and no single channel's alert is repeated because nothing could tell whether it arrived.",
           "default": {
-            "value": 1,
+            "value": 3,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the journey's own shape - one alert and nothing after it"
+            "applicableWhen": "GLB-24; the journey's own shape - one alert per channel, in sequence, and nothing after the third"
           },
           "required": false
         },
@@ -6884,36 +6884,93 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "push"
           ],
-          "when": "a current device registration exists for this person and the permission covering it still stands - the return of availability is worth minutes, not hours"
+          "when": "the first alert, sent the moment availability returns"
         },
         {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "no faster route clears both permission and reachability, or the alert has to survive until the person can act on it"
+          "when": "the second alert, if the item is still unbought after the first"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "the third and final alert, if the item is still unbought after the second"
         }
       ],
-      "fallback": "next-eligible-role",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
-      "strategy": "single-notice",
+      "strategy": "progressive-recovery",
       "touches": [
         {
           "id": "t1",
-          "stage": "availability-alert",
-          "action": "a.alert",
+          "stage": "availability-alert-push",
+          "action": "a.alert-push",
           "gatedBy": "w.availability",
           "prerequisites": [
             "c.relevant",
-            "c.sendable",
-            "a.router1"
+            "c.sendable1"
           ],
-          "purpose": "The item they wanted is purchasable again, said once, with the route straight to it and nothing about how long that will last.",
+          "purpose": "The item they wanted is purchasable again, with the route straight to it and nothing about how long that will last.",
           "channelRoles": [
-            "low-friction",
+            "low-friction"
+          ],
+          "destination": {
+            "target": "item-detail",
+            "boundTo": "item_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "how long availability will last"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "availability-alert-email",
+          "action": "a.alert-email",
+          "after": "t1",
+          "gatedBy": "w.window1",
+          "prerequisites": [
+            "c.sendable2"
+          ],
+          "purpose": "The item they wanted is still purchasable, with the route straight to it, sent because the first alert did not reach a purchase.",
+          "channelRoles": [
             "persistent"
+          ],
+          "destination": {
+            "target": "item-detail",
+            "boundTo": "item_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "how long availability will last"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "availability-alert-sms",
+          "action": "a.alert-sms",
+          "after": "t2",
+          "gatedBy": "w.window2",
+          "prerequisites": [
+            "c.sendable3"
+          ],
+          "purpose": "The item they wanted is still purchasable, with the route straight to it, sent because neither earlier alert reached a purchase.",
+          "channelRoles": [
+            "urgent"
           ],
           "destination": {
             "target": "item-detail",
@@ -6992,7 +7049,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "Still wanted",
             "when": "the item is purchasable again, no purchase of it by this person is recorded, and the interest has not been withdrawn",
             "observes": "item_available_again",
-            "to": "c.sendable"
+            "to": "c.sendable1"
           },
           {
             "label": "Already bought",
@@ -7009,75 +7066,273 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         ]
       },
       {
-        "id": "c.sendable",
+        "id": "c.sendable1",
         "kind": "condition",
-        "asks": "May the alert go out?",
+        "asks": "May the push alert go out?",
         "branches": [
           {
             "label": "Sendable",
-            "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence commerce-recovery journey currently holds this person",
+            "when": "the send path passes: permission for commercial communication, a deliverable push destination, the promotional pressure cap, no cooldown in force, and no higher-precedence commerce-recovery journey currently holds this person",
             "observes": "send path stages 1-8",
-            "to": "a.router1"
+            "to": "a.alert-push"
           },
           {
             "label": "Suppressed",
             "when": "a gate stops it; the gate is recorded as the reason",
             "observes": "send path stages 1-8",
-            "to": "a.record-no-action"
+            "to": "a.record-no-action1"
           }
         ]
       },
       {
-        "id": "a.router1",
+        "id": "a.alert-push",
         "kind": "action",
-        "does": "Select the highest-priority channel this alert may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and send nothing.",
-        "writes": [{ "field": "selected_channel", "mode": "set" }],
-        "next": "a.alert"
-      },
-      {
-        "id": "a.alert",
-        "kind": "action",
-        "does": "Say that the item this person wanted is purchasable again and give the route straight to it. Claim no reserved stock, no held price, no discount and no deadline the platform does not enforce.",
+        "does": "Say on push that the item this person wanted is purchasable again, with a direct route to it. Claim no reserved stock, no held price, no discount and no deadline the platform does not enforce.",
         "execution": "communication",
-        "idempotencyKey": "person_id + item_id + availability_cycle",
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-push",
         "writes": [
           {
             "field": "alert_log",
             "mode": "append"
           }
         ],
-        "next": "w.window"
+        "next": "w.window1"
       },
       {
-        "id": "w.window",
+        "id": "a.record-no-action1",
+        "kind": "action",
+        "does": "Record which gate stopped the push alert and against which interest, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-push",
+        "next": "w.window1"
+      },
+      {
+        "id": "w.window1",
         "kind": "wait",
         "until": [
           "purchase_completed",
           "item_unavailable"
         ],
-        "onEvent": "c.converted",
+        "onEvent": "c.converted1",
         "timeout": {
           "after": {
-            "key": "back_in_stock.conversion_window",
-            "rule": "The alert is given a short window in which a purchase can honestly be read as following from it, after which the instance closes; there is no second alert to time.",
+            "key": "back_in_stock.window1",
+            "rule": "The push alert - or the gate that stopped it - is given a fixed window before the cascade re-reads the item and moves to the email alert.",
             "class": "response-window",
-            "required": true
+            "required": true,
+            "default": {
+              "value": "1 day",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace - one day to let the push alert land before the next channel tries"
+            }
           },
-          "reason": "the value of the alert lies in the moment availability returned, and that moment does not last",
+          "reason": "the cascade advances to the next channel on a fixed clock, not an open-ended one",
           "relativeTo": "previous-touch"
         },
-        "onTimeout": "c.converted",
+        "onTimeout": "c.converted1",
         "recheck": "the person's purchase record and the item's current availability re-read from the systems that own them",
         "windowExtendsOnEngagement": false
       },
       {
-        "id": "c.converted",
+        "id": "c.converted1",
         "kind": "condition",
-        "asks": "Did the alert reach a purchase?",
+        "asks": "Did the push alert reach a purchase?",
         "branches": [
           {
             "label": "Purchased",
-            "when": "an authoritative purchase of the item by this person is recorded after the alert",
+            "when": "an authoritative purchase of the item by this person is recorded after the push alert",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "Not purchased",
+            "when": "no purchase of the item by this person is recorded inside the window",
+            "observes": "purchase record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the email alert go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial communication, a deliverable email destination, the promotional pressure cap, no cooldown in force, the item still purchasable and no purchase recorded since the push alert",
+            "observes": "send path stages 1-8",
+            "to": "a.alert-email"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action2"
+          }
+        ]
+      },
+      {
+        "id": "a.alert-email",
+        "kind": "action",
+        "does": "Say by email that the item this person is interested in is purchasable again, with a direct route to it. Claim no reserved stock, no held price, no discount and no deadline the platform does not enforce.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-email",
+        "writes": [
+          {
+            "field": "alert_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.window2"
+      },
+      {
+        "id": "a.record-no-action2",
+        "kind": "action",
+        "does": "Record which gate stopped the email alert and against which interest",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-email",
+        "next": "w.window2"
+      },
+      {
+        "id": "w.window2",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "item_unavailable"
+        ],
+        "onEvent": "c.converted2",
+        "timeout": {
+          "after": {
+            "key": "back_in_stock.window2",
+            "rule": "The email alert - or the gate that stopped it - is given a fixed window before the cascade re-reads the item and moves to the SMS alert.",
+            "class": "response-window",
+            "required": true,
+            "default": {
+              "value": "2 days",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace - two days to let the email alert land before the final channel tries"
+            }
+          },
+          "reason": "the cascade advances to the final channel on a fixed clock, not an open-ended one",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.converted2",
+        "recheck": "the person's purchase record and the item's current availability re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.converted2",
+        "kind": "condition",
+        "asks": "Did the email alert reach a purchase?",
+        "branches": [
+          {
+            "label": "Purchased",
+            "when": "an authoritative purchase of the item by this person is recorded after the email alert",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "Not purchased",
+            "when": "no purchase of the item by this person is recorded inside the window",
+            "observes": "purchase record",
+            "to": "c.sendable3"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable3",
+        "kind": "condition",
+        "asks": "May the SMS alert go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial communication including SMS-specific consent, a deliverable phone destination, the promotional pressure cap, no cooldown in force, the item still purchasable and no purchase recorded since the email alert",
+            "observes": "send path stages 1-8",
+            "to": "a.alert-sms"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action3"
+          }
+        ]
+      },
+      {
+        "id": "a.alert-sms",
+        "kind": "action",
+        "does": "Say by SMS that the item this person wanted is purchasable again before it runs out, with a direct route to it. Claim no reserved stock, no held price, no discount and no deadline the platform does not enforce.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-sms",
+        "writes": [
+          {
+            "field": "alert_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.window3"
+      },
+      {
+        "id": "a.record-no-action3",
+        "kind": "action",
+        "does": "Record which gate stopped the SMS alert and against which interest, closing the cascade with no channel left to try",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-sms",
+        "next": "x.no-action"
+      },
+      {
+        "id": "w.window3",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "item_unavailable"
+        ],
+        "onEvent": "c.converted3",
+        "timeout": {
+          "after": {
+            "key": "back_in_stock.window3",
+            "rule": "The SMS alert is given a fixed window in which a purchase can honestly be read as following from it, after which the instance closes; there is no fourth channel to try.",
+            "class": "response-window",
+            "required": true,
+            "default": {
+              "value": "1 day",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace - one day for a purchase to follow the last alert before the instance closes"
+            }
+          },
+          "reason": "the value of the final alert lies in the moment it was sent, and that moment does not last",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.converted3",
+        "recheck": "the person's purchase record and the item's current availability re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.converted3",
+        "kind": "condition",
+        "asks": "Did the SMS alert reach a purchase?",
+        "branches": [
+          {
+            "label": "Purchased",
+            "when": "an authoritative purchase of the item by this person is recorded after the SMS alert",
             "observes": "purchase_completed",
             "to": "x.purchased"
           },
@@ -7088,19 +7343,6 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "to": "x.no-purchase"
           }
         ]
-      },
-      {
-        "id": "a.record-no-action",
-        "kind": "action",
-        "does": "Record why no alert was sent and against which interest, so no-action is a measured outcome rather than a silent absence",
-        "writes": [
-          {
-            "field": "suppressed_sends",
-            "mode": "append"
-          }
-        ],
-        "idempotencyKey": "person_id + item_id + availability_cycle",
-        "next": "x.no-action"
       },
       {
         "id": "x.purchased",
@@ -7156,6 +7398,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "item_price",
           "push_token",
           "email_address",
+          "phone_number",
           "has_active_app_session"
         ]
       }
@@ -7238,12 +7481,12 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       }
     ],
     "guardrails": [
-      "Availability is re-read immediately before the alert; the event that opened the window is not evidence that the item is still there.",
-      "One alert per availability cycle - a second message about the same return of the same item is a repeat, not a reminder.",
+      "Availability and the purchase record are re-read immediately before each channel's alert; the event that opened the window is not evidence that the item is still there.",
+      "At most three alerts per availability cycle, one per channel in sequence - push, then email, then SMS - and each only fires if the item is still unbought after the one before it.",
       "No alert once a purchase of the item is on record.",
       "Nothing is claimed about reserved stock, held prices, discounts or how long availability will last.",
       "A withdrawn interest ends the instance; it is never treated as a quiet one."
     ],
-    "reusableRule": "An alert that exists because a condition changed re-reads that condition immediately before it sends, sends once per change, and ends the moment the thing it was about has been bought or is gone again."
+    "reusableRule": "An alert cascade that exists because a condition changed re-reads that condition immediately before each channel sends, advances to the next channel only if the thing it was about is still true, and ends the moment it has been bought, is gone again, or the last channel has been tried."
   },
 ];

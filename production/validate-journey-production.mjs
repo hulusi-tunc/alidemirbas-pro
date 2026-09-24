@@ -366,6 +366,20 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 293 journeys / 3906 nodes (2026-09-24). ACQ-289
+// (Back-in-Stock Alert) was rebuilt from a single push/email alert into a
+// literal three-channel sequential cascade matching a reference image's
+// shape exactly: push, then (if still unbought) email one day later, then
+// (if still unbought) SMS two days after that, each channel re-reading
+// availability and the purchase record immediately before it sends and
+// each suppressed touch continuing the cascade into the next wait rather
+// than ending the instance - only the SMS channel's suppression closes it,
+// since nothing is left to try. orchestration.strategy moved from
+// single-notice to progressive-recovery; the old router (a.router1) was
+// removed in favor of one explicit touch per channel. 11 -> 20 nodes on
+// ACQ-289, +9 net. Rules (423), global rules (31) and merged redirects (8)
+// are unchanged.
+//
 // FROZEN BASELINE: 293 journeys / 3897 nodes (2026-09-24). RSK-273 gained
 // two real additions matching a reference image's usage-limit shape: a
 // pre-check (c.alternative -> a.alt-continue -> x.alternative) offering an
@@ -602,9 +616,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (293 journeys / 3897 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (293 journeys / 3906 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 293 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3897 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3906 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

@@ -539,32 +539,77 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
         { label: "Artık istenmiyor", detail: "kişi ilgisini geri çekti ya da ürün bildirim gönderilmeden önce yeniden satın alınamaz hâle geldi" },
       ],
     },
-    "c.sendable": {
-      headline: "Bildirim gönderilebilir mi?",
+    "c.sendable1": {
+      headline: "Push bildirimi gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon iletişim yoğunluğu limiti, bu kişiyi şu anda tutan daha yüksek öncelikli bir ticaret-kurtarma akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir push hedefi, promosyon iletişim yoğunluğu limiti, bu kişiyi şu anda tutan daha yüksek öncelikli bir ticaret-kurtarma akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
-    "a.router1": {
-      headline: "Bu bildirimin gerçekten ulaşabileceği en yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve hiçbir şey gönderme.",
+    "a.alert-push": {
+      headline: "Push ile bu kişinin istediği ürünün yeniden satın alınabilir olduğunu söyle ve doğrudan ürüne giden yolu ver. Rezerve stok, tutulan fiyat, indirim ya da platformun uygulamadığı bir son tarih iddia etme.",
     },
-    "a.alert": {
-      headline: "Bu kişinin istediği ürünün yeniden satın alınabilir olduğunu söyle ve doğrudan ürüne giden yolu ver. Rezerve stok, tutulan fiyat, indirim ya da platformun uygulamadığı bir son tarih iddia etme.",
+    "a.record-no-action1": {
+      headline: "Push bildirimini hangi kapının durdurduğunu ve hangi ilgiye karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
     },
-    "w.window": {
-      headline: "satın alma gerçekleşene kadar",
-      detail: "Zaman aşımı: bildirime, ardından gelen bir satın almanın dürüstçe ona bağlanabileceği kısa bir pencere tanınır; pencere kapandığında örnek de kapanır, zamanlanacak ikinci bir bildirim yoktur. (back_in_stock.conversion_window ayarlanmalı)",
+    "w.window1": {
+      headline: "1 gün bekle",
+      detail: "Zaman aşımı: push bildirimine - ya da onu durduran kapıya - akışın ürünü yeniden okuyup e-posta bildirimine geçmeden önce sabit bir pencere tanınır. (back_in_stock.window1 ayarlanmalı)",
     },
-    "c.converted": {
-      headline: "Bildirim satın almaya ulaştı mı?",
+    "c.converted1": {
+      headline: "Push bildirimi satın almaya ulaştı mı?",
       edges: [
-        { label: "Satın alındı", detail: "bildirimden sonra bu kişinin ürünü satın aldığına dair yetkili bir kayıt mevcut" },
+        { label: "Satın alındı", detail: "push bildiriminden sonra bu kişinin ürünü satın aldığına dair yetkili bir kayıt mevcut" },
         { label: "Satın alınmadı", detail: "pencere içinde bu kişinin ürünü satın aldığına dair hiçbir kayıt yok" },
       ],
     },
-    "a.record-no-action": {
-      headline: "Neden bildirim gönderilmediğini ve hangi ilgiye karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    "c.sendable2": {
+      headline: "E-posta bildirimi gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir e-posta hedefi, promosyon iletişim yoğunluğu limiti, yürürlükte bekleme süresi olmaması, ürünün hâlâ satın alınabilir olması ve push bildiriminden bu yana bir satın alma kaydedilmemiş olması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.alert-email": {
+      headline: "E-posta ile bu kişinin ilgilendiği ürünün yeniden satın alınabilir olduğunu söyle ve doğrudan ürüne giden yolu ver. Rezerve stok, tutulan fiyat, indirim ya da platformun uygulamadığı bir son tarih iddia etme.",
+    },
+    "a.record-no-action2": {
+      headline: "E-posta bildirimini hangi kapının durdurduğunu ve hangi ilgiye karşı olduğunu kaydet",
+    },
+    "w.window2": {
+      headline: "2 gün bekle",
+      detail: "Zaman aşımı: e-posta bildirimine - ya da onu durduran kapıya - akışın ürünü yeniden okuyup SMS bildirimine geçmeden önce sabit bir pencere tanınır. (back_in_stock.window2 ayarlanmalı)",
+    },
+    "c.converted2": {
+      headline: "E-posta bildirimi satın almaya ulaştı mı?",
+      edges: [
+        { label: "Satın alındı", detail: "e-posta bildiriminden sonra bu kişinin ürünü satın aldığına dair yetkili bir kayıt mevcut" },
+        { label: "Satın alınmadı", detail: "pencere içinde bu kişinin ürünü satın aldığına dair hiçbir kayıt yok" },
+      ],
+    },
+    "c.sendable3": {
+      headline: "SMS bildirimi gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: SMS'e özgü onay dâhil ticari iletişim izni, ulaşılabilir bir telefon hedefi, promosyon iletişim yoğunluğu limiti, yürürlükte bekleme süresi olmaması, ürünün hâlâ satın alınabilir olması ve e-posta bildiriminden bu yana bir satın alma kaydedilmemiş olması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.alert-sms": {
+      headline: "SMS ile bu kişinin istediği ürünün tükenmeden önce yeniden satın alınabilir olduğunu söyle ve doğrudan ürüne giden yolu ver. Rezerve stok, tutulan fiyat, indirim ya da platformun uygulamadığı bir son tarih iddia etme.",
+    },
+    "a.record-no-action3": {
+      headline: "SMS bildirimini hangi kapının durdurduğunu ve hangi ilgiye karşı olduğunu kaydet; denenecek başka kanal kalmadığı için akış burada kapanır",
+    },
+    "w.window3": {
+      headline: "1 gün bekle",
+      detail: "Zaman aşımı: SMS bildirimine, ardından gelen bir satın almanın dürüstçe ona bağlanabileceği kısa bir pencere tanınır; pencere kapandığında örnek de kapanır, denenecek dördüncü bir kanal yoktur. (back_in_stock.window3 ayarlanmalı)",
+    },
+    "c.converted3": {
+      headline: "SMS bildirimi satın almaya ulaştı mı?",
+      edges: [
+        { label: "Satın alındı", detail: "SMS bildiriminden sonra bu kişinin ürünü satın aldığına dair yetkili bir kayıt mevcut" },
+        { label: "Satın alınmadı", detail: "pencere içinde bu kişinin ürünü satın aldığına dair hiçbir kayıt yok" },
+      ],
     },
     "x.purchased": {
       headline: "Satın alındı",
