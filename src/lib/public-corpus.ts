@@ -47,8 +47,16 @@ export const ARCHIVED_SURFACE = "operational" as const;
    (RET-23's h.service) now targets external:operational-resolution - taking
    the library to 64. ACC-263 (Activation Reminder) was retired next - it had
    no real inbound handoffs, only prose distinctFrom rows in DOC-216's and
-   TIM-268's own sections, both removed - taking the library to 63.
-   Everything below that still says "69" is describing
+   TIM-268's own sections, both removed - taking the library to 63. ACT-12
+   (Onboarding Nurture) was retired next, the site owner's request despite
+   being load-bearing: it was the corpus's only step-by-step onboarding
+   nurture engine, and three real inbound handoffs (ACT-11's h.progress,
+   ACT-13's h.resume, ACT-20's h.onboarding) each became a real exit
+   (x.ready, x.unblocked, x.resumed) instead, since no other journey absorbs
+   its role - onboarding now stops at "ready to proceed" rather than
+   actively walking the next step. Its marketing-page showcase slot
+   (src/lib/journey-marketing.ts) now shows ACT-13. Taking the library to
+   62. Everything below that still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
    itself for the live list.
 
@@ -105,8 +113,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Acquisition, intent & qualification - 8
   "ACQ-09", "ACQ-11", "ACQ-12", "ACQ-13", "ACQ-285", "ACQ-287", "ACQ-288",
   "ACQ-289",
-  // Activation, onboarding & early value - 6
-  "ACT-12", "ACT-13", "ACT-14", "ACT-17", "ACT-20",
+  // Activation, onboarding & early value - 5
+  "ACT-13", "ACT-14", "ACT-17", "ACT-20",
   // Engagement, retention & contactability - 11
   "RET-24", "RET-28", "RET-30", "RET-31", "RET-32", "CON-272",
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",

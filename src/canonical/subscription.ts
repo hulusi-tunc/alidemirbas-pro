@@ -4120,10 +4120,6 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "because": "RET-290 opens on a first purchase and owns the customer relationship that purchase created; its subject is the second purchase. This opens on an enrolment and its subject is the membership. Where both are true at the same moment, neither carries the other's message: this one never makes a bounceback offer, and RET-290 never explains the membership."
       },
       {
-        "journey": "ACT-12",
-        "because": "ACT-12 advances product onboarding against a setup record. Enrolling in a membership is not a setup step and never advances that record; this journey orients somebody inside a membership and never inside the product."
-      },
-      {
         "journey": "SUB-297",
         "because": "SUB-297 acts on a membership that has been running and holds something unused. This acts on an enrolment that has just happened, and it runs once per membership, ever."
       },

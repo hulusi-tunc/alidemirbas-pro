@@ -7705,10 +7705,10 @@
       },
       "measurement": {
         "journeyOutcome": {
-          "type": "handoff",
+          "type": "exit-or-handoff",
           "refs": [
             "h.requirement",
-            "h.progress"
+            "x.ready"
           ]
         },
         "secondary": [],
@@ -7824,7 +7824,7 @@
             {
               "label": "Clear to start",
               "when": "no mandatory prerequisite is outstanding; incomplete optional fields do not count",
-              "to": "h.progress"
+              "to": "x.ready"
             }
           ]
         },
@@ -7840,14 +7840,12 @@
           ]
         },
         {
-          "id": "h.progress",
-          "kind": "handoff",
-          "to": "ACT-12",
-          "on": "a route chosen and nothing blocking the start",
-          "carries": [
-            "the chosen route and why it was chosen",
-            "the onboarding context, so the first step does not re-ask what was already known"
-          ]
+          "id": "x.ready",
+          "kind": "exit",
+          "state": "route chosen, nothing blocking the start; the account is clear to begin setup under its own steam",
+          "terminal": false,
+          "reEntry": "a mandatory prerequisite discovered later is its own instance (ACT-13)",
+          "class": "success"
         }
       ],
       "guardrails": [
@@ -7856,491 +7854,6 @@
         "The route follows the setup and use-case actually in front of us, not who the account is."
       ],
       "reusableRule": "Onboarding should be routed according to the work required to reach value, not merely according to who entered."
-    },
-    {
-      "id": "ACT-12",
-      "slug": "onboarding-progress-next-step",
-      "category": "activation",
-      "goal": "progression-milestone",
-      "channels": [
-        "in-app",
-        "push",
-        "email"
-      ],
-      "name": "Onboarding progress → next best setup step → activation",
-      "shortName": "Onboarding Nurture",
-      "purpose": "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
-      "distinctFrom": [
-        {
-          "journey": "SUB-296",
-          "because": "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person."
-        },
-        {
-          "journey": "ACT-20",
-          "because": "ACT-20 attempts to restart a relationship that went dormant before it ever produced value; where an onboarding instance is already open for the same person, an onboarding already in motion is a current lifecycle and this journey owns the account outright. ACT-20's own reactivation handoff (h.onboarding) lands here rather than opening a second attempt."
-        }
-      ],
-      "entity": {
-        "scope": "person or account plus the onboarding instance",
-        "note": "Progress is held against the instance. A second onboarding for a different product does not inherit the first one's completed steps.",
-        "instanceKey": [
-          "account_id",
-          "onboarding_instance_id"
-        ],
-        "concurrency": "one-active-per-key"
-      },
-      "objective": "Get an onboarding account to activation by surfacing the single most useful next step, read from what is actually done, until activation happens, a named blocker takes over, or the window closes.",
-      "eligibility": [
-        "an onboarding instance is open for the account and activation is not yet recorded",
-        "the product's own record of setup milestones is readable",
-        "no nurture instance is already open for this onboarding instance",
-        "no ACT-14 assisted-help session is open (booked and not yet resolved) for this account",
-        "hard gates (GLB-31) permit lifecycle communication"
-      ],
-      "suppressions": [
-        {
-          "id": "s.activated",
-          "label": "CANONICAL_RULE",
-          "text": "The authoritative activation event supersedes this journey wherever it sits: the instance hands to completion and nothing further is sent."
-        },
-        {
-          "id": "s.blocker",
-          "label": "CANONICAL_RULE",
-          "text": "When one named mandatory prerequisite is established as the thing preventing activation, the blocker journey (ACT-13) owns the account; nurture steps stop."
-        },
-        {
-          "id": "s.done-step",
-          "label": "CANONICAL_RULE",
-          "text": "A completed step is never suggested again; every touch re-reads the milestone record first."
-        },
-        {
-          "id": "s.window",
-          "label": "CANONICAL_RULE",
-          "text": "When the onboarding window closes without activation the instance exits; onboarding prompts are not sent into a closed window."
-        },
-        {
-          "id": "s.contest",
-          "label": "CANONICAL_RULE",
-          "text": "This journey sits below the activation event and below any open issue under human ownership on the same account (GLB-06)."
-        },
-        {
-          "id": "s.assisted",
-          "label": "CANONICAL_RULE",
-          "text": "An open ACT-14 assisted-help session (booked at a.confirm, not yet resolved) on the same account takes ownership from this journey's generic next-step prompts; nurture steps pause until ACT-14's w.session resolves (assisted_session_outcome_recorded or booking_cancelled) or exits, and resume against the milestone record as it then stands."
-        },
-        {
-          "id": "s.permission",
-          "label": "CANONICAL_RULE",
-          "text": "No touch without permission for lifecycle communication; absent permission is a recorded no-action."
-        },
-        {
-          "id": "s.sunset",
-          "label": "CANONICAL_RULE",
-          "text": "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase."
-        }
-      ],
-      "contact": {
-        "defaultPriority": "lifecycle",
-        "pressureClass": "lifecycle",
-        "localCap": {
-          "value": {
-            "key": "onboarding.step_prompts",
-            "rule": "Step prompts run against one budget fixed when the instance opened; a prompt for the same step is never repeated because nothing could tell whether it was seen.",
-            "default": {
-              "value": 3,
-              "confidence": "medium",
-              "basis": "corpus-rule",
-              "applicableWhen": "an onboarding with a handful of critical steps"
-            },
-            "required": false
-          },
-          "appliesTo": "all"
-        },
-        "cooldown": {
-          "key": "onboarding.cooldown",
-          "rule": "Onboarding is per instance; a re-opened onboarding after the window closed is a new instance and enters silently until the cooldown has passed.",
-          "class": "cooldown",
-          "default": {
-            "value": {
-              "min": "14 days",
-              "max": "30 days"
-            },
-            "confidence": "low",
-            "basis": "example-only"
-          },
-          "required": false
-        },
-        "competition": {
-          "exclusionGroup": "lifecycle-stage",
-          "scope": "person",
-          "precedence": "below the authoritative activation event, which supersedes it wherever it sits; above dormant lead reactivation (ACT-20) for the same person, because an onboarding already in motion is a current lifecycle and reactivation is the attempt to start one",
-          "onLoss": "superseded"
-        }
-      },
-      "channelStrategy": {
-        "roles": [
-          {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the person is already in an active product session and the next incomplete setup step can be surfaced in the place where it can be completed"
-          },
-          {
-            "role": "low-friction",
-            "channels": [
-              "push"
-            ],
-            "when": "there is no active session, a deliverable push destination exists, and the next step has a single deep link back to the exact setup state"
-          },
-          {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "otherwise, or when the next step needs an explanation the person can keep and return to later"
-          }
-        ],
-        "fallback": "none",
-        "label": "RECOMMENDED_DEFAULT"
-      },
-      "orchestration": {
-        "strategy": "progressive-recovery",
-        "touches": [
-          {
-            "id": "t1",
-            "stage": "next-step",
-            "action": "a.surface",
-            "prerequisites": [
-              "c.next-step"
-            ],
-            "purpose": "Surface the single most useful next action, read from the product's own record of what is done. Never a completed step, never the whole checklist.",
-            "channelRoles": [
-              "in-session",
-              "low-friction",
-              "persistent"
-            ],
-            "destination": {
-              "target": "next-setup-step",
-              "boundTo": "onboarding_instance_id"
-            },
-            "mandatory": false,
-            "label": "CANONICAL_RULE"
-          }
-        ],
-        "noAction": [
-          "s.activated",
-          "s.blocker",
-          "s.done-step",
-          "s.window",
-          "s.contest",
-          "s.assisted",
-          "s.permission"
-        ]
-      },
-      "implementation": {
-        "attributes": {
-          "required": [
-            "account_id",
-            "onboarding_instance_id",
-            "milestones",
-            "critical_steps",
-            "window_ends_at"
-          ],
-          "optional": [
-            "has_active_session",
-            "blocker_candidate",
-            "assisted_session_open"
-          ]
-        }
-      },
-      "measurement": {
-        "journeyOutcome": {
-          "type": "exit-or-handoff",
-          "refs": [
-            "h.activated",
-            "h.blocker",
-            "x.window-closed",
-            "x.prompts-spent"
-          ]
-        },
-        "businessOutcome": {
-          "event": "activation_recorded",
-          "unit": "instance",
-          "observationScope": {
-            "type": "self"
-          },
-          "window": {
-            "type": "until-exit"
-          },
-          "attribution": "touched-before-event",
-          "comparison": "persistent-holdout",
-          "holdout": {
-            "key": "onboarding.holdout_share",
-            "rule": "A persistent holdout is required: accounts activate on their own often enough that a treated-only measurement cannot tell the prompts' effect from theirs.",
-            "default": {
-              "value": 10,
-              "confidence": "low",
-              "basis": "example-only"
-            },
-            "required": false
-          }
-        },
-        "secondary": [
-          "setup_milestone_completed"
-        ],
-        "guardrails": [
-          "unsubscribe",
-          "complaint",
-          "message_after_success",
-          "completed_step_suggested"
-        ],
-        "operational": [
-          "entry_volume",
-          "prompts_per_instance",
-          "prompts_per_instance_vs_budget",
-          "time_to_activation",
-          "blocker_handoff_rate",
-          "window_closed_rate"
-        ]
-      },
-      "discovery": {
-        "aliases": [
-          "onboarding nurture",
-          "setup reminders",
-          "onboarding inactivity",
-          "getting-started sequence",
-          "activation nurture"
-        ],
-        "useCases": [
-          "a new account that has started setup and not yet reached activation",
-          "an onboarding with critical steps outstanding and a bounded window"
-        ]
-      },
-      "entry": "t.active",
-      "nodes": [
-        {
-          "id": "t.active",
-          "kind": "trigger",
-          "event": "onboarding_active_without_activation",
-          "evidence": {
-            "requires": [
-              "an onboarding instance that is open and an activation event that has not been recorded"
-            ],
-            "insufficientAlone": [
-              "a completed sign-up with no onboarding instance opened",
-              "activity inside a different product's onboarding"
-            ],
-            "source": "authoritative"
-          },
-          "next": "c.next-step"
-        },
-        {
-          "id": "c.next-step",
-          "kind": "condition",
-          "asks": "Is there a critical next step still outstanding?",
-          "branches": [
-            {
-              "label": "A step remains",
-              "when": "at least one incomplete milestone stands between this account and value",
-              "observes": "the product's own record of completed setup milestones, never send or open history",
-              "to": "a.surface"
-            },
-            {
-              "label": "Nothing critical left",
-              "when": "the setup work is done and what remains is whether value has actually been produced",
-              "observes": "the product's own record of completed setup milestones, never send or open history",
-              "to": "c.ready"
-            }
-          ]
-        },
-        {
-          "id": "a.surface",
-          "kind": "action",
-          "does": "Surface the single most useful next action. A completed step is never suggested again, and an order is imposed only where one step genuinely depends on another - elsewhere the person picks",
-          "next": "w.progress",
-          "execution": "communication",
-          "idempotencyKey": "onboarding_instance_id + step id",
-          "attemptBudget": {
-            "key": "onboarding.step_prompts",
-            "rule": "The same budget as the local cap: every prompt spends it, and a spent budget waits out the window silently.",
-            "default": {
-              "value": 3,
-              "confidence": "medium",
-              "basis": "corpus-rule"
-            },
-            "required": false
-          }
-        },
-        {
-          "id": "c.ready",
-          "kind": "condition",
-          "asks": "Has activation actually been achieved?",
-          "branches": [
-            {
-              "label": "Activated",
-              "when": "the authoritative activation event has been recorded",
-              "to": "h.activated"
-            },
-            {
-              "label": "Setup complete, value not yet produced",
-              "when": "every milestone is done and no activation event exists - the checklist finished and the product has still not done anything for them",
-              "to": "w.progress"
-            }
-          ]
-        },
-        {
-          "id": "w.progress",
-          "kind": "wait",
-          "until": [
-            "setup_milestone_completed",
-            "activation_recorded"
-          ],
-          "onEvent": "c.what-happened",
-          "timeout": {
-            "after": {
-              "key": "onboarding.step_interval",
-              "rule": "The interval between step prompts is the one appropriate to the remaining work - a step that takes minutes and a step that needs an administrator cannot share it.",
-              "class": "observation-window",
-              "required": true
-            },
-            "reason": "the wait is for the person to act; when nothing happens the state is re-read rather than the same message being repeated",
-            "relativeTo": "previous-touch"
-          },
-          "onTimeout": "c.window",
-          "windowExtendsOnEngagement": false,
-          "recheck": "the milestone record re-read from the product: which steps are complete, whether activation is recorded, whether the window is still open"
-        },
-        {
-          "id": "c.what-happened",
-          "kind": "condition",
-          "asks": "Which event arrived?",
-          "branches": [
-            {
-              "label": "Activation",
-              "when": "the authoritative activation event was recorded",
-              "to": "h.activated"
-            },
-            {
-              "label": "A setup milestone",
-              "when": "progress was made but value has not been produced yet",
-              "to": "c.budget"
-            }
-          ]
-        },
-        {
-          "id": "c.stalled-step",
-          "kind": "condition",
-          "asks": "Is the same prerequisite actually blocking activation?",
-          "branches": [
-            {
-              "label": "A named blocker is holding it",
-              "when": "authoritative state shows one mandatory prerequisite unchanged and preventing activation, not merely a quiet interval",
-              "to": "h.blocker"
-            },
-            {
-              "label": "No blocker; simply incomplete",
-              "when": "setup has not advanced but nothing identifiable is preventing it",
-              "to": "c.budget"
-            }
-          ]
-        },
-        {
-          "id": "c.budget",
-          "kind": "condition",
-          "asks": "Is there a step prompt left in this instance's budget?",
-          "branches": [
-            {
-              "label": "A prompt remains",
-              "when": "fewer step prompts have been sent on this instance than onboarding.step_prompts allows",
-              "observes": "step prompts sent so far on this instance, onboarding.step_prompts",
-              "to": "c.next-step"
-            },
-            {
-              "label": "Budget spent",
-              "when": "every step prompt the budget allows has already been sent on this instance",
-              "observes": "step prompts sent so far on this instance, onboarding.step_prompts",
-              "to": "x.prompts-spent"
-            }
-          ]
-        },
-        {
-          "id": "h.blocker",
-          "kind": "handoff",
-          "to": "ACT-13",
-          "on": "one named mandatory prerequisite established as the thing preventing activation, rather than a general lack of progress",
-          "carries": [
-            "the exact outstanding prerequisite and how long it has stayed unchanged",
-            "the onboarding route and the milestones already completed"
-          ],
-          "suppresses": [
-            "the generic next-step prompt for this prerequisite while the blocker journey owns it"
-          ]
-        },
-        {
-          "id": "c.window",
-          "kind": "condition",
-          "asks": "Is the onboarding window still open?",
-          "branches": [
-            {
-              "label": "Still open",
-              "when": "the window fixed at entry has not expired",
-              "to": "c.stalled-step"
-            },
-            {
-              "label": "Closed",
-              "when": "the window has expired without activation",
-              "to": "x.window-closed"
-            }
-          ]
-        },
-        {
-          "id": "h.activated",
-          "kind": "handoff",
-          "to": "ACT-16",
-          "on": "the authoritative activation event",
-          "carries": [
-            "which event satisfied activation",
-            "what onboarding still had outstanding, so the right things get invalidated rather than all of them"
-          ]
-        },
-        {
-          "id": "x.window-closed",
-          "kind": "exit",
-          "state": "onboarding window closed without activation",
-          "terminal": false,
-          "reEntry": "a later setup or activation event re-opens this normally; the completed milestones are kept, so a return does not start from the beginning",
-          "class": "timeout"
-        },
-        {
-          "id": "x.prompts-spent",
-          "kind": "exit",
-          "state": "step prompts spent; onboarding continues without further prompting",
-          "terminal": false,
-          "reEntry": "a further setup_milestone_completed event or a new onboarding instance re-opens prompting; the completed milestones are kept",
-          "class": "no-action"
-        }
-      ],
-      "preemptedBy": [
-        {
-          "event": "the authoritative activation event, from anywhere",
-          "then": "ACT-16 takes ownership and invalidates whatever this journey still had pending"
-        },
-        {
-          "event": "a named requirement blocking activation",
-          "then": "ACT-13 owns the blocker; generic next-step messaging stops until it is resolved"
-        },
-        {
-          "event": "an assisted setup session scheduled through ACT-14",
-          "then": "ACT-14 owns setup communication until the session outcome is recorded; generic next-step prompts pause rather than compete with a booked call"
-        }
-      ],
-      "guardrails": [
-        "A completed step is never suggested again. Reading the setup record rather than the send history is what makes that true.",
-        "Step order is enforced only where a real dependency exists. Imposed sequence turns optional work into a blocker.",
-        "A finished checklist is not activation. Setup being complete and the product having produced value are two different facts, and this journey can reach the first without the second."
-      ],
-      "reusableRule": "Onboarding communication should respond to actual progress rather than elapsed time alone."
     },
     {
       "id": "ACT-13",
@@ -8367,10 +7880,6 @@
         {
           "journey": "ACT-14",
           "because": "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere - and where both are true, a named requirement outstanding and help being sought against it, this journey holds the account and the help offer is suppressed for it, because an obstacle with a name is answerable and a general offer of help is not."
-        },
-        {
-          "journey": "ACT-12",
-          "because": "ACT-12 suppresses its generic next-step prompt for the exact prerequisite this journey names the moment it opens (s.blocker) and hands the account here (h.blocker). This journey is what that transfer is transferring to, and resumes ACT-12 (h.resume) once the requirement clears."
         },
         {
           "journey": "TIM-268",
@@ -8540,7 +8049,7 @@
             "x.not-blocking",
             "x.next-blocker",
             "x.blocked",
-            "h.resume",
+            "x.unblocked",
             "h.escalate",
             "h.reroute"
           ]
@@ -8729,7 +8238,7 @@
             {
               "label": "Reachable",
               "when": "no other mandatory requirement is outstanding",
-              "to": "h.resume"
+              "to": "x.unblocked"
             },
             {
               "label": "Another requirement is blocking",
@@ -8739,14 +8248,12 @@
           ]
         },
         {
-          "id": "h.resume",
-          "kind": "handoff",
-          "to": "ACT-12",
-          "on": "the blocker cleared and activation reachable again",
-          "carries": [
-            "which requirement was resolved and how long it took",
-            "the setup state as it now stands, so onboarding resumes rather than restarts"
-          ]
+          "id": "x.unblocked",
+          "kind": "exit",
+          "state": "the blocker cleared and activation reachable again; the setup state stands as it now is, ready to resume rather than restart",
+          "terminal": false,
+          "reEntry": "a further requirement discovered later opens its own instance",
+          "class": "success"
         },
         {
           "id": "x.next-blocker",
@@ -8849,10 +8356,6 @@
         {
           "journey": "ACT-13",
           "because": "ACT-13 has a named requirement to clear. Here the evidence is effort without progress and no single thing to point at, which is why the offer is help rather than an instruction."
-        },
-        {
-          "journey": "ACT-12",
-          "because": "ACT-12 pauses its generic next-step prompts while an assisted session booked here is open (s.assisted), released on assisted_session_outcome_recorded or booking_cancelled; this journey is what that pause is for."
         }
       ],
       "objective": "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
@@ -9574,12 +9077,6 @@
         ],
         "concurrency": "one-active-per-key"
       },
-      "distinctFrom": [
-        {
-          "journey": "ACT-12",
-          "because": "Onboarding gets someone to value once. This is about the second, fifth and twentieth time, where the obstacle is habit rather than setup."
-        }
-      ],
       "objective": "Turn a first activation into repeated value in the same use-case: recognise what was actually produced, point at the one behaviour that would produce more, and stop the moment adoption is stable or stalls.",
       "eligibility": [
         "an activation or first value-producing event is recorded for this account in a named use-case",
@@ -10054,6 +9551,11 @@
           "id": "s.sunset",
           "label": "CANONICAL_RULE",
           "text": "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase."
+        },
+        {
+          "id": "s.onboarding-open",
+          "label": "CANONICAL_RULE",
+          "text": "An onboarding instance already open for this person is a current lifecycle in motion, not dormancy; this journey does not open while one is open, and an open instance stands down if one opens."
         }
       ],
       "contact": {
@@ -10079,12 +9581,7 @@
           "class": "cooldown",
           "required": true
         },
-        "competition": {
-          "exclusionGroup": "lifecycle-stage",
-          "scope": "person",
-          "precedence": "lowest in the group - any current lifecycle on the same person outranks reactivation",
-          "onLoss": "exit"
-        }
+        "competition": "none"
       },
       "channelStrategy": {
         "roles": [
@@ -10129,7 +9626,8 @@
         "noAction": [
           "s.g1",
           "s.g2",
-          "s.g3"
+          "s.g3",
+          "s.onboarding-open"
         ]
       },
       "implementation": {
@@ -10153,7 +9651,7 @@
             "x.no-reason",
             "x.engagement-only",
             "x.sunset",
-            "h.onboarding",
+            "x.resumed",
             "h.intent",
             "h.qualify"
           ]
@@ -10313,7 +9811,7 @@
             {
               "label": "Unfinished onboarding",
               "when": "an onboarding instance is open and setup resumed",
-              "to": "h.onboarding"
+              "to": "x.resumed"
             },
             {
               "label": "Renewed commercial intent",
@@ -10333,14 +9831,12 @@
           ]
         },
         {
-          "id": "h.onboarding",
-          "kind": "handoff",
-          "to": "ACT-12",
-          "on": "a return into unfinished setup",
-          "carries": [
-            "the milestones already completed, so they resume rather than restart",
-            "the reason they were re-engaged"
-          ]
+          "id": "x.resumed",
+          "kind": "exit",
+          "state": "returned into unfinished setup; the milestones already completed stand, and the account resumes rather than restarts",
+          "terminal": false,
+          "reEntry": "a further return re-reads the same milestone record",
+          "class": "success"
         },
         {
           "id": "h.intent",
@@ -61132,10 +60628,6 @@
         {
           "journey": "RET-290",
           "because": "RET-290 opens on a first purchase and owns the customer relationship that purchase created; its subject is the second purchase. This opens on an enrolment and its subject is the membership. Where both are true at the same moment, neither carries the other's message: this one never makes a bounceback offer, and RET-290 never explains the membership."
-        },
-        {
-          "journey": "ACT-12",
-          "because": "ACT-12 advances product onboarding against a setup record. Enrolling in a membership is not a setup step and never advances that record; this journey orients somebody inside a membership and never inside the product."
         },
         {
           "journey": "SUB-297",

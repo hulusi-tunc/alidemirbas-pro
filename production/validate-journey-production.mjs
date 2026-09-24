@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 297", journeys.length === 297);
+check(1, "active journey count = 296", journeys.length === 296);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -366,6 +366,26 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 296 journeys / 3937 nodes (2026-09-24). ACT-12
+// (Onboarding Nurture) was retired entirely from the corpus, site owner's
+// request, despite being load-bearing: it was the only step-by-step
+// onboarding nurture engine, and three real inbound handoffs - ACT-11's
+// h.progress, ACT-13's h.resume, ACT-20's h.onboarding - each became a
+// real exit (x.ready, x.unblocked, x.resumed) instead, since no other
+// journey absorbs its role; onboarding now stops at "ready to proceed"
+// rather than actively walking the next step. ACT-20 lost its
+// "lifecycle-stage" exclusionGroup (ACT-12 was its only other member,
+// leaving a group of one) - replaced with a plain suppression
+// (s.onboarding-open) checking the same real condition without a formal
+// competition. Three prose distinctFrom rows naming ACT-12 were removed
+// (ACT-14's, ACT-17's and SUB-296's own sections, one row each). The
+// marketing-page showcase slot (src/lib/journey-marketing.ts) now shows
+// ACT-13. Public library drops from 63 to 62. 297 -> 296 journeys,
+// 3950 -> 3937 nodes (-13: ACT-12 carried 13 of its own nodes; ACT-11,
+// ACT-13 and ACT-20 each net even, losing a handoff and gaining an exit).
+// Rules (423), global rules (31) and merged redirects (8) are unchanged;
+// competition groups drop from 15 to 14.
+//
 // FROZEN BASELINE: 297 journeys / 3950 nodes (2026-09-24). FBK-41 gained a
 // real channel-priority cascade (c.channel: in-app where has_active_session
 // is true, then push where has_push_token is true, then email otherwise -
@@ -534,9 +554,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (297 journeys / 3950 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 297 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3950 &&
+  "canonical source mutation = 0 (296 journeys / 3937 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 296 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3937 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
