@@ -45,7 +45,10 @@ export const ARCHIVED_SURFACE = "operational" as const;
    were then retired the same way, dropping the library to 65. RET-26
    (Service Recovery) was retired next - its one real inbound handoff
    (RET-23's h.service) now targets external:operational-resolution - taking
-   the library to 64. Everything below that still says "69" is describing
+   the library to 64. ACC-263 (Activation Reminder) was retired next - it had
+   no real inbound handoffs, only prose distinctFrom rows in DOC-216's and
+   TIM-268's own sections, both removed - taking the library to 63.
+   Everything below that still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
    itself for the live list.
 
@@ -111,8 +114,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",
   // Time, deadlines, expiry & temporary states - 5
   "TIM-61", "TIM-63", "TIM-268", "TIM-274", "TIM-281",
-  // Access, identity & relationship - 5
-  "ACC-261", "ACC-263", "IDN-84", "IDN-271", "REL-284",
+  // Access, identity & relationship - 4
+  "ACC-261", "IDN-84", "IDN-271", "REL-284",
   // Transactions, fulfillment & remedies - 10
   "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291",
   "REM-151", "REM-157", "REM-305",

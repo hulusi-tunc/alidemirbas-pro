@@ -2680,11 +2680,6 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "DOC-216 establishes whether and when the document takes effect and revalidates it at that moment. This journey starts only once that record exists, and it decides nothing about effectiveness itself.",
       },
-      {
-        journey: "ACC-263",
-        because:
-          "ACC-263 runs a claim window on a granted capability that lapses if unused. Here nothing lapses for want of use - the document is in force either way, and dormancy is an observation rather than a loss.",
-      },
     ],
     objective: "Tell the holder that what they signed has actually started, and what it now lets them do, at the moment it becomes true rather than the moment they signed.",
     eligibility: [

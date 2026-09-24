@@ -2415,11 +2415,6 @@ export const TIME_JOURNEYS: readonly CanonicalJourney[] = [
           "REL-284 owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure. This journey would restate that deadline without knowing what the acceptance grants.",
       },
       {
-        journey: "ACC-263",
-        because:
-          "ACC-263 owns whether a granted entitlement is ever used, and names the first action that uses it. An unused entitlement is that journey's obligation, not a generic outstanding one.",
-      },
-      {
         journey: "RLT-279",
         because:
           "RLT-279 owns a prerequisite blocking a change the holder asked for, and can name what the change unlocks. This journey can only name the prerequisite.",

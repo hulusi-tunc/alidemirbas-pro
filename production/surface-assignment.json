@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 298,
-    "customer": 149,
+    "journeys": 297,
+    "customer": 148,
     "customer-silent": 66,
-    "customer-communicating": 83,
+    "customer-communicating": 82,
     "mechanism": 25,
     "operational": 124
   },
@@ -1032,17 +1032,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (email)"
-    },
-    {
-      "id": "ACC-263",
-      "shortName": "Activation Reminder",
-      "category": "access",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "IDN-81",
