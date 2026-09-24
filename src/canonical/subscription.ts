@@ -4637,10 +4637,6 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     },
     "distinctFrom": [
       {
-        "journey": "RET-293",
-        "because": "RET-293 assembles a set of things to buy from a signal about the person. This names one thing the membership already holds. A product proposal is never presented as a membership benefit, and what somebody already holds is never assembled from a recommendation signal."
-      },
-      {
         "journey": "RET-294",
         "because": "RET-294 offers a second product that completes one the person owns. This offers nothing new at all - the subject is already theirs, and the only question is whether they have used it."
       },

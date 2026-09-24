@@ -5534,10 +5534,6 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "ACQ-289",
         "because": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds."
-      },
-      {
-        "journey": "RET-293",
-        "because": "RET-293 acts on a retention signal about an existing relationship. This journey acts on inferred pre-purchase attention with no relationship yet to retain, and yields to RET-293 for the same person."
       }
     ],
     "guardrails": [

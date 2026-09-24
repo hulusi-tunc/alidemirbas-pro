@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 302", journeys.length === 302);
+check(1, "active journey count = 299", journeys.length === 299);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -366,6 +366,25 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 299 journeys / 3967 nodes (2026-09-24). Three more
+// journeys retired entirely at the site owner's request, same pattern as
+// ACT-18 above (delete + fix every reciprocal reference, not just exclude
+// from public listing): ACT-19 (Onboarding Personalization - deeply coupled
+// to ACT-12/ACT-14 via a shared instance key and real eligibility/
+// suppression text, all rewritten), RET-293 (Personalized Recommendations -
+// its "recommendation-offer" exclusion group lost a member, so RET-294's
+// competition became a plain distinctFrom entry against RET-31 instead of a
+// group-of-one), and FUL-301 (Order Confirmation - the single most
+// cross-referenced journey removed so far: 8 mentions across fulfillment.ts,
+// retention.ts and scheduling.ts, all as prose/precedence, no real handoffs
+// in or out). ACT-17 also gained a real nudge retry loop (c.stable-after-
+// nudge's "Still not" branch now loops back to a.next-behavior instead of
+// going straight to x.stalled) plus a push channel role, matching an
+// already-declared but previously unwired attemptBudget of 3. Public
+// library drops from 68 to 65 (ACT-19, RET-293, FUL-301 were all public).
+// 302 -> 299 journeys, 4000 -> 3967 nodes. Rules (423), global rules (31)
+// and merged redirects (8) unchanged.
+//
 // FROZEN BASELINE: 302 journeys / 4000 nodes (2026-09-24). SUB-262 gained a
 // lead-time push reminder (w.lead, c.lead-withdrawn, a.push-lead) a few days
 // before the wind-down's effective end date, ahead of the existing w.window
@@ -430,9 +449,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (302 journeys / 4000 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 302 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 4000 &&
+  "canonical source mutation = 0 (299 journeys / 3967 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 299 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3967 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

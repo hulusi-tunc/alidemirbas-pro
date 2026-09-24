@@ -757,63 +757,6 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     },
   },
   },
-  "RET-293": {
-  shortName: "Kişiye Özel Öneriler",
-  name: "Öneri sinyali nitelendi → hâlâ geçerli → önerildi → dönüştü, reddedildi veya kapandı",
-  purpose: "Kişiye, kendi yaptığı şeylerden - satın aldığı, incelediği, kaydettiği ya da açıkça belirttiği şeylerden - türeyen küçük bir küme göstermek; ve bunu yalnızca kümedeki her ürün gerçekten satın alınabilirken yapmak.",
-  nodes: {
-    "t.signal": { headline: "Öneri sinyali nitelendi" },
-    "c.valid": {
-      headline: "Öneri hâlâ geçerli mi?",
-      edges: [
-        { label: "Geçerli", detail: "sinyal şirketin tazelik kuralının içinde ve kümedeki en az bir ürün satın alınabilir, izinli ve bu kişide ne mevcut ne de reddedilmiş" },
-        { label: "Zaten satın alınmış", detail: "kişi o zamandan beri sinyalin konusu olan şeyi satın almış" },
-        { label: "Bayat veya boş", detail: "sinyal tazelik kuralını aşmış ya da kümedeki hiçbir ürün stok ve sahiplik kontrolünden geçememiş" },
-      ],
-    },
-    "c.sendable": {
-      headline: "Öneri gönderilebilir mi?",
-      edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari iletişim izni, ulaşılabilir bir hedef, promosyon iletişim yoğunluğu limiti, bu kişiyi şu anda tutan daha yüksek öncelikli bir teklif akışının bulunmaması ve yürürlükte bekleme süresi olmaması" },
-        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
-      ],
-    },
-    "a.recommend": {
-      headline: "Sinyalin ürettiği kümeyi gönder; her ürünü önce stok, uygunluk ve sahiplik açısından yeniden oku ve kişinin zaten sahip olduğu ya da reddettiği hiçbir şeyi kümede bırakma. Rezerve stok, tutulan fiyat ya da indirim iddia etme.",
-    },
-    "w.window": {
-      headline: "satın alma gerçekleşene kadar",
-      detail: "Zaman aşımı: kümeye, ardından gelen bir satın almanın dürüstçe ona bağlanabileceği bir pencere tanınır; pencere kapandığında örnek de kapanır, zamanlanacak ikinci bir küme yoktur. (recommendations.observation_window ayarlanmalı)",
-    },
-    "c.outcome": {
-      headline: "Öneri ilgili bir satın almaya ulaştı mı?",
-      edges: [
-        { label: "Dönüştü", detail: "pencere içinde önerilen kümeden bir ürünün satın alındığına dair yetkili bir kayıt mevcut" },
-        { label: "Reddedildi", detail: "kişi önerilen konuyu istemediğini belirtti" },
-        { label: "Dönüşüm yok", detail: "pencere içinde ne kümeden bir satın alma ne de bir ret kaydı var" },
-      ],
-    },
-    "a.record-no-action": {
-      headline: "Neden öneri gönderilmediğini ve hangi fırsata karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
-    },
-    "x.purchased": {
-      headline: "Dönüştü",
-      detail: "bu kişi için sonraki nitelenmiş sinyal, bekleme süresinden sonra kendi fırsatını açar",
-    },
-    "x.dismissed": {
-      headline: "Reddedildi",
-      detail: "başka bir konuya dair nitelenmiş bir sinyal kendi fırsatını açar; bu konu bir daha önerilmez",
-    },
-    "x.no-conversion": {
-      headline: "Önerildi, dönüşmedi",
-      detail: "bu kişi için sonraki nitelenmiş sinyal, bekleme süresinden sonra kendi fırsatını açar",
-    },
-    "x.no-action": {
-      headline: "Öneri gönderilmedi",
-      detail: "bu kişi için sonraki nitelenmiş sinyal kendi fırsatını açar",
-    },
-  },
-  },
   "RET-294": {
   shortName: "Çapraz Satış / Tamamlayıcı Teklif",
   name: "Tanımlı tamamlayıcısı olan satın alma → olgunlaştı → teklif edildi → alındı, reddedildi veya kapandı",
@@ -1940,24 +1883,6 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "w.confirm": { headline: "ürün, kişinin bu kullanım senaryosunda tekrar değer ürettiğini kaydedene kadar", detail: "zaman aşımı: Hatırlatmadan önceki aynı gözlem penceresi geçerlidir - kullanım senaryosunun ritmi değişmedi. (adoption.observation_window üzerinden yapılandırılır)" },
     "c.stable-after-nudge": { headline: "Şimdi tekrarlanıyor mu?", edges: [{ label: "Evet", detail: "değer, hatırlatmanın ardından bu kullanım senaryosunun gerektirdiği ritimde tekrar tekrar üretiliyor" }, { label: "Hâlâ değil", detail: "hatırlatma gönderildi ve değer hâlâ tekrarlanmadı" }] },
     "x.stalled": { headline: "Durdu", detail: "aynı kullanım senaryosunda yeni bir aktivasyon kendi örneğini açar" },
-  },
-  },
-  "ACT-19": {
-  shortName: "Onboarding Kişiselleştirme",
-  name: "Rol veya kullanım senaryosu keşfi → ilgili onboarding uyarlaması",
-  purpose: "Onboarding'in yol seçmek için ihtiyaç duyduğu tek bilgiyi, yalnızca bu bilginin yokluğu o yolu fiilen değiştirecekse al.",
-  nodes: {
-    "t.needed": { headline: "Onboarding, adı konmuş bir rol veya kullanım senaryosuna ihtiyaç duyuyor" },
-    "c.declared": { headline: "Güvenilir, beyan edilmiş bir değer zaten var mı?", edges: [{ label: "Zaten beyan edilmiş", detail: "kişi bunu daha önce belirtmiş ve yanıt hâlâ güncel" }, { label: "Beyan edilmemiş", detail: "beyan edilmiş bir şey yok - sadece davranış var, bu aynı şey değildir ve öyleymiş gibi kaydedilmez" }] },
-    "a.reuse": { headline: "Mevcut beyan edilmiş değeri kullan ve bunun yeniden sorulmak yerine tekrar kullanıldığını kaydet - zaten verilmiş bir şeyi tekrar sormak başlı başına küçük bir hatadır" },
-    "c.material": { headline: "Yanıt, değere giden yolu esaslı biçimde değiştirir mi?", edges: [{ label: "Evet", detail: "farklı yanıtlar gerçekten farklı kurulumlara, örneklere veya ilk eylemlere yol açıyor" }, { label: "Hayır", detail: "ne yanıtlarlarsa yansınlar yol aynı - soru toplanır ama hiç kullanılmaz" }] },
-    "a.adapt": { headline: "Önerilen kurulumu, örnekleri, sonraki eylemi ve eğitimi beyan edilen bağlama uyarla - sorunun sorulmaya değer olmasının tek nedeni bu" },
-    "a.ask": { headline: "Yalnızca uygulamanın fiilen kullanacağı bilgiyi kapsayan, hafif tek bir soru sor. Onboarding, kişinin asıl geldiği şeye giden yolda bir ankete dönüşmez" },
-    "x.dont-ask": { headline: "sorulmadı; onboarding değişmeden ilerliyor", detail: "sonraki bir karar gerçekten bu yanıta bağlıysa, o zaman sorulur - her soru, ihtiyaç duyulduğu anda yerini kazanır" },
-    "h.progress": { headline: "Onboarding ilerlemesi → sıradaki en iyi kurulum adımı → aktivasyon", detail: "onboarding yolu belirlendi, uyarlandı veya varsayılana bırakıldı" },
-    "w.answer": { headline: "kişi kendisine yöneltilen soruyu yanıtlayana kadar", detail: "zaman aşımı: Kısa bir pencere - bu, birinin kurulumunun ortasında sorulan bir soru, bir anket değil. (role_use.answer üzerinden yapılandırılır)" },
-    "a.persist": { headline: "Beyan edilen değeri, kaynağı ve verildiği zamanla birlikte, yalnızca beyan edilmiş yanıtları tutan bir alanda kalıcı hâle getir. Davranışsal çıkarım kendi alanında yaşar ve asla buraya yazılmaz - ikisi karıştığında, sonraki hiçbir adım kişinin gerçekte ne söylediğini anlayamaz" },
-    "a.default": { headline: "Belgelenmiş bir varsayılan yolda devam et ve beyan edilmiş bir değer olmadığını kaydet. Varsayılan, sanki biri seçmiş gibi beyan alanına yazılmaz" },
   },
   },
   "ACT-20": {
@@ -4776,62 +4701,6 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.no-action": {
       headline: "Soru sorulmadı",
       detail: "sonraki yanıtsız dönem kendi kapılarıyla değerlendirilir",
-    },
-  },
-  },
-  "FUL-301": {
-  shortName: "Sipariş Onayı",
-  name: "Sipariş kabul edildi → neyin kabul edildiği bir kez söylendi → onaylandı, geçersiz kaldı veya devredildi",
-  purpose: "İfa kaydının açıldığı anda, işletmenin neyi üstlendiğini ve neyi üstlenmediğini bir kez söylemek - bu siparişle ilgili sonraki her mesajın zaten yanıtlanmış saydığı soru.",
-  nodes: {
-    "t.accepted": { headline: "İfa yükümlülüğü kabul edildi" },
-    "c.stands": {
-      headline: "Kabul edilen yükümlülük hâlâ geçerli mi ve gerçekte neyi kapsıyor?",
-      edges: [
-        { label: "Tamamı kabul edildi", detail: "kayıt, istenen her şeyi kabul ediyor ve kabul hâlâ geçerli" },
-        { label: "Bir kısmı kabul edildi", detail: "kayıt istenenin bir kısmını kabul edip kalanını reddediyor ve reddedilen kapsam için bir gerekçe kayıtlı" },
-        { label: "Geçerli bir şey kalmadı", detail: "kabul, herhangi bir onay çıkmadan önce geri alındı, iptal edildi ya da tümüyle reddedildi" },
-      ],
-    },
-    "c.sendable": {
-      headline: "Onay gönderilebilir mi?",
-      edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: işlemsel bir amaç, ulaşılabilir bir hedef, sert kapıların açık olması ve bu yükümlülük için daha önce kaydedilmiş bir onayın bulunmaması" },
-        { label: "Yol yok", detail: "bu türden bir işlemsel bildirim için izinli ve ulaşılabilir hiçbir hedef kalmamış; onay izinsiz bir yola zorlanmak yerine gerekçesiyle kaydedilir" },
-      ],
-    },
-    "a.confirm": {
-      headline: "Kaydın neyi kabul ettiğini, neyi reddettiğini ve buna dair verdiği gerekçeyi, finansal kaydın tuttuğu haliyle tutarı ve siparişe giden yolu belirt. Kaydın taşımadığı bir teslim tarihi, tamamlanmış bir tahsilat ya da siparişin nerede olduğuna dair hiçbir şey iddia etme - o durum henüz yok.",
-    },
-    "w.stands": {
-      headline: "sipariş harekete geçene ya da iptal edilene kadar",
-      detail: "Zaman aşımı: bu akışın sipariş hakkında söylenen son şey olarak kaldığı süre; ardından siparişin hareketini anlatan akışlar devralır. (order_confirmation.record_window ayarlanmalı)",
-    },
-    "c.next": {
-      headline: "Bu onay hâlâ sipariş hakkında söylenen son şeyken siparişe ne oldu?",
-      edges: [
-        { label: "Harekete geçti", detail: "yükümlülük bir teslimat yürütücüsüne devredildi; buradan sonra takip ve olası gecikme, o durumları yöneten akışlara aittir" },
-        { label: "Hareket etmeden iptal edildi", detail: "hiçbir şey sevk edilmeden önce yükümlülük üzerinde yetkili bir iptal yürürlüğe girdi" },
-      ],
-    },
-    "h.cancelled": {
-      headline: "İfa İptali Mutabakatı",
-      detail: "onayı çoktan alıcının elinde olan, kabul edilmiş ama hiç hareket etmeden iptal edilen bir yükümlülük",
-    },
-    "a.record-no-action": {
-      headline: "Neden onay gönderilmediğini ve hangi yükümlülüğe karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
-    },
-    "x.confirmed": {
-      headline: "Onaylandı",
-      detail: "sonraki bir kabul edilmiş yükümlülük kendi örneğini açar; bu örnek yeniden açılmaz ve mesaj bir daha gönderilmez",
-    },
-    "x.void": {
-      headline: "Onaylanacak bir şey yok",
-      detail: "yeniden kabul edilen ya da yerine geçen bir yükümlülük kendi kaydı ve kendi örneğidir",
-    },
-    "x.no-action": {
-      headline: "Onay gönderilmedi",
-      detail: "sonraki bir kabul edilmiş yükümlülük kendi örneğini açar",
     },
   },
   },

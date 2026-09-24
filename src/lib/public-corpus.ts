@@ -99,10 +99,10 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "ACQ-09", "ACQ-11", "ACQ-12", "ACQ-13", "ACQ-285", "ACQ-287", "ACQ-288",
   "ACQ-289",
   // Activation, onboarding & early value - 6
-  "ACT-12", "ACT-13", "ACT-14", "ACT-17", "ACT-19", "ACT-20",
+  "ACT-12", "ACT-13", "ACT-14", "ACT-17", "ACT-20",
   // Engagement, retention & contactability - 13
   "RET-24", "RET-26", "RET-28", "RET-30", "RET-31", "RET-32", "CON-272",
-  "RET-290", "RET-292", "RET-293", "RET-294", "RET-295", "CON-300",
+  "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",
   // Feedback, advocacy & relationship signals - 4
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",
   // Time, deadlines, expiry & temporary states - 5
@@ -110,7 +110,7 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Access, identity & relationship - 5
   "ACC-261", "ACC-263", "IDN-84", "IDN-271", "REL-284",
   // Transactions, fulfillment & remedies - 10
-  "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291", "FUL-301",
+  "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291",
   "REM-151", "REM-157", "REM-305",
   // Subscriptions & scheduling - 12
   "SCH-266", "SCH-277", "SCH-280", "SCH-282", "SCH-303", "SCH-304", "SUB-163",

@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 302,
-    "customer": 153,
+    "journeys": 299,
+    "customer": 150,
     "customer-silent": 66,
-    "customer-communicating": 87,
+    "customer-communicating": 84,
     "mechanism": 25,
     "operational": 124
   },
@@ -261,18 +261,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (in-app, email)"
-    },
-    {
-      "id": "ACT-19",
-      "shortName": "Onboarding Personalization",
-      "category": "activation",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (in-app)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "ACT-20",
@@ -427,17 +416,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (in-app, push)"
-    },
-    {
-      "id": "RET-293",
-      "shortName": "Personalized Recommendations",
-      "category": "retention",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, push)"
     },
     {
       "id": "RET-294",
@@ -1969,17 +1947,6 @@
       "reason": "declares a message channel (in-app, push, email)"
     },
     {
-      "id": "FUL-301",
-      "shortName": "Order Confirmation",
-      "category": "fulfillment",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
-    },
-    {
       "id": "REM-151",
       "shortName": "Post-Purchase Issue Recovery",
       "category": "remedy",
@@ -2219,7 +2186,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (email, push)"
     },
     {
       "id": "SUB-296",

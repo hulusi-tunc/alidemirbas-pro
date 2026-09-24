@@ -3148,7 +3148,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "below process recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the recommendation-offer group (RET-293, RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they own or a set that resembles what they liked. While this journey holds a person, both of those are suppressed for them rather than queued behind them.",
+        "precedence": "below process recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the complementary next offer (RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they already own. While this journey holds a person, it is suppressed for them rather than queued behind it.",
         "onLoss": "suppressed"
       }
     },
@@ -3686,10 +3686,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "RET-32",
         "because": "RET-32 addresses a relationship that ended. A predicted need addresses an active buyer whose next purchase is due."
-      },
-      {
-        "journey": "RET-293",
-        "because": "This is a purchase the person's own history says is due, computed from their prior purchase and the item's usable life. RET-293 proposes a next purchase inferred from a recorded signal about the person, not from a due date - the two never hold the same person for the same purchase at once."
       },
       {
         "journey": "RET-294",
@@ -4288,7 +4284,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.transactional",
         "label": "CANONICAL_RULE",
-        "text": "This journey never carries the order's confirmation and never competes with it. The confirmation (FUL-301) answers what the business took on; this answers what happens now that somebody is a customer, and it waits until that first question has been answered."
+        "text": "This journey never carries the order's confirmation and never competes with it. What the business took on is recorded at the opening of the order, before this journey speaks; this answers what happens now that somebody is a customer, and it waits until that first question has been answered."
       },
       {
         "id": "s.returned",
@@ -4348,7 +4344,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "post-purchase-welcome",
         "scope": "person",
-        "precedence": "below the order's own confirmation (FUL-301) and below the post-purchase follow-up on the same person's order - the record has to open before anything is said about the relationship it opened, and what somebody is already holding comes before what they might buy next; above every promotional journey addressed to a person whose relationship is this new",
+        "precedence": "below the post-purchase follow-up on the same person's order - what somebody is already holding comes before what they might buy next; above every promotional journey addressed to a person whose relationship is this new",
         "onLoss": "suppressed"
       }
     },
@@ -4752,10 +4748,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "SUB-296",
         "because": "SUB-296 opens on an enrolment into a loyalty membership and its whole subject is that membership - what it grants and how it is used. This opens on a first purchase and owns the customer relationship that purchase created. Where somebody enrols at the moment they first buy, both are true at once and neither carries the other's message: this journey owns the first-purchase moment and never explains the membership, and SUB-296 owns the membership and never makes the bounceback."
-      },
-      {
-        "journey": "FUL-301",
-        "because": "FUL-301 states what the business took on, from the order record, and it outranks this journey for exactly that reason: the record has to open before there is anything to welcome somebody into. This journey carries none of what that confirmation says and waits until it has had its moment."
       },
       {
         "journey": "RET-292",
@@ -5167,441 +5159,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "reusableRule": "A recognition dated from one specific record states only what that record supports, happens on its own interval or not at all, and is never made up afterwards."
   },
   {
-    "id": "RET-293",
-    "slug": "personalized-recommendations",
-    "category": "retention",
-    "goal": "progression-milestone",
-    "channels": ["email", "in-app", "push"],
-    "name": "Recommendation signal qualified → still valid → recommended → converted, dismissed or closed",
-    "shortName": "Personalized Recommendations",
-    "purpose": "Show a person a small set of things that follow from what they themselves have done - bought, looked at, saved or stated - and only while every item in it is still something they can actually buy.",
-    "objective": "Turn a recorded signal about this particular person into one relevant set, sent once, with nothing in it they cannot have and nothing in it they already own.",
-    "entity": {
-      "scope": "one recommendation opportunity - the person, the signal it rests on, and the set of items that signal produced",
-      "note": "One instance per person and opportunity. The set is bound to the signal that produced it: where the signal has gone stale, or no item survives the availability and ownership re-read, the instance closes rather than sending a different set.",
-      "instanceKey": [
-        "person_id",
-        "opportunity_id"
-      ],
-      "concurrency": "one-active-per-key",
-      "supersession": {
-        "id": "s.supersession",
-        "label": "CANONICAL_RULE",
-        "text": "A newer qualified signal for the same person supersedes an open instance: the newer opportunity owns the recommendation from that moment and the older one sends nothing."
-      }
-    },
-    "eligibility": [
-      "a recorded signal about this particular person - a purchase, a browsing record, a saved preference, a stated affinity or a known relationship between products",
-      "a set of items derived from that signal, at least one of which is currently available and permitted for this person",
-      "no instance is already open for this person",
-      "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
-    ],
-    "suppressions": [
-      {
-        "id": "s.broadcast",
-        "label": "CANONICAL_RULE",
-        "text": "Without a recorded signal about this particular person there is no recommendation to make. A set assembled from what is popular, new or discounted is a broadcast, and this journey does not send it."
-      },
-      {
-        "id": "s.unavailable",
-        "label": "CANONICAL_RULE",
-        "text": "Every item is re-read for availability and eligibility immediately before sending. Anything the person cannot buy or may not be shown is dropped, and where nothing survives, nothing is sent."
-      },
-      {
-        "id": "s.owned",
-        "label": "CANONICAL_RULE",
-        "text": "Nothing already bought, already held or already declined by this person is recommended back to them."
-      },
-      {
-        "id": "s.stale",
-        "label": "CANONICAL_RULE",
-        "text": "A signal is worth acting on only while the company can honestly say it is still this person's. Past that point the instance closes without a message rather than producing a different set."
-      },
-      {
-        "id": "s.permission",
-        "label": "CANONICAL_RULE",
-        "text": "No recommendation without purpose-level permission for commercial communication and a deliverable destination; absent either, it is recorded as a no-action rather than forced onto another route."
-      },
-      {
-        "id": "s.contest",
-        "label": "CANONICAL_RULE",
-        "text": "A complementary next offer holding the same person outranks this journey in the recommendation-offer group; while it holds them, this one is suppressed for that person rather than queued behind it (GLB-06). Predicted-need replenishment (RET-31) outranks it too, for the same person."
-      },
-      {
-        "id": "s.sunset",
-        "label": "CANONICAL_RULE",
-        "text":
-          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
-      },
-    ],
-    "contact": {
-      "defaultPriority": "promotional",
-      "pressureClass": "promotional",
-      "localCap": {
-        "value": {
-          "key": "recommendations.touches",
-          "rule": "The recommendation runs against a budget fixed when the instance opened; the budget is the journey's own length, and it is not repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 1,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the journey's own shape - one set per opportunity"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "recommendations.cooldown",
-        "rule": "After a recommendation, a further qualified signal for the same person is tracked but not sent on until the cooldown has passed; a conversion carries no cooldown.",
-        "class": "cooldown",
-        "required": true
-      },
-      "competition": {
-        "exclusionGroup": "recommendation-offer",
-        "scope": "person",
-        "precedence": "below the complementary next offer for the same person - a next step that follows from something they already own is a stronger claim on the moment than a set that merely resembles what they liked; while that journey holds the person, this one is suppressed for them - and below predicted-need replenishment (RET-31), which is suppressed for nothing in this group but outranks both of its members: a purchase that is actually due outranks one that is merely plausible",
-        "onLoss": "suppressed"
-      }
-    },
-    "channelStrategy": {
-      "roles": [
-        {
-          "role": "in-session",
-          "channels": ["in-app"],
-          "when": "the person is already on a relevant product or discovery surface where the recommended set can be shown and acted on without leaving context"
-        },
-        {
-          "role": "low-friction",
-          "channels": ["push"],
-          "when": "there is no active session, a deliverable push destination exists, and the recommendation can be represented honestly as a compact nudge with a deep link to the set"
-        },
-        {
-          "role": "persistent",
-          "channels": ["email"],
-          "when": "otherwise, especially where the set needs enough space to explain why the items are relevant and remain browsable later"
-        }
-      ],
-      "fallback": "none",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    "orchestration": {
-      "strategy": "single-notice",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "recommendation",
-          "action": "a.recommend",
-          "prerequisites": [
-            "c.valid",
-            "c.sendable"
-          ],
-          "purpose": "A small set that follows from something this person actually did, with every item still available to them and the reason it is there plain from the set itself.",
-          "channelRoles": [
-            "in-session",
-            "low-friction",
-            "persistent"
-          ],
-          "destination": {
-            "target": "recommended-set",
-            "boundTo": "opportunity_id",
-            "mustNotClaim": [
-              "stock is reserved",
-              "the price is held",
-              "a discount applies",
-              "that the set was chosen by anyone other than a machine"
-            ]
-          },
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.broadcast",
-        "s.unavailable",
-        "s.owned",
-        "s.stale",
-        "s.permission",
-        "s.contest"
-      ]
-    },
-    "entry": "t.signal",
-    "nodes": [
-      {
-        "id": "t.signal",
-        "kind": "trigger",
-        "event": "recommendation_signal_qualified",
-        "evidence": {
-          "requires": [
-            "a recorded signal about this particular person - a purchase, a browsing record, a saved preference, a stated affinity or a known relationship between products",
-            "a set of items derived from that signal",
-            "the recency rule the company uses to say the signal is still this person's"
-          ],
-          "insufficientAlone": [
-            "what is popular, new or discounted, with nothing about this person behind it",
-            "a signal belonging to a segment rather than to this person",
-            "a signal about something the person already owns or has already declined",
-            "an item set assembled with no signal to explain why those items and not others"
-          ],
-          "source": "inferred"
-        },
-        "next": "c.valid"
-      },
-      {
-        "id": "c.valid",
-        "kind": "condition",
-        "asks": "Is the recommendation still valid?",
-        "branches": [
-          {
-            "label": "Valid",
-            "when": "the signal is still inside the company's recency rule, and at least one item in the set is available, permitted, and neither owned nor declined by this person",
-            "observes": "signal record, item availability, ownership record",
-            "to": "c.sendable"
-          },
-          {
-            "label": "Already bought",
-            "when": "the person has since bought the thing the signal was about",
-            "observes": "purchase_completed",
-            "to": "x.purchased"
-          },
-          {
-            "label": "Stale or empty",
-            "when": "the signal has passed the recency rule, or no item in the set survives the availability and ownership re-read",
-            "observes": "signal record, item availability",
-            "to": "a.record-no-action"
-          }
-        ]
-      },
-      {
-        "id": "c.sendable",
-        "kind": "condition",
-        "asks": "May the recommendation go out?",
-        "branches": [
-          {
-            "label": "Sendable",
-            "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence offer currently holding this person, and no cooldown in force",
-            "observes": "send path stages 1-8",
-            "to": "a.recommend"
-          },
-          {
-            "label": "Suppressed",
-            "when": "a gate stops it; the gate is recorded as the reason",
-            "observes": "send path stages 1-8",
-            "to": "a.record-no-action"
-          }
-        ]
-      },
-      {
-        "id": "a.recommend",
-        "kind": "action",
-        "does": "Send the set the signal produced, with every item re-read for availability, eligibility and ownership first, and nothing in it the person already has or has declined. Claim no reserved stock, no held price and no discount.",
-        "execution": "communication",
-        "idempotencyKey": "person_id + opportunity_id",
-        "writes": [
-          {
-            "field": "recommendation_log",
-            "mode": "append"
-          }
-        ],
-        "next": "w.window"
-      },
-      {
-        "id": "w.window",
-        "kind": "wait",
-        "until": [
-          "purchase_completed",
-          "interest_dismissed"
-        ],
-        "onEvent": "c.outcome",
-        "timeout": {
-          "after": {
-            "key": "recommendations.observation_window",
-            "rule": "The set is given a window in which a purchase can honestly be read as following from it, after which the instance closes; there is no second set to time.",
-            "class": "observation-window",
-            "required": true
-          },
-          "reason": "past its window a purchase is the person's own doing, and counting it here would be a claim the data does not support",
-          "relativeTo": "previous-touch"
-        },
-        "onTimeout": "c.outcome",
-        "recheck": "the person's purchase record and any dismissal of the recommended subject re-read from the systems that own them",
-        "windowExtendsOnEngagement": false
-      },
-      {
-        "id": "c.outcome",
-        "kind": "condition",
-        "asks": "Did the recommendation reach a relevant purchase?",
-        "branches": [
-          {
-            "label": "Converted",
-            "when": "an authoritative purchase of an item from the recommended set is recorded inside the window",
-            "observes": "purchase_completed",
-            "to": "x.purchased"
-          },
-          {
-            "label": "Dismissed",
-            "when": "the person signalled that the recommended subject is not wanted",
-            "observes": "interest_dismissed",
-            "to": "x.dismissed"
-          },
-          {
-            "label": "No conversion",
-            "when": "neither a purchase from the set nor a dismissal is recorded inside the window",
-            "observes": "purchase record",
-            "to": "x.no-conversion"
-          }
-        ]
-      },
-      {
-        "id": "a.record-no-action",
-        "kind": "action",
-        "does": "Record why no recommendation was sent and against which opportunity, so no-action is a measured outcome rather than a silent absence",
-        "writes": [
-          {
-            "field": "suppressed_sends",
-            "mode": "append"
-          }
-        ],
-        "idempotencyKey": "person_id + opportunity_id",
-        "next": "x.no-action"
-      },
-      {
-        "id": "x.purchased",
-        "kind": "exit",
-        "state": "converted; a purchase from the recommended set is recorded",
-        "class": "success",
-        "terminal": false,
-        "reEntry": "the next qualified signal for this person opens its own opportunity, after the cooldown"
-      },
-      {
-        "id": "x.dismissed",
-        "kind": "exit",
-        "state": "dismissed; the person said the recommended subject is not wanted",
-        "class": "suppression",
-        "terminal": false,
-        "reEntry": "a qualified signal about a different subject opens its own opportunity; this subject is not proposed again"
-      },
-      {
-        "id": "x.no-conversion",
-        "kind": "exit",
-        "state": "recommended, not converted; the window closed with no purchase from the set",
-        "class": "timeout",
-        "terminal": false,
-        "reEntry": "the next qualified signal for this person opens its own opportunity, after the cooldown"
-      },
-      {
-        "id": "x.no-action",
-        "kind": "exit",
-        "state": "no recommendation sent; the reason is recorded",
-        "class": "no-action",
-        "terminal": false,
-        "reEntry": "the next qualified signal for this person opens its own opportunity"
-      }
-    ],
-    "implementation": {
-      "attributes": {
-        "required": [
-          "person_id",
-          "opportunity_id",
-          "signal_type",
-          "signal_recorded_at",
-          "recommended_item_ids",
-          "recommended_set_destination"
-        ],
-        "optional": [
-          "owned_item_ids",
-          "declined_item_ids",
-          "push_token",
-          "email_address",
-          "has_active_app_session"
-        ]
-      }
-    },
-    "measurement": {
-      "journeyOutcome": {
-        "type": "exit",
-        "refs": [
-          "x.purchased",
-          "x.dismissed",
-          "x.no-conversion",
-          "x.no-action"
-        ]
-      },
-      "businessOutcome": {
-        "event": "purchase_completed",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "persistent-holdout",
-        "holdout": {
-          "key": "recommendations.holdout_share",
-          "rule": "A persistent per-person holdout is required: people buy things resembling what they already bought without being shown them, and without a holdout this journey claims all of it.",
-          "required": true
-        }
-      },
-      "secondary": [
-        "interest_dismissed"
-      ],
-      "guardrails": [
-        "unsubscribe",
-        "complaint",
-        "message_after_success",
-        "unavailable_item_recommended",
-        "already_owned_item_recommended"
-      ],
-      "operational": [
-        "entry_volume",
-        "signal_type_distribution",
-        "set_survival_rate",
-        "recommendation_rate",
-        "no_action_rate_by_reason"
-      ]
-    },
-    "discovery": {
-      "aliases": [
-        "personalized recommendations",
-        "recommended for you",
-        "product recommendations",
-        "relevant picks",
-        "behaviour-based recommendations"
-      ],
-      "useCases": [
-        "a person whose purchase or browsing record supports a small set of relevant items",
-        "a saved preference or stated affinity that has not yet been acted on"
-      ]
-    },
-    "distinctFrom": [
-      {
-        "journey": "RET-294",
-        "because": "RET-294 starts from something the person already owns and asks what completes it, on a relationship between products the company has declared. This starts from what the person has shown and asks what resembles it - a relationship between a person and a pattern, not between two things."
-      },
-      {
-        "journey": "RET-31",
-        "because": "RET-31 predicts that a specific thing is running out and prompts the same purchase again. This proposes something different and predicts nothing about timing."
-      },
-      {
-        "journey": "ACQ-13",
-        "because": "ACQ-13 acts on attention to one subject that never became a selection. This assembles a set from a record that may be much older and has no single unresolved subject in it."
-      },
-      {
-        "journey": "SUB-297",
-        "because": "SUB-297 speaks about the membership itself - a balance, a benefit or a standing the member already holds and has not used. This proposes things to buy. The boundary is the subject, not the tone: a message about what somebody already has is never assembled from a recommendation signal, and a set of items is never sent as if it were a membership benefit."
-      }
-    ],
-    "guardrails": [
-      "Without a recorded signal about this particular person there is no recommendation; popularity is not a signal about anybody.",
-      "Every item is re-read for availability, eligibility and ownership immediately before sending, and a set with nothing left in it is not sent.",
-      "Nothing already bought, held or declined is recommended back.",
-      "The set is bound to the signal that produced it; a stale signal closes the instance rather than producing a different set."
-    ],
-    "reusableRule": "A recommendation is only a recommendation if something the person themselves did produced it, and it is only honest if every item in it is re-read against what they can actually buy at the moment it is sent."
-  },
-  {
     "id": "RET-294",
     "slug": "complementary-next-offer",
     "category": "retention",
@@ -5661,7 +5218,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "While this journey holds a person in the recommendation-offer group, the generic recommendation journey is suppressed for them; the two never propose a next purchase to the same person at the same time. Predicted-need replenishment (RET-31) outranks it too, for the same person."
+        "text": "Predicted-need replenishment (RET-31) outranks this journey for the same person - a purchase the person's own history says is due is a stronger claim on the moment, and this journey is suppressed for them rather than queued behind it."
       },
       {
         "id": "s.sunset",
@@ -5693,12 +5250,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "class": "cooldown",
         "required": true
       },
-      "competition": {
-        "exclusionGroup": "recommendation-offer",
-        "scope": "person",
-        "precedence": "above the generic recommendation for the same person - a next step that follows from something they already own outranks a set that merely resembles what they liked; while this journey holds the person, that one is suppressed for them rather than queued behind it - and below predicted-need replenishment (RET-31), which is suppressed for nothing in this group but outranks both of its members: a purchase that is actually due outranks one that is merely plausible",
-        "onLoss": "suppressed"
-      }
+      "competition": "none"
     },
     "channelStrategy": {
       "roles": [
@@ -6103,10 +5655,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       ]
     },
     "distinctFrom": [
-      {
-        "journey": "RET-293",
-        "because": "RET-293 starts from what the person has shown and proposes what resembles it. This starts from what they already own and proposes what completes it, on a relationship between two products the company has declared - which is a different claim, with a different way of being wrong."
-      },
       {
         "journey": "RET-31",
         "because": "RET-31 prompts the same purchase again because the first one is running out. This proposes a different thing, and ownership of the first is exactly what makes it relevant."

@@ -5592,10 +5592,6 @@
         {
           "journey": "ACQ-289",
           "because": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds."
-        },
-        {
-          "journey": "RET-293",
-          "because": "RET-293 acts on a retention signal about an existing relationship. This journey acts on inferred pre-purchase attention with no relationship yet to retain, and yields to RET-293 for the same person."
         }
       ],
       "guardrails": [
@@ -7604,12 +7600,7 @@
         ],
         "concurrency": "one-active-per-key"
       },
-      "distinctFrom": [
-        {
-          "journey": "ACT-19",
-          "because": "This routes on the work required, which is usually readable from the account itself. ACT-19 fires only where a named role or use-case is missing and the answer would change the path."
-        }
-      ],
+      "distinctFrom": [],
       "objective": "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
       "eligibility": [
         "a recorded entry: account created, trial started, subscription started, or customer onboarding started",
@@ -7881,10 +7872,6 @@
       "purpose": "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
       "distinctFrom": [
         {
-          "journey": "ACT-19",
-          "because": "This one advances a path already chosen; ACT-19 is what chooses it. They share an account and a trigger condition - onboarding_active_without_activation is true for both, and stays true for the whole of ACT-19's answer wait - so while a personalization question is outstanding this journey holds its prompts (s.personalizing) rather than pushing the generic next step over the answer that would re-route it."
-        },
-        {
           "journey": "SUB-296",
           "because": "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person."
         },
@@ -7908,7 +7895,6 @@
         "the product's own record of setup milestones is readable",
         "no nurture instance is already open for this onboarding instance",
         "no ACT-14 assisted-help session is open (booked and not yet resolved) for this account",
-        "no ACT-19 personalization question is outstanding (asked at a.ask, not yet answered) for this onboarding instance",
         "hard gates (GLB-31) permit lifecycle communication"
       ],
       "suppressions": [
@@ -7941,11 +7927,6 @@
           "id": "s.assisted",
           "label": "CANONICAL_RULE",
           "text": "An open ACT-14 assisted-help session (booked at a.confirm, not yet resolved) on the same account takes ownership from this journey's generic next-step prompts; nurture steps pause until ACT-14's w.session resolves (assisted_session_outcome_recorded or booking_cancelled) or exits, and resume against the milestone record as it then stands."
-        },
-        {
-          "id": "s.personalizing",
-          "label": "CANONICAL_RULE",
-          "text": "An outstanding ACT-19 personalization question (asked at a.ask, not yet answered) on the same onboarding instance takes ownership from this journey's generic next-step prompts, exactly as an assisted session does. The two are indistinguishable from the account's side - onboarding_active_without_activation stays true for the whole of ACT-19's w.answer, so without this rule this journey pushes the generic next step on the same channels while the answer that would re-route it is still in flight, and may push the very step that answer was about to make wrong. Nurture steps pause until w.answer resolves (question_answered) or times out, and resume against the route as it then stands."
         },
         {
           "id": "s.permission",
@@ -8054,7 +8035,6 @@
           "s.window",
           "s.contest",
           "s.assisted",
-          "s.personalizing",
           "s.permission"
         ]
       },
@@ -8871,10 +8851,6 @@
           "because": "ACT-13 has a named requirement to clear. Here the evidence is effort without progress and no single thing to point at, which is why the offer is help rather than an instruction."
         },
         {
-          "journey": "ACT-19",
-          "because": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true this journey holds the person: an open assisted-help session is evidence of active struggle, and a personalization question is not asked into it (s.struggling on ACT-19)."
-        },
-        {
           "journey": "ACT-12",
           "because": "ACT-12 pauses its generic next-step prompts while an assisted session booked here is open (s.assisted), released on assisted_session_outcome_recorded or booking_cancelled; this journey is what that pause is for."
         }
@@ -9583,6 +9559,7 @@
       "goal": "progression-milestone",
       "channels": [
         "in-app",
+        "push",
         "email"
       ],
       "name": "Early adoption → usage depth → habit or stable use",
@@ -9685,11 +9662,18 @@
             "when": "the person is active in the product - the next behaviour is one step away and is best pointed at from inside"
           },
           {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "no active session, and the behaviour nudge is short enough to land as a push"
+          },
+          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "no active session, or the recognition and the suggested behaviour have to survive until the person returns"
+            "when": "no active session, no push token, or the suggested behaviour has to survive until the person returns"
           }
         ],
         "fallback": "none",
@@ -9736,7 +9720,7 @@
             ],
             "purpose": "Encourage only the next behaviour that would produce more value in this use-case; breadth is never pushed where the value is narrow.",
             "channelRoles": [
-              "persistent"
+              "low-friction"
             ],
             "destination": {
               "target": "next-behaviour-in-context",
@@ -9765,6 +9749,7 @@
           ],
           "optional": [
             "has_active_session",
+            "push_token",
             "expected_usage_rhythm",
             "next_behaviour_candidate"
           ]
@@ -9995,9 +9980,9 @@
             },
             {
               "label": "Still not",
-              "when": "the nudge went out and value still has not repeated",
+              "when": "the nudge went out and value still has not repeated, and the nudge budget is not yet spent",
               "observes": "value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them; activity that produces nothing does not count toward it, however much of it there is",
-              "to": "x.stalled"
+              "to": "a.next-behavior"
             }
           ]
         },
@@ -10016,336 +10001,6 @@
         "Vanity activity does not inflate the adoption state. Logins, opened dashboards and idle sessions are excluded by construction, not filtered out afterwards."
       ],
       "reusableRule": "Adoption should measure repeated value-producing behavior, not raw product activity."
-    },
-    {
-      "id": "ACT-19",
-      "slug": "role-use-case-discovery",
-      "category": "activation",
-      "goal": "routing-assignment",
-      "channels": [
-        "in-app"
-      ],
-      "name": "Role or use-case discovery → relevant onboarding adaptation",
-      "shortName": "Onboarding Personalization",
-      "purpose": "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
-      "distinctFrom": [
-        {
-          "journey": "ACT-12",
-          "because": "This one asks the question that decides the route; ACT-12 walks the route once it is decided. While the question is outstanding this journey owns the onboarding conversation on the same channels, and ACT-12's nurture prompts are held until the answer lands or the wait times out - otherwise both are talking about setup at once, and the generic prompt can be for the very step the answer was about to change."
-        },
-        {
-          "journey": "ACT-14",
-          "because": "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true ACT-14 holds the person: an open assisted-help session suppresses this journey's question (s.struggling) until the session resolves."
-        }
-      ],
-      "entity": {
-        "scope": "person or account plus the onboarding context being decided",
-        "note": "The declared value belongs to the context it was given for; a different product's onboarding asks its own question rather than reusing this answer.",
-        "instanceKey": [
-          "account_id",
-          "person_id"
-        ],
-        "concurrency": "one-active-per-key"
-      },
-      "objective": "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
-      "eligibility": [
-        "an onboarding decision that depends on a named role or use-case, with no reliable value available for it",
-        "no instance of this journey is already open for the person or account plus the onboarding context being decided",
-        "hard gates (GLB-31) allow communication for this purpose"
-      ],
-      "suppressions": [
-        {
-          "id": "s.g1",
-          "label": "CANONICAL_RULE",
-          "text": "Behavioural inference is never stored as a declared preference. They are different fields with different confidence, and merging them cannot be undone."
-        },
-        {
-          "id": "s.g2",
-          "label": "CANONICAL_RULE",
-          "text": "Nothing is asked that the implementation will not use. A question collected and ignored costs attention and returns nothing."
-        },
-        {
-          "id": "s.g3",
-          "label": "CANONICAL_RULE",
-          "text": "Onboarding does not become a questionnaire. One question, asked where the answer changes the path."
-        },
-        {
-          "id": "s.struggling",
-          "label": "CANONICAL_RULE",
-          "text": "An open assisted-help session (ACT-14) for the same person suppresses this journey's question. Somebody who is visibly stuck and has asked for help is not also asked to describe their role; the question waits until that session resolves, and where the onboarding decision has already been defaulted by then, it is not asked at all."
-        },
-        {
-          "id": "s.sunset",
-          "label": "CANONICAL_RULE",
-          "text": "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase."
-        }
-      ],
-      "contact": {
-        "defaultPriority": "lifecycle",
-        "pressureClass": "lifecycle",
-        "localCap": {
-          "value": {
-            "key": "role_use.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-            "default": {
-              "value": 1,
-              "confidence": "high",
-              "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the graph's own touch count"
-            },
-            "required": false
-          },
-          "appliesTo": "all"
-        },
-        "cooldown": {
-          "key": "role_use.cooldown",
-          "rule": "One question per onboarding instance; nothing is re-asked and no cooldown applies.",
-          "default": {
-            "value": "none",
-            "confidence": "high",
-            "basis": "corpus-rule"
-          },
-          "required": false
-        },
-        "competition": "none"
-      },
-      "channelStrategy": {
-        "roles": [
-          {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the person is active in the product and the action is taken there"
-          }
-        ],
-        "fallback": "none",
-        "label": "RECOMMENDED_DEFAULT"
-      },
-      "orchestration": {
-        "strategy": "single-notice",
-        "touches": [
-          {
-            "id": "t1",
-            "stage": "ask",
-            "action": "a.ask",
-            "prerequisites": [
-              "c.declared",
-              "c.material"
-            ],
-            "purpose": "Ask one lightweight question covering only what the implementation will actually consume.",
-            "channelRoles": [
-              "in-session"
-            ],
-            "mandatory": false,
-            "label": "CANONICAL_RULE",
-            "destination": {
-              "target": "one-question-form",
-              "boundTo": "onboarding_instance_id"
-            }
-          }
-        ],
-        "noAction": [
-          "s.g1",
-          "s.g2",
-          "s.g3",
-          "s.struggling"
-        ]
-      },
-      "implementation": {
-        "attributes": {
-          "required": [
-            "account_id",
-            "person_id",
-            "declared_context"
-          ],
-          "optional": []
-        }
-      },
-      "measurement": {
-        "journeyOutcome": {
-          "type": "exit-or-handoff",
-          "refs": [
-            "x.dont-ask",
-            "h.progress"
-          ]
-        },
-        "businessOutcome": {
-          "event": "question_answered",
-          "unit": "instance",
-          "observationScope": {
-            "type": "self"
-          },
-          "window": {
-            "type": "until-exit"
-          },
-          "attribution": "touched-before-event",
-          "comparison": "none"
-        },
-        "secondary": [],
-        "guardrails": [
-          "complaint",
-          "message_after_success",
-          "unsubscribe"
-        ],
-        "operational": [
-          "entry_volume",
-          "exit_distribution",
-          "no_action_rate_by_reason",
-          "time_to_exit"
-        ]
-      },
-      "discovery": {
-        "aliases": [
-          "onboarding personalization",
-          "role or use-case question",
-          "one-question onboarding survey",
-          "use-case capture"
-        ],
-        "useCases": [
-          "an onboarding path that depends on a role the account does not reveal",
-          "capturing the one fact the implementation will actually consume"
-        ]
-      },
-      "entry": "t.needed",
-      "nodes": [
-        {
-          "id": "t.needed",
-          "kind": "trigger",
-          "event": "onboarding_needs_named_role_or_use_case",
-          "evidence": {
-            "requires": [
-              "an onboarding decision that depends on a named role or use-case, with no reliable value available for it"
-            ],
-            "insufficientAlone": [
-              "a role or use-case that can be read from the account itself, which ACT-11 uses without asking",
-              "an optional profile field being empty"
-            ],
-            "source": "authoritative"
-          },
-          "next": "c.declared"
-        },
-        {
-          "id": "c.declared",
-          "kind": "condition",
-          "asks": "Does a reliable declared value already exist?",
-          "branches": [
-            {
-              "label": "Already declared",
-              "when": "the person has stated it before and the answer is still current",
-              "to": "a.reuse"
-            },
-            {
-              "label": "Not declared",
-              "when": "nothing declared exists - only behaviour, which is not the same thing and is not stored as if it were",
-              "to": "c.material"
-            }
-          ]
-        },
-        {
-          "id": "a.reuse",
-          "kind": "action",
-          "does": "Use the existing declared value and record that it was reused rather than re-asked - asking again for something already given is its own small failure",
-          "next": "a.adapt",
-          "idempotencyKey": "account_id + person_id + a.reuse"
-        },
-        {
-          "id": "c.material",
-          "kind": "condition",
-          "asks": "Would the answer materially change the path to value?",
-          "branches": [
-            {
-              "label": "Yes",
-              "when": "different answers lead to genuinely different setup, examples or first actions",
-              "to": "a.ask"
-            },
-            {
-              "label": "No",
-              "when": "the path is the same whatever they answer - the question would be collected and never used",
-              "to": "x.dont-ask"
-            }
-          ]
-        },
-        {
-          "id": "x.dont-ask",
-          "kind": "exit",
-          "state": "not asked; onboarding proceeds unchanged",
-          "terminal": false,
-          "reEntry": "if a later decision genuinely turns on the answer, it is asked then - each question earns its place at the moment it is needed",
-          "class": "no-action"
-        },
-        {
-          "id": "a.ask",
-          "kind": "action",
-          "does": "Ask one lightweight question covering only what the implementation will actually consume. Onboarding does not become a questionnaire on the way to the thing the person came for",
-          "next": "w.answer",
-          "execution": "communication",
-          "idempotencyKey": "account_id + person_id + a.ask"
-        },
-        {
-          "id": "w.answer",
-          "kind": "wait",
-          "until": [
-            "question_answered"
-          ],
-          "onEvent": "a.persist",
-          "timeout": {
-            "after": {
-              "key": "role_use.answer",
-              "rule": "A short window - this is a question in the middle of someone's setup, not a survey.",
-              "class": "response-window",
-              "required": true
-            },
-            "reason": "an unanswered question must not hold up the path to value",
-            "relativeTo": "previous-touch"
-          },
-          "onTimeout": "a.default",
-          "windowExtendsOnEngagement": false,
-          "recheck": "the person or account plus the onboarding context being decided re-read from the system of record before acting on the timeout"
-        },
-        {
-          "id": "a.persist",
-          "kind": "action",
-          "does": "Persist the declared value with its source and the time it was given, in a field that only ever holds declared answers. Behavioural inference lives in its own field and is never written here - once the two are mixed, nothing downstream can tell what the person actually said",
-          "writes": [
-            {
-              "field": "declared_context",
-              "mode": "append"
-            }
-          ],
-          "next": "a.adapt",
-          "idempotencyKey": "account_id + person_id + a.persist"
-        },
-        {
-          "id": "a.default",
-          "kind": "action",
-          "does": "Continue on a documented default path and record that no declared value exists. The default is not written into the declared field as though someone had chosen it",
-          "next": "h.progress",
-          "idempotencyKey": "account_id + person_id + a.default"
-        },
-        {
-          "id": "a.adapt",
-          "kind": "action",
-          "does": "Adapt the recommended setup, the examples, the next action and the education to the declared context - which is the only reason the question was worth asking",
-          "next": "h.progress"
-        },
-        {
-          "id": "h.progress",
-          "kind": "handoff",
-          "to": "ACT-12",
-          "on": "the onboarding path resolved, adapted or defaulted",
-          "carries": [
-            "the declared value with its source, or the explicit fact that there is none",
-            "which adaptations were applied, so they are not applied twice"
-          ]
-        }
-      ],
-      "guardrails": [
-        "Behavioural inference is never stored as a declared preference. They are different fields with different confidence, and merging them cannot be undone.",
-        "Nothing is asked that the implementation will not use. A question collected and ignored costs attention and returns nothing.",
-        "Onboarding does not become a questionnaire. One question, asked where the answer changes the path."
-      ],
-      "reusableRule": "Ask for onboarding context only when the answer materially changes the path to value."
     },
     {
       "id": "ACT-20",
@@ -13841,7 +13496,7 @@
         "competition": {
           "exclusionGroup": "commerce-recovery",
           "scope": "person",
-          "precedence": "below process recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the recommendation-offer group (RET-293, RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they own or a set that resembles what they liked. While this journey holds a person, both of those are suppressed for them rather than queued behind them.",
+          "precedence": "below process recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the complementary next offer (RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they already own. While this journey holds a person, it is suppressed for them rather than queued behind it.",
           "onLoss": "suppressed"
         }
       },
@@ -14383,10 +14038,6 @@
         {
           "journey": "RET-32",
           "because": "RET-32 addresses a relationship that ended. A predicted need addresses an active buyer whose next purchase is due."
-        },
-        {
-          "journey": "RET-293",
-          "because": "This is a purchase the person's own history says is due, computed from their prior purchase and the item's usable life. RET-293 proposes a next purchase inferred from a recorded signal about the person, not from a due date - the two never hold the same person for the same purchase at once."
         },
         {
           "journey": "RET-294",
@@ -14995,7 +14646,7 @@
         {
           "id": "s.transactional",
           "label": "CANONICAL_RULE",
-          "text": "This journey never carries the order's confirmation and never competes with it. The confirmation (FUL-301) answers what the business took on; this answers what happens now that somebody is a customer, and it waits until that first question has been answered."
+          "text": "This journey never carries the order's confirmation and never competes with it. What the business took on is recorded at the opening of the order, before this journey speaks; this answers what happens now that somebody is a customer, and it waits until that first question has been answered."
         },
         {
           "id": "s.returned",
@@ -15054,7 +14705,7 @@
         "competition": {
           "exclusionGroup": "post-purchase-welcome",
           "scope": "person",
-          "precedence": "below the order's own confirmation (FUL-301) and below the post-purchase follow-up on the same person's order - the record has to open before anything is said about the relationship it opened, and what somebody is already holding comes before what they might buy next; above every promotional journey addressed to a person whose relationship is this new",
+          "precedence": "below the post-purchase follow-up on the same person's order - what somebody is already holding comes before what they might buy next; above every promotional journey addressed to a person whose relationship is this new",
           "onLoss": "suppressed"
         }
       },
@@ -15464,10 +15115,6 @@
         {
           "journey": "SUB-296",
           "because": "SUB-296 opens on an enrolment into a loyalty membership and its whole subject is that membership - what it grants and how it is used. This opens on a first purchase and owns the customer relationship that purchase created. Where somebody enrols at the moment they first buy, both are true at once and neither carries the other's message: this journey owns the first-purchase moment and never explains the membership, and SUB-296 owns the membership and never makes the bounceback."
-        },
-        {
-          "journey": "FUL-301",
-          "because": "FUL-301 states what the business took on, from the order record, and it outranks this journey for exactly that reason: the record has to open before there is anything to welcome somebody into. This journey carries none of what that confirmation says and waits until it has had its moment."
         },
         {
           "journey": "RET-292",
@@ -15885,450 +15532,6 @@
       "reusableRule": "A recognition dated from one specific record states only what that record supports, happens on its own interval or not at all, and is never made up afterwards."
     },
     {
-      "id": "RET-293",
-      "slug": "personalized-recommendations",
-      "category": "retention",
-      "goal": "progression-milestone",
-      "channels": [
-        "email",
-        "in-app",
-        "push"
-      ],
-      "name": "Recommendation signal qualified → still valid → recommended → converted, dismissed or closed",
-      "shortName": "Personalized Recommendations",
-      "purpose": "Show a person a small set of things that follow from what they themselves have done - bought, looked at, saved or stated - and only while every item in it is still something they can actually buy.",
-      "objective": "Turn a recorded signal about this particular person into one relevant set, sent once, with nothing in it they cannot have and nothing in it they already own.",
-      "entity": {
-        "scope": "one recommendation opportunity - the person, the signal it rests on, and the set of items that signal produced",
-        "note": "One instance per person and opportunity. The set is bound to the signal that produced it: where the signal has gone stale, or no item survives the availability and ownership re-read, the instance closes rather than sending a different set.",
-        "instanceKey": [
-          "person_id",
-          "opportunity_id"
-        ],
-        "concurrency": "one-active-per-key",
-        "supersession": {
-          "id": "s.supersession",
-          "label": "CANONICAL_RULE",
-          "text": "A newer qualified signal for the same person supersedes an open instance: the newer opportunity owns the recommendation from that moment and the older one sends nothing."
-        }
-      },
-      "eligibility": [
-        "a recorded signal about this particular person - a purchase, a browsing record, a saved preference, a stated affinity or a known relationship between products",
-        "a set of items derived from that signal, at least one of which is currently available and permitted for this person",
-        "no instance is already open for this person",
-        "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
-      ],
-      "suppressions": [
-        {
-          "id": "s.broadcast",
-          "label": "CANONICAL_RULE",
-          "text": "Without a recorded signal about this particular person there is no recommendation to make. A set assembled from what is popular, new or discounted is a broadcast, and this journey does not send it."
-        },
-        {
-          "id": "s.unavailable",
-          "label": "CANONICAL_RULE",
-          "text": "Every item is re-read for availability and eligibility immediately before sending. Anything the person cannot buy or may not be shown is dropped, and where nothing survives, nothing is sent."
-        },
-        {
-          "id": "s.owned",
-          "label": "CANONICAL_RULE",
-          "text": "Nothing already bought, already held or already declined by this person is recommended back to them."
-        },
-        {
-          "id": "s.stale",
-          "label": "CANONICAL_RULE",
-          "text": "A signal is worth acting on only while the company can honestly say it is still this person's. Past that point the instance closes without a message rather than producing a different set."
-        },
-        {
-          "id": "s.permission",
-          "label": "CANONICAL_RULE",
-          "text": "No recommendation without purpose-level permission for commercial communication and a deliverable destination; absent either, it is recorded as a no-action rather than forced onto another route."
-        },
-        {
-          "id": "s.contest",
-          "label": "CANONICAL_RULE",
-          "text": "A complementary next offer holding the same person outranks this journey in the recommendation-offer group; while it holds them, this one is suppressed for that person rather than queued behind it (GLB-06). Predicted-need replenishment (RET-31) outranks it too, for the same person."
-        },
-        {
-          "id": "s.sunset",
-          "label": "CANONICAL_RULE",
-          "text": "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase."
-        }
-      ],
-      "contact": {
-        "defaultPriority": "promotional",
-        "pressureClass": "promotional",
-        "localCap": {
-          "value": {
-            "key": "recommendations.touches",
-            "rule": "The recommendation runs against a budget fixed when the instance opened; the budget is the journey's own length, and it is not repeated because nothing could tell whether it arrived.",
-            "default": {
-              "value": 1,
-              "confidence": "high",
-              "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the journey's own shape - one set per opportunity"
-            },
-            "required": false
-          },
-          "appliesTo": "all"
-        },
-        "cooldown": {
-          "key": "recommendations.cooldown",
-          "rule": "After a recommendation, a further qualified signal for the same person is tracked but not sent on until the cooldown has passed; a conversion carries no cooldown.",
-          "class": "cooldown",
-          "required": true
-        },
-        "competition": {
-          "exclusionGroup": "recommendation-offer",
-          "scope": "person",
-          "precedence": "below the complementary next offer for the same person - a next step that follows from something they already own is a stronger claim on the moment than a set that merely resembles what they liked; while that journey holds the person, this one is suppressed for them - and below predicted-need replenishment (RET-31), which is suppressed for nothing in this group but outranks both of its members: a purchase that is actually due outranks one that is merely plausible",
-          "onLoss": "suppressed"
-        }
-      },
-      "channelStrategy": {
-        "roles": [
-          {
-            "role": "in-session",
-            "channels": [
-              "in-app"
-            ],
-            "when": "the person is already on a relevant product or discovery surface where the recommended set can be shown and acted on without leaving context"
-          },
-          {
-            "role": "low-friction",
-            "channels": [
-              "push"
-            ],
-            "when": "there is no active session, a deliverable push destination exists, and the recommendation can be represented honestly as a compact nudge with a deep link to the set"
-          },
-          {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "otherwise, especially where the set needs enough space to explain why the items are relevant and remain browsable later"
-          }
-        ],
-        "fallback": "none",
-        "label": "RECOMMENDED_DEFAULT"
-      },
-      "orchestration": {
-        "strategy": "single-notice",
-        "touches": [
-          {
-            "id": "t1",
-            "stage": "recommendation",
-            "action": "a.recommend",
-            "prerequisites": [
-              "c.valid",
-              "c.sendable"
-            ],
-            "purpose": "A small set that follows from something this person actually did, with every item still available to them and the reason it is there plain from the set itself.",
-            "channelRoles": [
-              "in-session",
-              "low-friction",
-              "persistent"
-            ],
-            "destination": {
-              "target": "recommended-set",
-              "boundTo": "opportunity_id",
-              "mustNotClaim": [
-                "stock is reserved",
-                "the price is held",
-                "a discount applies",
-                "that the set was chosen by anyone other than a machine"
-              ]
-            },
-            "mandatory": false,
-            "label": "CANONICAL_RULE"
-          }
-        ],
-        "noAction": [
-          "s.broadcast",
-          "s.unavailable",
-          "s.owned",
-          "s.stale",
-          "s.permission",
-          "s.contest"
-        ]
-      },
-      "entry": "t.signal",
-      "nodes": [
-        {
-          "id": "t.signal",
-          "kind": "trigger",
-          "event": "recommendation_signal_qualified",
-          "evidence": {
-            "requires": [
-              "a recorded signal about this particular person - a purchase, a browsing record, a saved preference, a stated affinity or a known relationship between products",
-              "a set of items derived from that signal",
-              "the recency rule the company uses to say the signal is still this person's"
-            ],
-            "insufficientAlone": [
-              "what is popular, new or discounted, with nothing about this person behind it",
-              "a signal belonging to a segment rather than to this person",
-              "a signal about something the person already owns or has already declined",
-              "an item set assembled with no signal to explain why those items and not others"
-            ],
-            "source": "inferred"
-          },
-          "next": "c.valid"
-        },
-        {
-          "id": "c.valid",
-          "kind": "condition",
-          "asks": "Is the recommendation still valid?",
-          "branches": [
-            {
-              "label": "Valid",
-              "when": "the signal is still inside the company's recency rule, and at least one item in the set is available, permitted, and neither owned nor declined by this person",
-              "observes": "signal record, item availability, ownership record",
-              "to": "c.sendable"
-            },
-            {
-              "label": "Already bought",
-              "when": "the person has since bought the thing the signal was about",
-              "observes": "purchase_completed",
-              "to": "x.purchased"
-            },
-            {
-              "label": "Stale or empty",
-              "when": "the signal has passed the recency rule, or no item in the set survives the availability and ownership re-read",
-              "observes": "signal record, item availability",
-              "to": "a.record-no-action"
-            }
-          ]
-        },
-        {
-          "id": "c.sendable",
-          "kind": "condition",
-          "asks": "May the recommendation go out?",
-          "branches": [
-            {
-              "label": "Sendable",
-              "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence offer currently holding this person, and no cooldown in force",
-              "observes": "send path stages 1-8",
-              "to": "a.recommend"
-            },
-            {
-              "label": "Suppressed",
-              "when": "a gate stops it; the gate is recorded as the reason",
-              "observes": "send path stages 1-8",
-              "to": "a.record-no-action"
-            }
-          ]
-        },
-        {
-          "id": "a.recommend",
-          "kind": "action",
-          "does": "Send the set the signal produced, with every item re-read for availability, eligibility and ownership first, and nothing in it the person already has or has declined. Claim no reserved stock, no held price and no discount.",
-          "execution": "communication",
-          "idempotencyKey": "person_id + opportunity_id",
-          "writes": [
-            {
-              "field": "recommendation_log",
-              "mode": "append"
-            }
-          ],
-          "next": "w.window"
-        },
-        {
-          "id": "w.window",
-          "kind": "wait",
-          "until": [
-            "purchase_completed",
-            "interest_dismissed"
-          ],
-          "onEvent": "c.outcome",
-          "timeout": {
-            "after": {
-              "key": "recommendations.observation_window",
-              "rule": "The set is given a window in which a purchase can honestly be read as following from it, after which the instance closes; there is no second set to time.",
-              "class": "observation-window",
-              "required": true
-            },
-            "reason": "past its window a purchase is the person's own doing, and counting it here would be a claim the data does not support",
-            "relativeTo": "previous-touch"
-          },
-          "onTimeout": "c.outcome",
-          "recheck": "the person's purchase record and any dismissal of the recommended subject re-read from the systems that own them",
-          "windowExtendsOnEngagement": false
-        },
-        {
-          "id": "c.outcome",
-          "kind": "condition",
-          "asks": "Did the recommendation reach a relevant purchase?",
-          "branches": [
-            {
-              "label": "Converted",
-              "when": "an authoritative purchase of an item from the recommended set is recorded inside the window",
-              "observes": "purchase_completed",
-              "to": "x.purchased"
-            },
-            {
-              "label": "Dismissed",
-              "when": "the person signalled that the recommended subject is not wanted",
-              "observes": "interest_dismissed",
-              "to": "x.dismissed"
-            },
-            {
-              "label": "No conversion",
-              "when": "neither a purchase from the set nor a dismissal is recorded inside the window",
-              "observes": "purchase record",
-              "to": "x.no-conversion"
-            }
-          ]
-        },
-        {
-          "id": "a.record-no-action",
-          "kind": "action",
-          "does": "Record why no recommendation was sent and against which opportunity, so no-action is a measured outcome rather than a silent absence",
-          "writes": [
-            {
-              "field": "suppressed_sends",
-              "mode": "append"
-            }
-          ],
-          "idempotencyKey": "person_id + opportunity_id",
-          "next": "x.no-action"
-        },
-        {
-          "id": "x.purchased",
-          "kind": "exit",
-          "state": "converted; a purchase from the recommended set is recorded",
-          "class": "success",
-          "terminal": false,
-          "reEntry": "the next qualified signal for this person opens its own opportunity, after the cooldown"
-        },
-        {
-          "id": "x.dismissed",
-          "kind": "exit",
-          "state": "dismissed; the person said the recommended subject is not wanted",
-          "class": "suppression",
-          "terminal": false,
-          "reEntry": "a qualified signal about a different subject opens its own opportunity; this subject is not proposed again"
-        },
-        {
-          "id": "x.no-conversion",
-          "kind": "exit",
-          "state": "recommended, not converted; the window closed with no purchase from the set",
-          "class": "timeout",
-          "terminal": false,
-          "reEntry": "the next qualified signal for this person opens its own opportunity, after the cooldown"
-        },
-        {
-          "id": "x.no-action",
-          "kind": "exit",
-          "state": "no recommendation sent; the reason is recorded",
-          "class": "no-action",
-          "terminal": false,
-          "reEntry": "the next qualified signal for this person opens its own opportunity"
-        }
-      ],
-      "implementation": {
-        "attributes": {
-          "required": [
-            "person_id",
-            "opportunity_id",
-            "signal_type",
-            "signal_recorded_at",
-            "recommended_item_ids",
-            "recommended_set_destination"
-          ],
-          "optional": [
-            "owned_item_ids",
-            "declined_item_ids",
-            "push_token",
-            "email_address",
-            "has_active_app_session"
-          ]
-        }
-      },
-      "measurement": {
-        "journeyOutcome": {
-          "type": "exit",
-          "refs": [
-            "x.purchased",
-            "x.dismissed",
-            "x.no-conversion",
-            "x.no-action"
-          ]
-        },
-        "businessOutcome": {
-          "event": "purchase_completed",
-          "unit": "instance",
-          "observationScope": {
-            "type": "self"
-          },
-          "window": {
-            "type": "until-exit"
-          },
-          "attribution": "touched-before-event",
-          "comparison": "persistent-holdout",
-          "holdout": {
-            "key": "recommendations.holdout_share",
-            "rule": "A persistent per-person holdout is required: people buy things resembling what they already bought without being shown them, and without a holdout this journey claims all of it.",
-            "required": true
-          }
-        },
-        "secondary": [
-          "interest_dismissed"
-        ],
-        "guardrails": [
-          "unsubscribe",
-          "complaint",
-          "message_after_success",
-          "unavailable_item_recommended",
-          "already_owned_item_recommended"
-        ],
-        "operational": [
-          "entry_volume",
-          "signal_type_distribution",
-          "set_survival_rate",
-          "recommendation_rate",
-          "no_action_rate_by_reason"
-        ]
-      },
-      "discovery": {
-        "aliases": [
-          "personalized recommendations",
-          "recommended for you",
-          "product recommendations",
-          "relevant picks",
-          "behaviour-based recommendations"
-        ],
-        "useCases": [
-          "a person whose purchase or browsing record supports a small set of relevant items",
-          "a saved preference or stated affinity that has not yet been acted on"
-        ]
-      },
-      "distinctFrom": [
-        {
-          "journey": "RET-294",
-          "because": "RET-294 starts from something the person already owns and asks what completes it, on a relationship between products the company has declared. This starts from what the person has shown and asks what resembles it - a relationship between a person and a pattern, not between two things."
-        },
-        {
-          "journey": "RET-31",
-          "because": "RET-31 predicts that a specific thing is running out and prompts the same purchase again. This proposes something different and predicts nothing about timing."
-        },
-        {
-          "journey": "ACQ-13",
-          "because": "ACQ-13 acts on attention to one subject that never became a selection. This assembles a set from a record that may be much older and has no single unresolved subject in it."
-        },
-        {
-          "journey": "SUB-297",
-          "because": "SUB-297 speaks about the membership itself - a balance, a benefit or a standing the member already holds and has not used. This proposes things to buy. The boundary is the subject, not the tone: a message about what somebody already has is never assembled from a recommendation signal, and a set of items is never sent as if it were a membership benefit."
-        }
-      ],
-      "guardrails": [
-        "Without a recorded signal about this particular person there is no recommendation; popularity is not a signal about anybody.",
-        "Every item is re-read for availability, eligibility and ownership immediately before sending, and a set with nothing left in it is not sent.",
-        "Nothing already bought, held or declined is recommended back.",
-        "The set is bound to the signal that produced it; a stale signal closes the instance rather than producing a different set."
-      ],
-      "reusableRule": "A recommendation is only a recommendation if something the person themselves did produced it, and it is only honest if every item in it is re-read against what they can actually buy at the moment it is sent."
-    },
-    {
       "id": "RET-294",
       "slug": "complementary-next-offer",
       "category": "retention",
@@ -16392,7 +15595,7 @@
         {
           "id": "s.contest",
           "label": "CANONICAL_RULE",
-          "text": "While this journey holds a person in the recommendation-offer group, the generic recommendation journey is suppressed for them; the two never propose a next purchase to the same person at the same time. Predicted-need replenishment (RET-31) outranks it too, for the same person."
+          "text": "Predicted-need replenishment (RET-31) outranks this journey for the same person - a purchase the person's own history says is due is a stronger claim on the moment, and this journey is suppressed for them rather than queued behind it."
         },
         {
           "id": "s.sunset",
@@ -16423,12 +15626,7 @@
           "class": "cooldown",
           "required": true
         },
-        "competition": {
-          "exclusionGroup": "recommendation-offer",
-          "scope": "person",
-          "precedence": "above the generic recommendation for the same person - a next step that follows from something they already own outranks a set that merely resembles what they liked; while this journey holds the person, that one is suppressed for them rather than queued behind it - and below predicted-need replenishment (RET-31), which is suppressed for nothing in this group but outranks both of its members: a purchase that is actually due outranks one that is merely plausible",
-          "onLoss": "suppressed"
-        }
+        "competition": "none"
       },
       "channelStrategy": {
         "roles": [
@@ -16839,10 +16037,6 @@
         ]
       },
       "distinctFrom": [
-        {
-          "journey": "RET-293",
-          "because": "RET-293 starts from what the person has shown and proposes what resembles it. This starts from what they already own and proposes what completes it, on a relationship between two products the company has declared - which is a different claim, with a different way of being wrong."
-        },
         {
           "journey": "RET-31",
           "because": "RET-31 prompts the same purchase again because the first one is running out. This proposes a different thing, and ownership of the first is exactly what makes it relevant."
@@ -23566,7 +22760,7 @@
         {
           "id": "a.persist",
           "kind": "action",
-          "does": "Persist the value with its source, the time and the scope it applies to, in the store that holds declared answers. Inference is never written here and never overwrites what is - the same separation ACT-19 and CON-32 both depend on",
+          "does": "Persist the value with its source, the time and the scope it applies to, in the store that holds declared answers. Inference is never written here and never overwrites what is - the same separation CON-32 depends on",
           "writes": [
             {
               "field": "declared_context",
@@ -51689,12 +50883,7 @@
         ],
         "concurrency": "one-active-per-key"
       },
-      "distinctFrom": [
-        {
-          "journey": "FUL-301",
-          "because": "FUL-301 states the original commitment once, at the moment the record opens, and then says nothing further. This journey is what happens when that commitment slips - it is measured against what the confirmation said, and it never restates the confirmation itself."
-        }
-      ],
+      "distinctFrom": [],
       "objective": "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
       "eligibility": [
         "a material slip against the timing this obligation was committed to",
@@ -53548,10 +52737,6 @@
           "because": "FUL-149 decides whether acceptance is contractually meaningful and records finalisation. This is the request for that acceptance and the deadline enforced in front of the person who owes it."
         },
         {
-          "journey": "FUL-301",
-          "because": "FUL-301 confirms what the record accepted at the moment it opened, and stops there. This journey begins at dispatch, which is where the order first has a position to report - it never re-confirms the order, and the confirmation never reports a position."
-        },
-        {
           "journey": "FUL-291",
           "because": "FUL-291 sends guidance once fulfillment has stopped moving and there is nothing left to track. This journey's own tracking ends the moment it exits or hands off, and it never says what to do with what arrived."
         },
@@ -54571,7 +53756,7 @@
         {
           "id": "s.confirmation",
           "label": "CANONICAL_RULE",
-          "text": "This journey never confirms the order. What the business took on is answered at the opening of the fulfillment record by the order confirmation (FUL-301), long before this instance exists."
+          "text": "This journey never confirms the order. What the business took on is recorded at the opening of the fulfillment record, long before this instance exists, and this journey does not restate it."
         },
         {
           "id": "s.permission",
@@ -54610,7 +53795,7 @@
         "competition": {
           "exclusionGroup": "post-purchase-welcome",
           "scope": "person",
-          "precedence": "above the first-purchase welcome for the same person - what somebody is already holding comes before what they might buy next; below the order's own confirmation (FUL-301), which answers what the business took on before this journey explains what to do with it, and below every remedy journey on the same order, which ends this one rather than queueing it",
+          "precedence": "above the first-purchase welcome for the same person - what somebody is already holding comes before what they might buy next; below every remedy journey on the same order, which ends this one rather than queueing it",
           "onLoss": "suppressed"
         }
       },
@@ -54902,10 +54087,6 @@
         {
           "journey": "REM-151",
           "because": "REM-151 owns the order the moment a problem is raised against it. This journey ends there rather than continuing beside it."
-        },
-        {
-          "journey": "FUL-301",
-          "because": "FUL-301 opens the record and says what was taken on; this closes it and says what to do with what arrived. They sit at opposite ends of the same obligation, which is why this journey never repeats the confirmation and why the confirmation outranks it when both would speak in the same window."
         }
       ],
       "guardrails": [
@@ -54915,433 +54096,6 @@
         "Where nothing useful is recorded against what was delivered, nothing is sent."
       ],
       "reusableRule": "A completion is a state with a message of its own, and that message is whatever makes the delivered thing useful - never a restatement of the status that produced it, and never a request for the recipient's opinion about it."
-    },
-    {
-      "id": "FUL-301",
-      "slug": "order-confirmation",
-      "category": "fulfillment",
-      "goal": "delivery-confirmation",
-      "channels": [
-        "email"
-      ],
-      "name": "Order accepted → what was accepted stated once → confirmed, void or handed on",
-      "shortName": "Order Confirmation",
-      "purpose": "Say once, at the moment the fulfillment record opens, exactly what the business has taken on and what it has not - the question every later message about this order assumes has already been answered.",
-      "objective": "Open the fulfillment record in front of the person who owns it, stated from the record rather than from the request, so that tracking, delay and follow-up all have something true to be later than.",
-      "entity": {
-        "scope": "one accepted fulfillment obligation - what the record accepted, what it declined, and the person it was accepted for",
-        "note": "The entity is the order record at the moment it opens, not the order's whole life. Where it is, whether it is running late and whether it arrived are states other journeys narrate, and this one states none of them. One instance per accepted obligation; a replacement or re-accepted obligation is its own record and its own instance.",
-        "instanceKey": [
-          "obligation_id"
-        ],
-        "concurrency": "one-active-per-key",
-        "supersession": {
-          "id": "s.supersession",
-          "label": "CANONICAL_RULE",
-          "text": "The acceptance being reversed before the confirmation goes out supersedes the instance: there is nothing to confirm, and confirming an order that no longer exists is worse than saying nothing."
-        }
-      },
-      "eligibility": [
-        "an authoritative record that the fulfillment obligation was accepted, naming what it covers",
-        "the declined scope and the reason recorded against it, where the record accepted only part of what was asked for",
-        "a recipient the record resolves to a person, with a permitted destination for a transactional notice",
-        "no confirmation is already recorded for this obligation and no instance is already open for it",
-        "hard gates (GLB-31) allow it"
-      ],
-      "suppressions": [
-        {
-          "id": "s.accepted",
-          "label": "CANONICAL_RULE",
-          "text": "A request received is not an order accepted, and only what the record accepted is confirmed. Confirming something the business has not taken on creates an obligation nobody agreed to (FUL-141 is where acceptance is decided)."
-        },
-        {
-          "id": "s.record",
-          "label": "CANONICAL_RULE",
-          "text": "Everything said comes from the record: the accepted scope, the declined scope, the amount as the financial record holds it. Nothing about timing, settlement or availability is asserted beyond what the record actually carries."
-        },
-        {
-          "id": "s.partial",
-          "label": "CANONICAL_RULE",
-          "text": "A partly accepted order says so in the same message - what was accepted, what was not, and the reason the record gives. An order confirmed as whole when part of it was declined is a promise the business never made, and the person finds out from its absence."
-        },
-        {
-          "id": "s.once",
-          "label": "CANONICAL_RULE",
-          "text": "One confirmation per accepted obligation. A second is not reassurance; it reads as a second order, and it is the duplicate that generates the support contact this message exists to prevent."
-        },
-        {
-          "id": "s.status",
-          "label": "CANONICAL_RULE",
-          "text": "This journey never reports progress. Where the order is and whether it is running late are the tracking journey's (FUL-265) and the delay journey's (FUL-146) own states, and both of them begin after this one has had its moment. Where a business sells a reservation as an order, this states only the obligation to deliver or perform - never the reservation itself, which is SCH-277's own record to confirm."
-        },
-        {
-          "id": "s.marketing",
-          "label": "CANONICAL_RULE",
-          "text": "The confirmation carries nothing promotional. It is the transactional message every other post-purchase journey defers to, and padding it with an offer is what makes deferring to it worthless."
-        }
-      ],
-      "contact": {
-        "defaultPriority": "transactional",
-        "pressureClass": "none",
-        "localCap": {
-          "value": {
-            "key": "order_confirmation.discretionary_touches",
-            "rule": "The only touch in the plan is the confirmation itself and it is mandatory; nothing discretionary exists to cap, and it is deduplicated by obligation rather than rationed.",
-            "default": {
-              "value": 0,
-              "confidence": "high",
-              "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the plan's only touch is marked mandatory"
-            },
-            "required": false
-          },
-          "appliesTo": "non-mandatory"
-        },
-        "cooldown": {
-          "key": "order_confirmation.cooldown",
-          "rule": "This journey is per accepted obligation; a later order is a different obligation and no cooldown applies between them.",
-          "default": {
-            "value": "none",
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the entity note - one instance per accepted obligation"
-          },
-          "required": false
-        },
-        "competition": {
-          "exclusionGroup": "post-purchase-welcome",
-          "scope": "person",
-          "precedence": "highest in the post-purchase-welcome group - the order's own confirmation answers the question the post-purchase follow-up and the first-purchase welcome both assume has been answered, so both of them wait behind it rather than beside it; being transactional it is never itself deferred, and the contest is declared here so the other two have a named side to defer to; the group's scope is the person rather than this order deliberately - a contact-pressure judgment about how much this person hears in one window, not an ownership claim this journey makes over another order",
-          "onLoss": "suppressed"
-        }
-      },
-      "channelStrategy": {
-        "roles": [
-          {
-            "role": "persistent",
-            "channels": [
-              "email"
-            ],
-            "when": "the confirmation has to be kept and returned to - it is the record of what was accepted, and the default route for it"
-          }
-        ],
-        "fallback": "none",
-        "label": "RECOMMENDED_DEFAULT"
-      },
-      "orchestration": {
-        "strategy": "single-notice",
-        "touches": [
-          {
-            "id": "t1",
-            "stage": "confirmation",
-            "action": "a.confirm",
-            "prerequisites": [
-              "c.stands",
-              "c.sendable"
-            ],
-            "purpose": "State once what the record accepted, what it declined and the reason it gives, the amount as the financial record holds it, and the route to the order itself. No progress, no timing the record does not carry, nothing promotional.",
-            "channelRoles": [
-              "persistent"
-            ],
-            "destination": {
-              "target": "order-record",
-              "boundTo": "obligation_id",
-              "mustNotClaim": [
-                "a delivery date the record does not carry",
-                "that payment has settled",
-                "that a declined part will be fulfilled later",
-                "that anything is reserved beyond what the record reserved"
-              ]
-            },
-            "mandatory": true,
-            "label": "CANONICAL_RULE"
-          }
-        ],
-        "noAction": [
-          "s.accepted",
-          "s.record",
-          "s.partial",
-          "s.once",
-          "s.status",
-          "s.marketing"
-        ]
-      },
-      "entry": "t.accepted",
-      "nodes": [
-        {
-          "id": "t.accepted",
-          "kind": "trigger",
-          "event": "fulfillment_obligation_accepted",
-          "evidence": {
-            "requires": [
-              "an authoritative record that the fulfillment obligation was accepted, with what it covers",
-              "the declined scope and the recorded reason for it, where only part of the request was accepted",
-              "the recipient the obligation was accepted for, resolved to a person"
-            ],
-            "insufficientAlone": [
-              "a submitted request the business has not yet accepted - the request-validation journey decides that, and this one opens on its decision",
-              "a successful payment, which by itself creates an obligation to deliver nothing",
-              "a request held pending an unresolved requirement, which is not an acceptance",
-              "an acceptance recorded against a recipient who has not resolved to a person",
-              "a resource allocation, which follows acceptance rather than constituting it"
-            ],
-            "source": "authoritative"
-          },
-          "next": "c.stands"
-        },
-        {
-          "id": "c.stands",
-          "kind": "condition",
-          "asks": "Does the accepted obligation still stand, and what does it actually cover?",
-          "branches": [
-            {
-              "label": "Accepted in full",
-              "when": "the record accepts everything that was asked for and the acceptance still stands",
-              "observes": "the fulfillment record",
-              "to": "c.sendable"
-            },
-            {
-              "label": "Accepted in part",
-              "when": "the record accepts some of what was asked for and declines the rest, with a reason recorded against the declined scope",
-              "observes": "the fulfillment record, the declined scope",
-              "to": "c.sendable"
-            },
-            {
-              "label": "Nothing stands",
-              "when": "the acceptance was reversed, voided or fully declined before any confirmation could go out",
-              "observes": "fulfillment_cancellation_effective",
-              "to": "x.void"
-            }
-          ]
-        },
-        {
-          "id": "c.sendable",
-          "kind": "condition",
-          "asks": "May the confirmation go out?",
-          "branches": [
-            {
-              "label": "Sendable",
-              "when": "the send path passes: a transactional purpose, a deliverable destination, hard gates clear, and no confirmation already recorded against this obligation",
-              "observes": "send path stages 1-8, confirmation log",
-              "to": "a.confirm"
-            },
-            {
-              "label": "No route",
-              "when": "no permitted, deliverable destination remains for a transactional notice of this kind; the reason is recorded rather than the confirmation being forced onto a route that is not permitted",
-              "observes": "send path stages 1-8",
-              "to": "a.record-no-action"
-            }
-          ]
-        },
-        {
-          "id": "a.confirm",
-          "kind": "action",
-          "does": "State what the record accepted, what it declined and the reason it gives, the amount as the financial record holds it, and the route to the order. Claim no delivery date the record does not carry, no settled payment, and nothing about where the order is - that state does not exist yet.",
-          "execution": "communication",
-          "idempotencyKey": "obligation_id",
-          "writes": [
-            {
-              "field": "confirmation_log",
-              "mode": "append"
-            }
-          ],
-          "next": "w.stands"
-        },
-        {
-          "id": "w.stands",
-          "kind": "wait",
-          "until": [
-            "fulfillment_handed_to_delivery_executor",
-            "fulfillment_cancellation_effective"
-          ],
-          "onEvent": "c.next",
-          "timeout": {
-            "after": {
-              "key": "order_confirmation.record_window",
-              "rule": "The period this journey stays the last thing said about the order, before the journeys that narrate its movement take it over.",
-              "class": "observation-window",
-              "required": true
-            },
-            "reason": "the confirmation owns the order's narrative only until the order starts moving; holding it open past that would put two journeys on one record",
-            "relativeTo": "previous-touch"
-          },
-          "onTimeout": "x.confirmed",
-          "recheck": "the fulfillment record and any cancellation recorded against it, re-read from the systems that own them",
-          "windowExtendsOnEngagement": false
-        },
-        {
-          "id": "c.next",
-          "kind": "condition",
-          "asks": "What became of the order while this confirmation was still the last thing said about it?",
-          "branches": [
-            {
-              "label": "It started moving",
-              "when": "the obligation was handed to a delivery executor; tracking and any delay against it belong to the journeys that own those states from here",
-              "observes": "fulfillment_handed_to_delivery_executor",
-              "to": "x.confirmed"
-            },
-            {
-              "label": "Cancelled before it moved",
-              "when": "an authoritative cancellation took effect on the obligation before anything was dispatched",
-              "observes": "fulfillment_cancellation_effective",
-              "to": "h.cancelled"
-            }
-          ]
-        },
-        {
-          "id": "h.cancelled",
-          "kind": "handoff",
-          "to": "FUL-150",
-          "on": "an accepted obligation cancelled before anything moved, with a confirmation of it already in the recipient's hands",
-          "carries": [
-            "obligation_id",
-            "the accepted and declined scopes exactly as the confirmation stated them",
-            "that a confirmation was sent, and when",
-            "the recipient and the destination it was sent to"
-          ],
-          "suppresses": [
-            "every further message from this journey about this obligation"
-          ],
-          "contract": {
-            "requiredFields": [
-              "obligation_id",
-              "confirmed_scope",
-              "confirmed_at"
-            ]
-          }
-        },
-        {
-          "id": "a.record-no-action",
-          "kind": "action",
-          "does": "Record why no confirmation was sent and against which obligation, so no-action is a measured outcome rather than a silent absence",
-          "writes": [
-            {
-              "field": "suppressed_sends",
-              "mode": "append"
-            }
-          ],
-          "idempotencyKey": "obligation_id",
-          "next": "x.no-action"
-        },
-        {
-          "id": "x.confirmed",
-          "kind": "exit",
-          "state": "confirmed; what the record accepted has been stated once and this journey says nothing further about it",
-          "class": "success",
-          "terminal": false,
-          "reEntry": "a later accepted obligation opens its own instance; this one never reopens and is never re-sent"
-        },
-        {
-          "id": "x.void",
-          "kind": "exit",
-          "state": "nothing to confirm; the acceptance was reversed before a confirmation could go out",
-          "class": "invalid-state",
-          "terminal": false,
-          "reEntry": "a re-accepted or replacement obligation is its own record and its own instance"
-        },
-        {
-          "id": "x.no-action",
-          "kind": "exit",
-          "state": "no confirmation sent; the reason is recorded",
-          "class": "no-action",
-          "terminal": false,
-          "reEntry": "a later accepted obligation opens its own instance"
-        }
-      ],
-      "implementation": {
-        "attributes": {
-          "required": [
-            "obligation_id",
-            "person_id",
-            "accepted_scope",
-            "accepted_at",
-            "order_destination"
-          ],
-          "optional": [
-            "declined_scope",
-            "declined_reason",
-            "order_amount",
-            "email_address",
-            "phone_number",
-            "has_active_app_session"
-          ]
-        }
-      },
-      "measurement": {
-        "journeyOutcome": {
-          "type": "exit-or-handoff",
-          "refs": [
-            "x.confirmed",
-            "x.void",
-            "x.no-action",
-            "h.cancelled"
-          ]
-        },
-        "secondary": [
-          "fulfillment_handed_to_delivery_executor"
-        ],
-        "guardrails": [
-          "complaint",
-          "duplicate_confirmation",
-          "confirmation_without_acceptance",
-          "declined_scope_omitted",
-          "promotional_content_in_transactional_message"
-        ],
-        "operational": [
-          "entry_volume",
-          "confirmation_rate",
-          "partial_acceptance_rate",
-          "no_action_rate_by_reason",
-          "time_to_confirmation"
-        ]
-      },
-      "discovery": {
-        "aliases": [
-          "order confirmation",
-          "purchase confirmation",
-          "order receipt",
-          "booking confirmation message",
-          "we got your order"
-        ],
-        "useCases": [
-          "an accepted order confirmed to the person who placed it, stated from the record rather than from the request",
-          "an order accepted in part, where the declined scope has to be said in the same message as the accepted one"
-        ]
-      },
-      "distinctFrom": [
-        {
-          "journey": "FUL-265",
-          "because": "FUL-265 begins at dispatch and narrates the order while it moves. This journey ends where that one begins: it opens the record and says nothing about where the order is, because at the moment it speaks there is nowhere yet."
-        },
-        {
-          "journey": "FUL-146",
-          "because": "FUL-146 holds lateness against an original commitment. This journey is where that original commitment is first stated to the person, which is what FUL-146's own commitment history is later measured against - and it never opens a second narrative about a slip."
-        },
-        {
-          "journey": "FUL-291",
-          "because": "FUL-291 speaks once the thing has arrived, about making it useful. This speaks once the record opens, about what was taken on; neither is a variation of the other and they are separated by the whole of the fulfillment."
-        },
-        {
-          "journey": "RET-290",
-          "because": "RET-290 marks somebody becoming a customer and waits for this confirmation to have had its moment first. This carries no message about the relationship at all - only what the record says."
-        },
-        {
-          "journey": "FIN-131",
-          "because": "FIN-131 opens the obligation to pay that arises from the same event. This opens the obligation to deliver. They fail independently, and confirming one has never confirmed the other."
-        },
-        {
-          "journey": "SCH-277",
-          "because": "SCH-277 confirms a reservation - a claim on a future slot or resource that still has to be honoured. This confirms an order - an obligation to deliver a thing or a performed service. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the reservation."
-        }
-      ],
-      "guardrails": [
-        "Only what the record accepted is confirmed; a request the business has not accepted is never confirmed as an order.",
-        "A partly accepted order states the declined scope and its reason in the same message as the accepted one.",
-        "One confirmation per accepted obligation, deduplicated by the obligation rather than rationed by pressure.",
-        "No progress, no delivery date the record does not carry, and no settled payment is claimed.",
-        "Nothing promotional rides on it - this is the message the other post-purchase journeys defer to."
-      ],
-      "reusableRule": "The opening of a record is a state with a message of its own: it states what was taken on and what was not, from the record rather than from the request, once - and every later message about that record is measured against what it said."
     },
     {
       "id": "REM-151",
@@ -63393,10 +62147,6 @@
       },
       "distinctFrom": [
         {
-          "journey": "RET-293",
-          "because": "RET-293 assembles a set of things to buy from a signal about the person. This names one thing the membership already holds. A product proposal is never presented as a membership benefit, and what somebody already holds is never assembled from a recommendation signal."
-        },
-        {
           "journey": "RET-294",
           "because": "RET-294 offers a second product that completes one the person owns. This offers nothing new at all - the subject is already theirs, and the only question is whether they have used it."
         },
@@ -68011,10 +66761,6 @@
         {
           "journey": "SCH-173",
           "because": "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold."
-        },
-        {
-          "journey": "FUL-301",
-          "because": "FUL-301 confirms an order - an obligation to deliver a thing or a performed service. This confirms a reservation - a claim on a future slot or resource that still has to be honoured. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the order."
         }
       ],
       "objective": "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",

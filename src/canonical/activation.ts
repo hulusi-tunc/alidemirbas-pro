@@ -118,13 +118,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
-    distinctFrom: [
-      {
-        journey: "ACT-19",
-        because:
-          "This routes on the work required, which is usually readable from the account itself. ACT-19 fires only where a named role or use-case is missing and the answer would change the path.",
-      },
-    ],
+    distinctFrom: [],
     objective: "Choose the onboarding path from the work actually required to reach value, before any of that work starts.",
     eligibility: [
       "a recorded entry: account created, trial started, subscription started, or customer onboarding started",
@@ -381,11 +375,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "Advance onboarding from the state the setup record actually reports, one useful step at a time, until activation or the window ends.",
     distinctFrom: [
       {
-        journey: "ACT-19",
-        because:
-          "This one advances a path already chosen; ACT-19 is what chooses it. They share an account and a trigger condition - onboarding_active_without_activation is true for both, and stays true for the whole of ACT-19's answer wait - so while a personalization question is outstanding this journey holds its prompts (s.personalizing) rather than pushing the generic next step over the answer that would re-route it.",
-      },
-      {
         journey: "SUB-296",
         because:
           "SUB-296 welcomes somebody into a loyalty membership and orients them in that membership alone. This carries product onboarding: the setup record, the next useful step, activation. Enrolling in a membership is not a setup step and never advances this journey's own progress, and this journey never explains what a membership grants - each owns its own record, and a person who is doing both is inside two instances with nothing shared between them but the person.",
@@ -411,7 +400,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       "the product's own record of setup milestones is readable",
       "no nurture instance is already open for this onboarding instance",
       "no ACT-14 assisted-help session is open (booked and not yet resolved) for this account",
-      "no ACT-19 personalization question is outstanding (asked at a.ask, not yet answered) for this onboarding instance",
       "hard gates (GLB-31) permit lifecycle communication"
     ],
     suppressions: [
@@ -444,11 +432,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.assisted",
         "label": "CANONICAL_RULE",
         "text": "An open ACT-14 assisted-help session (booked at a.confirm, not yet resolved) on the same account takes ownership from this journey's generic next-step prompts; nurture steps pause until ACT-14's w.session resolves (assisted_session_outcome_recorded or booking_cancelled) or exits, and resume against the milestone record as it then stands."
-      },
-      {
-        "id": "s.personalizing",
-        "label": "CANONICAL_RULE",
-        "text": "An outstanding ACT-19 personalization question (asked at a.ask, not yet answered) on the same onboarding instance takes ownership from this journey's generic next-step prompts, exactly as an assisted session does. The two are indistinguishable from the account's side - onboarding_active_without_activation stays true for the whole of ACT-19's w.answer, so without this rule this journey pushes the generic next step on the same channels while the answer that would re-route it is still in flight, and may push the very step that answer was about to make wrong. Nurture steps pause until w.answer resolves (question_answered) or times out, and resume against the route as it then stands."
       },
       {
         "id": "s.permission",
@@ -551,7 +534,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.window",
         "s.contest",
         "s.assisted",
-        "s.personalizing",
         "s.permission"
       ]
     },
@@ -1355,11 +1337,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "ACT-13 has a named requirement to clear. Here the evidence is effort without progress and no single thing to point at, which is why the offer is help rather than an instruction.",
       },
       {
-        journey: "ACT-19",
-        because:
-          "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true this journey holds the person: an open assisted-help session is evidence of active struggle, and a personalization question is not asked into it (s.struggling on ACT-19).",
-      },
-      {
         journey: "ACT-12",
         because:
           "ACT-12 pauses its generic next-step prompts while an assisted session booked here is open (s.assisted), released on assisted_session_outcome_recorded or booking_cancelled; this journey is what that pause is for.",
@@ -2055,7 +2032,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "early-adoption-to-stable-use",
     category: "activation",
     goal: "progression-milestone",
-    channels: ["in-app", "email"],
+    channels: ["in-app", "push", "email"],
     name: "Early adoption → usage depth → habit or stable use",
     shortName: "Adoption Nurture",
     purpose:
@@ -2159,11 +2136,18 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the person is active in the product - the next behaviour is one step away and is best pointed at from inside"
         },
         {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "no active session, and the behaviour nudge is short enough to land as a push"
+        },
+        {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "no active session, or the recognition and the suggested behaviour have to survive until the person returns"
+          "when": "no active session, no push token, or the suggested behaviour has to survive until the person returns"
         }
       ],
       "fallback": "none",
@@ -2210,7 +2194,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Encourage only the next behaviour that would produce more value in this use-case; breadth is never pushed where the value is narrow.",
           "channelRoles": [
-            "persistent"
+            "low-friction"
           ],
           "destination": {
             "target": "next-behaviour-in-context",
@@ -2239,6 +2223,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         "optional": [
           "has_active_session",
+          "push_token",
           "expected_usage_rhythm",
           "next_behaviour_candidate"
         ]
@@ -2469,9 +2454,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           },
           {
             label: "Still not",
-            when: "the nudge went out and value still has not repeated",
+            when: "the nudge went out and value still has not repeated, and the nudge budget is not yet spent",
             observes: "value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them; activity that produces nothing does not count toward it, however much of it there is",
-            to: "x.stalled",
+            to: "a.next-behavior",
           },
         ],
       },
@@ -2491,337 +2476,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "Adoption should measure repeated value-producing behavior, not raw product activity.",
-  },
-
-  /* ------------------------------------------------------------ ACT-19 */
-  {
-    id: "ACT-19",
-    slug: "role-use-case-discovery",
-    category: "activation",
-    goal: "routing-assignment",
-    channels: ["in-app"],
-    name: "Role or use-case discovery → relevant onboarding adaptation",
-    shortName: "Onboarding Personalization",
-    purpose:
-      "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
-    distinctFrom: [
-      {
-        journey: "ACT-12",
-        because:
-          "This one asks the question that decides the route; ACT-12 walks the route once it is decided. While the question is outstanding this journey owns the onboarding conversation on the same channels, and ACT-12's nurture prompts are held until the answer lands or the wait times out - otherwise both are talking about setup at once, and the generic prompt can be for the very step the answer was about to change.",
-      },
-      {
-        journey: "ACT-14",
-        because:
-          "The two share the identical instance key account_id + person_id and both message the same person about the same onboarding, with neither naming the other. Where both are true ACT-14 holds the person: an open assisted-help session suppresses this journey's question (s.struggling) until the session resolves.",
-      },
-    ],
-    entity: {
-      scope: "person or account plus the onboarding context being decided",
-      note: "The declared value belongs to the context it was given for; a different product's onboarding asks its own question rather than reusing this answer.",
-      instanceKey: [
-        "account_id",
-        "person_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    objective: "Get the one piece of context onboarding needs to choose a path, only when not having it would actually change that path.",
-    eligibility: [
-      "an onboarding decision that depends on a named role or use-case, with no reliable value available for it",
-      "no instance of this journey is already open for the person or account plus the onboarding context being decided",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "Behavioural inference is never stored as a declared preference. They are different fields with different confidence, and merging them cannot be undone."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "Nothing is asked that the implementation will not use. A question collected and ignored costs attention and returns nothing."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "Onboarding does not become a questionnaire. One question, asked where the answer changes the path."
-      },
-      {
-        "id": "s.struggling",
-        "label": "CANONICAL_RULE",
-        "text": "An open assisted-help session (ACT-14) for the same person suppresses this journey's question. Somebody who is visibly stuck and has asked for help is not also asked to describe their role; the question waits until that session resolves, and where the onboarding decision has already been defaulted by then, it is not asked at all."
-      },
-      {
-        "id": "s.sunset",
-        "label": "CANONICAL_RULE",
-        "text":
-          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
-      },
-    ],
-    contact: {
-      "defaultPriority": "lifecycle",
-      "pressureClass": "lifecycle",
-      "localCap": {
-        "value": {
-          "key": "role_use.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 1,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "role_use.cooldown",
-        "rule": "One question per onboarding instance; nothing is re-asked and no cooldown applies.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule"
-        },
-        "required": false
-      },
-      "competition": "none"
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
-        }
-      ],
-      "fallback": "none",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "single-notice",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "ask",
-          "action": "a.ask",
-          "prerequisites": [
-            "c.declared",
-            "c.material"
-          ],
-          "purpose": "Ask one lightweight question covering only what the implementation will actually consume.",
-          "channelRoles": [
-            "in-session"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "one-question-form",
-            "boundTo": "onboarding_instance_id"
-          }
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.struggling"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "account_id",
-          "person_id",
-          "declared_context"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.dont-ask",
-          "h.progress"
-        ]
-      },
-      "businessOutcome": {
-        "event": "question_answered",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "none"
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "onboarding personalization",
-        "role or use-case question",
-        "one-question onboarding survey",
-        "use-case capture"
-      ],
-      "useCases": [
-        "an onboarding path that depends on a role the account does not reveal",
-        "capturing the one fact the implementation will actually consume"
-      ]
-    },
-    entry: "t.needed",
-    nodes: [
-      {
-        id: "t.needed",
-        kind: "trigger",
-        event: "onboarding_needs_named_role_or_use_case",
-        evidence: {
-          requires: [
-            "an onboarding decision that depends on a named role or use-case, with no reliable value available for it",
-          ],
-          insufficientAlone: [
-            "a role or use-case that can be read from the account itself, which ACT-11 uses without asking",
-            "an optional profile field being empty",
-          ],
-          source: "authoritative",
-        },
-        next: "c.declared",
-      },
-      {
-        id: "c.declared",
-        kind: "condition",
-        asks: "Does a reliable declared value already exist?",
-        branches: [
-          {
-            label: "Already declared",
-            when: "the person has stated it before and the answer is still current",
-            to: "a.reuse",
-          },
-          {
-            label: "Not declared",
-            when: "nothing declared exists - only behaviour, which is not the same thing and is not stored as if it were",
-            to: "c.material",
-          },
-        ],
-      },
-      {
-        id: "a.reuse",
-        kind: "action",
-        does: "Use the existing declared value and record that it was reused rather than re-asked - asking again for something already given is its own small failure",
-        next: "a.adapt",
-        idempotencyKey: "account_id + person_id + a.reuse",
-      },
-      {
-        id: "c.material",
-        kind: "condition",
-        asks: "Would the answer materially change the path to value?",
-        branches: [
-          {
-            label: "Yes",
-            when: "different answers lead to genuinely different setup, examples or first actions",
-            to: "a.ask",
-          },
-          {
-            label: "No",
-            when: "the path is the same whatever they answer - the question would be collected and never used",
-            to: "x.dont-ask",
-          },
-        ],
-      },
-      {
-        id: "x.dont-ask",
-        kind: "exit",
-        state: "not asked; onboarding proceeds unchanged",
-        terminal: false,
-        reEntry:
-          "if a later decision genuinely turns on the answer, it is asked then - each question earns its place at the moment it is needed",
-        class: "no-action",
-      },
-      {
-        id: "a.ask",
-        kind: "action",
-        does: "Ask one lightweight question covering only what the implementation will actually consume. Onboarding does not become a questionnaire on the way to the thing the person came for",
-        next: "w.answer",
-        execution: "communication",
-        idempotencyKey: "account_id + person_id + a.ask",
-      },
-      {
-        id: "w.answer",
-        kind: "wait",
-        until: [
-          "question_answered"
-        ],
-        onEvent: "a.persist",
-        timeout: {
-          "after": {
-            "key": "role_use.answer",
-            "rule": "A short window - this is a question in the middle of someone's setup, not a survey.",
-            "class": "response-window",
-            "required": true
-          },
-          "reason": "an unanswered question must not hold up the path to value",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "a.default",
-        windowExtendsOnEngagement: false,
-        recheck: "the person or account plus the onboarding context being decided re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "a.persist",
-        kind: "action",
-        does: "Persist the declared value with its source and the time it was given, in a field that only ever holds declared answers. Behavioural inference lives in its own field and is never written here - once the two are mixed, nothing downstream can tell what the person actually said",
-        writes: [{ field: "declared_context", mode: "append" }],
-        next: "a.adapt",
-        idempotencyKey: "account_id + person_id + a.persist",
-      },
-      {
-        id: "a.default",
-        kind: "action",
-        does: "Continue on a documented default path and record that no declared value exists. The default is not written into the declared field as though someone had chosen it",
-        next: "h.progress",
-        idempotencyKey: "account_id + person_id + a.default",
-      },
-      {
-        id: "a.adapt",
-        kind: "action",
-        does: "Adapt the recommended setup, the examples, the next action and the education to the declared context - which is the only reason the question was worth asking",
-        next: "h.progress",
-      },
-      {
-        id: "h.progress",
-        kind: "handoff",
-        to: "ACT-12",
-        on: "the onboarding path resolved, adapted or defaulted",
-        carries: [
-          "the declared value with its source, or the explicit fact that there is none",
-          "which adaptations were applied, so they are not applied twice",
-        ],
-      },
-    ],
-    guardrails: [
-      "Behavioural inference is never stored as a declared preference. They are different fields with different confidence, and merging them cannot be undone.",
-      "Nothing is asked that the implementation will not use. A question collected and ignored costs attention and returns nothing.",
-      "Onboarding does not become a questionnaire. One question, asked where the answer changes the path.",
-    ],
-    reusableRule:
-      "Ask for onboarding context only when the answer materially changes the path to value.",
   },
 
   /* ------------------------------------------------------------ ACT-20 */

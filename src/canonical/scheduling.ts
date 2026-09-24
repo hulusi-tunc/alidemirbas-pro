@@ -3661,11 +3661,6 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold.",
       },
-      {
-        journey: "FUL-301",
-        because:
-          "FUL-301 confirms an order - an obligation to deliver a thing or a performed service. This confirms a reservation - a claim on a future slot or resource that still has to be honoured. A business that sells a reservation as an order opens both records on the one transaction, and each confirms only its own obligation; this journey never confirms the order.",
-      },
     ],
     objective: "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
     eligibility: [

@@ -2776,7 +2776,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.persist",
         kind: "action",
-        does: "Persist the value with its source, the time and the scope it applies to, in the store that holds declared answers. Inference is never written here and never overwrites what is - the same separation ACT-19 and CON-32 both depend on",
+        does: "Persist the value with its source, the time and the scope it applies to, in the store that holds declared answers. Inference is never written here and never overwrites what is - the same separation CON-32 depends on",
         writes: [{ field: "declared_context", mode: "append" }],
         next: "c.volatility",
         idempotencyKey: "account_id + person_id + a.persist",
