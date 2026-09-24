@@ -5232,8 +5232,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "class": "recovery-window",
             "default": {
               "value": {
-                "min": "12 hours",
-                "max": "48 hours"
+                "min": "6 hours",
+                "max": "24 hours"
               },
               "confidence": "low",
               "basis": "example-only",
@@ -5353,7 +5353,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "x.resolved",
         "kind": "exit",
-        "state": "resolved; a selection, process or purchase for the subject is recorded and its own journey owns it",
+        "state": "resolved; a selection, process or purchase for the subject is recorded, which is the real trigger for its own journey (a returned-to-cart selection is ACQ-288's own entry event) rather than something this journey routes to directly",
         "class": "success",
         "terminal": false,
         "reEntry": "a new interest key is a new interest"
