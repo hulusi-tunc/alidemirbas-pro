@@ -366,6 +366,23 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 299 journeys / 3966 nodes (2026-09-24). REM-151 (Post-
+// Completion Issue) was rebuilt in place, same id and slug so the four real
+// inbound handoffs from other journeys stayed valid, to match a reference
+// image's routed-then-resolved shape: the old capture/duplicate-check/
+// assess/classify chain that terminated in a handoff to REM-157 is gone,
+// replaced by a type classifier (c.type) that routes into one of three
+// existing processes (REM-152 for a wrong/damaged item, a support person for
+// a usage problem, FUL-148 for a missing-delivery shortfall), a wait for the
+// routed process's own resolution signal (w.resolve, using the already-
+// declared resolution_confirmed/resolution_disputed events), and a real
+// escalation to a person (h.escalate, to external:human-in-the-loop-
+// lifecycle) when it is disputed or the window closes instead of confirmed.
+// REM-157's own precedence prose, which claimed REM-151 "hands the case
+// over" to it, was corrected to describe the new suppression-while-held
+// relationship instead. 11 -> 10 nodes on REM-151, -1 net. Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 299 journeys / 3967 nodes (2026-09-24). Three more
 // journeys retired entirely at the site owner's request, same pattern as
 // ACT-18 above (delete + fix every reciprocal reference, not just exclude
@@ -449,9 +466,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (299 journeys / 3967 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (299 journeys / 3966 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 299 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3967 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3966 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

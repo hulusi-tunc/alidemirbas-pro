@@ -3502,20 +3502,35 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   "REM-151": {
   shortName: "Satış Sonrası Sorun Çözümü",
-  name: "Tamamlanma sonrası sorun → doğrulama → çözüm yolu",
-  purpose: "Teslim edilen bir şeyin çözülmemiş bir yükümlülük bıraktığını ve bu yükümlülüğü hangi çözüm mekanizmasının karşılayabileceğini tespit etmek.",
+  name: "Tamamlanma sonrası sorun → türüne göre yönlendirildi → çözüldü ya da bir kişiye aktarıldı",
+  purpose: "Bildirilen bir sorunu kendi türüne uygun sürece yönlendirmek, çözüm onaylanana ya da süre dolana kadar konuyu takip etmek ve çözülmediği an bir kişiye aktarmak.",
   nodes: {
     "t.reported": { headline: "Tamamlanma sonrası sorun bildirildi" },
-    "a.capture": { headline: "Sorun kimliğini, ilgili olduğu teslimatı veya hizmeti, bildirilen sorunu, etkilenen kapsamı, bildirim zamanını ve mevcut tüm kanıtları kaydet" },
-    "c.duplicate": { headline: "Bu sorunu zaten kapsayan açık bir çözüm vakası var mı?", edges: [{ label: "Zaten kapsanıyor", detail: "açık bir vaka, aynı yükümlülükteki aynı kusurla ilgili" }, { label: "Açık vaka yok", detail: "bunu kapsayan mevcut bir vaka yok" }] },
-    "a.attach": { headline: "Yeni kanıtı ve bağlamı mevcut vakaya ekle. İkinci bir çözüm süreci açılmaz - tek bir yükümlülüğe karşı yürütülen iki ayrı çözüm, iki değişim veya iki iade üretir ve ikincisi bunu başlatan süreç tarafından değil, muhasebe tarafından fark edilir" },
-    "a.assess": { headline: "Bildirimin, bir çözümün karşılayabileceği çözülmemiş bir yükümlülüğü mü, yoksa aslında yanlış giden bir şey olmadan beklentinin altında kalan bir deneyimi mi tarif ettiğini tespit et. İkisi de gerçektir; ancak yalnızca birincisi düzeltilecek bir şey ortaya çıkarır" },
-    "x.attached": { headline: "mevcut çözüm vakasına eklendi", detail: "o vaka sorun hâlâ devam ederken kapanırsa, tekrarlanma yeni bir bildirim olarak değil, kendi bağlamında değerlendirilir" },
-    "c.actionable": { headline: "Üzerinde işlem yapılabilecek, çözülmemiş bir yükümlülük var mı?", edges: [{ label: "İşlem yapılabilir", detail: "tanımlanabilir bir şey borçluydu ve teslim edilen bu değildi" }, { label: "İşlem yapılamaz", detail: "teslimat borçlanılanla örtüşüyordu, ancak deneyim yine de hayal kırıklığı yarattı" }] },
-    "a.classify": { headline: "Sorunun fiilen işaret ettiği çözüm yolunu sınıflandır - düzeltme, yeniden gerçekleştirme, değişim, iade, geri ödeme incelemesi, hizmet telafisi veya politikada tanımlı başka bir çözüm. Geri ödeme, varsayılan seçenek değil, birkaç yoldan biridir; yalnızca uygulaması en kolay olduğu için seçilmesi, müşteriyi asıl istediği şeyden mahrum bırakır" },
-    "a.acknowledge": { headline: "Bildirimi kabul edip açıklama yaparak politikaya göre kapat. Bildirime gidecek bir yer bulmak için var olmayan bir kusur uydurulmaz ve görüşmeyi sonlandırmak için geri ödeme yapılmaz" },
-    "h.remedy": { headline: "Çözüm seçimi → yükümlülüğü karşılama → gerekirse mali devir", detail: "bir çözüm kararı gerektiren, doğrulanmış çözülmemiş bir yükümlülük" },
-    "x.no-defect": { headline: "dinlendi; çözülmemiş bir yükümlülük yok ve borçlu olunan bir çözüm de yok", detail: "gerçek bir kusura dair yeni kanıt bu süreci yeniden açar. Aynı bildirimin tekrarlanması, tekrar etmekle kusura dönüşmese de, tek başına dikkate değerdir" },
+    "c.type": {
+      headline: "Bu ne tür bir sorun?",
+      edges: [
+        { label: "Ürün hasarlı ya da yanlış", detail: "gelen şey borçlanılan değil, ya da hasarlı geldi" },
+        { label: "Çalışmıyor ya da kullanım sorunu", detail: "gelen şey doğru ama çalışmıyor, ya da kişi çalıştıramıyor" },
+        { label: "Teslimat eksik", detail: "teslimat kaydı tamamlanmış görünüyor ama borçlanılanın bir kısmı gelenler arasında yok" },
+      ],
+    },
+    "a.route-correction": { headline: "Hasarlı ya da yanlış gelen bir ürün için sorunu iade/değişim sürecine (REM-152) yönlendir ve yönlendirme kararını kaydet" },
+    "a.route-support": { headline: "Arıza ya da kullanım sorununu giderebilecek bir kişiye sorunu yönlendir ve yönlendirme kararını kaydet" },
+    "a.route-delivery": { headline: "Teslimattan eksik kalan kısım için sorunu başarısız teslimat kurtarma sürecine (FUL-148) yönlendir ve yönlendirme kararını kaydet" },
+    "w.resolve": {
+      headline: "kişi çözümü onaylayana ya da reddedene kadar",
+      detail: "Zaman aşımı: yönlendirilen sürecin sorunu çözmesi için sabit bir süre tanınır; sonu olmayan bir süre döngüyü hiç kapatmaz. (örnek: 7 gün; şunu ayarla: post_completion_issue.resolution_window)",
+    },
+    "c.resolved": {
+      headline: "Sorun çözüldü mü?",
+      edges: [
+        { label: "Çözüldü", detail: "kişi yönlendirilen sürecin sorunu çözdüğünü onayladı" },
+        { label: "Çözülmedi", detail: "kişi çözümü reddetti, ya da süre onay gelmeden kapandı" },
+      ],
+    },
+    "a.followup": { headline: "Yönlendirilen sürecin sorunu çözdüğü onaylandığına göre kısa bir memnuniyet kontrolü gönder" },
+    "h.escalate": { headline: "İnsan katılımlı süreç", detail: "kişi çözümü reddetti, ya da çözüm süresi onay gelmeden kapandı" },
+    "x.resolved": { headline: "Çözüldü", detail: "aynı tamamlanmaya karşı yeni bir sorun kendi örneğini açar" },
   },
   },
   "REM-152": {

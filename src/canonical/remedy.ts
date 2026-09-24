@@ -171,13 +171,13 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
     category: "remedy",
     goal: "compensation-remedy",
     channels: ["email"],
-    name: "Post-completion issue → validate → remedy route",
+    name: "Post-completion issue → routed by type → resolved or escalated to a person",
     shortName: "Post-Purchase Issue Recovery",
     purpose:
-      "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
+      "Route a reported problem to the process built for its kind, hold the thread until it is confirmed resolved or the window closes, and put a person on it the moment it isn't.",
     entity: {
       scope: "the completed fulfillment or service, and the specific problem reported against it",
-      note: "The issue is scoped to the fulfillment it concerns. A second problem with the same order is a second issue unless it is the same defect described again. On the actionable branch this journey says nothing, because remedy selection speaks on the same hop: acknowledging an issue and then presenting remedy options a moment later would be two senders on one problem.",
+      note: "The issue is scoped to the fulfillment it concerns. A second problem with the same order is a second issue unless it is the same defect described again. This journey holds the thread from the report through routing to a confirmed resolution or an escalation - it does not hand ownership elsewhere the moment it classifies the problem.",
       instanceKey: [
         "issue_id"
       ],
@@ -206,7 +206,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           "RET-26 is the library's general service-recovery journey and its evidence explicitly includes a failed fulfilment among other causes. This journey is the narrower case: a concrete problem with a specific completed fulfillment or service, assessed for one unresolved obligation and one remedy route rather than for a relationship-level recovery.",
       },
     ],
-    objective: "Establish whether something delivered has left an obligation unresolved, and which recovery mechanism could satisfy it.",
+    objective: "Route a reported problem to the process built for its kind, hold the thread until it is confirmed resolved or the window closes, and put a person on it the moment it isn't.",
     eligibility: [
       "a concrete problem with a completed fulfillment or service: a wrong item or result, damaged output, a missing component, a quality problem, a service defect, an incorrect configuration or an incomplete outcome",
       "no instance of this journey is already open for the the completed fulfillment or service",
@@ -222,16 +222,6 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g2",
         "label": "CANONICAL_RULE",
         "text": "Negative feedback alone does not establish remedy eligibility."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "Not every issue defaults to a refund."
-      },
-      {
-        "id": "s.g4",
-        "label": "CANONICAL_RULE",
-        "text": "An existing case covering the same obligation suppresses a second recovery lifecycle."
       }
     ],
     contact: {
@@ -265,7 +255,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "service-request",
         "scope": "topic",
-        "precedence": "second in the service-request group: below the support request acknowledgement (REM-305), which owns what the requester hears first and hands the case over only once the acknowledgement window has closed with the request still open; above remedy selection (REM-157), which speaks only after this journey has established that an obligation exists",
+        "precedence": "second in the service-request group: below the support request acknowledgement (REM-305), which owns what the requester hears first and hands the case over only once the acknowledgement window has closed with the request still open",
         "onLoss": "suppressed"
       }
     },
@@ -287,25 +277,66 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       "touches": [
         {
           "id": "t1",
-          "stage": "acknowledge",
-          "action": "a.acknowledge",
+          "stage": "route",
+          "action": "a.route-correction",
           "prerequisites": [
-            "c.duplicate",
-            "c.actionable"
+            "c.type"
           ],
-          "purpose": "Acknowledge and explain, closing according to policy.",
+          "purpose": "Route a damaged or wrong item into the return-or-exchange process (REM-152).",
           "channelRoles": [
             "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t1b",
+          "stage": "route",
+          "action": "a.route-support",
+          "prerequisites": [
+            "c.type"
+          ],
+          "purpose": "Route a malfunction or usage problem to a person who can troubleshoot it.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t1c",
+          "stage": "route",
+          "action": "a.route-delivery",
+          "prerequisites": [
+            "c.type"
+          ],
+          "purpose": "Route a missing delivery into failed-delivery recovery (FUL-148).",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "followup",
+          "action": "a.followup",
+          "after": "t1",
+          "gatedBy": "w.resolve",
+          "prerequisites": [
+            "c.resolved"
+          ],
+          "purpose": "A short satisfaction check once the person has confirmed the routed process resolved it.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "OPTIONAL_STRATEGY"
         }
       ],
       "noAction": [
         "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4"
+        "s.g2"
       ]
     },
     implementation: {
@@ -314,8 +345,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           "issue_id",
           "order_id",
           "reported_problem",
-          "existing_case_ref",
-          "assessment",
+          "problem_type",
           "issue_log"
         ],
         "optional": []
@@ -325,9 +355,8 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
-          "x.attached",
-          "x.no-defect",
-          "h.remedy"
+          "x.resolved",
+          "h.escalate"
         ]
       },
       "secondary": [],
@@ -352,8 +381,8 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         "post-delivery complaint"
       ],
       "useCases": [
-        "a concrete problem with something delivered, checked for an unresolved obligation",
-        "a report that establishes no obligation, acknowledged without manufacturing a defect"
+        "a concrete problem with something delivered, routed to the process built for its kind",
+        "a routed problem whose resolution window closed without confirmation, escalated to a person"
       ]
     },
     entry: "t.reported",
@@ -372,122 +401,152 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           source: "declared",
         },
-        next: "a.capture",
+        next: "c.type",
       },
       {
-        id: "a.capture",
-        kind: "action",
-        does: "Capture the issue id, the fulfillment or service it concerns, the problem as reported, the affected scope, when it was reported and whatever evidence exists",
-        writes: [{ field: "issue_log", mode: "append" }],
-        next: "c.duplicate",
-        idempotencyKey: "order_id + a.capture",
-      },
-      {
-        id: "c.duplicate",
+        id: "c.type",
         kind: "condition",
-        asks: "Does an existing recovery case already cover this problem?",
+        asks: "What kind of problem is this?",
         branches: [
           {
-            label: "Already covered",
-            when: "an open case concerns the same defect on the same obligation",
-            observes: "existing_case_ref",
-            to: "a.attach",
+            label: "Damaged or wrong item",
+            when: "what arrived is not what was owed, or arrived damaged",
+            observes: "reported_problem",
+            to: "a.route-correction",
           },
           {
-            label: "Nothing open",
-            when: "no existing case covers it",
-            observes: "existing_case_ref",
-            to: "a.assess",
+            label: "Not working or a usage problem",
+            when: "what arrived is the right thing but does not work, or the person cannot get it to work",
+            observes: "reported_problem",
+            to: "a.route-support",
+          },
+          {
+            label: "Missing delivery",
+            when: "the fulfillment record shows complete but part of what was owed is missing from what arrived",
+            observes: "reported_problem",
+            to: "a.route-delivery",
           },
         ],
       },
       {
-        id: "a.attach",
+        id: "a.route-correction",
         kind: "action",
-        does: "Attach the new evidence and context to the existing case. No second recovery lifecycle is opened - two remedies running against one obligation produce two replacements or two refunds, and the second is found by accounting rather than by the process that issued it",
+        does: "Route the problem into the return-or-exchange process (REM-152) for an item that arrived damaged or wrong, and record the routing decision",
         writes: [{ field: "issue_log", mode: "append" }],
-        next: "x.attached",
-        idempotencyKey: "order_id + a.attach",
-      },
-      {
-        id: "x.attached",
-        kind: "exit",
-        state: "attached to the existing recovery case",
-        terminal: false,
-        reEntry:
-          "if that case closes with the problem still present, the recurrence is assessed on its own terms rather than as a fresh report",
-        class: "suppression",
-      },
-      {
-        id: "a.assess",
-        kind: "action",
-        does: "Establish whether the report describes an unresolved obligation a remedy could satisfy, or an experience that fell short without anything having gone wrong. Both are real; only the first creates something to fix",
-        next: "c.actionable",
-      },
-      {
-        id: "c.actionable",
-        kind: "condition",
-        asks: "Is there an actionable unresolved obligation?",
-        branches: [
-          {
-            label: "Actionable",
-            when: "something identifiable was owed and is not what was delivered",
-            observes: "assessment",
-            to: "a.classify",
-          },
-          {
-            label: "Not actionable",
-            when: "the delivery matched what was owed and the experience still disappointed",
-            observes: "assessment",
-            to: "a.acknowledge",
-          },
-        ],
-      },
-      {
-        id: "a.acknowledge",
-        kind: "action",
-        does: "Acknowledge and explain, closing according to policy. No defect is manufactured to give the report somewhere to go, and no refund is issued as a way of ending the conversation",
-        writes: [{ field: "issue_log", mode: "append" }],
-        next: "x.no-defect",
+        next: "w.resolve",
         execution: "communication",
-        idempotencyKey: "order_id + a.acknowledge",
+        idempotencyKey: "order_id + a.route-correction",
       },
       {
-        id: "x.no-defect",
-        kind: "exit",
-        state: "heard; no unresolved obligation and no remedy owed",
-        terminal: false,
-        reEntry:
-          "new evidence of an actual defect re-opens this. Repetition of the same report is itself worth reading, without becoming a defect by repetition",
-        class: "no-action",
-      },
-      {
-        id: "a.classify",
+        id: "a.route-support",
         kind: "action",
-        does: "Classify the remedy route the problem actually implies - a correction, a reperformance, a replacement, a return, a refund review, a service recovery, or another policy-defined remedy. Refund is one route among several rather than the default, and choosing it because it is the easiest to execute leaves the customer without the thing they wanted",
+        does: "Route the problem to a person who can troubleshoot a malfunction or usage problem, and record the routing decision",
         writes: [{ field: "issue_log", mode: "append" }],
-        next: "h.remedy",
-        idempotencyKey: "order_id + a.classify",
+        next: "w.resolve",
+        execution: "communication",
+        idempotencyKey: "order_id + a.route-support",
       },
       {
-        id: "h.remedy",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a confirmed unresolved obligation needing a remedy decision",
-        carries: [
-          "the unresolved obligation, stated as what is owed rather than as what was complained about",
-          "the routes the classification suggests, and the evidence behind them",
+        id: "a.route-delivery",
+        kind: "action",
+        does: "Route the problem into failed-delivery recovery (FUL-148) for the part of the fulfillment that is missing from what arrived, and record the routing decision",
+        writes: [{ field: "issue_log", mode: "append" }],
+        next: "w.resolve",
+        execution: "communication",
+        idempotencyKey: "order_id + a.route-delivery",
+      },
+      {
+        id: "w.resolve",
+        kind: "wait",
+        until: [
+          "resolution_confirmed",
+          "resolution_disputed",
         ],
+        onEvent: "c.resolved",
+        timeout: {
+          "after": {
+            "key": "post_completion_issue.resolution_window",
+            "rule": "The routed process gets a fixed window to resolve the problem before this journey checks back in; a window with no end never closes the loop.",
+            "class": "response-window",
+            "default": {
+              "value": "7 days",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "a routed process that can plausibly resolve within a week",
+              "avoidWhen": "a routed process whose own SLA runs longer"
+            },
+            "required": false
+          },
+          "reason": "a check-in with no deadline never happens; the window is what turns silence into an escalation rather than a problem nobody returns to",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "c.resolved",
+        recheck: "the routed process's own resolution state re-read before acting",
+        windowExtendsOnEngagement: false,
+      },
+      {
+        id: "c.resolved",
+        kind: "condition",
+        asks: "Is the issue resolved?",
+        branches: [
+          {
+            label: "Resolved",
+            when: "the person confirmed the routed process fixed it",
+            observes: "resolution_confirmed",
+            to: "a.followup",
+          },
+          {
+            label: "Not resolved",
+            when: "the person disputed the resolution, or the window closed with no confirmation either way",
+            observes: "resolution_disputed",
+            to: "h.escalate",
+          },
+        ],
+      },
+      {
+        id: "a.followup",
+        kind: "action",
+        does: "Send a short satisfaction check now that the person has confirmed the routed process resolved it",
+        writes: [{ field: "issue_log", mode: "append" }],
+        next: "x.resolved",
+        execution: "communication",
+        idempotencyKey: "order_id + a.followup",
+      },
+      {
+        id: "h.escalate",
+        kind: "handoff",
+        to: "external:human-in-the-loop-lifecycle",
+        on: "the person disputed the resolution, or the resolution window closed with no confirmation either way",
+        carries: [
+          "the problem type and which process it was routed to",
+          "what was attempted and when",
+        ],
+        contract: {
+          "requiredFields": [
+            "issue_id",
+            "order_id",
+            "problem_type",
+            "issue_log"
+          ]
+        },
+      },
+      {
+        id: "x.resolved",
+        kind: "exit",
+        state: "resolved; the person confirmed the routed process fixed it, and a short satisfaction check was sent",
+        terminal: false,
+        reEntry: "a new problem against the same completion opens its own instance",
+        class: "success",
       },
     ],
     guardrails: [
       "An issue reported is not a confirmed defect.",
       "Negative feedback alone does not establish remedy eligibility.",
-      "Not every issue defaults to a refund.",
-      "An existing case covering the same obligation suppresses a second recovery lifecycle.",
+      "The routed process gets a fixed window before this journey checks back in; a window with no end never closes the loop.",
+      "A disputed or unconfirmed resolution goes to a person, never back into another automated round.",
     ],
     reusableRule:
-      "Post-completion problems should first establish the unresolved obligation before selecting the remedy intended to satisfy it.",
+      "A routed problem should be held until its resolution is confirmed or its window closes, and handed to a person the moment it isn't - never left to resolve itself silently.",
   },
 
   /* ------------------------------------------------------------ REM-152 */
@@ -1696,7 +1755,7 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "service-request",
         "scope": "topic",
-        "precedence": "lowest in the service-request group: it speaks only once the issue assessment (REM-151) has established the unresolved obligation and handed the case over, and while either the support request acknowledgement (REM-305) or that assessment holds the case this journey is suppressed for it - a remedy offered before anybody has said the problem is real is an admission nobody made",
+        "precedence": "lowest in the service-request group: it speaks only once a confirmed issue names an unresolved obligation, and while the support request acknowledgement (REM-305) or the post-purchase issue routing (REM-151) holds the case this journey is suppressed for it - a remedy offered before anybody has said the problem is real is an admission nobody made",
         "onLoss": "suppressed"
       }
     },
