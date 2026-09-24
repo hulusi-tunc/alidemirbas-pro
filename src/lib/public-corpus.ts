@@ -98,7 +98,14 @@ export const ARCHIVED_SURFACE = "operational" as const;
    already cleaned up when TIM-268 was retired earlier; two remaining
    illustrative prose mentions (ACQ's application-abandonment preset
    text, EN and TR) were reworded to drop the reference - taking the
-   library to 53.
+   library to 53. SCH-277 (Booking Confirmation) was retired next, the
+   site owner's request - it had no real inbound handoffs, only prose
+   distinctFrom rows and precedence text in SCH-266, SCH-303 and
+   SCH-304 naming it as the highest-precedence member of the
+   booking-lifecycle group; SCH-303 now holds that highest precedence
+   in its place, and every reworded precedence text keeps the same
+   real ordering among the three remaining members - taking the
+   library to 52.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -171,8 +178,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Transactions, fulfillment & remedies - 10
   "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291",
   "REM-151", "REM-157", "REM-305",
-  // Subscriptions & scheduling - 11
-  "SCH-266", "SCH-277", "SCH-282", "SCH-303", "SCH-304", "SUB-163",
+  // Subscriptions & scheduling - 10
+  "SCH-266", "SCH-282", "SCH-303", "SCH-304", "SUB-163",
   "SUB-262", "SUB-296", "SUB-297", "SUB-298", "SUB-299",
   // Risk, documents, rollout & incidents - 4
   "DOC-214", "DOC-215", "RLT-279", "RSK-273",

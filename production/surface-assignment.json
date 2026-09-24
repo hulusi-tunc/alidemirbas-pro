@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 287,
-    "customer": 138,
+    "journeys": 286,
+    "customer": 137,
     "customer-silent": 66,
-    "customer-communicating": 72,
+    "customer-communicating": 71,
     "mechanism": 25,
     "operational": 124
   },
@@ -2242,17 +2242,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (push, email, sms)"
-    },
-    {
-      "id": "SCH-277",
-      "shortName": "Booking Confirmation",
-      "category": "scheduling",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
     },
     {
       "id": "SCH-282",

@@ -3133,11 +3133,6 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "SCH-177 revalidates at the pre-start point in order to start the service. This revalidates at the same point in order to decide whether anything should be sent at all.",
       },
       {
-        journey: "SCH-277",
-        because:
-          "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a confirmed booking, and never re-opens the question of whether the commitment exists.",
-      },
-      {
         journey: "SCH-303",
         because:
           "SCH-303 is about whether a conditional reservation survives at all. This is about getting the customer's own side of a commitment done; where both apply, SCH-303 holds the booking and this is suppressed until it does not.",
@@ -3174,7 +3169,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.dedup",
         "label": "CANONICAL_RULE",
-        "text": "Deduplicated by booking and occurrence against the confirmation (SCH-277) and any reschedule notice (SCH-180) about the same booking."
+        "text": "Deduplicated by booking and occurrence against any reschedule notice (SCH-180) about the same booking."
       },
       {
         "id": "s.hard-gates",
@@ -3213,7 +3208,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "booking-lifecycle",
         "scope": "reservation",
-        "precedence": "third in the booking-lifecycle group: below the booking outcome notice (SCH-277), which decides whether the commitment exists, and below the reservation payment reminder (SCH-303), because a reservation that may be released outranks getting its holder ready for it - and above the pre-arrival notice (SCH-304), which is suppressed while a prerequisite that could stop the service is still outstanding, since the at-risk notice restates the time and the place itself",
+        "precedence": "second in the booking-lifecycle group: below the reservation payment reminder (SCH-303), because a reservation that may be released outranks getting its holder ready for it - and above the pre-arrival notice (SCH-304), which is suppressed while a prerequisite that could stop the service is still outstanding, since the final reminder restates the time and the place itself",
         "onLoss": "suppressed"
       }
     },
@@ -3567,495 +3562,8 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     reusableRule:
       "A reminder is only as true as the moment it is built, so it is built at the moment it is sent.",
   },
-  {
-    id: "SCH-277",
-    slug: "reservation-outcome-notice",
-    category: "scheduling",
-    goal: "scheduling-commitment",
-    channels: ["email"],
-    name: "Reservation requested → validate capacity → confirm, re-offer or lapse",
-    shortName: "Booking Confirmation",
-    purpose:
-      "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
-    entity: {
-      scope: "the reservation request, the requester, and the resource and slot it names",
-      note: "One instance per request. A retried submission is the same request rather than a second claim on the same capacity.",
-      instanceKey: [
-        "booking_id"
-      ],
-      concurrency: "one-active-per-key",
-      supersession: {
-        "id": "s.supersession",
-        "label": "CANONICAL_RULE",
-        "text": "A cancellation from the requester, or a newer request from the same requester for the same resource, supersedes this instance; the older instance sends nothing further and the newer request runs its own instance from its own state."
-      }
-    },
-    distinctFrom: [
-      {
-        journey: "SCH-173",
-        because:
-          "SCH-173 revalidates capacity and decides whether a commitment exists. This journey carries that outcome to the requester and never states a confirmation the booking record does not hold.",
-      },
-    ],
-    objective: "Tell the requester whether the specific time they asked for is now a commitment, and where it is not, offer the nearest time that actually exists - because the availability they were shown earlier was a picture and never a hold.",
-    eligibility: [
-      "a reservation request recorded against a named requester, resource and slot",
-      "a permitted contact point for a booking notice",
-      "no instance of this journey is already open for the the reservation request",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.not-confirmed",
-        "label": "CANONICAL_RULE",
-        "text": "A request acknowledged is never worded as a request confirmed. The gap between asking for a time and holding it is where every double-booking dispute begins."
-      },
-      {
-        "id": "s.current-availability",
-        "label": "CANONICAL_RULE",
-        "text": "What is offered after a failure is current availability, never the set the requester was originally shown - that set, by definition, contains one slot that no longer exists."
-      },
-      {
-        "id": "s.nothing-held",
-        "label": "CANONICAL_RULE",
-        "text": "Nothing is described as held unless the booking semantics actually hold it. A place believed held that is not held is planned around and then lost twice."
-      },
-      {
-        "id": "s.lapse-stated",
-        "label": "CANONICAL_RULE",
-        "text": "A lapse is stated, on the route the acknowledgement went out on. Silence after a request is read as a commitment, which is the most expensive assumption in scheduling."
-      },
-      {
-        "id": "s.concrete-slot",
-        "label": "CANONICAL_RULE",
-        "text": "The confirmation restates the concrete slot every time - the date, the time, the place, what is needed on arrival. A reference is not a time and a place."
-      },
-      {
-        "id": "s.contest",
-        "label": "CANONICAL_RULE",
-        "text": "While the requested time has not yet become a commitment, nothing else may speak to the requester about this booking: the reservation payment reminder (SCH-303), the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) are all suppressed for it, because each of them presumes a commitment this journey has not yet established (GLB-06)."
-      },
-      {
-        "id": "s.superseded",
-        "label": "CANONICAL_RULE",
-        "text": "A cancellation from the requester, or a newer request from the same requester for the same resource, supersedes this instance (see the entity's supersession statement); the older instance sends nothing further."
-      }
-    ],
-    contact: {
-      "defaultPriority": "service",
-      "pressureClass": "service",
-      "localCap": {
-        "value": {
-          "key": "reservation_outcome.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 2,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; an acknowledgement and one outcome message"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "reservation_outcome.cooldown",
-        "rule": "This journey is per the reservation request; a later instance concerns a different the reservation request and no cooldown applies between them.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule",
-          "applicableWhen": "the entity note: one instance per entity"
-        },
-        "required": false
-      },
-      "competition": {
-        "exclusionGroup": "booking-lifecycle",
-        "scope": "reservation",
-        "precedence": "highest in the booking-lifecycle group: while the requested time has not yet become a commitment, nothing else may speak to the requester about this booking - the reservation payment reminder (SCH-303), the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) are all suppressed for it, because each of them presumes a commitment this journey has not yet established",
-        "onLoss": "suppressed"
-      }
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it - every stage in this journey"
-        }
-      ],
-      "fallback": "none",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "offer-decide-remind",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "received",
-          "action": "a.received",
-          "prerequisites": [],
-          "purpose": "Acknowledge the request and say explicitly that it is not yet a commitment, naming when the outcome will come.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t2",
-          "stage": "confirm",
-          "action": "a.confirm",
-          "after": "t1",
-          "gatedBy": "w.outcome",
-          "prerequisites": [
-            "c.outcome"
-          ],
-          "purpose": "State the committed slot, the resource and the terms concretely - the date, the time, the place, what is needed on arrival.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t3",
-          "stage": "reoffer",
-          "action": "a.reoffer",
-          "gatedBy": "w.outcome",
-          "prerequisites": [
-            "c.outcome"
-          ],
-          "purpose": "Say the requested time is gone, name the slots available now, and give a deadline for choosing.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "available-slots",
-            "boundTo": "booking_id",
-            "mustNotClaim": [
-              "that a slot is held",
-              "that the requested time is available"
-            ]
-          }
-        },
-        {
-          "id": "t4",
-          "stage": "decline",
-          "action": "a.decline",
-          "gatedBy": "w.outcome",
-          "prerequisites": [
-            "c.outcome"
-          ],
-          "purpose": "Say plainly that the time could not be committed, that nothing is being held, and when capacity of this kind is next expected.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t5",
-          "stage": "lapse",
-          "action": "a.lapse",
-          "gatedBy": "w.outcome",
-          "prerequisites": [
-            "c.resolved-after-all"
-          ],
-          "purpose": "Close the request as lapsed and say that nothing is held and nothing was booked, once a fresh read of the booking record confirms it is still unresolved.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "after": "t1"
-        }
-      ],
-      "noAction": [
-        "s.not-confirmed",
-        "s.current-availability",
-        "s.nothing-held",
-        "s.lapse-stated",
-        "s.concrete-slot",
-        "s.superseded"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "booking_id",
-          "requester_id",
-          "resource_ref",
-          "slot_ref",
-          "contact_point",
-          "choice_deadline_at"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.confirmed",
-          "x.declined",
-          "x.lapsed",
-          "h.rebook"
-        ]
-      },
-      "businessOutcome": {
-        "event": "booking_confirmed",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "not-applicable"
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "booking confirmation",
-        "reservation confirmation",
-        "appointment confirmed",
-        "booking request outcome",
-        "slot no longer available"
-      ],
-      "useCases": [
-        "whether the requested time is now a commitment, stated one way or the other",
-        "the nearest real slots offered when the requested one is gone"
-      ]
-    },
-    entry: "t.requested",
-    nodes: [
-      {
-        id: "t.requested",
-        kind: "trigger",
-        event: "reservation_request_recorded",
-        evidence: {
-          requires: [
-            "a reservation request recorded against a named requester, resource and slot",
-            "a permitted contact point for a booking notice",
-          ],
-          insufficientAlone: [
-            "availability being searched or displayed",
-            "a slot held inside a session that was never submitted",
-          ],
-          source: "authoritative",
-        },
-        next: "a.received",
-      },
-      {
-        id: "a.received",
-        kind: "action",
-        does: "Acknowledge the request and say explicitly that it is not yet a commitment, naming when the outcome will come. The gap between asking for a time and holding it is where every double-booking dispute begins",
-        next: "w.outcome",
-        execution: "communication",
-        idempotencyKey: "booking_id + a.received",
-      },
-      {
-        id: "w.outcome",
-        kind: "wait",
-        until: [
-          "booking_confirmed",
-          "booking_request_rejected"
-        ],
-        onEvent: "c.outcome",
-        timeout: {
-          "after": {
-            "key": "reservation_outcome.outcome",
-            "rule": "The period the booking semantics allow a request to stay unresolved.",
-            "class": "observation-window",
-            "required": true
-          },
-          "reason": "an unresolved request sits against capacity other requesters can see, and it cannot sit there indefinitely",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "a.reread-outcome",
-        windowExtendsOnEngagement: false,
-        recheck: "the the reservation request re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "a.reread-outcome",
-        kind: "action",
-        does: "Re-read the reservation request's outcome from authoritative state before treating the window's timeout as a lapse. A confirmation or a rejection that landed late, close to the deadline, is not the same fact as silence",
-        next: "c.resolved-after-all",
-      },
-      {
-        id: "c.resolved-after-all",
-        kind: "condition",
-        asks: "Did the fresh read find an outcome after all?",
-        branches: [
-          {
-            label: "Resolved after all",
-            when: "the fresh read shows the request was committed or rejected before the window's timeout was acted on",
-            to: "c.outcome",
-          },
-          {
-            label: "Still unresolved",
-            when: "the fresh read confirms nothing has been decided",
-            to: "a.lapse",
-          },
-        ],
-      },
-      {
-        id: "c.outcome",
-        kind: "condition",
-        asks: "What did revalidation decide?",
-        branches: [
-          {
-            label: "Committed",
-            when: "the capacity was committed and a confirmed reservation now exists",
-            to: "a.confirm",
-          },
-          {
-            label: "Gone, but something near",
-            when: "the slot was no longer available when it was re-read, and current availability holds something close enough to be worth offering",
-            to: "a.reoffer",
-          },
-          {
-            label: "Gone, nothing near",
-            when: "the slot was no longer available and nothing in current availability is a genuine alternative",
-            to: "a.decline",
-          },
-        ],
-      },
-      {
-        id: "a.confirm",
-        kind: "action",
-        does: "State the committed slot, the resource and the terms concretely - the date, the time, the place, what is needed on arrival. A confirmation that does not restate the specifics is not something the requester can act on a month later",
-        next: "x.confirmed",
-        execution: "communication",
-        idempotencyKey: "booking_id + a.confirm",
-      },
-      {
-        id: "x.confirmed",
-        kind: "exit",
-        state: "committed and stated to the requester",
-        terminal: false,
-        reEntry: "a change or cancellation to this commitment is its own instance; a further request is a new one",
-        class: "success",
-      },
-      {
-        id: "a.reoffer",
-        kind: "action",
-        does: "Say the requested time is gone, name the slots available now, and give a deadline for choosing. What is offered is current availability and never the set they were originally shown, which by definition contains one slot that no longer exists",
-        next: "w.choice",
-        execution: "communication",
-        idempotencyKey: "booking_id + a.reoffer",
-      },
-      {
-        id: "w.choice",
-        kind: "wait",
-        until: [
-          "offered_slot_requested",
-          "offered_slots_declined"
-        ],
-        onEvent: "c.choice",
-        timeout: {
-          "after": {
-            "key": "reservation_outcome.choice",
-            "rule": "The stated deadline for choosing.",
-            "class": "attribute-bound",
-            "required": true
-          },
-          "reason": "the offered slots stay visible to everyone else and are not held while one requester decides",
-          "relativeTo": "attribute",
-          "attribute": "choice_deadline_at"
-        },
-        onTimeout: "x.lapsed",
-        windowExtendsOnEngagement: false,
-        recheck: "the the reservation request re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "c.choice",
-        kind: "condition",
-        asks: "Did they take one of them?",
-        branches: [
-          {
-            label: "Took a slot",
-            when: "the requester asked for one of the slots that were offered",
-            to: "h.rebook",
-          },
-          {
-            label: "Declined all",
-            when: "the requester declined every alternative offered",
-            to: "x.declined",
-          },
-        ],
-      },
-      {
-        id: "h.rebook",
-        kind: "handoff",
-        to: "SCH-173",
-        on: "a requester choosing one of the alternative slots offered to them",
-        carries: [
-          "the original request and why it could not be met",
-          "the slot chosen and when it was offered",
-        ],
-      },
-      {
-        id: "x.declined",
-        kind: "exit",
-        state: "no commitment made, requester informed",
-        terminal: false,
-        reEntry: "a fresh request for a different time enters as a new instance",
-        class: "success",
-      },
-      {
-        id: "a.decline",
-        kind: "action",
-        does: "Say plainly that the time could not be committed, that nothing is being held, and when capacity of this kind is next expected. A rejection with no next horizon sends the requester somewhere else rather than back to the calendar",
-        next: "x.declined",
-        execution: "communication",
-        idempotencyKey: "booking_id + a.decline",
-      },
-      {
-        id: "a.lapse",
-        kind: "action",
-        does: "Close the request as lapsed and say that nothing is held and nothing was booked. Requesters read silence as confirmation, which is the most expensive assumption in scheduling",
-        next: "x.lapsed",
-        execution: "communication",
-        idempotencyKey: "booking_id + a.lapse",
-      },
-      {
-        id: "x.lapsed",
-        kind: "exit",
-        state: "request lapsed unresolved, nothing held",
-        terminal: false,
-        reEntry: "a fresh request starts the sequence again",
-        class: "timeout",
-      },
-    ],
-    guardrails: [
-      "A request acknowledged is never worded as a request confirmed.",
-      "What is offered after a failure is current availability, never the set the requester was originally shown.",
-      "Nothing is described as held unless the booking semantics actually hold it.",
-      "A lapse is stated. Silence after a request is read as a commitment.",
-      "The confirmation restates the concrete slot every time. A reference is not a time and a place.",
-    ],
-    reusableRule:
-      "Availability shown is a picture and a confirmation is a promise, and the requester must never have to guess which one they were sent.",
-  },
+
+  /* ------------------------------------------------------------ SCH-282 */
   {
     id: "SCH-282",
     slug: "availability-searched-no-booking",
@@ -4579,7 +4087,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "While the booking outcome notice (SCH-277) still holds the reservation in the booking-lifecycle group, this journey is suppressed for it rather than queued behind it: a reservation whose existence is still being decided has nothing this journey can honestly say about it (GLB-06)."
+        "text": "This journey holds the highest precedence in the booking-lifecycle group: whether the reservation survives is prior to preparing for it or turning up to it (GLB-06)."
       },
       {
         "id": "s.hard-gates",
@@ -4618,7 +4126,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "booking-lifecycle",
         "scope": "reservation",
-        "precedence": "second in the booking-lifecycle group: below the booking outcome notice (SCH-277), which decides whether there is a reservation at all, and above the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) - a reservation that may be released outranks anything about preparing for it or turning up to it",
+        "precedence": "highest in the booking-lifecycle group: above the readiness reminder (SCH-266) and the pre-arrival notice (SCH-304) - a reservation that may be released outranks anything about preparing for it or turning up to it",
         "onLoss": "suppressed"
       }
     },
@@ -4806,10 +4314,6 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "FIN-134",
         "because": "FIN-134 starts from a payment that failed and works on the obligation until it is discharged. This starts from a reservation that is still standing and works on whether it survives; the moment an attempt actually fails, this journey hands the money over and says nothing more about it."
-      },
-      {
-        "journey": "SCH-277",
-        "because": "SCH-277 decides and states whether the requested time became a commitment at all. This runs only after it did, on a commitment that is conditional, and it never re-opens the question of whether the commitment exists."
       },
       {
         "journey": "SCH-266",
@@ -5188,7 +4692,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "This journey has the lowest precedence in the booking-lifecycle group. While the booking outcome notice (SCH-277), the reservation payment reminder (SCH-303) or the readiness reminder (SCH-266) holds this occurrence, arrival preparation is suppressed for it rather than queued behind it - those journeys restate the time and the place themselves, and whether the commitment will survive at all outranks how to turn up to it (GLB-06)."
+        "text": "This journey has the lowest precedence in the booking-lifecycle group. While the reservation payment reminder (SCH-303) or the readiness reminder (SCH-266) holds this occurrence, arrival preparation is suppressed for it rather than queued behind it - those journeys restate the time and the place themselves, and whether the commitment will survive at all outranks how to turn up to it (GLB-06)."
       },
       {
         "id": "s.hard-gates",
@@ -5227,7 +4731,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "booking-lifecycle",
         "scope": "reservation",
-        "precedence": "lowest in the booking-lifecycle group: the booking outcome notice (SCH-277), the reservation payment reminder (SCH-303) and the readiness reminder (SCH-266) all outrank it, because whether the commitment exists, whether it survives and whether the holder's side will be ready are each prior to how to turn up - and each of those journeys restates the time and the place itself, so a suppressed arrival message loses nothing the holder needed",
+        "precedence": "lowest in the booking-lifecycle group: the reservation payment reminder (SCH-303) and the readiness reminder (SCH-266) both outrank it, because whether it survives and whether the holder's side will be ready are each prior to how to turn up - and each of those journeys restates the time and the place itself, so a suppressed arrival message loses nothing the holder needed",
         "onLoss": "suppressed"
       }
     },
@@ -5417,10 +4921,6 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "SCH-266",
         "because": "SCH-266 acts on the prerequisites the customer owes so the service can be delivered at all, and escalates when one of them will block it. This acts on arriving: where to go, what to have and the step that can be done first. A booking with nothing outstanding still needs this one, and a booking whose prerequisite will stop it needs SCH-266 rather than this."
-      },
-      {
-        "journey": "SCH-277",
-        "because": "SCH-277 states whether the requested time became a commitment. This runs only inside the arrival window of a commitment that already exists, and it never restates the confirmation as if it were news."
       },
       {
         "journey": "SCH-303",

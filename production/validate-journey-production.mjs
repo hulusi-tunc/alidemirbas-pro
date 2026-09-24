@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 287", journeys.length === 287);
+check(1, "active journey count = 286", journeys.length === 286);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -365,6 +365,17 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 286 journeys / 3803 nodes (2026-09-24). SCH-277
+// (Booking Confirmation) was retired, the site owner's request. It had
+// no real inbound handoffs, only prose distinctFrom rows and
+// precedence text in SCH-266, SCH-303 and SCH-304 naming it as the
+// highest-precedence member of the booking-lifecycle competition
+// group; SCH-303 now holds that highest precedence in its place, and
+// every reworded precedence text keeps the same real ordering among
+// the three remaining members. 287 -> 286 journeys, -16 nodes net.
+// Rules (423), global rules (31) and merged redirects (8) are
+// unchanged.
 //
 // FROZEN BASELINE: 287 journeys / 3819 nodes (2026-09-24). TIM-61
 // (Deadline Tracking) was retired, the site owner's request. It had no
@@ -727,9 +738,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (287 journeys / 3819 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 287 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3819 &&
+  "canonical source mutation = 0 (286 journeys / 3803 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 286 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3803 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
