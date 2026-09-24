@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 290,
-    "customer": 141,
+    "journeys": 289,
+    "customer": 140,
     "customer-silent": 66,
-    "customer-communicating": 75,
+    "customer-communicating": 74,
     "mechanism": 25,
     "operational": 124
   },
@@ -1010,17 +1010,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "no message channel and a system-side entity or category"
-    },
-    {
-      "id": "IDN-84",
-      "shortName": "Verification Recovery",
-      "category": "identity",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (in-app, email)"
     },
     {
       "id": "IDN-85",

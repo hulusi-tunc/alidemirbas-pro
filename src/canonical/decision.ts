@@ -673,13 +673,6 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
       scope: "the decision case and this instance of review against it",
       note: "A case can have several review instances across reassignments and reopenings. Each is recorded; none replaces the last.",
     },
-    distinctFrom: [
-      {
-        journey: "IDN-84",
-        because:
-          "IDN-84 recovers from a verification that failed - a mechanical outcome with retry and remediation routes. This is a person exercising judgment against criteria, where the failure mode is deciding outside your authority rather than failing a check.",
-      },
-    ],
     entry: "t.begins",
     nodes: [
       {

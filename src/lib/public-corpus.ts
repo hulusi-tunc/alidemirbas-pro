@@ -80,7 +80,13 @@ export const ARCHIVED_SURFACE = "operational" as const;
    keeping its own real ownership claim intact. TIM-61 lost its last
    competition-group partner in the process and its `competition` field
    was set to the literal `"none"` rather than left in a group of one -
-   taking the library to 56. Everything below that
+   taking the library to 56. IDN-84 (Verification Recovery) was retired
+   next, the site owner's request - it had two real inbound handoffs
+   (IDN-81's h.failure and IDN-82's h.failure), each converted into its
+   own genuine exit (x.rejected and x.verification-failed) instead of
+   routing to a shared recovery engine, and DEC-183's one prose
+   distinctFrom row naming it was removed - taking the library to 55.
+   Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
    itself for the live list.
@@ -147,8 +153,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",
   // Time, deadlines, expiry & temporary states - 2
   "TIM-61", "TIM-274",
-  // Access, identity & relationship - 3
-  "ACC-261", "IDN-84", "REL-284",
+  // Access, identity & relationship - 2
+  "ACC-261", "REL-284",
   // Transactions, fulfillment & remedies - 10
   "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291",
   "REM-151", "REM-157", "REM-305",

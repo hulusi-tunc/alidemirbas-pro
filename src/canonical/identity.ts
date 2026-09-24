@@ -317,8 +317,8 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         "refs": [
           "x.expired",
           "x.verified",
-          "h.review",
-          "h.failure"
+          "x.rejected",
+          "h.review"
         ]
       },
       "businessOutcome": {
@@ -467,7 +467,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Rejected",
             when: "the evidence does not establish the claim, and the reason is known",
-            to: "h.failure",
+            to: "x.rejected",
           },
           {
             label: "Inconclusive, more evidence would help",
@@ -518,14 +518,13 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.failure",
-        kind: "handoff",
-        to: "IDN-84",
-        on: "verification failing against a claim",
-        carries: [
-          "the claim and the failure as observed, unclassified",
-          "the process waiting on this verification, if any",
-        ],
+        id: "x.rejected",
+        kind: "exit",
+        state: "REJECTED for this claim; the evidence does not establish it",
+        terminal: false,
+        reEntry:
+          "a different claim is verified on its own evidence, and this one may be attempted again with new evidence under its own retry policy",
+        class: "failure",
       },
       {
         id: "a.verified",
@@ -651,18 +650,17 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
         asks: "How did the verification end?",
         branches: [
           { label: "Succeeded", when: "the claim was verified at the required scope", to: "c.other" },
-          { label: "Failed", when: "verification did not establish the claim", to: "h.failure" },
+          { label: "Failed", when: "verification did not establish the claim", to: "x.verification-failed" },
         ],
       },
       {
-        id: "h.failure",
-        kind: "handoff",
-        to: "IDN-84",
-        on: "a verification failing while a process waits on it",
-        carries: [
-          "the failure and the blocked process behind it",
-          "the deadline the process is running against, which the failure handling does not reset",
-        ],
+        id: "x.verification-failed",
+        kind: "exit",
+        state: "verification failed; the blocked process stays blocked on it",
+        terminal: false,
+        reEntry:
+          "a further attempt at the same claim is its own dependency with its own instance, under whatever retry policy governs the claim",
+        class: "failure",
       },
       {
         id: "c.other",
@@ -915,400 +913,6 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "A submitted document satisfies a requirement only after validation against that requirement's current acceptance rules.",
-  },
-
-  /* ------------------------------------------------------------ IDN-84 */
-  {
-    id: "IDN-84",
-    slug: "verification-failure-routing",
-    category: "identity",
-    goal: "identity-verification",
-    channels: ["in-app", "email"],
-    name: "Verification failure → reason → retry, remediate, review or exit",
-    shortName: "Verification Recovery",
-    purpose:
-      "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
-    entity: {
-      scope: "the verification instance that failed",
-      note: "The failure belongs to the attempt. A technical failure and a mismatch are different facts about different things, and only one of them is about the person.",
-      instanceKey: [
-        "verification_instance_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "IDN-81",
-        because:
-          "IDN-81 owns a verification that expired with no attempt made. This journey owns one attempt that was made and failed; it never waits to see whether the holder retries, because the window is IDN-81's.",
-      },
-    ],
-    objective: "Route a failed verification by why it failed, and keep our own failures out of the customer's verification record.",
-    eligibility: [
-      "a verification attempt that did not establish its claim",
-      "no instance of this journey is already open for the the verification instance that failed",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "Retry limits are policy-defined and bounded, and the bound is tighter where the claim is security-sensitive."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "A technical failure is never recorded as an identity rejection."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "Repeated retries do not bypass security controls. Exhausting the budget routes to a person, not to an acceptance."
-      },
-      {
-        "id": "s.g4",
-        "label": "CANONICAL_RULE",
-        "text": "The failure reason is preserved, because the route out depends on it."
-      }
-    ],
-    contact: {
-      "defaultPriority": "transactional",
-      "pressureClass": "none",
-      "localCap": {
-        "value": {
-          "key": "verification_failure.discretionary_touches",
-          "rule": "Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
-          "default": {
-            "value": 0,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "every touch in the plan is marked mandatory"
-          },
-          "required": false
-        },
-        "appliesTo": "non-mandatory"
-      },
-      "cooldown": {
-        "key": "verification_failure.cooldown",
-        "rule": "This journey is per the verification instance that failed; a later instance concerns a different the verification instance that failed and no cooldown applies between them.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule",
-          "applicableWhen": "the entity note: one instance per entity"
-        },
-        "required": false
-      },
-      "competition": "none"
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
-        },
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "notice-then-confirm",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "explain",
-          "action": "a.explain",
-          "prerequisites": [
-            "c.class",
-            "c.retry-budget"
-          ],
-          "purpose": "Explain exactly what needs correcting and offer the bounded retry.",
-          "channelRoles": [
-            "in-session"
-          ],
-          "mandatory": true,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "retry-verification",
-            "boundTo": "verification_instance_id"
-          }
-        },
-        {
-          "id": "t2",
-          "stage": "explain-terminal",
-          "action": "a.explain-terminal",
-          "prerequisites": [
-            "c.class"
-          ],
-          "purpose": "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": true,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "alternative-verification-basis",
-            "boundTo": "verification_instance_id"
-          }
-        },
-        {
-          "id": "t3",
-          "stage": "explain",
-          "action": "a.ours",
-          "prerequisites": [
-            "c.technical-budget"
-          ],
-          "purpose": "State that the failure was ours, that nothing they submitted was rejected, and that it is being retried.",
-          "channelRoles": [
-            "in-session"
-          ],
-          "mandatory": true,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "verification_instance_id",
-          "claim_id",
-          "failure_class",
-          "retry_budget",
-          "backoff_budget",
-          "verification_log"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.retry",
-          "x.terminal",
-          "h.escalate",
-          "h.review",
-          "h.review-budget"
-        ]
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "verification recovery",
-        "failed verification",
-        "ID check failed",
-        "verification retry"
-      ],
-      "useCases": [
-        "a failed check explained with exactly what to correct and a bounded retry",
-        "our own technical failure kept out of the person's verification record"
-      ]
-    },
-    entry: "t.failed",
-    nodes: [
-      {
-        id: "t.failed",
-        kind: "trigger",
-        event: "verification_attempt_failed",
-        evidence: {
-          requires: ["a verification attempt that did not establish its claim"],
-          insufficientAlone: [
-            "a verification that expired with no attempt made, which is IDN-81's expiry",
-            "a policy change invalidating an existing verification without anyone having attempted one",
-          ],
-          source: "authoritative",
-        },
-        next: "a.classify",
-      },
-      {
-        id: "a.classify",
-        kind: "action",
-        does: "Classify the failure as INSUFFICIENT_EVIDENCE, MISMATCH, UNREADABLE, EXPIRED_EVIDENCE, TECHNICAL_FAILURE, POLICY_FAILURE, REVIEW_REQUIRED or UNKNOWN. The class decides the route, and it decides something else: recording our own outage as an identity rejection marks someone as having failed a check they never got to attempt",
-        writes: [{ field: "verification_log", mode: "append" }],
-        next: "c.class",
-        idempotencyKey: "verification_instance_id + a.classify",
-      },
-      {
-        id: "c.class",
-        kind: "condition",
-        asks: "What kind of failure was it?",
-        branches: [
-          {
-            label: "The person can correct it",
-            when: "insufficient evidence, unreadable evidence, or evidence that has expired",
-            to: "c.retry-budget",
-          },
-          {
-            label: "Ours, and transient",
-            when: "a technical failure on our side or a provider's",
-            to: "c.technical-budget",
-          },
-          {
-            label: "Needs a person",
-            when: "a mismatch, an explicit review requirement, or a failure nobody could classify",
-            to: "h.review",
-          },
-          {
-            label: "Terminal by policy",
-            when: "policy forbids verifying this claim on this basis at all",
-            to: "a.explain-terminal",
-          },
-        ],
-      },
-      {
-        id: "c.retry-budget",
-        kind: "condition",
-        asks: "Does the retry budget for this claim have room?",
-        branches: [
-          {
-            label: "Room to retry",
-            when: "attempts against this claim are within the policy limit for its security sensitivity",
-            to: "a.explain",
-          },
-          {
-            label: "Budget spent",
-            when: "the limit is reached - and repeated failure is also what a genuine person struggling looks like",
-            to: "h.review-budget",
-          },
-        ],
-      },
-      {
-        id: "a.explain",
-        kind: "action",
-        does: "Explain exactly what needs correcting and offer the bounded retry. A retry offered without an explanation produces the same attempt again, which spends the budget without improving anything",
-        writes: [{ field: "verification_log", mode: "append" }],
-        next: "x.retry",
-        execution: "communication",
-        idempotencyKey: "verification_instance_id + a.explain",
-      },
-      {
-        id: "c.technical-budget",
-        kind: "condition",
-        asks: "Is a safe retry available within the backoff budget?",
-        branches: [
-          {
-            label: "Retry",
-            when: "the failure is transient and the budget has room",
-            to: "a.backoff",
-          },
-          {
-            label: "Persistent",
-            when: "the technical failure is not clearing",
-            to: "h.escalate",
-          },
-        ],
-      },
-      {
-        id: "a.backoff",
-        kind: "action",
-        does: "Retry with backoff, recording nothing against the person's verification history. Our failure is not their rejection, and the distinction has to survive into whatever reads that history later",
-        writes: [{ field: "verification_log", mode: "append" }],
-        next: "a.ours",
-        idempotencyKey: "verification_instance_id + a.backoff",
-      },
-      {
-        id: "a.ours",
-        kind: "action",
-        does: "State that the failure was ours, that nothing they submitted was rejected, and that it is being retried. A person who just watched their attempt fail because of our own outage gets silence while we retry unless this is said, and will resubmit perfectly good evidence",
-        next: "x.retry",
-        execution: "communication",
-        idempotencyKey: "verification_instance_id + a.ours",
-      },
-      {
-        id: "a.explain-terminal",
-        kind: "action",
-        does: "Say that this claim cannot be verified on this basis, and name what basis would be accepted if any is. Somebody who attempted verification and hears nothing will attempt it again, and each attempt writes a failure against a person who was never going to be able to pass",
-        execution: "communication",
-        next: "x.terminal",
-        idempotencyKey: "verification_instance_id + a.explain-terminal",
-      },
-      {
-        id: "x.retry",
-        kind: "exit",
-        state: "bounded retry available; the verification instance stays open",
-        terminal: false,
-        reEntry:
-          "the retry runs as part of the same verification instance, against the same budget - a new instance would reset the count, which is how a bounded retry becomes an unbounded one",
-        class: "success",
-      },
-      {
-        id: "h.escalate",
-        kind: "handoff",
-        to: "OWN-55",
-        on: "a technical failure that is not clearing",
-        carries: [
-          "the failure class and how often it has recurred",
-          "the people currently unable to verify because of it, which is what makes this operational rather than administrative",
-        ],
-      },
-      {
-        id: "h.review",
-        kind: "handoff",
-        to: "DEC-181",
-        on: "a failure requiring human judgement",
-        carries: [
-          "the failure class and every attempt made",
-          "the claim being verified, so the reviewer assesses the claim rather than the attempts",
-          "that nothing has been said to the holder about this attempt",
-        ],
-      },
-      {
-        id: "h.review-budget",
-        kind: "handoff",
-        to: "DEC-181",
-        on: "the retry budget for this claim being spent",
-        carries: [
-          "the failure class and every attempt made",
-          "the claim being verified, so the reviewer assesses the claim rather than the attempts",
-          "that the holder was explained to once and has not been told the budget is spent",
-        ],
-      },
-      {
-        id: "x.terminal",
-        kind: "exit",
-        state: "verification not possible on this basis",
-        terminal: false,
-        reEntry:
-          "a different basis or a different claim is assessed on its own terms; what would have to change here is the policy rather than the evidence",
-        class: "failure",
-      },
-    ],
-    guardrails: [
-      "Retry limits are policy-defined and bounded, and the bound is tighter where the claim is security-sensitive.",
-      "A technical failure is never recorded as an identity rejection.",
-      "Repeated retries do not bypass security controls. Exhausting the budget routes to a person, not to an acceptance.",
-      "The failure reason is preserved, because the route out depends on it.",
-    ],
-    reusableRule:
-      "Verification recovery should follow the reason verification failed rather than treating every failure as equivalent.",
   },
 
   /* ------------------------------------------------------------ IDN-85 */
