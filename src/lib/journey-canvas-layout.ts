@@ -54,6 +54,14 @@ export type DisplayNode = {
       drawing the wait as a second box. Undefined for every ordinary node;
       only ever set on a `kind: "condition"` DisplayNode. */
   mergedWait?: FlowNode;
+  /** `repeatedChecks()` below: set when this condition asks the exact same
+      question (`FlowNode.asks`, verbatim) as another condition elsewhere in
+      the same journey - the re-check a cascade makes at a later stage, not
+      an unrelated decision that merely reads alike. `position` is this
+      node's 1-based place in canonical node order among the group,
+      `total` the group's size. Undefined for every condition that asks a
+      question nothing else in its journey repeats - the ordinary case. */
+  repeatCheck?: { position: number; total: number };
 };
 
 export type CanvasEdgeKind = "linear" | "branch" | "wait-event" | "wait-timeout";
@@ -88,6 +96,8 @@ export type LaidOutNode = {
   node: FlowNode;
   /** Carried through from `DisplayNode.mergedWait` - see there. */
   mergedWait?: FlowNode;
+  /** Carried through from `DisplayNode.repeatCheck` - see there. */
+  repeatCheck?: { position: number; total: number };
   /** Layer index from the top and rank from the left within it - the
       structural coordinates the card thumbnails draw from. Derived from
       ELK's placement (ELK does not export layer ids through its JSON
@@ -569,6 +579,36 @@ export function representedSteps(nodes: readonly FlowNode[]): ReadonlyMap<string
   return out;
 }
 
+/** Node id -> its place in a repeated-question group, where a group is every
+    condition in the SAME journey whose `asks` matches another verbatim
+    (case-sensitive, no fuzzy reading - the signal from Family F's own audit:
+    "the signal is a set of conditions in one journey sharing an `asks`
+    string"). Unlike the four collapses above, this never hides a node: two
+    conditions asking the same question at different stages of a cascade are
+    each a real decision with its own branches and its own place in the
+    graph, not implementation duplication - what a reader is missing is not
+    less canvas but the fact that this question already came up once. So the
+    group is surfaced as a small `position/total` marker on every member
+    instead of removing any of them (a design choice the Family F write-up
+    called for a render-and-critique pass rather than a transform). Position
+    is 1-based, in canonical node order - the order this journey's own
+    authoring already puts the cascade's stages in. */
+export function repeatedChecks(nodes: readonly FlowNode[]): ReadonlyMap<string, { position: number; total: number }> {
+  const groups = new Map<string, string[]>();
+  for (const n of nodes) {
+    if (n.kind !== "condition" || !n.asks) continue;
+    const list = groups.get(n.asks) ?? [];
+    list.push(n.id);
+    groups.set(n.asks, list);
+  }
+  const out = new Map<string, { position: number; total: number }>();
+  for (const ids of groups.values()) {
+    if (ids.length < 2) continue;
+    ids.forEach((id, i) => out.set(id, { position: i + 1, total: ids.length }));
+  }
+  return out;
+}
+
 /* ---------------------------------------------------------------- display graph */
 
 export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
@@ -578,6 +618,7 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
   const gates = collapsibleGates(nodes, byId);
   const bookkeeping = absorbableBookkeeping(nodes, byId);
   const waitFollowers = collapsibleWaitFollowers(nodes, byId);
+  const repeats = repeatedChecks(nodes);
   /* All four collapses answer the same question - "what does an edge
      pointing at this node actually reach on the canvas?" - so they share
      one resolver. Chained (a gate whose continuation is itself a collapsed
@@ -696,7 +737,14 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
     if (!reachable.has(n.id)) continue;
     if (!instanced.has(n.id)) {
       const mergedWait = mergedWaitOf.get(n.id);
-      displayNodes.push({ layoutId: n.id, canonicalNodeId: n.id, node: n, ...(mergedWait ? { mergedWait } : {}) });
+      const repeatCheck = repeats.get(n.id);
+      displayNodes.push({
+        layoutId: n.id,
+        canonicalNodeId: n.id,
+        node: n,
+        ...(mergedWait ? { mergedWait } : {}),
+        ...(repeatCheck ? { repeatCheck } : {}),
+      });
     }
     const out = internal.get(n.id)!;
     /* Instances go into the model order right after their parent, which is
@@ -886,6 +934,7 @@ function readBack(graph: DisplayGraph, out: ElkNode): CanvasLayout {
       canonicalNodeId: d.canonicalNodeId,
       node: d.node,
       ...(d.mergedWait ? { mergedWait: d.mergedWait } : {}),
+      ...(d.repeatCheck ? { repeatCheck: d.repeatCheck } : {}),
       x: (c.x ?? 0) + width / 2,
       y: c.y ?? 0,
       width,

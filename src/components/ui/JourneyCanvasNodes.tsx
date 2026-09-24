@@ -762,10 +762,17 @@ export function ActionCard({ node, onOpen, messageLabels, humanLabels, lang = "e
 export function ConditionCard({
   node,
   waitNode,
+  repeatCheck,
   onOpen,
 }: {
   node: FlowNode;
   waitNode?: FlowNode;
+  /** journey-canvas-layout.ts's `repeatedChecks()`: this condition asks the
+      same question as another one elsewhere in the journey - a re-check a
+      cascade makes at a later stage. Drawn as a small position/total tag so
+      a reader recognizes it as a repeat rather than re-reading the question
+      to work that out. Numbers only, no words - reads the same in TR/EN. */
+  repeatCheck?: { position: number; total: number };
   onOpen: () => void;
   lang?: Lang;
 }) {
@@ -778,6 +785,11 @@ export function ConditionCard({
     >
       <span className="flex items-center justify-center gap-1.5 [[data-lod=far]_&]:hidden">
         {waitNode ? <Clock aria-hidden className="size-3 shrink-0 text-teal-600" /> : <Split aria-hidden className="size-3 shrink-0 text-emerald-600" />}
+        {repeatCheck ? (
+          <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-px font-mono text-[9px] font-medium tracking-[0.04em] text-emerald-800 tabular-nums">
+            {repeatCheck.position}/{repeatCheck.total}
+          </span>
+        ) : null}
         <span className="line-clamp-2 text-[12px] leading-snug font-semibold text-emerald-800">
           {waitNode ? `${waitLabel(waitNode)} · ${cardSummary(node.headline)}` : cardSummary(node.headline)}
         </span>

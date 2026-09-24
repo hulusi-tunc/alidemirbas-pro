@@ -262,6 +262,15 @@ export type FlowNode = {
       branch count is real layout-relevant information (79% of the library's
       conditions are binary, 21% fan wider) - not invented for display. */
   branchCount?: number;
+  /** Condition nodes only - the raw, unlocalized `ConditionNode.asks` text
+      (same treatment as `writesFields`: kept in English regardless of route
+      so a structural read never depends on which locale's prose it lands
+      on). Never rendered directly - `journey-canvas-layout.ts`'s
+      `repeatedChecks()` groups conditions within one journey that share
+      this string verbatim, which is how a re-asked question (the same
+      eligibility or status check repeated at a later stage) is told apart
+      from an unrelated one that merely reads similarly once translated. */
+  asks?: string;
   /** Handoff nodes only - whether the destination lies outside the canonical
       library (`to` starts with `external:`) rather than resolving to a real
       journey. Already computed once for the headline text below; exposed
@@ -495,6 +504,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
         meta: [],
         edges: n.branches.map((b) => edge(b.to, b.label, b.when)),
         branchCount: n.branches.length,
+        asks: n.asks,
       };
     case "wait": {
       // A wait whose event arm and timeout arm land on the SAME next node
