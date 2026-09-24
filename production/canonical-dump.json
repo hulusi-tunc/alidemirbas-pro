@@ -35949,95 +35949,76 @@
       "id": "REL-284",
       "slug": "relationship-invitation",
       "category": "structure",
-      "goal": "relationship-hierarchy-structure",
+      "goal": "recovery-retry",
       "channels": [
-        "email"
+        "email",
+        "push"
       ],
-      "name": "Relationship invitation → counterparty acceptance → active or expired",
-      "shortName": "Relationship Invitation",
-      "purpose": "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
+      "name": "Referral code issued → redeemed or unused → reward confirmed or one nudge",
+      "shortName": "Referral Reward",
+      "purpose": "Confirm the reward both sides earned the moment a referral code is redeemed, and send exactly one nudge back to sharing it if nobody has used it yet.",
       "entity": {
-        "scope": "the invitation, plus the two parties and the scope of the link it proposes, in the direction it was issued",
-        "note": "The invitation is the subject, not the parties. A second invitation between the same two parties, for a different scope or the other direction, is its own instance.",
+        "scope": "the person plus the referral code issued to them",
+        "note": "The code is the subject. A second code issued to the same person - after the first is used or lost - is its own instance.",
         "instanceKey": [
-          "invitation_id"
+          "person_id",
+          "referral_code_id"
         ],
         "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
-          "journey": "REL-91",
-          "because": "REL-91 decides whether a link has an authoritative basis and records it active or rejected. This journey exists only in the case where the missing basis is the counterparty's own acceptance, and it establishes nothing itself - it asks."
-        },
-        {
-          "journey": "SUB-161",
-          "because": "SUB-161 owns a continuing agreement with a term, effective dates and renewal. Acceptance here creates a link and no term, and an agreement later attached to that link is not this."
+          "journey": "FBK-42",
+          "because": "FBK-42 decides whether someone has earned the relationship evidence to be asked for a referral at all. This journey starts only once that ask already produced a code; it never re-evaluates whether asking was warranted, only whether the code got shared and used."
         },
         {
           "journey": "TIM-268",
-          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns an invitation waiting to be accepted, where the invitation's own expiry is the pressure; TIM-268 would restate that deadline without knowing what the acceptance grants, so it defers to this journey and sends nothing while this instance holds the invitation."
+          "because": "TIM-268 is the generic reminder for an obligation nothing more specific owns. This journey owns the one nudge for an unused referral code; TIM-268 would restate the same nudge without knowing what redeeming it earns, so it defers here while this instance holds the code."
         }
       ],
-      "objective": "Put a proposed link in front of the party who has to accept it, on terms they can see before they answer, and close the question one way or the other before the invitation goes stale.",
+      "objective": "Confirm the reward both sides earned the moment a referral code is redeemed, and send exactly one nudge back to sharing it if nobody has used it yet.",
       "eligibility": [
-        "an invitation recorded by a party holding the authority to extend it",
-        "a named counterparty, the scope of the proposed link and its direction",
-        "an expiry on the invitation",
-        "no instance of this journey is already open for the the invitation",
+        "a referral or invite code generated for this person to share",
+        "no instance of this journey is already open for the person plus this specific code",
         "hard gates (GLB-31) allow communication for this purpose"
       ],
       "suppressions": [
         {
           "id": "s.g1",
           "label": "CANONICAL_RULE",
-          "text": "An invitation is not a relationship. Nothing is linked, and nothing is shown to either side as linked, until the counterparty accepts."
+          "text": "A code issued is not a code used. Nothing about the reward is claimed until redemption is authoritatively recorded."
         },
         {
           "id": "s.g2",
           "label": "CANONICAL_RULE",
-          "text": "Acceptance links two records and merges none. Both parties keep their own identity, history and lifecycle."
+          "text": "One nudge, never two. A code nobody has used after the nudge stays unused rather than being asked about again."
         },
         {
           "id": "s.g3",
           "label": "CANONICAL_RULE",
-          "text": "Scope and direction are stated in the invitation itself, not discovered after acceptance."
-        },
-        {
-          "id": "s.g4",
-          "label": "CANONICAL_RULE",
-          "text": "One reminder, never two. The expiry is the pressure; repetition is not."
-        },
-        {
-          "id": "s.g5",
-          "label": "CANONICAL_RULE",
-          "text": "Every invitation expires. A pending claim on somebody who never agreed to it does not sit open indefinitely."
-        },
-        {
-          "id": "s.generic-reminder",
-          "label": "CANONICAL_RULE",
-          "text": "This journey owns the reminder for the invitation it holds. The generic outstanding-obligation reminder (TIM-268) is suppressed for that invitation while this instance holds it: one obligation is reminded of once, by whoever owns its type, and a generic reminder arriving after the specific one is not a later touch but a second sender."
+          "text": "The reward named is the one actually credited, never a projected or typical amount."
         }
       ],
       "contact": {
-        "defaultPriority": "service",
-        "pressureClass": "service",
+        "defaultPriority": "lifecycle",
+        "pressureClass": "lifecycle",
         "localCap": {
           "value": {
-            "key": "relationship_invitation.discretionary_touches",
-            "rule": "Only the invitation and the reminder are discretionary; the confirmation is an obligation the accepting party is owed and is never rationed.",
+            "key": "referral_invite.touches",
+            "rule": "One message per code: the reward confirmation if it was redeemed, or the one nudge if it wasn't - never both.",
             "default": {
-              "value": 2,
+              "value": 1,
               "confidence": "high",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; an invitation and one reminder"
+              "applicableWhen": "the graph reaches exactly one communicating action per instance"
             },
             "required": false
           },
-          "appliesTo": "non-mandatory"
+          "appliesTo": "all"
         },
         "cooldown": {
-          "key": "relationship_invitation.cooldown",
-          "rule": "This journey is per the invitation; a later instance concerns a different the invitation and no cooldown applies between them.",
+          "key": "referral_invite.cooldown",
+          "rule": "This journey is per the person plus the referral code issued to them; a new code is its own instance and no cooldown applies between them.",
           "default": {
             "value": "none",
             "confidence": "high",
@@ -36055,129 +36036,80 @@
             "channels": [
               "email"
             ],
-            "when": "the message has to be kept and survive until the person can act on it"
+            "when": "the reward confirmation, which has to be kept and survive until the person can act on it"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "the nudge back to sharing the code again, where a quick prompt is enough"
           }
         ],
-        "fallback": "same-role-other-channel",
+        "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
-        "strategy": "offer-decide-remind",
+        "strategy": "single-notice",
         "touches": [
           {
             "id": "t1",
-            "stage": "invite-known",
-            "action": "a.invite-known",
+            "stage": "reward",
+            "action": "a.reward",
             "prerequisites": [
-              "c.known"
+              "c.redeemed"
             ],
-            "purpose": "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record.",
+            "purpose": "Tell them the reward both sides earned and how to use it.",
             "channelRoles": [
               "persistent"
             ],
             "mandatory": false,
-            "label": "CANONICAL_RULE",
-            "destination": {
-              "target": "invitation-acceptance",
-              "boundTo": "invitation_id",
-              "mustNotClaim": [
-                "that accepting transfers anything they hold"
-              ]
-            }
-          },
-          {
-            "id": "t2",
-            "stage": "invite-new",
-            "action": "a.invite-new",
-            "prerequisites": [
-              "c.known"
-            ],
-            "purpose": "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold.",
-            "channelRoles": [
-              "persistent"
-            ],
-            "mandatory": false,
-            "label": "CANONICAL_RULE",
-            "destination": {
-              "target": "invitation-acceptance",
-              "boundTo": "invitation_id",
-              "mustNotClaim": [
-                "that accepting transfers anything they hold"
-              ]
-            }
-          },
-          {
-            "id": "t3",
-            "stage": "confirm",
-            "action": "a.confirm",
-            "gatedBy": "w.response",
-            "prerequisites": [
-              "c.response"
-            ],
-            "purpose": "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do.",
-            "channelRoles": [
-              "persistent"
-            ],
-            "mandatory": true,
             "label": "CANONICAL_RULE"
           },
           {
-            "id": "t4",
-            "stage": "remind",
-            "action": "a.remind",
-            "gatedBy": "w.response",
+            "id": "t2",
+            "stage": "nudge",
+            "action": "a.nudge",
             "prerequisites": [
-              "c.remind"
+              "c.redeemed"
             ],
-            "purpose": "Send one reminder naming who is waiting and the date the invitation expires.",
+            "purpose": "Remind them the code is unused and point them back to sharing it.",
             "channelRoles": [
-              "persistent"
+              "low-friction"
             ],
             "mandatory": false,
-            "label": "CANONICAL_RULE",
-            "destination": {
-              "target": "invitation-acceptance",
-              "boundTo": "invitation_id",
-              "mustNotClaim": [
-                "a moved expiry"
-              ]
-            }
+            "label": "CANONICAL_RULE"
           }
         ],
         "noAction": [
           "s.g1",
           "s.g2",
-          "s.g3",
-          "s.g4",
-          "s.g5",
-          "s.generic-reminder"
+          "s.g3"
         ]
       },
       "implementation": {
         "attributes": {
           "required": [
-            "invitation_id",
-            "inviting_party",
-            "counterparty",
-            "scope",
-            "direction",
-            "expires_at",
-            "counterparty_known"
+            "person_id",
+            "referral_code_id",
+            "issued_at"
           ],
-          "optional": []
+          "optional": [
+            "reward_amount",
+            "reward_terms"
+          ]
         }
       },
       "measurement": {
         "journeyOutcome": {
           "type": "exit",
           "refs": [
-            "x.active",
-            "x.closed",
-            "x.expired"
+            "x.rewarded",
+            "x.unused"
           ]
         },
         "businessOutcome": {
-          "event": "invitation_accepted",
+          "event": "referral_code_redeemed",
           "unit": "instance",
           "observationScope": {
             "type": "self"
@@ -36203,201 +36135,119 @@
       },
       "discovery": {
         "aliases": [
-          "invitation reminder",
-          "invite to link accounts",
-          "counterparty invitation",
-          "team invite reminder",
-          "pending invitation"
+          "referral reward",
+          "invite a friend reward",
+          "friend invite bonus",
+          "referral code reminder",
+          "refer a friend"
         ],
         "useCases": [
-          "a proposed link put to the party who has to accept it, on visible terms",
-          "one reminder before the invitation expires, then a closed question"
+          "a referral code redeemed by a friend, reward confirmed to the referrer",
+          "a referral code left unused after the redemption window, one nudge to share it again"
         ]
       },
-      "entry": "t.invited",
+      "entry": "t.issued",
       "nodes": [
         {
-          "id": "t.invited",
+          "id": "t.issued",
           "kind": "trigger",
-          "event": "relationship_invitation_issued",
+          "event": "referral_code_issued",
           "evidence": {
             "requires": [
-              "an invitation recorded by a party holding the authority to extend it",
-              "a named counterparty, the scope of the proposed link and its direction",
-              "an expiry on the invitation"
+              "a referral or invite code generated for this person to share"
             ],
             "insufficientAlone": [
-              "a shared attribute between two records - an address, a name, a device",
-              "an intention to invite that has not been recorded as an invitation"
+              "an intention to refer that has not produced a code",
+              "a code issued to someone else"
             ],
             "source": "authoritative"
           },
-          "next": "c.known"
+          "next": "w.redeem"
         },
         {
-          "id": "c.known",
-          "kind": "condition",
-          "asks": "Does the counterparty already exist here in their own right?",
-          "branches": [
-            {
-              "label": "Existing holder",
-              "when": "the counterparty already holds a record and a session of their own, and the invitation would attach to it",
-              "to": "a.invite-known"
-            },
-            {
-              "label": "New to us",
-              "when": "the counterparty has no record here and knows the inviting party but not us",
-              "to": "a.invite-new"
-            }
-          ]
-        },
-        {
-          "id": "a.invite-known",
-          "kind": "action",
-          "does": "Name who is inviting them, exactly what the link would let that party do, and what it would not change about their own record. An existing holder's first question is what accepting costs them, not what it gives the inviter",
-          "next": "w.response",
-          "execution": "communication",
-          "idempotencyKey": "invitation_id + a.invite-known"
-        },
-        {
-          "id": "a.invite-new",
-          "kind": "action",
-          "does": "State who is inviting them and into what, and say plainly that accepting creates a link rather than a transfer of anything they hold. Somebody with no prior relationship reads an unexplained invitation as a claim already made on them",
-          "next": "w.response",
-          "execution": "communication",
-          "idempotencyKey": "invitation_id + a.invite-new"
-        },
-        {
-          "id": "w.response",
+          "id": "w.redeem",
           "kind": "wait",
           "until": [
-            "invitation_accepted",
-            "invitation_declined",
-            "invitation_withdrawn"
+            "referral_code_redeemed"
           ],
-          "onEvent": "c.response",
+          "onEvent": "c.redeemed",
           "timeout": {
             "after": {
-              "key": "relationship_invitation.response",
-              "rule": "The point at which one reminder would still leave time to act before expiry.",
-              "class": "reminder-before-attribute",
-              "required": true
+              "key": "referral_invite.redeem_window",
+              "rule": "The window given for the code to be redeemed before a nudge is worth sending.",
+              "class": "response-window",
+              "default": {
+                "value": "3 days",
+                "confidence": "low",
+                "basis": "example-only",
+                "applicableWhen": "the referral program has no shorter promotional window of its own",
+                "avoidWhen": "a time-limited campaign sets its own, shorter redemption window"
+              },
+              "required": false
             },
-            "reason": "a reminder that arrives after the invitation is dead is worse than no reminder, because it asks for something that can no longer be given",
-            "relativeTo": "attribute",
-            "attribute": "expires_at"
+            "reason": "a code nobody has used is worth nudging about once, before it is forgotten entirely",
+            "relativeTo": "trigger"
           },
-          "onTimeout": "c.remind",
+          "onTimeout": "c.redeemed",
           "windowExtendsOnEngagement": false,
-          "recheck": "the the invitation re-read from the system of record before acting on the timeout"
+          "recheck": "whether the code was redeemed, re-read from the system of record before acting on the timeout"
         },
         {
-          "id": "c.response",
+          "id": "c.redeemed",
           "kind": "condition",
-          "asks": "How was the invitation answered?",
+          "asks": "Was the code redeemed?",
           "branches": [
             {
-              "label": "Accepted",
-              "when": "the counterparty's acceptance is authoritatively recorded and the link is created",
-              "to": "a.confirm"
+              "label": "Redeemed",
+              "when": "a friend used the code",
+              "to": "a.reward"
             },
             {
-              "label": "Declined or withdrawn",
-              "when": "the counterparty declined, or the inviting party withdrew the invitation before it was answered",
-              "to": "x.closed"
+              "label": "Not yet",
+              "when": "nobody has used the code",
+              "to": "a.nudge"
             }
           ]
         },
         {
-          "id": "a.confirm",
+          "id": "a.reward",
           "kind": "action",
-          "does": "Confirm to both sides that the link is active, naming its scope and its direction and what each side can now see or do. An unstated scope is assumed to be total by whoever has less to gain from it",
-          "next": "x.active",
+          "does": "Tell them the reward both sides earned, the amount actually credited and how to use it",
+          "next": "x.rewarded",
           "execution": "communication",
-          "idempotencyKey": "invitation_id + a.confirm"
+          "idempotencyKey": "person_id + referral_code_id + a.reward"
         },
         {
-          "id": "x.active",
+          "id": "x.rewarded",
           "kind": "exit",
-          "state": "link active, both identities intact",
+          "state": "reward confirmed to the referring person after their code was redeemed",
           "terminal": false,
-          "reEntry": "a further invitation between the same parties, for a different scope, is a new instance",
+          "reEntry": "a new code issued to the same person opens its own instance",
           "class": "success"
         },
         {
-          "id": "x.closed",
-          "kind": "exit",
-          "state": "invitation declined or withdrawn",
-          "terminal": true,
-          "reEntry": "the inviting party may issue a fresh invitation, which is a new instance; a declined one is never revived",
-          "class": "failure"
-        },
-        {
-          "id": "c.remind",
-          "kind": "condition",
-          "asks": "Is a reminder still worth sending?",
-          "branches": [
-            {
-              "label": "Time remains",
-              "when": "the invitation has a meaningful period left",
-              "to": "a.remind"
-            },
-            {
-              "label": "Window closed",
-              "when": "the invitation has reached or passed its expiry unanswered",
-              "to": "x.expired"
-            }
-          ]
-        },
-        {
-          "id": "a.remind",
+          "id": "a.nudge",
           "kind": "action",
-          "does": "Send one reminder naming who is waiting and the date the invitation expires. There is no second one - a counterparty who has not answered twice has answered",
-          "next": "w.final",
+          "does": "Remind them the code is unused and point them back to sharing it, naming what they and a friend would both get",
+          "next": "x.unused",
           "execution": "communication",
-          "idempotencyKey": "invitation_id + a.remind"
+          "idempotencyKey": "person_id + referral_code_id + a.nudge"
         },
         {
-          "id": "w.final",
-          "kind": "wait",
-          "until": [
-            "invitation_accepted",
-            "invitation_declined",
-            "invitation_withdrawn"
-          ],
-          "onEvent": "c.response",
-          "timeout": {
-            "after": {
-              "key": "relationship_invitation.final",
-              "rule": "After the one reminder the instance waits until the invitation's own expiry; there is no second reminder.",
-              "class": "attribute-bound",
-              "required": true
-            },
-            "reason": "an invitation with no expiry is a standing claim on somebody who never agreed to anything",
-            "relativeTo": "attribute",
-            "attribute": "expires_at"
-          },
-          "onTimeout": "x.expired",
-          "windowExtendsOnEngagement": false,
-          "recheck": "the the invitation re-read from the system of record before acting on the timeout"
-        },
-        {
-          "id": "x.expired",
+          "id": "x.unused",
           "kind": "exit",
-          "state": "expired unanswered",
+          "state": "code unused after the redemption window; nothing further is sent",
           "terminal": false,
-          "reEntry": "a fresh invitation from the same party starts a new window",
+          "reEntry": "the code being redeemed later re-opens this from the redemption event; a new code issued is its own instance",
           "class": "timeout"
         }
       ],
       "guardrails": [
-        "An invitation is not a relationship. Nothing is linked, and nothing is shown to either side as linked, until the counterparty accepts.",
-        "Acceptance links two records and merges none. Both parties keep their own identity, history and lifecycle.",
-        "Scope and direction are stated in the invitation itself, not discovered after acceptance.",
-        "One reminder, never two. The expiry is the pressure; repetition is not.",
-        "Every invitation expires. A pending claim on somebody who never agreed to it does not sit open indefinitely."
+        "A code issued is not a code used. Nothing about the reward is claimed until redemption is authoritatively recorded.",
+        "One nudge, never two. A code nobody has used after the nudge stays unused rather than being asked about again.",
+        "The reward named is the one actually credited, never a projected or typical amount."
       ],
-      "reusableRule": "An invitation is a question put to somebody who owes no answer, so it names its scope, names its expiry, and asks at most once more."
+      "reusableRule": "A referral code should be watched until it is redeemed or its window closes - confirm the reward the moment it is earned, and nudge exactly once if it isn't."
     },
     {
       "id": "TRM-101",

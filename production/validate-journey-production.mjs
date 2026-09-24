@@ -366,6 +366,19 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 294 journeys / 3905 nodes (2026-09-24). REL-284 was
+// rebuilt in place, same id and slug, to match a reference image's
+// referral-reward shape: it now fires when a referral code is issued
+// (referral_code_issued, new event) instead of a formal structural-
+// relationship invitation, waits for redemption (referral_code_redeemed,
+// new event), and either confirms the reward both sides earned or sends
+// one nudge back to sharing the code. Its old content (a two-party
+// account/org link needing formal acceptance) had no real inbound
+// handoffs, so nothing else needed retargeting; distinctFrom now points
+// at FBK-42 (advocacy asks) and TIM-268 instead of REL-91/SUB-161. 13 ->
+// 7 nodes on REL-284, -6 net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 294 journeys / 3911 nodes (2026-09-24). IDN-271
 // (Account Security Alert) was retired entirely from the corpus, same
 // pattern as the deletions above. It had no real inbound handoffs and no
@@ -570,9 +583,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (294 journeys / 3911 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (294 journeys / 3905 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 294 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3911 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3905 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
