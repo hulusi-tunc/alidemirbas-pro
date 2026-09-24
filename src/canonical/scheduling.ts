@@ -3569,8 +3569,8 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "availability-searched-no-booking",
     category: "scheduling",
     goal: "scheduling-commitment",
-    channels: ["email"],
-    name: "Availability searched, no booking → nearest window or waitlist",
+    channels: ["push", "email", "sms"],
+    name: "Availability searched, no booking → exact slot, nearest window or waitlist",
     shortName: "Availability Search Abandonment",
     purpose:
       "Follow up an availability question that produced no booking with something that is genuinely bookable now, or with a waitlist place where nothing fits - because what was shown was never held and is probably already gone.",
@@ -3626,12 +3626,12 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.one-offer",
         "label": "CANONICAL_RULE",
-        "text": "One offer per query. A second offer for the same request is pressure rather than help."
+        "text": "At most three touches per query, one per channel in sequence - push for the exact slot, then email for the nearest alternative, then SMS for the waitlist - and each only if the query is still unbooked after the one before it."
       },
       {
         "id": "s.bounded-delay",
         "label": "CANONICAL_RULE",
-        "text": "The delay before the offer is bounded and never extended by the person browsing again - an offer that arrives while somebody is still choosing competes with the thing they are choosing."
+        "text": "The delay before the first touch is bounded and never extended by the person browsing again - a touch that arrives while somebody is still choosing competes with the thing they are choosing."
       },
       {
         "id": "s.contest",
@@ -3651,12 +3651,12 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "availability_searched.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the cascade's own length across the three channels, and no touch is repeated because nothing could tell whether it arrived.",
           "default": {
-            "value": 1,
+            "value": 3,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count - an offer or a waitlist place, never both"
+            "applicableWhen": "GLB-24; the cascade's own length - the exact slot, the nearest alternative and the waitlist, in sequence"
           },
           "required": false
         },
@@ -3683,11 +3683,25 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a slot in the exact range originally searched is available again"
+        },
+        {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "the message has to be kept and survive until the person can act on it - both stages in this journey"
+          "when": "the nearest-alternative offer, which lists more than one slot and has to survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "the waitlist offer, the last and shortest of the three"
         }
       ],
       "fallback": "none",
@@ -3698,13 +3712,35 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       "touches": [
         {
           "id": "t1",
-          "stage": "offer",
-          "action": "a.offer",
+          "stage": "exact-slot",
+          "action": "a.push-exact",
           "gatedBy": "w.settle",
           "prerequisites": [
-            "c.options"
+            "c.exact-available"
           ],
-          "purpose": "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held.",
+          "purpose": "Say a slot in the exact range originally searched is available again, with a route back to booking.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "exact-searched-window",
+            "boundTo": "availability_query_id",
+            "mustNotClaim": [
+              "that the window is held"
+            ]
+          }
+        },
+        {
+          "id": "t2",
+          "stage": "alternative-offer",
+          "action": "a.email-alternative",
+          "after": "t1",
+          "prerequisites": [
+            "c.near-available"
+          ],
+          "purpose": "Offer the nearest bookable alternatives, labelled as different from the window that was asked for, and say they are not held.",
           "channelRoles": [
             "persistent"
           ],
@@ -3714,22 +3750,22 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
             "target": "nearest-bookable-window",
             "boundTo": "availability_query_id",
             "mustNotClaim": [
-              "that the window is held",
+              "that a window is held",
               "that it is the window asked for"
             ]
           }
         },
         {
-          "id": "t2",
+          "id": "t3",
           "stage": "waitlist",
           "action": "a.waitlist",
-          "gatedBy": "w.settle",
+          "after": "t2",
           "prerequisites": [
-            "c.options"
+            "c.waitlist-check"
           ],
           "purpose": "Offer a waitlist place and state that it reserves nothing.",
           "channelRoles": [
-            "persistent"
+            "urgent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -3760,7 +3796,10 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "last_query_at",
           "permission_position"
         ],
-        "optional": []
+        "optional": [
+          "push_token",
+          "phone_number"
+        ]
       }
     },
     measurement: {
@@ -3771,7 +3810,6 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
           "x.booked",
           "x.waitlisted",
           "x.nothing",
-          "x.offer-lapsed",
           "x.waitlist-lapsed"
         ]
       },
@@ -3868,21 +3906,30 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         timeout: {
           "after": {
             "key": "availability_searched.settle",
-            "rule": "The offer waits long enough after the query that an unprompted booking has had its chance, and no longer than the question stays live.",
+            "rule": "The first touch waits long enough after the query that an unprompted booking has had its chance, and no longer than the question stays live.",
             "class": "recovery-window",
-            "required": true
+            "default": {
+              "value": {
+                "min": "1 hour",
+                "max": "2 hours"
+              },
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace before the first touch"
+            },
+            "required": false
           },
-          "reason": "an offer that arrives while somebody is still choosing competes with the thing they are choosing, and usually wins nothing",
+          "reason": "a touch that arrives while somebody is still choosing competes with the thing they are choosing, and usually wins nothing",
           "relativeTo": "trigger"
         },
-        onTimeout: "a.recheck",
+        onTimeout: "c.settled",
         windowExtendsOnEngagement: false,
         recheck: "the the availability question re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.settled",
         kind: "condition",
-        asks: "What ended the delay?",
+        asks: "Did they book in this time?",
         branches: [
           {
             label: "Booked unprompted",
@@ -3890,9 +3937,9 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
             to: "x.booked",
           },
           {
-            label: "Window gone",
-            when: "the window they asked about was taken or withdrawn before they acted",
-            to: "a.recheck",
+            label: "Not yet",
+            when: "no reservation or hold by this person is recorded for the window",
+            to: "c.exact-available",
           },
         ],
       },
@@ -3905,45 +3952,120 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         class: "success",
       },
       {
-        id: "a.recheck",
-        kind: "action",
-        does: "Re-evaluate what is genuinely bookable now rather than reusing what the query returned. Nothing shown at query time was ever held, and an offer of a window that has since gone costs more than sending nothing would",
-        next: "c.options",
-      },
-      {
-        id: "c.options",
+        id: "c.exact-available",
         kind: "condition",
-        asks: "What is actually available now?",
+        asks: "Is a slot still available in the exact range originally searched?",
         branches: [
           {
-            label: "A near window is bookable",
-            when: "capacity exists close enough to what was asked for that it answers the same need",
-            to: "a.offer",
+            label: "Yes",
+            when: "capacity exists in the exact window the query asked about, re-read from the system of record - nothing shown at query time was ever held",
+            to: "a.push-exact",
           },
           {
-            label: "Nothing fits, waitlist exists",
-            when: "no window answers the request and the resource supports a waitlist",
+            label: "No",
+            when: "the exact window is gone",
+            to: "c.near-available",
+          },
+        ],
+      },
+      {
+        id: "a.push-exact",
+        kind: "action",
+        does: "Say by push that a slot in the exact time range originally searched is available again, with a direct route back to booking. Claim nothing about the window being held",
+        next: "c.push-booked",
+        execution: "communication",
+        idempotencyKey: "person_id + availability_query_id + a.push-exact",
+      },
+      {
+        id: "c.push-booked",
+        kind: "condition",
+        asks: "Did they book?",
+        branches: [
+          {
+            label: "Yes",
+            when: "an authoritative reservation or hold by this person is recorded for the window",
+            to: "x.booked",
+          },
+          {
+            label: "No",
+            when: "no such record exists",
+            to: "c.near-available",
+          },
+        ],
+      },
+      {
+        id: "c.near-available",
+        kind: "condition",
+        asks: "Is there a nearest alternative time?",
+        branches: [
+          {
+            label: "Yes",
+            when: "capacity exists close enough to what was asked for that it answers the same need, re-read from the system of record",
+            to: "a.email-alternative",
+          },
+          {
+            label: "No",
+            when: "no window answers the request",
+            to: "c.waitlist-check",
+          },
+        ],
+      },
+      {
+        id: "a.email-alternative",
+        kind: "action",
+        does: "Say by email that suitable alternative times exist: two or three alternative slots, labelled as different from the window that was asked for, with a route to book. Say plainly that nothing is held",
+        next: "w.respond-email",
+        execution: "communication",
+        idempotencyKey: "person_id + availability_query_id + a.email-alternative",
+      },
+      {
+        id: "w.respond-email",
+        kind: "wait",
+        until: [
+          "booking_confirmed"
+        ],
+        onEvent: "x.booked",
+        timeout: {
+          "after": {
+            "key": "availability_searched.respond",
+            "rule": "The alternative offer is given a fixed window before the cascade re-reads availability and moves to the waitlist.",
+            "class": "response-window",
+            "default": {
+              "value": "1 day",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace before the final touch"
+            },
+            "required": false
+          },
+          "reason": "the alternative offer was true at one instant only, and the window closing is what makes a further touch honest rather than a repeat",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "c.waitlist-check",
+        windowExtendsOnEngagement: false,
+        recheck: "the the availability question re-read from the system of record before acting on the timeout",
+      },
+      {
+        id: "c.waitlist-check",
+        kind: "condition",
+        asks: "Is a waitlist possible?",
+        branches: [
+          {
+            label: "Yes",
+            when: "the resource supports a waitlist",
             to: "a.waitlist",
           },
           {
-            label: "Nothing fits, no waitlist",
-            when: "no window answers the request and there is nothing to put the person on",
+            label: "No",
+            when: "there is nothing to put the person on",
             to: "x.nothing",
           },
         ],
       },
       {
-        id: "a.offer",
-        kind: "action",
-        does: "Offer the nearest bookable window, labelled as a different window rather than dressed up as the one that was asked for, and say that it is not held. Somebody who wanted one day and is shown another should see that at a glance, not discover it at the point of booking",
-        next: "w.respond",
-        execution: "communication",
-        idempotencyKey: "person_id + availability_query_id + a.offer",
-      },
-      {
         id: "a.waitlist",
         kind: "action",
-        does: "Offer a waitlist place and state that it reserves nothing. Somebody who believes they hold a place they do not hold will plan around it, and that is a worse outcome than being told there was nothing",
+        does: "Say by SMS that a waitlist place is available, with a short, direct call to action, and state plainly that it reserves nothing. Somebody who believes they hold a place they do not hold will plan around it, and that is a worse outcome than being told there was nothing",
         next: "w.waitlist",
         execution: "communication",
         idempotencyKey: "person_id + availability_query_id + a.waitlist",
@@ -3993,45 +4115,16 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
         reEntry: "a later query for a window that does have capacity qualifies again",
         class: "no-action",
       },
-      {
-        id: "w.respond",
-        kind: "wait",
-        until: [
-          "booking_confirmed"
-        ],
-        onEvent: "x.booked",
-        timeout: {
-          "after": {
-            "key": "availability_searched.respond",
-            "rule": "The validity of the offered window.",
-            "class": "observation-window",
-            "required": true
-          },
-          "reason": "the offer was true at one instant only, and the window closing is what makes a second offer a different journey rather than a repeat",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "x.offer-lapsed",
-        windowExtendsOnEngagement: false,
-        recheck: "the the availability question re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "x.offer-lapsed",
-        kind: "exit",
-        state: "offer made and not taken",
-        terminal: false,
-        reEntry: "a new availability query is a new instance; this one is never re-offered",
-        class: "timeout",
-      },
     ],
     guardrails: [
-      "Availability is re-evaluated before the offer is sent. What the query returned was never held and is not evidence of anything now.",
+      "Availability is re-read immediately before each touch. What the query returned was never held and is not evidence of anything now.",
       "A different window is labelled as a different window.",
       "A waitlist place is stated as reserving nothing.",
-      "One offer per query. A second offer for the same request is pressure rather than help.",
-      "The delay before the offer is bounded and never extended by the person browsing again.",
+      "At most three touches per query, one per channel in sequence - push, then email, then SMS - and the cascade ends the moment the query is booked.",
+      "The delay before the first touch is bounded and never extended by the person browsing again.",
     ],
     reusableRule:
-      "An answer about availability holds nothing, so anything sent afterwards has to be re-checked before it is offered.",
+      "An answer about availability holds nothing, so a cascade built on it re-reads availability immediately before each channel sends, advances only if the query is still unbooked, and ends the moment it is booked or the last channel has been tried.",
   },
   {
     "id": "SCH-303",

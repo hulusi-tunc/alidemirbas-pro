@@ -2252,7 +2252,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (push, email, sms)"
     },
     {
       "id": "SCH-303",

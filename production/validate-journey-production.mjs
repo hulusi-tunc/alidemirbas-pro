@@ -366,6 +366,20 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 286 journeys / 3805 nodes (2026-09-24). SCH-282
+// (Availability Search Abandonment) was rebuilt as a literal
+// three-channel cascade matching a reference image's shape exactly: a
+// push for the exact slot originally searched (checked immediately
+// after sending, no separate wait), then - only if that slot is still
+// gone - an email offering the nearest alternatives with a 1-day
+// response window, then - only if nothing fits - an SMS waitlist
+// offer. Each step re-reads availability from the system of record
+// immediately before it sends. channels moved from email-only to
+// push+email+sms; the old single generic "offer" touch was split into
+// the exact-slot and nearest-alternative touches the image shows as
+// separate steps. 286 journeys unchanged, +2 nodes net. Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 286 journeys / 3803 nodes (2026-09-24). SCH-277
 // (Booking Confirmation) was retired, the site owner's request. It had
 // no real inbound handoffs, only prose distinctFrom rows and
@@ -738,9 +752,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (286 journeys / 3803 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (286 journeys / 3805 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 286 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3803 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3805 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
