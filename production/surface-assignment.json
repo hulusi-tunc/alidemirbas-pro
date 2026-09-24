@@ -540,7 +540,7 @@
     },
     {
       "id": "CON-272",
-      "shortName": "Contact Recovery",
+      "shortName": "Permission Reopen",
       "category": "consent",
       "surface": "customer",
       "sends": true,

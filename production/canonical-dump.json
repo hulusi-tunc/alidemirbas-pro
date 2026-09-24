@@ -18199,74 +18199,68 @@
       "id": "CON-272",
       "slug": "contactability-repair",
       "category": "consent",
-      "goal": "delivery-confirmation",
+      "goal": "consent-permission",
       "channels": [
         "in-app",
         "sms",
         "email"
       ],
-      "name": "Contact point unreachable → alternate route → corrected or suppressed",
-      "shortName": "Contact Recovery",
-      "purpose": "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
+      "name": "Channel permission closed → ask on an open route → reopened or left closed",
+      "shortName": "Permission Reopen",
+      "purpose": "Win a closed channel's permission back by asking through a route that is still open, without ever contacting the closed channel itself or mistaking a technical fix for a fresh grant.",
       "entity": {
-        "scope": "the person plus the one contact point that failed - this address, this number, this token",
-        "note": "The failure belongs to the destination, not to the person and not to the channel class. A second destination failing is its own instance and gets its own repair cycle.",
+        "scope": "the person plus the one channel whose permission is closed",
+        "note": "The closure belongs to the channel, not to the person's whole contactability. A second channel closing is its own instance and gets its own repair cycle.",
         "instanceKey": [
-          "contact_point_id",
-          "person_id"
+          "person_id",
+          "channel"
         ],
         "concurrency": "one-active-per-key"
       },
       "distinctFrom": [
         {
+          "journey": "CON-35",
+          "because": "CON-35 enforces a permission change the moment it is recorded, in either direction, and propagates it to the dependent systems. This journey only ever runs after a narrowing CON-35 has already enforced - it is the one attempt to win the channel back, never the enforcement itself."
+        },
+        {
           "journey": "CON-36",
-          "because": "CON-36 holds reachability per destination and decides what is suppressed. This journey is the single request to the person that could change that, and it only ever runs on a route CON-36 has already found healthy and permitted."
+          "because": "CON-36 holds reachability per destination - whether a route works at all. This journey runs only on routes CON-36 has already found healthy; what it repairs is permission, not deliverability."
         },
         {
           "journey": "CON-38",
-          "because": "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed."
-        },
-        {
-          "journey": "CON-264",
-          "because": "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart."
+          "because": "CON-38 governs suppression by reason and holds it once decided. This journey is the single request that could reverse a permission-based suppression, and it asks once before standing down rather than deciding anything itself."
         },
         {
           "journey": "CON-300",
-          "because": "CON-300 decides whether a working route should keep being used at all, which is a permission question. This journey is about a route that has stopped working, which is a technical one - and a broken destination is a common reason nothing was engaged with, which is why this journey takes precedence in the contactability-question group and CON-300 stands down while a repair is open."
+          "because": "CON-300 reads sustained silence across channels as a reason to end marketing contact. This journey runs the moment one channel's permission closes, before any conclusion is drawn from the silence on it - which is why it outranks CON-300 in the contactability-question group and CON-300 stands down while a repair is open."
         }
       ],
-      "objective": "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
+      "objective": "Win a closed channel's permission back by asking through a route that is still open, without ever contacting the closed channel itself or mistaking a technical fix for a fresh grant.",
       "eligibility": [
-        "a permanent delivery failure or invalid-destination result recorded against one specific contact point",
-        "a failure class that marks the destination unusable rather than temporarily unavailable",
-        "no instance of this journey is already open for the the person plus the one contact point that failed",
+        "a recorded permission closure on one specific channel, while at least one other channel remains open or the person is expected to sign in",
+        "no instance of this journey is already open for the person plus the one channel whose permission is closed",
         "hard gates (GLB-31) allow communication for this purpose"
       ],
       "suppressions": [
         {
           "id": "s.g1",
           "label": "CANONICAL_RULE",
-          "text": "Undeliverable is not opted out, and nothing here changes what may be sent."
+          "text": "A closed permission is not a dead route, and nothing here is sent to the channel being repaired."
         },
         {
           "id": "s.g2",
           "label": "CANONICAL_RULE",
-          "text": "The repair request never goes to the destination being repaired."
+          "text": "An available open channel is not itself permission to use it for anything beyond this one request."
         },
         {
           "id": "s.g3",
           "label": "CANONICAL_RULE",
-          "text": "An available alternative route is not permission to use it. Availability is the easiest thing to check and the least meaningful."
+          "text": "One repair cycle per closed channel. A permission asked twice over the same closure is asked once too often."
         },
         {
           "id": "s.g4",
           "label": "CANONICAL_RULE",
-          "text": "One repair cycle per destination. A dead route asked twice is still dead and the second ask is paid for in delivery reputation."
-        },
-        {
-          "id": "s.g5",
-          "label": "CANONICAL_RULE",
-          "text": "A corrected value is verified before the destination is treated as usable, and nothing held is replayed on it."
+          "text": "No open channel and no expected session leaves nothing to ask through; the closure stands until a channel opens."
         }
       ],
       "contact": {
@@ -18288,7 +18282,7 @@
         },
         "cooldown": {
           "key": "contactability_repair.cooldown",
-          "rule": "This journey is per the person plus the one contact point that failed; a later instance concerns a different the person plus the one contact point that failed and no cooldown applies between them.",
+          "rule": "This journey is per the person plus the one channel whose permission is closed; a later closure on a different channel is its own instance and no cooldown applies between them.",
           "default": {
             "value": "none",
             "confidence": "high",
@@ -18300,7 +18294,7 @@
         "competition": {
           "exclusionGroup": "contactability-question",
           "scope": "person",
-          "precedence": "highest in the contactability-question group - a route that has actually stopped working has to be repaired before any conclusion is drawn from the silence on it, so while this repair currently holds the person the unengaged sunset stands down rather than reading a dead destination as disinterest",
+          "precedence": "highest in the contactability-question group - a channel that just closed has to be given the one chance to reopen before any conclusion is drawn from the silence on it, so while this repair currently holds the person the unengaged sunset stands down rather than reading a closed permission as disinterest",
           "onLoss": "paused"
         }
       },
@@ -18311,21 +18305,21 @@
             "channels": [
               "in-app"
             ],
-            "when": "the person is active in the product and the action is taken there"
+            "when": "the person is active in the product, which can carry the request regardless of which channel closed"
           },
           {
             "role": "urgent",
             "channels": [
               "sms"
             ],
-            "when": "the failed destination was the email address and a permitted, deliverable phone number survives - the surviving-route substitute, not a time-bound urgency"
+            "when": "no session is expected soon, email permission is closed, and SMS permission is open"
           },
           {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the message has to be kept and survive until the person can act on it, including where the failed destination was the phone number and a permitted, deliverable email address survives"
+            "when": "no session is expected soon, SMS permission is closed, and email permission is open"
           }
         ],
         "fallback": "same-role-other-channel",
@@ -18337,66 +18331,66 @@
           {
             "id": "t1",
             "stage": "prompt-in-app",
-            "action": "a.prompt-in-app",
+            "action": "a.ask-inapp",
             "prerequisites": [
               "c.route"
             ],
-            "purpose": "Ask for a corrected destination where the person already is, naming which one stopped working and what is being held because of it.",
+            "purpose": "Ask where the person already is to reopen the closed channel, naming what is being missed and linking to the preference centre.",
             "channelRoles": [
               "in-session"
             ],
             "mandatory": true,
             "label": "CANONICAL_RULE",
             "destination": {
-              "target": "contact-point-update",
-              "boundTo": "contact_point_id"
+              "target": "preference-centre",
+              "boundTo": "person_id"
             }
           },
           {
             "id": "t2a",
             "stage": "prompt-email",
-            "action": "a.prompt-email",
+            "action": "a.ask-email",
             "prerequisites": [
               "c.route"
             ],
-            "purpose": "Ask for a corrected destination on the surviving address, naming the phone number that failed.",
+            "purpose": "Ask on the surviving address to reopen the closed channel, naming what is being missed and linking to the preference centre.",
             "channelRoles": [
               "persistent"
             ],
             "mandatory": true,
             "label": "CANONICAL_RULE",
             "destination": {
-              "target": "contact-point-update",
-              "boundTo": "contact_point_id"
+              "target": "preference-centre",
+              "boundTo": "person_id"
             }
           },
           {
             "id": "t2b",
             "stage": "prompt-sms",
-            "action": "a.prompt-sms",
+            "action": "a.ask-sms",
             "prerequisites": [
               "c.route"
             ],
-            "purpose": "Ask for a corrected destination on the surviving phone number, naming the address that failed.",
+            "purpose": "Ask on the surviving number to reopen the closed channel, naming what is being missed and linking to the preference centre.",
             "channelRoles": [
               "urgent"
             ],
             "mandatory": true,
             "label": "CANONICAL_RULE",
             "destination": {
-              "target": "contact-point-update",
-              "boundTo": "contact_point_id"
+              "target": "preference-centre",
+              "boundTo": "person_id"
             }
           },
           {
             "id": "t3",
-            "stage": "confirm",
-            "action": "a.confirm",
-            "gatedBy": "w.corrected",
+            "stage": "remind",
+            "action": "a.remind",
+            "gatedBy": "w.reopen",
             "prerequisites": [
               "c.outcome"
             ],
-            "purpose": "Confirm on the same route recorded at c.route that carried the repair request - never a second route - that the replacement is now in use, and that this changed where things go and not what may be sent.",
+            "purpose": "Send one last reminder on the same route that carried the original ask, that the channel's permission is still closed.",
             "channelRoles": [
               "in-session",
               "persistent",
@@ -18410,35 +18404,35 @@
           "s.g1",
           "s.g2",
           "s.g3",
-          "s.g4",
-          "s.g5"
+          "s.g4"
         ]
       },
       "implementation": {
         "attributes": {
           "required": [
-            "contact_point_id",
             "person_id",
-            "failure_class",
-            "failed_at",
-            "surviving_routes",
-            "held_messages"
+            "channel",
+            "closed_at",
+            "permission_log"
           ],
-          "optional": []
+          "optional": [
+            "open_channels",
+            "has_active_app_session"
+          ]
         }
       },
       "measurement": {
         "journeyOutcome": {
           "type": "exit",
           "refs": [
-            "x.dark",
-            "x.repaired",
-            "x.recovered",
-            "x.suppressed"
+            "x.reopened",
+            "x.stayed-closed",
+            "x.already-open",
+            "x.unreachable"
           ]
         },
         "businessOutcome": {
-          "event": "replacement_destination_verified",
+          "event": "explicit_permission_decision_received",
           "unit": "instance",
           "observationScope": {
             "type": "self"
@@ -18464,32 +18458,30 @@
       },
       "discovery": {
         "aliases": [
-          "contact recovery",
-          "bounce repair",
-          "undeliverable contact fix",
-          "dead address recovery",
-          "contact point repair"
+          "permission reopen",
+          "channel opt back in",
+          "closed channel recovery",
+          "re-permission request",
+          "win-back permission"
         ],
         "useCases": [
-          "a hard bounce repaired by asking on a route that still works",
-          "a dead push token replaced without touching what may be sent"
+          "email permission closed while SMS is still open, asked back via SMS",
+          "both marketing channels closed while the app is still used, asked back in-app"
         ]
       },
-      "entry": "t.dead",
+      "entry": "t.closed",
       "nodes": [
         {
-          "id": "t.dead",
+          "id": "t.closed",
           "kind": "trigger",
-          "event": "contact_point_recorded_undeliverable",
+          "event": "authoritative_permission_change",
           "evidence": {
             "requires": [
-              "a permanent delivery failure or invalid-destination result recorded against one specific contact point",
-              "a failure class that marks the destination unusable rather than temporarily unavailable"
+              "a recorded transition narrowing one channel's permission to closed"
             ],
             "insufficientAlone": [
-              "a single soft failure or a full mailbox",
-              "a message that went unopened",
-              "an opt-out, which is a permission fact and says nothing about the route"
+              "a technical delivery failure on a channel whose permission is still open, which is a reachability question (CON-36's job)",
+              "a permission change that leaves no channel newly closed"
             ],
             "source": "authoritative"
           },
@@ -18498,143 +18490,197 @@
         {
           "id": "c.route",
           "kind": "condition",
-          "asks": "What can carry the repair request without using the broken destination?",
+          "asks": "Which channels are open, and is the app active?",
           "branches": [
             {
               "label": "Signed in",
-              "when": "the person signs in, so the request can wait on the surface they already use",
-              "to": "a.prompt-in-app"
+              "when": "the person is active in the product, which can carry the request regardless of which channel closed",
+              "to": "a.ask-inapp"
             },
             {
               "label": "Email survives",
-              "when": "no session is expected soon, the failed destination was the phone number, and the email address is both deliverable and permitted for a service notice of this kind",
-              "to": "a.prompt-email"
+              "when": "no session is expected soon, SMS permission is closed, and email permission is open",
+              "to": "a.ask-email"
             },
             {
               "label": "Phone survives",
-              "when": "no session is expected soon, the failed destination was the email address, and a permitted, deliverable phone number survives",
-              "to": "a.prompt-sms"
+              "when": "no session is expected soon, email permission is closed, and SMS permission is open",
+              "to": "a.ask-sms"
             },
             {
-              "label": "Nothing left",
-              "when": "no other destination is both working and permitted",
-              "to": "x.dark"
+              "label": "Already open elsewhere",
+              "when": "a fresh read shows another channel besides the one that just closed is already open, and the person is not expected to sign in soon",
+              "to": "x.already-open"
+            },
+            {
+              "label": "Nothing open",
+              "when": "no channel is open and no session is expected soon",
+              "to": "x.unreachable"
             }
           ]
         },
         {
-          "id": "a.prompt-in-app",
+          "id": "a.ask-inapp",
           "kind": "action",
-          "does": "Ask for a corrected destination where the person already is, naming which one stopped working and what is being held because of it. Seeing the request somewhere other than the failed route is what makes it credible rather than suspicious",
-          "next": "w.corrected",
+          "does": "Show the in-app permission screen for the closed channel, naming what is being missed and linking to the preference centre. Seeing the request somewhere other than the closed channel is what makes it answerable",
+          "next": "w.reopen",
           "execution": "communication",
-          "idempotencyKey": "contact_point_id + person_id + a.prompt-in-app"
+          "idempotencyKey": "person_id + channel + a.ask-inapp"
         },
         {
-          "id": "a.prompt-email",
+          "id": "a.ask-email",
           "kind": "action",
-          "does": "Ask for a corrected destination on the surviving address, naming the phone number that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
-          "next": "w.corrected",
+          "does": "Ask on the surviving email address to reopen SMS permission, naming what is being missed and linking to the preference centre. Nothing is sent to the closed channel to ask it to reopen itself",
+          "next": "w.reopen",
           "execution": "communication",
-          "idempotencyKey": "contact_point_id + person_id + a.prompt-email"
+          "idempotencyKey": "person_id + channel + a.ask-email"
         },
         {
-          "id": "a.prompt-sms",
+          "id": "a.ask-sms",
           "kind": "action",
-          "does": "Ask for a corrected destination on the surviving phone number, naming the address that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
-          "next": "w.corrected",
+          "does": "Ask on the surviving phone number to reopen email permission, naming what is being missed and linking to the preference centre. Nothing is sent to the closed channel to ask it to reopen itself",
+          "next": "w.reopen",
           "execution": "communication",
-          "idempotencyKey": "contact_point_id + person_id + a.prompt-sms"
+          "idempotencyKey": "person_id + channel + a.ask-sms"
         },
         {
-          "id": "x.dark",
+          "id": "x.already-open",
           "kind": "exit",
-          "state": "no working permitted route; the destination stays suppressed",
+          "state": "another channel was already open; nothing needed repairing",
           "terminal": false,
-          "reEntry": "if any route becomes deliverable and permitted, the repair request runs from there",
+          "reEntry": "a later closure on any channel opens its own instance",
+          "class": "no-action"
+        },
+        {
+          "id": "x.unreachable",
+          "kind": "exit",
+          "state": "no open channel and no session to carry the request; the closure stands",
+          "terminal": false,
+          "reEntry": "if any channel becomes open, or a session starts, the repair request runs from there",
           "class": "suppression"
         },
         {
-          "id": "w.corrected",
+          "id": "w.reopen",
           "kind": "wait",
           "until": [
-            "replacement_destination_verified",
-            "destination_deliverable_again",
-            "destination_removed"
+            "explicit_permission_decision_received"
           ],
           "onEvent": "c.outcome",
           "timeout": {
             "after": {
-              "key": "contactability_repair.corrected",
-              "rule": "The single repair cycle allowed for this destination.",
-              "class": "observation-window",
-              "required": true
+              "key": "contactability_repair.reopen_window",
+              "rule": "The first bounded window for a decision on the surviving route; where the ask ran in-app rather than by email or SMS, this window instead runs to the person's next expected session.",
+              "class": "response-window",
+              "default": {
+                "value": "2-3 days",
+                "confidence": "low",
+                "basis": "example-only",
+                "applicableWhen": "the ask went out by email or SMS",
+                "avoidWhen": "the ask went out in-app, where the window is the person's own next session rather than a fixed clock"
+              },
+              "required": false
             },
-            "reason": "repair attempts are bounded - a destination not corrected inside its cycle stays suppressed rather than being retried blind against a route already known to be dead",
+            "reason": "a closed channel asked about once and never checked on again is a request that was never really made",
             "relativeTo": "previous-touch"
           },
-          "onTimeout": "x.suppressed",
+          "onTimeout": "c.outcome",
           "windowExtendsOnEngagement": false,
-          "recheck": "the the person plus the one contact point that failed re-read from the system of record before acting on the timeout"
+          "recheck": "the person's permission state for the closed channel re-read from the system of record before acting on the timeout"
         },
         {
           "id": "c.outcome",
           "kind": "condition",
-          "asks": "What ended the wait?",
+          "asks": "Did permission for the closed channel reopen?",
           "branches": [
             {
-              "label": "Replaced",
-              "when": "a new destination was supplied and has verified as reachable",
-              "to": "a.confirm"
+              "label": "Reopened",
+              "when": "the closed channel's permission is now open",
+              "to": "x.reopened"
             },
             {
-              "label": "Recovered",
-              "when": "the original destination is deliverable again on its own evidence",
-              "to": "x.recovered"
+              "label": "Still closed",
+              "when": "the closed channel's permission is still closed",
+              "to": "a.remind"
             }
           ]
         },
         {
-          "id": "a.confirm",
+          "id": "a.remind",
           "kind": "action",
-          "does": "Confirm on the same route that carried the repair request - never a second route - that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
-          "next": "x.repaired",
+          "does": "Send one last reminder on the same route that carried the original ask - never a second route - that the channel's permission is still closed, linking to the preference centre",
+          "next": "w.reopen2",
           "execution": "communication",
-          "idempotencyKey": "contact_point_id + person_id + a.confirm"
+          "idempotencyKey": "person_id + channel + a.remind"
         },
         {
-          "id": "x.repaired",
+          "id": "w.reopen2",
+          "kind": "wait",
+          "until": [
+            "explicit_permission_decision_received"
+          ],
+          "onEvent": "c.outcome2",
+          "timeout": {
+            "after": {
+              "key": "contactability_repair.reminder_window",
+              "rule": "The single reminder window allowed for this closure, shorter than the first because the ask has already been made once.",
+              "class": "response-window",
+              "default": {
+                "value": "1-2 days",
+                "confidence": "low",
+                "basis": "example-only",
+                "applicableWhen": "the reminder went out on the same route as the original ask",
+                "avoidWhen": "no route survives to carry a reminder"
+              },
+              "required": false
+            },
+            "reason": "the repair cycle is bounded - a closure not reversed inside it stays closed rather than being asked about indefinitely",
+            "relativeTo": "previous-touch"
+          },
+          "onTimeout": "c.outcome2",
+          "windowExtendsOnEngagement": false,
+          "recheck": "the person's permission state for the closed channel re-read from the system of record before acting on the timeout"
+        },
+        {
+          "id": "c.outcome2",
+          "kind": "condition",
+          "asks": "Did permission for the closed channel reopen?",
+          "branches": [
+            {
+              "label": "Reopened",
+              "when": "the closed channel's permission is now open",
+              "to": "x.reopened"
+            },
+            {
+              "label": "Still closed",
+              "when": "the closed channel's permission is still closed",
+              "to": "x.stayed-closed"
+            }
+          ]
+        },
+        {
+          "id": "x.reopened",
           "kind": "exit",
-          "state": "destination replaced and in use; permission unchanged",
+          "state": "permission for the closed channel is reopened; normal contact on it resumes",
           "terminal": false,
-          "reEntry": "a later failure on any destination is its own instance",
+          "reEntry": "a later closure on any channel is its own instance",
           "class": "success"
         },
         {
-          "id": "x.recovered",
+          "id": "x.stayed-closed",
           "kind": "exit",
-          "state": "original destination reachable again; nothing replayed",
+          "state": "the channel's permission stays closed after one repair cycle",
           "terminal": false,
-          "reEntry": "a further failure on the same destination re-enters here with a new repair cycle",
-          "class": "success"
-        },
-        {
-          "id": "x.suppressed",
-          "kind": "exit",
-          "state": "destination stays suppressed after one repair cycle",
-          "terminal": false,
-          "reEntry": "a corrected destination supplied later re-enters at confirmation, once it has verified",
+          "reEntry": "the person reopening it themselves later is a fresh grant, not a re-entry into this instance",
           "class": "suppression"
         }
       ],
       "guardrails": [
-        "Undeliverable is not opted out, and nothing here changes what may be sent.",
-        "The repair request never goes to the destination being repaired.",
-        "An available alternative route is not permission to use it. Availability is the easiest thing to check and the least meaningful.",
-        "One repair cycle per destination. A dead route asked twice is still dead and the second ask is paid for in delivery reputation.",
-        "A corrected value is verified before the destination is treated as usable, and nothing held is replayed on it."
+        "A closed permission is not a dead route, and nothing is sent to the channel being repaired.",
+        "An available open channel is not permission to use it for anything beyond this one request.",
+        "One repair cycle per closed channel. A permission asked twice over the same closure is asked once too often.",
+        "Reopening a channel changes where the closed permission stands, not what the person has agreed to receive elsewhere."
       ],
-      "reusableRule": "You cannot ask somebody to fix a broken route by sending the request down it."
+      "reusableRule": "A closed channel's permission should be asked back once, through a route that is still open, and never re-asked once that one attempt has run its course."
     },
     {
       "id": "CON-283",
@@ -18730,7 +18776,7 @@
         "competition": {
           "exclusionGroup": "contactability-question",
           "scope": "person",
-          "precedence": "above the unengaged sunset in the contactability-question group - somebody who has just chosen a cadence has answered the question the sunset would otherwise ask, so while this confirmation currently holds the person the sunset is suppressed for them; below a contact repair, which is fixing the route this confirmation would travel on",
+          "precedence": "above the unengaged sunset in the contactability-question group - somebody who has just chosen a cadence has answered the question the sunset would otherwise ask, so while this confirmation currently holds the person the sunset is suppressed for them; below a permission repair, which is trying to reopen the very channel this confirmation would travel on",
           "onLoss": "paused"
         }
       },
@@ -19055,7 +19101,7 @@
         {
           "id": "s.contest",
           "label": "CANONICAL_RULE",
-          "text": "A contact repair or a frequency change already running for this person outranks this journey in the contactability-question group; while either holds the person, this journey is suppressed for them rather than queued behind it (GLB-06). A route that broke is why nothing was engaged with, not evidence that nothing was wanted."
+          "text": "A permission repair or a frequency change already running for this person outranks this journey in the contactability-question group; while either holds the person, this journey is suppressed for them rather than queued behind it (GLB-06). A channel whose permission just closed is why nothing was engaged with there, not evidence that nothing was wanted."
         },
         {
           "id": "s.bounded",
@@ -19089,7 +19135,7 @@
         "competition": {
           "exclusionGroup": "contactability-question",
           "scope": "person",
-          "precedence": "lowest in the contactability-question group - a contact repair is fixing a route that broke and a frequency confirmation is answering a cadence the person themselves chose, and both are already answering the question this journey would otherwise ask over the top of; when either currently holds the person this journey is suppressed for them rather than queued behind it",
+          "precedence": "lowest in the contactability-question group - a permission repair is trying to reopen a channel that just closed and a frequency confirmation is answering a cadence the person themselves chose, and both are already answering the question this journey would otherwise ask over the top of; when either currently holds the person this journey is suppressed for them rather than queued behind it",
           "onLoss": "suppressed"
         }
       },
@@ -19650,7 +19696,7 @@
         },
         {
           "journey": "CON-272",
-          "because": "CON-272 repairs a destination that broke, which is a technical fact about a route. This decides whether a route that works should keep being used, which is a permission question - and a route CON-272 is still repairing is exactly why nothing was engaged with, so this journey stands down while that one holds the person."
+          "because": "CON-272 asks to reopen a channel whose permission just closed, which is a fresh, specific request. This decides whether a route that is already open should keep being used at all, which is a standing-silence question - and a channel CON-272 is still trying to reopen is exactly why nothing was engaged with there, so this journey stands down while that one holds the person."
         },
         {
           "journey": "CON-283",

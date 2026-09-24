@@ -366,6 +366,19 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 298 journeys / 3955 nodes (2026-09-24). CON-272 was
+// rebuilt in place, same id and slug, to match a reference image's
+// permission-reopen shape: it now fires on a channel's permission closing
+// (authoritative_permission_change) rather than on a dead destination, asks
+// to reopen it on whichever other channel or in-app surface is still open,
+// reminds once more on the same route, then gives up. Its old content
+// (repairing an undeliverable destination) had no real inbound handoffs.
+// It stays highest-precedence in the contactability-question group; CON-283
+// and CON-300's own precedence prose, which described the old "route that
+// broke" framing, was corrected to describe a permission repair instead -
+// same ordering, accurate reason. 12 -> 14 nodes on CON-272, +2 net. Rules
+// (423), global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 298 journeys / 3953 nodes (2026-09-24). DOC-214 was
 // rebuilt in place, same id and slug, to match a reference image's
 // missing-document-collection shape - notice, two escalating reminders
@@ -500,9 +513,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (298 journeys / 3953 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (298 journeys / 3955 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 298 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3953 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3955 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
