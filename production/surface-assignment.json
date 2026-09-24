@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 284,
-    "customer": 135,
+    "journeys": 283,
+    "customer": 134,
     "customer-silent": 66,
-    "customer-communicating": 69,
+    "customer-communicating": 68,
     "mechanism": 25,
     "operational": 124
   },
@@ -317,17 +317,6 @@
       "silent": true,
       "excludedFromPublic": false,
       "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
-    },
-    {
-      "id": "RET-28",
-      "shortName": "Cancellation Save",
-      "category": "retention",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "RET-29",

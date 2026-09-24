@@ -19,8 +19,8 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
    health score name what moved it before anyone is contacted. RET-24 makes
    intervention scale with evidence instead of with account value. RET-27 is
    the whole category in one journey: a good sign is the start of recovery,
-   not recovery. RET-28 and RET-29 are the two sides of the intent/completion
-   line.
+   not recovery. RET-29 is the completion side of the intent/completion line
+   that RET-28 used to share with it.
 
    RET-25 is not here. Evaluating a risk signal is a risk and policy
    responsibility rather than a retention one, and it opened on the same event
@@ -31,15 +31,23 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
    RET-23's h.service branch, its one real inbound handoff, now hands a
    service failure straight to external:operational-resolution instead.
 
-   RET-30 is not here either (retired 2026-09-24, site owner's request -
-   "kaldır"). It closed a retention offer on its actual outcome - accepted,
-   declined, applied or not - rather than on the customer's answer alone.
-   Its one real inbound handoff, RET-28's h.intervention (an alternative
-   offered at the cancellation decision point), now routes straight into
-   RET-28's own w.decision instead: the same wait that already watches for
-   cancellation_confirmed or cancellation_flow_abandoned on the branch where
-   no genuine alternative existed, so an offered alternative is tracked by
-   the mechanism RET-28 already has for it rather than by a second journey.
+   RET-30 was retired the same day for the same reason. It closed a
+   retention offer on its actual outcome - accepted, declined, applied or
+   not - rather than on the customer's answer alone. Its one real inbound
+   handoff, an alternative offered at the cancellation decision point, was
+   absorbed into RET-28's own w.decision before RET-28 itself was retired
+   (below).
+
+   RET-28 is not here either (retired 2026-09-24, site owner's request -
+   "kaldır"). It was the cancellation-intent decision point: the moment
+   someone declares they want to leave, before the decision is final. It had
+   no real inbound handoffs of its own. RET-24's h.cancellation, its only
+   real caller, now exits as x.cancellation-in-motion instead: cancellation
+   intent already on record needs no separate retention track opened.
+   RET-29 remains as the completion side of the line RET-28 used to draw
+   with it; RET-32's lapse-eligibility window still excludes an account
+   still inside its own cancellation save window and cooldown, described in
+   RET-32's own terms rather than by naming the journey that used to own it.
 
    Almost everything here can conclude that nothing should be sent. That is
    not a gap in the category, it is most of the point of it. */
@@ -1067,7 +1075,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "x.contended",
           "x.monitored",
           "x.recovered",
-          "h.cancellation",
+          "x.cancellation-in-motion",
           "h.resolve-first",
           "h.human"
         ]
@@ -1125,7 +1133,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Already cancelling",
             when: "a cancellation has been requested or a cancel flow entered",
-            to: "h.cancellation",
+            to: "x.cancellation-in-motion",
           },
           {
             label: "No stated intent",
@@ -1135,16 +1143,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.cancellation",
-        kind: "handoff",
-        to: "RET-28",
-        on: "cancellation intent already on record when risk escalates",
-        carries: [
-          "the risk evidence, which is context for the conversation rather than a second conversation",
-        ],
-        suppresses: [
-          "any separate retention track for this relationship while the cancellation decision is live",
-        ],
+        id: "x.cancellation-in-motion",
+        kind: "exit",
+        state: "cancellation intent already on record; no separate retention track opened",
+        terminal: false,
+        reEntry:
+          "a lapsed or abandoned cancellation, or a fresh risk signal once the decision resolves, re-opens this evaluation from current evidence",
+        class: "no-action",
       },
       {
         id: "a.evidence",
@@ -1221,7 +1226,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.check-in-email",
         kind: "action",
-        does: "Send a check-in naming what we can see going wrong, with a route to a person, on the route that reaches someone who is not in the product. Carries no offer and no discount; offers belong to RET-28",
+        does: "Send a check-in naming what we can see going wrong, with a route to a person, on the route that reaches someone who is not in the product. Carries no offer and no discount; this journey never makes one",
         next: "w.response",
         execution: "communication",
         idempotencyKey: "risk_episode_id + account_id + a.check-in-email",
@@ -1229,7 +1234,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.check-in-inapp",
         kind: "action",
-        does: "Send a check-in naming what we can see going wrong, with a route to a person, beside the thing that is failing, where the person still is. Carries no offer and no discount; offers belong to RET-28",
+        does: "Send a check-in naming what we can see going wrong, with a route to a person, beside the thing that is failing, where the person still is. Carries no offer and no discount; this journey never makes one",
         next: "w.response",
         execution: "communication",
         idempotencyKey: "risk_episode_id + account_id + a.check-in-inapp",
@@ -1268,7 +1273,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             label: "Cancellation declared",
             when: "a cancellation was requested, or a cancel flow entered, while waiting for a response to the check-in",
             observes: "explicit_cancellation_intent",
-            to: "h.cancellation",
+            to: "x.cancellation-in-motion",
           },
         ],
       },
@@ -1351,8 +1356,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "A high-value customer is not automatically at high risk. Value is what is at stake, not the probability of losing it.",
       "A risk score is not the outcome. It orders attention; it does not decide anything.",
       "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one.",
-      "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim once, before the check-in is sent, rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
-      "The check-in carries no offer and no discount - offers belong to RET-28, the cancellation save. This journey hands nobody off on the strength of a bare check-in: a reply that neither recovers the relationship nor declares cancellation is additional evidence, read by c.human exactly as a silent timeout would be, never manufactured into a delivered intervention.",
+      "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim once, before the check-in is sent, rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender: cancellation intent already expressed.",
+      "The check-in carries no offer and no discount - this journey never makes one. This journey hands nobody off on the strength of a bare check-in: a reply that neither recovers the relationship nor declares cancellation is additional evidence, read by c.human exactly as a silent timeout would be, never manufactured into a delivered intervention.",
     ],
     reusableRule:
       "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",
@@ -1559,480 +1564,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "A positive signal begins recovery observation; stable recovery requires evidence that the improvement persists.",
-  },
-
-  /* ------------------------------------------------------------ RET-28 */
-  {
-    id: "RET-28",
-    slug: "cancellation-intent-decision-point",
-    category: "retention",
-    goal: "cancellation-termination",
-    channels: ["email", "in-app"],
-    name: "Cancellation intent → understand state → save or proceed",
-    shortName: "Cancellation Save",
-    purpose:
-      "Treat stated intent to leave as a decision point where a genuinely relevant alternative may be offered, and never as an obstacle course.",
-    entity: {
-      scope: "the subscription, membership or service relationship being cancelled",
-      note: "Intent is against one relationship. Cancelling one subscription says nothing about the others an account holds.",
-      instanceKey: [
-        "person_id",
-        "relationship_id",
-        "intent_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "RET-29",
-        because:
-          "This runs while the decision is still reversible and the person is still deciding. RET-29 runs after it is made, and the two must never share an event.",
-      },
-      {
-        journey: "RET-32",
-        because:
-          "This runs at the decision point, while the relationship is still active and the intent is still reversible. RET-32 runs only after the relationship has actually lapsed - the two never hold the same person at once.",
-      },
-    ],
-    objective: "At the moment a person declares they want to cancel, learn why if that is useful, offer one genuine alternative if one matches the reason, and let them decide - with the cancellation path fully open at every step.",
-    eligibility: [
-      "an explicit cancellation intent is declared by the person - in the product, by message or by phone",
-      "the relationship is active and cancellable by this person",
-      "no save instance is already open for this intent",
-      "hard gates (GLB-31) permit service communication"
-    ],
-    suppressions: [
-      {
-        "id": "s.path",
-        "label": "CANONICAL_RULE",
-        "text": "The cancellation path is never obstructed: the question and the offer sit beside it, never in front of it, and no contest with another journey delays the cancellation itself."
-      },
-      {
-        "id": "s.once",
-        "label": "CANONICAL_RULE",
-        "text": "The reason is asked once and the alternative is offered once; a second ask or a second offer is pressure on a decision already being made."
-      },
-      {
-        "id": "s.no-genuine",
-        "label": "CANONICAL_RULE",
-        "text": "No offer is made where nothing genuinely matches the reason; the person proceeds to decide without one."
-      },
-      {
-        "id": "s.decided",
-        "label": "CANONICAL_RULE",
-        "text": "A confirmed cancellation goes to execution and nothing further is sent by this journey; an abandoned flow leaves the relationship unchanged and silent."
-      },
-      {
-        "id": "s.contest",
-        "label": "CANONICAL_RULE",
-        "text": "A declared intent outranks inferred risk on the same account; only the offer step yields to an open issue under human ownership (GLB-06)."
-      }
-    ],
-    contact: {
-      "defaultPriority": "retention",
-      "pressureClass": "lifecycle",
-      "localCap": {
-        "value": {
-          "key": "cancellation_save.touches",
-          "rule": "One question and one offer at most, both at the decision point; the plan has nothing after the decision.",
-          "default": {
-            "value": 2,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "the graph reaches at most one ask and one offer per intent"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "cancellation_save.cooldown",
-        "rule": "The same intent re-expressed inside the intent window is the same instance; a new intent after a lapsed one is a new instance and the question is not repeated inside the cooldown.",
-        "class": "cooldown",
-        "default": {
-          "value": {
-            "min": "30 days",
-            "max": "90 days"
-          },
-          "confidence": "low",
-          "basis": "example-only"
-        },
-        "required": false
-      },
-      "competition": {
-        "exclusionGroup": "retention-outreach",
-        "scope": "account",
-        "precedence": "above risk-driven escalation and offer follow-up on the same account - a declared intent to leave outranks an inferred risk. Only the offer step ever yields; the cancellation path itself is never obstructed by any contest",
-        "onLoss": "suppressed"
-      }
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the intent was declared inside the product - the question and the offer are put beside the cancellation step the person is on"
-        },
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the intent was declared outside the product, by message or by phone, and the question or offer has to reach the person where they are"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "conditional-routing",
-      "touches": [
-        {
-          "id": "t-ask",
-          "stage": "reason-ask",
-          "action": "a.ask",
-          "prerequisites": [
-            "c.surface",
-            "c.reason"
-          ],
-          "purpose": "Ask once why, with the cancellation path fully open beside the question. Reached only where the intent was declared inside the product - asking someone who cancelled by phone is not a friction judgement, it is impossible.",
-          "destination": { "target": "reason-question-beside-cancel-step", "boundTo": "intent_id", "mustNotClaim": ["that answering is required to cancel"] },
-          "channelRoles": [
-            "in-session"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t-offer",
-          "stage": "alternative-offer",
-          "action": "a.offer",
-          "prerequisites": [
-            "c.resolution"
-          ],
-          "purpose": "Offer the one alternative that matches the reason, once, alongside an unobstructed route to continue cancelling. The channel is the surface the intent arrived on, chosen once at c.surface and inherited here - never re-decided, never both at once.",
-          "channelRoles": [
-            "in-session",
-            "persistent"
-          ],
-          "destination": {
-            "target": "alternative-with-cancel-route",
-            "boundTo": "intent_id",
-            "mustNotClaim": [
-              "that cancelling is harder than it is",
-              "an alternative that does not match the reason"
-            ]
-          },
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.path",
-        "s.once",
-        "s.no-genuine",
-        "s.decided",
-        "s.contest"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "person_id",
-          "relationship_id",
-          "intent_id",
-          "declared_at",
-          "declared_via",
-          "holdings",
-          "effective_date_if_cancelled"
-        ],
-        "optional": [
-          "declared_reason",
-          "alternatives_catalogue",
-          "has_active_session"
-        ]
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "h.execute",
-          "x.lapsed"
-        ]
-      },
-      "businessOutcome": {
-        "event": "cancellation_flow_abandoned",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "pre-post"
-      },
-      "secondary": [
-        "cancellation_reason_given"
-      ],
-      "guardrails": [
-        "complaint",
-        "cancel_path_obstructed",
-        "second_offer_sent",
-        "support_contact_within_24h"
-      ],
-      "operational": [
-        "intent_volume",
-        "reason_asked_rate",
-        "reason_given_rate",
-        "offer_rate",
-        "decision_distribution"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "cancellation save",
-        "cancel flow",
-        "churn prevention (declared intent)",
-        "save offer",
-        "cancellation intercept",
-        "exit survey"
-      ],
-      "useCases": [
-        "a subscriber who clicks cancel and is asked once why",
-        "a member who tells support they are leaving and is offered the one alternative that fits"
-      ]
-    },
-    entry: "t.intent",
-    nodes: [
-      {
-        id: "t.intent",
-        kind: "trigger",
-        event: "explicit_cancellation_intent",
-        evidence: {
-          requires: [
-            "an explicit act: a cancel flow entered, a cancellation requested while still reversible, or a cancellation asked for through a person",
-          ],
-          insufficientAlone: [
-            "viewing the billing page",
-            "a pricing question to support",
-            "declining usage, which is a signal about risk and not a statement of intent",
-          ],
-          source: "declared",
-        },
-        next: "a.context",
-      },
-      {
-        id: "a.context",
-        kind: "action",
-        does: "Read what they currently hold, what cancelling would end, and when it would take effect - so anything said next is about their actual relationship rather than a generic one",
-        next: "c.surface",
-      },
-      {
-        id: "c.surface",
-        kind: "condition",
-        asks: "Where was the cancellation intent declared?",
-        branches: [
-          {
-            label: "In the cancel flow",
-            when: "the intent was declared inside the product, in the cancellation flow itself",
-            observes: "intent record, intake route",
-            to: "c.reason",
-          },
-          {
-            label: "Through a person / off product",
-            when: "the intent was declared to a person - by message, by phone, or through support - and not inside the product",
-            observes: "intent record, intake route",
-            to: "a.no-reason",
-          },
-        ],
-      },
-      {
-        id: "c.reason",
-        kind: "condition",
-        asks: "Is a declared reason available?",
-        branches: [
-          {
-            label: "Declared",
-            when: "the person has stated a reason",
-            to: "a.record-reason",
-          },
-          {
-            label: "Not declared",
-            when: "no reason has been given - and the cancel-flow surface means asking does not delay the cancellation",
-            to: "a.ask",
-          },
-        ],
-      },
-      {
-        id: "a.ask",
-        kind: "action",
-        does: "Ask once, with the cancellation path fully open beside the question. The question is never a step that has to be passed to leave - a reason obtained that way is not information, it is a toll",
-        next: "w.answer",
-        execution: "communication",
-        idempotencyKey: "intent_id + touch id",
-      },
-      {
-        id: "w.answer",
-        kind: "wait",
-        until: [
-          "cancellation_reason_given",
-          "cancellation_confirmed",
-          "cancellation_flow_abandoned"
-        ],
-        onEvent: "c.answered",
-        timeout: {
-          "after": {
-            "key": "cancellation_save.answer_window",
-            "rule": "The question is open only while the person is at the point where it was put; when they leave that point, unanswered is the answer.",
-            "class": "attribute-bound",
-            "default": {
-              "value": "the end of the session or conversation in which the question was put",
-              "confidence": "high",
-              "basis": "attribute-bound"
-            },
-            "required": false
-          },
-          "reason": "a reason is useful only while the choice it informs is still open - an unanswered question is itself an answer, and chasing it is what turns a question into a toll",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "a.no-reason",
-        windowExtendsOnEngagement: false,
-        recheck: "the intent re-read: still open, not confirmed, not abandoned",
-      },
-      {
-        id: "c.answered",
-        kind: "condition",
-        asks: "What came back?",
-        branches: [
-          { label: "A reason", when: "the person stated a reason", to: "a.record-reason" },
-          {
-            label: "They decided meanwhile",
-            when: "the cancellation was confirmed or abandoned while the question was still open",
-            to: "c.decision",
-          },
-        ],
-      },
-      {
-        id: "a.record-reason",
-        kind: "action",
-        does: "Record the reason with its source - price, low usage, unrealised value, a technical problem, a service issue, a temporary need, switching to something else, or another reason in their own words. A reason inferred later never overwrites one that was declared",
-        writes: [{ field: "cancellation_reason_history", mode: "append" }],
-        next: "c.resolution",
-        idempotencyKey: "intent_id + declared_reason",
-      },
-      {
-        id: "a.no-reason",
-        kind: "action",
-        does: "Proceed without a reason and record that none was given. An inferred reason may be stored, but never in the field that holds declared ones",
-        writes: [{ field: "cancellation_reason_history", mode: "append" }],
-        next: "c.resolution",
-      },
-      {
-        id: "c.resolution",
-        kind: "condition",
-        asks: "Does a legitimate resolution exist for this reason?",
-        branches: [
-          {
-            label: "A real alternative",
-            when: "something genuinely addresses the stated reason - technical help for a technical problem, a plan change or pause for cost or temporary need, education for unrealised value, service recovery for a service failure",
-            to: "a.offer",
-          },
-          {
-            label: "Nothing genuine",
-            when: "no alternative actually answers the reason, or no reason was given to answer",
-            to: "w.decision",
-          },
-        ],
-      },
-      {
-        id: "a.offer",
-        kind: "action",
-        does: "Offer the alternative that matches the reason, once, alongside an unobstructed path to continue cancelling. A discount appears only where the reason is price and policy supports it - offering one for a technical fault answers the wrong question and reveals that nobody read the reason",
-        next: "w.decision",
-        execution: "communication",
-        idempotencyKey: "intent_id + touch id",
-      },
-      {
-        id: "w.decision",
-        kind: "wait",
-        until: [
-          "cancellation_confirmed",
-          "cancellation_flow_abandoned"
-        ],
-        onEvent: "c.decision",
-        timeout: {
-          "after": {
-            "key": "cancellation_save.intent_window",
-            "rule": "An intent stays meaningful for a bounded period; past it, an unconfirmed cancellation is a lapsed intent and the relationship stands unchanged.",
-            "class": "observation-window",
-            "default": {
-              "value": {
-                "min": "7 days",
-                "max": "14 days"
-              },
-              "confidence": "low",
-              "basis": "example-only"
-            },
-            "required": false
-          },
-          "reason": "an intent neither confirmed nor withdrawn is not a standing invitation to keep raising it",
-          "relativeTo": "trigger"
-        },
-        onTimeout: "x.lapsed",
-        windowExtendsOnEngagement: false,
-        recheck: "the relationship re-read: still active, no cancellation executed elsewhere",
-      },
-      {
-        id: "c.decision",
-        kind: "condition",
-        asks: "What did they decide?",
-        branches: [
-          {
-            label: "Confirmed",
-            when: "the cancellation was carried through",
-            to: "h.execute",
-          },
-          {
-            label: "Abandoned",
-            when: "they left the flow with the relationship intact",
-            to: "x.lapsed",
-          },
-        ],
-      },
-      {
-        id: "h.execute",
-        kind: "handoff",
-        to: "SUB-167",
-        on: "cancellation confirmed by the customer",
-        carries: [
-          "the declared reason, which belongs to the record of why this relationship ended",
-          "what was offered, if anything, and what was declined",
-        ],
-      },
-      {
-        id: "x.lapsed",
-        kind: "exit",
-        state: "intent expressed, not carried through; relationship unchanged",
-        terminal: false,
-        reEntry:
-          "a fresh expression of intent opens a new episode, and the earlier one is context - repeatedly approaching cancellation is itself evidence RET-24 should be reading",
-        class: "timeout",
-      },
-    ],
-    guardrails: [
-      "Cancellation intent is not cancellation. Nothing downstream may treat this journey's trigger as an ending.",
-      "No dark patterns. Every alternative is offered beside an unobstructed path to leave, never in front of one.",
-      "A save attempt is bounded by the authoritative renewal or cancellation timing it is competing with, and never contradicts it. An offer that runs past the date it was trying to protect arrives after the decision it was for.",
-      "The cancellation path is never made longer to create room for a save attempt.",
-      "A discount only where the declared reason and policy both support it. Elsewhere it is an answer to a question nobody asked.",
-      "A reason is asked for at most once, and never as a condition of leaving.",
-    ],
-    reusableRule:
-      "Cancellation intent is a decision point where relevant alternatives may be offered without obstructing the user's ability to leave.",
   },
 
   /* ------------------------------------------------------------ RET-29 */
@@ -2942,7 +2473,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "objective": "Win back a formerly paying relationship with a plain invitation that speaks to why they left where that is known, with a long cooldown afterwards; never write to someone whose recorded reason or history says not to.",
     "entity": {
       "scope": "a formerly paying relationship that ended or went dormant under the company's lapse rule and has no active obligation, subscription, open complaint or process",
-      "note": "Distinct from a never-paid reactivation (ACT-20) by eligibility - there was a paid relationship - and from a cancellation in motion (RET-28) by timing: this journey starts only after the cancellation's own save window and cooldown have passed. One instance per relationship and lapse; a long cooldown separates instances.",
+      "note": "Distinct from a never-paid reactivation (ACT-20) by eligibility - there was a paid relationship - and from a cancellation still in motion by timing: this journey starts only after the cancellation's own save window and cooldown have passed. One instance per relationship and lapse; a long cooldown separates instances.",
       "instanceKey": [
         "person_id",
         "relationship_id"
@@ -2965,7 +2496,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.recent",
         "label": "CANONICAL_RULE",
-        "text": "A cancellation still inside its own save window or the cooldown after it is Cancellation Save's territory (RET-28); nothing is sent here."
+        "text": "A cancellation still inside its own save window or the cooldown after it is excluded by definition; nothing is sent here."
       },
       {
         "id": "s.reason",
@@ -3139,7 +2670,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "insufficientAlone": [
             "low usage on an active relationship - that is usage-drop territory, not a lapse",
-            "a cancellation still inside its save window - Cancellation Save (RET-28) owns it",
+            "a cancellation still inside its save window - that window and its cooldown own it, not this journey",
             "a lapse caused by an unpaid obligation that is still open - payment recovery owns it",
             "a trial or free relationship that never paid - reactivation (ACT-20) owns it"
           ],
@@ -3520,10 +3051,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "ACT-20",
         "because": "ACT-20 reactivates a relationship that never paid. This addresses one that did, which changes the eligibility, the economics and what the invitation may honestly say."
-      },
-      {
-        "journey": "RET-28",
-        "because": "RET-28 acts at the moment of cancellation intent, inside the cancellation's own window. This starts only after that window and its cooldown have passed."
       },
       {
         "journey": "CON-300",

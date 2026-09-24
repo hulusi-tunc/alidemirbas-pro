@@ -365,7 +365,7 @@ export type OrchestrationStrategy =
   | "human-escalation-ladder"
   /** One route per touch, chosen once by a declared signal (e.g. the surface
       an intent was declared on) and inherited by every later touch - never a
-      cascade through multiple channels for the same touch. See RET-28. */
+      cascade through multiple channels for the same touch. */
   | "conditional-routing";
 
 export interface Orchestration {

@@ -3248,11 +3248,6 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     },
     distinctFrom: [
       {
-        journey: "RET-28",
-        because:
-          "RET-28 runs before the decision and may offer an alternative. This starts once cancellation is confirmed, and never re-litigates it.",
-      },
-      {
         journey: "SUB-167",
         because:
           "SUB-167 establishes whether and when the relationship ends. This is what the customer is told across that window.",

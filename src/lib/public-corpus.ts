@@ -117,7 +117,15 @@ export const ARCHIVED_SURFACE = "operational" as const;
    Critical Data) was retired next, the site owner's request - it had
    no real inbound handoffs, only three prose distinctFrom rows
    (DEC-184, DOC-214, IDN-81) naming it, all removed - taking the
-   library to 50.
+   library to 50. RET-28 (Cancellation Intent Decision Point) was retired
+   next, the site owner's request - it had no real inbound handoffs;
+   RET-24's h.cancellation, its only real caller, became a genuine exit
+   (x.cancellation-in-motion) instead. RET-32's own suppression and
+   eligibility text, which named RET-28 as the owner of the still-inside-
+   its-save-window case, now states that exclusion in its own terms rather
+   than by naming a journey that no longer exists, and SUB's cancellation-
+   confirmation journey's one prose distinctFrom row naming RET-28 was
+   removed - taking the library to 49.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -178,8 +186,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "ACQ-289",
   // Activation, onboarding & early value - 5
   "ACT-13", "ACT-14", "ACT-17", "ACT-20",
-  // Engagement, retention & contactability - 10
-  "RET-24", "RET-28", "RET-31", "RET-32", "CON-272",
+  // Engagement, retention & contactability - 9
+  "RET-24", "RET-31", "RET-32", "CON-272",
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",
   // Feedback, advocacy & relationship signals - 2
   "FBK-41", "FBK-43",
