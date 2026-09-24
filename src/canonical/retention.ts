@@ -696,7 +696,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "h.adoption",
         kind: "handoff",
-        to: "ACT-18",
+        to: "ACT-17",
         on: "deterioration driven by adoption falling away",
         carries: ["the usage pattern that stopped", "the expected pattern it was measured against"],
       },
@@ -2679,7 +2679,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.contest",
         "label": "CANONICAL_RULE",
         "text":
-          "This journey yields to a declared cancellation intent (RET-28) and to a live risk case (RET-24) on the same account, and to any open issue under human ownership - all three outrank a follow-up on a retention offer already sent. It ranks above the adoption recovery nudge (ACT-18): a declined offer must be remembered for the whole cancellation episode, and a suppressed follow-up loses that record.",
+          "This journey yields to a declared cancellation intent (RET-28) and to a live risk case (RET-24) on the same account, and to any open issue under human ownership - all three outrank a follow-up on a retention offer already sent. A declined offer must be remembered for the whole cancellation episode, and a suppressed follow-up loses that record.",
       },
     ],
     contact: {
@@ -2708,7 +2708,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "retention-outreach",
         "scope": "account",
-        "precedence": "below the declared cancellation intent (RET-28), any live risk case (RET-24) and any open issue under human ownership on the same account; above the adoption recovery nudge (ACT-18) - an intervention the business actually delivered has an outcome to establish where a stall has only an inference, and a declined offer must be remembered for the whole cancellation episode before a generic nudge is allowed to reopen it",
+        "precedence": "below the declared cancellation intent (RET-28), any live risk case (RET-24) and any open issue under human ownership on the same account - a declined offer must be remembered for the whole cancellation episode before anything else is allowed to reopen it",
         "onLoss": "suppressed"
       }
     },

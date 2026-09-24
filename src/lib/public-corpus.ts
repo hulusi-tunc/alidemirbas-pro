@@ -38,6 +38,13 @@ export const ARCHIVED_SURFACE = "operational" as const;
 
 /* THE 69-JOURNEY PUBLIC LIBRARY (2026-09-20, product decision).
 
+   UPDATE (2026-09-24): ACT-18 (Adoption Recovery) was retired from the
+   canonical corpus entirely - see activation.ts's own history. The library
+   is now 68; ACT-17 absorbed its stall-handling role, and RET-24's handoff
+   that used to target it now targets ACT-17. Everything below that still
+   says "69" is describing how the count got there, not the current total -
+   see PUBLIC_LIBRARY_IDS itself for the live list.
+
    Batch A of the commerce / post-purchase additions - ACQ-289, RET-290,
    FUL-291, RET-292, RET-293 and RET-294 - raised this from 52/73 to 58/79.
    Batch B of the loyalty / relationship additions - RET-295, SUB-296,
@@ -91,8 +98,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Acquisition, intent & qualification - 8
   "ACQ-09", "ACQ-11", "ACQ-12", "ACQ-13", "ACQ-285", "ACQ-287", "ACQ-288",
   "ACQ-289",
-  // Activation, onboarding & early value - 7
-  "ACT-12", "ACT-13", "ACT-14", "ACT-17", "ACT-18", "ACT-19", "ACT-20",
+  // Activation, onboarding & early value - 6
+  "ACT-12", "ACT-13", "ACT-14", "ACT-17", "ACT-19", "ACT-20",
   // Engagement, retention & contactability - 13
   "RET-24", "RET-26", "RET-28", "RET-30", "RET-31", "RET-32", "CON-272",
   "RET-290", "RET-292", "RET-293", "RET-294", "RET-295", "CON-300",

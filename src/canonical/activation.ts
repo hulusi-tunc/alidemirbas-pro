@@ -18,8 +18,8 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
    is blocked by one named thing. ACT-14 handles the case where it is not
    blocked by anything nameable and the person is simply struggling. ACT-17 (its first-value entry)
    and ACT-16 are the two halves of crossing into activation - what the person
-   experiences, and what the system has to stop doing. ACT-17 and ACT-18 own
-   the arrow to adoption in its working and failing forms.
+   experiences, and what the system has to stop doing. ACT-17 owns the arrow
+   to adoption in both its working and its stalled form.
 
    Two of these send nothing. ACT-16 exists to invalidate messages, and ACT-13
    spends most of its life waiting on something that is not a message at all. */
@@ -2075,11 +2075,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "Onboarding gets someone to value once. This is about the second, fifth and twentieth time, where the obstacle is habit rather than setup.",
       },
-      {
-        journey: "ACT-18",
-        because:
-          "ACT-17 hands its failure case to ACT-18 and ACT-18 is ACT-17's own recovery destination - two reciprocal handoffs on one instance key (account_id + use_case_id). A competition group would add nothing beyond the handoffs already declared.",
-      },
     ],
     objective: "Turn a first activation into repeated value in the same use-case: recognise what was actually produced, point at the one behaviour that would produce more, and stop the moment adoption is stable or stalls.",
     eligibility: [
@@ -2097,7 +2092,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.stall",
         "label": "CANONICAL_RULE",
-        "text": "When the observation window closes without repeated value the instance hands to adoption recovery; a nurture nudge is never sent into a stall."
+        "text": "When the observation window closes without repeated value the instance ends without further nurture; a nurture nudge is never sent into a stall."
       },
       {
         "id": "s.nothing-real",
@@ -2107,7 +2102,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "A live risk case (RET-24), an open issue under human ownership or a declared cancellation intent on the same account means adoption is not the subject; the touch is deferred and re-evaluated against current state. This journey declares no exclusion group: it hands the use-case to adoption recovery (ACT-18) rather than contesting it."
+        "text": "A live risk case (RET-24), an open issue under human ownership or a declared cancellation intent on the same account means adoption is not the subject; the touch is deferred and re-evaluated against current state. This journey declares no exclusion group: a contested touch defers and re-evaluates rather than competing for the window."
       },
       {
         "id": "s.permission",
@@ -2254,7 +2249,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "type": "exit-or-handoff",
         "refs": [
           "h.normal",
-          "h.stall"
+          "x.stalled"
         ]
       },
       "businessOutcome": {
@@ -2436,7 +2431,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "reason": "a weekly product and a twice-a-year product cannot share a window, and a shared one would report every seasonal account as failing",
           "relativeTo": "previous-touch"
         },
-        onTimeout: "h.stall",
+        onTimeout: "x.stalled",
         windowExtendsOnEngagement: false,
         recheck: "value-producing usage re-read from the product's own record - not activity, not logins",
       },
@@ -2457,7 +2452,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           "reason": "the same observation window applies after the nudge as before it - the use-case's rhythm has not changed",
           "relativeTo": "previous-touch"
         },
-        onTimeout: "h.stall",
+        onTimeout: "x.stalled",
         windowExtendsOnEngagement: false,
         recheck: "value-producing usage re-read from the product's own record - not activity, not logins",
       },
@@ -2476,19 +2471,17 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
             label: "Still not",
             when: "the nudge went out and value still has not repeated",
             observes: "value-producing usage - how often, how deep, whether success repeats, whether others are involved where the use-case needs them; activity that produces nothing does not count toward it, however much of it there is",
-            to: "h.stall",
+            to: "x.stalled",
           },
         ],
       },
       {
-        id: "h.stall",
-        kind: "handoff",
-        to: "ACT-18",
-        on: "the early-adoption window passing without repeated value, before or after the one behaviour nudge",
-        carries: [
-          "what was produced and when it stopped",
-          "the expected pattern it was measured against, so the stall is diagnosed rather than assumed",
-        ],
+        id: "x.stalled",
+        kind: "exit",
+        state: "stalled; the early-adoption window passed, before or after the one behaviour nudge, without value repeating",
+        class: "failure",
+        terminal: false,
+        reEntry: "a fresh activation in the same use-case opens its own instance",
       },
     ],
     guardrails: [
@@ -2498,383 +2491,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "Adoption should measure repeated value-producing behavior, not raw product activity.",
-  },
-
-  /* ------------------------------------------------------------ ACT-18 */
-  {
-    id: "ACT-18",
-    slug: "adoption-stall-diagnosis",
-    category: "activation",
-    goal: "relationship-recovery-intervention",
-    channels: ["push", "email"],
-    name: "Adoption stall → diagnose missing value → recover or re-route",
-    shortName: "Adoption Recovery",
-    purpose:
-      "Work out why value stopped recurring before doing anything about it, including the case where nothing is wrong.",
-    entity: {
-      scope: "person or account plus the product or use-case that stalled",
-      note: "A stall in one use-case is not a stall in the account. Others it holds may be perfectly healthy.",
-      instanceKey: [
-        "account_id",
-        "use_case_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "ACT-14",
-        because:
-          "ACT-14 is pre-activation and triggered by help-seeking. This is post-activation and triggered by silence, where the most common correct answer is that nothing is wrong.",
-      },
-    ],
-    objective: "Diagnose why value stopped in a use-case and address the specific blocker once - or record honestly that there is nothing to address.",
-    eligibility: [
-      "the expected adoption pattern for this use-case was not met, measured against the product's own rhythm",
-      "the account is active and not terminated, restricted or in a live risk case",
-      "no recovery instance is already open for this account and use-case",
-      "hard gates (GLB-31) permit lifecycle communication"
-    ],
-    suppressions: [
-      {
-        "id": "s.need-met",
-        "label": "CANONICAL_RULE",
-        "text": "When the evidence shows the need was met - the use-case is complete, not abandoned - nothing is sent and the instance closes as satisfied."
-      },
-      {
-        "id": "s.no-evidence",
-        "label": "CANONICAL_RULE",
-        "text": "When nothing in the evidence names a problem, nothing is sent; encouragement into silence is the failure this journey exists to avoid."
-      },
-      {
-        "id": "s.human",
-        "label": "CANONICAL_RULE",
-        "text": "A blocker that needs a person is handed to a person; no automated touch is sent alongside a human intervention."
-      },
-      {
-        "id": "s.contest",
-        "label": "CANONICAL_RULE",
-        "text": "This journey is lowest in the retention-outreach group: an open issue under human ownership, a live risk case (RET-24), a declared cancellation intent (RET-28), or a retention offer follow-up still open on the same account (RET-30) all suppress it (GLB-06)."
-      },
-      {
-        "id": "s.permission",
-        "label": "CANONICAL_RULE",
-        "text": "No touch without permission for lifecycle communication; absent permission is a recorded no-action."
-      },
-      {
-        "id": "s.sunset",
-        "label": "CANONICAL_RULE",
-        "text":
-          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
-      },
-    ],
-    contact: {
-      "defaultPriority": "lifecycle",
-      "pressureClass": "lifecycle",
-      "localCap": {
-        "value": {
-          "key": "adoption_recovery.touches",
-          "rule": "One recovery touch per diagnosed blocker; a second touch on the same diagnosis is pressure, not help.",
-          "default": {
-            "value": 1,
-            "confidence": "medium",
-            "basis": "corpus-rule",
-            "applicableWhen": "the graph sends exactly one recovery message per instance"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "adoption_recovery.cooldown",
-        "rule": "A new stall in the same use-case opens a new instance only after the cooldown; a stall re-detected inside it is monitored, not messaged.",
-        "class": "cooldown",
-        "default": {
-          "value": {
-            "min": "30 days",
-            "max": "90 days"
-          },
-          "confidence": "low",
-          "basis": "example-only"
-        },
-        "required": false
-      },
-      "competition": {
-        "exclusionGroup": "retention-outreach",
-        "scope": "account",
-        "precedence": "lowest in retention-outreach: below the declared cancellation intent (RET-28), any live risk case (RET-24), any open issue under human ownership, and the retention offer follow-up (RET-30) on the same account"
-      , "onLoss": "suppressed" }
-    },
-    "channelStrategy": {
-      "roles": [
-        {
-          "role": "low-friction",
-          "channels": ["push"],
-          "when": "has_push_token is true and the diagnosed blocker is one concrete step the person can take from the notification"
-        },
-        {
-          "role": "persistent",
-          "channels": ["email"],
-          "when": "the blocker needs enough explanation to survive until the person can act, or the push route is not applicable"
-        }
-      ],
-      "fallback": "next-eligible-role",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "single-notice",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "recovery",
-          "action": "a.recover",
-          "prerequisites": [
-            "c.type"
-          ],
-          "purpose": "Address the diagnosed blocker specifically - the unfinished setup, the missing integration, the misunderstanding. Not more encouragement and not a re-run of onboarding.",
-          "channelRoles": [
-            "low-friction",
-            "persistent"
-          ],
-          "destination": {
-            "target": "blocker-resolution-step",
-            "boundTo": "use_case_id"
-          },
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.need-met",
-        "s.no-evidence",
-        "s.human",
-        "s.contest",
-        "s.permission"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "account_id",
-          "use_case_id",
-          "expected_pattern",
-          "last_value_at",
-          "diagnosed_blocker"
-        ],
-        "optional": [
-          "has_push_token",
-          "setup_completion",
-          "integration_status"
-        ]
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "h.adoption",
-          "h.monitor",
-          "h.assistance",
-          "x.satisfied",
-          "x.no-intervention"
-        ]
-      },
-      "businessOutcome": {
-        "event": "value_produced",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "persistent-holdout",
-        "holdout": {
-          "key": "adoption_recovery.holdout_share",
-          "rule": "A persistent holdout is required: stalled accounts resume on their own often enough that a treated-only measurement cannot tell the touch's effect from theirs.",
-          "default": {
-            "value": 10,
-            "confidence": "low",
-            "basis": "example-only"
-          },
-          "required": false
-        }
-      },
-      "secondary": [],
-      "guardrails": [
-        "unsubscribe",
-        "complaint",
-        "message_after_success"
-      ],
-      "operational": [
-        "entry_volume",
-        "diagnosis_distribution",
-        "no_intervention_rate",
-        "recovery_rate",
-        "handoff_distribution"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "adoption recovery",
-        "onboarding inactivity",
-        "usage drop",
-        "stalled adoption",
-        "feature stall",
-        "re-engagement (adoption)"
-      ],
-      "useCases": [
-        "an account that produced value once and then stopped inside the expected rhythm",
-        "a use-case blocked by an unfinished setup or a missing integration"
-      ]
-    },
-    entry: "t.stall",
-    nodes: [
-      {
-        id: "t.stall",
-        kind: "trigger",
-        event: "expected_adoption_pattern_not_met",
-        evidence: {
-          requires: [
-            "an activated account failing to progress against the usage pattern this product actually intends",
-          ],
-          insufficientAlone: [
-            "a gap that is normal for an episodic or seasonal product",
-            "a drop in logins with value still being produced",
-          ],
-          source: "behavioral",
-        },
-        next: "a.diagnose",
-      },
-      {
-        id: "a.diagnose",
-        kind: "action",
-        does: "Work out what the evidence actually shows: setup that was never finished, an integration that is missing, no clear next use-case, collaborators who never joined, value that simply never repeated, a technical blocker - or a use-case that is finished and needs nothing further",
-        next: "c.type",
-      },
-      {
-        id: "c.type",
-        kind: "condition",
-        asks: "What does the evidence show?",
-        branches: [
-          {
-            label: "Recoverable blocker",
-            when: "something specific is in the way: unfinished setup, a missing integration, an unclear next use-case, collaborators who never arrived",
-            to: "a.recover",
-          },
-          {
-            label: "Needs a person",
-            when: "a technical problem that will not be solved by a message",
-            to: "h.assistance",
-          },
-          {
-            label: "Need genuinely met",
-            when: "the use-case was completed and there is nothing further to do - the account got what it came for",
-            to: "x.satisfied",
-          },
-          {
-            label: "No evidence of a problem",
-            when: "usage looks light against a generic expectation but nothing indicates anything is wrong",
-            to: "x.no-intervention",
-          },
-        ],
-      },
-      {
-        id: "x.satisfied",
-        kind: "exit",
-        state: "use-case complete; the need was met, not abandoned",
-        terminal: false,
-        reEntry:
-          "a new use-case, or the same need arising again, opens adoption normally - this account did not fail, it finished",
-        class: "success",
-      },
-      {
-        id: "a.recover",
-        kind: "action",
-        does: "Address the diagnosed blocker specifically. Not more encouragement, not a re-run of onboarding - the thing the diagnosis actually named",
-        next: "w.recover",
-        execution: "communication",
-        idempotencyKey: "account_id + use_case_id + touch id",
-      },
-      {
-        id: "w.recover",
-        kind: "wait",
-        until: [
-          "value_produced"
-        ],
-        onEvent: "h.adoption",
-        timeout: {
-          "after": {
-            "key": "adoption_recovery.window",
-            "rule": "The recovery window is drawn from the product's own intended usage rhythm for this use-case, bounded so that a stall is either recovered or handed to monitoring - never nudged indefinitely.",
-            "class": "recovery-window",
-            "required": true
-          },
-          "reason": "a recovery attempt that has not worked does not work better repeated",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "h.monitor",
-        windowExtendsOnEngagement: false,
-        recheck: "value-producing usage in this use-case re-read from the product's own record",
-      },
-      {
-        id: "h.adoption",
-        kind: "handoff",
-        to: "ACT-17",
-        on: "value produced again after recovery",
-        carries: ["what the blocker was and what cleared it", "the recovered usage pattern"],
-      },
-      {
-        id: "h.monitor",
-        kind: "handoff",
-        to: "external:health-monitoring",
-        on: "a recovery window closing without value returning",
-        carries: [
-          "the diagnosis and what was tried",
-          "the fact that this is reduced usage, not a churn decision - nobody has said anything",
-        ],
-        suppresses: ["adoption-frequency messaging for this use-case"],
-        contract: {
-          "requiredFields": [
-            "account_id",
-            "use_case_id",
-            "diagnosed_blocker",
-            "recovery_window_closed_at"
-          ]
-        },
-      },
-      {
-        id: "h.assistance",
-        kind: "handoff",
-        to: "external:human-in-the-loop-lifecycle",
-        on: "a technical blocker that needs a person",
-        carries: ["the diagnosis", "what the account was trying to do when it stopped"],
-        contract: {
-          "requiredFields": [
-            "account_id",
-            "use_case_id",
-            "diagnosed_blocker",
-            "evidence"
-          ]
-        },
-      },
-      {
-        id: "x.no-intervention",
-        kind: "exit",
-        state: "no problem found; nothing sent",
-        terminal: false,
-        reEntry:
-          "real evidence of a stall later re-opens this - the absence of a finding is a finding, and manufacturing an intervention from it is the failure this branch exists to prevent",
-        class: "no-action",
-      },
-    ],
-    guardrails: [
-      "Reduced usage is not churn risk. It is reduced usage, and the difference is a diagnosis nobody has made yet.",
-      "Seasonal and episodic products carry their own expectations. A gap that is normal for the product is not a stall.",
-      "Where no problem can be found, nothing is sent. An intervention invented to fill a dashboard gap is worse than the gap.",
-    ],
-    reusableRule:
-      "Adoption recovery should diagnose why expected value stopped recurring before prescribing more engagement.",
   },
 
   /* ------------------------------------------------------------ ACT-19 */

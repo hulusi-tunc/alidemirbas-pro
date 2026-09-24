@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 303,
-    "customer": 154,
+    "journeys": 302,
+    "customer": 153,
     "customer-silent": 66,
-    "customer-communicating": 88,
+    "customer-communicating": 87,
     "mechanism": 25,
     "operational": 124
   },
@@ -262,17 +262,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (in-app, email)"
-    },
-    {
-      "id": "ACT-18",
-      "shortName": "Adoption Recovery",
-      "category": "activation",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (push, email)"
     },
     {
       "id": "ACT-19",

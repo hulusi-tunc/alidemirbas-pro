@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 303", journeys.length === 303);
+check(1, "active journey count = 302", journeys.length === 302);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -366,6 +366,20 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 302 journeys / 3997 nodes (2026-09-24). ACT-18 (Adoption
+// Recovery) was retired from the corpus entirely, at the site owner's request
+// ("kaldır her yerden") - not excluded from public listing, deleted from
+// canonical. It was load-bearing: RET-24's h.adoption handoff pointed at it
+// (now retargeted to ACT-17, which absorbed the "stalled adoption" role) and
+// ACT-17 itself had a reciprocal handoff into it (ACT-17's own h.stall
+// became a real exit, x.stalled, since there is no longer a dedicated
+// recovery journey to hand off to). RET-30's precedence prose that ranked
+// itself against "the adoption recovery nudge (ACT-18)" had that clause
+// removed. Public library drops from 69 to 68 (src/lib/public-corpus.ts).
+// 303 -> 302 journeys, 4007 -> 3997 nodes (-10: ACT-18 carried 10 of its own
+// nodes; ACT-17 nets even, losing a handoff and gaining an exit). Rules
+// (423), global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 303 journeys / 4007 nodes (2026-09-24). SUB-298 gained c.expires,
 // w.act, c.used, c.sendable2 and a.remind (+5: 8 -> 13 nodes), reusing the same
 // trigger -> wait -> used?-condition -> reminder shape already established by SUB-297
@@ -404,9 +418,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (303 journeys / 4007 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 303 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 4007 &&
+  "canonical source mutation = 0 (302 journeys / 3997 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 302 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3997 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
