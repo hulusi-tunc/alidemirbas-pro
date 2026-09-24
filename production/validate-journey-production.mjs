@@ -366,6 +366,33 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 278 journeys / 3697 nodes (2026-09-24). ACT-14
+// (Struggling User Assistance) was rebuilt to match a reference flowchart
+// the site owner supplied, literal box for box: the hard-gate eligibility
+// check now feeds a four-way struggle-cause classifier (form/data-entry,
+// technical error, doesn't-know-how, cause unclear) that all route into one
+// in-app help offer naming the relevant tip or guide, ahead of a three-tier
+// help cascade - in-app, then push, then email and a live-support offer
+// sent together - each tier gated by its own short response window and its
+// own completion recheck read from the system of record. Four exits replace
+// the old five: completed (reused after each tier's recheck, whether the
+// stuck step or the whole of onboarding is what the record shows done),
+// got-help (the person took up live support instead of finishing alone),
+// deferred (an explicit "continue later" choice, distinct from silent non-
+// response, with a reEntry note that a later reminder elsewhere in the
+// lifecycle may re-engage the instance), and declined (the terminal no-
+// progress ending once the cascade has run its course). The journey's own
+// outbound handoff to ACT-16 (h.activated, firing on activation reached)
+// is not in the reference image - every exit box there reads "journey
+// sonlanır" (journey ends) rather than a handoff - so it was converted into
+// the reused x.completed exit rather than carried forward; no other journey
+// hands off to or references ACT-14, so nothing outside this journey's own
+// block needed to change. The ACT-13-era wording already removed from
+// c.duplicate in that retirement is gone from the graph entirely along with
+// the duplicate-ownership check itself, which the image does not show.
+// Same id/slug, so the (zero) real inbound references stay valid.
+// 3696 -> 3697 nodes, +1 net.
+//
 // FROZEN BASELINE: 278 journeys / 3696 nodes (2026-09-24). SCH-303
 // (Reservation Payment Reminder) was rebuilt to match a reference
 // flowchart the site owner supplied, literal box for box: an eligibility
@@ -912,9 +939,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (278 journeys / 3696 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (278 journeys / 3697 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 278 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3696 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3697 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

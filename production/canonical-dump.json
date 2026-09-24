@@ -7595,9 +7595,10 @@
       "goal": "relationship-recovery-intervention",
       "channels": [
         "email",
-        "in-app"
+        "in-app",
+        "push"
       ],
-      "name": "Struggling user detection → proactive assistance → recovery or exit",
+      "name": "Struggling user detection → cause classification → tiered help cascade → recovery or exit",
       "shortName": "Onboarding Help",
       "purpose": "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
       "entity": {
@@ -7611,8 +7612,8 @@
       },
       "objective": "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
       "eligibility": [
-        "help-seeking behaviour: repeated help-centre visits, repeated returns to the same setup page, repeated failed integration or setup attempts, or repeated errors",
-        "and no activation progress behind it",
+        "struggle behaviour during onboarding: repeating the same step more than once, a long dwell time on one screen, an error message, going back and forth between steps, abandoning a form partway through, repeatedly re-editing a critical field, starting onboarding without finishing it, or returning to the support page often",
+        "and no useful progress behind the behaviour",
         "no instance of this journey is already open for the person or account plus the open onboarding or trial instance",
         "hard gates (GLB-31) allow communication for this purpose"
       ],
@@ -7630,12 +7631,12 @@
         {
           "id": "s.g3",
           "label": "CANONICAL_RULE",
-          "text": "A decline is respected and cooled down. Asking again after being told no is the behaviour this journey is supposed to replace."
+          "text": "A decline, or an explicit request to continue later, is respected: the cascade does not repeat itself in the same terms after either."
         },
         {
           "id": "s.g4",
           "label": "CANONICAL_RULE",
-          "text": "The offer is made at most twice: the offer itself, and one final self-service alternative."
+          "text": "The cascade proceeds tier by tier - the in-app offer, then the push reminder, then the email and live-support tier together - and stops the moment the person responds, whether by completing the step, asking for live help, or saying they would rather continue later."
         }
       ],
       "contact": {
@@ -7644,7 +7645,7 @@
         "localCap": {
           "value": {
             "key": "struggling_user.touches",
-            "rule": "Every touch runs against a budget fixed when the instance opened, counted as the longest path through the plan rather than the node count: the offer, the booking confirmation, one follow-up. The booking confirmation is a requested transactional message, not a nudge, so the nudge budget is 2 and s.g4 is its statement.",
+            "rule": "Every touch runs against a budget fixed when the instance opened, counted as the longest path through the cascade rather than the node count: the in-app offer, the push reminder, and the email plus live-support tier sent together.",
             "default": {
               "value": 3,
               "confidence": "high",
@@ -7670,93 +7671,106 @@
             "channels": [
               "in-app"
             ],
-            "when": "the person is active in the product and the action is taken there"
+            "when": "the person is active in the product and the first, lightest tier of the cascade belongs beside the step itself"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "the in-app tier drew no response and a short nudge back into the app is the next, faster-fading tier"
           },
           {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "no active session - the message has to be kept and survive until the person returns to act on it"
+            "when": "the earlier tiers drew no response - the message has to be kept and survive until the person returns to act on it, and the live-support offer needs the same durability"
           }
         ],
         "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
-        "strategy": "offer-decide-remind",
+        "strategy": "progressive-recovery",
         "touches": [
           {
             "id": "t1",
-            "stage": "offer",
-            "action": "a.offer",
+            "stage": "tier1-inapp",
+            "action": "a.offer-inapp",
             "prerequisites": [
               "c.hard-entry",
-              "c.duplicate"
+              "c.classify"
             ],
-            "purpose": "Offer help named against the step they keep returning to.",
+            "purpose": "Offer help right where the person is, naming the tip or guide relevant to the classified cause, with a way to start live support or continue later.",
             "channelRoles": [
               "in-session"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
             "destination": {
-              "target": "book-assisted-setup",
-              "boundTo": "account_id"
+              "target": "stuck-step",
+              "boundTo": "onboarding_instance_id"
             }
           },
           {
             "id": "t2",
-            "stage": "confirm",
-            "action": "a.confirm",
+            "stage": "tier2-push",
+            "action": "a.push-reminder",
             "after": "t1",
-            "gatedBy": "w.response",
+            "gatedBy": "w.tier1",
             "prerequisites": [
-              "c.what-happened"
+              "c.tier1-check"
             ],
-            "purpose": "Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on",
+            "purpose": "Nudge the account back to where it left off, with a short motivational line and a deep link into the app.",
+            "channelRoles": [
+              "low-friction"
+            ],
+            "mandatory": false,
+            "label": "CANONICAL_RULE",
+            "destination": {
+              "target": "stuck-step",
+              "boundTo": "onboarding_instance_id"
+            }
+          },
+          {
+            "id": "t3",
+            "stage": "tier3-email",
+            "action": "a.email-remind",
+            "after": "t2",
+            "gatedBy": "w.tier2",
+            "prerequisites": [
+              "c.tier2-check"
+            ],
+            "purpose": "Summarise the unfinished step in a durable message with a guide or short video and FAQ links, and a live-support link.",
             "channelRoles": [
               "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
             "destination": {
-              "target": "assisted-session-details",
-              "boundTo": "session_id"
+              "target": "stuck-step",
+              "boundTo": "onboarding_instance_id"
             }
           },
           {
-            "id": "t3",
-            "stage": "followup",
-            "action": "a.followup",
-            "after": "t2",
-            "gatedBy": "w.session",
-            "prerequisites": [
-              "c.outcome",
-              "c.followup"
-            ],
-            "purpose": "Send one follow-up tied to what the session actually covered.",
-            "channelRoles": [
-              "persistent"
-            ],
-            "mandatory": false,
-            "label": "CANONICAL_RULE"
-          },
-          {
             "id": "t4",
-            "stage": "final",
-            "action": "a.final",
-            "gatedBy": "w.response",
+            "stage": "tier3-live-support",
+            "action": "a.live-support-offer",
+            "after": "t3",
             "prerequisites": [
-              "c.final-option"
+              "c.tier2-check"
             ],
-            "purpose": "Send one final self-service option and stop.",
+            "purpose": "Offer live support alongside the same message: start a chat, open a ticket, pick a time window, or state a contact preference.",
             "channelRoles": [
               "persistent"
             ],
             "mandatory": false,
             "label": "CANONICAL_RULE",
-            "after": "t1"
+            "destination": {
+              "target": "live-support",
+              "boundTo": "onboarding_instance_id"
+            }
           }
         ],
         "noAction": [
@@ -7776,19 +7790,20 @@
             "open_support_case_ref",
             "decline_cooldown_until"
           ],
-          "optional": []
+          "optional": [
+            "push_token"
+          ]
         }
       },
       "measurement": {
         "journeyOutcome": {
-          "type": "exit-or-handoff",
+          "type": "exit",
           "refs": [
             "x.not-eligible",
-            "x.defer",
-            "x.declined",
-            "x.no-outcome",
-            "x.normal",
-            "h.activated"
+            "x.completed",
+            "x.got-help",
+            "x.deferred",
+            "x.declined"
           ]
         },
         "businessOutcome": {
@@ -7826,7 +7841,8 @@
         ],
         "useCases": [
           "someone returning to the same setup step repeatedly without progress",
-          "a help-centre loop with no activation behind it"
+          "a help-centre loop with no activation behind it",
+          "deciding between an in-app tip, a push nudge, or email plus live support, in proportion to how long the struggle has gone unanswered"
         ]
       },
       "entry": "t.struggling",
@@ -7837,13 +7853,13 @@
           "event": "help_seeking_without_activation_progress",
           "evidence": {
             "requires": [
-              "help-seeking behaviour: repeated help-centre visits, repeated returns to the same setup page, repeated failed integration or setup attempts, or repeated errors",
-              "and no activation progress behind it"
+              "struggle behaviour during onboarding: repeating the same step more than once, a long dwell time on one screen, an error message, going back and forth between steps, abandoning a form partway through, repeatedly re-editing a critical field, starting onboarding without finishing it, or returning to the support page often",
+              "and no useful progress behind the behaviour"
             ],
             "insufficientAlone": [
-              "a high session count on its own",
-              "a single help-centre visit",
-              "heavy usage that is making real progress"
+              "a single instance of any one of these signals on its own",
+              "heavy usage that is making real progress",
+              "a one-off visit to the support page while otherwise moving forward"
             ],
             "source": "behavioral"
           },
@@ -7857,7 +7873,7 @@
             {
               "label": "Eligible",
               "when": "the onboarding or trial is still open and core activation has not been recorded",
-              "to": "c.duplicate"
+              "to": "c.classify"
             },
             {
               "label": "Not eligible",
@@ -7875,220 +7891,284 @@
           "class": "no-action"
         },
         {
-          "id": "c.duplicate",
+          "id": "c.classify",
           "kind": "condition",
-          "asks": "Is a person already working this same blocker?",
+          "asks": "What does the struggle behaviour point to as the likely cause?",
           "branches": [
             {
-              "label": "A person already has it",
-              "when": "an open support case or an assigned human owner covers the same issue",
-              "to": "x.defer"
+              "label": "Form or data-entry problem",
+              "when": "required-field errors or a validation problem recur on the same field",
+              "to": "a.offer-inapp"
             },
             {
-              "label": "Nobody on it",
-              "when": "no open case or owner covers it",
-              "to": "a.offer"
+              "label": "Technical error",
+              "when": "an error message recurs, or the behaviour points at a systemic problem rather than the person's own input",
+              "to": "a.offer-inapp"
+            },
+            {
+              "label": "Doesn't know how",
+              "when": "the dwell time on the step is long, or the person went looking for a guide page",
+              "to": "a.offer-inapp"
+            },
+            {
+              "label": "Cause unclear",
+              "when": "the struggle signals are general and nothing narrows the cause further",
+              "to": "a.offer-inapp"
             }
           ]
         },
         {
-          "id": "x.defer",
-          "kind": "exit",
-          "state": "deferred to the person already handling it",
-          "terminal": false,
-          "reEntry": "if that case closes with the struggle unresolved, this qualifies again - two channels chasing one problem is worse than one slow channel",
-          "class": "suppression"
-        },
-        {
-          "id": "a.offer",
+          "id": "a.offer-inapp",
           "kind": "action",
-          "does": "Offer help named against the step they keep returning to. The primary route books assisted setup; the secondary opens the specific guide for that step, for people who would rather not talk to anyone",
-          "next": "w.response",
+          "does": "Show an in-app message asking whether they need help at this step, surfacing the short explanation, the step-by-step guide, or the common-mistakes note that fits the classified cause, with a way to start live support and a way to say they would rather continue later",
+          "next": "w.tier1",
           "execution": "communication",
-          "idempotencyKey": "account_id + person_id + a.offer"
+          "idempotencyKey": "account_id + person_id + a.offer-inapp"
         },
         {
-          "id": "w.response",
+          "id": "w.tier1",
           "kind": "wait",
           "until": [
-            "assisted_session_scheduled",
-            "activation_recorded",
+            "setup_milestone_completed",
+            "support_request_received",
             "assistance_declined"
           ],
-          "onEvent": "c.what-happened",
+          "onEvent": "c.tier1-response",
           "timeout": {
             "after": {
-              "key": "struggling_user.response",
-              "rule": "A bounded response window.",
+              "key": "struggling_user.tier1_window",
+              "rule": "A short fixed span after the in-app offer, before the cascade re-reads the step and moves on to the push tier.",
               "class": "response-window",
-              "required": true
+              "default": {
+                "value": "1 day",
+                "confidence": "low",
+                "basis": "example-only"
+              },
+              "required": false
             },
-            "reason": "no answer is an answer, and it does not license asking again in the same terms",
+            "reason": "no answer is an answer, and it does not license repeating the same in-app message",
             "relativeTo": "previous-touch"
           },
-          "onTimeout": "c.final-option",
+          "onTimeout": "c.tier1-check",
           "windowExtendsOnEngagement": false,
-          "recheck": "the person or account plus the open onboarding or trial instance re-read from the system of record before acting on the timeout"
+          "recheck": "the onboarding instance and the stuck step are re-read from the system of record before acting on the timeout"
         },
         {
-          "id": "c.what-happened",
+          "id": "c.tier1-response",
           "kind": "condition",
-          "asks": "What did they do?",
+          "asks": "What did they do in response to the in-app message?",
           "branches": [
             {
-              "label": "Booked",
-              "when": "an assisted session was scheduled",
-              "to": "a.confirm"
+              "label": "Completed the step",
+              "when": "the product's own record marks the stuck step complete",
+              "observes": "setup_milestone_completed",
+              "to": "x.completed"
             },
             {
-              "label": "Solved it themselves",
-              "when": "the activation event was recorded without any session",
-              "to": "h.activated"
+              "label": "Started live support",
+              "when": "they chose the live-support option in the in-app message",
+              "observes": "support_request_received",
+              "to": "x.got-help"
             },
             {
-              "label": "Declined",
-              "when": "the offer was explicitly turned down",
+              "label": "Chose to continue later",
+              "when": "they explicitly chose the in-app message's continue-later option rather than acting now",
+              "observes": "assistance_declined",
+              "to": "x.deferred"
+            }
+          ]
+        },
+        {
+          "id": "c.tier1-check",
+          "kind": "condition",
+          "asks": "Was the step they were stuck on completed?",
+          "branches": [
+            {
+              "label": "Yes",
+              "when": "the product's own record marks the stuck step complete",
+              "observes": "setup_milestone_completed",
+              "to": "x.completed"
+            },
+            {
+              "label": "No",
+              "when": "the step is still not recorded complete",
+              "to": "a.push-reminder"
+            }
+          ]
+        },
+        {
+          "id": "a.push-reminder",
+          "kind": "action",
+          "does": "Send a push notification saying they can continue where they left off, naming the unfinished step, with a short motivational line and a deep link back into that step",
+          "next": "w.tier2",
+          "execution": "communication",
+          "idempotencyKey": "account_id + person_id + a.push-reminder"
+        },
+        {
+          "id": "w.tier2",
+          "kind": "wait",
+          "until": [
+            "setup_milestone_completed"
+          ],
+          "onEvent": "c.tier2-check",
+          "timeout": {
+            "after": {
+              "key": "struggling_user.tier2_window",
+              "rule": "A short fixed span after the push reminder, before the cascade re-reads the step and moves on to the email and live-support tier.",
+              "class": "response-window",
+              "default": {
+                "value": "2 days",
+                "confidence": "low",
+                "basis": "example-only"
+              },
+              "required": false
+            },
+            "reason": "no answer is an answer, and it does not license repeating the same push nudge",
+            "relativeTo": "previous-touch"
+          },
+          "onTimeout": "c.tier2-check",
+          "windowExtendsOnEngagement": false,
+          "recheck": "the onboarding instance and the stuck step are re-read from the system of record before acting on the timeout"
+        },
+        {
+          "id": "c.tier2-check",
+          "kind": "condition",
+          "asks": "Did they return to the app and complete the step?",
+          "branches": [
+            {
+              "label": "Yes",
+              "when": "the product's own record marks the stuck step complete",
+              "observes": "setup_milestone_completed",
+              "to": "x.completed"
+            },
+            {
+              "label": "No",
+              "when": "the step is still not recorded complete",
+              "to": "a.email-remind"
+            }
+          ]
+        },
+        {
+          "id": "a.email-remind",
+          "kind": "action",
+          "does": "Send an email summarising the unfinished step, with a step-by-step guide or short video, FAQ links, and a live-support link",
+          "next": "a.live-support-offer",
+          "execution": "communication",
+          "idempotencyKey": "account_id + person_id + a.email-remind"
+        },
+        {
+          "id": "a.live-support-offer",
+          "kind": "action",
+          "does": "Offer, alongside the email, to have the support team help directly: start a live chat, open a support ticket, pick a suitable time window, or state a contact preference",
+          "next": "w.tier3",
+          "execution": "communication",
+          "idempotencyKey": "account_id + person_id + a.live-support-offer"
+        },
+        {
+          "id": "w.tier3",
+          "kind": "wait",
+          "until": [
+            "activation_recorded",
+            "support_request_received"
+          ],
+          "onEvent": "c.tier3-response",
+          "timeout": {
+            "after": {
+              "key": "struggling_user.tier3_window",
+              "rule": "A short fixed span after the email and the live-support offer, before the cascade re-reads full onboarding completion and closes the instance either way.",
+              "class": "response-window",
+              "default": {
+                "value": {
+                  "min": "3 days",
+                  "max": "5 days"
+                },
+                "confidence": "low",
+                "basis": "example-only"
+              },
+              "required": false
+            },
+            "reason": "no answer is an answer, and the cascade has nothing left to escalate to",
+            "relativeTo": "previous-touch"
+          },
+          "onTimeout": "c.tier3-check",
+          "windowExtendsOnEngagement": false,
+          "recheck": "the onboarding instance is re-read from the system of record before acting on the timeout"
+        },
+        {
+          "id": "c.tier3-response",
+          "kind": "condition",
+          "asks": "What did they do in response to the email and the live-support offer?",
+          "branches": [
+            {
+              "label": "Onboarding completed",
+              "when": "the authoritative activation event for this onboarding is recorded",
+              "observes": "activation_recorded",
+              "to": "x.completed"
+            },
+            {
+              "label": "Started live support",
+              "when": "they started a chat, opened a ticket, or otherwise took up the live-support offer",
+              "observes": "support_request_received",
+              "to": "x.got-help"
+            }
+          ]
+        },
+        {
+          "id": "c.tier3-check",
+          "kind": "condition",
+          "asks": "Was onboarding completed?",
+          "branches": [
+            {
+              "label": "Yes",
+              "when": "the authoritative activation event for this onboarding is recorded",
+              "observes": "activation_recorded",
+              "to": "x.completed"
+            },
+            {
+              "label": "No",
+              "when": "onboarding is still not recorded complete and the cascade has run its course",
               "to": "x.declined"
             }
           ]
         },
         {
+          "id": "x.completed",
+          "kind": "exit",
+          "state": "the stuck step or the whole of onboarding was completed; onboarding continues or ends where the record shows",
+          "terminal": false,
+          "reEntry": "a new struggle in a still-open, unactivated instance qualifies again",
+          "class": "success"
+        },
+        {
+          "id": "x.got-help",
+          "kind": "exit",
+          "state": "the person took up live support - a chat started or a ticket opened - rather than finishing the step alone",
+          "terminal": false,
+          "reEntry": "if that contact closes with the struggle unresolved, a fresh struggle qualifies again",
+          "class": "success"
+        },
+        {
+          "id": "x.deferred",
+          "kind": "exit",
+          "state": "the person explicitly asked to continue later rather than act now",
+          "terminal": false,
+          "reEntry": "a later reminder from elsewhere in the lifecycle may re-engage this instance; this journey does not send again on its own",
+          "class": "suppression"
+        },
+        {
           "id": "x.declined",
           "kind": "exit",
-          "state": "assistance declined, cooldown in force",
+          "state": "the cascade ran its full course with no completion, no live-support contact, and no explicit request to continue later",
           "terminal": false,
-          "reEntry": "a new struggle after the cooldown may qualify again; the same offer is not re-sent to someone who has already said no to it",
+          "reEntry": "a new struggle after the cooldown may qualify again; the same cascade is not re-sent to someone who has already been through all of it",
           "class": "no-action"
-        },
-        {
-          "id": "a.confirm",
-          "kind": "action",
-          "does": "Confirm the time, how to join, and the specific problem the session will open with, taken from the step they were stuck on",
-          "next": "w.session",
-          "execution": "communication",
-          "idempotencyKey": "account_id + person_id + a.confirm"
-        },
-        {
-          "id": "w.session",
-          "kind": "wait",
-          "until": [
-            "assisted_session_outcome_recorded",
-            "booking_cancelled"
-          ],
-          "onEvent": "c.outcome",
-          "timeout": {
-            "after": {
-              "key": "struggling_user.session",
-              "rule": "The scheduled session time plus a short grace period.",
-              "class": "observation-window",
-              "required": true
-            },
-            "reason": "a booking with no recorded outcome is not evidence of anything, and waiting longer will not produce one",
-            "relativeTo": "previous-touch"
-          },
-          "onTimeout": "x.no-outcome",
-          "windowExtendsOnEngagement": false,
-          "recheck": "the person or account plus the open onboarding or trial instance re-read from the system of record before acting on the timeout"
-        },
-        {
-          "id": "x.no-outcome",
-          "kind": "exit",
-          "state": "no session outcome recorded",
-          "terminal": false,
-          "reEntry": "the assistance offer is not repeated on this instance; a fresh struggle after the cooldown is a new question",
-          "class": "timeout"
-        },
-        {
-          "id": "c.outcome",
-          "kind": "condition",
-          "asks": "Did activation follow the assistance?",
-          "branches": [
-            {
-              "label": "Activated",
-              "when": "the authoritative activation event was recorded after the session",
-              "to": "h.activated"
-            },
-            {
-              "label": "Still not activated",
-              "when": "the session happened and value still has not been produced",
-              "to": "c.followup"
-            }
-          ]
-        },
-        {
-          "id": "c.followup",
-          "kind": "condition",
-          "asks": "Is there one genuinely useful follow-up left?",
-          "branches": [
-            {
-              "label": "Yes",
-              "when": "the session surfaced a specific remaining action worth naming",
-              "to": "a.followup"
-            },
-            {
-              "label": "No",
-              "when": "nothing specific came out of it, and a follow-up would only restate the offer",
-              "to": "x.normal"
-            }
-          ]
-        },
-        {
-          "id": "a.followup",
-          "kind": "action",
-          "does": "Send one follow-up tied to what the session actually covered. There is no second one, and no further request for a call",
-          "next": "x.normal",
-          "execution": "communication",
-          "idempotencyKey": "account_id + person_id + a.followup"
-        },
-        {
-          "id": "c.final-option",
-          "kind": "condition",
-          "asks": "With no response, is one final self-service option worth sending?",
-          "branches": [
-            {
-              "label": "Worth one",
-              "when": "a specific guide exists for the step they were stuck on",
-              "to": "a.final"
-            },
-            {
-              "label": "Not worth it",
-              "when": "nothing specific exists to point at, and a general nudge would just repeat the offer",
-              "to": "x.normal"
-            }
-          ]
-        },
-        {
-          "id": "a.final",
-          "kind": "action",
-          "does": "Send one final self-service option and stop. The call is not asked for a third time",
-          "next": "x.normal",
-          "execution": "communication",
-          "idempotencyKey": "account_id + person_id + a.final"
-        },
-        {
-          "id": "h.activated",
-          "kind": "handoff",
-          "to": "ACT-16",
-          "on": "activation reached, with or without the session",
-          "carries": [
-            "whether assistance was involved, which is worth knowing about this account later",
-            "the struggle that preceded it"
-          ]
-        },
-        {
-          "id": "x.normal",
-          "kind": "exit",
-          "state": "rescue attempt closed, ordinary lifecycle resumes",
-          "terminal": false,
-          "reEntry": "a new struggle in an open, unactivated instance after the cooldown",
-          "class": "success"
         }
       ],
       "guardrails": [
         "High activity is not struggling. Someone doing a lot and getting somewhere is the last person to interrupt.",
         "An open support case for the same issue suppresses this entirely. The automated offer is always the one that does not know the current state.",
-        "A decline is respected and cooled down. Asking again after being told no is the behaviour this journey is supposed to replace.",
-        "The offer is made at most twice: the offer itself, and one final self-service alternative."
+        "A decline, or an explicit request to continue later, is respected: the cascade does not repeat itself in the same terms after either.",
+        "The cascade proceeds tier by tier and stops the moment the person responds, whether by completing the step, asking for live help, or saying they would rather continue later."
       ],
       "reusableRule": "Proactive assistance should require evidence of effort without progress, not activity alone."
     },

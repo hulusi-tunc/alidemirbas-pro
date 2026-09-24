@@ -206,7 +206,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
+      "reason": "declares a message channel (email, in-app, push)"
     },
     {
       "id": "ACT-16",
