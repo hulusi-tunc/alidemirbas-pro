@@ -611,7 +611,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "x.cause-found",
           "x.unexplained",
           "h.adoption",
-          "h.setup",
           "h.technical",
           "h.service",
           "h.payment",
@@ -679,13 +678,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             to: "h.adoption",
           },
           {
-            label: "Setup dependency missing",
-            when: "something required was never completed or has since broken",
-            to: "h.setup",
-          },
-          {
             label: "Technical issue or support friction",
-            when: "an unresolved fault, or repeated difficulty getting help with one",
+            when: "an unresolved fault, a required setup dependency never completed or since broken, or repeated difficulty getting help with one",
             to: "h.technical",
           },
           {
@@ -721,13 +715,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         to: "ACT-17",
         on: "deterioration driven by adoption falling away",
         carries: ["the usage pattern that stopped", "the expected pattern it was measured against"],
-      },
-      {
-        id: "h.setup",
-        kind: "handoff",
-        to: "ACT-13",
-        on: "deterioration traced to a missing or broken setup dependency",
-        carries: ["the named dependency", "what it is blocking now that it was not blocking before"],
       },
       {
         id: "h.technical",

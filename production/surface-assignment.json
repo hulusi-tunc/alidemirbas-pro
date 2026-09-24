@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 282,
-    "customer": 133,
+    "journeys": 281,
+    "customer": 132,
     "customer-silent": 66,
-    "customer-communicating": 67,
+    "customer-communicating": 66,
     "mechanism": 25,
     "operational": 124
   },
@@ -196,17 +196,6 @@
       "silent": true,
       "excludedFromPublic": true,
       "reason": "silent lifecycle state: category \"activation\" and a customer-worded entity"
-    },
-    {
-      "id": "ACT-13",
-      "shortName": "Onboarding Blocker Reminder",
-      "category": "activation",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": true,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, task)"
     },
     {
       "id": "ACT-14",

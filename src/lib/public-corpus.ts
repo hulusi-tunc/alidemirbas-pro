@@ -130,7 +130,17 @@ export const ARCHIVED_SURFACE = "operational" as const;
    handoffs, only prose distinctFrom/eligibility/suppression text in
    ACQ-09 (which owned the "no ACQ-285 instance is open" precedence gate)
    and one distinctFrom row in RET-290, both removed - taking the
-   library to 48.
+   library to 48. ACT-13 (Onboarding Blocker Reminder) was retired next,
+   the site owner's request - it had two real inbound handoffs: ACT-11's
+   h.requirement, converted into a genuine exit (x.blocked) instead of a
+   handoff, and RET-23's h.setup, merged into RET-23's own h.technical
+   branch (both journeys are silent routers with no mechanism of their
+   own to absorb the work). ACT-14's one prose distinctFrom row and its
+   c.duplicate condition's one branch naming ACT-13 were both reworded,
+   and its s.named-blocker suppression (which deferred to ACT-13 as the
+   owner) was removed since no journey now owns that state. The
+   marketing-page showcase slot (src/lib/journey-marketing.ts) now shows
+   ACT-17 in ACT-13's place - taking the library to 47.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -172,7 +182,7 @@ export const ARCHIVED_SURFACE = "operational" as const;
    public projection reads `PUBLIC_JOURNEYS`/`isPublicJourneyId`, so the rows,
    counts, detail routes, sitemap, search index, cross-journey links and both
    locale trees all drop them from one edit. An excluded journey's cross-
-   reference from a journey that stayed (ACT-13 → ACT-11, FBK-43 → FBK-46,
+   reference from a journey that stayed (FBK-43 → FBK-46,
    REM-157 → REM-152/FIN-137, SCH-280 → SCH-180, CON-272's `distinctFrom`)
    renders as the target's NAME IN TEXT, never as a link - exactly what an
    archived operational target already does, no new mechanism. */
@@ -189,8 +199,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Acquisition, intent & qualification - 7
   "ACQ-09", "ACQ-11", "ACQ-12", "ACQ-13", "ACQ-287", "ACQ-288",
   "ACQ-289",
-  // Activation, onboarding & early value - 5
-  "ACT-13", "ACT-14", "ACT-17", "ACT-20",
+  // Activation, onboarding & early value - 4
+  "ACT-14", "ACT-17", "ACT-20",
   // Engagement, retention & contactability - 9
   "RET-24", "RET-31", "RET-32", "CON-272",
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",

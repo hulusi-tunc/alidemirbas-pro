@@ -14,13 +14,11 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
 
    Each arrow between those is a different problem, and each of the journeys
    here owns exactly one of them. ACT-11 decides how much work the arrow from
-   entry to setup will take. ACT-13 handles the case where it is blocked by
-   one named thing. ACT-14 handles the case where it is not blocked by
-   anything nameable and the person is simply struggling. ACT-17 (its
-   first-value entry) and ACT-16 are the two halves of crossing into
-   activation - what the person experiences, and what the system has to stop
-   doing. ACT-17 owns the arrow to adoption in both its working and its
-   stalled form.
+   entry to setup will take. ACT-14 handles the case where a person is
+   struggling and nothing nameable blocks them. ACT-17 (its first-value
+   entry) and ACT-16 are the two halves of crossing into activation - what
+   the person experiences, and what the system has to stop doing. ACT-17
+   owns the arrow to adoption in both its working and its stalled form.
 
    ACT-12 is not here (retired 2026-09-24, site owner's request - "kaldır").
    It used to walk the entry-to-setup arrow step by step; ACT-11, ACT-13 and
@@ -29,8 +27,14 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
    real exit (x.ready, x.unblocked, x.resumed) rather than handing to a
    next-step engine that no longer exists.
 
-   Two of these send nothing. ACT-16 exists to invalidate messages, and ACT-13
-   spends most of its life waiting on something that is not a message at all. */
+   ACT-13 is not here either (retired 2026-09-24, site owner's request -
+   "kaldır"). It handled the case where activation was blocked by one named
+   thing. It had two real inbound handoffs: ACT-11's h.requirement, which now
+   exits as x.blocked instead, and RET-23's h.setup, which is now read by
+   RET-23's own h.technical branch instead of a dedicated setup-dependency
+   route. ACT-14's own duplicate-ownership check no longer names it.
+
+   ACT-16 exists to invalidate messages and sends nothing itself. */
 
 export const ACTIVATION_RULES: readonly OrchestrationRule[] = [
   {
@@ -231,9 +235,9 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     },
     measurement: {
       "journeyOutcome": {
-        "type": "exit-or-handoff",
+        "type": "exit",
         "refs": [
-          "h.requirement",
+          "x.blocked",
           "x.ready"
         ]
       },
@@ -330,7 +334,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Blocked at the start",
             when: "something named and mandatory is absent - a verification, an access grant, a required party - and nothing meaningful can proceed without it",
-            to: "h.requirement",
+            to: "x.blocked",
           },
           {
             label: "Clear to start",
@@ -340,22 +344,19 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.requirement",
-        kind: "handoff",
-        to: "ACT-13",
-        on: "a mandatory prerequisite missing before onboarding can begin",
-        carries: [
-          "the named requirement, not a general sense that setup is unfinished",
-          "the chosen route, since who resolves the requirement depends on it",
-          "the onboarding context already gathered",
-        ],
+        id: "x.blocked",
+        kind: "exit",
+        state: "a mandatory prerequisite is missing; onboarding cannot begin until the named requirement exists",
+        terminal: false,
+        reEntry: "the requirement being resolved re-opens routing from current onboarding context",
+        class: "no-action",
       },
       {
         id: "x.ready",
         kind: "exit",
         state: "route chosen, nothing blocking the start; the account is clear to begin setup under its own steam",
         terminal: false,
-        reEntry: "a mandatory prerequisite discovered later is its own instance (ACT-13)",
+        reEntry: "a mandatory prerequisite discovered later re-opens this evaluation from current evidence",
         class: "success",
       },
     ],
@@ -366,460 +367,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "Onboarding should be routed according to the work required to reach value, not merely according to who entered.",
-  },
-
-  /* ------------------------------------------------------------ ACT-13 */
-  {
-    id: "ACT-13",
-    slug: "activation-blocker-resolution",
-    category: "activation",
-    goal: "relationship-recovery-intervention",
-    channels: ["email", "task"],
-    name: "Missing activation requirement → resolve blocker → resume",
-    shortName: "Onboarding Blocker Reminder",
-    purpose:
-      "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
-    entity: {
-      scope: "the blocking requirement, held against the account or onboarding instance",
-      note: "One instance per requirement. Two blockers are two instances, because they may be resolved by different people at different times.",
-      instanceKey: [
-        "account_id",
-        "requirement_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "ACT-14",
-        because:
-          "Here the obstacle has a name and resolving it is the whole job. ACT-14 is for the case where nothing specific is missing and the person is still not getting anywhere - and where both are true, a named requirement outstanding and help being sought against it, this journey holds the account and the help offer is suppressed for it, because an obstacle with a name is answerable and a general offer of help is not.",
-      },
-    ],
-    objective: "Aim the whole journey at one named missing thing, and resume onboarding once it exists.",
-    eligibility: [
-      "a specific unmet requirement: an integration not connected, a required configuration absent, a verification incomplete, a required person not yet present, a mandatory setup step unfinished",
-      "no instance of this journey is already open for the the blocking requirement",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "No generic finish-your-setup messaging. The requirement is named, or this journey has nothing to say."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "A missing field that does not block activation is not presented as a blocker. Doing so trains people to discount the real ones."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "The moment the requirement is met, its reminders stop, including any already scheduled."
-      },
-      {
-        "id": "s.generic-reminder",
-        "label": "CANONICAL_RULE",
-        "text": "This journey owns the reminder for the named requirement it holds."
-      },
-    ],
-    contact: {
-      "defaultPriority": "service",
-      "pressureClass": "service",
-      "localCap": {
-        "value": {
-          "key": "activation_blocker.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget counts customer touches only - a.route-dependency raises an internal work item, not a send - and no customer touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 1,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "activation_blocker.cooldown",
-        "rule": "Reminders are per requirement; a further requirement is its own instance and no cooldown applies between requirements.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule"
-        },
-        "required": false
-      },
-      "competition": "none"
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "human",
-          "channels": [
-            "task"
-          ],
-          "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
-        }
-      ],
-      "fallback": "none",
-      "simultaneous": { "allowed": true, "reason": "the work item and the account notice are addressed to different people and carry different content" },
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "single-notice",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "specific-action",
-          "action": "a.specific-action",
-          "prerequisites": [
-            "c.blocking",
-            "c.self-resolvable"
-          ],
-          "purpose": "Give the one specific action that clears this requirement, named as the thing it is - never a general prompt to finish setup, which tells someone who is already blocked nothing they did not know",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "requirement-resolution-step",
-            "boundTo": "requirement_id",
-            "mustNotClaim": [
-              "that setup in general is unfinished"
-            ]
-          }
-        },
-        {
-          "id": "t2",
-          "stage": "route-dependency",
-          "action": "a.route-dependency",
-          "prerequisites": [
-            "c.blocking",
-            "c.self-resolvable"
-          ],
-          "purpose": "Raise the requirement with whoever can actually resolve it, carrying what is blocked and why.",
-          "channelRoles": [
-            "human"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t3",
-          "stage": "dependency-hold",
-          "action": "a.hold-notice",
-          "after": "t2",
-          "prerequisites": [
-            "c.blocking",
-            "c.self-resolvable"
-          ],
-          "purpose": "Tell the account the requirement is now with the party who can resolve it, and what happens when it is - the one branch where they cannot act themselves must not leave them in silence.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "account_id",
-          "requirement_id",
-          "blocking_requirement",
-          "resolution_horizon",
-          "dependency_owner"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.not-blocking",
-          "x.next-blocker",
-          "x.blocked",
-          "x.unblocked",
-          "h.escalate",
-          "h.reroute"
-        ]
-      },
-      "businessOutcome": {
-        "event": "named_requirement_satisfied",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "pre-post"
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "onboarding blocker reminder",
-        "missing requirement reminder",
-        "integration not connected reminder",
-        "setup blocker",
-        "activation blocker"
-      ],
-      "useCases": [
-        "an integration that must be connected before the product can produce value",
-        "a required approval or permission held by someone other than the account"
-      ]
-    },
-    entry: "t.blocked",
-    nodes: [
-      {
-        id: "t.blocked",
-        kind: "trigger",
-        event: "activation_blocked_by_named_requirement",
-        evidence: {
-          requires: [
-            "a specific unmet requirement: an integration not connected, a required configuration absent, a verification incomplete, a required person not yet present, a mandatory setup step unfinished",
-          ],
-          insufficientAlone: [
-            "an incomplete optional field",
-            "a profile that is not filled in",
-            "a general sense that setup is unfinished",
-          ],
-          source: "authoritative",
-        },
-        next: "a.identify",
-      },
-      {
-        id: "a.identify",
-        kind: "action",
-        does: "Identify the exact requirement and what it is blocking, so everything downstream can name it rather than describe setup in general",
-        writes: [{ field: "blocking_requirement", mode: "set" }],
-        next: "c.blocking",
-        idempotencyKey: "account_id + a.identify",
-      },
-      {
-        id: "c.blocking",
-        kind: "condition",
-        asks: "Does this requirement actually block activation?",
-        branches: [
-          {
-            label: "Genuinely blocking",
-            when: "activation cannot occur while it is unmet",
-            to: "c.self-resolvable",
-          },
-          {
-            label: "Incomplete but not blocking",
-            when: "the field or step is missing and value can still be produced without it",
-            to: "x.not-blocking",
-          },
-        ],
-      },
-      {
-        id: "x.not-blocking",
-        kind: "exit",
-        state: "not a blocker; ordinary onboarding continues",
-        terminal: false,
-        reEntry:
-          "if the same requirement later becomes mandatory, it enters as a real blocker; presenting it as one now would teach people to ignore the ones that matter",
-        class: "invalid-state",
-      },
-      {
-        id: "c.self-resolvable",
-        kind: "condition",
-        asks: "Can this account resolve the requirement directly?",
-        branches: [
-          {
-            label: "Yes, directly",
-            when: "the account holds the access, the information and the permission needed",
-            to: "a.specific-action",
-          },
-          {
-            label: "No, it depends on someone else",
-            when: "it needs another team, an internal process, a third party, or a person who has not joined yet",
-            to: "a.route-dependency",
-          },
-        ],
-      },
-      {
-        id: "a.specific-action",
-        kind: "action",
-        does: "Give the one specific action that clears this requirement, named as the thing it is - never a general prompt to finish setup, which tells someone who is already blocked nothing they did not know",
-        next: "w.resolve",
-        execution: "communication",
-        idempotencyKey: "account_id + a.specific-action",
-      },
-      {
-        id: "a.route-dependency",
-        kind: "action",
-        does: "Raise the requirement with whoever can actually resolve it, carrying what is blocked and why. Ownership of the resume stays here, so the account is not handed away and forgotten",
-        writes: [{ field: "dependency_requests", mode: "append" }],
-        next: "a.hold-notice",
-        execution: "human",
-        idempotencyKey: "account_id + a.route-dependency",
-      },
-      {
-        id: "a.hold-notice",
-        kind: "action",
-        does: "Name the outstanding requirement, say it is now with the party who can resolve it, and say what happens when it is. Never asks the account to do anything - this is the branch where they cannot",
-        next: "w.resolve",
-        execution: "communication",
-        idempotencyKey: "account_id + requirement_id + a.hold-notice",
-      },
-      {
-        id: "w.resolve",
-        kind: "wait",
-        until: [
-          "named_requirement_satisfied"
-        ],
-        onEvent: "a.stop-reminders",
-        timeout: {
-          "after": {
-            "key": "activation_blocker.resolve",
-            "rule": "The resolution horizon appropriate to this requirement.",
-            "class": "observation-window",
-            "required": true
-          },
-          "reason": "requirements resolved by third parties and requirements resolved in a settings screen do not deserve the same patience",
-          "relativeTo": "trigger"
-        },
-        onTimeout: "c.unresolved",
-        windowExtendsOnEngagement: false,
-        recheck: "the the blocking requirement re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "a.stop-reminders",
-        kind: "action",
-        does: "Stop every reminder about this requirement immediately, including any already queued - a nudge about something the person has just finished is the clearest possible signal that nothing was watching",
-        writes: [{ field: "suppressed_sends", mode: "append" }],
-        next: "c.next-blocker",
-        idempotencyKey: "account_id + a.stop-reminders",
-      },
-      {
-        id: "c.next-blocker",
-        kind: "condition",
-        asks: "With this requirement met, is activation now reachable?",
-        branches: [
-          {
-            label: "Reachable",
-            when: "no other mandatory requirement is outstanding",
-            to: "x.unblocked",
-          },
-          {
-            label: "Another requirement is blocking",
-            when: "clearing this one revealed a second mandatory requirement",
-            to: "x.next-blocker",
-          },
-        ],
-      },
-      {
-        id: "x.unblocked",
-        kind: "exit",
-        state: "the blocker cleared and activation reachable again; the setup state stands as it now is, ready to resume rather than restart",
-        terminal: false,
-        reEntry: "a further requirement discovered later opens its own instance",
-        class: "success",
-      },
-      {
-        id: "x.next-blocker",
-        kind: "exit",
-        state: "resolved; a further requirement now blocks",
-        terminal: false,
-        reEntry:
-          "the next requirement opens its own instance, named on its own terms - stacking them into one message is how a specific blocker turns back into generic setup pressure",
-        class: "success",
-      },
-      {
-        id: "c.unresolved",
-        kind: "condition",
-        asks: "What does this unresolved requirement warrant?",
-        branches: [
-          {
-            label: "Escalate to a person",
-            when: "the requirement matters enough to the outcome that a human should now own it",
-            to: "h.escalate",
-          },
-          {
-            label: "An alternate route exists",
-            when: "value can be reached by a different path that does not need this requirement",
-            to: "h.reroute",
-          },
-          {
-            label: "No route",
-            when: "the requirement is mandatory and neither resolvable nor avoidable",
-            to: "x.blocked",
-          },
-        ],
-      },
-      {
-        id: "h.escalate",
-        kind: "handoff",
-        to: "external:human-in-the-loop-lifecycle",
-        on: "a blocker outliving its resolution horizon",
-        carries: [
-          "the requirement, who was asked, and what has already been tried",
-          "what activation is waiting on, so the person picking it up starts informed",
-        ],
-        suppresses: ["automated reminders about this requirement while a person holds it"],
-        contract: {
-          "requiredFields": [
-            "account_id",
-            "handed_at",
-            "reason"
-          ]
-        },
-      },
-      {
-        id: "h.reroute",
-        kind: "handoff",
-        to: "ACT-11",
-        on: "an alternate path to value that does not require the blocked thing",
-        carries: ["the requirement that could not be met", "the setup state already reached"],
-      },
-      {
-        id: "x.blocked",
-        kind: "exit",
-        state: "activation blocked, no route available",
-        terminal: false,
-        reEntry:
-          "the requirement becoming satisfiable later re-opens this; nothing is repeatedly asked for in the meantime",
-        class: "failure",
-      },
-    ],
-    guardrails: [
-      "No generic finish-your-setup messaging. The requirement is named, or this journey has nothing to say.",
-      "A missing field that does not block activation is not presented as a blocker. Doing so trains people to discount the real ones.",
-      "The moment the requirement is met, its reminders stop, including any already scheduled.",
-    ],
-    reusableRule:
-      "When activation is blocked, orchestration should target the actual dependency rather than increase generic onboarding pressure.",
   },
 
   /* ------------------------------------------------------------ ACT-14 */
@@ -842,13 +389,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
-    distinctFrom: [
-      {
-        journey: "ACT-13",
-        because:
-          "ACT-13 has a named requirement to clear. Here the evidence is effort without progress and no single thing to point at, which is why the offer is help rather than an instruction.",
-      },
-    ],
     objective: "Offer help to someone who is visibly trying and not getting anywhere, and stop asking once they have answered.",
     eligibility: [
       "help-seeking behaviour: repeated help-centre visits, repeated returns to the same setup page, repeated failed integration or setup attempts, or repeated errors",
@@ -876,11 +416,6 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "The offer is made at most twice: the offer itself, and one final self-service alternative."
-      },
-      {
-        "id": "s.named-blocker",
-        "label": "CANONICAL_RULE",
-        "text": "Where a named mandatory requirement is established as the thing preventing activation, the blocker journey (ACT-13) owns the account and this journey does not open."
       },
     ],
     contact: {
@@ -1008,8 +543,7 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4",
-        "s.named-blocker"
+        "s.g4"
       ]
     },
     implementation: {
@@ -1126,8 +660,8 @@ export const ACTIVATION_JOURNEYS: readonly CanonicalJourney[] = [
         asks: "Is a person already working this same blocker?",
         branches: [
           {
-            label: "ACT-13 or a person already has it",
-            when: "an open support case or an assigned human owner covers the same issue, or ACT-13 already owns a named requirement on this instance - the struggle is almost always that requirement, and a help offer beside a blocker reminder is two voices on one problem",
+            label: "A person already has it",
+            when: "an open support case or an assigned human owner covers the same issue",
             to: "x.defer",
           },
           {
