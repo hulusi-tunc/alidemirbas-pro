@@ -13,15 +13,14 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
      CHURN         it ended
 
    Every collapse between two of them produces a specific failure, and this
-   category is eight journeys drawing the lines between them. RET-21 keeps
+   category is seven journeys drawing the lines between them. RET-21 keeps
    engagement a changing state rather than a label. RET-22 refuses to read
    absence as evidence without a pattern to read it against. RET-23 insists a
    health score name what moved it before anyone is contacted. RET-24 makes
    intervention scale with evidence instead of with account value. RET-27 is
    the whole category in one journey: a good sign is the start of recovery,
    not recovery. RET-28 and RET-29 are the two sides of the intent/completion
-   line, and RET-30 makes an intervention finish only when its actual outcome
-   is known.
+   line.
 
    RET-25 is not here. Evaluating a risk signal is a risk and policy
    responsibility rather than a retention one, and it opened on the same event
@@ -31,6 +30,16 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
    "kaldır"). It was the library's general-purpose service-recovery journey;
    RET-23's h.service branch, its one real inbound handoff, now hands a
    service failure straight to external:operational-resolution instead.
+
+   RET-30 is not here either (retired 2026-09-24, site owner's request -
+   "kaldır"). It closed a retention offer on its actual outcome - accepted,
+   declined, applied or not - rather than on the customer's answer alone.
+   Its one real inbound handoff, RET-28's h.intervention (an alternative
+   offered at the cancellation decision point), now routes straight into
+   RET-28's own w.decision instead: the same wait that already watches for
+   cancellation_confirmed or cancellation_flow_abandoned on the branch where
+   no genuine alternative existed, so an offered alternative is tracked by
+   the mechanism RET-28 already has for it rather than by a second journey.
 
    Almost everything here can conclude that nothing should be sent. That is
    not a gap in the category, it is most of the point of it. */
@@ -1212,7 +1221,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.check-in-email",
         kind: "action",
-        does: "Send a check-in naming what we can see going wrong, with a route to a person, on the route that reaches someone who is not in the product. Carries no offer and no discount; offers belong to RET-28 and RET-30",
+        does: "Send a check-in naming what we can see going wrong, with a route to a person, on the route that reaches someone who is not in the product. Carries no offer and no discount; offers belong to RET-28",
         next: "w.response",
         execution: "communication",
         idempotencyKey: "risk_episode_id + account_id + a.check-in-email",
@@ -1220,7 +1229,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.check-in-inapp",
         kind: "action",
-        does: "Send a check-in naming what we can see going wrong, with a route to a person, beside the thing that is failing, where the person still is. Carries no offer and no discount; offers belong to RET-28 and RET-30",
+        does: "Send a check-in naming what we can see going wrong, with a route to a person, beside the thing that is failing, where the person still is. Carries no offer and no discount; offers belong to RET-28",
         next: "w.response",
         execution: "communication",
         idempotencyKey: "risk_episode_id + account_id + a.check-in-inapp",
@@ -1343,7 +1352,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "A risk score is not the outcome. It orders attention; it does not decide anything.",
       "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one.",
       "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim once, before the check-in is sent, rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
-      "The check-in carries no offer and no discount - offers belong to RET-28 (the cancellation save) and RET-30 (the retention offer follow-up). This journey does not hand off to RET-30: RET-30's trigger requires a defined intervention actually delivered (a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer), and a bare check-in satisfies none of those - handing a customer off to a journey whose trigger evidence can never be produced is exactly the defect this design removes. A reply that neither recovers the relationship nor declares cancellation is additional evidence, read by c.human exactly as a silent timeout would be, never manufactured into a delivered intervention.",
+      "The check-in carries no offer and no discount - offers belong to RET-28, the cancellation save. This journey hands nobody off on the strength of a bare check-in: a reply that neither recovers the relationship nor declares cancellation is additional evidence, read by c.human exactly as a silent timeout would be, never manufactured into a delivered intervention.",
     ],
     reusableRule:
       "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",
@@ -1750,7 +1759,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
-          "h.intervention",
           "h.execute",
           "x.lapsed"
         ]
@@ -1944,19 +1952,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.offer",
         kind: "action",
         does: "Offer the alternative that matches the reason, once, alongside an unobstructed path to continue cancelling. A discount appears only where the reason is price and policy supports it - offering one for a technical fault answers the wrong question and reveals that nobody read the reason",
-        next: "h.intervention",
+        next: "w.decision",
         execution: "communication",
         idempotencyKey: "intent_id + touch id",
-      },
-      {
-        id: "h.intervention",
-        kind: "handoff",
-        to: "RET-30",
-        on: "a retention alternative offered at the decision point",
-        carries: [
-          "the declared reason and the alternative chosen against it",
-          "the cancellation episode this belongs to, so a decline is remembered inside it",
-        ],
       },
       {
         id: "w.decision",
@@ -2266,433 +2264,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "Once cancellation is confirmed, retention ownership ends and orchestration shifts to termination and remaining-obligation management.",
   },
 
-  /* ------------------------------------------------------------ RET-30 */
-  {
-    id: "RET-30",
-    slug: "retention-intervention-outcome",
-    category: "retention",
-    goal: "reconciliation-correction",
-    channels: ["in-app", "email"],
-    name: "Retention intervention → outcome → suppress, escalate or exit",
-    shortName: "Retention Offer Follow-Up",
-    purpose:
-      "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
-    entity: {
-      scope: "the customer, account or subscription plus the retention episode the intervention belongs to",
-      note: "The episode is the unit. A declined offer is declined for this episode, which is what makes remembering it possible.",
-      instanceKey: [
-        "account_id",
-        "retention_episode_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "RET-27",
-        because:
-          "This asks whether the intervention worked. RET-27 asks whether the improvement lasts, and takes over once this one has a positive answer.",
-      },
-    ],
-    objective: "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
-    eligibility: [
-      "a defined intervention actually delivered: a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer",
-      "no instance of this journey is already open for the the customer",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "An accepted offer is not an applied one. Retention is recorded from the relationship state, never from the customer's answer."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "A declined offer is remembered for the whole cancellation episode, not just for the message that carried it."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "The attempt is bounded: the intervention, and at most one follow-up."
-      },
-      {
-        "id": "s.g4",
-        "label": "CANONICAL_RULE",
-        "text": "An operational failure to apply an accepted offer is never recorded as a retention success."
-      },
-      {
-        "id": "s.sunset",
-        "label": "CANONICAL_RULE",
-        "text":
-          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
-      },
-      {
-        "id": "s.contest",
-        "label": "CANONICAL_RULE",
-        "text":
-          "This journey yields to a declared cancellation intent (RET-28) and to a live risk case (RET-24) on the same account, and to any open issue under human ownership - all three outrank a follow-up on a retention offer already sent. A declined offer must be remembered for the whole cancellation episode, and a suppressed follow-up loses that record.",
-      },
-    ],
-    contact: {
-      "defaultPriority": "lifecycle",
-      "pressureClass": "lifecycle",
-      "localCap": {
-        "value": {
-          "key": "retention_intervention.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 1,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "retention_intervention.cooldown",
-        "rule": "The cooldown between instances of this journey for the same the customer, so that a re-qualifying the customer is tracked but not messaged again inside it.",
-        "class": "cooldown",
-        "required": true
-      },
-      "competition": {
-        "exclusionGroup": "retention-outreach",
-        "scope": "account",
-        "precedence": "below the declared cancellation intent (RET-28), any live risk case (RET-24) and any open issue under human ownership on the same account - a declined offer must be remembered for the whole cancellation episode before anything else is allowed to reopen it",
-        "onLoss": "suppressed"
-      }
-    },
-    "channelStrategy": {
-      "roles": [
-        {
-          "role": "in-session",
-          "channels": ["in-app"],
-          "when": "has_active_session is true and the retention action can be completed in the product context the person is already using"
-        },
-        {
-          "role": "persistent",
-          "channels": ["email"],
-          "when": "the person is not in an active session, or the follow-up needs to remain available after they leave"
-        }
-      ],
-      "fallback": "next-eligible-role",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "single-notice",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "followup",
-          "action": "a.followup",
-          "gatedBy": "w.outcome",
-          "prerequisites": [
-            "c.followup"
-          ],
-          "purpose": "Send one follow-up and stop.",
-          "channelRoles": [
-            "in-session",
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "account_id",
-          "retention_episode_id",
-          "intervention_delivered",
-          "offer_status",
-          "retention_episode_history"
-        ],
-        "optional": [
-          "has_active_session"
-        ]
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.declined",
-          "x.cooldown",
-          "h.observe",
-          "h.fix",
-          "h.proceed"
-        ]
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ],
-      "businessOutcome": {
-        "event": "relationship_recovered",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "pre-post"
-      }
-    },
-    discovery: {
-      "aliases": [
-        "retention offer follow-up",
-        "save offer outcome",
-        "retention intervention outcome",
-        "offer acceptance tracking"
-      ],
-      "useCases": [
-        "a plan alternative or pause offered and its outcome closed on what actually happened",
-        "one follow-up after an unanswered offer, then stop"
-      ]
-    },
-    entry: "t.delivered",
-    nodes: [
-      {
-        id: "t.delivered",
-        kind: "trigger",
-        event: "retention_intervention_delivered",
-        evidence: {
-          requires: [
-            "a defined intervention actually delivered: a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer",
-          ],
-          insufficientAlone: ["an intervention scheduled but not yet delivered"],
-          source: "authoritative",
-        },
-        next: "w.outcome",
-      },
-      {
-        id: "w.outcome",
-        kind: "wait",
-        /* `cancellation_confirmed` and `cancellation_flow_abandoned` were
-           missing, and their absence was the bug: a customer who ignored the
-           offer and simply completed the cancellation triggered none of the
-           four events below, so the wait ran to its timeout and sent a
-           retention follow-up into the middle of SUB-262's wind-down notice -
-           the re-litigation SUB-262's own s.g1 forbids. RET-28 watches for
-           the same event in both of its waits; this journey never inherited
-           it. The abandoned-flow event is here for the mirror case: the
-           person walked out of cancelling, which is an answer to the offer
-           and not a reason to ask again. */
-        until: [
-          "retention_offer_accepted",
-          "retention_offer_declined",
-          "relationship_recovered",
-          "intervention_failed",
-          "cancellation_confirmed",
-          "cancellation_flow_abandoned"
-        ],
-        onEvent: "c.outcome",
-        timeout: {
-          "after": {
-            "key": "retention_intervention.outcome",
-            "rule": "A bounded decision window.",
-            "class": "response-window",
-            "required": true
-          },
-          "reason": "an unanswered offer is a result, and the alternative to accepting that is asking again until someone leaves",
-          "relativeTo": "trigger"
-        },
-        onTimeout: "c.followup",
-        windowExtendsOnEngagement: false,
-        recheck: "the the customer re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "c.outcome",
-        kind: "condition",
-        asks: "What happened to the intervention?",
-        branches: [
-          { label: "Accepted", when: "the customer took what was offered", to: "a.verify" },
-          {
-            label: "Declined",
-            when: "the customer explicitly turned it down",
-            to: "a.record-decline",
-          },
-          {
-            label: "Recovered without answering",
-            when: "the relationship improved but nobody responded to the offer itself",
-            to: "h.observe",
-          },
-          {
-            label: "Failed to execute",
-            when: "the intervention was accepted or attempted and did not actually apply",
-            to: "h.fix",
-          },
-          /* Decided meanwhile - the customer answered the offer by acting on
-             the cancellation instead of on the offer. Routed to the handoff
-             this journey already has for "declined and still leaving"
-             (h.proceed -> SUB-167), because that is exactly the state: the
-             wind-down owns the person from here, and this journey has nothing
-             further to say. Without this branch the same customer reached the
-             timeout and got a follow-up alongside the wind-down notice. */
-          {
-            label: "Decided meanwhile",
-            when: "the cancellation was confirmed, or the person left the cancellation flow, without the offer itself being answered - either way the decision is made and it is not this journey's to reopen",
-            observes: "cancellation_confirmed",
-            to: "h.proceed",
-          },
-        ],
-      },
-      {
-        id: "a.verify",
-        kind: "action",
-        does: "Verify against the system of record that the relationship actually changed - the plan changed, the pause is active, the issue is closed, the subscription is retained. Acceptance is a customer saying yes; application is the state having moved, and the gap between them is where retention numbers go wrong",
-        next: "c.applied",
-        idempotencyKey: "retention_episode_id + account_id + a.verify",
-      },
-      {
-        id: "c.applied",
-        kind: "condition",
-        asks: "Did the state actually change?",
-        branches: [
-          {
-            label: "Applied",
-            when: "the authoritative record shows the change",
-            to: "h.observe",
-          },
-          {
-            label: "Accepted but not applied",
-            when: "the customer agreed and the change did not take effect",
-            to: "h.fix",
-          },
-        ],
-      },
-      {
-        id: "h.observe",
-        kind: "handoff",
-        to: "RET-27",
-        on: "a retention outcome that looks positive",
-        carries: [
-          "what was accepted and what actually changed",
-          "the fact that this is one positive event, which is why it goes to observation rather than to a recovered state",
-        ],
-      },
-      {
-        id: "h.fix",
-        kind: "handoff",
-        to: "external:operational-resolution",
-        on: "an intervention that did not apply",
-        carries: [
-          "what was agreed and what failed to happen",
-          "the explicit fact that retention has not succeeded, however the customer answered",
-        ],
-        suppresses: ["any recording of this as a retained relationship until the change actually applies"],
-        contract: {
-          "requiredFields": [
-            "relationship_id",
-            "account_id",
-            "handed_at",
-            "reason"
-          ]
-        },
-      },
-      {
-        id: "a.record-decline",
-        kind: "action",
-        does: "Record the decline against this cancellation episode, so the same offer is not made again inside it. Repeating a declined offer is the behaviour that makes a save attempt read as an obstacle",
-        writes: [{ field: "retention_episode_history", mode: "append" }],
-        next: "c.proceed",
-        idempotencyKey: "retention_episode_id + account_id + a.record-decline",
-      },
-      {
-        id: "c.proceed",
-        kind: "condition",
-        asks: "Is a cancellation still in progress?",
-        branches: [
-          {
-            label: "Still cancelling",
-            when: "the customer declined and is continuing to leave",
-            to: "h.proceed",
-          },
-          {
-            label: "No cancellation underway",
-            when: "the offer was declined but nothing is being cancelled",
-            to: "x.declined",
-          },
-        ],
-      },
-      {
-        id: "h.proceed",
-        kind: "handoff",
-        to: "SUB-167",
-        on: "a declined save offer with cancellation continuing",
-        carries: ["what was offered and declined", "the declared reason it was chosen against"],
-      },
-      {
-        id: "x.declined",
-        kind: "exit",
-        state: "intervention declined, relationship intact",
-        terminal: false,
-        reEntry:
-          "a new episode with new evidence may justify a different intervention; the declined one is not re-sent inside this episode",
-        class: "no-action",
-      },
-      {
-        id: "c.followup",
-        kind: "condition",
-        asks: "With no response, is one bounded follow-up justified?",
-        branches: [
-          {
-            label: "Justified",
-            when: "the offer is time-limited or its terms were plausibly not understood",
-            to: "a.followup",
-          },
-          {
-            label: "Not justified",
-            when: "silence is a clear enough answer and repeating it adds only pressure",
-            to: "x.cooldown",
-          },
-        ],
-      },
-      {
-        id: "a.followup",
-        kind: "action",
-        does: "Send one follow-up and stop. There is no second, whatever the value of the relationship",
-        next: "x.cooldown",
-        execution: "communication",
-        idempotencyKey: "retention_episode_id + account_id + a.followup",
-      },
-      {
-        id: "x.cooldown",
-        kind: "exit",
-        state: "no response; episode closed, cooldown in force",
-        terminal: false,
-        reEntry:
-          "a new episode may open on new evidence, and this intervention is not repeated within the cooldown",
-        class: "timeout",
-      },
-    ],
-    guardrails: [
-      "An accepted offer is not an applied one. Retention is recorded from the relationship state, never from the customer's answer.",
-      "A declined offer is remembered for the whole cancellation episode, not just for the message that carried it.",
-      "The attempt is bounded: the intervention, and at most one follow-up.",
-      "An operational failure to apply an accepted offer is never recorded as a retention success.",
-    ],
-    reusableRule:
-      "Retention intervention is complete only when its business outcome is known, and unsuccessful interventions should not loop indefinitely.",
-  },
   {
     "id": "RET-31",
     "slug": "predicted-need-replenishment",

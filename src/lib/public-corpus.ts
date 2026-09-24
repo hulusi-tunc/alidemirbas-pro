@@ -63,7 +63,13 @@ export const ARCHIVED_SURFACE = "operational" as const;
    distinctFrom rows naming it anywhere in the corpus - taking the library
    to 60. SCH-280 (No-Show Follow-Up) was retired next - it had no real
    inbound handoffs and no prose distinctFrom rows naming it anywhere in
-   the corpus - taking the library to 59. Everything below that
+   the corpus - taking the library to 59. RET-30 (Retention Offer
+   Follow-Up) was retired next - its one real inbound handoff, RET-28's
+   h.intervention, now routes straight into RET-28's own w.decision (the
+   same wait that already tracks cancellation_confirmed /
+   cancellation_flow_abandoned on the branch where no alternative was
+   offered), and no prose distinctFrom row named it elsewhere - taking the
+   library to 58. Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
    itself for the live list.
@@ -123,8 +129,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "ACQ-289",
   // Activation, onboarding & early value - 5
   "ACT-13", "ACT-14", "ACT-17", "ACT-20",
-  // Engagement, retention & contactability - 11
-  "RET-24", "RET-28", "RET-30", "RET-31", "RET-32", "CON-272",
+  // Engagement, retention & contactability - 10
+  "RET-24", "RET-28", "RET-31", "RET-32", "CON-272",
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",
   // Feedback, advocacy & relationship signals - 4
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",

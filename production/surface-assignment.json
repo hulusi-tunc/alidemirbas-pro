@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 293,
-    "customer": 144,
+    "journeys": 292,
+    "customer": 143,
     "customer-silent": 66,
-    "customer-communicating": 78,
+    "customer-communicating": 77,
     "mechanism": 25,
     "operational": 124
   },
@@ -339,17 +339,6 @@
       "silent": true,
       "excludedFromPublic": false,
       "reason": "silent lifecycle state: category \"retention\" and a customer-worded entity"
-    },
-    {
-      "id": "RET-30",
-      "shortName": "Retention Offer Follow-Up",
-      "category": "retention",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (in-app, email)"
     },
     {
       "id": "RET-31",

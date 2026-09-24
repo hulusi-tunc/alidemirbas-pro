@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 293", journeys.length === 293);
+check(1, "active journey count = 292", journeys.length === 292);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -366,6 +366,21 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 292 journeys / 3891 nodes (2026-09-24). RET-30
+// (Retention Offer Follow-Up) was retired entirely, the site owner's
+// request. Its one real inbound handoff, RET-28's h.intervention, now
+// routes straight into RET-28's own w.decision instead of forking to a
+// separate journey - the same wait that already watches for
+// cancellation_confirmed / cancellation_flow_abandoned on the branch
+// where no genuine alternative was found, so an offered alternative's
+// outcome is tracked by the mechanism RET-28 already has for it. RET-24's
+// guardrail explaining why it does not hand off to RET-30 was rewritten,
+// since RET-30 no longer exists to explain not handing off to. 293 -> 292
+// journeys, -15 nodes net (RET-30's own 15 nodes removed, RET-28's
+// h.intervention handoff node removed, no nodes added). Rules (423),
+// global rules (31) and merged redirects (8) are unchanged; RET-30 was a
+// hard delete, not a merge.
+//
 // FROZEN BASELINE: 293 journeys / 3906 nodes (2026-09-24). ACQ-289
 // (Back-in-Stock Alert) was rebuilt from a single push/email alert into a
 // literal three-channel sequential cascade matching a reference image's
@@ -616,9 +631,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (293 journeys / 3906 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 293 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3906 &&
+  "canonical source mutation = 0 (292 journeys / 3891 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 292 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3891 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
