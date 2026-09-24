@@ -2386,6 +2386,20 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       "strategy": "offer-decide-remind",
       "touches": [
         {
+          "id": "t0",
+          "stage": "alternative",
+          "action": "a.alt-continue",
+          "prerequisites": [
+            "c.alternative"
+          ],
+          "purpose": "Show the available alternative and how to continue with it now.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
           "id": "t1",
           "stage": "at-the-wall",
           "action": "a.at-the-wall",
@@ -2461,10 +2475,23 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "CANONICAL_RULE"
         },
         {
+          "id": "t4b",
+          "stage": "nudge-reset",
+          "action": "a.nudge-reset",
+          "gatedBy": "w.capacity1",
+          "prerequisites": [],
+          "purpose": "Remind that the window is about to reset and the action will be able to resume shortly.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
           "id": "t5",
           "stage": "reset",
           "action": "a.reset",
-          "gatedBy": "w.capacity",
+          "gatedBy": "w.capacity2",
           "prerequisites": [
             "c.outcome"
           ],
@@ -2502,6 +2529,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
+          "x.alternative",
           "x.reset",
           "x.blocked",
           "h.capacity"
@@ -2562,7 +2590,40 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           source: "authoritative",
         },
-        next: "c.path",
+        next: "c.alternative",
+      },
+      {
+        id: "c.alternative",
+        kind: "condition",
+        asks: "Is there an alternative route that fully covers what the limit just stopped?",
+        branches: [
+          {
+            label: "Alternative available",
+            when: "a different feature, model or route already available on the current plan fully substitutes for what was blocked",
+            to: "a.alt-continue",
+          },
+          {
+            label: "No full substitute",
+            when: "nothing available covers the whole need, or no alternative exists at all",
+            to: "c.path",
+          },
+        ],
+      },
+      {
+        id: "a.alt-continue",
+        kind: "action",
+        does: "Show the available alternative and explain how to continue with it now, without waiting on the limit at all",
+        next: "x.alternative",
+        execution: "communication",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.alt-continue",
+      },
+      {
+        id: "x.alternative",
+        kind: "exit",
+        state: "an alternative route was offered that fully covers what the limit stopped",
+        terminal: false,
+        reEntry: "hitting the same limit again - the alternative not actually covering the need - opens a fresh instance",
+        class: "success",
       },
       {
         id: "c.path",
@@ -2607,7 +2668,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.at-the-wall",
         kind: "action",
         does: "At the point the action is stopped, say which limit was reached, the usage against it, and when the window resets. Where the same party who hit the limit can also authorise more capacity, name it and what it costs, noting that the reset would release it for nothing anyway; where capacity is not purchasable at all, say only that the window resets in its own time. Reaching a limit is the limit working - anything that reads as an accusation turns an ordinary constraint into a support contact and a grievance",
-        next: "w.capacity",
+        next: "w.capacity1",
         execution: "communication",
         idempotencyKey: "entity_ref + limit_id + window_id + a.at-the-wall",
       },
@@ -2631,12 +2692,44 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.notify-blocked-party",
         kind: "action",
         does: "Tell the person whose action is held that the decision now sits with somebody else, name who, and give the authoritative point at which the window resets anyway. Told only that they hit a limit, they wait on a person who does not know they are being waited on",
-        next: "w.capacity",
+        next: "w.capacity1",
         execution: "communication",
         idempotencyKey: "entity_ref + limit_id + window_id + a.notify-blocked-party",
       },
       {
-        id: "w.capacity",
+        id: "w.capacity1",
+        kind: "wait",
+        until: [
+          "capacity_authorised",
+          "limit_reset",
+          "held_action_abandoned"
+        ],
+        onEvent: "c.outcome",
+        timeout: {
+          "after": {
+            "key": "usage_limit.reset_lead",
+            "rule": "The point before the authoritative reset at which a reminder still gives useful notice; no reset point is ever invented.",
+            "class": "reminder-before-attribute",
+            "required": true
+          },
+          "reason": "somebody waiting on a window to reset benefits from being told it is about to, not only that it did",
+          "relativeTo": "attribute",
+          "attribute": "window_resets_at"
+        },
+        onTimeout: "a.nudge-reset",
+        windowExtendsOnEngagement: false,
+        recheck: "the the entity and the one limit constraining it re-read from the system of record before acting on the timeout",
+      },
+      {
+        id: "a.nudge-reset",
+        kind: "action",
+        does: "Remind that the window is about to reset and the action will be able to resume shortly, taken from the authoritative reset point",
+        next: "w.capacity2",
+        execution: "communication",
+        idempotencyKey: "entity_ref + limit_id + window_id + a.nudge-reset",
+      },
+      {
+        id: "w.capacity2",
         kind: "wait",
         until: [
           "capacity_authorised",
@@ -2718,6 +2811,7 @@ export const RISK_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     guardrails: [
       "A limit reached is not abuse, and the message never borrows the vocabulary of one.",
+      "An already-available alternative that fully covers the need is offered before anything about capacity or waiting - a substitute is not a consolation prize.",
       "A reset point is never invented. If the authoritative source has no date, no date is stated.",
       "The free path is named wherever it exists, even in the message that offers the paid one.",
       "Where the capacity decision belongs to somebody else, both parties are told - the one waiting and the one who can end the wait.",
