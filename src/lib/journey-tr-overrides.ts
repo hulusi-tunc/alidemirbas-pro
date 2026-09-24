@@ -1088,6 +1088,34 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.confirm": {
       headline: "Neyin kazanıldığını, ne için kullanılabileceğini ve ne zamana kadar geçerli olduğunu, her parçasını ödül kaydından okuyarak söyle. Hiçbir teklif, öneri ya da bir sonrakini kazanmaya teşvik ekleme.",
     },
+    "c.expires": {
+      headline: "Bu ödülün, kullanılması gereken bir son tarihi var mı?",
+      edges: [
+        { label: "Süresi doluyor", detail: "ödül kaydı, ödülün kullanılması gereken bir son noktayı taşıyor" },
+        { label: "Son tarih yok", detail: "ödül kaydı, ödülün kullanılması gereken bir son nokta taşımıyor" },
+      ],
+    },
+    "w.act": {
+      headline: "ödül kullanılana, üyelik sona erene ya da izin geri çekilene kadar",
+      detail: "Zaman aşımı: son kullanma hatırlatması, onaydan sonra sabit bir süre yerine ödülün kendi son kullanma tarihinin yaklaşmasını bekler; ödülü son tarihinden önce kullanacak olan bir üye o ana kadar her olağan fırsatı bulmuş olur. (reward_confirmation.expiry_reminder ayarlanmalı)",
+    },
+    "c.used": {
+      headline: "Üye ödülü kullandı mı?",
+      edges: [
+        { label: "Kullandı", detail: "ödül kaydı ödülün kullanıldığını gösteriyor" },
+        { label: "Hâlâ kullanılmamış", detail: "üyelik aktif ve ödül kaydı ödülün hâlâ tutulduğunu ve kullanılmadığını gösteriyor" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "Son kullanma hatırlatması gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: hatırlatma için izin, ulaşılabilir bir hedef ve bu üyeliği şu anda tutan daha yüksek öncelikli bir üyelik akışının bulunmaması" },
+        { label: "Engellendi", detail: "bir kapı durduruyor; gerekçe kaydedilir" },
+      ],
+    },
+    "a.remind": {
+      headline: "Bu ödülün süresinin dolacağını ve ne zaman dolacağını, göndermeden hemen önce ödül kaydından okuyarak söyle. Bu, onaydan farklı bir mesajdır - bir süre geçtiği için değil, son tarih yaklaştığı için gönderilir. Hiçbir teklif, öneri ya da bir sonrakini kazanmaya teşvik ekleme.",
+    },
     "a.record-no-action": {
       headline: "Neden bildirim gönderilmediğini ve hangi ödül kaydına karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
     },

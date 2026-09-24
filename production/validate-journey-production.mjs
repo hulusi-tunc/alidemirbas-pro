@@ -366,6 +366,19 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 303 journeys / 4007 nodes (2026-09-24). SUB-298 gained c.expires,
+// w.act, c.used, c.sendable2 and a.remind (+5: 8 -> 13 nodes), reusing the same
+// trigger -> wait -> used?-condition -> reminder shape already established by SUB-297
+// (the "unused benefit" journey) rather than inventing a new one: after the initial
+// confirmation, the journey now waits for the reward's own expiry (reward_usable_until,
+// already a declared attribute) before sending a push-only expiry reminder if the
+// reward is still unused. No new event needed - loyalty_reward_earned, loyalty_benefit_used
+// and permission_withdrawn all already existed. x.confirmed/x.closed/x.no-action are
+// unchanged (still one instance per reward_id, still non-terminal exits - this journey's
+// trigger was already a genuine one-time event, so none of RET-292/295's one-shot
+// consequences apply here). Rules (423), global rules (31) and merged redirects (8) are
+// unchanged. 4002 -> 4007 nodes, +5 net.
+//
 // FROZEN BASELINE: 303 journeys / 4002 nodes (2026-09-24). RET-292 and RET-295 were each
 // rebuilt from an externally-recomputed "approaching" trigger into a real in-graph
 // trigger -> wait -> send shape: RET-292 gained w.interval, c.opened and a.show-in-app
@@ -391,9 +404,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (303 journeys / 4002 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (303 journeys / 4007 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 303 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 4002 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 4007 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

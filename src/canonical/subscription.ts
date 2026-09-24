@@ -4726,6 +4726,33 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           },
           "mandatory": true,
           "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "expiry-reminder",
+          "action": "a.remind",
+          "after": "t1",
+          "gatedBy": "w.act",
+          "prerequisites": [
+            "c.expires",
+            "c.used",
+            "c.sendable2"
+          ],
+          "purpose": "That this reward expires, and when - to a member whose record still shows it unused, sent only where the reward actually has an expiry to act before - and then the plan is over.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "destination": {
+            "target": "membership-reward",
+            "boundTo": "reward_id",
+            "mustNotClaim": [
+              "a reward that has not been credited",
+              "an expiry the programme does not enforce",
+              "that the reward remains usable after the stated expiry"
+            ]
+          },
+          "mandatory": false,
+          "label": "OPTIONAL_STRATEGY"
         }
       ],
       "noAction": [
@@ -4788,6 +4815,101 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "does": "State what was earned, what it may be used for and until when, reading every part of it from the reward record. Attach no offer, no recommendation and no encouragement to earn the next one.",
         "execution": "communication",
         "idempotencyKey": "reward_id",
+        "writes": [
+          {
+            "field": "reward_confirmation_log",
+            "mode": "append"
+          }
+        ],
+        "next": "c.expires"
+      },
+      {
+        "id": "c.expires",
+        "kind": "condition",
+        "asks": "Does this reward have a point by which it must be used?",
+        "branches": [
+          {
+            "label": "Expires",
+            "when": "the reward record carries a point by which the reward must be used",
+            "observes": "reward record",
+            "to": "w.act"
+          },
+          {
+            "label": "No expiry",
+            "when": "the reward record carries no point by which the reward must be used",
+            "observes": "reward record",
+            "to": "x.confirmed"
+          }
+        ]
+      },
+      {
+        "id": "w.act",
+        "kind": "wait",
+        "until": [
+          "loyalty_benefit_used",
+          "loyalty_membership_ended",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.used",
+        "timeout": {
+          "after": {
+            "key": "reward_confirmation.expiry_reminder",
+            "rule": "The expiry reminder waits for the reward's own expiry to approach rather than for a fixed interval after the confirmation; a member who was going to use it before it expires has had every ordinary chance to by then.",
+            "class": "attribute-bound",
+            "required": true
+          },
+          "reason": "a notice anchored to nothing but elapsed time arrives for no reason the member can see; anchoring it to the reward's own expiry is what makes it a deadline rather than an interval",
+          "relativeTo": "attribute",
+          "attribute": "reward_usable_until"
+        },
+        "onTimeout": "c.used",
+        "recheck": "the reward record's own usage state, the membership's standing and the member's permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.used",
+        "kind": "condition",
+        "asks": "Has the member used the reward?",
+        "branches": [
+          {
+            "label": "Used",
+            "when": "the reward record shows the reward has been used",
+            "observes": "loyalty_benefit_used",
+            "to": "x.confirmed"
+          },
+          {
+            "label": "Still unused",
+            "when": "the membership is active and the reward record still shows the reward held and unused",
+            "observes": "reward record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the expiry reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for the reminder, a deliverable destination, and no higher-precedence membership journey currently holding this membership",
+            "observes": "send path stages 1-8",
+            "to": "a.remind"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.remind",
+        "kind": "action",
+        "does": "Say that this reward expires, and when, reading the expiry from the reward record immediately before sending. This is a different message from the confirmation, sent because a fact changed - the expiry approaching - and not because a while has passed. Attach no offer, no recommendation and no encouragement to earn the next one.",
+        "execution": "communication",
+        "idempotencyKey": "reward_id + expiry-reminder",
         "writes": [
           {
             "field": "reward_confirmation_log",
