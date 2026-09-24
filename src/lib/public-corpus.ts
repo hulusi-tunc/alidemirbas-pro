@@ -41,9 +41,13 @@ export const ARCHIVED_SURFACE = "operational" as const;
    UPDATE (2026-09-24): ACT-18 (Adoption Recovery) was retired from the
    canonical corpus entirely - see activation.ts's own history. The library
    is now 68; ACT-17 absorbed its stall-handling role, and RET-24's handoff
-   that used to target it now targets ACT-17. Everything below that still
-   says "69" is describing how the count got there, not the current total -
-   see PUBLIC_LIBRARY_IDS itself for the live list.
+   that used to target it now targets ACT-17. ACT-19, RET-293 and FUL-301
+   were then retired the same way, dropping the library to 65. RET-26
+   (Service Recovery) was retired next - its one real inbound handoff
+   (RET-23's h.service) now targets external:operational-resolution - taking
+   the library to 64. Everything below that still says "69" is describing
+   how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
+   itself for the live list.
 
    Batch A of the commerce / post-purchase additions - ACQ-289, RET-290,
    FUL-291, RET-292, RET-293 and RET-294 - raised this from 52/73 to 58/79.
@@ -100,8 +104,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "ACQ-289",
   // Activation, onboarding & early value - 6
   "ACT-12", "ACT-13", "ACT-14", "ACT-17", "ACT-20",
-  // Engagement, retention & contactability - 13
-  "RET-24", "RET-26", "RET-28", "RET-30", "RET-31", "RET-32", "CON-272",
+  // Engagement, retention & contactability - 11
+  "RET-24", "RET-28", "RET-30", "RET-31", "RET-32", "CON-272",
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",
   // Feedback, advocacy & relationship signals - 4
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",

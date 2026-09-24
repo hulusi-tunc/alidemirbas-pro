@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 299,
-    "customer": 150,
+    "journeys": 298,
+    "customer": 149,
     "customer-silent": 66,
-    "customer-communicating": 84,
+    "customer-communicating": 83,
     "mechanism": 25,
     "operational": 124
   },
@@ -317,17 +317,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (email, in-app, task)"
-    },
-    {
-      "id": "RET-26",
-      "shortName": "Service Recovery",
-      "category": "retention",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (in-app, email)"
     },
     {
       "id": "RET-27",

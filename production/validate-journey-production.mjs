@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 299", journeys.length === 299);
+check(1, "active journey count = 298", journeys.length === 298);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -366,6 +366,25 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 298 journeys / 3954 nodes (2026-09-24). RET-26 (Service
+// Recovery) was retired entirely from the corpus, same pattern as ACT-18/
+// ACT-19/RET-293/FUL-301 above (delete + fix every reciprocal reference,
+// not just exclude from public listing). It was load-bearing on one real
+// edge: RET-23's h.service handoff (a health-deterioration diagnosis
+// branch for "deterioration caused by a service failure on our side") used
+// to target it; that now hands off to external:operational-resolution
+// instead, the same generic operational sink RET-26's own h.operational
+// node used to use for an unresolved failure. Two prose-only distinctFrom
+// rows that named RET-26 were removed with no graph change: REM-151's own
+// (src/canonical/remedy.ts) and CON-300's (src/canonical/consent.ts, whose
+// row text was already about product engagement rather than service
+// recovery - a pre-existing mismatch, not something this change caused).
+// Public library drops from 65 to 64 (src/lib/public-corpus.ts). 299 -> 298
+// journeys, 3966 -> 3954 nodes (-12: RET-26 carried 11 of its own nodes;
+// RET-23 nets +1, losing a handoff's target but gaining its contract
+// object - node count itself is unchanged on RET-23). Rules (423), global
+// rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 299 journeys / 3966 nodes (2026-09-24). REM-151 (Post-
 // Completion Issue) was rebuilt in place, same id and slug so the four real
 // inbound handoffs from other journeys stayed valid, to match a reference
@@ -466,9 +485,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (299 journeys / 3966 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 299 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3966 &&
+  "canonical source mutation = 0 (298 journeys / 3954 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 298 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3954 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

@@ -13,19 +13,24 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
      CHURN         it ended
 
    Every collapse between two of them produces a specific failure, and this
-   category is nine journeys drawing the lines between them. RET-21 keeps
+   category is eight journeys drawing the lines between them. RET-21 keeps
    engagement a changing state rather than a label. RET-22 refuses to read
    absence as evidence without a pattern to read it against. RET-23 insists a
    health score name what moved it before anyone is contacted. RET-24 makes
-   intervention scale with evidence instead of with account value. RET-26 stops
-   compensation being the default apology. RET-27 is the whole category in one
-   journey: a good sign is the start of recovery, not recovery. RET-28 and
-   RET-29 are the two sides of the intent/completion line, and RET-30 makes an
-   intervention finish only when its actual outcome is known.
+   intervention scale with evidence instead of with account value. RET-27 is
+   the whole category in one journey: a good sign is the start of recovery,
+   not recovery. RET-28 and RET-29 are the two sides of the intent/completion
+   line, and RET-30 makes an intervention finish only when its actual outcome
+   is known.
 
    RET-25 is not here. Evaluating a risk signal is a risk and policy
    responsibility rather than a retention one, and it opened on the same event
    as RSK-192, which now owns it.
+
+   RET-26 is not here either (retired 2026-09-24, site owner's request -
+   "kaldır"). It was the library's general-purpose service-recovery journey;
+   RET-23's h.service branch, its one real inbound handoff, now hands a
+   service failure straight to external:operational-resolution instead.
 
    Almost everything here can conclude that nothing should be sent. That is
    not a gap in the category, it is most of the point of it. */
@@ -726,9 +731,17 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "h.service",
         kind: "handoff",
-        to: "RET-26",
+        to: "external:operational-resolution",
         on: "deterioration caused by a service failure on our side",
         carries: ["what failed and when", "whether the customer is still affected"],
+        contract: {
+          "requiredFields": [
+            "relationship_id",
+            "account_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "h.payment",
@@ -1334,368 +1347,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",
-  },
-
-  /* ------------------------------------------------------------ RET-26 */
-  {
-    id: "RET-26",
-    slug: "negative-experience-recovery",
-    category: "retention",
-    goal: "compensation-remedy",
-    channels: ["in-app", "email"],
-    name: "Negative experience → recovery eligibility → appropriate response",
-    shortName: "Service Recovery",
-    purpose:
-      "Match the response to what actually failed, whether it is fixed, and whether a remedy is genuinely owed.",
-    entity: {
-      scope: "person or account plus the experience or service entity that failed",
-      note: "The recovery belongs to the failure. A second unrelated failure is a second instance, and one apology does not cover both.",
-      instanceKey: [
-        "person_id",
-        "failure_ref"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "REM-151",
-        because:
-          "REM-151's own gates defer to a process that already owns the failure without naming it. This is that process: RET-26 acknowledges what failed and what was done, and never decides the remedy itself.",
-      },
-      {
-        journey: "CON-300",
-        because:
-          "RET-26 is the library's general-purpose service-recovery journey; CON-300 is the one journey that names it. This acknowledges a specific failure, not the standing marketing relationship.",
-      },
-    ],
-    objective: "After an authoritative service failure, say what failed, what was done and what prevents it recurring - once, only when it is useful, only after the failure is resolved, and only where no other process already owns it; route anything owed to remedy.",
-    eligibility: [
-      "an authoritative record of a negative experience or service failure attributable to this person and an experience entity",
-      "no other recovery process is already handling the same failure",
-      "the underlying issue is resolved - nothing is said about a failure that is still ongoing",
-      "hard gates (GLB-31) permit service communication"
-    ],
-    suppressions: [
-      {
-        "id": "s.duplicate",
-        "label": "CANONICAL_RULE",
-        "text": "Another recovery process already handling this failure owns it; this instance defers and nothing is sent."
-      },
-      {
-        "id": "s.unresolved",
-        "label": "CANONICAL_RULE",
-        "text": "While the underlying issue is still broken the operational owner has it; a recovery message before the fix is a promise the journey cannot keep."
-      },
-      {
-        "id": "s.not-useful",
-        "label": "CANONICAL_RULE",
-        "text": "A recovery communication is sent only where it is useful to the person - a failure they noticed or were affected by; a silent fix of something they never saw stays silent."
-      },
-      {
-        "id": "s.compensation",
-        "label": "CANONICAL_RULE",
-        "text": "Where policy and impact support compensation the remedy journey (REM-159) owns it; no discount is offered here standing in for an explanation."
-      },
-      {
-        "id": "s.permission",
-        "label": "CANONICAL_RULE",
-        "text": "Hard gates apply; pressure caps do not, because this is service communication about something that happened to the person."
-      }
-    ],
-    contact: {
-      "defaultPriority": "service",
-      "pressureClass": "service",
-      "localCap": {
-        "value": {
-          "key": "service_recovery.touches",
-          "rule": "One acknowledgement per failure; a second message about the same failure is a second failure.",
-          "default": {
-            "value": 1,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "the graph reaches at most one acknowledgement per instance"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "service_recovery.cooldown",
-        "rule": "Recovery is per failure; a later failure is its own instance and no cooldown applies between failures, though repeated failures are themselves evidence for the relationship's health.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule"
-        },
-        "required": false
-      },
-      "competition": "none"
-    },
-    "channelStrategy": {
-      "roles": [
-        {
-          "role": "in-session",
-          "channels": ["in-app"],
-          "when": "has_active_app_session is true and the resolved experience belongs to the product context the person is currently using"
-        },
-        {
-          "role": "persistent",
-          "channels": ["email"],
-          "when": "otherwise, because what failed, what was done and what prevents recurrence should remain available after the session"
-        }
-      ],
-      "fallback": "none",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "single-notice",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "acknowledgement",
-          "action": "a.acknowledge",
-          "prerequisites": [
-            "c.duplicate",
-            "c.resolved",
-            "c.useful",
-            "c.compensation"
-          ],
-          "purpose": "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation.",
-          "channelRoles": [
-            "in-session",
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.duplicate",
-        "s.unresolved",
-        "s.not-useful",
-        "s.compensation",
-        "s.permission"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "person_id",
-          "failure_ref",
-          "experience_ref",
-          "failed_at",
-          "impact",
-          "resolution_status",
-          "resolved_at"
-        ],
-        "optional": [
-          "open_recovery_process_ref",
-          "compensation_policy_id",
-          "has_active_app_session"
-        ]
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.acknowledged",
-          "x.silent",
-          "x.defer",
-          "h.operational",
-          "h.compensation"
-        ]
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "support_contact_within_24h",
-        "message_before_resolution",
-        "discount_offered_here"
-      ],
-      "operational": [
-        "entry_volume",
-        "duplicate_defer_rate",
-        "unresolved_handoff_rate",
-        "acknowledgement_rate",
-        "compensation_handoff_rate"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "service recovery",
-        "service failure apology",
-        "incident follow-up",
-        "experience recovery",
-        "failed delivery follow-up",
-        "outage follow-up"
-      ],
-      "useCases": [
-        "a delivery that failed and was later completed",
-        "an outage or error that affected this person and has been fixed",
-        "a service appointment that went wrong and was put right"
-      ]
-    },
-    entry: "t.negative",
-    nodes: [
-      {
-        id: "t.negative",
-        kind: "trigger",
-        event: "authoritative_negative_experience",
-        evidence: {
-          requires: [
-            "a recorded failure: a service failure, a failed fulfilment, a confirmed disruption, a failed critical action, or severe support dissatisfaction",
-          ],
-          insufficientAlone: [
-            "negative feedback on its own, which reports an experience rather than confirming a failure",
-            "a low survey score with no incident behind it",
-          ],
-          source: "authoritative",
-        },
-        next: "a.assess",
-      },
-      {
-        id: "a.assess",
-        kind: "action",
-        does: "Establish what failed, what it cost the customer, whether it has been resolved, whether they are still affected, and whether some other process is already handling it",
-        writes: [{ field: "failure_record", mode: "append" }],
-        next: "c.duplicate",
-      },
-      {
-        id: "c.duplicate",
-        kind: "condition",
-        asks: "Is another recovery process already handling this failure?",
-        branches: [
-          {
-            label: "Already handled",
-            when: "an open case, an assigned owner or another recovery journey covers the same incident",
-            to: "x.defer",
-          },
-          {
-            label: "Nobody on it",
-            when: "no existing process covers it",
-            to: "c.resolved",
-          },
-        ],
-      },
-      {
-        id: "x.defer",
-        kind: "exit",
-        state: "deferred to the process already handling it",
-        terminal: false,
-        reEntry:
-          "if that process closes with the customer still affected, this re-opens - two apologies from two systems is worse than one, because it proves neither knew about the other",
-        class: "suppression",
-      },
-      {
-        id: "c.resolved",
-        kind: "condition",
-        asks: "Is the underlying issue still unresolved?",
-        branches: [
-          {
-            label: "Still broken",
-            when: "the customer remains affected",
-            to: "h.operational",
-          },
-          {
-            label: "Resolved",
-            when: "the failure is over and the customer is no longer affected",
-            to: "c.useful",
-          },
-        ],
-      },
-      {
-        id: "h.operational",
-        kind: "handoff",
-        to: "external:operational-resolution",
-        on: "a failure that is still ongoing",
-        carries: ["what failed and who is affected", "the fact that no recovery message has been sent yet"],
-        suppresses: [
-          "apology and compensation messaging until the thing being apologised for has stopped happening",
-        ],
-        contract: {
-          "requiredFields": [
-            "failure_ref",
-            "experience_ref",
-            "person_id",
-            "impact",
-            "detected_at"
-          ]
-        },
-      },
-      {
-        id: "c.useful",
-        kind: "condition",
-        asks: "Is a recovery communication actually useful here?",
-        branches: [
-          {
-            label: "Useful",
-            when: "the customer noticed, or would want to know it was handled",
-            to: "c.compensation",
-          },
-          {
-            label: "Not useful",
-            when: "the failure was resolved before it reached them - raising it now creates the concern it would be apologising for",
-            to: "x.silent",
-          },
-        ],
-      },
-      {
-        id: "x.silent",
-        kind: "exit",
-        state: "resolved without contact",
-        terminal: false,
-        reEntry: "a recurrence, or any sign they did notice, re-opens this",
-        class: "no-action",
-      },
-      {
-        id: "c.compensation",
-        kind: "condition",
-        asks: "Does policy and the actual impact support compensation?",
-        branches: [
-          {
-            label: "Owed",
-            when: "the impact and the policy both support a remedy",
-            to: "h.compensation",
-          },
-          {
-            label: "Not owed",
-            when: "the failure was real but no remedy is justified - which is most failures",
-            to: "a.acknowledge",
-          },
-        ],
-      },
-      {
-        id: "h.compensation",
-        kind: "handoff",
-        to: "REM-159",
-        on: "a remedy that policy and impact both support",
-        carries: ["the failure and its assessed impact", "what has already been said to the customer"],
-      },
-      {
-        id: "a.acknowledge",
-        kind: "action",
-        does: "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation - a remedy offered instead of an account of what went wrong reads as buying silence",
-        next: "x.acknowledged",
-        execution: "communication",
-        idempotencyKey: "person_id + failure_ref + touch id",
-      },
-      {
-        id: "x.acknowledged",
-        kind: "exit",
-        state: "failure acknowledged, no remedy owed",
-        terminal: false,
-        reEntry: "a recurrence changes the assessment, and repetition is itself part of the impact",
-        class: "success",
-      },
-    ],
-    guardrails: [
-      "Negative feedback is not a confirmed service failure. One is a report of an experience, the other is a record of something going wrong.",
-      "A discount is not a default apology. Compensation follows impact and policy, not the awkwardness of the conversation.",
-      "An existing support case suppresses this entirely. A parallel recovery journey contradicts the person already handling it.",
-    ],
-    reusableRule:
-      "Service recovery should reflect the actual failure, current resolution state and justified remedy rather than use compensation as a default response.",
   },
 
   /* ------------------------------------------------------------ RET-27 */

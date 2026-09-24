@@ -199,12 +199,6 @@ export const REMEDY_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "FUL-148 recovers a single delivery attempt already known to have failed, while a further attempt is still possible. This journey opens once something has actually been delivered and asks whether it left an obligation unresolved - nothing has failed to arrive, something arrived and was not right.",
       },
-      {
-        // Reciprocal row lives in RET-26's own section (src/canonical/retention.ts, out of this batch's scope).
-        journey: "RET-26",
-        because:
-          "RET-26 is the library's general service-recovery journey and its evidence explicitly includes a failed fulfilment among other causes. This journey is the narrower case: a concrete problem with a specific completed fulfillment or service, assessed for one unresolved obligation and one remedy route rather than for a relationship-level recovery.",
-      },
     ],
     objective: "Route a reported problem to the process built for its kind, hold the thread until it is confirmed resolved or the window closes, and put a person on it the moment it isn't.",
     eligibility: [

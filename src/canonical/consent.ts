@@ -3620,10 +3620,6 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "CON-38",
         "because": "CON-38 holds, scopes and releases a suppression once it exists. This journey is the decision that one is warranted, and the suppression it produces is the sender-side kind CON-38 keeps apart from a permission the person withdrew."
-      },
-      {
-        "journey": "RET-26",
-        "because": "RET-26 reads a person's engagement with the product. This reads their engagement with our messages, and the two are routinely opposite: an active customer who ignores marketing is not dormant, and a sunset that treats them as such loses a customer to fix a list."
       }
     ],
     "guardrails": [
