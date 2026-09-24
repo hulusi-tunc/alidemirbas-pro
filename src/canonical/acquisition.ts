@@ -4118,7 +4118,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "applicableWhen": {
             "id": "p.application",
             "label": "CANONICAL_RULE",
-            "text": "The resumable process is a multi-step application with saved state; a hard submission deadline, where one exists, is owned by deadline reminder (TIM-61) through handoff, not by this recovery."
+            "text": "The resumable process is a multi-step application with saved state; a hard submission deadline, where one exists, is owned by whatever governs that deadline, not by this recovery."
           },
           "overrides": {
             "recovery.first_check": {

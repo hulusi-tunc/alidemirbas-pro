@@ -4292,29 +4292,6 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "x.lost": { headline: "pencere kurtarılmadan kapandı", detail: "daha sonra verilen bir geçerlilik yeni bir yaşam döngüsü başlatır; buraya yeniden girmek için yeni bir düşüş gerekir" },
   },
   },
-  "TIM-61": {
-  shortName: "Son Tarih Takibi",
-  name: "Son tarih oluşturuldu → takip → tamamlandı, yükseltildi veya süresi doldu",
-  purpose: "Bir son tarihin, mesajları bir tarihe göre planlamak yerine tek bir yükümlülüğün durumunu belirlemesini sağlar.",
-  nodes: {
-    "t.deadline": { headline: "Yetkili son tarih atandı" },
-    "a.store": { headline: "Son tarihi; sonucu değiştirdiği durumlarda saat dilimiyle birlikte, kaynağıyla, yönettiği yükümlülükle, sahibiyle ve neyin tamamlanma sayılacağıyla birlikte kaydet. Tamamlanma koşulu bunun taşıyıcı unsurudur - neyin kendisini karşılayacağını söyleyemeyen bir son tarih, yalnızca geçen zamanı ölçebilir" },
-    "w.tracking": { headline: "yükümlülük ana kayıt sisteminde karşılanana kadar veya son tarihten önce tanımlanmış bir noktaya ulaşılana kadar", detail: "zaman aşımı: Son tarihin kendisi. (deadline_tracking.tracking yapılandırın)" },
-    "c.what": { headline: "Hangisi gerçekleşti?", edges: [{ label: "Tamamlandı", detail: "son tarihle birlikte kaydedilen tamamlanma koşulu karşılandı" }, { label: "Son tarih öncesi eşik", detail: "yükümlülük hâlâ açıkken son tarihten önce tanımlanan noktaya ulaşıldı" }] },
-    "c.consequence": { headline: "Son tarih, yükümlülük açıkken geçti - yönetici kural ne olacağını söylüyor?", edges: [{ label: "GECİKMİŞ", detail: "yükümlülük son tarihinden sonra da varlığını sürdürür ve operasyonel durumu değişir" }, { label: "YÜKSELTİLDİ", detail: "kural, yükümlülüğün kendisini değiştirmek yerine onu üst mercie taşır" }, { label: "SÜRESİ DOLDU", detail: "yükümlülüğün kendisi son tarihte geçerliliğini yitirir" }, { label: "BAŞARISIZ", detail: "kural, bu son tarihi kaçırmayı açıkça başarısızlık olarak tanımlar" }, { label: "Hâlâ geçerli", detail: "son tarih bir hedeften ibaretti ve geçmesi yükümlülükle ilgili hiçbir şeyi değiştirmez" }] },
-    "a.satisfied": { headline: "Yükümlülüğü tamamlandı olarak işaretle ve ona karşı sırada bekleyen tüm hatırlatma ve yükseltmeleri geçersiz kıl. Tamamlanmış bir yükümlülük, eskimiş bir son tarih işi tarafından asla yeniden açılmaz - bitmiş bir şeyin hayata dönmesinin özel yolu budur" },
-    "c.useful": { headline: "Burada son tarih öncesi bir hatırlatma işe yarar mı ve politika böyle bir hatırlatma tanımlıyor mu?", edges: [{ label: "Gönderilsin", detail: "politika bu eşikte bir hatırlatma tanımlıyor ve alıcı hâlâ buna göre hareket edebilir" }, { label: "Gönderilecek bir şey yok", detail: "tanımlı bir hatırlatma yok, ya da bunu duyan kimse farklı bir şey yapamaz" }] },
-    "c.threshold": { headline: "Hangi eşik tetiklendi?", edges: [{ label: "Son tarih öncesi son eşik", detail: "son tarihten önceki son eşik bu, ve SMS izni kayıtlı" }, { label: "Daha önceki bir eşik", detail: "erken, son olmayan bir eşik - yaklaşmakta olan bir sonuçla birlikte bir son tarih değil, bilgi niteliğinde" }] },
-    "a.remind-final": { headline: "Son tarih öncesi son eşik için tanımlanan hatırlatmayı gönder. Bu, son tarihin kendisinin ne olacağına karar veren şey haline gelmeden önceki son fırsattır, bu yüzden yalnızca bilgi değil, son tarihi ve yükümlülüğü yerine getirmenin tek yolunu taşır" },
-    "h.overdue": { headline: "Vade durumu değişikliği → önceliği yeniden hesapla → çöz veya yükselt", detail: "son tarihinden sonra da varlığını sürdüren bir yükümlülük" },
-    "h.escalate": { headline: "Sorumluluk yükseltmesi → üst mercii → çözüm veya geri dönüş", detail: "yönetici kuralı, yükümlülüğü değiştirmek yerine üst mercie taşıyan bir son tarih" },
-    "h.expired": { headline: "Son kullanma tarihine ulaşıldı → mevcut durumu doğrula → süresini doldur, uzat veya yenisiyle değiştir", detail: "yükümlülüğün kendisinin geçerliliğini yitirdiği bir son tarih" },
-    "x.failed": { headline: "yükümlülük, kuralın tanımladığı şekilde son tarihinde başarısız oldu", detail: "yeni bir girişim, kendi son tarihine sahip yeni bir yükümlülüktür; bu kayıt yalnızca karşılanmadığını gösterir" },
-    "x.still-valid": { headline: "son tarih geçti, yükümlülük değişmedi", detail: "yükümlülük, onu yöneten koşullar altında sürmeye devam eder - burada zamanın geçmesi hiçbir şeye karar vermedi; bu olağan durumdur, bir eksiklik değil" },
-    "x.satisfied": { headline: "yükümlülük son tarihinden önce karşılandı", detail: "yeni bir yükümlülük kendi son tarihini taşır; bu yükümlülük kapandı" },
-    "a.remind": { headline: "Bu eşik için tanımlanan hatırlatmayı gönder. Hatırlatma takvimi son tarih değildir ve onu değiştirmez - kimseye hatırlatılmamış bir son tarih yine de son tarihtir" },
-  },
-  },
   "TIM-62": {
   shortName: "Gecikme Durumu Yeniden Hesaplaması",
   name: "Vade durumu değişikliği → önceliği yeniden hesapla → çöz veya yükselt",
@@ -4849,7 +4826,7 @@ const PRESET_TR: Readonly<Record<string, PresetTranslation>> = {
   "application-abandonment": {
     name: "Başvuru Terki",
     applicableWhen:
-      "Sürdürülebilir süreç, durumu kaydedilmiş çok adımlı bir başvurudur; kesin bir son gönderim tarihi varsa o tarih, bu kurtarmanın değil, devir yoluyla Son Tarih Takibi'nin (TIM-61) sorumluluğundadır.",
+      "Sürdürülebilir süreç, durumu kaydedilmiş çok adımlı bir başvurudur; kesin bir son gönderim tarihi varsa o tarih, bu kurtarmanın değil, o tarihi yöneten her neyse onun sorumluluğundadır.",
     destination: "başvuru",
   },
   "incomplete-registration": {

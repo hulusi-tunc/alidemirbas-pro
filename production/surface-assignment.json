@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 288,
-    "customer": 139,
+    "journeys": 287,
+    "customer": 138,
     "customer-silent": 66,
-    "customer-communicating": 73,
+    "customer-communicating": 72,
     "mechanism": 25,
     "operational": 124
   },
@@ -746,17 +746,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "no message channel and a system-side entity or category"
-    },
-    {
-      "id": "TIM-61",
-      "shortName": "Deadline Tracking",
-      "category": "time",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "TIM-62",

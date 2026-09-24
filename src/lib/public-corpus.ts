@@ -92,7 +92,13 @@ export const ARCHIVED_SURFACE = "operational" as const;
    that cannot perform the communication directly, the guidance-change
    branch was removed rather than reinvented, and INC-253's mitigation
    path now goes straight to its own sufficiency check on every path -
-   taking the library to 54.
+   taking the library to 54. TIM-61 (Deadline Tracking) was retired
+   next, the site owner's request - it had no real inbound handoffs and
+   no prose distinctFrom rows naming it anywhere in the corpus, both
+   already cleaned up when TIM-268 was retired earlier; two remaining
+   illustrative prose mentions (ACQ's application-abandonment preset
+   text, EN and TR) were reworded to drop the reference - taking the
+   library to 53.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -158,8 +164,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",
   // Feedback, advocacy & relationship signals - 4
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",
-  // Time, deadlines, expiry & temporary states - 2
-  "TIM-61", "TIM-274",
+  // Time, deadlines, expiry & temporary states - 1
+  "TIM-274",
   // Access, identity & relationship - 2
   "ACC-261", "REL-284",
   // Transactions, fulfillment & remedies - 10
