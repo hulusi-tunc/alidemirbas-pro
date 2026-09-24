@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 294,
-    "customer": 145,
+    "journeys": 293,
+    "customer": 144,
     "customer-silent": 66,
-    "customer-communicating": 79,
+    "customer-communicating": 78,
     "mechanism": 25,
     "operational": 124
   },
@@ -1244,14 +1244,14 @@
     },
     {
       "id": "REL-284",
-      "shortName": "Relationship Invitation",
+      "shortName": "Referral Reward",
       "category": "structure",
       "surface": "customer",
       "sends": true,
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (email, push)"
     },
     {
       "id": "TRM-101",
@@ -2308,17 +2308,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (email)"
-    },
-    {
-      "id": "SCH-280",
-      "shortName": "No-Show Follow-Up",
-      "category": "scheduling",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (sms, email)"
     },
     {
       "id": "SCH-282",

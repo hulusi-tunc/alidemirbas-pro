@@ -61,7 +61,9 @@ export const ARCHIVED_SURFACE = "operational" as const;
    section, removed - taking the library to 61. IDN-271 (Account Security
    Alert) was retired next - it had no real inbound handoffs and no prose
    distinctFrom rows naming it anywhere in the corpus - taking the library
-   to 60. Everything below that
+   to 60. SCH-280 (No-Show Follow-Up) was retired next - it had no real
+   inbound handoffs and no prose distinctFrom rows naming it anywhere in
+   the corpus - taking the library to 59. Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
    itself for the live list.
@@ -133,8 +135,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Transactions, fulfillment & remedies - 10
   "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291",
   "REM-151", "REM-157", "REM-305",
-  // Subscriptions & scheduling - 12
-  "SCH-266", "SCH-277", "SCH-280", "SCH-282", "SCH-303", "SCH-304", "SUB-163",
+  // Subscriptions & scheduling - 11
+  "SCH-266", "SCH-277", "SCH-282", "SCH-303", "SCH-304", "SUB-163",
   "SUB-262", "SUB-296", "SUB-297", "SUB-298", "SUB-299",
   // Risk, documents, rollout & incidents - 5
   "DOC-214", "DOC-215", "INC-254", "RLT-279", "RSK-273",
