@@ -221,72 +221,125 @@ type JourneyOverride = {
 const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   "SCH-303": {
   shortName: "Rezervasyon Ödeme Hatırlatması",
-  name: "Ödeme koşuluna bağlı duran rezervasyon → hatırlatıldı → korundu, serbest bırakıldı ya da tahsilata devredildi",
+  name: "Ödeme koşuluna bağlı duran rezervasyon → uygunluk kontrol edildi → yükselen bir hatırlatma dizisi → korundu, serbest bırakıldı ya da tahsilata devredildi",
   purpose: "Yalnızca bir ödeme hâlâ beklendiği için ayakta duran bir rezervasyonu korumak: sahibine neyin ödenmediğini ve rezervasyon koşullarının bu durumda ne yapacağını söyleyerek - ve asıl aksayan şey ödemenin kendisi olduğu anda aradan çekilerek.",
   nodes: {
     "t.outstanding": { headline: "Rezervasyonun ödemesi hâlâ bekliyor" },
     "c.standing": {
-      headline: "Rezervasyon hâlâ ayakta mı ve yükümlülük hâlâ ödenmemiş mi?",
+      headline: "Rezervasyon bilgilerini çekip bakıldığında - bekleyen tutar, son ödeme noktası ve tutulma süresi - rezervasyon hâlâ ayakta ve yükümlülük hâlâ ödenmemiş mi, yoksa uygunluk kontrolü bunu zaten mi çözdü?",
       edges: [
         { label: "Ayakta ve ödenmemiş", detail: "rezervasyon kayıtlı saatiyle onaylı durumda ve arkasındaki yükümlülük ne karşılanmış, ne feragat edilmiş, ne de iptal edilmiş" },
-        { label: "Zaten karşılanmış", detail: "yükümlülüğün herhangi bir yoldan karşılandığı, feragat edildiği ya da iptal edildiği kayıtlı" },
-        { label: "Artık ayakta değil", detail: "hiçbir şey gönderilmeden önce rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+        { label: "Ödeme zaten tamamlanmış", detail: "yükümlülüğün, bu akışın hiç bildirim göndermediği bir yol dâhil, herhangi bir yoldan karşılandığı, feragat edildiği ya da iptal edildiği kayıtlı" },
+        { label: "Rezervasyon geçerli değil", detail: "hiçbir şey gönderilmeden önce rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
       ],
     },
-    "c.sendable": {
-      headline: "Ödenmemiş tutar bildirimi gönderilebilir mi?",
+    "c.sendable1": {
+      headline: "İlk hatırlatma gönderilebilir mi?",
       edges: [
         { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: bu rezervasyona dair hizmet iletişimi izni, ulaşılabilir bir hedef, hizmet iletişim yoğunluğu sınıfı ve bu rezervasyonu şu anda tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışının bulunmaması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
-    "a.remind": {
-      headline: "Bu rezervasyona karşı hâlâ neyin ödenmediğini, rezervasyon koşullarının bunu hangi noktaya kadar beklediğini ve karşılanmazsa koşulların rezervasyona ne yapacağını söyle. Konu para değil, kişinin elindeki yer: bunu bir fatura gibi okuyan kişi mesajı bir kenara koyar, rezervasyonunun tehlikede olduğunu okuyan kişi harekete geçer",
+    "a.remind1": {
+      headline: "Bu rezervasyona karşı hâlâ neyin ödenmediğini söyle - rezervasyon bilgisi, bekleyen tutar, rezervasyon koşullarının bunu hangi noktaya kadar beklediği ve karşılanmazsa koşulların rezervasyona ne yapacağı - ve ödemeye doğrudan bir yol ver. Konu para değil, kişinin elindeki yer: bunu bir fatura gibi okuyan kişi mesajı bir kenara koyar, rezervasyonunun tehlikede olduğunu okuyan kişi harekete geçer",
     },
-    "w.payment": {
+    "w.remind1": {
       headline: "yükümlülük karşılanana, ödeme sistemi bir denemenin başarısız olduğunu bildirene ya da rezervasyon iptal edilene, taşınana veya esaslı biçimde değişene kadar",
-      detail: "Zaman aşımı: rezervasyon koşullarının bu rezervasyon için kendi belirlediği son ödeme noktası. Bu akış o noktayı okur; kendisi asla bir nokta belirlemez ve hatırlatmanın gönderildiği anı bir saatin başlangıcı saymaz. (reservation_payment.due ayarlanmalı)",
+      detail: "Zaman aşımı: ilk hatırlatmadan sonraki kısa, sabit bir süre - bu sürenin ardından akış yükümlülüğü yeniden okuyup daha hızlı bir kanala geçer. (reservation_payment.first_reminder_window ayarlanmalı)",
     },
-    "c.outcome": {
-      headline: "Bekleme neyle sonuçlandı?",
+    "c.outcome1": {
+      headline: "İlk bekleme neyle sonuçlandı?",
       edges: [
         { label: "Rezervasyon korundu", detail: "rezervasyonun arkasındaki yükümlülüğün karşılandığı, feragat edildiği ya da iptal edildiği kayıtlı" },
         { label: "Ödemenin kendisi başarısız oldu", detail: "bu yükümlülüğe karşı bir deneme yapıldı ve ödeme sistemi denemenin başarısız olduğunu bildirdi" },
         { label: "Rezervasyon geri çekildi", detail: "rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
       ],
     },
-    "c.still": {
+    "a.partial1": {
+      headline: "Bekleyen tutarı ödeme kaydının şimdi gösterdiği hâle güncelle ve kalan tutar için hatırlatma dizisini sürdür - yeni tutarı ve aynı son ödeme noktasını belirterek, ilk tutarı değil",
+    },
+    "a.extend1": {
+      headline: "Verilen süre uzatımını bu rezervasyonun kendi son ödeme noktasına ve serbest bırakma noktasına işle, ve diziyi asıl tarihler yerine yeni tarihlere göre sürdür",
+    },
+    "c.still1": {
       headline: "Yeniden okunduğu hâliyle rezervasyon hâlâ ayakta mı?",
       edges: [
-        { label: "Hâlâ risk altında", detail: "rezervasyon onaylı durumda ve arkasındaki yükümlülük son ödeme noktasında hâlâ karşılanmamış" },
+        { label: "Hâlâ risk altında", detail: "rezervasyon onaylı durumda ve arkasındaki yükümlülük hâlâ ödenmemiş" },
         { label: "Bu arada karşılandı", detail: "pencere açıkken yükümlülük karşılandı, feragat edildi ya da iptal edildi" },
         { label: "Bu arada geri çekildi", detail: "pencere açıkken rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+        { label: "Kısmi ödeme kaydedildi", detail: "yükümlülüğe karşı, bekleyen tutarın tamamını karşılamayan bir ödeme kaydedildi" },
+        { label: "Süre uzatımı verildi", detail: "sahibi süre talep etti ve uzatım bu rezervasyonun kendi koşullarına göre verildi" },
       ],
     },
     "c.sendable2": {
-      headline: "Son bildirim gönderilebilir mi?",
+      headline: "İkinci hatırlatma gönderilebilir mi?",
       edges: [
         { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor ve bu rezervasyonu tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışı yok; bu bildirim kişiye borçlu olunan bir bildirimdir, bu yüzden isteğe bağlı temas bütçesi onu durdurmaz" },
         { label: "Engellendi", detail: "sert bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir ve iletemeyecek başka bir yol zorlanmaz" },
       ],
     },
-    "a.final": {
-      headline: "Rezervasyonun şu andaki hâlini, hâlâ korunabileceği son noktayı ve o noktadan sonra koşulların ona ne yapacağını bildir. Burada serbest bırakma noktası ne ötelenir ne de yumuşatılır - son tarihin esnek olduğu söylenen kişiye iki kez yanlış şey söylenmiş olur",
+    "a.remind2": {
+      headline: "Ödeme tamamlanmazsa rezervasyonun kaybedileceğini söyleyen kısa, doğrudan bir mesaj gönder - son ödeme noktası ve ödemeye doğrudan bir yolla. Koşulların kendisinin taşımadığı hiçbir aciliyet uydurulmaz",
     },
-    "w.release": {
+    "w.remind2": {
       headline: "yükümlülük karşılanana, ödeme sistemi bir denemenin başarısız olduğunu bildirene ya da rezervasyon iptal edilene, taşınana veya esaslı biçimde değişene kadar",
-      detail: "Zaman aşımı: rezervasyon koşullarının yeri yeniden müsaitliğe bıraktığı nokta. O noktanın sahibi koşullardır; bu akış onu okur ve o noktada ne olduğunu bildirir. (reservation_payment.release ayarlanmalı)",
+      detail: "Zaman aşımı: rezervasyon koşullarının bu rezervasyon için kendi belirlediği son ödeme noktası. Bu akış o noktayı okur; kendisi asla bir nokta belirlemez ve bir hatırlatmanın gönderildiği anı bir saatin başlangıcı saymaz. (reservation_payment.due ayarlanmalı)",
     },
     "c.outcome2": {
-      headline: "Son pencere neyle sonuçlandı?",
+      headline: "İkinci bekleme neyle sonuçlandı?",
       edges: [
         { label: "Rezervasyon korundu", detail: "rezervasyonun arkasındaki yükümlülüğün karşılandığı, feragat edildiği ya da iptal edildiği kayıtlı" },
         { label: "Ödemenin kendisi başarısız oldu", detail: "bu yükümlülüğe karşı bir deneme yapıldı ve ödeme sistemi denemenin başarısız olduğunu bildirdi" },
         { label: "Rezervasyon geri çekildi", detail: "rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
       ],
     },
+    "a.partial2": {
+      headline: "Bekleyen tutarı ödeme kaydının şimdi gösterdiği hâle güncelle ve kalan tutar için diziyi son hatırlatmaya doğru sürdür - ilk tutarı değil",
+    },
+    "a.extend2": {
+      headline: "Verilen süre uzatımını bu rezervasyonun kendi son ödeme noktasına ve serbest bırakma noktasına işle, ve diziyi asıl tarihler yerine yeni tarihlere göre sürdür",
+    },
+    "c.still2": {
+      headline: "Yeniden okunduğu hâliyle rezervasyon hâlâ ayakta mı?",
+      edges: [
+        { label: "Hâlâ risk altında", detail: "rezervasyon onaylı durumda ve arkasındaki yükümlülük son ödeme noktasında hâlâ karşılanmamış" },
+        { label: "Bu arada karşılandı", detail: "pencere açıkken yükümlülük karşılandı, feragat edildi ya da iptal edildi" },
+        { label: "Bu arada geri çekildi", detail: "pencere açıkken rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+        { label: "Tutulan yerin kendisi kalmadı", detail: "koşullar değişti çünkü rezervasyonun tuttuğu belirli tarih, oda ya da hizmet artık geri verilecek durumda değil - pencere açıkken başka yerde dolduruldu" },
+        { label: "Kısmi ödeme kaydedildi", detail: "yükümlülüğe karşı, bekleyen tutarın tamamını karşılamayan bir ödeme kaydedildi" },
+        { label: "Süre uzatımı verildi", detail: "sahibi son tarihten önce süre talep etti ve uzatım bu rezervasyonun kendi koşullarına göre verildi" },
+      ],
+    },
+    "a.suggest-alternative": {
+      headline: "Tutulan yerin, tarihin, odanın ya da hizmetin artık müsait olmadığını açıkça söyle ve bunu sahibine haber vermeden bırakmak yerine alternatif bir tarih ya da seçenek göster. Burada asıl rezervasyonun hâlâ karşılanabileceği iddia edilmez",
+    },
+    "c.sendable3": {
+      headline: "Son hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor, bu rezervasyon için isteğe bağlı bütçe tükenmemiş ve bu rezervasyonu tutan daha yüksek öncelikli bir rezervasyon-yaşam-döngüsü akışı yok" },
+        { label: "Engellendi", detail: "bir kapı durduruyor ya da bütçe tükenmiş; hangi kapının durdurduğu gerekçe olarak kaydedilir ve iletemeyecek başka bir yol zorlanmaz" },
+      ],
+    },
+    "a.remind3": {
+      headline: "Rezervasyonun süresinin dolmak üzere olduğunu söyleyen kısa, doğrudan tek bir mesaj gönder - rezervasyon bilgisi, son ödeme noktası ve ödemeye hızlı bir yol, fazlası değil - iki önceki temasa da tepki vermemiş birine hâlâ ulaşan bir kanaldan",
+    },
+    "w.release": {
+      headline: "yükümlülük karşılanana, ödeme sistemi bir denemenin başarısız olduğunu bildirene ya da rezervasyon iptal edilene, taşınana veya esaslı biçimde değişene kadar",
+      detail: "Zaman aşımı: rezervasyon koşullarının yeri yeniden müsaitliğe bıraktığı nokta. O noktanın sahibi koşullardır; bu akış onu okur ve o noktada ne olduğunu bildirir. (reservation_payment.release ayarlanmalı)",
+    },
+    "c.outcomeFinal": {
+      headline: "Son ödeme noktasında, ödeme tamamlandı mı?",
+      edges: [
+        { label: "Rezervasyon korundu", detail: "rezervasyonun arkasındaki yükümlülüğün karşılandığı, feragat edildiği ya da iptal edildiği kayıtlı" },
+        { label: "Ödemenin kendisi başarısız oldu", detail: "bu yükümlülüğe karşı bir deneme yapıldı ve ödeme sistemi denemenin başarısız olduğunu bildirdi" },
+        { label: "Rezervasyon geri çekildi", detail: "rezervasyon iptal edildi, taşındı ya da esaslı biçimde değişti" },
+      ],
+    },
+    "a.confirm": {
+      headline: "Ödemenin alındığını ve rezervasyonun kesinleştiğini söyle - rezervasyon özeti ve ödeme kaydıyla birlikte. Bu, rezervasyonun artık hiçbir şeye bağlı olmaktan çıktığı andır",
+    },
     "a.lapse": {
-      headline: "Rezervasyonun serbest bırakıldığını, hiçbir yerin tutulmadığını ve kaydın şimdi ne gösterdiğini söyle. Sessizce kaybolan bir yer, o yerin hâlâ kendisinde olduğuna inanan biri tarafından gün geldiğinde fark edilir",
+      headline: "Rezervasyonun serbest bırakıldığını, hiçbir yerin tutulmadığını ve kaydın şimdi ne gösterdiğini söyle, yeni bir rezervasyon yapmak için isteğe bağlı bir yolla birlikte. Sessizce kaybolan bir yer, o yerin hâlâ kendisinde olduğuna inanan biri tarafından gün geldiğinde fark edilir",
     },
     "a.record-no-action": {
       headline: "Bildirimi hangi kapının ve hangi aşamada durdurduğunu kaydet; böylece hiç uyarılmamış bir rezervasyon sessiz bir boşluk değil, ölçülen bir sonuç olur",
@@ -304,7 +357,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     },
     "x.superseded": {
       headline: "Geçersiz kaldı",
-      detail: "onun yerine geçen rezervasyon kendi koşullarıyla kendi örneğini çalıştırır",
+      detail: "onun yerine geçen rezervasyon ya da sahibinin yerine ayırttığı bir alternatif kendi koşullarıyla kendi örneğini çalıştırır",
     },
     "x.no-action": {
       headline: "Bildirim gönderilmedi",

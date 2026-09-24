@@ -59425,9 +59425,10 @@
       "goal": "scheduling-commitment",
       "channels": [
         "email",
-        "sms"
+        "sms",
+        "whatsapp"
       ],
-      "name": "Reservation standing on a payment condition → reminded → kept, released or routed to recovery",
+      "name": "Reservation standing on a payment condition → eligibility checked → a rising reminder cascade → kept, released or routed to recovery",
       "shortName": "Reservation Payment Reminder",
       "purpose": "Keep a reservation that is standing only because a payment is still expected, by telling the holder what is outstanding and what the booking terms do about it - and by getting out of the way the moment the payment itself is what went wrong.",
       "objective": "Stop a reservation being released for a reason its holder never heard, and move the money question to payment recovery instead of answering it here.",
@@ -59489,12 +59490,12 @@
         "localCap": {
           "value": {
             "key": "reservation_payment.touches",
-            "rule": "Discretionary touches run against a budget fixed when the instance opened. The final notice and the notice that the reservation was released are both owed to the holder and sit outside the budget; the first reminder is the only touch here there is anything to ration.",
+            "rule": "Discretionary touches run against a budget fixed when the instance opened. The second reminder and the notice that the reservation was released or confirmed are owed to the holder and sit outside the budget; the first reminder and the last, optional reminder are the touches here there is anything to ration.",
             "default": {
-              "value": 1,
+              "value": 2,
               "confidence": "medium",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the graph's own discretionary touch count - the outstanding notice, the one touch this journey may choose not to send"
+              "applicableWhen": "GLB-24; the graph's own discretionary touch count - the outstanding notice and the last-chance reminder, the two touches this journey may choose not to send"
             },
             "required": false
           },
@@ -59525,21 +59526,24 @@
             "channels": [
               "email"
             ],
-            "when": "the notice carries terms and an amount the holder has to be able to return to, or no faster route clears both permission and reachability"
+            "when": "the notice carries terms and an amount the holder has to be able to return to - the opening reminder, or the closing notice once the outcome is known - or no faster route clears both permission and reachability"
           },
           {
             "role": "urgent",
             "channels": [
               "sms"
             ],
-            "when": "the release point the terms assert lies inside the urgent horizon and permission for service messages on this route is recorded"
+            "when": "the release point the terms assert is coming within reach and permission for service messages on this route is recorded - the notice this journey owes rather than rations"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "whatsapp"
+            ],
+            "when": "the discretionary last reminder, sent on a route that still reaches someone who has not acted on either touch before it, with nothing more than a quick route back to the payment"
           }
         ],
         "fallback": "same-role-other-channel",
-        "simultaneous": {
-          "allowed": true,
-          "reason": "the SMS carries the deadline, the moment the reservation is released if nothing changes; the email carries the reservation as it stands and what the terms do after. One moment, mandatory, no second notice."
-        },
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -59547,13 +59551,13 @@
         "touches": [
           {
             "id": "t1",
-            "stage": "outstanding-notice",
-            "action": "a.remind",
+            "stage": "first-reminder",
+            "action": "a.remind1",
             "prerequisites": [
               "c.standing",
-              "c.sendable"
+              "c.sendable1"
             ],
-            "purpose": "What is outstanding against this reservation, the point by which the booking terms expect it, and what those terms do if it is not met.",
+            "purpose": "Shortly after the reservation was created: what is outstanding against it, the point by which the booking terms expect it, and what those terms do if it is not met.",
             "channelRoles": [
               "persistent"
             ],
@@ -59571,18 +59575,17 @@
           },
           {
             "id": "t2",
-            "stage": "final-notice",
-            "action": "a.final",
+            "stage": "second-reminder",
+            "action": "a.remind2",
             "after": "t1",
-            "gatedBy": "w.payment",
+            "gatedBy": "w.remind1",
             "prerequisites": [
-              "c.still",
+              "c.still1",
               "c.sendable2"
             ],
-            "purpose": "The reservation as it stands at this moment, the last point at which it can still be kept, and what the terms do to it after that point.",
+            "purpose": "As the release point the terms assert comes within reach: a short, direct restatement of what is owed and by when, on a faster route than the first reminder.",
             "channelRoles": [
-              "urgent",
-              "persistent"
+              "urgent"
             ],
             "destination": {
               "target": "reservation-payment",
@@ -59600,12 +59603,38 @@
           },
           {
             "id": "t3",
+            "stage": "last-chance-reminder",
+            "action": "a.remind3",
+            "after": "t2",
+            "gatedBy": "w.remind2",
+            "prerequisites": [
+              "c.still2",
+              "c.sendable3"
+            ],
+            "purpose": "Very shortly before the release point: the reservation detail, the release point itself, and a quick route back to the payment - short and direct, on a route that still reaches someone who has not acted on either earlier touch.",
+            "channelRoles": [
+              "low-friction"
+            ],
+            "destination": {
+              "target": "reservation-payment",
+              "boundTo": "booking_id",
+              "mustNotClaim": [
+                "that the place is held past the release point",
+                "that the terms will be waived",
+                "a consequence the booking terms do not actually carry"
+              ]
+            },
+            "mandatory": false,
+            "label": "RECOMMENDED_DEFAULT"
+          },
+          {
+            "id": "t4",
             "stage": "release-notice",
             "action": "a.lapse",
-            "after": "t2",
+            "after": "t3",
             "gatedBy": "w.release",
             "prerequisites": [],
-            "purpose": "That the reservation was released and nothing is held, said plainly, with what the record now shows.",
+            "purpose": "That the reservation was released and nothing is held, said plainly, with what the record now shows and an optional route to start a new reservation.",
             "channelRoles": [
               "persistent"
             ],
@@ -59619,6 +59648,54 @@
             },
             "mandatory": true,
             "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t5",
+            "stage": "confirmation-notice",
+            "action": "a.confirm",
+            "after": "t3",
+            "gatedBy": "w.release",
+            "prerequisites": [
+              "c.outcomeFinal"
+            ],
+            "purpose": "That the obligation is satisfied and the reservation is finalized, with the reservation summary and the payment now on record.",
+            "channelRoles": [
+              "persistent"
+            ],
+            "destination": {
+              "target": "reservation-detail",
+              "boundTo": "booking_id",
+              "mustNotClaim": [
+                "that anything further is owed on this reservation",
+                "a consequence the booking terms do not actually carry"
+              ]
+            },
+            "mandatory": true,
+            "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t6",
+            "stage": "availability-lost-notice",
+            "action": "a.suggest-alternative",
+            "after": "t2",
+            "gatedBy": "w.remind2",
+            "prerequisites": [
+              "c.still2"
+            ],
+            "purpose": "Where the held slot, date, room or service has itself gone in the meantime: say so plainly and point at an alternative date or option, without holding out the original as still available.",
+            "channelRoles": [
+              "persistent"
+            ],
+            "destination": {
+              "target": "reservation-detail",
+              "boundTo": "booking_id",
+              "mustNotClaim": [
+                "that the original reservation can still be honored",
+                "that an alternative carries the same price or terms unless the terms actually say so"
+              ]
+            },
+            "mandatory": false,
+            "label": "RECOMMENDED_DEFAULT"
           }
         ],
         "noAction": [
@@ -59644,7 +59721,8 @@
           "optional": [
             "scheduled_at",
             "has_active_session",
-            "urgent_route_permitted"
+            "urgent_route_permitted",
+            "phone_number"
           ]
         }
       },
@@ -59740,21 +59818,21 @@
         {
           "id": "c.standing",
           "kind": "condition",
-          "asks": "Does the reservation still stand with the obligation still outstanding?",
+          "asks": "Pulling the reservation's own details - the amount pending, the final payment point and the hold duration - is it still standing with the obligation still outstanding, or did the eligibility check already settle it?",
           "branches": [
             {
               "label": "Standing and outstanding",
               "when": "the reservation is confirmed at the time recorded, and the obligation behind it is neither satisfied, waived nor cancelled",
-              "to": "c.sendable"
+              "to": "c.sendable1"
             },
             {
-              "label": "Already settled",
-              "when": "the obligation is recorded satisfied, waived or cancelled by any route",
+              "label": "Payment already completed",
+              "when": "the obligation is recorded satisfied, waived or cancelled by any route, including one this journey never sent a notice about",
               "observes": "obligation_satisfied",
               "to": "x.kept"
             },
             {
-              "label": "No longer standing",
+              "label": "Reservation not valid",
               "when": "the reservation was cancelled, moved or materially changed before anything was sent",
               "observes": "booking_materially_changed",
               "to": "x.superseded"
@@ -59762,15 +59840,15 @@
           ]
         },
         {
-          "id": "c.sendable",
+          "id": "c.sendable1",
           "kind": "condition",
-          "asks": "May the outstanding notice go out?",
+          "asks": "May the first reminder go out?",
           "branches": [
             {
               "label": "Sendable",
               "when": "the send path passes: permission for service communication about this reservation, a deliverable destination, the service pressure class, and no higher-precedence booking-lifecycle journey currently holding this reservation",
               "observes": "send path stages 1-8",
-              "to": "a.remind"
+              "to": "a.remind1"
             },
             {
               "label": "Suppressed",
@@ -59781,41 +59859,55 @@
           ]
         },
         {
-          "id": "a.remind",
+          "id": "a.remind1",
           "kind": "action",
-          "does": "Say what is still outstanding against this reservation, the point by which the booking terms expect it, and what those terms do to the reservation if it is not met. The subject is the place they hold, not the money - somebody who reads this as a bill will file it, and somebody who reads it as their reservation being at risk will act on it",
+          "does": "Say what is still outstanding against this reservation - the reservation detail, the pending amount, the point by which the booking terms expect it, and what those terms do to the reservation if it is not met, with a direct route to pay. The subject is the place they hold, not the money - somebody who reads this as a bill will file it, and somebody who reads it as their reservation being at risk will act on it",
           "execution": "communication",
-          "idempotencyKey": "booking_id + a.remind",
-          "next": "w.payment"
+          "idempotencyKey": "booking_id + a.remind1",
+          "writes": [
+            {
+              "field": "reservation_log",
+              "mode": "append"
+            }
+          ],
+          "next": "w.remind1"
         },
         {
-          "id": "w.payment",
+          "id": "w.remind1",
           "kind": "wait",
           "until": [
             "obligation_satisfied",
             "authoritative_payment_failure",
             "booking_materially_changed"
           ],
-          "onEvent": "c.outcome",
+          "onEvent": "c.outcome1",
           "timeout": {
             "after": {
-              "key": "reservation_payment.due",
-              "rule": "The due point the booking terms themselves assert for this reservation. This journey reads that point; it never sets one, and it never treats the moment the reminder happened to go out as the start of a clock.",
-              "class": "attribute-bound",
-              "required": true
+              "key": "reservation_payment.first_reminder_window",
+              "rule": "A short fixed span after the first reminder, before the cascade re-reads the obligation and moves on to a faster channel.",
+              "class": "response-window",
+              "default": {
+                "value": {
+                  "min": "12 hours",
+                  "max": "24 hours"
+                },
+                "confidence": "low",
+                "basis": "example-only",
+                "applicableWhen": "the first reminder already went out"
+              },
+              "required": false
             },
-            "reason": "past the due point the reservation is no longer merely outstanding - it is inside the window in which the terms will act, and that is a different thing to say",
-            "relativeTo": "attribute",
-            "attribute": "payment_due_at"
+            "reason": "a first reminder that goes unanswered for its full span is worth escalating to a faster channel rather than repeating the same email",
+            "relativeTo": "previous-touch"
           },
-          "onTimeout": "c.still",
-          "recheck": "the reservation, its terms and the obligation behind it re-read from the systems that own them: still confirmed, same time, same amount, and whether anything has been paid",
+          "onTimeout": "c.still1",
+          "recheck": "the reservation, its terms and the obligation behind it re-read from the systems that own them: still confirmed, same time, same amount, and whether anything has been paid, before the timeout is acted on",
           "windowExtendsOnEngagement": false
         },
         {
-          "id": "c.outcome",
+          "id": "c.outcome1",
           "kind": "condition",
-          "asks": "What resolved the wait?",
+          "asks": "What resolved the first wait?",
           "branches": [
             {
               "label": "Reservation kept",
@@ -59838,13 +59930,51 @@
           ]
         },
         {
-          "id": "c.still",
+          "id": "a.partial1",
+          "kind": "action",
+          "does": "Update the amount still outstanding to what the payment record now shows, and continue the reminder cascade for the remainder - stating the new amount and the same final payment point, not the original figure",
+          "writes": [
+            {
+              "field": "amount_outstanding",
+              "mode": "set"
+            },
+            {
+              "field": "reservation_log",
+              "mode": "append"
+            }
+          ],
+          "idempotencyKey": "booking_id + a.partial1",
+          "next": "c.sendable2"
+        },
+        {
+          "id": "a.extend1",
+          "kind": "action",
+          "does": "Record the granted extension against this reservation's own due point and release point, and continue the cascade against the new dates rather than the original ones",
+          "writes": [
+            {
+              "field": "payment_due_at",
+              "mode": "set"
+            },
+            {
+              "field": "release_at",
+              "mode": "set"
+            },
+            {
+              "field": "reservation_log",
+              "mode": "append"
+            }
+          ],
+          "idempotencyKey": "booking_id + a.extend1",
+          "next": "c.sendable2"
+        },
+        {
+          "id": "c.still1",
           "kind": "condition",
           "asks": "Does the reservation still stand as it has just been re-read?",
           "branches": [
             {
               "label": "Still at risk",
-              "when": "the reservation is confirmed and the obligation behind it is still outstanding at the due point",
+              "when": "the reservation is confirmed and the obligation behind it is still outstanding",
               "to": "c.sendable2"
             },
             {
@@ -59858,19 +59988,29 @@
               "when": "the reservation was cancelled, moved or materially changed while the window was open",
               "observes": "booking_materially_changed",
               "to": "x.superseded"
+            },
+            {
+              "label": "Partial payment recorded",
+              "when": "a payment against the obligation was recorded that does not cover the full amount outstanding",
+              "to": "a.partial1"
+            },
+            {
+              "label": "Extension granted",
+              "when": "the holder asked for more time before the deadline and the extension was granted against this reservation's own terms",
+              "to": "a.extend1"
             }
           ]
         },
         {
           "id": "c.sendable2",
           "kind": "condition",
-          "asks": "May the final notice go out?",
+          "asks": "May the second reminder go out?",
           "branches": [
             {
               "label": "Sendable",
               "when": "the send path passes and no higher-precedence booking-lifecycle journey is holding this reservation; the notice is owed rather than rationed, so the discretionary budget does not stop it",
               "observes": "send path stages 1-8",
-              "to": "a.final"
+              "to": "a.remind2"
             },
             {
               "label": "Suppressed",
@@ -59881,15 +60021,21 @@
           ]
         },
         {
-          "id": "a.final",
+          "id": "a.remind2",
           "kind": "action",
-          "does": "State the reservation as it stands at this moment, the last point at which it can still be kept, and what the terms do to it afterwards. Nothing here moves the release point or softens it - a holder who is told the deadline is flexible has been told the wrong thing twice",
+          "does": "Send a short, direct message saying the reservation will be lost if the payment is not completed, with the final payment point and a direct route to pay. No invented urgency beyond what the terms themselves assert",
           "execution": "communication",
-          "idempotencyKey": "booking_id + a.final",
-          "next": "w.release"
+          "idempotencyKey": "booking_id + a.remind2",
+          "writes": [
+            {
+              "field": "reservation_log",
+              "mode": "append"
+            }
+          ],
+          "next": "w.remind2"
         },
         {
-          "id": "w.release",
+          "id": "w.remind2",
           "kind": "wait",
           "until": [
             "obligation_satisfied",
@@ -59899,23 +60045,23 @@
           "onEvent": "c.outcome2",
           "timeout": {
             "after": {
-              "key": "reservation_payment.release",
-              "rule": "The point at which the booking terms release the reservation back to availability. The terms own that point; this journey reads it and states what happened at it.",
+              "key": "reservation_payment.due",
+              "rule": "The due point the booking terms themselves assert for this reservation. This journey reads that point; it never sets one, and it never treats the moment a reminder happened to go out as the start of a clock.",
               "class": "attribute-bound",
               "required": true
             },
-            "reason": "after the release point there is no reservation left to protect, and the only thing owed to the holder is being told so",
+            "reason": "past the due point the reservation is no longer merely outstanding - it is inside the window in which the terms will act, and that is a different thing to say",
             "relativeTo": "attribute",
-            "attribute": "release_at"
+            "attribute": "payment_due_at"
           },
-          "onTimeout": "a.lapse",
-          "recheck": "the reservation and its obligation re-read from the systems that own them, so the release is stated only where the record actually shows one",
+          "onTimeout": "c.still2",
+          "recheck": "the reservation, its terms and the obligation behind it re-read from the systems that own them: still confirmed, same time, same amount, and whether anything has been paid",
           "windowExtendsOnEngagement": false
         },
         {
           "id": "c.outcome2",
           "kind": "condition",
-          "asks": "What resolved the final window?",
+          "asks": "What resolved the second wait?",
           "branches": [
             {
               "label": "Reservation kept",
@@ -59938,9 +60084,197 @@
           ]
         },
         {
+          "id": "a.partial2",
+          "kind": "action",
+          "does": "Update the amount still outstanding to what the payment record now shows, and continue the cascade toward the final reminder for the remainder rather than the original figure",
+          "writes": [
+            {
+              "field": "amount_outstanding",
+              "mode": "set"
+            },
+            {
+              "field": "reservation_log",
+              "mode": "append"
+            }
+          ],
+          "idempotencyKey": "booking_id + a.partial2",
+          "next": "c.sendable3"
+        },
+        {
+          "id": "a.extend2",
+          "kind": "action",
+          "does": "Record the granted extension against this reservation's own due point and release point, and continue the cascade against the new dates rather than the original ones",
+          "writes": [
+            {
+              "field": "payment_due_at",
+              "mode": "set"
+            },
+            {
+              "field": "release_at",
+              "mode": "set"
+            },
+            {
+              "field": "reservation_log",
+              "mode": "append"
+            }
+          ],
+          "idempotencyKey": "booking_id + a.extend2",
+          "next": "c.sendable3"
+        },
+        {
+          "id": "c.still2",
+          "kind": "condition",
+          "asks": "Does the reservation still stand as it has just been re-read?",
+          "branches": [
+            {
+              "label": "Still at risk",
+              "when": "the reservation is confirmed and the obligation behind it is still outstanding at the due point",
+              "to": "c.sendable3"
+            },
+            {
+              "label": "Settled in the meantime",
+              "when": "the obligation was satisfied, waived or cancelled while the window was open",
+              "observes": "obligation_satisfied",
+              "to": "x.kept"
+            },
+            {
+              "label": "Withdrawn in the meantime",
+              "when": "the reservation was cancelled, moved or materially changed while the window was open",
+              "observes": "booking_materially_changed",
+              "to": "x.superseded"
+            },
+            {
+              "label": "The held slot itself is gone",
+              "when": "the terms changed because the specific date, room or service the reservation held is no longer available to hand back to it - filled elsewhere while the window was open",
+              "observes": "booking_materially_changed",
+              "to": "a.suggest-alternative"
+            },
+            {
+              "label": "Partial payment recorded",
+              "when": "a payment against the obligation was recorded that does not cover the full amount outstanding",
+              "to": "a.partial2"
+            },
+            {
+              "label": "Extension granted",
+              "when": "the holder asked for more time before the deadline and the extension was granted against this reservation's own terms",
+              "to": "a.extend2"
+            }
+          ]
+        },
+        {
+          "id": "a.suggest-alternative",
+          "kind": "action",
+          "does": "Say plainly that the held slot, date, room or service is no longer available, and point at an alternative date or option rather than leaving the holder to discover it unannounced. Nothing here claims the original reservation can still be honored",
+          "execution": "communication",
+          "idempotencyKey": "booking_id + a.suggest-alternative",
+          "writes": [
+            {
+              "field": "reservation_log",
+              "mode": "append"
+            }
+          ],
+          "next": "x.superseded"
+        },
+        {
+          "id": "c.sendable3",
+          "kind": "condition",
+          "asks": "May the last-chance reminder go out?",
+          "branches": [
+            {
+              "label": "Sendable",
+              "when": "the send path passes, the discretionary budget for this reservation is not spent, and no higher-precedence booking-lifecycle journey is holding this reservation",
+              "observes": "send path stages 1-8",
+              "to": "a.remind3"
+            },
+            {
+              "label": "Suppressed",
+              "when": "a gate stops it or the budget is spent; the gate is recorded as the reason and no route is forced that cannot deliver",
+              "observes": "send path stages 1-8",
+              "to": "a.record-no-action"
+            }
+          ]
+        },
+        {
+          "id": "a.remind3",
+          "kind": "action",
+          "does": "Send one short, direct message that the reservation's window is about to close, with the reservation detail, the final payment point and a quick route back to the payment - nothing more, on a route that still reaches someone who has not acted on either earlier touch",
+          "execution": "communication",
+          "idempotencyKey": "booking_id + a.remind3",
+          "writes": [
+            {
+              "field": "reservation_log",
+              "mode": "append"
+            }
+          ],
+          "next": "w.release"
+        },
+        {
+          "id": "w.release",
+          "kind": "wait",
+          "until": [
+            "obligation_satisfied",
+            "authoritative_payment_failure",
+            "booking_materially_changed"
+          ],
+          "onEvent": "c.outcomeFinal",
+          "timeout": {
+            "after": {
+              "key": "reservation_payment.release",
+              "rule": "The point at which the booking terms release the reservation back to availability. The terms own that point; this journey reads it and states what happened at it.",
+              "class": "attribute-bound",
+              "required": true
+            },
+            "reason": "after the release point there is no reservation left to protect, and the only thing owed to the holder is being told so",
+            "relativeTo": "attribute",
+            "attribute": "release_at"
+          },
+          "onTimeout": "a.lapse",
+          "recheck": "the reservation and its obligation re-read from the systems that own them, so the outcome at the final payment point is stated only where the record actually shows one",
+          "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "c.outcomeFinal",
+          "kind": "condition",
+          "asks": "At the final payment point, was the payment completed?",
+          "branches": [
+            {
+              "label": "Reservation kept",
+              "when": "the obligation behind the reservation is recorded satisfied, waived or cancelled",
+              "observes": "obligation_satisfied",
+              "to": "a.confirm"
+            },
+            {
+              "label": "The payment itself failed",
+              "when": "an attempt was made against this obligation and the payment system stated that it failed",
+              "observes": "authoritative_payment_failure",
+              "to": "h.payment-failure"
+            },
+            {
+              "label": "Reservation withdrawn",
+              "when": "the reservation was cancelled, moved or materially changed",
+              "observes": "booking_materially_changed",
+              "to": "x.superseded"
+            }
+          ]
+        },
+        {
+          "id": "a.confirm",
+          "kind": "action",
+          "does": "Say that the payment was received and the reservation is finalized, with the reservation summary and the payment now on record. This is the moment the reservation stops being conditional on anything",
+          "execution": "communication",
+          "idempotencyKey": "booking_id + a.confirm",
+          "writes": [
+            {
+              "field": "reservation_log",
+              "mode": "append"
+            }
+          ],
+          "next": "x.kept"
+        },
+        {
           "id": "a.lapse",
           "kind": "action",
-          "does": "Say that the reservation was released, that nothing is being held, and what the record now shows. A place that quietly disappears is discovered on the day by somebody who still believes they have it",
+          "does": "Say that the reservation was released, that nothing is being held, and what the record now shows, with an optional route to start a new reservation. A place that quietly disappears is discovered on the day by somebody who still believes they have it",
           "execution": "communication",
           "idempotencyKey": "booking_id + a.lapse",
           "writes": [
@@ -60005,10 +60339,10 @@
         {
           "id": "x.superseded",
           "kind": "exit",
-          "state": "superseded; the reservation was cancelled, moved or materially changed",
+          "state": "superseded; the reservation was cancelled, moved or materially changed, or the held slot itself was no longer available to hand back to it",
           "class": "invalid-state",
           "terminal": false,
-          "reEntry": "the reservation that replaced it runs its own instance from its own terms"
+          "reEntry": "the reservation that replaced it, or an alternative the holder books instead, runs its own instance from its own terms"
         },
         {
           "id": "x.no-action",
