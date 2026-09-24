@@ -366,6 +366,17 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 297 journeys / 3950 nodes (2026-09-24). FBK-41 gained a
+// real channel-priority cascade (c.channel: in-app where has_active_session
+// is true, then push where has_push_token is true, then email otherwise -
+// using two attributes already declared, not the experience-type routing
+// this file's own comment once refused) and a bounded second touch (c.response
+// -> a.remind -> w.response2 -> c.response2, one reminder on a different
+// route before giving up), matching a reference image's ask/wait/decide/
+// remind/wait/decide shape. localCap moved from 1 to 2 touches. 12 -> 19
+// nodes on FBK-41, +7 net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 297 journeys / 3943 nodes (2026-09-24). ACC-263
 // (Activation Reminder) was retired entirely from the corpus, same pattern
 // as the deletions above (delete + fix every reciprocal reference, not just
@@ -523,9 +534,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (297 journeys / 3943 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (297 journeys / 3950 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 297 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3943 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3950 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

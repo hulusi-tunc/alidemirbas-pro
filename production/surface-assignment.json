@@ -580,7 +580,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (in-app, push, email)"
     },
     {
       "id": "FBK-42",

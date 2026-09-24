@@ -125,7 +125,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "feedback-eligibility",
     category: "feedback",
     goal: "eligibility-qualification",
-    channels: ["email"],
+    channels: ["in-app", "push", "email"],
     name: "Feedback eligibility → ask, suppress or delay",
     shortName: "Feedback Request",
     purpose:
@@ -193,12 +193,12 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "feedback_request.touches",
-          "rule": "One ask per experience; an unanswered ask is not repeated.",
+          "rule": "Two asks per experience at most: the request and one reminder on a different route where one is available; neither is repeated further.",
           "default": {
-            "value": 1,
+            "value": 2,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "one ask is the whole plan - a single merged eligibility decision reaches at most one request per instance, and nothing chases an unanswered ask"
+            "applicableWhen": "the graph reaches at most one request and one reminder per instance, and nothing chases a still-unanswered reminder"
           },
           "required": false
         },
@@ -229,36 +229,86 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "has_active_session is true, which can carry the ask where the person already is"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "has_active_session is false and has_push_token is true"
+        },
+        {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "a satisfaction ask has no deadline, no consequence and nothing the person must do by a date - email is the whole strategy, not a fallback from a faster route"
+          "when": "has_active_session is false and has_push_token is false - a satisfaction ask has no deadline and no consequence, so email carries it just as well off-product"
         }
       ],
       "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
-    /* Revisit condition, recorded so the surface split D proposed is not re-derived from
-       scratch: if `experience_ref` ever carries the experience's own type (transaction /
-       service interaction / onboarding milestone / support case / usage milestone - the
-       trigger's evidence already enumerates exactly those five), this journey becomes
-       conditional routing on the experience's own surface (in-app where the session is
-       still open, push where it just ended, email where it ended off-product) and should
-       be revisited first. Refused for now because no field carries the type today and the
-       brief forbids inventing a routing signal. */
+    /* The surface split once recorded here as refused - conditional routing on the
+       experience's own type (in-app / push / email by where the experience happened) -
+       stays refused: no field carries that type today and the brief forbids inventing a
+       routing signal. What is implemented below is a narrower, already-supportable thing:
+       routing on the person's own current reachability (has_active_session, has_push_token,
+       both already declared), independent of what the experience was. */
     orchestration: {
       "strategy": "single-notice",
       "touches": [
         {
           "id": "t1",
-          "stage": "request",
-          "action": "a.request",
+          "stage": "request-inapp",
+          "action": "a.request-inapp",
           "prerequisites": [
             "c.complete",
             "c.appropriate"
           ],
-          "purpose": "Ask about this specific experience, in terms the person would recognise as being about the thing they did, with a route to answer.",
+          "purpose": "Ask about this specific experience where the person already is, in terms they would recognise as being about the thing they did.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "destination": {
+            "target": "feedback-form-for-experience",
+            "boundTo": "experience_ref"
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2a",
+          "stage": "request-push",
+          "action": "a.request-push",
+          "prerequisites": [
+            "c.complete",
+            "c.appropriate"
+          ],
+          "purpose": "Ask about this specific experience with a one-tap route to answer, in terms they would recognise as being about the thing they did.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "destination": {
+            "target": "feedback-form-for-experience",
+            "boundTo": "experience_ref"
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2b",
+          "stage": "request-email",
+          "action": "a.request-email",
+          "prerequisites": [
+            "c.complete",
+            "c.appropriate"
+          ],
+          "purpose": "Ask about this specific experience, in terms they would recognise as being about the thing they did, with a route to answer.",
           "channelRoles": [
             "persistent"
           ],
@@ -266,6 +316,23 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             "target": "feedback-form-for-experience",
             "boundTo": "experience_ref"
           },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "remind",
+          "action": "a.remind",
+          "gatedBy": "w.response",
+          "prerequisites": [
+            "c.response"
+          ],
+          "purpose": "Send one last reminder about the same ask, varying the message and using a different route where one is available.",
+          "channelRoles": [
+            "in-session",
+            "low-friction",
+            "persistent"
+          ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
         }
@@ -286,11 +353,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "experience_type",
           "completed_at",
           "open_issue_ref",
-          "last_asked_at"
+          "last_asked_at",
+          "has_active_session",
+          "has_push_token"
         ],
         "optional": [
-          "has_active_session",
-          "has_push_token",
           "completion_horizon"
         ]
       }
@@ -437,7 +504,29 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Appropriate",
             when: "no outstanding problem in this context, nothing recent covers it, and the overall ask budget has room",
-            to: "a.request",
+            to: "c.channel",
+          },
+        ],
+      },
+      {
+        id: "c.channel",
+        kind: "condition",
+        asks: "Which route can carry the ask right now?",
+        branches: [
+          {
+            label: "Signed in",
+            when: "has_active_session is true, which can carry the ask where the person already is",
+            to: "a.request-inapp",
+          },
+          {
+            label: "Reachable without a session",
+            when: "has_active_session is false and has_push_token is true",
+            to: "a.request-push",
+          },
+          {
+            label: "Neither",
+            when: "has_active_session is false and has_push_token is false",
+            to: "a.request-email",
           },
         ],
       },
@@ -468,13 +557,31 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         class: "no-action",
       },
       {
-        id: "a.request",
+        id: "a.request-inapp",
+        kind: "action",
+        does: "Request feedback about this specific experience where the person already is, in terms they would recognise as being about the thing that just happened",
+        writes: [{ field: "feedback_request_log", mode: "append" }],
+        next: "w.response",
+        execution: "communication",
+        idempotencyKey: "person_id + experience_ref + a.request-inapp",
+      },
+      {
+        id: "a.request-push",
+        kind: "action",
+        does: "Request feedback about this specific experience with a one-tap route to answer, in terms they would recognise as being about the thing that just happened",
+        writes: [{ field: "feedback_request_log", mode: "append" }],
+        next: "w.response",
+        execution: "communication",
+        idempotencyKey: "person_id + experience_ref + a.request-push",
+      },
+      {
+        id: "a.request-email",
         kind: "action",
         does: "Request feedback about this specific experience, in terms the person would recognise as being about the thing that just happened",
         writes: [{ field: "feedback_request_log", mode: "append" }],
         next: "w.response",
         execution: "communication",
-        idempotencyKey: "person_id + experience_ref + touch id",
+        idempotencyKey: "person_id + experience_ref + a.request-email",
       },
       {
         id: "w.response",
@@ -482,11 +589,11 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         until: [
           "feedback_submitted"
         ],
-        onEvent: "x.received",
+        onEvent: "c.response",
         timeout: {
           "after": {
             "key": "feedback_request.response_window",
-            "rule": "The ask stays open long enough for an answer in the person's own time and then closes; it is never repeated.",
+            "rule": "The ask stays open long enough for an answer in the person's own time and then closes.",
             "class": "response-window",
             "default": {
               "value": {
@@ -498,12 +605,84 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             },
             "required": false
           },
-          "reason": "the request is not repeated when it expires; one ask about one experience is the whole budget",
+          "reason": "an ask that goes unmentioned again is an ask that was made once and forgotten",
           "relativeTo": "previous-touch"
         },
-        onTimeout: "x.no-response",
+        onTimeout: "c.response",
         windowExtendsOnEngagement: false,
         recheck: "whether feedback for this context arrived by any route",
+      },
+      {
+        id: "c.response",
+        kind: "condition",
+        asks: "Did feedback come back?",
+        branches: [
+          {
+            label: "Received",
+            when: "feedback for this context has arrived by any route",
+            to: "x.received",
+          },
+          {
+            label: "No response",
+            when: "nothing has come back yet",
+            to: "a.remind",
+          },
+        ],
+      },
+      {
+        id: "a.remind",
+        kind: "action",
+        does: "Send one last reminder about the same ask, varying the message from the first and using a different route where one is available",
+        writes: [{ field: "feedback_request_log", mode: "append" }],
+        next: "w.response2",
+        execution: "communication",
+        idempotencyKey: "person_id + experience_ref + a.remind",
+      },
+      {
+        id: "w.response2",
+        kind: "wait",
+        until: [
+          "feedback_submitted"
+        ],
+        onEvent: "c.response2",
+        timeout: {
+          "after": {
+            "key": "feedback_request.reminder_window",
+            "rule": "The single reminder window allowed for this experience, shorter than the first because the ask has already been made once.",
+            "class": "response-window",
+            "default": {
+              "value": {
+                "min": "3 days",
+                "max": "5 days"
+              },
+              "confidence": "low",
+              "basis": "example-only"
+            },
+            "required": false
+          },
+          "reason": "the reminder is not repeated when it expires; two asks about one experience is the whole budget",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "c.response2",
+        windowExtendsOnEngagement: false,
+        recheck: "whether feedback for this context arrived by any route",
+      },
+      {
+        id: "c.response2",
+        kind: "condition",
+        asks: "Did feedback come back?",
+        branches: [
+          {
+            label: "Received",
+            when: "feedback for this context has arrived by any route",
+            to: "x.received",
+          },
+          {
+            label: "Still nothing",
+            when: "nothing has come back after the reminder",
+            to: "x.no-response",
+          },
+        ],
       },
       {
         id: "x.received",
@@ -516,7 +695,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "x.no-response",
         kind: "exit",
-        state: "asked, no response",
+        state: "asked, reminded once, no response",
         terminal: false,
         reEntry:
           "a future experience may be asked about; nothing here is recorded as a signal, because silence is not dissatisfaction and nothing downstream may read it as one",
@@ -529,6 +708,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       "Feedback pressure is bounded across all contexts, not per survey. Someone who has answered three times this month has answered enough.",
       "No response is not a negative signal. It is no signal, and it is recorded as one.",
       "An interaction that ended in escalation, in an unresolved failure, or in a lost commercial decision is excluded from being asked rather than merely deferred. Asking somebody to rate an experience that failed and was handed away compounds it, and the answer says more about the failure than about anything the survey is measuring.",
+      "The route is picked by where the person actually is, not by which one is easiest to send. A reminder tries a different route from the first ask; it is never a second copy of the same message on the same route.",
     ],
     reusableRule:
       "Feedback should be requested only when the underlying experience is sufficiently complete and no higher-priority unresolved state makes the request inappropriate.",
