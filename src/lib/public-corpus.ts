@@ -140,7 +140,14 @@ export const ARCHIVED_SURFACE = "operational" as const;
    and its s.named-blocker suppression (which deferred to ACT-13 as the
    owner) was removed since no journey now owns that state. The
    marketing-page showcase slot (src/lib/journey-marketing.ts) now shows
-   ACT-17 in ACT-13's place - taking the library to 47.
+   ACT-17 in ACT-13's place - taking the library to 47. TIM-274 (Grace
+   Period Recovery) was retired next, the site owner's request - it had
+   no real inbound handoffs, only two prose distinctFrom rows: ACC-261's
+   (which lost its last competition-group partner in the process and had
+   its `competition` field set to the literal "none") and FIN-134's
+   (which had misnamed its own real handoff target as TIM-274 rather
+   than TIM-65, the journey its h.grace actually points to - corrected
+   in the same edit) - taking the library to 46.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -206,8 +213,6 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",
   // Feedback, advocacy & relationship signals - 2
   "FBK-41", "FBK-43",
-  // Time, deadlines, expiry & temporary states - 1
-  "TIM-274",
   // Access, identity & relationship - 2
   "ACC-261", "REL-284",
   // Transactions, fulfillment & remedies - 10

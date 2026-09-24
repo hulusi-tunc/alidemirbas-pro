@@ -1966,11 +1966,6 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "ACC-74 ends future use of a lost entitlement. Here the point is the window before that takes effect, which is the only period in which the person can still act.",
       },
-      {
-        journey: "TIM-274",
-        because:
-          "TIM-274 tells a holder about a bounded grace window with a fixed end. One unpaid obligation can produce both that window and a restriction, and the two would otherwise say the same thing twice - what stopped, what still works, the deadline and the one condition that lifts it. The restriction is the later and harder state, so this journey owns the message from the moment it is recorded and the grace journey stops.",
-      },
     ],
     objective: "Tell the person holding the account what access is going away, when, and the one condition that would bring it back - so a restriction is a decision they can act on rather than a discovery they make later.",
     eligibility: [
@@ -2029,12 +2024,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": {
-        "exclusionGroup": "access-consequence-narration",
-        "scope": "account",
-        "precedence": "highest in the group - an authoritatively recorded restriction is the last and hardest consequence of an unpaid obligation, so from the moment it stands this journey owns what the holder is told, and the recovery journeys that ran ahead of it, grace recovery (TIM-274) among them, stop rather than adding a second account of what stopped and how to restore it",
-        "onLoss": "suppressed"
-      }
+      "competition": "none"
     },
     channelStrategy: {
       "roles": [

@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 281,
-    "customer": 132,
+    "journeys": 280,
+    "customer": 131,
     "customer-silent": 66,
-    "customer-communicating": 66,
+    "customer-communicating": 65,
     "mechanism": 25,
     "operational": 124
   },
@@ -779,17 +779,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "no message channel and a system-side entity or category"
-    },
-    {
-      "id": "TIM-274",
-      "shortName": "Grace Period Recovery",
-      "category": "time",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "ACC-71",
