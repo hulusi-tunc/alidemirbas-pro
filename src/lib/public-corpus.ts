@@ -56,7 +56,10 @@ export const ARCHIVED_SURFACE = "operational" as const;
    its role - onboarding now stops at "ready to proceed" rather than
    actively walking the next step. Its marketing-page showcase slot
    (src/lib/journey-marketing.ts) now shows ACT-13. Taking the library to
-   62. Everything below that still says "69" is describing
+   62. TIM-281 (Expired Access Recovery) was retired next - it had no real
+   inbound handoffs, only one prose distinctFrom row in TIM-274's own
+   section, removed - taking the library to 61. Everything below that
+   still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
    itself for the live list.
 
@@ -120,8 +123,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",
   // Feedback, advocacy & relationship signals - 4
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",
-  // Time, deadlines, expiry & temporary states - 5
-  "TIM-61", "TIM-63", "TIM-268", "TIM-274", "TIM-281",
+  // Time, deadlines, expiry & temporary states - 4
+  "TIM-61", "TIM-63", "TIM-268", "TIM-274",
   // Access, identity & relationship - 4
   "ACC-261", "IDN-84", "IDN-271", "REL-284",
   // Transactions, fulfillment & remedies - 10

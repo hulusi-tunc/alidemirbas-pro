@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 296", journeys.length === 296);
+check(1, "active journey count = 295", journeys.length === 295);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -366,6 +366,14 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 295 journeys / 3924 nodes (2026-09-24). TIM-281
+// (Expired Access Recovery) was retired entirely from the corpus, same
+// pattern as the deletions above. It had no real inbound handoffs, only
+// one prose distinctFrom row naming it in TIM-274's own section, removed.
+// Public library drops from 62 to 61 (src/lib/public-corpus.ts). 296 -> 295
+// journeys, 3937 -> 3924 nodes (-13: TIM-281 carried 13 of its own nodes).
+// Rules (423), global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 296 journeys / 3937 nodes (2026-09-24). ACT-12
 // (Onboarding Nurture) was retired entirely from the corpus, site owner's
 // request, despite being load-bearing: it was the only step-by-step
@@ -554,9 +562,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (296 journeys / 3937 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 296 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3937 &&
+  "canonical source mutation = 0 (295 journeys / 3924 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 295 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3924 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

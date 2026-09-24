@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 296,
-    "customer": 147,
+    "journeys": 295,
+    "customer": 146,
     "customer-silent": 66,
-    "customer-communicating": 81,
+    "customer-communicating": 80,
     "mechanism": 25,
     "operational": 124
   },
@@ -889,17 +889,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (email, sms)"
-    },
-    {
-      "id": "TIM-281",
-      "shortName": "Expired Access Recovery",
-      "category": "time",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "ACC-71",
