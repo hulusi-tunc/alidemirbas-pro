@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 295,
-    "customer": 146,
+    "journeys": 294,
+    "customer": 145,
     "customer-silent": 66,
-    "customer-communicating": 80,
+    "customer-communicating": 79,
     "mechanism": 25,
     "operational": 124
   },
@@ -1009,7 +1009,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
+      "reason": "declares a message channel (email, push)"
     },
     {
       "id": "IDN-81",
@@ -1130,17 +1130,6 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": true,
-      "reason": "declares a message channel (email, sms)"
-    },
-    {
-      "id": "IDN-271",
-      "shortName": "Account Security Alert",
-      "category": "identity",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
       "reason": "declares a message channel (email, sms)"
     },
     {

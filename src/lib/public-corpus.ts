@@ -58,7 +58,10 @@ export const ARCHIVED_SURFACE = "operational" as const;
    (src/lib/journey-marketing.ts) now shows ACT-13. Taking the library to
    62. TIM-281 (Expired Access Recovery) was retired next - it had no real
    inbound handoffs, only one prose distinctFrom row in TIM-274's own
-   section, removed - taking the library to 61. Everything below that
+   section, removed - taking the library to 61. IDN-271 (Account Security
+   Alert) was retired next - it had no real inbound handoffs and no prose
+   distinctFrom rows naming it anywhere in the corpus - taking the library
+   to 60. Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
    itself for the live list.
@@ -125,8 +128,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "FBK-41", "FBK-42", "FBK-43", "FBK-49",
   // Time, deadlines, expiry & temporary states - 4
   "TIM-61", "TIM-63", "TIM-268", "TIM-274",
-  // Access, identity & relationship - 4
-  "ACC-261", "IDN-84", "IDN-271", "REL-284",
+  // Access, identity & relationship - 3
+  "ACC-261", "IDN-84", "REL-284",
   // Transactions, fulfillment & remedies - 10
   "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-265", "FUL-291",
   "REM-151", "REM-157", "REM-305",

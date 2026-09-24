@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 295", journeys.length === 295);
+check(1, "active journey count = 294", journeys.length === 294);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -366,6 +366,14 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 294 journeys / 3911 nodes (2026-09-24). IDN-271
+// (Account Security Alert) was retired entirely from the corpus, same
+// pattern as the deletions above. It had no real inbound handoffs and no
+// prose distinctFrom rows naming it anywhere in the corpus. Public library
+// drops from 61 to 60 (src/lib/public-corpus.ts). 295 -> 294 journeys,
+// 3924 -> 3911 nodes (-13: IDN-271 carried 13 of its own nodes). Rules
+// (423), global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 295 journeys / 3924 nodes (2026-09-24). TIM-281
 // (Expired Access Recovery) was retired entirely from the corpus, same
 // pattern as the deletions above. It had no real inbound handoffs, only
@@ -562,9 +570,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (295 journeys / 3924 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 295 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3924 &&
+  "canonical source mutation = 0 (294 journeys / 3911 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 294 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3911 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
