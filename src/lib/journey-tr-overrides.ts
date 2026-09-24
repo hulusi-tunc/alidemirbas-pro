@@ -634,53 +634,64 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   },
   "RET-290": {
-  shortName: "İlk Satın Alma Teşekkürü ve Geri Dönüş Teklifi",
-  name: "İlk satın alma tamamlandı → müşteri olarak karşılandı → geri döndü, teklif aldı veya kapandı",
-  purpose: "Bir alıcının ilk kez müşteri olduğu anı işaretlemek ve ona geri dönmesi için dürüst tek bir neden vermek - siparişin kendi işlem bildiriminin üstüne asla konuşmadan.",
+  shortName: "İlk Satın Almadan İkinci Satın Almaya",
+  name: "İlk satın alma tamamlandı → tekrar satın alma penceresi beklendi → geri döndü, ikna oldu veya sona erdi",
+  purpose: "Bir ilk satın almayı ikinciye çevirmek: ürünün kendi doğal tekrar satın alma süresini bekle, sonra bir sonraki satın alma için dürüstçe, iki kez teklif yap ve bu gerçekleştiği an dur.",
   nodes: {
     "t.first": { headline: "İlk satın alma tamamlandı" },
-    "w.settle": {
-      headline: "sipariş yerine oturana kadar",
-      detail: "Zaman aşımı: karşılama, sipariş yerine oturana kadar bekler; böylece işlem bildirimi kendi anını yaşar ve karşılama aynı şeyin ikinci mesajı hâline gelmez. (first_purchase_welcome.settle ayarlanmalı)",
+    "w.natural": {
+      headline: "ürünün doğal tekrar satın alma süresi kadar",
+      detail: "Zaman aşımı: ilk teklif, ürünün kendi doğal tekrar satın alma süresi geçene kadar bekler; böylece hiçbir zaman kendi başına yeniden satın alacak olan birine denk gelmez. (first_purchase_welcome.natural_repurchase_period ayarlanmalı)",
     },
-    "c.state": {
-      headline: "Sipariş yerine oturduğuna göre, karşılama hâlâ doğru şey mi?",
+    "c.returned1": {
+      headline: "İkinci satın alma gerçekleşti mi?",
       edges: [
-        { label: "Karşılama zamanı", detail: "ilk satın alma geçerli, ikinci bir satın alma kaydı yok ve yaşam döngüsü iletişimi izni hâlâ geçerli" },
-        { label: "Zaten geri dönmüş", detail: "karşılama gönderilmeden önce bu kişinin ikinci bir satın alma kaydı oluşmuş" },
-        { label: "İlişki sona ermiş", detail: "kişi iznini geri çekti ya da ilk satın alma iptal edildi veya tamamen geri alındı" },
+        { label: "Evet", detail: "bu kişinin ikinci satın almasına dair yetkili bir kayıt mevcut" },
+        { label: "İlişki sona erdi", detail: "kişi iznini geri çekti ya da ilk satın alma iptal edildi veya tamamen geri alındı" },
+        { label: "Hayır", detail: "ilk satın alma geçerli, ikinci bir satın alma kaydı yok ve yaşam döngüsü iletişimi izni hâlâ geçerli" },
       ],
     },
     "c.sendable": {
-      headline: "Karşılama gönderilebilir mi?",
+      headline: "Teklif gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: yaşam döngüsü iletişimi izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı ve kişiyi daha yüksek öncelikli bir akış tutmuyor" },
-        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: yaşam döngüsü iletişimi izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı, kişiyi daha yüksek öncelikli bir akış tutmuyor ve işletmenin adını verebileceği bir öneri ya da teklif var" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor ya da adı verilebilecek bir şey yok; gerekçe kaydedilir" },
       ],
     },
-    "a.welcome": {
-      headline: "Kişiyi müşteri olarak karşıla: aldığı şeyle bundan sonra ne olacağı, onu nerede bulacağı ve buradan bir insana nasıl ulaşacağı. Yalnızca gerçekten tanımlanmış ve kaydedilmiş bir teklif varsa ondan söz et.",
+    "a.touch1": {
+      headline: "E-posta ile söyle: ilk satın almaya dayalı ilgili bir ürün ya da kategori önerisi, ve bir sonraki alışverişe yönelik sınırlı süreli bir teklif. Uydurulan hiçbir şey yok ve çoktan yeniden satın almış birine hiçbir şey gönderilmez.",
     },
-    "w.second": {
-      headline: "ikinci satın alma gerçekleşene kadar",
-      detail: "Zaman aşımı: geri dönüş teklifi, kendi başına geri dönecek olan birinin bunu yapmaya fırsat bulacağı kadar bekler; ilk satın almanın \"yakın geçmiş\" olmaktan çıktığı noktadan sonrasına ise sarkmaz. (first_purchase_welcome.bounceback_window ayarlanmalı)",
+    "w.window1": {
+      headline: "3–5 gün bekle",
+      detail: "Zaman aşımı: teklife, akışın satın alma kaydını yeniden okuyup SMS hatırlatmasına geçmeden önce sabit bir süre tanınır. (first_purchase_welcome.window1 ayarlanmalı)",
     },
-    "c.second": {
-      headline: "İkinci satın alma çoktan yapılmış mı?",
+    "c.returned2": {
+      headline: "İkinci satın alma gerçekleşti mi?",
       edges: [
-        { label: "Geri döndü", detail: "bu kişinin ikinci satın almasına dair yetkili bir kayıt mevcut" },
-        { label: "Henüz değil", detail: "bu kişi için ilk satın almadan sonra hiçbir satın alma kaydı yok" },
+        { label: "Evet", detail: "bu kişinin ikinci satın almasına dair yetkili bir kayıt mevcut" },
+        { label: "Hayır", detail: "bu kişi için ilk satın almadan sonra hiçbir satın alma kaydı yok" },
       ],
     },
     "c.sendable2": {
-      headline: "Geri dönüş teklifi gönderilebilir mi?",
+      headline: "Hatırlatma gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor, temas bütçesi tükenmemiş ve işletmenin adını verebileceği, tanımlanmış bir teklifi var" },
-        { label: "Engellendi", detail: "bir kapı akışı durduruyor ya da adı verilebilecek tanımlanmış bir teklif yok; gerekçe kaydedilir" },
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor, temas bütçesi tükenmemiş ve ilk temasta adı verilen teklif hâlâ geçerli" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor ya da teklif süresi doldu; gerekçe kaydedilir" },
       ],
     },
-    "a.bounceback": {
-      headline: "Tek bir geri dönüş teklifi yap: işletmenin gerçekten tanımladığı teklif, onu hangi süre boyunca geçerli sayacağı ve teklifin kullanılacağı yol. Uydurulan hiçbir şey yok ve çoktan yeniden satın almış birine hiçbir şey gönderilmez.",
+    "a.touch2": {
+      headline: "SMS ile aynı teklif bitmeden son bir çağrı yap, aynı kullanım yoluyla birlikte. Uydurulan hiçbir şey yok ve çoktan yeniden satın almış birine hiçbir şey gönderilmez.",
+    },
+    "w.offer": {
+      headline: "teklif süresi boyunca bekle",
+      detail: "Zaman aşımı: hatırlatmaya, teklifin kendi süresi kadar bir eylem penceresi tanınır; ardından örnek sona erer, üçüncü bir temas yoktur. (first_purchase_welcome.offer_window ayarlanmalı)",
+    },
+    "c.returned3": {
+      headline: "Satın aldı mı?",
+      edges: [
+        { label: "Evet", detail: "teklif penceresi içinde bu kişinin ikinci satın almasına dair yetkili bir kayıt mevcut" },
+        { label: "Hayır", detail: "pencere içinde böyle bir kayıt yok" },
+      ],
     },
     "a.record-no-action": {
       headline: "Hiçbir şeyin neden ve hangi aşamada gönderilmediğini kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
@@ -690,16 +701,16 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       detail: "ilk satın alma kişi başına bir kez olur; ilişkiyi buradan sonra olağan elde tutma akışları devralır",
     },
     "x.prompted": {
-      headline: "Karşılandı ve teklif yapıldı",
-      detail: "bu örnek yeniden açılmaz; teklifin kabul edilip edilmediğini gözlemek olağan yaşam döngüsünün işidir",
+      headline: "Bu yolculuk sona erdi",
+      detail: "teklif yapıldı ve hatırlatıldı, geri dönülmedi; bu örnek yeniden açılmaz, teklifin daha sonra kabul edilip edilmediğini gözlemek olağan yaşam döngüsünün işidir",
     },
     "x.closed": {
-      headline: "Karşılama yapılmadan kapandı",
+      headline: "Teklif yapılmadan kapandı",
       detail: "geri alınan ilk satın alma yeniden geçerli olur ve izin geri gelirse kayıt yeniden değerlendirilir; aksi hâlde hiçbir şey yeniden açılmaz",
     },
     "x.no-action": {
       headline: "Hiçbir temas gönderilmedi",
-      detail: "örnek yeniden açılmaz; karşılaması engellenmiş bir kişi daha sonra yeniymiş gibi karşılanmaz",
+      detail: "örnek yeniden açılmaz; teklifi engellenmiş bir kişiye daha sonra yeniymiş gibi teklif yapılmaz",
     },
   },
   },

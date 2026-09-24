@@ -3544,11 +3544,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "first-purchase-welcome",
     "category": "retention",
     "goal": "progression-milestone",
-    "channels": ["in-app", "push", "email"],
-    "name": "First purchase completed → welcomed as a customer → returned, prompted or closed",
-    "shortName": "First Purchase Thank You & Bounceback",
-    "purpose": "Mark the moment a buyer becomes a customer for the first time, and give them one honest reason to come back - without ever speaking over the order's own transactional confirmation.",
-    "objective": "Turn a first purchase into a second one: welcome the person as a customer once the order has settled, and make at most one bounceback offer that the business actually has.",
+    "channels": ["email", "sms"],
+    "name": "First purchase completed → repurchase window waited out → returned, converted or ended",
+    "shortName": "First-to-Second Purchase",
+    "purpose": "Turn a first purchase into a second one: wait out the product's own natural repurchase period, then offer the next purchase honestly, twice, and stop the moment it happens.",
+    "objective": "Wait for the product's natural repurchase period, then make at most two honest offers toward a second purchase - an email offer, then an SMS reminder before it lapses - re-reading the purchase record before each and stopping the instant a second purchase is recorded.",
     "entity": {
       "scope": "the new customer relationship - one person, opened by their first purchase",
       "note": "One instance per person, ever, because a relationship is a first one only once. A second purchase inside the window closes the instance as returned rather than opening another.",
@@ -3572,17 +3572,17 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.transactional",
         "label": "CANONICAL_RULE",
-        "text": "This journey never carries the order's confirmation and never competes with it. What the business took on is recorded at the opening of the order, before this journey speaks; this answers what happens now that somebody is a customer, and it waits until that first question has been answered."
+        "text": "This journey never carries the order's confirmation and never competes with it. What the business took on is recorded at the opening of the order, before this journey speaks; this answers only whether a second purchase should be offered, and it waits out the product's own natural repurchase period before asking."
       },
       {
         "id": "s.returned",
         "label": "CANONICAL_RULE",
-        "text": "A second purchase by this person closes the instance as returned. A bounceback sent to somebody who has already come back is the failure this journey exists to prevent, and the bounceback is reached only through a condition that just re-read the purchase record."
+        "text": "A second purchase by this person closes the instance as returned. An offer sent to somebody who has already come back is the failure this journey exists to prevent, and each offer is reached only through a condition that just re-read the purchase record."
       },
       {
         "id": "s.offer",
         "label": "CANONICAL_RULE",
-        "text": "The bounceback names only an offer the business has actually issued and recorded, for the period the business will honour. Where there is none, nothing is promised and nothing is invented to fill the gap."
+        "text": "Each offer names only a recommendation and a return offer the business has actually issued and recorded, for the period the business will honour. Where there is none, nothing is promised and nothing is invented to fill the gap."
       },
       {
         "id": "s.permission",
@@ -3597,7 +3597,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.cancelled",
         "label": "CANONICAL_RULE",
-        "text": "A first purchase cancelled or fully reversed before the welcome goes out is not a first purchase; the instance ends without a touch."
+        "text": "A first purchase cancelled or fully reversed before the first offer goes out is not a first purchase; the instance ends without a touch."
       },
       {
         "id": "s.sunset",
@@ -3612,12 +3612,12 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "first_purchase_welcome.touches",
-          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - a welcome and at most one bounceback - and no touch is repeated because nothing could tell whether it arrived.",
+          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the cascade's own length - an email offer and one SMS reminder - and no touch is repeated because nothing could tell whether it arrived.",
           "default": {
             "value": 2,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the plan's own length - a welcome and one optional bounceback"
+            "applicableWhen": "GLB-24; the cascade's own length - one email offer and one SMS reminder"
           },
           "required": false
         },
@@ -3625,7 +3625,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       },
       "cooldown": {
         "key": "first_purchase_welcome.cooldown",
-        "rule": "The instance opens once per person and never reopens, so the cooldown governs only how long the bounceback may sit behind the welcome before the ordinary lifecycle journeys take the relationship over.",
+        "rule": "The instance opens once per person and never reopens, so the cooldown governs only how long the SMS reminder may sit behind the email offer before the ordinary lifecycle journeys take the relationship over.",
         "class": "cooldown",
         "required": true
       },
@@ -3639,19 +3639,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
-          "role": "in-session",
-          "channels": ["in-app"],
-          "when": "has_active_app_session is true and the welcome or orientation can be shown inside the customer account where the purchase now lives"
-        },
-        {
-          "role": "low-friction",
-          "channels": ["push"],
-          "when": "the bounceback stage has a real issued offer, push_token is present, and the offer route can be opened directly; this role is for the later return nudge, not the welcome"
-        },
-        {
           "role": "persistent",
           "channels": ["email"],
-          "when": "otherwise, especially when the welcome or issued offer needs to remain available after the session ends"
+          "when": "the first offer, sent once the product's own natural repurchase period has passed"
+        },
+        {
+          "role": "urgent",
+          "channels": ["sms"],
+          "when": "the second and final touch, a reminder before the limited-time offer lapses"
         }
       ],
       "fallback": "none",
@@ -3662,48 +3657,19 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "touches": [
         {
           "id": "t1",
-          "stage": "welcome",
-          "action": "a.welcome",
-          "gatedBy": "w.settle",
+          "stage": "next-purchase-offer",
+          "action": "a.touch1",
+          "gatedBy": "w.natural",
           "prerequisites": [
-            "c.state",
+            "c.returned1",
             "c.sendable"
           ],
-          "purpose": "They are a customer now, and this is what that means here: what happens next with what they bought, where to find it, and how to reach a person. No offer unless the business has issued one.",
+          "purpose": "A related product or category recommendation based on the first purchase, with a limited-time offer toward the next one. No offer unless the business has issued one.",
           "channelRoles": [
-            "in-session",
             "persistent"
           ],
           "destination": {
-            "target": "customer-account",
-            "boundTo": "person_id",
-            "mustNotClaim": [
-              "a discount that has not been issued",
-              "a benefit the account does not carry",
-              "an expiry the platform does not enforce"
-            ]
-          },
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t2",
-          "stage": "bounceback",
-          "action": "a.bounceback",
-          "after": "t1",
-          "gatedBy": "w.second",
-          "prerequisites": [
-            "c.second",
-            "c.sendable2"
-          ],
-          "purpose": "One reason to come back, stated as whatever the business has actually issued and for as long as it will honour it - sent only to somebody who has not already come back.",
-          "channelRoles": [
-            "in-session",
-            "low-friction",
-            "persistent"
-          ],
-          "destination": {
-            "target": "bounceback-offer",
+            "target": "next-purchase-offer",
             "boundTo": "person_id",
             "mustNotClaim": [
               "an offer that has not been issued",
@@ -3712,7 +3678,33 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             ]
           },
           "mandatory": false,
-          "label": "OPTIONAL_STRATEGY"
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "offer-reminder",
+          "action": "a.touch2",
+          "after": "t1",
+          "gatedBy": "w.window1",
+          "prerequisites": [
+            "c.returned2",
+            "c.sendable2"
+          ],
+          "purpose": "A last call before the same offer lapses - sent only to somebody who has not already come back.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "destination": {
+            "target": "next-purchase-offer",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "an offer that has not been issued",
+              "stock is reserved",
+              "the price is held"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
         }
       ],
       "noAction": [
@@ -3743,44 +3735,38 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "source": "authoritative"
         },
-        "next": "w.settle"
+        "next": "w.natural"
       },
       {
-        "id": "w.settle",
+        "id": "w.natural",
         "kind": "wait",
         "until": [
           "purchase_completed",
           "permission_withdrawn"
         ],
-        "onEvent": "c.state",
+        "onEvent": "c.returned1",
         "timeout": {
           "after": {
-            "key": "first_purchase_welcome.settle",
-            "rule": "The welcome waits until the order has settled, so the transactional confirmation has had the moment that belongs to it and the welcome is not a second message about the same thing.",
+            "key": "first_purchase_welcome.natural_repurchase_period",
+            "rule": "The first offer waits out the product's own natural repurchase period, so it never lands on somebody who was already going to buy again on their own timeline.",
             "class": "observation-window",
             "required": true
           },
-          "reason": "a welcome that lands beside the order confirmation reads as a duplicate of it",
+          "reason": "an offer spent before the product's own repurchase point buys nothing that would not have happened anyway",
           "relativeTo": "trigger"
         },
-        "onTimeout": "c.state",
+        "onTimeout": "c.returned1",
         "recheck": "the purchase record, the order's own state and the person's permission re-read from the systems that own them",
         "windowExtendsOnEngagement": false
       },
       {
-        "id": "c.state",
+        "id": "c.returned1",
         "kind": "condition",
-        "asks": "Now that the order has settled, is a welcome still the right thing?",
+        "asks": "Did the second purchase happen?",
         "branches": [
           {
-            "label": "Welcome due",
-            "when": "the first purchase stands, no second purchase is recorded, and permission for lifecycle communication still holds",
-            "observes": "purchase record, permission record",
-            "to": "c.sendable"
-          },
-          {
-            "label": "Already returned",
-            "when": "a second purchase by this person is recorded before the welcome went out",
+            "label": "Yes",
+            "when": "an authoritative second purchase by this person is recorded",
             "observes": "purchase_completed",
             "to": "x.returning"
           },
@@ -3789,32 +3775,38 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "when": "the person withdrew permission, or the first purchase was cancelled or fully reversed",
             "observes": "permission_withdrawn",
             "to": "x.closed"
+          },
+          {
+            "label": "No",
+            "when": "the first purchase stands, no second purchase is recorded, and permission for lifecycle communication still holds",
+            "observes": "purchase record, permission record",
+            "to": "c.sendable"
           }
         ]
       },
       {
         "id": "c.sendable",
         "kind": "condition",
-        "asks": "May the welcome go out?",
+        "asks": "May the offer go out?",
         "branches": [
           {
             "label": "Sendable",
-            "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person",
-            "observes": "send path stages 1-8",
-            "to": "a.welcome"
+            "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, no higher-precedence journey currently holding this person, and the business has an issued recommendation or offer to name",
+            "observes": "send path stages 1-8, offer record",
+            "to": "a.touch1"
           },
           {
             "label": "Suppressed",
-            "when": "a gate stops it; the gate is recorded as the reason",
-            "observes": "send path stages 1-8",
+            "when": "a gate stops it, or there is nothing issued to name; the reason is recorded",
+            "observes": "send path stages 1-8, offer record",
             "to": "a.record-no-action"
           }
         ]
       },
       {
-        "id": "a.welcome",
+        "id": "a.touch1",
         "kind": "action",
-        "does": "Welcome the person as a customer: what happens next with what they bought, where to find it, and how to reach a person here. Name an offer only where one has actually been issued and recorded.",
+        "does": "Say by email: a related product or category recommendation based on the first purchase, and a limited-time offer toward the next one. Nothing invented, and nothing sent to somebody who has already bought again.",
         "execution": "communication",
         "idempotencyKey": "person_id + touch id",
         "writes": [
@@ -3823,43 +3815,52 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "mode": "append"
           }
         ],
-        "next": "w.second"
+        "next": "w.window1"
       },
       {
-        "id": "w.second",
+        "id": "w.window1",
         "kind": "wait",
         "until": [
           "purchase_completed",
           "permission_withdrawn"
         ],
-        "onEvent": "c.second",
+        "onEvent": "c.returned2",
         "timeout": {
           "after": {
-            "key": "first_purchase_welcome.bounceback_window",
-            "rule": "The bounceback waits long enough that somebody who was going to come back on their own has had the chance to, and no longer than the point at which a first purchase stops being recent.",
-            "class": "observation-window",
-            "required": true
+            "key": "first_purchase_welcome.window1",
+            "rule": "The offer is given a short fixed window before the cascade re-reads the purchase record and moves to the SMS reminder.",
+            "class": "response-window",
+            "default": {
+              "value": {
+                "min": "3 days",
+                "max": "5 days"
+              },
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace between the two touches"
+            },
+            "required": false
           },
-          "reason": "an offer spent on somebody who was about to buy anyway buys nothing, and one sent long after the first purchase is addressed to a stranger",
+          "reason": "the cascade advances to the reminder on a fixed clock, not an open-ended one",
           "relativeTo": "previous-touch"
         },
-        "onTimeout": "c.second",
+        "onTimeout": "c.returned2",
         "recheck": "the person's purchase record and their permission re-read from the systems that own them",
         "windowExtendsOnEngagement": false
       },
       {
-        "id": "c.second",
+        "id": "c.returned2",
         "kind": "condition",
-        "asks": "Has a second purchase already been made?",
+        "asks": "Did the second purchase happen?",
         "branches": [
           {
-            "label": "Returned",
+            "label": "Yes",
             "when": "an authoritative second purchase by this person is recorded",
             "observes": "purchase_completed",
             "to": "x.returning"
           },
           {
-            "label": "Not yet",
+            "label": "No",
             "when": "no purchase since the first one is recorded for this person",
             "observes": "purchase record",
             "to": "c.sendable2"
@@ -3869,26 +3870,26 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "c.sendable2",
         "kind": "condition",
-        "asks": "May the bounceback go out?",
+        "asks": "May the reminder go out?",
         "branches": [
           {
             "label": "Sendable",
-            "when": "the send path passes, the touch budget is not spent, and the business has an issued offer to name",
+            "when": "the send path passes, the touch budget is not spent, and the offer named in the first touch is still honoured",
             "observes": "send path stages 1-8, offer record",
-            "to": "a.bounceback"
+            "to": "a.touch2"
           },
           {
             "label": "Suppressed",
-            "when": "a gate stops it, or there is no issued offer to name; the reason is recorded",
+            "when": "a gate stops it, or the offer has lapsed; the reason is recorded",
             "observes": "send path stages 1-8, offer record",
             "to": "a.record-no-action"
           }
         ]
       },
       {
-        "id": "a.bounceback",
+        "id": "a.touch2",
         "kind": "action",
-        "does": "Make one bounceback: the offer the business has issued, the period it will be honoured for, and the route to use it. Nothing invented, and nothing sent to somebody who has already bought again.",
+        "does": "Say by SMS a last call before the same offer lapses, with the same route to use it. Nothing invented, and nothing sent to somebody who has already bought again.",
         "execution": "communication",
         "idempotencyKey": "person_id + touch id",
         "writes": [
@@ -3897,7 +3898,48 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "mode": "append"
           }
         ],
-        "next": "x.prompted"
+        "next": "w.offer"
+      },
+      {
+        "id": "w.offer",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.returned3",
+        "timeout": {
+          "after": {
+            "key": "first_purchase_welcome.offer_window",
+            "rule": "The reminder is given the offer's own duration to be acted on, after which the instance ends; there is no third touch.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "the offer lapses with its own window; the instance only observes until then",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.returned3",
+        "recheck": "the person's purchase record re-read from the system of record",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.returned3",
+        "kind": "condition",
+        "asks": "Did they purchase?",
+        "branches": [
+          {
+            "label": "Yes",
+            "when": "an authoritative second purchase by this person is recorded within the offer window",
+            "observes": "purchase_completed",
+            "to": "x.returning"
+          },
+          {
+            "label": "No",
+            "when": "no such record exists inside the window",
+            "observes": "purchase record",
+            "to": "x.prompted"
+          }
+        ]
       },
       {
         "id": "a.record-no-action",
@@ -3923,15 +3965,15 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "x.prompted",
         "kind": "exit",
-        "state": "welcomed and prompted; the plan ran to its end and this journey's own work is done",
-        "class": "success",
+        "state": "this journey ended; offered and reminded, not returned",
+        "class": "timeout",
         "terminal": false,
-        "reEntry": "this instance does not reopen; whether the offer is taken is the ordinary lifecycle's to observe"
+        "reEntry": "this instance does not reopen; whether the offer is later taken is the ordinary lifecycle's to observe"
       },
       {
         "id": "x.closed",
         "kind": "exit",
-        "state": "closed without a welcome; the relationship ended or the first purchase did not stand",
+        "state": "closed without an offer; the relationship ended or the first purchase did not stand",
         "class": "invalid-state",
         "terminal": false,
         "reEntry": "a reinstated first purchase and a restored permission are re-evaluated against the reinstated record; otherwise nothing reopens"
@@ -3942,7 +3984,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "state": "no touch sent; the reason is recorded",
         "class": "no-action",
         "terminal": false,
-        "reEntry": "the instance does not reopen; a person whose welcome was suppressed is not welcomed later as if it were new"
+        "reEntry": "the instance does not reopen; a person whose offer was suppressed is not offered later as if it were new"
       }
     ],
     "implementation": {
@@ -3956,9 +3998,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "optional": [
           "bounceback_offer_id",
           "offer_honoured_until",
-          "push_token",
           "email_address",
-          "has_active_app_session"
+          "phone_number"
         ]
       }
     },
@@ -4009,15 +4050,13 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     },
     "discovery": {
       "aliases": [
-        "first purchase thank you",
-        "new customer welcome",
-        "post-purchase bounceback",
+        "first purchase bounceback",
         "second purchase prompt",
-        "first order thank you"
+        "post-purchase repurchase offer",
+        "first-to-second purchase nudge"
       ],
       "useCases": [
-        "a first-time buyer who should be welcomed as a customer rather than only told their order was received",
-        "a recent first purchase that has not yet become a second one"
+        "a recent first purchase that has not yet become a second one, once the product's own natural repurchase period has passed"
       ]
     },
     "distinctFrom": [
@@ -4043,12 +4082,12 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       }
     ],
     "guardrails": [
-      "The order's own confirmation is never carried by this journey and never competes with it; the welcome waits until the order has settled.",
-      "A bounceback is never sent to somebody who has already bought again - the purchase record is re-read immediately before it.",
+      "The order's own confirmation is never carried by this journey and never competes with it; the first offer waits out the product's own natural repurchase period.",
+      "An offer is never sent to somebody who has already bought again - the purchase record is re-read immediately before each touch and after the last.",
       "An offer is named only where one has actually been issued and recorded, for the period the business will honour.",
-      "One welcome and at most one bounceback; there is no third touch to time."
+      "Exactly two touches, an email offer then an SMS reminder before it lapses; there is no third touch to time."
     ],
-    "reusableRule": "Becoming a customer for the first time is a state with its own journey, separate from the transaction that produced it: it waits for the transactional message to have its moment, says one thing about the relationship, and makes at most one offer the business has actually issued."
+    "reusableRule": "A second purchase is offered honestly, twice - an email offer once the product's own repurchase period has passed, then an SMS reminder before it lapses - re-reading the purchase record before each touch and after the last, and stopping the instant a second purchase is recorded."
   },
   {
     "id": "RET-292",
