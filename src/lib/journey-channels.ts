@@ -29,7 +29,7 @@ export const CHANNEL_LABEL: Record<ChannelId, { en: string; tr: string }> = {
   email: { en: "Email", tr: "E-posta" },
   push: { en: "Push", tr: "Push" },
   sms: { en: "SMS", tr: "SMS" },
-  "in-app": { en: "In-app", tr: "Uygulama içi" },
+  "in-app": { en: "In-app message", tr: "Uygulama içi mesaj" },
   whatsapp: { en: "WhatsApp", tr: "WhatsApp" },
   sales: { en: "Sales", tr: "Satış" },
   task: { en: "Task", tr: "Görev" },

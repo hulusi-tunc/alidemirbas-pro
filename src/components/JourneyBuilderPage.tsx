@@ -281,7 +281,7 @@ const CHANNEL_TEXT: Record<ChannelName, Record<Lang, string>> = {
   Email: { en: "Email", tr: "E-posta" },
   SMS: { en: "SMS", tr: "SMS" },
   Push: { en: "Push", tr: "Push" },
-  "In-app": { en: "In-app", tr: "Uygulama içi" },
+  "In-app": { en: "In-app message", tr: "Uygulama içi mesaj" },
 };
 const channelText = (c: string, lang: Lang) => (isChannel(c) ? CHANNEL_TEXT[c][lang] : c);
 
