@@ -4775,7 +4775,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "first-purchase-anniversary",
     "category": "retention",
     "goal": "progression-milestone",
-    "channels": ["in-app", "push", "email"],
+    "channels": ["in-app", "push"],
     "name": "First purchase completed → anniversary interval waited → eligibility checked → recognised or not sent",
     "shortName": "First Purchase Anniversary",
     "purpose": "Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once.",
@@ -4879,11 +4879,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "role": "low-friction",
           "channels": ["push"],
           "when": "there is no active session, push_token is present, and the recognition is complete as a short message with a route back to the account"
-        },
-        {
-          "role": "persistent",
-          "channels": ["email"],
-          "when": "otherwise, when the recognition should be kept rather than glanced at"
         }
       ],
       "fallback": "none",
@@ -4901,9 +4896,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "How long this relationship has lasted, counted from the first purchase, said once and, if the person engages with the first notice, said again where they can dwell on it - with nothing attached that the record does not carry.",
           "channelRoles": [
-            "in-session",
-            "low-friction",
-            "persistent"
+            "low-friction"
           ],
           "destination": {
             "target": "customer-account",
@@ -5114,7 +5107,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "optional": [
           "relationship_state",
           "push_token",
-          "email_address",
           "has_active_app_session"
         ]
       }
