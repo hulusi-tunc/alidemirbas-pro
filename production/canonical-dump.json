@@ -11144,15 +11144,17 @@
       "goal": "recovery-retry",
       "channels": [
         "push",
-        "email"
+        "email",
+        "in-app",
+        "whatsapp"
       ],
-      "name": "Depletion predicted → replenishment prompted before it → replenished, dismissed or lapsed",
+      "name": "Depletion predicted → cadence-gated reminder cascade → replenished, subscribed or lapsed",
       "shortName": "Predicted Need Replenishment",
-      "purpose": "Prompt a person to replenish a consumable or recurring-use item shortly before its usable period is predicted to end, stating the prediction as an estimate, and stop the moment they buy, dismiss, or the cycle passes.",
-      "objective": "Get the replenishment made before the need bites, with the prediction stated honestly as an estimate and a direct route to reorder; never prompt a need already met, dismissed, or covered by a subscription.",
+      "purpose": "Prompt a person to replenish a consumable or recurring-use item shortly before its usable period is predicted to end, stating the prediction as an estimate, routing regular repurchasers toward a subscription first, and stop the moment they buy, subscribe, or the cascade runs out.",
+      "objective": "Get the replenishment made before the need bites, with the prediction stated honestly as an estimate, a direct route to reorder, and a subscription offered where the person's own history shows a standing cadence; never prompt a need already met, covered by a subscription, or unreliable to predict.",
       "entity": {
         "scope": "the predicted need - one consumable or recurring-use item, or a category the person buys on a cadence, whose usable period is computed from their own purchase and the item's usable life",
-        "note": "One instance per need and prediction cycle. The prediction is inferred from the person's own purchases and the item's usable period, never from a category average alone; a dismissal mutes the need for this cycle and the next prediction opens a new instance. An active subscription or auto-replenishment for the need means no instance at all.",
+        "note": "One instance per need and prediction cycle. The prediction is inferred from the person's own purchases and the item's usable period, never from a category average alone; an active subscription or auto-replenishment for the need means no instance at all.",
         "instanceKey": [
           "person_id",
           "need_key"
@@ -11165,10 +11167,10 @@
         }
       },
       "eligibility": [
+        "the predicted depletion date is reliable enough to act on, computed from this person's own purchase and the item's usable period",
         "a prior purchase of the need by this person, with a usable period the company can compute for it",
         "no newer purchase of the need since the one the prediction is based on",
         "no active subscription or auto-replenishment covering the need",
-        "no dismissal recorded for the need in this prediction cycle",
         "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
       ],
       "suppressions": [
@@ -11178,11 +11180,6 @@
           "text": "Exit the moment a purchase of the need is recorded by any channel; every touch re-reads purchases first."
         },
         {
-          "id": "s.dismissed",
-          "label": "CANONICAL_RULE",
-          "text": "A dismissal - not needed, already have it, stop reminding - mutes the need for this cycle and nothing further is sent; a dismissal that asks for no more prompts mutes the need key until the person changes it."
-        },
-        {
           "id": "s.subscription",
           "label": "CANONICAL_RULE",
           "text": "An active subscription or auto-replenishment for the need sends nothing; the prompt would ask for a purchase already arranged."
@@ -11190,7 +11187,7 @@
         {
           "id": "s.estimate",
           "label": "CANONICAL_RULE",
-          "text": "The prediction is stated as an estimate from their own purchase history, never as a fact about what they have left."
+          "text": "The prediction is stated as an estimate from their own purchase history, never as a fact about what they have left; an unreliable estimate does not open an instance at all."
         },
         {
           "id": "s.permission",
@@ -11201,11 +11198,6 @@
           "id": "s.contest",
           "label": "CANONICAL_RULE",
           "text": "A process recovery or a selection recovery for the same person outranks this journey; an open complaint, payment recovery or retention-outreach journey suppresses it (GLB-06); so does an open availability enquiry (SCH-282) for the same person."
-        },
-        {
-          "id": "s.incentive",
-          "label": "OPTIONAL_STRATEGY",
-          "text": "If the company enables an incentive (replenishment.incentive_policy), it appears only on the last enabled touch, once, and its issuance is recorded per person. The library recommends none by default."
         },
         {
           "id": "s.sunset",
@@ -11221,10 +11213,10 @@
             "key": "replenishment.touches",
             "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
             "default": {
-              "value": 2,
+              "value": 4,
               "confidence": "medium",
               "basis": "corpus-rule",
-              "applicableWhen": "GLB-24; the plan has a lead prompt and one follow-up"
+              "applicableWhen": "GLB-24; the plan's longest path - the opening push, a subscription-offer stage for a regular repurchaser, the reminder email, and the final WhatsApp touch"
             },
             "required": false
           },
@@ -11232,7 +11224,7 @@
         },
         "cooldown": {
           "key": "replenishment.cooldown",
-          "rule": "A lapsed or dismissed instance is not re-prompted inside the same prediction cycle; the next predicted depletion for the need opens the next instance.",
+          "rule": "A lapsed instance is not re-prompted inside the same prediction cycle; the next predicted depletion for the need opens the next instance.",
           "class": "cooldown",
           "default": {
             "value": "until the next predicted depletion for the same need",
@@ -11256,14 +11248,28 @@
             "channels": [
               "push"
             ],
-            "when": "the first prompt is close to the predicted depletion point, a deliverable push destination exists, and the reorder route can be opened directly"
+            "when": "the opening touch, routing directly to the appropriate product page while the predicted window is still ahead"
           },
           {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "otherwise, and always for the post-depletion follow-up where the estimate and reorder context should remain available"
+            "when": "the subscription offer or either reminder needs to stay available past the moment it arrives"
+          },
+          {
+            "role": "in-session",
+            "channels": [
+              "in-app"
+            ],
+            "when": "the subscription offer belongs beside the product the person is already using, sent together with the email that carries it"
+          },
+          {
+            "role": "urgent",
+            "channels": [
+              "whatsapp"
+            ],
+            "when": "the closing touch needs a channel that still reaches someone who has not acted on either touch before it"
           }
         ],
         "fallback": "none",
@@ -11276,15 +11282,12 @@
             "id": "t1",
             "stage": "lead-prompt",
             "action": "a.touch1",
-            "gatedBy": "w.lead",
             "prerequisites": [
-              "c.state",
-              "c.sendable"
+              "c.product-ref"
             ],
-            "purpose": "The item, the estimated point at which it runs out - stated as an estimate from their own purchases - and the route to reorder. Nothing about stock or price that the system does not assert.",
+            "purpose": "The item or its in-stock compatible alternative, the estimated point at which it runs out - stated as an estimate from their own purchases - and the route to reorder. Nothing about stock or price that the system does not assert.",
             "channelRoles": [
-              "low-friction",
-              "persistent"
+              "low-friction"
             ],
             "destination": {
               "target": "reorder",
@@ -11300,18 +11303,74 @@
             "label": "CANONICAL_RULE"
           },
           {
-            "id": "t2",
-            "stage": "follow-up",
-            "action": "a.touch2",
+            "id": "t2a-email",
+            "stage": "cadence-fork",
+            "action": "a.subscribe-email",
             "after": "t1",
-            "gatedBy": "w.window",
+            "gatedBy": "w.touch1",
             "prerequisites": [
-              "c.outcome",
-              "c.sendable2"
+              "c.regular"
             ],
-            "purpose": "One follow-up after the estimated depletion has passed unmet, with the same reorder route and no invented urgency.",
+            "purpose": "Tell a regular repurchaser they buy this on a cadence and offer a subscription or auto-renewal option, sent together with the paired touch below - only where the person's own history shows the cadence.",
             "channelRoles": [
               "persistent"
+            ],
+            "mandatory": false,
+            "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t2a-inapp",
+            "stage": "cadence-fork",
+            "action": "a.subscribe-inapp",
+            "after": "t2a-email",
+            "prerequisites": [
+              "c.regular"
+            ],
+            "purpose": "Offer the same subscription or auto-renewal option beside the product, for anyone who opens it in this window - sent together with the paired touch above, not as a separate later touch.",
+            "channelRoles": [
+              "in-session"
+            ],
+            "mandatory": false,
+            "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t2b",
+            "stage": "follow-up",
+            "action": "a.touch2b",
+            "after": "t1",
+            "gatedBy": "w.touch1",
+            "prerequisites": [
+              "c.outcome1",
+              "c.regular"
+            ],
+            "purpose": "Remind them of the last purchase and the estimated depletion, and suggest the reorder, an economy pack or a multi-pack - reached either directly, for someone without a repurchase cadence, or after a regular repurchaser declines the subscription offer.",
+            "channelRoles": [
+              "persistent"
+            ],
+            "destination": {
+              "target": "reorder",
+              "boundTo": "need_key",
+              "mustNotClaim": [
+                "how much they have left",
+                "stock is reserved",
+                "the price is held"
+              ]
+            },
+            "mandatory": false,
+            "label": "RECOMMENDED_DEFAULT"
+          },
+          {
+            "id": "t3",
+            "stage": "final-reminder",
+            "action": "a.touch3",
+            "after": "t2b",
+            "gatedBy": "w.touch2b",
+            "prerequisites": [
+              "c.outcome2"
+            ],
+            "purpose": "Say once, short and direct, that the item may run out soon, with a direct repurchase link and no invented urgency.",
+            "channelRoles": [
+              "urgent"
             ],
             "destination": {
               "target": "reorder",
@@ -11328,7 +11387,6 @@
         ],
         "noAction": [
           "s.replenished",
-          "s.dismissed",
           "s.subscription",
           "s.estimate",
           "s.permission",
@@ -11350,144 +11408,89 @@
             "insufficientAlone": [
               "a category average with no purchase by this person behind it",
               "a purchase covered by an active subscription or auto-replenishment",
-              "a need dismissed in this prediction cycle",
-              "a newer purchase of the need since the one the prediction rests on"
+              "an estimate the underlying data does not support treating as reliable"
             ],
             "source": "inferred"
           },
-          "next": "c.eligible"
+          "next": "c.reliable"
         },
         {
-          "id": "c.eligible",
+          "id": "c.reliable",
           "kind": "condition",
-          "asks": "Is there a need to prompt, and may we?",
+          "asks": "Is the estimate reliable enough to act on?",
           "branches": [
             {
-              "label": "Eligible",
-              "when": "no newer purchase, no subscription, no dismissal this cycle, no open instance, and commercial permission recorded",
-              "observes": "purchase record, subscription record, dismissal record, permission record",
-              "to": "a.open"
+              "label": "Reliable",
+              "when": "the purchase and usable-period data behind the prediction support treating it as reliable",
+              "observes": "expected_depletion_at",
+              "to": "c.already-bought"
             },
             {
-              "label": "Already met",
-              "when": "a newer purchase of the need exists",
-              "observes": "purchase_completed",
-              "to": "x.replenished"
-            },
-            {
-              "label": "Not eligible",
-              "when": "a subscription covers it, it was dismissed this cycle, permission is absent, or an instance is open - the reason is recorded",
-              "observes": "subscription record, dismissal record, permission record",
-              "to": "a.record-no-action"
+              "label": "Not reliable",
+              "when": "the data behind the prediction does not support acting on it",
+              "observes": "expected_depletion_at",
+              "to": "x.not-started"
             }
           ]
         },
         {
-          "id": "a.open",
-          "kind": "action",
-          "does": "Open the instance against the need and the prediction cycle, recording the expected depletion date the prompt will be timed against",
-          "writes": [
-            {
-              "field": "replenishment_log",
-              "mode": "append"
-            }
-          ],
-          "idempotencyKey": "person_id + need_key + prediction cycle",
-          "next": "w.lead"
+          "id": "x.not-started",
+          "kind": "exit",
+          "state": "the journey never opened; the estimate was not reliable enough to act on",
+          "class": "no-action",
+          "terminal": false,
+          "reEntry": "the next prediction cycle, computed as the purchase history grows, may open a new instance if the estimate is then reliable"
         },
         {
-          "id": "w.lead",
-          "kind": "wait",
-          "until": [
-            "purchase_completed",
-            "replenishment_need_dismissed"
-          ],
-          "onEvent": "c.state",
-          "timeout": {
-            "after": {
-              "key": "replenishment.lead_time",
-              "rule": "The prompt is timed a lead period before the expected depletion - long enough for a reorder to arrive before the need bites, short enough that the estimate still means something.",
-              "class": "reminder-before-attribute",
-              "default": {
-                "value": {
-                  "min": "3 days",
-                  "max": "7 days"
-                },
-                "confidence": "low",
-                "basis": "example-only",
-                "applicableWhen": "delivered goods with a delivery lead time of days",
-                "avoidWhen": "items bought in person the same day - a shorter lead is honest"
-              },
-              "required": false
-            },
-            "reason": "a prompt long before the need is noise and a prompt after it is late; the lead period is the delivery lead time plus a margin",
-            "relativeTo": "attribute",
-            "attribute": "expected_depletion_at"
-          },
-          "onTimeout": "c.state",
-          "recheck": "purchases, subscriptions and dismissals for the need re-read from the system of record; the expected depletion date recomputed from the latest purchase",
-          "windowExtendsOnEngagement": false
-        },
-        {
-          "id": "c.state",
+          "id": "c.already-bought",
           "kind": "condition",
-          "asks": "At the lead point, is the need still unmet?",
+          "asks": "Did the person already repurchase the product?",
           "branches": [
             {
-              "label": "Still unmet",
-              "when": "no purchase, no subscription and no dismissal since the instance opened",
-              "observes": "purchase and dismissal records",
-              "to": "c.sendable"
-            },
-            {
-              "label": "Replenished",
-              "when": "a purchase of the need is recorded",
+              "label": "Already repurchased",
+              "when": "a purchase of the need is recorded since the one the prediction rests on",
               "observes": "purchase_completed",
-              "to": "x.replenished"
+              "to": "x.already-repurchased"
             },
             {
-              "label": "Dismissed",
-              "when": "the person dismissed the need",
-              "observes": "replenishment_need_dismissed",
-              "to": "x.dismissed"
+              "label": "Not yet",
+              "when": "no newer purchase of the need is recorded",
+              "observes": "purchase_completed",
+              "to": "c.product-ref"
             }
           ]
         },
         {
-          "id": "c.sendable",
+          "id": "x.already-repurchased",
+          "kind": "exit",
+          "state": "already repurchased; a purchase of the need was recorded before any touch went out",
+          "class": "success",
+          "terminal": false,
+          "reEntry": "the next prediction cycle, computed from this purchase, opens the next instance"
+        },
+        {
+          "id": "c.product-ref",
           "kind": "condition",
-          "asks": "May the lead prompt go out?",
+          "asks": "Is the same product still on sale and in stock?",
           "branches": [
             {
-              "label": "Sendable",
-              "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
-              "observes": "send path stages 1-8",
+              "label": "Same product",
+              "when": "the product the prediction was computed against is still on sale and in stock",
+              "observes": "product catalog and stock record",
               "to": "a.touch1"
             },
             {
-              "label": "Suppressed",
-              "when": "a gate stops it; the gate is recorded as the reason",
-              "observes": "send path stages 1-8",
-              "to": "a.record-no-action"
+              "label": "Compatible alternative",
+              "when": "the original product is no longer on sale or in stock, and a compatible alternative or newer version is",
+              "observes": "product catalog and stock record",
+              "to": "a.touch1"
             }
           ]
-        },
-        {
-          "id": "a.record-no-action",
-          "kind": "action",
-          "does": "Record why nothing was sent and against which need, so no-action is a measured outcome rather than a silent absence",
-          "writes": [
-            {
-              "field": "suppressed_sends",
-              "mode": "append"
-            }
-          ],
-          "next": "x.no-action"
         },
         {
           "id": "a.touch1",
           "kind": "action",
-          "does": "Name the item, say when it is estimated to run out and that this is an estimate from their own purchases, and give the route to reorder. Claim nothing about what they have left, no reserved stock, no held price, no discount",
+          "does": "Push naming the item - the original product or, where that is no longer available, the compatible alternative or new version the prior condition selected - saying when it is estimated to run out and that this is an estimate from their own purchases, and giving the route to reorder. Claim nothing about what they have left, no reserved stock, no held price, no discount",
           "execution": "communication",
           "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
           "writes": [
@@ -11496,148 +11499,223 @@
               "mode": "append"
             }
           ],
-          "next": "w.window"
+          "next": "w.touch1"
         },
         {
-          "id": "w.window",
+          "id": "w.touch1",
           "kind": "wait",
           "until": [
-            "purchase_completed",
-            "replenishment_need_dismissed"
+            "purchase_completed"
           ],
-          "onEvent": "c.outcome",
+          "onEvent": "c.outcome1",
           "timeout": {
             "after": {
-              "key": "replenishment.follow_margin",
-              "rule": "The follow-up waits until the expected depletion has passed by a margin, so that it is sent to a need that is by then plausibly real and not to one still ahead.",
-              "class": "observation-window",
+              "key": "replenishment.first_window",
+              "rule": "A short fixed span for the opening push to work before the cascade re-reads the purchase record and moves on to the cadence-gated reminder.",
+              "class": "response-window",
               "default": {
-                "value": {
-                  "min": "3 days",
-                  "max": "7 days"
-                },
+                "value": "2 days",
                 "confidence": "low",
-                "basis": "example-only"
+                "basis": "example-only",
+                "applicableWhen": "the opening push already went out"
               },
               "required": false
             },
-            "reason": "a follow-up before the estimated depletion is a repeat of the first prompt; after it, the need is plausibly present",
-            "relativeTo": "attribute",
-            "attribute": "expected_depletion_at"
-          },
-          "onTimeout": "c.outcome",
-          "recheck": "purchases, subscriptions and dismissals for the need re-read from the system of record",
-          "windowExtendsOnEngagement": false
-        },
-        {
-          "id": "c.outcome",
-          "kind": "condition",
-          "asks": "After the estimated depletion, what happened?",
-          "branches": [
-            {
-              "label": "Replenished",
-              "when": "a purchase of the need is recorded",
-              "observes": "purchase_completed",
-              "to": "x.replenished"
-            },
-            {
-              "label": "Dismissed",
-              "when": "the person dismissed the need",
-              "observes": "replenishment_need_dismissed",
-              "to": "x.dismissed"
-            },
-            {
-              "label": "Still unmet",
-              "when": "nothing has changed",
-              "observes": "purchase and dismissal records",
-              "to": "c.sendable2"
-            }
-          ]
-        },
-        {
-          "id": "c.sendable2",
-          "kind": "condition",
-          "asks": "May the follow-up go out?",
-          "branches": [
-            {
-              "label": "Sendable",
-              "when": "the send path passes and the touch budget is not spent",
-              "observes": "send path stages 1-8, touch budget",
-              "to": "a.touch2"
-            },
-            {
-              "label": "Suppressed",
-              "when": "a gate stops it; the gate is recorded",
-              "observes": "send path stages 1-8",
-              "to": "a.record-no-action"
-            }
-          ]
-        },
-        {
-          "id": "a.touch2",
-          "kind": "action",
-          "does": "Say once that the estimated point has passed and give the same reorder route. No invented urgency, and no incentive unless policy enables one for the last touch",
-          "execution": "communication",
-          "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
-          "writes": [
-            {
-              "field": "replenishment_log",
-              "mode": "append"
-            }
-          ],
-          "next": "w.final"
-        },
-        {
-          "id": "w.final",
-          "kind": "wait",
-          "until": [
-            "purchase_completed",
-            "replenishment_need_dismissed"
-          ],
-          "onEvent": "c.final",
-          "timeout": {
-            "after": {
-              "key": "replenishment.lifetime",
-              "rule": "After the follow-up the instance stays open only to observe a replenishment or a dismissal; then it lapses and the next prediction cycle is the next chance.",
-              "class": "observation-window",
-              "default": {
-                "value": {
-                  "min": "14 days",
-                  "max": "30 days"
-                },
-                "confidence": "low",
-                "basis": "example-only"
-              },
-              "required": false
-            },
-            "reason": "there is no third prompt to time; the instance only observes",
+            "reason": "a push nobody acts on is itself a result - the alternative to acting on that is waiting indefinitely for a purchase that may never come",
             "relativeTo": "previous-touch"
           },
-          "onTimeout": "x.lapsed",
-          "recheck": "purchases and dismissals for the need re-read from the system of record",
+          "onTimeout": "c.outcome1",
+          "recheck": "purchases and subscription status for the need, re-read from the system of record, before the timeout is acted on",
           "windowExtendsOnEngagement": false
         },
         {
-          "id": "c.final",
+          "id": "c.outcome1",
           "kind": "condition",
-          "asks": "What ended the observation?",
+          "asks": "Did they purchase?",
           "branches": [
             {
-              "label": "Replenished",
+              "label": "Purchased",
               "when": "a purchase of the need is recorded",
               "observes": "purchase_completed",
-              "to": "x.replenished"
+              "to": "x.repurchased"
             },
             {
-              "label": "Dismissed",
-              "when": "the person dismissed the need",
-              "observes": "replenishment_need_dismissed",
-              "to": "x.dismissed"
+              "label": "Not yet",
+              "when": "no purchase of the need is recorded",
+              "observes": "purchase_completed",
+              "to": "c.regular"
             }
           ]
         },
         {
-          "id": "x.replenished",
+          "id": "c.regular",
+          "kind": "condition",
+          "asks": "Does the person regularly repurchase this product - is there a repurchase cadence in their history?",
+          "branches": [
+            {
+              "label": "Regular repurchaser",
+              "when": "the person's own purchase history shows a standing cadence for this need",
+              "observes": "purchase history cadence",
+              "to": "a.subscribe-email"
+            },
+            {
+              "label": "No cadence",
+              "when": "the person's purchase history shows no standing cadence for this need",
+              "observes": "purchase history cadence",
+              "to": "a.touch2b"
+            }
+          ]
+        },
+        {
+          "id": "a.subscribe-email",
+          "kind": "action",
+          "does": "Send an email telling the person they buy this product on a cadence and offering a subscription or auto-renewal option - sent alongside the in-app message below",
+          "execution": "communication",
+          "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
+          "writes": [
+            {
+              "field": "replenishment_log",
+              "mode": "append"
+            }
+          ],
+          "next": "a.subscribe-inapp"
+        },
+        {
+          "id": "a.subscribe-inapp",
+          "kind": "action",
+          "does": "Show an in-app message offering the same subscription or auto-renewal option, for anyone who opens the product during this window - sent together with the email above, not as a separate later touch",
+          "execution": "communication",
+          "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
+          "writes": [
+            {
+              "field": "replenishment_log",
+              "mode": "append"
+            }
+          ],
+          "next": "c.subscribed"
+        },
+        {
+          "id": "c.subscribed",
+          "kind": "condition",
+          "asks": "Did they switch to a subscription?",
+          "branches": [
+            {
+              "label": "Subscribed",
+              "when": "the person authorised a subscription or auto-renewal covering the need",
+              "observes": "continuing_relationship_creation_authorized",
+              "to": "x.subscribed"
+            },
+            {
+              "label": "Declined",
+              "when": "no subscription or auto-renewal was authorised",
+              "observes": "continuing_relationship_creation_authorized",
+              "to": "a.touch2b"
+            }
+          ]
+        },
+        {
+          "id": "x.subscribed",
+          "kind": "exit",
+          "state": "switched to a subscription or auto-renewal covering the need",
+          "class": "success",
+          "terminal": false,
+          "reEntry": "the subscription now covers the need; a new instance would only open again if the subscription later lapses"
+        },
+        {
+          "id": "a.touch2b",
+          "kind": "action",
+          "does": "Send an email reminding them of the last purchase date and the estimated depletion time, and suggesting the reorder, an economy pack or a multi-pack - reached directly for someone with no repurchase cadence, or after a regular repurchaser declines the subscription offer",
+          "execution": "communication",
+          "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
+          "writes": [
+            {
+              "field": "replenishment_log",
+              "mode": "append"
+            }
+          ],
+          "next": "w.touch2b"
+        },
+        {
+          "id": "w.touch2b",
+          "kind": "wait",
+          "until": [
+            "purchase_completed"
+          ],
+          "onEvent": "c.outcome2",
+          "timeout": {
+            "after": {
+              "key": "replenishment.reminder_window",
+              "rule": "A short fixed span for the reminder email to work before the cascade re-reads the purchase record and moves to the closing WhatsApp touch.",
+              "class": "response-window",
+              "default": {
+                "value": "3 days",
+                "confidence": "low",
+                "basis": "example-only",
+                "applicableWhen": "the reminder email already went out"
+              },
+              "required": false
+            },
+            "reason": "a reminder nobody acts on is itself a result - the alternative to acting on that is waiting indefinitely for a purchase that may never come",
+            "relativeTo": "previous-touch"
+          },
+          "onTimeout": "c.outcome2",
+          "recheck": "purchases for the need, re-read from the system of record, before the timeout is acted on",
+          "windowExtendsOnEngagement": false
+        },
+        {
+          "id": "c.outcome2",
+          "kind": "condition",
+          "asks": "Did they purchase?",
+          "branches": [
+            {
+              "label": "Purchased",
+              "when": "a purchase of the need is recorded",
+              "observes": "purchase_completed",
+              "to": "x.repurchased"
+            },
+            {
+              "label": "Not yet",
+              "when": "no purchase of the need is recorded",
+              "observes": "purchase_completed",
+              "to": "a.touch3"
+            }
+          ]
+        },
+        {
+          "id": "a.touch3",
+          "kind": "action",
+          "does": "Message on WhatsApp saying the item may run out soon, short and direct, with a clear repurchase link and no invented urgency",
+          "execution": "communication",
+          "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
+          "writes": [
+            {
+              "field": "replenishment_log",
+              "mode": "append"
+            }
+          ],
+          "next": "c.outcome3"
+        },
+        {
+          "id": "c.outcome3",
+          "kind": "condition",
+          "asks": "Did they purchase?",
+          "branches": [
+            {
+              "label": "Purchased",
+              "when": "a purchase of the need is recorded",
+              "observes": "purchase_completed",
+              "to": "x.repurchased"
+            },
+            {
+              "label": "Not purchased",
+              "when": "no purchase of the need is recorded",
+              "observes": "purchase_completed",
+              "to": "x.ended"
+            }
+          ]
+        },
+        {
+          "id": "x.repurchased",
           "kind": "exit",
           "state": "replenished; a purchase of the need is recorded",
           "class": "success",
@@ -11645,25 +11723,9 @@
           "reEntry": "the next prediction cycle, computed from this purchase, opens the next instance"
         },
         {
-          "id": "x.dismissed",
+          "id": "x.ended",
           "kind": "exit",
-          "state": "dismissed by the person; the need is muted for this cycle",
-          "class": "suppression",
-          "terminal": false,
-          "reEntry": "the next prediction cycle opens a new instance unless the dismissal asked for no more prompts"
-        },
-        {
-          "id": "x.no-action",
-          "kind": "exit",
-          "state": "no prompt sent; the reason is recorded",
-          "class": "no-action",
-          "terminal": false,
-          "reEntry": "the next prediction cycle opens a new instance"
-        },
-        {
-          "id": "x.lapsed",
-          "kind": "exit",
-          "state": "prompted, neither replenished nor dismissed; nothing further this cycle",
+          "state": "the cascade ran out; neither replenished nor subscribed, nothing further this cycle",
           "class": "timeout",
           "terminal": false,
           "reEntry": "the next prediction cycle opens a new instance"
@@ -11679,13 +11741,15 @@
             "usable_period",
             "expected_depletion_at",
             "prediction_cycle",
+            "product_reference",
             "reorder_destination"
           ],
           "optional": [
             "subscription_status",
-            "dismissal_status",
             "has_active_app_session",
-            "delivery_lead_time"
+            "delivery_lead_time",
+            "push_token",
+            "phone_number"
           ]
         }
       },
@@ -11693,10 +11757,11 @@
         "journeyOutcome": {
           "type": "exit",
           "refs": [
-            "x.replenished",
-            "x.dismissed",
-            "x.no-action",
-            "x.lapsed"
+            "x.not-started",
+            "x.already-repurchased",
+            "x.repurchased",
+            "x.subscribed",
+            "x.ended"
           ]
         },
         "businessOutcome": {
@@ -11722,22 +11787,22 @@
           }
         },
         "secondary": [
-          "replenishment_need_dismissed"
+          "continuing_relationship_creation_authorized"
         ],
         "guardrails": [
           "unsubscribe",
           "complaint",
           "message_after_success",
-          "prompt_after_dismissal",
-          "prediction_error_reported",
-          "incentive_issued"
+          "prediction_error_reported"
         ],
         "operational": [
           "entry_volume",
           "no_action_rate_by_reason",
           "lead_prompt_rate",
+          "cadence_fork_rate",
+          "subscription_conversion_rate",
           "follow_up_rate",
-          "dismissal_rate",
+          "final_touch_rate",
           "prediction_error_distribution"
         ]
       },
@@ -11752,31 +11817,7 @@
         ],
         "useCases": [
           "a consumable bought on a cadence whose usable period is ending",
-          "a category the person repurchases predictably, prompted before the next expected purchase"
-        ],
-        "presets": [
-          {
-            "id": "predicted-next-purchase",
-            "name": "Predicted Next Purchase",
-            "applicableWhen": {
-              "id": "p.next-purchase",
-              "label": "CANONICAL_RULE",
-              "text": "The need is predicted from the person's own purchase cadence in a category rather than from a single item's usable period; the machine is the same and the estimate is stated as one."
-            },
-            "overrides": {
-              "replenishment.lead_time": {
-                "min": "5 days",
-                "max": "10 days"
-              }
-            },
-            "destination": "the category reorder route",
-            "aliases": [
-              "predicted next purchase",
-              "next order reminder",
-              "repeat purchase prompt",
-              "cadence reminder"
-            ]
-          }
+          "a category the person repurchases predictably, prompted before the next expected purchase, with a subscription offered first where their own history shows the cadence"
         ]
       },
       "distinctFrom": [
@@ -11803,11 +11844,12 @@
       ],
       "guardrails": [
         "The prediction is an estimate from the person's own purchases and is stated as one; nothing is claimed about what they have left.",
-        "A dismissal is honoured for the cycle, and a dismissal asking for no more prompts is honoured until the person changes it.",
+        "An unreliable estimate does not open an instance at all.",
         "A subscription or auto-replenishment for the need means no prompt at all.",
-        "Opens and clicks change nothing; only purchase and dismissal events move the state."
+        "A regular repurchaser is offered a subscription before the plain reminder, never instead of the reorder route.",
+        "Opens and clicks change nothing; only a purchase or a subscription authorization moves the state."
       ],
-      "reusableRule": "A predicted need is prompted once before its estimated point and at most once after it, against the person's own purchase record re-read before each touch, with the estimate stated as an estimate."
+      "reusableRule": "A predicted need is prompted with a lead push, then, for a regular repurchaser, a subscription offer before the plain reminder that everyone else reaches directly, and closed with one short final touch - against the person's own purchase record re-read before each step, with the estimate stated as an estimate."
     },
     {
       "id": "RET-32",

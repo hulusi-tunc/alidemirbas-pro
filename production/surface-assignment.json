@@ -316,7 +316,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (push, email)"
+      "reason": "declares a message channel (push, email, in-app, whatsapp)"
     },
     {
       "id": "RET-32",

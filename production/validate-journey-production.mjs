@@ -366,6 +366,27 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 278 journeys / 3685 nodes (2026-09-24). RET-31
+// (Predicted Need Replenishment) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: a reliability
+// gate and an already-repurchased check ahead of the opening push, a
+// same-product-or-compatible-alternative branch that both feed the same
+// push touch, a cadence fork that gives a regular repurchaser an extra
+// subscription-offer touch (email plus in-app, sent together) before
+// converging on the reminder-email touch everyone else reaches
+// directly, and a closing WhatsApp touch - each touch gated by its own
+// purchase-outcome recheck. The dismissal path the old graph carried
+// (a.record-no-action, x.dismissed, x.no-action, c.sendable/c.sendable2)
+// is not in the reference image and was dropped rather than kept
+// unreferenced; permission, subscription and contest gates remain as
+// background suppressions the way RET-24's ladder carries its own.
+// channels gained "in-app" and "whatsapp" (both already valid ChannelId
+// literals); channelStrategy gained in-session and urgent roles for
+// them. Same id/slug, and it still has no real inbound or outbound
+// handoffs, so nothing else in the corpus references it. 18 -> 21 nodes
+// on RET-31, +3 net corpus-wide. Journey count (278), rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 278 journeys / 3682 nodes (2026-09-24). RET-24 (Churn
 // Risk Escalation) was rebuilt to match a reference flowchart the site
 // owner supplied, literal box for box: a three-tier risk-level ladder
@@ -862,9 +883,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (278 journeys / 3682 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (278 journeys / 3685 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 278 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3682 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3685 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
