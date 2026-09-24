@@ -113,7 +113,11 @@ export const ARCHIVED_SURFACE = "operational" as const;
    FBK-43. FBK-41 lost its last competition-group partner
    (outbound-ask) in the process and its `competition` field was set to
    the literal "none". REL-284's one prose distinctFrom row naming
-   FBK-42 was also removed - taking the library to 51.
+   FBK-42 was also removed - taking the library to 51. FBK-49 (Missing
+   Critical Data) was retired next, the site owner's request - it had
+   no real inbound handoffs, only three prose distinctFrom rows
+   (DEC-184, DOC-214, IDN-81) naming it, all removed - taking the
+   library to 50.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -177,8 +181,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Engagement, retention & contactability - 10
   "RET-24", "RET-28", "RET-31", "RET-32", "CON-272",
   "RET-290", "RET-292", "RET-294", "RET-295", "CON-300",
-  // Feedback, advocacy & relationship signals - 3
-  "FBK-41", "FBK-43", "FBK-49",
+  // Feedback, advocacy & relationship signals - 2
+  "FBK-41", "FBK-43",
   // Time, deadlines, expiry & temporary states - 1
   "TIM-274",
   // Access, identity & relationship - 2

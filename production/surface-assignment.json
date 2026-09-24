@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 285,
-    "customer": 136,
+    "journeys": 284,
+    "customer": 135,
     "customer-silent": 66,
-    "customer-communicating": 70,
+    "customer-communicating": 69,
     "mechanism": 25,
     "operational": 124
   },
@@ -603,17 +603,6 @@
       "silent": true,
       "excludedFromPublic": false,
       "reason": "silent lifecycle state: category \"feedback\" and a customer-worded entity"
-    },
-    {
-      "id": "FBK-49",
-      "shortName": "Missing Information Reminder",
-      "category": "feedback",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": true,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, task)"
     },
     {
       "id": "FBK-50",

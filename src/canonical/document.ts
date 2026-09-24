@@ -594,12 +594,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "DOC-211 decides whether the business itself needs to create, reuse or waive an artifact once a process reaches a document requirement. This journey is the other half of that same trigger: the artifact the requirement names is one only the party can supply, and the business has nothing to generate, reuse or waive.",
       },
-      {
-        journey: "FBK-49",
-        because:
-          "FBK-49 chases any named field, document or value blocking any business process, and can raise the request internally against whoever inside the organisation holds the item. This is the narrower, party-facing case: a document only the applicant themselves can supply to complete their own submitted application or transaction, on a fixed reminder-then-escalate cadence bound to that submission's own deadline.",
-      },
-    ],
+      ],
     objective:
       "Chase a document only the party can supply until it is received or the submission's own deadline passes, then put a person on it rather than let the submission expire silently.",
     eligibility: [

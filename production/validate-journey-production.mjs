@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 285", journeys.length === 285);
+check(1, "active journey count = 284", journeys.length === 284);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -365,6 +365,13 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 284 journeys / 3774 nodes (2026-09-24). FBK-49
+// (Missing Critical Data) was retired, the site owner's request. It
+// had no real inbound handoffs, only three prose distinctFrom rows
+// (DEC-184, DOC-214, IDN-81) naming it, all removed. 285 -> 284
+// journeys, -16 nodes net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
 //
 // FROZEN BASELINE: 285 journeys / 3790 nodes (2026-09-24). FBK-42
 // (Advocacy Request) was retired, the site owner's request. It had one
@@ -764,9 +771,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (285 journeys / 3790 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 285 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3790 &&
+  "canonical source mutation = 0 (284 journeys / 3774 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 284 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3774 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

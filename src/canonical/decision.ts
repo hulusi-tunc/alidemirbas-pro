@@ -922,12 +922,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
       concurrency: "one-active-per-key"
     },
     distinctFrom: [
-      {
-        journey: "FBK-49",
-        because:
-          "FBK-49 resolves missing data blocking a process generally. This is evidence a named reviewer needs to answer a specific open question - it is scoped by the decision rather than by the record, and it ends by resuming a review rather than by unblocking a pipeline.",
-      },
-    ],
+      ],
     objective: "Pause a decision for the fact it is actually missing, without losing the review already done.",
     eligibility: [
       "a reviewer identifying a specific fact the decision turns on and which is not available",

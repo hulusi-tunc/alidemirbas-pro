@@ -570,12 +570,7 @@ export const IDENTITY_JOURNEYS: readonly CanonicalJourney[] = [
       note: "One instance per requirement per blocked process. The same verification can unblock two processes and is not requested twice for them.",
     },
     distinctFrom: [
-      {
-        journey: "FBK-49",
-        because:
-          "FBK-49 is missing data - a value we do not hold. This is missing confidence - we may hold the value and have not established that it is true. The routes to resolving them share nothing.",
-      },
-    ],
+      ],
     entry: "t.blocked",
     nodes: [
       {
