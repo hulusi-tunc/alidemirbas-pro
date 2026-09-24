@@ -283,7 +283,7 @@
       "routesToHuman": true,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app, task)"
+      "reason": "declares a message channel (push, email, in-app, whatsapp, task)"
     },
     {
       "id": "RET-27",

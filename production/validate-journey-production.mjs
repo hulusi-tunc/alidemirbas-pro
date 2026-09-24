@@ -366,6 +366,24 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 278 journeys / 3682 nodes (2026-09-24). RET-24 (Churn
+// Risk Escalation) was rebuilt to match a reference flowchart the site
+// owner supplied, literal box for box: a three-tier risk-level ladder
+// (push at low risk, an email-and-in-app pair at medium, WhatsApp at
+// high), each tier gated by its own outcome recheck before escalating;
+// a six-way issue-type classifier at the high-risk tier once WhatsApp
+// alone did not resolve it; and a final last-resort tier (email plus a
+// WhatsApp reminder) ending in either recovery or passive churn tracking.
+// The classifier's technical-problem and dissatisfaction-or-complaint
+// branches carry the journey's two real handoffs (to RET-23 and to
+// external:human-in-the-loop-lifecycle) rather than inventing new ones.
+// channels gained "push" and "whatsapp" (both already valid ChannelId
+// literals); channelStrategy gained low-friction and urgent roles for
+// them. Same id/slug, so integration.ts's one real inbound handoff into
+// RET-24 stays valid. 18 -> 28 nodes on RET-24, +10 net corpus-wide.
+// Journey count (278), rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 278 journeys / 3672 nodes (2026-09-24). FUL-265
 // (Delivery Tracking) was retired, the site owner's request. It had no
 // real inbound handoffs, only two prose distinctFrom rows (FUL-146,
@@ -844,9 +862,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (278 journeys / 3672 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (278 journeys / 3682 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 278 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3672 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3682 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

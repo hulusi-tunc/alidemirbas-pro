@@ -879,11 +879,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "churn-risk-escalation",
     category: "retention",
     goal: "relationship-recovery-intervention",
-    channels: ["email", "in-app", "task"],
-    name: "Churn risk escalation → evidence → intervention priority",
+    channels: ["push", "email", "in-app", "whatsapp", "task"],
+    name: "Churn risk escalation → tiered evidence ladder → intervention priority",
     shortName: "Churn Risk Escalation",
     purpose:
-      "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
+      "Catch a churn risk signal early and answer it on the channel and at the priority the evidence actually earns, escalating only as the evidence corroborates itself.",
     entity: {
       scope: "customer, account or subscription relationship",
       note: "Risk is held where the evidence was observed. A risky subscription inside a healthy account is a risky subscription.",
@@ -893,9 +893,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
-    objective: "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
+    objective: "Catch a churn risk signal early and answer it on the channel and at the priority the evidence actually earns, escalating only as the evidence corroborates itself.",
     eligibility: [
-      "several independent churn-relevant signals crossing a defined threshold together: sustained meaningful usage decline, a failed renewal or payment, a negative support experience, repeated unresolved blockers, explicit dissatisfaction, exploration of cancellation, a key stakeholder leaving, falling account-wide adoption",
+      "at least one churn-relevant signal crossing a defined threshold: usage decline, an extended absence, unused critical features, a payment problem, a support complaint, a low NPS score or a negative comment, an approaching renewal, an approaching plan limit, or several weaker signals together",
       "no instance of this journey is already open for the customer",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
@@ -903,7 +903,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.g1",
         "label": "CANONICAL_RULE",
-        "text": "A single weak signal never constitutes churn risk. Corroboration between independent signals is what the threshold is measuring."
+        "text": "A single weak signal is not evidence of nothing, but it is not strong evidence either. It draws only the lightest tier of this ladder - a push nudge - never a person's attention or a discount; corroboration between independent signals is what moves the tier up."
       },
       {
         "id": "s.g2",
@@ -913,12 +913,17 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.g3",
         "label": "CANONICAL_RULE",
-        "text": "A risk score is not the outcome. It orders attention; it does not decide anything."
+        "text": "A risk score is not the outcome. It orders which tier responds; each outcome check re-reads usage, login, payment and support state before accepting a score drop as recovery."
       },
       {
         "id": "s.g4",
         "label": "CANONICAL_RULE",
-        "text": "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one."
+        "text": "The size of the intervention tracks the tier. No discount or plan offer appears before the issue-based tier or the last-resort tier; the push, email, in-app and WhatsApp touches before that ask what is wrong or point at value, and never negotiate."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "This journey defers to an open issue already under human ownership and to a declared cancellation intent on the same account - its own competition precedence, not a duplicate check inside this graph."
       }
     ],
     contact: {
@@ -958,25 +963,39 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "the risk is at its lightest tier - one weak signal - and a light nudge is all the evidence supports"
+        },
+        {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "the risk is disengagement; the person is not in the product"
+          "when": "the medium tier's content has to survive until the person can act on it, or the last-resort offer needs the same durability"
         },
         {
           "role": "in-session",
           "channels": [
             "in-app"
           ],
-          "when": "the risk is in-product friction; the check-in belongs beside the thing that is failing"
+          "when": "the medium tier's guidance belongs beside the product the person is still using"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "whatsapp"
+          ],
+          "when": "the risk has reached the high tier, or the last-resort offer needs a channel that still reaches someone who has stopped opening email"
         },
         {
           "role": "human",
           "channels": [
             "task"
           ],
-          "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
+          "when": "the issue is a technical cause or a complaint that needs a person to carry it, not a further automated touch"
         }
       ],
       "fallback": "none",
@@ -986,16 +1005,27 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "strategy": "human-escalation-ladder",
       "touches": [
         {
-          "id": "t-checkin-email",
-          "stage": "risk-check-in",
-          "action": "a.check-in-email",
+          "id": "t-push-low",
+          "stage": "low-risk-touch",
+          "action": "a.push-value",
           "prerequisites": [
-            "c.intent",
-            "c.operational",
-            "c.priority-clear",
-            "c.signal-class"
+            "c.risk-level"
           ],
-          "purpose": "Ask what is going wrong on the channel that reaches someone who has stopped using the product, and give them a route to a person - no offer, no discount.",
+          "purpose": "Nudge the account toward its most valuable feature, short and benefit-focused - no diagnostic question, no offer.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-email-medium",
+          "stage": "medium-risk-touch",
+          "action": "a.email-features",
+          "prerequisites": [
+            "c.risk-level"
+          ],
+          "purpose": "Name the features this account may be missing and how to get more value from them.",
           "channelRoles": [
             "persistent"
           ],
@@ -1003,16 +1033,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t-checkin-inapp",
-          "stage": "risk-check-in",
-          "action": "a.check-in-inapp",
+          "id": "t-inapp-medium",
+          "stage": "medium-risk-touch",
+          "action": "a.inapp-relevant",
+          "after": "t-email-medium",
           "prerequisites": [
-            "c.intent",
-            "c.operational",
-            "c.priority-clear",
-            "c.signal-class"
+            "c.risk-level"
           ],
-          "purpose": "Ask what is going wrong beside the thing that is failing, in the product, and give them a route to a person - no offer, no discount.",
+          "purpose": "Highlight the relevant feature beside the product, sent together with the medium tier's other touch, for anyone who opens it during this window.",
           "channelRoles": [
             "in-session"
           ],
@@ -1020,16 +1048,128 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t-owner-task",
-          "stage": "owner-task",
-          "action": "a.owner-task",
-          "gatedBy": "w.response",
+          "id": "t-whatsapp-high",
+          "stage": "high-risk-touch",
+          "action": "a.whatsapp-experience",
           "prerequisites": [
-            "c.human"
+            "c.risk-level"
           ],
-          "purpose": "Raise a task for the account owner or customer success, carrying the evidence - including any reply the check-in drew - rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
+          "purpose": "Ask directly whether the experience can be made better, with a short survey or open question and a route to a person.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-technical",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-technical",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Route a technical cause to the support team, track it through to resolution, and ask a satisfaction question once it closes.",
           "channelRoles": [
             "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-complaint",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-complaint",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Put the account in front of a person, own the issue through to resolution, and read NPS once it closes.",
+          "channelRoles": [
+            "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-price",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-price",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Offer a discount or a more suitable plan for a price or value problem.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-usage",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-usage",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Point to product guidance for an account that has not learned how to get value from it.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-payment",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-payment",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Resolve a payment error and lay out alternative or flexible payment options.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-noclear",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-noclear",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Send personalised value recommendations and a short guide series where no specific cause explains the decline.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-final-email",
+          "stage": "final-intervention",
+          "action": "a.final-email",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Make one last personalised, time-limited retention offer.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-final-whatsapp",
+          "stage": "final-intervention",
+          "action": "a.final-whatsapp",
+          "after": "t-final-email",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Summarise the last-resort offer with a quick action link, sent together with the tier's other touch.",
+          "channelRoles": [
+            "urgent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -1039,7 +1179,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4"
+        "s.g4",
+        "s.g5"
       ]
     },
     implementation: {
@@ -1048,21 +1189,21 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "account_id",
           "risk_episode_id",
           "risk_evidence",
-          "cancellation_intent_ref",
           "operational_cause_ref",
           "retention_ownership"
         ],
-        "optional": []
+        "optional": [
+          "push_token",
+          "phone_number"
+        ]
       }
     },
     measurement: {
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
-          "x.contended",
-          "x.monitored",
           "x.recovered",
-          "x.cancellation-in-motion",
+          "x.passive-monitoring",
           "h.resolve-first",
           "h.human"
         ]
@@ -1089,8 +1230,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "churn prevention (risk)"
       ],
       "useCases": [
-        "several independent risk signals crossing a threshold on one account",
-        "deciding between a person, an automated intervention, or watching"
+        "several independent risk signals - or one strong one - crossing a threshold on one account, answered by an escalating ladder from a light nudge to a person",
+        "deciding between a push nudge, an email-and-in-app pair, a WhatsApp touch, or a person, in proportion to how much evidence there is"
       ]
     },
     entry: "t.threshold",
@@ -1101,73 +1242,277 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         event: "churn_risk_threshold_crossed",
         evidence: {
           requires: [
-            "several independent churn-relevant signals crossing a defined threshold together: sustained meaningful usage decline, a failed renewal or payment, a negative support experience, repeated unresolved blockers, explicit dissatisfaction, exploration of cancellation, a key stakeholder leaving, falling account-wide adoption",
+            "one or more churn-relevant signals crossing a defined threshold: sustained usage decline, an extended absence from the product, unused critical features, a payment problem, a support complaint, a low NPS score or a negative comment, an approaching renewal, an approaching plan limit, or several weaker signals together",
           ],
           insufficientAlone: [
-            "a single weak signal",
             "high account value, which describes what is at stake rather than the likelihood of losing it",
             "a risk score with no decomposable evidence behind it",
           ],
           source: "authoritative",
         },
-        next: "c.intent",
+        next: "a.evaluate",
       },
       {
-        id: "c.intent",
-        kind: "condition",
-        asks: "Has explicit cancellation intent already been expressed?",
-        branches: [
-          {
-            label: "Already cancelling",
-            when: "a cancellation has been requested or a cancel flow entered",
-            to: "x.cancellation-in-motion",
-          },
-          {
-            label: "No stated intent",
-            when: "the risk is inferred from behaviour and events, and nobody has said anything",
-            to: "a.evidence",
-          },
-        ],
-      },
-      {
-        id: "x.cancellation-in-motion",
-        kind: "exit",
-        state: "cancellation intent already on record; no separate retention track opened",
-        terminal: false,
-        reEntry:
-          "a lapsed or abandoned cancellation, or a fresh risk signal once the decision resolves, re-opens this evaluation from current evidence",
-        class: "no-action",
-      },
-      {
-        id: "a.evidence",
+        id: "a.evaluate",
         kind: "action",
-        does: "Assemble the signals with their sources and strengths. What matters is whether they corroborate each other, not how many there are - three readings of the same underlying event are one piece of evidence",
+        does: "Evaluate the signals behind the crossed threshold: how many independent signals there are, how strong each one is, the customer's segment and value, the contract or renewal date, and how the relationship has behaved before now",
         writes: [{ field: "risk_evidence", mode: "append" }],
-        next: "c.operational",
-        idempotencyKey: "risk_episode_id + account_id + a.evidence",
+        next: "c.risk-level",
+        idempotencyKey: "risk_episode_id + account_id + a.evaluate",
       },
       {
-        id: "c.operational",
+        id: "c.risk-level",
         kind: "condition",
-        asks: "Is the risk driven by a known operational problem, other than a payment failure already open in payment recovery?",
+        asks: "What level of risk do the evaluated signals add up to?",
         branches: [
           {
-            label: "Known problem",
-            when: "the evidence points at something specific that is broken or unresolved, and it is not a payment failure with an open payment recovery instance on this relationship - that cause already has an owner",
-            to: "h.resolve-first",
+            label: "Low risk",
+            when: "one weak signal is present and nothing else corroborates it",
+            observes: "risk_evidence",
+            to: "a.push-value",
           },
           {
-            label: "No known problem",
-            when: "the relationship is deteriorating and nothing identifiable is causing it, or the identifiable cause is a payment failure that payment recovery already owns",
-            to: "c.priority-clear",
+            label: "Medium risk",
+            when: "two signals are present, or usage is in an ongoing decline that has not stopped",
+            observes: "risk_evidence",
+            to: "a.email-features",
+          },
+          {
+            label: "High risk",
+            when: "three or more strong signals are present, or one of the signals is critical on its own",
+            observes: "risk_evidence",
+            to: "a.whatsapp-experience",
           },
         ],
+      },
+      {
+        id: "a.push-value",
+        kind: "action",
+        does: "Push a light, benefit-focused nudge naming the account's most valuable feature - no diagnostic question, no offer",
+        next: "w.low-wait",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.push-value",
+      },
+      {
+        id: "w.low-wait",
+        kind: "wait",
+        until: ["relationship_recovered"],
+        onEvent: "c.low-outcome",
+        timeout: {
+          after: {
+            key: "churn_risk.low_tier_window",
+            rule: "A short fixed span for the lightest tier to work before deciding whether to escalate.",
+            class: "response-window",
+            default: {
+              value: "3 days",
+              confidence: "low",
+              basis: "example-only",
+              applicableWhen: "the low-risk push touch already went out",
+            },
+            required: false,
+          },
+          reason: "a light nudge nobody responds to is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
+          relativeTo: "previous-touch",
+        },
+        onTimeout: "c.low-outcome",
+        windowExtendsOnEngagement: false,
+        recheck: "login activity, critical-feature use and the risk score, re-read from the systems that own them, before the timeout is acted on",
+      },
+      {
+        id: "c.low-outcome",
+        kind: "condition",
+        asks: "Did usage come back?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "a login is present again, the critical feature is back in use, and the risk score has dropped",
+            observes: "relationship_recovered",
+            to: "x.recovered",
+          },
+          {
+            label: "Not yet",
+            when: "none of that is true",
+            to: "a.email-features",
+          },
+        ],
+      },
+      {
+        id: "a.email-features",
+        kind: "action",
+        does: "Send an email naming the features this account may be missing, with personalised recommendations for getting more value - sent alongside the in-app message below",
+        next: "a.inapp-relevant",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.email-features",
+      },
+      {
+        id: "a.inapp-relevant",
+        kind: "action",
+        does: "Show an in-app message highlighting the relevant feature, with short guidance, for anyone who opens the product during this window - sent together with the email above, not as a separate later touch",
+        next: "w.medium-wait",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.inapp-relevant",
+      },
+      {
+        id: "w.medium-wait",
+        kind: "wait",
+        until: ["relationship_recovered"],
+        onEvent: "c.medium-outcome",
+        timeout: {
+          after: {
+            key: "churn_risk.medium_tier_window",
+            rule: "A longer fixed span for the medium tier's more comprehensive content and guidance to work before deciding whether to escalate.",
+            class: "response-window",
+            default: {
+              value: "3-5 days",
+              confidence: "low",
+              basis: "example-only",
+              applicableWhen: "both the email and the in-app message already went out",
+            },
+            required: false,
+          },
+          reason: "content nobody engages with is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
+          relativeTo: "previous-touch",
+        },
+        onTimeout: "c.medium-outcome",
+        windowExtendsOnEngagement: false,
+        recheck: "login frequency, feature usage and the risk score, re-read from the systems that own them, before the timeout is acted on",
+      },
+      {
+        id: "c.medium-outcome",
+        kind: "condition",
+        asks: "Did usage recover?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "login frequency increased, feature usage increased, and the risk score has dropped",
+            observes: "relationship_recovered",
+            to: "x.recovered",
+          },
+          {
+            label: "Not yet",
+            when: "none of that is true",
+            to: "a.whatsapp-experience",
+          },
+        ],
+      },
+      {
+        id: "a.whatsapp-experience",
+        kind: "action",
+        does: "Message on WhatsApp asking directly whether the experience can be made better, with a short survey or an open-ended question, and a route to support or a consultant if the reply asks for one",
+        next: "w.high-wait",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.whatsapp-experience",
+      },
+      {
+        id: "w.high-wait",
+        kind: "wait",
+        until: ["relationship_recovered"],
+        onEvent: "c.high-outcome",
+        timeout: {
+          after: {
+            key: "churn_risk.high_tier_window",
+            rule: "The shortest fixed span in the ladder, because a high-risk relationship is not one to leave waiting.",
+            class: "response-window",
+            default: {
+              value: "2-3 days",
+              confidence: "low",
+              basis: "example-only",
+              applicableWhen: "the WhatsApp touch already went out",
+            },
+            required: false,
+          },
+          reason: "an unanswered high-risk touch is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
+          relativeTo: "previous-touch",
+        },
+        onTimeout: "c.high-outcome",
+        windowExtendsOnEngagement: false,
+        recheck: "usage, the payment record and any open support ticket, re-read from the systems that own them, before the timeout is acted on",
+      },
+      {
+        id: "c.high-outcome",
+        kind: "condition",
+        asks: "Was the issue resolved?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "usage came back, any payment problem is resolved, any support ticket is closed, and the risk score has dropped",
+            observes: "relationship_recovered",
+            to: "x.recovered",
+          },
+          {
+            label: "Not yet",
+            when: "none of that is true",
+            to: "c.issue-type",
+          },
+        ],
+      },
+      {
+        id: "c.issue-type",
+        kind: "condition",
+        asks: "What kind of issue is behind the risk that the WhatsApp touch did not resolve?",
+        branches: [
+          {
+            label: "Price or value problem",
+            when: "the account is disengaging over cost or perceived value against what it pays",
+            to: "a.issue-price",
+          },
+          {
+            label: "Product usage problem",
+            when: "the account has not learned how to get value from the product",
+            to: "a.issue-usage",
+          },
+          {
+            label: "Technical problem",
+            when: "something specific is broken or unresolved and it is not a payment failure with an open payment recovery instance on this relationship - that cause already has an owner",
+            to: "a.issue-technical",
+          },
+          {
+            label: "Payment problem",
+            when: "the risk traces to a payment error, a failed method or a plan that no longer fits how the account pays",
+            to: "a.issue-payment",
+          },
+          {
+            label: "Dissatisfaction or complaint",
+            when: "the evidence is explicit dissatisfaction or an unresolved complaint that needs a person, not a further automated touch",
+            to: "a.issue-complaint",
+          },
+          {
+            label: "No clear issue, usage still declining",
+            when: "nothing specific identifies the cause, and the decline is otherwise unexplained",
+            to: "a.issue-noclear",
+          },
+        ],
+      },
+      {
+        id: "a.issue-price",
+        kind: "action",
+        does: "Offer a special discount or a more suitable plan, and suggest the plan change directly",
+        next: "a.final-email",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-price",
+      },
+      {
+        id: "a.issue-usage",
+        kind: "action",
+        does: "Point to a how-to guide, a live demo or webinar, and one-on-one onboarding support",
+        next: "a.final-email",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-usage",
+      },
+      {
+        id: "a.issue-technical",
+        kind: "action",
+        does: "Route the account to the support team, track the issue through to resolution, and ask a satisfaction question once it closes",
+        writes: [{ field: "operational_cause_ref", mode: "set" }],
+        next: "h.resolve-first",
+        execution: "human",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-technical",
       },
       {
         id: "h.resolve-first",
         kind: "handoff",
         to: "RET-23",
-        on: "risk with an identifiable operational cause",
+        on: "risk with an identifiable operational cause that the WhatsApp touch did not resolve",
         carries: [
           "the risk evidence and which part of it names the problem",
           "the fact that this is already at risk level, so the cause-specific recovery knows what is at stake",
@@ -1175,137 +1520,30 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         suppresses: ["promotional retention offers on this relationship until the problem is resolved"],
       },
       {
-        id: "c.priority-clear",
-        kind: "condition",
-        asks: "Does a higher-precedence retention-outreach contender already claim this account?",
-        branches: [
-          {
-            label: "Clear",
-            when: "no open issue under human ownership (FBK-46) currently claims this account - this journey's own declared precedence is below that, above generic retention intervention",
-            to: "c.signal-class",
-          },
-          {
-            label: "Contended",
-            when: "an open issue under human ownership already claims this account - sending a check-in, or raising a competing owner-task, would contradict the person already working it rather than corroborate their evidence",
-            to: "x.contended",
-          },
-        ],
-      },
-      {
-        id: "c.signal-class",
-        kind: "condition",
-        asks: "What kind of risk is this?",
-        branches: [
-          {
-            label: "Disengagement",
-            when: "the evidence points at sustained usage decline, falling account-wide adoption, a key stakeholder leaving, or a failed renewal or payment - by definition, the person is not in the product",
-            observes: "risk_evidence",
-            to: "a.check-in-email",
-          },
-          {
-            label: "In-product friction",
-            when: "the evidence points at repeated unresolved blockers, a negative support experience, or explicit dissatisfaction - the risk was generated by something failing inside the product, where the person still is",
-            observes: "risk_evidence",
-            to: "a.check-in-inapp",
-          },
-        ],
-      },
-      {
-        id: "a.check-in-email",
+        id: "a.issue-payment",
         kind: "action",
-        does: "Send a check-in naming what we can see going wrong, with a route to a person, on the route that reaches someone who is not in the product. Carries no offer and no discount; this journey never makes one",
-        next: "w.response",
+        does: "Resolve the payment error, offer an alternative payment method, and lay out flexible payment options",
+        next: "a.final-email",
         execution: "communication",
-        idempotencyKey: "risk_episode_id + account_id + a.check-in-email",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-payment",
       },
       {
-        id: "a.check-in-inapp",
+        id: "a.issue-complaint",
         kind: "action",
-        does: "Send a check-in naming what we can see going wrong, with a route to a person, beside the thing that is failing, where the person still is. Carries no offer and no discount; this journey never makes one",
-        next: "w.response",
-        execution: "communication",
-        idempotencyKey: "risk_episode_id + account_id + a.check-in-inapp",
-      },
-      {
-        id: "w.response",
-        kind: "wait",
-        until: ["relationship_recovered", "explicit_cancellation_intent"],
-        onEvent: "c.moved",
-        timeout: {
-          after: {
-            key: "churn_risk.response_window",
-            rule: "A bounded window to notice whether the check-in changed anything, before spending a person's attention on a relationship that did not answer.",
-            class: "response-window",
-            required: true,
-          },
-          reason: "an unanswered check-in is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
-          relativeTo: "previous-touch",
-        },
-        onTimeout: "c.human",
-        windowExtendsOnEngagement: false,
-        recheck: "the relationship state and the cancellation record, re-read from the systems that own them, before the timeout is acted on",
-      },
-      {
-        id: "c.moved",
-        kind: "condition",
-        asks: "Did the relationship state move?",
-        branches: [
-          {
-            label: "Recovered",
-            when: "the relationship measurably recovered",
-            observes: "relationship_recovered",
-            to: "x.recovered",
-          },
-          {
-            label: "Cancellation declared",
-            when: "a cancellation was requested, or a cancel flow entered, while waiting for a response to the check-in",
-            observes: "explicit_cancellation_intent",
-            to: "x.cancellation-in-motion",
-          },
-        ],
-      },
-      {
-        id: "x.recovered",
-        kind: "exit",
-        state: "the relationship recovered; risk cleared without escalation",
-        terminal: false,
-        reEntry: "a fresh risk evaluation is a new instance if the threshold crosses again",
-        class: "success",
-      },
-      {
-        id: "c.human",
-        kind: "condition",
-        asks: "Does the evidence - including any reply received during the check-in window - now justify a person?",
-        branches: [
-          {
-            label: "Justified",
-            when: "the evidence is strong and corroborated, and the relationship warrants the cost of someone's attention",
-            to: "a.owner-task",
-          },
-          {
-            label: "Not justified",
-            when: "the evidence is real but thin, and a person's attention would be a larger intervention than the signal supports",
-            to: "x.monitored",
-          },
-        ],
-      },
-      {
-        id: "a.owner-task",
-        kind: "action",
-        does: "Raise a task for the account owner or customer success, carrying the evidence rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
+        does: "Put the account in front of a person - human support or the account representative - own the issue through to resolution, and read NPS once it closes",
         writes: [
           { field: "retention_ownership", mode: "set" },
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "h.human",
         execution: "human",
-        idempotencyKey: "risk_episode_id + account_id + a.owner-task",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-complaint",
       },
       {
         id: "h.human",
         kind: "handoff",
         to: "external:human-in-the-loop-lifecycle",
-        on: "risk strong enough to justify a person",
+        on: "an unresolved complaint or dissatisfaction that needs a person",
         carries: [
           "the assembled evidence, so the first conversation is informed",
           "what has already been sent, so it is not repeated in person",
@@ -1320,34 +1558,100 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         },
       },
       {
-        id: "x.contended",
-        kind: "exit",
-        state: "another owner already holds this account",
-        terminal: false,
-        reEntry:
-          "that contender resolving re-opens this evaluation from current evidence rather than resuming a stale one",
-        class: "suppression",
+        id: "a.issue-noclear",
+        kind: "action",
+        does: "Send personalised value recommendations, introduce features the account has not tried, and continue with a short content or guide series",
+        next: "a.final-email",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-noclear",
       },
       {
-        id: "x.monitored",
+        id: "a.final-email",
+        kind: "action",
+        does: "Send one last personalised discount or plan as a time-limited offer - sent alongside the WhatsApp reminder below",
+        next: "a.final-whatsapp",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.final-email",
+      },
+      {
+        id: "a.final-whatsapp",
+        kind: "action",
+        does: "Send a short WhatsApp reminder summarising the offer with a quick action link, together with the email above",
+        next: "w.final-wait",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.final-whatsapp",
+      },
+      {
+        id: "w.final-wait",
+        kind: "wait",
+        until: ["relationship_recovered"],
+        onEvent: "c.final-outcome",
+        timeout: {
+          after: {
+            key: "churn_risk.final_tier_window",
+            rule: "One last fixed span for the final retention offer to be acted on before the account is moved to passive tracking.",
+            class: "response-window",
+            default: {
+              value: "3-5 days",
+              confidence: "low",
+              basis: "example-only",
+              applicableWhen: "both the final email and the final WhatsApp reminder already went out",
+            },
+            required: false,
+          },
+          reason: "an unanswered last-resort offer is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
+          relativeTo: "previous-touch",
+        },
+        onTimeout: "c.final-outcome",
+        windowExtendsOnEngagement: false,
+        recheck: "usage and purchase activity, re-read from the systems that own them, before the timeout is acted on",
+      },
+      {
+        id: "c.final-outcome",
+        kind: "condition",
+        asks: "Did usage or purchase recover?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "usage or a purchase measurably recovered",
+            observes: "relationship_recovered",
+            to: "x.recovered",
+          },
+          {
+            label: "Not yet",
+            when: "nothing measurably recovered through the whole ladder",
+            to: "x.passive-monitoring",
+          },
+        ],
+      },
+      {
+        id: "x.recovered",
         kind: "exit",
-        state: "risk recorded, monitored; nothing further from this evaluation",
+        state: "the relationship recovered; risk cleared without further escalation",
         terminal: false,
-        reEntry:
-          "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence",
-        class: "no-action",
+        reEntry: "a fresh risk evaluation is a new instance if the threshold crosses again",
+        class: "success",
+      },
+      {
+        id: "x.passive-monitoring",
+        kind: "exit",
+        state: "no recovery through the full escalation ladder; churn risk moved to passive tracking",
+        terminal: false,
+        reEntry: "a fresh threshold crossing on this account opens a new episode from current evidence",
+        class: "failure",
       },
     ],
     guardrails: [
-      "A single weak signal never constitutes churn risk. Corroboration between independent signals is what the threshold is measuring.",
+      "A single weak signal is not evidence of nothing, but it is not strong evidence either. It draws only the lightest tier of this ladder - a push nudge - never a person's attention or a discount; corroboration between independent signals is what moves the tier up.",
       "A high-value customer is not automatically at high risk. Value is what is at stake, not the probability of losing it.",
-      "A risk score is not the outcome. It orders attention; it does not decide anything.",
-      "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one.",
-      "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim once, before the check-in is sent, rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender: cancellation intent already expressed.",
-      "The check-in carries no offer and no discount - this journey never makes one. This journey hands nobody off on the strength of a bare check-in: a reply that neither recovers the relationship nor declares cancellation is additional evidence, read by c.human exactly as a silent timeout would be, never manufactured into a delivered intervention.",
+      "A risk score is not the outcome. It orders which tier responds; each outcome check re-reads usage, login, payment and support state before accepting a score drop as recovery.",
+      "The size of the intervention tracks the tier. No discount or plan offer appears before the issue-based tier or the last-resort tier; the push, email, in-app and WhatsApp touches before that ask what is wrong or point at value, and never negotiate.",
+      "This journey defers to an open issue already under human ownership and to a declared cancellation intent on the same account - its own competition precedence, not a duplicate check inside this graph.",
+      "The technical-problem and dissatisfaction-or-complaint branches of the issue-type classifier (c.issue-type) end this journey's ownership rather than continuing to the last-resort tier: h.resolve-first hands the operational cause to RET-23 (health-deterioration-diagnosis), and h.human hands the account to a person, in both cases before any discount or offer from this journey is made on that branch.",
+      "Nobody is escalated on the strength of a bare, unanswered touch: c.low-outcome, c.medium-outcome, c.high-outcome and c.final-outcome each treat a timeout with no recovered signal exactly as an explicit non-recovery, never as agreement.",
     ],
     reusableRule:
-      "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",
+      "Churn intervention should escalate in channel and priority only as independent evidence of relationship risk keeps corroborating itself.",
   },
 
   /* ------------------------------------------------------------ RET-27 */
