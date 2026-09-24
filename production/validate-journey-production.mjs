@@ -366,6 +366,23 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 289 journeys / 3851 nodes (2026-09-24). SCH-266
+// (Appointment Readiness Reminder) was rebuilt as a literal
+// push/email/SMS cascade matching a reference image's shape exactly:
+// an unconditional push notice that the appointment is approaching,
+// preceded by an email only where a prerequisite is still missing;
+// then, a fixed span before the appointment, an "is it still active?"
+// recheck, an SMS final reminder, and a "is preparation complete?"
+// check that either exits ready or sends one last email naming the
+// gap before exiting not-ready. The two real outbound handoffs
+// (h.at-risk -> SCH-174, h.prestart -> SCH-177) were removed in favor
+// of the image's plain terminal exits (x.ready, x.not-ready); SCH-174
+// and SCH-177 do not depend on receiving them, since SCH-174 tracks
+// the same prerequisite state on its own (s.silent) and SCH-177 opens
+// on its own pre-service trigger. channels moved from email+sms to
+// push+email+sms. 289 journeys unchanged, -2 nodes net. Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 289 journeys / 3853 nodes (2026-09-24). IDN-84
 // (Verification Recovery) was retired, the site owner's request. It had
 // two real inbound handoffs, IDN-81's h.failure and IDN-82's h.failure,
@@ -689,9 +706,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (289 journeys / 3853 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (289 journeys / 3851 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 289 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3853 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3851 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

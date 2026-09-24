@@ -62635,6 +62635,7 @@
       "category": "scheduling",
       "goal": "readiness-revalidation",
       "channels": [
+        "push",
         "email",
         "sms"
       ],
@@ -62749,25 +62750,28 @@
       "channelStrategy": {
         "roles": [
           {
-            "role": "urgent",
-            "channels": [
-              "sms"
-            ],
-            "when": "the scheduled time is within the same day, or a critical prerequisite is outstanding, and permission for service SMS is recorded"
-          },
-          {
             "role": "persistent",
             "channels": [
               "email"
             ],
-            "when": "the message lists things to read and do over time, or no urgent channel is permitted"
+            "when": "naming an outstanding prerequisite or the final gap left after the last reminder - something to read and act on"
+          },
+          {
+            "role": "low-friction",
+            "channels": [
+              "push"
+            ],
+            "when": "the appointment-approaching notice: the time, place and joining route, sent once prerequisites are known"
+          },
+          {
+            "role": "urgent",
+            "channels": [
+              "sms"
+            ],
+            "when": "the final reminder, sent a fixed span before the appointment"
           }
         ],
-        "fallback": "same-role-other-channel",
-        "simultaneous": {
-          "allowed": true,
-          "reason": "the SMS carries the last point at which the outstanding prerequisite can still be completed, because the person may be away from a desk; the email carries the time, the place and how to do it, and restates the booking. Different jobs, one moment, sent once."
-        },
+        "fallback": "none",
         "label": "RECOMMENDED_DEFAULT"
       },
       "orchestration": {
@@ -62776,11 +62780,11 @@
           {
             "id": "t1",
             "stage": "prerequisite-prompt",
-            "action": "a.prompt",
+            "action": "a.email-missing",
             "prerequisites": [
-              "c.time"
+              "c.prereq1"
             ],
-            "purpose": "Every outstanding prerequisite, whose it is and the point by which each must be done - in one message rather than one per requirement.",
+            "purpose": "The outstanding prerequisite and how to complete it, sent only where one is still missing.",
             "channelRoles": [
               "persistent"
             ],
@@ -62793,42 +62797,56 @@
           },
           {
             "id": "t2",
-            "stage": "at-risk-notice",
-            "action": "a.at-risk",
-            "gatedBy": "w.prestart",
+            "stage": "approaching-notice",
+            "action": "a.push-approaching",
+            "after": "t1",
             "prerequisites": [
-              "c.valid",
-              "c.critical"
+              "c.prereq1"
             ],
-            "purpose": "The reminder plus the one thing that will stop this going ahead, with the last point at which it can still be done. The confirmed time is not moved.",
+            "purpose": "The appointment is approaching: the date, time, location or joining route.",
             "channelRoles": [
-              "urgent",
-              "persistent"
+              "low-friction"
             ],
             "destination": {
-              "target": "booking-prerequisites",
+              "target": "booking-detail",
               "boundTo": "booking_id"
             },
             "mandatory": true,
-            "priority": "service-critical",
-            "priorityReason": "the service cannot be delivered without this prerequisite - not saying so costs the person the appointment",
             "label": "CANONICAL_RULE"
           },
           {
             "id": "t3",
-            "stage": "reminder",
-            "action": "a.remind",
-            "gatedBy": "w.prestart",
+            "stage": "final-reminder",
+            "action": "a.sms-final",
+            "gatedBy": "w.24h",
             "prerequisites": [
-              "c.valid",
-              "c.critical"
+              "c.still-active"
             ],
-            "purpose": "The time, the place or joining route, and anything still outstanding that does not block the service.",
+            "purpose": "A final reminder sent a fixed span before the appointment, sent only while it is still active.",
             "channelRoles": [
               "urgent"
             ],
             "destination": {
               "target": "booking-detail",
+              "boundTo": "booking_id"
+            },
+            "mandatory": true,
+            "label": "CANONICAL_RULE"
+          },
+          {
+            "id": "t4",
+            "stage": "final-gap-notice",
+            "action": "a.email-final",
+            "after": "t3",
+            "prerequisites": [
+              "c.ready"
+            ],
+            "purpose": "The one thing still missing and the last point at which it can still be done, sent only where preparation is not yet complete.",
+            "channelRoles": [
+              "persistent"
+            ],
+            "destination": {
+              "target": "booking-prerequisites",
               "boundTo": "booking_id"
             },
             "mandatory": false,
@@ -62858,32 +62876,29 @@
           "optional": [
             "service_type",
             "travel_required",
-            "has_active_session"
+            "push_token"
           ]
         }
       },
       "measurement": {
         "journeyOutcome": {
-          "type": "exit-or-handoff",
+          "type": "exit",
           "refs": [
-            "h.prestart",
-            "h.at-risk"
+            "x.ready",
+            "x.not-ready",
+            "x.superseded"
           ]
         },
         "businessOutcome": {
-          "event": "attendance_recorded",
+          "event": "prerequisites_completed",
           "unit": "instance",
           "observationScope": {
-            "type": "handoff-chain",
-            "journeys": [
-              "SCH-177"
-            ]
+            "type": "self"
           },
           "window": {
-            "type": "through-handoff",
-            "until": "service_completion_recorded"
+            "type": "until-exit"
           },
-          "attribution": "entered-before-event",
+          "attribution": "touched-before-event",
           "comparison": "pre-post"
         },
         "secondary": [
@@ -62896,7 +62911,7 @@
         ],
         "operational": [
           "prompt_sent_rate",
-          "at_risk_rate",
+          "not_ready_rate",
           "no_action_rate_by_reason",
           "channel_role_used",
           "time_between_reminder_and_start"
@@ -62933,217 +62948,140 @@
             ],
             "source": "authoritative"
           },
-          "next": "c.time"
+          "next": "c.prereq1"
         },
         {
-          "id": "c.time",
+          "id": "c.prereq1",
           "kind": "condition",
-          "asks": "Is there enough time left for a prompt to be worth sending?",
+          "asks": "Are the prerequisites complete?",
           "branches": [
             {
-              "label": "Time remains",
-              "when": "the scheduled time is far enough out that an outstanding prerequisite could still be completed",
-              "to": "a.prompt"
+              "label": "No",
+              "when": "at least one prerequisite the customer owes is still outstanding",
+              "to": "a.email-missing"
             },
             {
-              "label": "Too close to prompt",
-              "when": "the booking is already inside its pre-start window",
-              "to": "a.revalidate"
-            }
-          ]
-        },
-        {
-          "id": "a.prompt",
-          "kind": "action",
-          "does": "Name every outstanding prerequisite, whose it is and the point by which it has to be done, in one message rather than one message per requirement. Somebody with three things to do has one problem, and splitting it into three makes it look like three systems that do not talk",
-          "next": "w.prereq",
-          "execution": "communication",
-          "idempotencyKey": "booking_id + occurrence_id + touch id"
-        },
-        {
-          "id": "w.prereq",
-          "kind": "wait",
-          "until": [
-            "prerequisites_completed",
-            "booking_materially_changed"
-          ],
-          "onEvent": "c.prereq",
-          "timeout": {
-            "after": {
-              "key": "scheduling.pre_start_window",
-              "rule": "The reminder is built at the pre-start point so it reflects the booking as it is then. The point is set from how long the customer's own preparation takes, not from how long ago the booking was made.",
-              "class": "reminder-before-attribute",
-              "default": {
-                "value": {
-                  "min": "24 hours",
-                  "max": "72 hours"
-                },
-                "confidence": "low",
-                "basis": "example-only",
-                "applicableWhen": "appointments the customer must prepare for",
-                "avoidWhen": "same-day bookings - the pre-start point is whatever time remains between confirmation and start"
-              },
-              "required": false
-            },
-            "reason": "the pre-start point is where the booking is read again, and anything sent past it is about a commitment that may no longer exist",
-            "relativeTo": "attribute",
-            "attribute": "scheduled_at"
-          },
-          "onTimeout": "a.revalidate",
-          "windowExtendsOnEngagement": false,
-          "recheck": "the booking re-read from authoritative state: still confirmed, same time, same provider, and which prerequisites are outstanding now"
-        },
-        {
-          "id": "c.prereq",
-          "kind": "condition",
-          "asks": "What resolved the wait?",
-          "branches": [
-            {
-              "label": "All complete",
+              "label": "Yes",
               "when": "every prerequisite the customer owed is recorded satisfied",
-              "to": "w.prestart"
-            },
-            {
-              "label": "Booking changed",
-              "when": "the booking was cancelled, moved or materially changed",
-              "to": "x.superseded"
+              "to": "a.push-approaching"
             }
           ]
         },
         {
-          "id": "w.prestart",
+          "id": "a.email-missing",
+          "kind": "action",
+          "does": "Name the outstanding prerequisite, whose it is and how to complete it. Somebody with three things to do has one problem, and splitting it into three makes it look like three systems that do not talk",
+          "next": "a.push-approaching",
+          "execution": "communication",
+          "idempotencyKey": "booking_id + occurrence_id + touch id"
+        },
+        {
+          "id": "a.push-approaching",
+          "kind": "action",
+          "does": "Say the appointment is approaching, with the date, time, location or joining route",
+          "next": "w.24h",
+          "execution": "communication",
+          "idempotencyKey": "booking_id + occurrence_id + touch id"
+        },
+        {
+          "id": "w.24h",
           "kind": "wait",
           "until": [
             "booking_materially_changed"
           ],
-          "onEvent": "a.revalidate",
+          "onEvent": "c.still-active",
           "timeout": {
             "after": {
               "key": "scheduling.pre_start_window",
-              "rule": "The same pre-start point: the reminder is sent against the booking as it is at that moment.",
+              "rule": "The final reminder is sent a fixed span before the appointment, against the booking as it is at that moment.",
               "class": "reminder-before-attribute",
               "default": {
-                "value": {
-                  "min": "24 hours",
-                  "max": "72 hours"
-                },
-                "confidence": "low",
-                "basis": "example-only",
-                "applicableWhen": "appointments the customer must prepare for",
-                "avoidWhen": "same-day bookings"
+                "value": "24 hours",
+                "confidence": "high",
+                "basis": "corpus-rule",
+                "applicableWhen": "GLB-24; the cascade's own pace before the final reminder"
               },
               "required": false
             },
-            "reason": "the reminder exists to arrive before the commitment; after it there is nothing left to remind anybody about",
+            "reason": "the final reminder exists to arrive before the appointment; after it there is nothing left to remind anybody about",
             "relativeTo": "attribute",
             "attribute": "scheduled_at"
           },
-          "onTimeout": "a.revalidate",
+          "onTimeout": "c.still-active",
           "windowExtendsOnEngagement": false,
-          "recheck": "the booking re-read from authoritative state before either the at-risk notice or the reminder is built"
+          "recheck": "the booking re-read from authoritative state before the final reminder is built"
         },
         {
-          "id": "a.revalidate",
-          "kind": "action",
-          "does": "Re-read the booking from authoritative current state before anything is sent - still confirmed, same time, same provider, and which prerequisites are outstanding now. A reminder generated from the booking as it was is how somebody who cancelled correctly gets told to turn up",
-          "next": "c.valid"
-        },
-        {
-          "id": "c.valid",
+          "id": "c.still-active",
           "kind": "condition",
-          "asks": "Does the booking still stand as it was just read?",
+          "asks": "Is the appointment still active?",
           "branches": [
             {
-              "label": "Still valid",
-              "when": "the booking is confirmed, at the time recorded, and deliverable",
-              "to": "c.critical"
-            },
-            {
-              "label": "Cancelled, moved or superseded",
-              "when": "current state no longer matches the booking this reminder was scheduled against",
+              "label": "No",
+              "when": "current state no longer matches the booking this reminder was scheduled against - cancelled, moved or superseded",
               "to": "x.superseded"
-            }
-          ]
-        },
-        {
-          "id": "c.critical",
-          "kind": "condition",
-          "asks": "Is anything outstanding that would stop the service happening?",
-          "branches": [
-            {
-              "label": "Critical prerequisite missing",
-              "when": "a requirement the service cannot be delivered without is still not satisfied",
-              "to": "a.at-risk"
             },
             {
-              "label": "Nothing critical outstanding",
-              "when": "everything blocking is done, whatever remains is not blocking",
-              "to": "a.remind"
+              "label": "Yes",
+              "when": "the booking is confirmed, at the time recorded, and deliverable",
+              "to": "a.sms-final"
             }
           ]
         },
         {
-          "id": "a.at-risk",
+          "id": "a.sms-final",
           "kind": "action",
-          "does": "Send the reminder and name the one thing that will stop this going ahead, with the last point at which it can still be done. The confirmed time is not moved here - a prerequisite failing is a reason to warn somebody, not a reason to rewrite a commitment they have planned around",
-          "next": "h.at-risk",
+          "does": "Send the final reminder: the time, the place or joining route, and anything still outstanding",
+          "next": "c.ready",
           "execution": "communication",
           "idempotencyKey": "booking_id + occurrence_id + touch id"
         },
         {
-          "id": "h.at-risk",
-          "kind": "handoff",
-          "to": "SCH-174",
-          "on": "a booking reaching its pre-start point with a critical prerequisite still outstanding",
-          "carries": [
-            "which prerequisite is missing and when it was last prompted",
-            "that the customer has been told, and what they were told"
-          ],
-          "contract": {
-            "requiredFields": [
-              "booking_id",
-              "occurrence_id",
-              "scheduled_at",
-              "missing_prerequisite",
-              "last_point_to_complete"
-            ]
-          }
+          "id": "c.ready",
+          "kind": "condition",
+          "asks": "Is preparation complete?",
+          "branches": [
+            {
+              "label": "Yes",
+              "when": "every prerequisite the customer owed is recorded satisfied",
+              "observes": "prerequisites_completed",
+              "to": "x.ready"
+            },
+            {
+              "label": "No",
+              "when": "at least one prerequisite the customer owes is still outstanding after the final reminder",
+              "to": "a.email-final"
+            }
+          ]
         },
         {
-          "id": "a.remind",
+          "id": "a.email-final",
           "kind": "action",
-          "does": "Remind them of the time, the place or joining route, and anything still outstanding that does not block it. One reminder per occurrence - a second one sent because nothing could tell that the first arrived is how people stop reading them",
-          "next": "h.prestart",
+          "does": "Name the one thing still missing and the last point at which it can still be done. The confirmed time is not moved here - a prerequisite failing is a reason to warn somebody, not a reason to rewrite a commitment they have planned around",
+          "next": "x.not-ready",
           "execution": "communication",
           "idempotencyKey": "booking_id + occurrence_id + touch id"
         },
         {
-          "id": "h.prestart",
-          "kind": "handoff",
-          "to": "SCH-177",
-          "on": "reminded against a revalidated booking; the start window and attendance belong to pre-service revalidation",
-          "carries": [
-            "the booking and occurrence",
-            "what the reminder said and when it was sent",
-            "the prerequisites still outstanding that do not block the service"
-          ],
-          "suppresses": [
-            "any further reminder for this occurrence"
-          ],
-          "contract": {
-            "requiredFields": [
-              "booking_id",
-              "occurrence_id",
-              "scheduled_at",
-              "reminded_at",
-              "outstanding_prerequisites"
-            ]
-          }
+          "id": "x.ready",
+          "kind": "exit",
+          "state": "ready; preparation complete before the appointment",
+          "terminal": false,
+          "reEntry": "the next occurrence of a recurring commitment revalidates and reminds on its own",
+          "class": "success"
+        },
+        {
+          "id": "x.not-ready",
+          "kind": "exit",
+          "state": "not ready; a prerequisite is still outstanding after the final reminder",
+          "terminal": false,
+          "reEntry": "the next occurrence of a recurring commitment revalidates and reminds on its own; this occurrence is not retried",
+          "class": "failure"
         },
         {
           "id": "x.superseded",
           "kind": "exit",
-          "state": "superseded; the booking changed before the reminder was due",
+          "state": "superseded; the booking changed before the final reminder was due",
           "terminal": false,
           "reEntry": "the booking that replaced it runs its own readiness from its own confirmation",
           "class": "invalid-state"
@@ -63153,8 +63091,8 @@
         "Nothing is sent without re-reading the booking at send time. The scheduled job carries the version it was built against, and that version is a claim rather than a fact.",
         "A reminder having been sent is never recorded as preparation being complete.",
         "Interaction with a reminder is not attendance and is not a prerequisite satisfied.",
-        "Preparation never moves the confirmed time. A failing condition escalates; it does not reschedule.",
-        "One reminder per occurrence, and outstanding requirements are named together rather than one message each."
+        "Preparation never moves the confirmed time. A missing prerequisite is named, not rescheduled around.",
+        "The final reminder is re-read against the booking immediately before it sends, so a cancelled or moved appointment is never confirmed by mistake."
       ],
       "reusableRule": "A reminder is only as true as the moment it is built, so it is built at the moment it is sent."
     },
