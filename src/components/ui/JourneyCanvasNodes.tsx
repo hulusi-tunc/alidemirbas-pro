@@ -479,6 +479,9 @@ export function TriggerCard({ node, onOpen, entryLabel, lang = "en" }: { node: F
           <span className="text-xs font-medium text-white/85 [[data-lod=far]_&]:hidden">{w.trigger}</span>
         </span>
         <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium [[data-lod=far]_&]:hidden">{humanize(cardSummary(node.headline))}</p>
+        {node.detail ? (
+          <p className="mt-1 line-clamp-2 text-[11.5px] leading-snug text-white/70 [[data-lod=far]_&]:hidden">{node.detail}</p>
+        ) : null}
         {node.evidenceSource ? (
           <span className="mt-2 flex [[data-lod=far]_&]:hidden">
             <Pill onDark>{SIGNAL_SOURCE_LABEL[lang][node.evidenceSource]}</Pill>

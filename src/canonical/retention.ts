@@ -4946,6 +4946,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "source": "authoritative"
         },
+        "detail": "Fires once the configured anniversary interval has passed since the first purchase - the wait itself happens before this journey ever opens.",
         "next": "c.eligible"
       },
       {

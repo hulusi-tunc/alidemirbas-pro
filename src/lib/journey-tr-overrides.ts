@@ -712,7 +712,10 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   name: "İlk satın alma yıl dönümü yaklaştı → uygunluk kontrol edildi → kutlandı veya gönderilmedi",
   purpose: "Birinin ilk kez satın aldığı tarihin yıl dönümünü - ilişkinin kendi yaşını, ilk işleminden sayarak ve başka hiçbir şeyden değil - bir kez dile getirmek.",
   nodes: {
-    "t.approaching": { headline: "İlk satın alma yıl dönümü yaklaşıyor" },
+    "t.approaching": {
+      headline: "İlk satın alma yıl dönümü yaklaşıyor",
+      detail: "İlk satın almadan bu yana yapılandırılmış yıl dönümü aralığı geçtiğinde tetiklenir - bekleme, bu akış başlamadan önce zaten gerçekleşmiştir.",
+    },
     "c.eligible": {
       headline: "Bu yıl dönümü hâlâ bizim kutlayacağımız bir şey mi?",
       edges: [

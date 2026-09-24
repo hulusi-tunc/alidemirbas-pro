@@ -419,6 +419,12 @@ export interface TriggerNode {
     insufficientAlone?: readonly string[];
     source: SignalSource;
   };
+  /** Optional, one plain sentence surfaced on the trigger card itself
+      (not just the detail panel) - for a trigger whose timing would
+      otherwise be invisible on the canvas, such as one that only fires
+      once a configured interval has elapsed. Canonical prose, never a
+      fabricated number; most triggers have none. */
+  detail?: string;
   next: NodeId;
 }
 

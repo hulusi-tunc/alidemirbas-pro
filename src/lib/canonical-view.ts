@@ -477,7 +477,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
         ...base,
         headline: humanEvent(n.event),
         eventId: n.event,
-        detail: null,
+        detail: n.detail ?? null,
         meta: [
           `evidence: ${n.evidence.source}`,
           ...n.evidence.requires.map((r) => `requires: ${r}`),
