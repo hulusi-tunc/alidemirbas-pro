@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 286,
-    "customer": 137,
+    "journeys": 285,
+    "customer": 136,
     "customer-silent": 66,
-    "customer-communicating": 71,
+    "customer-communicating": 70,
     "mechanism": 25,
     "operational": 124
   },
@@ -559,17 +559,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (in-app, push, email)"
-    },
-    {
-      "id": "FBK-42",
-      "shortName": "Advocacy Request",
-      "category": "feedback",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "FBK-43",

@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 286", journeys.length === 286);
+check(1, "active journey count = 285", journeys.length === 285);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -365,6 +365,18 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 285 journeys / 3790 nodes (2026-09-24). FBK-42
+// (Advocacy Request) was retired, the site owner's request. It had one
+// real inbound handoff, FBK-43's h.advocacy, converted into a genuine
+// exit (x.advocacy-eligible) rather than reinventing the ask inline -
+// asking for advocacy is a distinct concern from feedback routing and
+// does not belong inside FBK-43. FBK-41 lost its last competition-
+// group partner (outbound-ask) in the process and its `competition`
+// field was set to the literal "none". REL-284's one prose distinctFrom
+// row naming FBK-42 was also removed. 286 -> 285 journeys, -15 nodes
+// net. Rules (423), global rules (31) and merged redirects (8) are
+// unchanged.
 //
 // FROZEN BASELINE: 286 journeys / 3805 nodes (2026-09-24). SCH-282
 // (Availability Search Abandonment) was rebuilt as a literal
@@ -752,9 +764,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (286 journeys / 3805 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 286 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3805 &&
+  "canonical source mutation = 0 (285 journeys / 3790 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 285 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3790 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

@@ -219,12 +219,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": {
-        "exclusionGroup": "outbound-ask",
-        "scope": "communication-purpose",
-        "precedence": "FBK-42 (advocacy) wins when both are eligible for the same person at the same moment: advocacy already presupposes satisfaction, its evidence is accumulated across the relationship rather than one experience, and asking both back-to-back for the same goodwill moment reads as farming it twice. This journey's ask is recorded as not-now and remains free to re-open independently at its next moment.",
-        "onLoss": "suppressed"
-      }
+      "competition": "none"
     },
     channelStrategy: {
       "roles": [
@@ -714,452 +709,6 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       "Feedback should be requested only when the underlying experience is sufficiently complete and no higher-priority unresolved state makes the request inappropriate.",
   },
 
-  /* ------------------------------------------------------------ FBK-42 */
-  {
-    id: "FBK-42",
-    slug: "advocacy-eligibility",
-    category: "feedback",
-    goal: "eligibility-qualification",
-    channels: ["email", "in-app"],
-    name: "Advocacy eligibility → ask, delay or suppress",
-    shortName: "Advocacy Request",
-    purpose:
-      "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
-    entity: {
-      scope: "person or account plus the relationship context the advocacy would be about",
-      note: "Advocacy is about a relationship, not a transaction. What is being asked for is their reputation attached to ours.",
-      instanceKey: [
-        "account_id",
-        "relationship_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "FBK-43",
-        because:
-          "FBK-43 reacts to one positive signal arriving. This weighs the accumulated relationship and decides whether it can carry a request - most positive signals do not reach it.",
-      },
-      {
-        journey: "FBK-41",
-        because:
-          "FBK-41 asks about one completed experience, once. This asks a rarer, higher-value favour built on accumulated relationship evidence rather than one experience - the two share the outbound-ask slot precisely because asking both back-to-back for the same goodwill moment reads as farming it twice.",
-      },
-    ],
-    objective: "Ask someone to vouch for us only where the relationship has actually earned it, and keep public reuse a separate permission.",
-    eligibility: [
-      "a moment where an advocacy request would be contextually sensible, against a relationship with positive evidence behind it",
-      "no acknowledgement about the same feedback record was sent inside the ask separation window - FBK-43's acknowledgement and this journey's ask are not the same message twice about the same compliment",
-      "no instance of this journey is already open for the person or account plus the relationship context the advocacy would be about",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "A single login is not advocacy eligibility, and neither is a completed purchase."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "A high score does not create a permanent advocate state. It is one piece of evidence with a date on it."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "An advocacy reward is granted only after the referral clears whatever integrity check governs it. A reward paid before that check funds exactly the behaviour the check exists to catch."
-      },
-      {
-        "id": "s.g4",
-        "label": "CANONICAL_RULE",
-        "text": "The ask is placed at a moment the person is succeeding, never inside a failure or error state. Asking somebody to recommend us while something is visibly broken for them produces the wrong answer and remembers it."
-      },
-      {
-        "id": "s.g5",
-        "label": "CANONICAL_RULE",
-        "text": "Contributing is not permission to publish. The second is captured as its own permission record with its own scope."
-      },
-      {
-        "id": "s.g6",
-        "label": "CANONICAL_RULE",
-        "text": "An open negative issue suppresses this entirely, whatever the positive evidence says."
-      },
-      {
-        "id": "s.sunset",
-        "label": "CANONICAL_RULE",
-        "text":
-          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
-      },
-    ],
-    contact: {
-      "defaultPriority": "lifecycle",
-      "pressureClass": "lifecycle",
-      "localCap": {
-        "value": {
-          "key": "advocacy_eligibility.touches",
-          "rule": "One ask per opportunity - light or heavy, never both. a.ask-light and a.ask-heavy are mutually exclusive arms of c.type, so the longest path to one recipient is one touch, not the plan's length.",
-          "default": {
-            "value": 1,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the longest path to one recipient"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "advocacy_eligibility.cooldown",
-        "rule": "The cooldown between instances of this journey for the same person or account plus the relationship context the advocacy would be about, so that a re-qualifying person or account plus the relationship context the advocacy would be about is tracked but not messaged again inside it.",
-        "class": "cooldown",
-        "required": true
-      },
-      "competition": {
-        "exclusionGroup": "outbound-ask",
-        "scope": "communication-purpose",
-        "precedence": "This journey wins when both this journey and FBK-41 (satisfaction) are eligible for the same person at the same moment: advocacy is the rarer, higher-value ask built on accumulated relationship evidence rather than one experience, so it takes the one ask slot. FBK-41 is recorded as not-now and remains free to re-open independently at its next moment.",
-        "onLoss": "suppressed"
-      }
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the light ask is a one-tap rating or response, at a moment the person is already in the product succeeding - the low-friction route is the whole point"
-        },
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the heavy ask attaches somebody's name and reputation to ours and has to survive to be read twice, stating plainly what would be used and that contributing is separate from publishing"
-        }
-      ],
-      "fallback": "none",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "single-notice",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "ask-light",
-          "action": "a.ask-light",
-          "prerequisites": [
-            "c.negative",
-            "c.sufficient",
-            "c.type"
-          ],
-          "purpose": "Make the small ask, once, with no follow-up sequence behind it.",
-          "channelRoles": [
-            "in-session"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t2",
-          "stage": "ask-heavy",
-          "action": "a.ask-heavy",
-          "prerequisites": [
-            "c.negative",
-            "c.sufficient",
-            "c.type"
-          ],
-          "purpose": "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "advocacy-contribution-form",
-            "boundTo": "relationship_id",
-            "mustNotClaim": [
-              "that contributing is permission to publish"
-            ]
-          }
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4",
-        "s.g5",
-        "s.g6"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "account_id",
-          "relationship_id",
-          "advocacy_evidence",
-          "open_negative_issues",
-          "decline_cooldown_until"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.suppressed",
-          "x.delay",
-          "x.contributed",
-          "x.declined",
-          "x.no-response",
-          "h.permission"
-        ]
-      },
-      "businessOutcome": {
-        "event": "advocacy_action_taken",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "none"
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "advocacy request",
-        "referral request",
-        "testimonial ask",
-        "case study request",
-        "review request (advocacy)",
-        "promoter follow-up"
-      ],
-      "useCases": [
-        "asking a relationship that has earned it for a review or referral, once",
-        "keeping public reuse of a contribution as a separate permission"
-      ]
-    },
-    entry: "t.opportunity",
-    nodes: [
-      {
-        id: "t.opportunity",
-        kind: "trigger",
-        event: "potential_advocacy_opportunity",
-        evidence: {
-          requires: [
-            "a moment where an advocacy request would be contextually sensible, against a relationship with positive evidence behind it",
-          ],
-          insufficientAlone: [
-            "a single login",
-            "a completed purchase",
-            "one high survey score",
-            "a positive reply to a support agent",
-          ],
-          source: "behavioral",
-        },
-        next: "c.negative",
-      },
-      {
-        id: "c.negative",
-        kind: "condition",
-        asks: "Is there an open negative issue anywhere in this relationship?",
-        branches: [
-          {
-            label: "Something open",
-            when: "an unresolved complaint, issue or dispute exists",
-            to: "x.suppressed",
-          },
-          {
-            label: "Nothing open",
-            when: "no outstanding negative state",
-            to: "a.evaluate",
-          },
-        ],
-      },
-      {
-        id: "x.suppressed",
-        kind: "exit",
-        state: "suppressed while something is unresolved",
-        terminal: false,
-        reEntry:
-          "resolution makes this eligible again - and a recovery that then held is itself strong evidence, so the wait is not lost",
-        class: "suppression",
-      },
-      {
-        id: "a.evaluate",
-        kind: "action",
-        does: "Weigh the accumulated positive evidence: outcomes actually achieved, value realised repeatedly, positive feedback, meaningful tenure, a recovery that afterwards held, contributions offered without being asked. The set is what matters, not the most recent item in it",
-        next: "c.sufficient",
-      },
-      {
-        id: "c.sufficient",
-        kind: "condition",
-        asks: "Is the evidence sufficient to justify asking?",
-        branches: [
-          {
-            label: "Sufficient",
-            when: "the relationship carries enough independent positive evidence to bear a request",
-            to: "c.type",
-          },
-          {
-            label: "Not yet",
-            when: "the evidence is real but thin - a good experience is not yet a relationship",
-            to: "x.delay",
-          },
-        ],
-      },
-      {
-        id: "x.delay",
-        kind: "exit",
-        state: "not yet eligible; evidence may accumulate",
-        terminal: false,
-        reEntry: "further positive evidence re-opens this without anything having to be undone",
-        class: "no-action",
-      },
-      {
-        id: "c.type",
-        kind: "condition",
-        asks: "What size of request does this evidence support?",
-        branches: [
-          {
-            label: "Low commitment",
-            when: "a rating or a review - a few minutes, their words, their choice of where",
-            to: "a.ask-light",
-          },
-          {
-            label: "High commitment",
-            when: "a testimonial, a case study, a reference call - their name and reputation attached to ours, and usually reusable",
-            to: "a.ask-heavy",
-          },
-        ],
-      },
-      {
-        id: "a.ask-light",
-        kind: "action",
-        does: "Make the small ask, once, with no follow-up sequence behind it. A rating or a one-tap response can go wherever the person already is, including an interruptive route where permission for one exists",
-        next: "w.response",
-        execution: "communication",
-        idempotencyKey: "account_id + relationship_id + a.ask-light",
-      },
-      {
-        id: "a.ask-heavy",
-        kind: "action",
-        does: "Make the substantial ask on a durable, reviewable route, stating plainly what would be used, where, and that agreeing to contribute is separate from agreeing to publication - because it is, and discovering that later is how a supporter becomes a complaint. A request that attaches somebody's name and reputation to the organisation is not an interruption to be tapped past; it needs somewhere they can read it twice",
-        next: "w.response",
-        execution: "communication",
-        idempotencyKey: "account_id + relationship_id + a.ask-heavy",
-      },
-      {
-        id: "w.response",
-        kind: "wait",
-        until: [
-          "advocacy_action_taken",
-          "request_declined"
-        ],
-        onEvent: "c.outcome",
-        timeout: {
-          "after": {
-            "key": "advocacy_eligibility.response",
-            "rule": "A bounded response window.",
-            "class": "response-window",
-            "required": true
-          },
-          "reason": "an unanswered favour is not asked again; the relationship is worth more than the review",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "x.no-response",
-        windowExtendsOnEngagement: false,
-        recheck: "the person or account plus the relationship context the advocacy would be about re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "c.outcome",
-        kind: "condition",
-        asks: "What came back?",
-        branches: [
-          {
-            label: "Contributed, for public reuse",
-            when: "they provided something we intend to publish, quote or reference",
-            to: "h.permission",
-          },
-          {
-            label: "Contributed, no public reuse",
-            when: "they provided something that stays internal",
-            to: "x.contributed",
-          },
-          {
-            label: "Declined",
-            when: "they said no",
-            to: "x.declined",
-          },
-        ],
-      },
-      {
-        id: "h.permission",
-        kind: "handoff",
-        to: "CON-31",
-        on: "an intention to publicly reuse something someone contributed",
-        carries: [
-          "what would be used, where, and for how long - which is the scope the permission has to cover",
-          "the contribution itself, held unpublished until that permission exists",
-        ],
-      },
-      {
-        id: "x.contributed",
-        kind: "exit",
-        state: "contributed for internal use",
-        terminal: false,
-        reEntry:
-          "any later intention to publish it is a new permission question, not an extension of this one",
-        class: "success",
-      },
-      {
-        id: "x.declined",
-        kind: "exit",
-        state: "declined; cooldown in force",
-        terminal: false,
-        reEntry:
-          "materially stronger evidence after the cooldown may justify a different request; the same one is not repeated",
-        class: "no-action",
-      },
-      {
-        id: "x.no-response",
-        kind: "exit",
-        state: "no response; nothing inferred",
-        terminal: false,
-        reEntry:
-          "silence on a favour is not a decline and not a signal about the relationship - it is simply not an answer",
-        class: "timeout",
-      },
-    ],
-    guardrails: [
-      "A single login is not advocacy eligibility, and neither is a completed purchase.",
-      "A high score does not create a permanent advocate state. It is one piece of evidence with a date on it.",
-      "An advocacy reward is granted only after the referral clears whatever integrity check governs it. A reward paid before that check funds exactly the behaviour the check exists to catch.",
-      "The ask is placed at a moment the person is succeeding, never inside a failure or error state. Asking somebody to recommend us while something is visibly broken for them produces the wrong answer and remembers it.",
-      "Contributing is not permission to publish. The second is captured as its own permission record with its own scope.",
-      "An open negative issue suppresses this entirely, whatever the positive evidence says.",
-    ],
-    reusableRule:
-      "Advocacy requests should follow demonstrated relationship value rather than arbitrary lifecycle timing.",
-  },
-
   /* ------------------------------------------------------------ FBK-43 */
   {
     id: "FBK-43",
@@ -1184,11 +733,6 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "FBK-41",
         because:
           "FBK-41 begins only if something actually comes back, and most requests do not produce one. This begins once feedback has actually arrived and reacts to what it says.",
-      },
-      {
-        journey: "FBK-42",
-        because:
-          "FBK-42 weighs the accumulated relationship and decides whether it can carry an advocacy request. This reacts to one signal - the feedback record just received - most of which never reach that threshold.",
       },
       {
         journey: "REM-305",
@@ -1414,9 +958,9 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "x.attached",
           "x.acknowledged",
           "x.evidence",
+          "x.advocacy-eligible",
           "x.open",
           "h.issue",
-          "h.advocacy",
           "h.contribution",
           "h.triage",
           "h.promise"
@@ -1613,7 +1157,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "Eligible",
             "when": "this evidence, together with what already existed, is enough to justify asking for something",
             "observes": "relationship_evidence",
-            "to": "h.advocacy"
+            "to": "x.advocacy-eligible"
           },
           {
             "label": "Not eligible",
@@ -1624,15 +1168,12 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         ]
       },
       {
-        "id": "h.advocacy",
-        "kind": "handoff",
-        "to": "FBK-42",
-        "on": "positive evidence reaching the advocacy threshold",
-        "carries": [
-          "the evidence set, not only the latest item",
-          "the context the positive experience was in",
-          "the time the acknowledgement for this record was sent, if any, so FBK-42 can honour its own ask-separation window"
-        ]
+        "id": "x.advocacy-eligible",
+        "kind": "exit",
+        "state": "advocacy-eligible; the accumulated relationship evidence reaches the threshold, no request made",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "further positive feedback opens its own record and re-weighs the evidence"
       },
       {
         "id": "x.evidence",
