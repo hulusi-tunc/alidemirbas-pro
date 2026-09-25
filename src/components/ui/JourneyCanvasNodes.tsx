@@ -479,6 +479,16 @@ function uniqueChannels(groups: readonly (readonly ChannelId[])[], routes: reado
   return [...new Set(source)];
 }
 
+function explicitChannelFromHeadline(text: string): ChannelId | null {
+  const lead = text.split(":")[0]?.trim().toLowerCase() ?? "";
+  if (lead === "e-posta" || lead === "email") return "email";
+  if (lead === "push") return "push";
+  if (lead === "sms") return "sms";
+  if (lead === "whatsapp") return "whatsapp";
+  if (lead === "in-app") return "in-app";
+  return null;
+}
+
 /** The trigger's evidence-source pill (SignalSource is a closed 4-value
     enum, not canonical free prose) - a small bilingual lookup, same shape
     as CARD_TEXT below, not per-journey content. */
@@ -759,9 +769,7 @@ function HumanActionCard({ node, onOpen, humanLabels, lang = "en" }: {
   humanLabels: readonly { id: ChannelId; label: string }[];
   lang?: Lang;
 }) {
-  const title = humanLabels.length
-    ? humanLabels.map((r) => r.label).join(" / ")
-    : CARD_TEXT[lang].human;
+  const title = humanLabels[0]?.label ?? CARD_TEXT[lang].human;
   return (
     <Shell
       onClick={onOpen}
@@ -776,7 +784,7 @@ function HumanActionCard({ node, onOpen, humanLabels, lang = "en" }: {
   );
 }
 
-export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, lang = "en" }: {
+export function CommunicationCard({ node, onOpen, messageLabels: _messageLabels, humanLabels, lang = "en" }: {
   node: FlowNode;
   onOpen: () => void;
   lang?: Lang;
@@ -784,43 +792,38 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
   humanLabels: readonly { id: ChannelId; label: string }[];
 }) {
   const w = CARD_TEXT[lang];
-  const routes = messageLabels;
-  const plan = node.channelPlan;
-  const priority = node.channelPriority;
-  const groups: readonly (readonly ChannelId[])[] = plan?.length
-    ? plan.map((r) => r.channels)
-    : priority?.length
-      ? [priority]
-      : [];
-
-  const channels = uniqueChannels(groups, routes);
-  const firstChannel = channels[0] ?? null;
-  const stage = actionTitle(node, lang);
-  const simultaneous = node.channelStrategySimultaneous === true;
-  const channelTitle = channels.length
-    ? channels.map((id) => CHANNEL_LABEL[id][lang]).join(simultaneous ? " + " : " / ")
-    : stage ?? w.message;
-  const accent = firstChannel ? CHANNEL_CARD_ACCENT[firstChannel] : "border-t-ink-300";
-  const tileKind = firstChannel ? { tile: CHANNEL_HUE[firstChannel].tile, ink: "" } : KIND.message;
+  const planChannel = node.channelPlan?.[0]?.channels?.[0] ?? null;
+  const priorityChannel = node.channelPriority?.[0] ?? null;
+  const headlineChannel = explicitChannelFromHeadline(node.headline);
+  const channel = priorityChannel ?? planChannel ?? headlineChannel;
+  const sameChannel = /same channel|aynı kanal/i.test(node.headline);
+  const channelTitle = channel
+    ? CHANNEL_LABEL[channel][lang]
+    : sameChannel
+      ? (lang === "tr" ? "Aynı kanal" : "Same channel")
+      : w.message;
+  const accent = channel ? CHANNEL_CARD_ACCENT[channel] : "border-t-ink-300";
+  const tileKind = channel ? { tile: CHANNEL_HUE[channel].tile, ink: "" } : KIND.message;
 
   return (
     <Shell
       onClick={onOpen}
       ariaLabel={node.headline}
-      className={`${CARD} ${FAR.message} border-t-[3px] ${accent} py-2.5`}
+      className={`${CARD} ${FAR.message} border-t-[3px] ${accent} px-3.5 py-2.5`}
     >
       <span className="flex items-center gap-2">
         <Tile kind={tileKind}>
-          {firstChannel ? <ChannelGlyph id={firstChannel} /> : <Mail aria-hidden />}
+          {channel ? <ChannelGlyph id={channel} /> : <Mail aria-hidden />}
         </Tile>
-        <span className="min-w-0 flex-1 text-[14px] leading-snug font-semibold text-ink-950 [[data-lod=far]_&]:hidden">
+        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold [[data-lod=far]_&]:hidden ${
+          channel ? CHANNEL_HUE[channel].pill : "bg-paper-soft text-ink-600"
+        }`}>
           {channelTitle}
         </span>
-        {stage && stage !== channelTitle ? (
-          <span className="max-w-[108px] truncate text-right text-[11px] font-medium text-ink-400 [[data-lod=far]_&]:hidden">{stage}</span>
-        ) : null}
       </span>
-      <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-700 [[data-lod=far]_&]:hidden">{actionCardSummary(node.headline, lang)}</p>
+      <p className="mt-2 line-clamp-2 text-[14px] leading-snug font-semibold text-ink-900 [[data-lod=far]_&]:hidden">
+        {actionCardSummary(node.headline, lang)}
+      </p>
     </Shell>
   );
 }
