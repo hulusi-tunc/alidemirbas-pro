@@ -1,4 +1,5 @@
 import {
+import { publicJourneyFlowChannels, publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
   CATEGORIES,
   MERGED_INTO,
   byId,
@@ -714,6 +715,9 @@ function touchChannelPlans(j: CanonicalJourney): ReadonlyMap<string, readonly { 
     page's Canvas and the library card's topology thumbnail lay out, so the
     two can never drift into being different graphs. */
 function flowNodesOf(j: CanonicalJourney): FlowNode[] {
+  const reviewed = publicJourneyFlowNodes(j.id, "en");
+  if (reviewed) return [...reviewed];
+
   const nodes = orderedNodes(j).map((n) => nodeView(n, j.entry));
   // Reading order is settled now, so an edge can finally say whether its
   // target is above it. Done here rather than in nodeView because a node on
@@ -761,7 +765,7 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = await Promise.all(PUBLIC_JOUR
   categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
   nodeCount: j.nodes.length,
   goal: j.goal,
-  channels: actualPublicChannels(j),
+  channels: publicJourneyFlowChannels(j.id) ?? actualPublicChannels(j),
   preview: buildJourneyPreview(await layoutJourneyCanvas(flowNodesOf(j))),
 })));
 
@@ -852,7 +856,7 @@ function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): Journey
     purpose: j.purpose,
     categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
     goal: j.goal,
-    channels: actualPublicChannels(j),
+    channels: publicJourneyFlowChannels(j.id) ?? actualPublicChannels(j),
     entityScope: j.entity.scope,
     entityNote: j.entity.note,
     reusableRule: j.reusableRule,
