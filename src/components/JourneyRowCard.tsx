@@ -25,7 +25,7 @@ import type { JourneyPreview } from "@/lib/journey-preview";
 
 export default function JourneyRowCard({
   href,
-  id,
+  id: _id,
   name,
   shortName,
   goalLabel,
@@ -58,13 +58,9 @@ export default function JourneyRowCard({
          rows that are off screen, which is what keeps a full surface of topology SVGs on
          one page cheap; contain-intrinsic-size gives it a height to reserve
          for them meanwhile, so the scrollbar stays honest. */
-      className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-line py-4 transition-colors [content-visibility:auto] [contain-intrinsic-size:auto_116px] last:border-b hover:bg-paper-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:grid-cols-[5rem_minmax(0,1fr)_10.5rem] sm:gap-6"
+      className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-line py-4 transition-colors [content-visibility:auto] [contain-intrinsic-size:auto_116px] last:border-b hover:bg-paper-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:grid-cols-[minmax(0,1fr)_10.5rem] sm:gap-6"
     >
-      <span className="hidden self-start pt-0.5 font-mono text-xs text-ink-400 tabular-nums sm:block">
-        {id}
-      </span>
       <div className="min-w-0">
-        <p className="font-mono text-[10px] tracking-[0.08em] text-ink-400 tabular-nums sm:hidden">{id}</p>
         <p className="mt-0.5 text-[15px] leading-snug font-medium tracking-tight text-ink-950 sm:mt-0">
           {shortName ?? name}
         </p>
