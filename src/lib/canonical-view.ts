@@ -764,7 +764,7 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = await Promise.all(PUBLIC_JOUR
   purpose: publicJourneyCopy(j.id, "en")?.purpose ?? j.purpose,
   category: j.category,
   categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
-  nodeCount: j.nodes.length,
+  nodeCount: flowNodesOf(j).length,
   goal: j.goal,
   channels: publicJourneyFlowChannels(j.id) ?? actualPublicChannels(j),
   preview: buildJourneyPreview(await layoutJourneyCanvas(flowNodesOf(j))),
