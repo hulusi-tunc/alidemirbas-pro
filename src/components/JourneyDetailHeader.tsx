@@ -45,19 +45,10 @@ export default function JourneyDetailHeader({
     <header>
       <div
         data-journey-spec
+        data-journey-id={detail.id}
         className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-b border-line pb-3"
       >
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          {/* data-journey-id is a test hook, not styling: the QA harnesses
-              used to read the id by splitting this line's text on " - ",
-              which coupled them to a separator that only ever existed
-              because the id and the category shared one paragraph. */}
-          <span
-            data-journey-id={detail.id}
-            className="font-mono text-[13px] font-medium tracking-[0.04em] text-ink-900 tabular-nums"
-          >
-            {detail.id}
-          </span>
           <span className="font-mono text-xs text-ink-500">{detail.categoryTitle}</span>
           {detail.preset ? <span className="rounded bg-blue-50 px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-wide text-blue-700 uppercase">{t.practitioner.preset}</span> : null}
         </div>
@@ -93,7 +84,7 @@ export default function JourneyDetailHeader({
           against, and it is what the slug was derived from. Only rendered
           where a shortName actually replaced it as the title. */}
       {detail.preset ? (
-        <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{t.practitioner.presetOf} {detail.id} {detail.shortName ?? detail.name}: {detail.name}</p>
+        <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{t.practitioner.presetOf} {detail.shortName ?? detail.name}: {detail.name}</p>
       ) : detail.shortName ? (
         <p className="mt-2 max-w-3xl text-[15px] leading-snug text-ink-500">{detail.name}</p>
       ) : null}
