@@ -2,6 +2,15 @@ import type { Lang } from "@/lib/content";
 
 const TR_SLUG_BY_ID: Readonly<Record<string, string>> = {
   "ACQ-09": "satin-alma-niyetini-guclendirme",
+  "ACQ-12": "kaydedilen-urun-hatirlatmasi",
+  "ACQ-13": "urun-inceleme-sonrasi-hatirlatma",
+  "ACQ-287": "checkout-tamamlama",
+  "ACQ-288": "sepet-hatirlatma",
+  "ACQ-289": "stok-bildirimi",
+  "ACT-14": "onboarding-yardimi",
+  "ACT-17": "kullanim-aliskanligi-gelistirme",
+  "ACT-20": "pasif-leadi-yeniden-aktiflestirme",
+  "RET-24": "churn-riski-yonetimi",
 };
 
 export function localizedJourneySlug(id: string, canonicalSlug: string, lang: Lang): string {
