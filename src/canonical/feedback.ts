@@ -740,7 +740,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "REM-151 starts from a concrete problem with something already delivered and asks which recovery route would satisfy it - the obligation is already known to exist. This journey starts from an account of an experience and works out whether an operational issue exists at all; where one clearly does, REM-151 owns the remedy route rather than this journey re-assessing it.",
       },
     ],
-    objective: "Route one piece of feedback to what it operationally means - praise, a problem, a need, product evidence or a comment - and close the loop with the person only where something is owed.",
+    objective: "Route one piece of feedback to what it operationally means - praise, a product suggestion, a complaint, a bug report, a request for information, or something needing no action - and close the loop with the person only where a follow-up was promised.",
     eligibility: [
       "feedback submitted through any channel, attributable to a person and an experience",
       "the record has enough substance to classify; a bare score is stored as a score and not routed",
@@ -748,29 +748,9 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     suppressions: [
       {
-        "id": "s.existing-case",
+        "id": "s.permission",
         "label": "CANONICAL_RULE",
-        "text": "Negative feedback describing a problem an open issue already covers is attached to that case; no second case and no parallel recovery is opened."
-      },
-      {
-        "id": "s.no-fault",
-        "label": "CANONICAL_RULE",
-        "text": "No fault is manufactured to have somewhere to route to, and no compensation is offered as a substitute for having nothing to fix."
-      },
-      {
-        "id": "s.generic-thanks",
-        "label": "CANONICAL_RULE",
-        "text": "Recognition names the specific thing said or is not sent; a generic thank-you in response to praise proves nobody read it."
-      },
-      {
-        "id": "s.not-consent",
-        "label": "CANONICAL_RULE",
-        "text": "Positive feedback is not consent to publish and creates no advocate state; a volunteered contribution is handed on with the explicit fact that offering it is not permission to use it."
-      },
-      {
-        "id": "s.noise",
-        "label": "CANONICAL_RULE",
-        "text": "A general comment is acknowledged only when the person addressed us directly and would expect a response; otherwise it is stored and nothing is sent."
+        "text": "Hard gates (GLB-31) are evaluated first; an absent communication permission, a closed account, a fraud or security hold or another standing suppression stops the classification acknowledgement, the reminder or the closure notice from sending, without stopping the classification itself or the handoff underneath it."
       }
     ],
     contact: {
@@ -779,12 +759,12 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "feedback.touches",
-          "rule": "One acknowledgement per feedback record, on whichever route it took; the record is never acknowledged twice. The budget counts customer-facing touches only - a.obligation and a.escalate raise an internal work item and carry channelRoles: [\"human\"], not a send, so they are excluded from the count the same way ACT-13's a.route-dependency is.",
+          "rule": "Every touch runs against a budget fixed when the instance opened, counted as the graph's own longest customer-facing path: the classification acknowledgement, and the closure notice if a follow-up was promised. The reminder to the responsible team carries channelRoles: [\"human\"], not a send, so it is excluded from the count the same way ACT-13's a.route-dependency is.",
           "default": {
-            "value": 1,
+            "value": 2,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "the graph reaches at most one acknowledgement per record"
+            "applicableWhen": "GLB-24; the graph's own longest customer-facing path - the classification acknowledgement plus the closure notice"
           },
           "required": false
         },
@@ -809,7 +789,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "email"
           ],
-          "when": "feedback.source recorded at a.persist was not in-app - the acknowledgement returns on the route the feedback actually arrived on"
+          "when": "feedback.source recorded at a.persist was not in-app - the acknowledgement or closure notice returns on the route the feedback actually arrived on"
         },
         {
           "role": "in-session",
@@ -823,40 +803,23 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "task"
           ],
-          "when": "the feedback creates internal work rather than a message to the person - a support-need work item, or marking an issue's severity before handoff"
+          "when": "the feedback creates internal work rather than a message to the person - the reminder raised for the team responsible for a promised follow-up that has not happened yet"
         }
       ],
       "fallback": "same-role-other-channel",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
-      "strategy": "single-notice",
+      "strategy": "conditional-routing",
       "touches": [
         {
-          "id": "t-comment",
-          "stage": "acknowledgement",
-          "action": "a.acknowledge",
-          "prerequisites": [
-            "c.route",
-            "c.acknowledge"
-          ],
-          "purpose": "Acknowledge a general comment specifically enough that it is clear a person could have read it, on the route recorded as feedback.source.",
-          "channelRoles": [
-            "persistent",
-            "in-session"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t-positive",
+          "id": "t-thank",
           "stage": "recognition",
-          "action": "a.acknowledge-positive",
+          "action": "a.thank",
           "prerequisites": [
-            "c.route",
-            "c.recognition"
+            "c.classify"
           ],
-          "purpose": "Acknowledge the specific thing they praised, on the route recorded as feedback.source. Nothing generic, nothing that reads as a template.",
+          "purpose": "Thank them for the positive feedback.",
           "channelRoles": [
             "persistent",
             "in-session"
@@ -865,15 +828,73 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t-negative",
+          "id": "t-product",
+          "stage": "routing",
+          "action": "a.route-product",
+          "prerequisites": [
+            "c.classify"
+          ],
+          "purpose": "Transfer the suggestion to the product backlog and acknowledge that it was received.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-support",
+          "stage": "routing",
+          "action": "a.route-support",
+          "prerequisites": [
+            "c.classify"
+          ],
+          "purpose": "Start the support process for the complaint and acknowledge that it is being looked into.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-technical",
+          "stage": "routing",
+          "action": "a.route-technical",
+          "prerequisites": [
+            "c.classify"
+          ],
+          "purpose": "Start the technical process for the bug report and acknowledge that it is being looked into.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-info",
+          "stage": "routing",
+          "action": "a.provide-info",
+          "prerequisites": [
+            "c.classify"
+          ],
+          "purpose": "Provide the requested information, or route to the content or the team that can.",
+          "channelRoles": [
+            "persistent",
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-other",
           "stage": "acknowledgement",
-          "action": "a.acknowledge-negative",
+          "action": "a.thank-close",
           "prerequisites": [
-            "c.route",
-            "c.existing",
-            "c.actionable"
+            "c.classify"
           ],
-          "purpose": "Acknowledge what they said about an experience we did not meet, on the route recorded as feedback.source, without manufacturing a fault and without offering compensation in place of a fix.",
+          "purpose": "Thank them for the feedback; nothing about it needs action.",
           "channelRoles": [
             "persistent",
             "in-session"
@@ -882,13 +903,14 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t-obligation",
-          "stage": "routing",
-          "action": "a.obligation",
+          "id": "t-reminder",
+          "stage": "follow-up",
+          "action": "a.reminder",
           "prerequisites": [
-            "c.route"
+            "c.promise",
+            "c.completed"
           ],
-          "purpose": "Create the support-need work item in the owning process's queue - internal routing, not a message to the person.",
+          "purpose": "Remind the team responsible that the promised action has not happened yet.",
           "channelRoles": [
             "human"
           ],
@@ -900,30 +922,24 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t-escalate",
-          "stage": "routing",
-          "action": "a.escalate",
+          "id": "t-closure",
+          "stage": "closure",
+          "action": "a.closure-notice",
           "prerequisites": [
-            "c.severity"
+            "c.promise",
+            "c.completed"
           ],
-          "purpose": "Mark the issue's severity ahead of handoff so the receiving owner and SLA are the escalated ones, not the default - internal routing, not a message to the person.",
+          "purpose": "Tell them what happened with the promised action and close the record.",
           "channelRoles": [
-            "human"
+            "persistent",
+            "in-session"
           ],
-          "destination": {
-            "target": "owning-process-queue",
-            "boundTo": "feedback_id"
-          },
           "mandatory": false,
           "label": "CANONICAL_RULE"
         }
       ],
       "noAction": [
-        "s.existing-case",
-        "s.no-fault",
-        "s.generic-thanks",
-        "s.not-consent",
-        "s.noise"
+        "s.permission"
       ]
     },
     implementation: {
@@ -938,9 +954,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         "optional": [
           "score",
-          "open_issue_ref",
-          "promised_followup_at",
-          "escalation_policy_id"
+          "promised_followup_at"
         ]
       }
     },
@@ -949,20 +963,12 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         "type": "exit-or-handoff",
         "refs": [
           "x.closed",
-          "x.stored",
-          "x.attached",
-          "x.acknowledged",
-          "x.evidence",
-          "x.advocacy-eligible",
-          "x.open",
-          "h.issue",
-          "h.contribution",
           "h.triage",
           "h.promise"
         ]
       },
       "businessOutcome": {
-        "event": "work_item_outcome_recorded",
+        "event": "promised_followup_delivered",
         "unit": "instance",
         "observationScope": {
           "type": "self"
@@ -973,20 +979,17 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         "attribution": "entered-before-event",
         "comparison": "not-applicable"
       },
-      "secondary": [
-        "promised_followup_delivered"
-      ],
+      "secondary": [],
       "guardrails": [
         "complaint",
-        "duplicate_case_opened",
-        "generic_acknowledgement_sent"
+        "misrouted_classification",
+        "broken_promise_escalated"
       ],
       "operational": [
         "classification_distribution",
-        "existing_case_attach_rate",
         "escalation_rate",
         "promise_kept_rate",
-        "time_to_work_item_outcome"
+        "time_to_closure"
       ]
     },
     discovery: {
@@ -1000,9 +1003,9 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         "CSAT follow-up"
       ],
       "useCases": [
-        "a survey response that needs to reach the right owner",
-        "praise that should be recognised specifically and, sometimes, carried toward advocacy",
-        "a complaint in a survey that may already be an open case"
+        "a survey response, support message or app feedback entry that needs to reach the right team",
+        "praise, a product suggestion, a complaint, a bug report or an information request, each routed and acknowledged on its own path",
+        "a promised follow-up that has to be watched until it actually happens, not just logged as promised"
       ]
     },
     entry: "t.received",
@@ -1036,293 +1039,82 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.classify",
         kind: "action",
-        does: "Classify the operational meaning as PRAISE, PRODUCT_FEEDBACK, SERVICE_ISSUE, SUPPORT_NEED, COMPLAINT, GENERAL_COMMENT or UNKNOWN, in its own field. A classification is a routing decision, not a finding about what went wrong",
+        does: "Classify the operational meaning as POSITIVE, PRODUCT_SUGGESTION, COMPLAINT, BUG_REPORT, INFO_REQUEST, OTHER or UNKNOWN, in its own field. A classification is a routing decision, not a finding about what went wrong",
         writes: [{ field: "feedback_log", mode: "append" }],
-        next: "c.route",
+        next: "c.classify",
+        idempotencyKey: "feedback_id + a.classify",
       },
       {
-        id: "c.route",
+        id: "c.classify",
         kind: "condition",
-        asks: "What does this mean operationally?",
+        asks: "What type of feedback is this?",
         branches: [
-          { label: "Praise", when: "positive, with substance behind it", to: "a.persist-positive" },
-          {
-            label: "Service issue or complaint",
-            when: "something went wrong, or is alleged to have",
-            to: "c.existing",
-          },
-          {
-            label: "A request for help",
-            when: "they need help with something rather than reporting a fault",
-            to: "a.obligation",
-          },
-          {
-            label: "Product feedback",
-            when: "an observation about the product that creates no obligation to this individual",
-            to: "a.product",
-          },
-          {
-            label: "General comment",
-            when: "worth keeping, nothing to do",
-            to: "c.acknowledge",
-          },
+          { label: "Positive satisfaction", when: "thanks, praise, or a positive account of the experience", to: "a.thank" },
+          { label: "Product improvement suggestion", when: "a new feature or an improvement suggestion", to: "a.route-product" },
+          { label: "Complaint or low satisfaction", when: "a negative experience or a service problem", to: "a.route-support" },
+          { label: "Bug report", when: "an app or technical issue, reported as a fault", to: "a.route-technical" },
+          { label: "Information request", when: "a question about the product, service, policy or similar", to: "a.provide-info" },
+          { label: "Other", when: "irrelevant to us, or needing no action", to: "a.thank-close" },
           {
             label: "Meaning unclear",
-            when: "the meaning cannot be established reliably enough to route",
+            when: "the meaning cannot be established reliably enough to classify into any of the above",
             to: "h.triage",
           },
         ],
       },
       {
-        "id": "c.recognition",
-        "kind": "condition",
-        "asks": "Is recognition appropriate?",
-        "branches": [
-          {
-            "label": "Worth acknowledging",
-            "when": "they said something specific that a person could respond to",
-            "observes": "content",
-            "to": "a.acknowledge-positive"
-          },
-          {
-            "label": "Not needed",
-            "when": "an acknowledgement would be noise",
-            "observes": "content",
-            "to": "c.contribution"
-          }
-        ]
+        id: "a.thank",
+        kind: "action",
+        does: "Send a thank-you message for the positive feedback",
+        execution: "communication",
+        writes: [{ field: "feedback_log", mode: "append" }],
+        idempotencyKey: "feedback_id + touch id",
+        next: "c.promise",
       },
       {
-        "id": "a.acknowledge-positive",
-        "kind": "action",
-        "does": "Acknowledge the specific thing they said. A generic thank-you sent in response to praise is worse than silence, because it proves nobody read it",
-        "execution": "communication",
-        "idempotencyKey": "feedback_id + touch id",
-        "writes": [
-          {
-            "field": "feedback_log",
-            "mode": "append"
-          }
-        ],
-        "next": "c.contribution"
+        id: "a.route-product",
+        kind: "action",
+        does: "Transfer the suggestion to the product/insight backlog and send an acknowledgement that it was received",
+        execution: "communication",
+        writes: [{ field: "feedback_log", mode: "append" }],
+        idempotencyKey: "feedback_id + touch id",
+        next: "c.promise",
       },
       {
-        "id": "c.contribution",
-        "kind": "condition",
-        "asks": "Did they volunteer something reusable - a written review, a quote, a story?",
-        "branches": [
-          {
-            "label": "Volunteered something",
-            "when": "they provided content beyond an answer to our question",
-            "observes": "content",
-            "to": "h.contribution"
-          },
-          {
-            "label": "Just feedback",
-            "when": "they answered and nothing more",
-            "observes": "content",
-            "to": "c.eligible"
-          }
-        ]
+        id: "a.route-support",
+        kind: "action",
+        does: "Start the support process for the complaint and send an acknowledgement that it is being looked into",
+        execution: "communication",
+        writes: [{ field: "feedback_log", mode: "append" }],
+        idempotencyKey: "feedback_id + touch id",
+        next: "c.promise",
       },
       {
-        "id": "h.contribution",
-        "kind": "handoff",
-        "to": "external:advocacy-contribution",
-        "on": "a reusable contribution offered voluntarily",
-        "carries": [
-          "the contribution as given",
-          "the explicit fact that offering it is not permission to publish it, which has to be captured separately before anything is used"
-        ],
-        "contract": {
-          "requiredFields": [
-            "feedback_id",
-            "person_id",
-            "contribution",
-            "offered_at"
-          ]
-        }
+        id: "a.route-technical",
+        kind: "action",
+        does: "Start the technical process for the bug report and send an acknowledgement that it is being looked into",
+        execution: "communication",
+        writes: [{ field: "feedback_log", mode: "append" }],
+        idempotencyKey: "feedback_id + touch id",
+        next: "c.promise",
       },
       {
-        "id": "c.eligible",
-        "kind": "condition",
-        "asks": "Does the relationship now meet advocacy eligibility?",
-        "branches": [
-          {
-            "label": "Eligible",
-            "when": "this evidence, together with what already existed, is enough to justify asking for something",
-            "observes": "relationship_evidence",
-            "to": "x.advocacy-eligible"
-          },
-          {
-            "label": "Not eligible",
-            "when": "this is one good signal and the relationship has not accumulated more",
-            "observes": "relationship_evidence",
-            "to": "x.evidence"
-          }
-        ]
+        id: "a.provide-info",
+        kind: "action",
+        does: "Provide the requested information, or route to the content or the team that can",
+        execution: "communication",
+        writes: [{ field: "feedback_log", mode: "append" }],
+        idempotencyKey: "feedback_id + touch id",
+        next: "c.promise",
       },
       {
-        "id": "x.advocacy-eligible",
-        "kind": "exit",
-        "state": "advocacy-eligible; the accumulated relationship evidence reaches the threshold, no request made",
-        "class": "success",
-        "terminal": false,
-        "reEntry": "further positive feedback opens its own record and re-weighs the evidence"
-      },
-      {
-        "id": "x.evidence",
-        "kind": "exit",
-        "state": "recorded as evidence; no advocate state created",
-        "class": "success",
-        "terminal": false,
-        "reEntry": "further positive feedback opens its own record and re-weighs the evidence"
-      },
-      {
-        "id": "a.attach",
-        "kind": "action",
-        "does": "Attach the feedback to the existing case as further context. No second case is created and no parallel recovery is opened",
-        "idempotencyKey": "feedback_id + open issue reference",
-        "writes": [
-          {
-            "field": "issue_context_log",
-            "mode": "append"
-          }
-        ],
-        "next": "x.attached"
-      },
-      {
-        "id": "x.attached",
-        "kind": "exit",
-        "state": "attached to the existing case",
-        "class": "suppression",
-        "terminal": false,
-        "reEntry": "the case's own lifecycle owns the outcome; the feedback record stays as evidence"
-      },
-      {
-        "id": "a.assess",
-        "kind": "action",
-        "does": "Establish whether what they described is an actionable operational issue, or an experience we did not meet. Both are real; only one creates an obligation, and inventing the obligation to have somewhere to route to is the failure this step exists to prevent",
-        "next": "c.actionable"
-      },
-      {
-        "id": "c.actionable",
-        "kind": "condition",
-        "asks": "Is there an actionable operational issue?",
-        "branches": [
-          {
-            "label": "Actionable",
-            "when": "something specific can be fixed, and fixing it is ours to do",
-            "observes": "assessment",
-            "to": "c.severity"
-          },
-          {
-            "label": "Not actionable",
-            "when": "an experience we did not meet, with nothing operational to fix",
-            "observes": "assessment",
-            "to": "a.acknowledge-negative"
-          }
-        ]
-      },
-      {
-        "id": "a.acknowledge-negative",
-        "kind": "action",
-        "does": "Acknowledge what they said and record it as relationship evidence. No fault is manufactured, no compensation is offered as a substitute for having nothing to fix",
-        "execution": "communication",
-        "idempotencyKey": "feedback_id + touch id",
-        "writes": [
-          {
-            "field": "feedback_log",
-            "mode": "append"
-          }
-        ],
-        "next": "x.acknowledged"
-      },
-      {
-        "id": "x.acknowledged",
-        "kind": "exit",
-        "state": "heard, nothing to fix",
-        "class": "success",
-        "terminal": false,
-        "reEntry": "further feedback about the same experience opens its own record"
-      },
-      {
-        "id": "c.severity",
-        "kind": "condition",
-        "asks": "Do the escalation criteria apply?",
-        "branches": [
-          {
-            "label": "Severe",
-            "when": "policy defines this as requiring escalation on severity, harm, or the parties involved",
-            "observes": "escalation policy",
-            "to": "a.escalate"
-          },
-          {
-            "label": "Ordinary",
-            "when": "actionable, at the normal level",
-            "observes": "escalation policy",
-            "to": "h.issue"
-          }
-        ]
-      },
-      {
-        "id": "a.escalate",
-        "kind": "action",
-        "does": "Apply the policy escalation and mark the severity on the issue, so that the ownership and SLA it inherits are the escalated ones rather than the default",
-        "execution": "human",
-        "idempotencyKey": "feedback_id + a.escalate",
-        "writes": [
-          {
-            "field": "issue_context_log",
-            "mode": "append"
-          }
-        ],
-        "next": "h.issue"
-      },
-      {
-        "id": "h.issue",
-        "kind": "handoff",
-        "to": "FBK-46",
-        "on": "an actionable issue arising from feedback",
-        "carries": [
-          "the person's own account of it, unedited",
-          "the severity and whether policy escalation was applied",
-          "the link back to the feedback record, which stays open independently"
-        ],
-        "suppresses": [
-          "any automated satisfaction or retention outreach about the same experience while the issue is open"
-        ]
-      },
-      {
-        "id": "a.persist-positive",
-        "kind": "action",
-        "does": "Store it as one dated, scoped piece of positive relationship evidence. Not a label, not a state, not an advocate flag - a fact about a moment",
-        "writes": [
-          {
-            "field": "relationship_evidence",
-            "mode": "append"
-          }
-        ],
-        "next": "c.recognition"
-      },
-      {
-        "id": "c.existing",
-        "kind": "condition",
-        "asks": "Does an open issue or case already cover this?",
-        "branches": [
-          {
-            "label": "Already open",
-            "when": "an open issue on the same experience or entity matches what they described",
-            "observes": "open issues for the experience",
-            "to": "a.attach"
-          },
-          {
-            "label": "Nothing open",
-            "when": "no open issue matches",
-            "observes": "open issues for the experience",
-            "to": "a.assess"
-          }
-        ]
+        id: "a.thank-close",
+        kind: "action",
+        does: "Thank them for the feedback; nothing about it requires action",
+        execution: "communication",
+        writes: [{ field: "feedback_log", mode: "append" }],
+        idempotencyKey: "feedback_id + touch id",
+        next: "c.promise",
       },
       {
         id: "h.triage",
@@ -1332,51 +1124,6 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         carries: ["the record, unclassified, so a person reads what was written rather than a guess about it"],
       },
       {
-        id: "a.product",
-        kind: "action",
-        does: "Pass it to product intake as evidence. Nothing is owed to this individual in return, and nothing is promised to them",
-        next: "c.promise",
-      },
-      {
-        id: "a.obligation",
-        kind: "action",
-        does: "Create the work item in the owning process, carrying the feedback record id so the two stay linked. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events. No acknowledgement is sent from here",
-        writes: [{ field: "feedback_log", mode: "append" }],
-        next: "w.outcome",
-        execution: "human",
-        idempotencyKey: "feedback_id + a.obligation",
-      },
-      {
-        id: "w.outcome",
-        kind: "wait",
-        until: [
-          "work_item_outcome_recorded"
-        ],
-        onEvent: "c.promise",
-        timeout: {
-          "after": {
-            "key": "feedback.obligation_sla",
-            "rule": "The wait is the owning process's own SLA for the work item; this journey never invents a deadline for work it does not own.",
-            "class": "decision-sla",
-            "required": true
-          },
-          "reason": "the feedback record does not close because the work took too long - it stays open and says so",
-          "relativeTo": "trigger"
-        },
-        onTimeout: "x.open",
-        windowExtendsOnEngagement: false,
-        recheck: "the work item re-read from the owning process: outcome recorded or still open",
-      },
-      {
-        id: "x.open",
-        kind: "exit",
-        state: "obligation outstanding; loop not closed",
-        terminal: false,
-        reEntry:
-          "the outcome arriving later re-opens this to close the loop; the issue's own journey owns the escalation, and nothing here pretends the record is finished",
-        class: "failure",
-      },
-      {
         id: "c.promise",
         kind: "condition",
         asks: "Was a follow-up promised to the person?",
@@ -1384,7 +1131,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Promised",
             when: "they were told they would hear back",
-            to: "w.followup",
+            to: "w.sla",
           },
           {
             label: "Nothing promised",
@@ -1394,17 +1141,80 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
+        id: "w.sla",
+        kind: "wait",
+        until: [
+          "promised_followup_delivered"
+        ],
+        onEvent: "c.completed",
+        timeout: {
+          "after": {
+            "key": "feedback.sla_wait",
+            "rule": "Wait the timeframe the person was told before checking whether the promised action happened - a fixed span matching what they were promised, not a deadline this journey invents beyond it.",
+            "class": "response-window",
+            "default": {
+              "value": { "min": "1 day", "max": "3 days" },
+              "confidence": "low",
+              "basis": "example-only"
+            },
+            "required": false
+          },
+          "reason": "the record is not re-read continuously while the person waits; it is re-read once the promised timeframe has run",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "c.completed",
+        windowExtendsOnEngagement: false,
+        recheck: "the promised action re-read from the system of record before acting on the timeout",
+      },
+      {
+        id: "c.completed",
+        kind: "condition",
+        asks: "Was the promised action completed?",
+        branches: [
+          {
+            label: "Completed",
+            when: "the record shows the promised action completed",
+            observes: "feedback_log",
+            to: "a.closure-notice",
+          },
+          {
+            label: "Not completed",
+            when: "the action remains outstanding once the promised timeframe has passed",
+            observes: "feedback_log",
+            to: "a.reminder",
+          },
+        ],
+      },
+      {
+        id: "a.closure-notice",
+        kind: "action",
+        does: "Send the user a closure notice, telling them what happened with the promised action, and close the record",
+        execution: "communication",
+        writes: [{ field: "feedback_log", mode: "append" }],
+        idempotencyKey: "feedback_id + touch id",
+        next: "x.closed",
+      },
+      {
+        id: "a.reminder",
+        kind: "action",
+        does: "Send the team responsible for the promised action a reminder that it has not happened yet",
+        execution: "human",
+        writes: [{ field: "feedback_log", mode: "append" }],
+        idempotencyKey: "feedback_id + a.reminder",
+        next: "w.followup",
+      },
+      {
         id: "w.followup",
         kind: "wait",
         until: [
           "promised_followup_delivered"
         ],
-        onEvent: "x.closed",
+        onEvent: "c.completed",
         timeout: {
           "after": {
             "key": "feedback.promise_window",
             "rule": "A promised follow-up is waited for only as long as the promise still means anything to the person; past that it is a broken promise and is escalated as one. The promise carries its own date - relativeTo: \"attribute\" against promised_followup_at - so this journey never invents one.",
-            "class": "response-window",
+            "class": "attribute-bound",
             "required": true
           },
           "reason": "an unkept promise to someone who took the time to tell us something is worse than never having asked, so it escalates rather than expiring",
@@ -1423,39 +1233,6 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
         carries: ["what was promised, when, and what has happened operationally since"],
       },
       {
-        id: "c.acknowledge",
-        kind: "condition",
-        asks: "Is an acknowledgement appropriate?",
-        branches: [
-          {
-            label: "Worth acknowledging",
-            when: "they addressed us directly and would expect some response",
-            to: "a.acknowledge",
-          },
-          {
-            label: "Not needed",
-            when: "an acknowledgement would be noise",
-            to: "x.stored",
-          },
-        ],
-      },
-      {
-        id: "a.acknowledge",
-        kind: "action",
-        does: "Acknowledge specifically enough that it is clear a person could have read it",
-        next: "x.stored",
-        execution: "communication",
-        idempotencyKey: "feedback_id + touch id",
-      },
-      {
-        id: "x.stored",
-        kind: "exit",
-        state: "stored; nothing owed",
-        terminal: false,
-        reEntry: "the record contributes to relationship evidence and needs nothing further",
-        class: "success",
-      },
-      {
         id: "x.closed",
         kind: "exit",
         state: "loop closed",
@@ -1467,7 +1244,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
     guardrails: [
       "Negative sentiment is not a confirmed root cause. The classification routes the feedback; it does not diagnose anything.",
       "The classification never overwrites what the person wrote. Their words and our interpretation are stored side by side.",
-      "The feedback record and the issue it produced remain separate entities. Closing the issue does not close the loop with the person.",
+      "Routing feedback to a team is not the same as closing the loop with the person; the record stays open until whatever was promised actually happens, or the promised window runs out and it is escalated as a broken promise.",
     ],
     reusableRule:
       "Feedback becomes operationally useful only when its meaning is routed to the process capable of acting on it.",

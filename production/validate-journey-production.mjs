@@ -366,6 +366,25 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 274 journeys / 3623 nodes (2026-09-25). FBK-43
+// (Feedback Routing and Loop Closure) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: a six-way
+// classifier (positive, product suggestion, complaint, bug report,
+// information request, other) replaces the old PRAISE/SERVICE_ISSUE/
+// SUPPORT_NEED/PRODUCT_FEEDBACK/GENERAL_COMMENT scheme, each category
+// routing to its own acknowledgement before converging on a shared
+// promised-follow-up gate; a promise now opens a fixed SLA wait, a
+// completion recheck, and either a closure notice or an internal
+// reminder that escalates into a deeper, attribute-bound wait on the
+// promise's own deadline. Both real outbound handoffs to DEC-181 are
+// unchanged: h.triage for feedback that cannot be classified at all (a
+// case the image does not draw) and h.promise for a genuinely broken
+// promise past its own deadline. The advocacy/contribution and
+// existing-case-attach machinery, none of it drawn in the image, was
+// removed along with the h.issue handoff to FBK-46 it depended on. Same
+// id/slug. 274 -> 274 journeys, -15 nodes net (34 -> 19 nodes on FBK-43).
+// Rules (423), global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 274 journeys / 3638 nodes (2026-09-25). ACQ-11
 // (Abandoned Process Recovery) was retired, the site owner's request.
 // It had one real inbound handoff, ACQ-12's h.process, converted into
@@ -1138,9 +1157,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (274 journeys / 3638 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (274 journeys / 3623 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 274 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3638 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3623 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
