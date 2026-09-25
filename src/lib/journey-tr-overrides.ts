@@ -342,10 +342,10 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Ödemenin alındığını ve rezervasyonun kesinleştiğini söyle - rezervasyon özeti ve ödeme kaydıyla birlikte. Bu, rezervasyonun artık hiçbir şeye bağlı olmaktan çıktığı andır",
     },
     "a.lapse": {
-      headline: "Rezervasyonun serbest bırakıldığını, hiçbir yerin tutulmadığını ve kaydın şimdi ne gösterdiğini söyle, yeni bir rezervasyon yapmak için isteğe bağlı bir yolla birlikte. Sessizce kaybolan bir yer, o yerin hâlâ kendisinde olduğuna inanan biri tarafından gün geldiğinde fark edilir",
+      headline: "Rezervasyonun serbest bırakıldığını, hiçbir yerin tutulmadığını ve kaydın şimdi ne gösterdiğini söyle, yeni bir rezervasyon yapmak için isteğe bağlı bir yolla birlikte. Aksiyon almadan kaybolan bir yer, o yerin hâlâ kendisinde olduğuna inanan biri tarafından gün geldiğinde fark edilir",
     },
     "a.record-no-action": {
-      headline: "Bildirimi hangi kapının ve hangi aşamada durdurduğunu kaydet; böylece hiç uyarılmamış bir rezervasyon sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Bildirimi hangi kapının ve hangi aşamada durdurduğunu kaydet; böylece hiç uyarılmamış bir rezervasyon ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "h.payment-failure": {
       detail: "bu rezervasyonun yükümlülüğüne karşı yapılan ve ödeme sisteminin başarısız olduğunu bildirdiği bir deneme",
@@ -397,7 +397,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Push ile bu kişinin istediği ürünün yeniden satın alınabilir olduğunu söyle ve doğrudan ürüne giden yolu ver. Rezerve stok, tutulan fiyat, indirim ya da platformun uygulamadığı bir son tarih iddia etme.",
     },
     "a.record-no-action1": {
-      headline: "Push bildirimini hangi kapının durdurduğunu ve hangi ilgiye karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Push bildirimini hangi kapının durdurduğunu ve hangi ilgiye karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "w.window1": {
       headline: "1 gün bekle",
@@ -495,13 +495,13 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       edges: [
         { label: "Evet", detail: "bu kişinin ikinci satın almasına dair yetkili bir kayıt mevcut" },
         { label: "İlişki sona erdi", detail: "kişi iznini geri çekti ya da ilk satın alma iptal edildi veya tamamen geri alındı" },
-        { label: "Hayır", detail: "ilk satın alma geçerli, ikinci bir satın alma kaydı yok ve yaşam döngüsü iletişimi izni hâlâ geçerli" },
+        { label: "Hayır", detail: "ilk satın alma geçerli, ikinci bir satın alma kaydı yok ve lifecycle iletişimi izni hâlâ geçerli" },
       ],
     },
     "c.sendable": {
       headline: "Teklif gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: yaşam döngüsü iletişimi izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı, kişiyi daha yüksek öncelikli bir akış tutmuyor ve işletmenin adını verebileceği bir öneri ya da teklif var" },
+        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: lifecycle iletişimi izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı, kişiyi daha yüksek öncelikli bir akış tutmuyor ve işletmenin adını verebileceği bir öneri ya da teklif var" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor ya da adı verilebilecek bir şey yok; gerekçe kaydedilir" },
       ],
     },
@@ -541,7 +541,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.record-no-action": {
-      headline: "Hiçbir şeyin neden ve hangi aşamada gönderilmediğini kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Hiçbir şeyin neden ve hangi aşamada gönderilmediğini kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.returning": {
       headline: "Geri döndü",
@@ -549,7 +549,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     },
     "x.prompted": {
       headline: "Bu yolculuk sona erdi",
-      detail: "teklif yapıldı ve hatırlatıldı, geri dönülmedi; bu örnek yeniden açılmaz, teklifin daha sonra kabul edilip edilmediğini gözlemek olağan yaşam döngüsünün işidir",
+      detail: "teklif yapıldı ve hatırlatıldı, geri dönülmedi; bu örnek yeniden açılmaz, teklifin daha sonra kabul edilip edilmediğini gözlemek olağan lifecyclenün işidir",
     },
     "x.closed": {
       headline: "Teklif yapılmadan kapandı",
@@ -590,7 +590,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Alınan şey için işe yarayan sonraki adımı gönder: kurulumu, bakımı ya da mantıken ondan sonra geleni. Durum bildirimi yok, görüş talebi yok, siparişin kendi onayının tekrarı yok.",
     },
     "a.record-no-action": {
-      headline: "Neden takip mesajı gönderilmediğini ve hangi tamamlanmaya karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Neden takip mesajı gönderilmediğini ve hangi tamamlanmaya karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.followed-up": {
       headline: "Takip edildi",
@@ -644,7 +644,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Aynı kutlamayı hesabın içinde göster - ilişkinin ilk satın almadan bu yana ne kadar sürdüğünü - kişi artık bunu görecek bir oturumdayken.",
     },
     "a.record-no-action": {
-      headline: "Neden kutlama gönderilmediğini ve hangi dönem için olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Neden kutlama gönderilmediğini ve hangi dönem için olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.recognised": {
       headline: "Kutlandı",
@@ -711,7 +711,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Aynı sahip olunan ürüne karşı aynı teklifi bir kez hatırlat; ilkinde olmayan hiçbir şey ekleme.",
     },
     "a.record-no-action": {
-      headline: "Hiçbir şeyin neden ve hangi aşamada gönderilmediğini kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Hiçbir şeyin neden ve hangi aşamada gönderilmediğini kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.complete": {
       headline: "Tamamlandı",
@@ -748,7 +748,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.date": {
       headline: "Bu tarih hâlâ bizim kutlayacağımız bir şey mi?",
       edges: [
-        { label: "Kutla", detail: "tarih kişinin verdiği ya da kaydından türetilen bir tarih, ilişki açık, bu dönem daha önce kutlanmadı ve gönderim kontrolleri geçiliyor: amaç düzeyinde yaşam döngüsü izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı ve kişiyi daha yüksek öncelikli bir akış tutmuyor" },
+        { label: "Kutla", detail: "tarih kişinin verdiği ya da kaydından türetilen bir tarih, ilişki açık, bu dönem daha önce kutlanmadı ve gönderim kontrolleri geçiliyor: amaç düzeyinde lifecycle izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı ve kişiyi daha yüksek öncelikli bir akış tutmuyor" },
         { label: "İlişki sona ermiş", detail: "hesap kapalı, kişi bu tür iletişim için iznini geri çekmiş ya da rahatsız edilmemeyi istemiş" },
         { label: "Dönem tükenmiş", detail: "bu dönem zaten kutlanmış ya da tarih geçmiş ve dönem mesaj gönderilmeden kapanmış" },
         { label: "Gönderilemez", detail: "bir gönderim yolu kapısı bunu durduruyor ya da daha yüksek öncelikli bir tarih kutlaması bu kişinin penceresini tutuyor; gerekçe kaydedilir" },
@@ -758,7 +758,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Tarihi ve neyi işaret ettiğini kişinin kendi diliyle bir e-postayla söyle; kaydın desteklemediği hiçbir şeyi dile getirme. Gerçekten tanımlanmış olmadıkça ödül, indirim, seviye ya da ayrıcalıktan söz etme.",
     },
     "a.record-no-action": {
-      headline: "Neden kutlama gönderilmediğini ve hangi dönem için olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Neden kutlama gönderilmediğini ve hangi dönem için olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.recognised": {
       headline: "Kutlandı",
@@ -783,7 +783,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.state": {
       headline: "Bu üyelik bizim karşılayacağımız bir üyelik mi?",
       edges: [
-        { label: "Karşılama gerekli", detail: "üyelik aktif, bu üyeliğe karşı kayıtlı bir karşılama yok ve yaşam döngüsü iletişimi izni hâlâ geçerli" },
+        { label: "Karşılama gerekli", detail: "üyelik aktif, bu üyeliğe karşı kayıtlı bir karşılama yok ve lifecycle iletişimi izni hâlâ geçerli" },
         { label: "Üyelik artık geçerli değil", detail: "kayıt geri alınmış, üyelik karşılama gönderilmeden iptal edilmiş ya da kişi iznini geri çekmiş" },
         { label: "Zaten karşılanmış", detail: "bu üyeliğe karşı kayıtlı bir karşılama zaten var" },
       ],
@@ -791,7 +791,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Karşılama gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: yaşam döngüsü iletişimi izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı ve üyeliği daha yüksek öncelikli bir akış tutmuyor" },
+        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: lifecycle iletişimi izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı ve üyeliği daha yüksek öncelikli bir akış tutmuyor" },
         { label: "Engellendi", detail: "bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -820,7 +820,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Üyeliğin hâlihazırda verdiği tek bir şeyi ve onu kullanma yolunu göster; her ikisini de göndermeden hemen önce üyelik kaydından yeniden oku. Hiçbir şey uydurma ve onu zaten kullanmış bir üyeye gönderme.",
     },
     "a.record-no-action": {
-      headline: "Neden hiçbir şey gönderilmediğini ve hangi aşamada olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Neden hiçbir şey gönderilmediğini ve hangi aşamada olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.settled": {
       headline: "Karşılandı ve üyelik kullanımda",
@@ -897,7 +897,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Bu konunun ne zaman süresinin dolacağını, göndermeden hemen önce üyelik kaydından okuyarak söyle. Bu, açıklamadan farklı bir mesajdır ve bir süre geçtiği için değil, bir olgu değiştiği - son kullanma tarihinin yaklaşması - için gönderilir; bundan sonra ne olursa olsun planı kapat.",
     },
     "a.record-no-action": {
-      headline: "Neden hiçbir şey gönderilmediğini ve hangi aşamada olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Neden hiçbir şey gönderilmediğini ve hangi aşamada olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.used": {
       headline: "Kullanıldı",
@@ -963,7 +963,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Bu ödülün süresinin dolacağını ve ne zaman dolacağını, göndermeden hemen önce ödül kaydından okuyarak söyle. Bu, onaydan farklı bir mesajdır - bir süre geçtiği için değil, son tarih yaklaştığı için gönderilir. Hiçbir teklif, öneri ya da bir sonrakini kazanmaya teşvik ekleme.",
     },
     "a.record-no-action": {
-      headline: "Neden bildirim gönderilmediğini ve hangi ödül kaydına karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Neden bildirim gönderilmediğini ve hangi ödül kaydına karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.confirmed": {
       headline: "Bildirildi",
@@ -996,7 +996,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.sendable": {
       headline: "Duyuru gönderilebilir mi?",
       edges: [
-        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: yaşam döngüsü iletişimi izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı ve üyeliği daha yüksek öncelikli bir akış tutmuyor" },
+        { label: "Gönderilebilir", detail: "gönderim kontrolleri geçiliyor: lifecycle iletişimi izni var, ulaşılabilir bir kanal var, iletişim yoğunluğu limiti aşılmadı ve üyeliği daha yüksek öncelikli bir akış tutmuyor" },
         { label: "Engellendi", detail: "bir kapı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
@@ -1015,7 +1015,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.record-no-action": {
-      headline: "Neden duyuru gönderilmediğini ve hangi değişiklik kaydına karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Neden duyuru gönderilmediğini ve hangi değişiklik kaydına karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.adopted": {
       headline: "Duyuruldu ve kullanıldı",
@@ -1062,7 +1062,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.record-no-action-t1": {
-      headline: "İlk hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+      headline: "İlk hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması ölçülmeyen bir yokluk değil, ölçülen bir sonuç olur",
     },
     "a.router1": {
       headline: "Bu hatırlatma için push kanalını seç: geçerli, güncel bir push jetonu kayıtlı olmalı ve bunu kapsayan izin hâlâ geçerli olmalı. Push'a ulaşılamazsa, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
@@ -1091,7 +1091,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.record-no-action-t2": {
-      headline: "İkinci hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+      headline: "İkinci hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması ölçülmeyen bir yokluk değil, ölçülen bir sonuç olur",
     },
     "a.router2": {
       headline: "Bu hatırlatma için e-posta kanalını seç: geçerli, ulaşılabilir bir e-posta adresi kayıtlı olmalı. E-posta, sepet ürünlerini ve ödeme bağlantısını taşıyabilen ve kişi geri dönene kadar kalıcı olan kanaldır. E-postaya ulaşılamazsa, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
@@ -1134,7 +1134,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.record-no-action-t3": {
-      headline: "Son hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+      headline: "Son hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması ölçülmeyen bir yokluk değil, ölçülen bir sonuç olur",
     },
     "a.router3-hv": {
       headline: "En öncelikli doğrudan kanalı seç: önce WhatsApp (geçerli bir telefon numarası kayıtlıysa ve numara WhatsApp üzerinden ulaşılabilirse), yoksa SMS (geçerli bir telefon numarası kayıtlıysa). Yüksek değerli bir checkout, kademenin son temasında en doğrudan kanalı alır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
@@ -1202,7 +1202,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.record-no-action-t1": {
-      headline: "İlk hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+      headline: "İlk hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması ölçülmeyen bir yokluk değil, ölçülen bir sonuç olur",
     },
     "a.router1": {
       headline: "Bu hatırlatma için push kanalını seç: geçerli, güncel bir push jetonu kayıtlı ve bunu kapsayan izin hâlâ geçerli. Push'a ulaşılamıyorsa, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
@@ -1230,7 +1230,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.record-no-action-t2": {
-      headline: "İkinci hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+      headline: "İkinci hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması ölçülmeyen bir yokluk değil, ölçülen bir sonuç olur",
     },
     "a.router2": {
       headline: "Bu hatırlatma için e-posta kanalını seç: geçerli, ulaşılabilir bir e-posta adresi kayıtlı. E-posta, sepetin ürünlerini, onlar için platformun şu anda belirttiği fayda veya kampanyayı ve checkout bağlantısını taşıyabilen, kişi dönene kadar dayanabilen kanaldır. E-postaya ulaşılamıyorsa, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
@@ -1265,7 +1265,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.record-no-action-t3": {
-      headline: "Son hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+      headline: "Son hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması ölçülmeyen bir yokluk değil, ölçülen bir sonuç olur",
     },
     "a.router3": {
       headline: "Bu yüksek değerli sepetin son hatırlatması için en öncelikli doğrudan kanalı seç: önce WhatsApp (geçerli bir telefon numarası kayıtlıysa ve numara WhatsApp üzerinden ulaşılabilirse), yoksa SMS (geçerli bir telefon numarası kayıtlıysa). Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
@@ -1570,7 +1570,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "t.selected": { headline: "Seçim kaydedildi" },
     "c.eligible": { headline: "Bu seçim bu kişi için hiç kurtarılabilir mi?", edges: [{ label: "Uygun", detail: "kimlik, ulaşılabilir bir kişiyle eşleşiyor; en az bir ürün mevcut; bu ürünler için açık bir süreç yok; bu seçim için açık bir örnek yok ve ticari kurtarma izni kayıtlı" }, { label: "Uygun değil", detail: "bunlardan herhangi biri sağlanmıyor - neden, işlem yapılmama nedeni olarak kaydedilir" }] },
     "a.open": { headline: "Kurtarma örneğini seçime karşı aç ve sayacı üzerindeki son etkinlikten başlat. İlk temastan önceki etkinlik sayacı ileri alır; ilk temastan sonraki hiçbir şey pencereyi uzatmaz" },
-    "x.no-action": { headline: "hiçbir temas gönderilmedi; bunu durduran engel kaydedildi", detail: "yeni bir seçim yeni bir örnektir; bu seçim sona erdiğinde veya baskılandığında aktif bekleme süresi'a tabidir" },
+    "x.no-action": { headline: "hiçbir temas gönderilmedi; bunu durduran engel kaydedildi", detail: "yeni bir seçim yeni bir örnektir; bu seçim sona erdiğinde veya durdurndığında aktif bekleme sürecine tabidir" },
     "w.settle": { headline: "seçimden en az bir ürünü içeren bir sipariş veya tamamlanma kaydedilene kadar, ya da kişi seçimdeki tüm ürünleri kaldırana kadar, ya da seçim silinene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar, ya da en az bir ürün kalırken seçime bir ürün eklenene veya seçimden kaldırılana kadar", detail: "Zaman aşımı süresi: İlk kontrol, kişinin duraklamadığından, gerçekten ayrıldığından emin olacak kadar, son seçim etkinliğinden sonra sabit bir süre bekler. (önerilen: 3 gün; yapılandır: selection.first_check)" },
     "c.state": { headline: "Seçim şu anda ne durumda?", edges: [{ label: "Dönüştü", detail: "seçimden herhangi bir ürünü içeren bir sipariş kaydedildi" }, { label: "Temizlendi", detail: "kişi tüm ürünleri kaldırdı ya da seçimi sildi" }, { label: "Sürece taşındı", detail: "seçimden bir süreç başlatıldı" }, { label: "Değişti, hâlâ duruyor", detail: "bir ürün eklendi veya kaldırıldı ve en az biri kalıyor - kişi hâlâ karar veriyor" }, { label: "Hâlâ duruyor", detail: "seçim olduğu gibi duruyor" }] },
     "x.converted": { headline: "dönüştü; seçili bir ürünü içeren bir sipariş kaydedildi", detail: "yeni bir seçim yeni bir örnektir; bu örnek dönüşüm gerçekleşmiş olarak kapatılır" },
@@ -1586,17 +1586,17 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     },
     "a.rearm": { headline: "Değişikliği kaydet ve ilk beklemeyi, sınırlı sayıda olmak üzere, yeni son etkinlikten itibaren yeniden başlat. Seçimini hâlâ düzenleyen bir kişi unutmuyor, karar veriyordur" },
     "c.availability": { headline: "Seçim hâlâ stokta ve satın alınabilir mi?", edges: [{ label: "En az bir ürün mevcut", detail: "platform, seçili ürünlerden en az birinin mevcut olduğunu belirtiyor" }, { label: "Hiçbiri mevcut değil", detail: "platform, seçili ürünlerin tamamının mevcut olmadığını belirtiyor" }] },
-    "c.sendable": { headline: "İlk temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon iletişim yoğunluğu limiti aşılmadı, kişi üzerinde daha yüksek öncelikli bir çakışma yok ve yürürlükte bir bekleme süresi yok" }, { label: "Gönderilmez", detail: "baskılama gerekçesi kaydedilir" }] },
+    "c.sendable": { headline: "İlk temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon iletişim yoğunluğu limiti aşılmadı, kişi üzerinde daha yüksek öncelikli bir çakışma yok ve yürürlükte bir bekleme süresi yok" }, { label: "Gönderilmez", detail: "durdurma gerekçesi kaydedilir" }] },
     "x.unavailable": { headline: "seçili tüm ürünler mevcut değil; satın alınamayan ürünler hakkında hiçbir şey gönderilmez", detail: "mevcudiyetin geri gelmesi, burada bir yeniden giriş değil, daha sonraki bir mevcudiyet süreci için yetkili bir olaydır" },
     "a.touch1": { headline: "Seçimi şu anki haliyle göster - yalnızca platformun mevcut olduğunu belirttiği ürünleri - ve onu yeniden açan bağlantıyı ver. Sistemin iddia etmediği hiçbir şeyi iddia etme: ne rezerve stok, ne tutulan fiyat, ne indirim, ne son tarih" },
     "a.record-no-action": { headline: "Temasın hangi seçim için hangi engel tarafından durdurulduğunu kaydet; böylece işlem yapılmaması ölçülmeyen bir sonuç değil, ölçülmüş bir sonuç olur" },
     "w.second": { headline: "seçimden en az bir ürünü içeren bir sipariş veya tamamlanma kaydedilene kadar, ya da kişi seçimdeki tüm ürünleri kaldırana kadar, ya da seçim silinene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar, ya da platform seçimdeki bir ürünün artık satın alınamaz olduğunu belirtene kadar, ya da platform seçimdeki bir üründe fiyat değişikliği belirtene kadar", detail: "Zaman aşımı süresi: İkinci kontrol, kişinin ilk temasa kendi zamanında tepki verme fırsatı bulmasından sonra, seçim hatırlanabilir olmaktan çıkmadan önce, sabit bir süre olarak gelir. (önerilen: 2 gün; yapılandır: selection.second_check)" },
     "c.state2": { headline: "Seçim şu anda ne durumda ve onunla ilgili bir şey değişti mi?", edges: [{ label: "Dönüştü", detail: "seçimden herhangi bir ürünü içeren bir sipariş kaydedildi" }, { label: "Temizlendi", detail: "kişi tüm ürünleri kaldırdı ya da seçimi sildi" }, { label: "Sürece taşındı", detail: "seçimden bir süreç başlatıldı" }, { label: "Hiçbiri mevcut değil", detail: "platform artık seçili ürünlerin tamamının mevcut olmadığını belirtiyor" }, { label: "Hâlâ duruyor", detail: "en az bir ürün, değişmiş olsun ya da olmasın, hâlâ duruyor ve mevcut" }] },
-    "c.sendable2": { headline: "İkinci temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli ve temas bütçesi tükenmedi" }, { label: "Gönderilmez", detail: "baskılama gerekçesi kaydedilir" }] },
+    "c.sendable2": { headline: "İkinci temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli ve temas bütçesi tükenmedi" }, { label: "Gönderilmez", detail: "durdurma gerekçesi kaydedilir" }] },
     "a.touch2": { headline: "Seçimi, tutulan bir üründe platformun belirttiği gerçek bir değişiklikle - mevcudiyet geri geldi, fiyat değişti - platformun kendisinin sunduğu gerçek alternatif ürünlerle birlikte yeniden göster ve aynı bağlantıyı ver. Sistemin iddia etmediği hiçbir aciliyet, ve politika son temas için özel olarak izin vermedikçe hiçbir teşvik kullanılmaz" },
     "w.final": { headline: "seçimden en az bir ürünü içeren bir sipariş veya tamamlanma kaydedilene kadar, ya da kişi seçimdeki tüm ürünleri kaldırana kadar, ya da seçim silinene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar", detail: "Zaman aşımı süresi: Kurtarma süresi, tutulan bir seçimin hâlâ bir kayıt değil bir niyet olarak sayıldığı dönemdir; bu sürenin ötesinde hiçbir şey gönderilmez. (önerilen: 5–7 gün; yapılandır: selection.lifetime)" },
     "c.state3": { headline: "Kurtarma süresinin sonunda seçim ne durumda?", edges: [{ label: "Dönüştü", detail: "seçimden herhangi bir ürünü içeren bir sipariş kaydedildi" }, { label: "Temizlendi", detail: "kişi tüm ürünleri kaldırdı ya da seçimi sildi" }, { label: "Sürece taşındı", detail: "seçimden bir süreç başlatıldı" }, { label: "Hâlâ duruyor", detail: "seçim duruyor; başka hiçbir şey gönderilmez" }] },
-    "x.lapsed": { headline: "kurtarma süresi, seçim hâlâ dururken doldu; başka hiçbir şey gönderilmez", detail: "yeni bir seçim yeni bir örnektir ve bekleme süresi işlerken sessizce başlar" },
+    "x.lapsed": { headline: "kurtarma süresi, seçim hâlâ dururken doldu; başka hiçbir şey gönderilmez", detail: "yeni bir seçim yeni bir örnektir ve bekleme süresi işlerken aksiyon almadan başlar" },
   },
   },
   "ACQ-13": {
@@ -1612,11 +1612,11 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "w.settle": { headline: "kişiye karşı bir süreç başlatılmadan sistem kaydında bir seçim kaydedilene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar, ya da kişi için herhangi bir konuda yetkili bir satın alma gerçekleşene kadar", detail: "Temas, kişinin konuda duraklamadığından, gerçekten ayrıldığından emin olacak kadar - ama ilgi tazeliğini yitirmeden önce - son ilgiden sonra bekler. (örnek: 6–24 saat; interest.settle_window ayarlanmalı)" },
     "x.no-action": { headline: "hiçbir temas gönderilmedi; neden kaydedildi - bu sürecin sık görülen sonucu", detail: "aynı ilgi anahtarının bekleme süresi içinde yeniden yeterli bulunması aynı ilgidir; yeni bir anahtar yeni bir ilgidir" },
     "c.state": { headline: "İlgi hâlâ çözümlenmedi mi ve konusu hâlâ mevcut mu?", edges: [{ label: "Sonuçlanmadı, konu mevcut", detail: "bir seçim, sipariş veya süreç izlenmedi ve platform konunun mevcut olduğunu belirtiyor" }, { label: "Bu arada sonuçlandı", detail: "konu için bir seçim, sipariş veya süreç kaydedildi" }, { label: "Konu kayboldu", detail: "platform artık konunun mevcut olmadığını belirtiyor" }] },
-    "c.sendable": { headline: "Temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon iletişim yoğunluğu limiti aşılmadı, kişi üzerinde daha yüksek öncelikli bir çakışma yok ve yürürlükte bir bekleme süresi yok" }, { label: "Gönderilmez", detail: "baskılama gerekçesi kaydedilir" }] },
+    "c.sendable": { headline: "Temas gönderilebilir mi?", edges: [{ label: "Gönderilebilir", detail: "gönderim yolu geçerli: ticari kurtarma izni var, ulaşılabilir bir hedef var, promosyon iletişim yoğunluğu limiti aşılmadı, kişi üzerinde daha yüksek öncelikli bir çakışma yok ve yürürlükte bir bekleme süresi yok" }, { label: "Gönderilmez", detail: "durdurma gerekçesi kaydedilir" }] },
     "x.unavailable": { headline: "konu artık mevcut değil; kişinin işleme alamayacağı bir şey hakkında hiçbir şey gönderilmez", detail: "yeni bir ilgi anahtarı yeni bir ilgidir" },
     "a.touch1": { headline: "Baktıkları şeyi şu anki haliyle göster ve ona geri dönecek bir yol ver. Sistemin iddia etmediği hiçbir şeyi iddia etme: ne rezerve stok, ne tutulan fiyat, ne indirim, ne de ne kastettiklerine dair bir varsayım" },
     "w.after": { headline: "kişiye karşı bir süreç başlatılmadan sistem kaydında bir seçim kaydedilene kadar, ya da en az bir ürün ve sürdürülebilir bir durumla bir kişi için sürdürülebilir bir sürecin (ödeme, başvuru, teklif, kayıt) açıldığına dair yetkili bir kayıt oluşana kadar, ya da kişi için herhangi bir konuda yetkili bir satın alma gerçekleşene kadar", detail: "Tek temastan sonra örnek, yalnızca bir çözümlenmeyi gözlemleyecek kadar açık kalır; ardından süresi dolar ve başka hiçbir şey gönderilmez. (örnek: 3–7 gün; interest.lifetime ayarlanmalı)" },
-    "x.lapsed": { headline: "bir kez temas edildi, çözümlenmedi; başka hiçbir şey gönderilmez", detail: "yeni bir ilgi anahtarı yeni bir ilgidir ve bekleme süresi işlerken sessizce başlar" },
+    "x.lapsed": { headline: "bir kez temas edildi, çözümlenmedi; başka hiçbir şey gönderilmez", detail: "yeni bir ilgi anahtarı yeni bir ilgidir ve bekleme süresi işlerken aksiyon almadan başlar" },
   },
   },
   "ACT-11": {
@@ -1657,7 +1657,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.tier3-check": { headline: "Onboarding tamamlandı mı?", edges: [{ label: "Evet", detail: "bu onboarding için yetkili aktivasyon olayı kaydedildi" }, { label: "Hayır", detail: "onboarding hâlâ tamamlanmış olarak kaydedilmedi ve akış sonuna geldi" }] },
     "x.completed": { headline: "takıldıkları adım ya da onboarding'in tamamı tamamlandı; onboarding kayıtta göründüğü şekilde devam ediyor ya da sona eriyor", detail: "hâlâ açık, aktifleşmemiş bir örnekte yaşanan yeni bir zorlanma yeniden nitelik kazanır" },
     "x.got-help": { headline: "kişi adımı tek başına bitirmek yerine canlı desteği kullandı - bir sohbet başlatıldı ya da bir destek talebi açıldı", detail: "o temas zorlanma çözülmeden kapanırsa yeni bir zorlanma yeniden nitelik kazanır" },
-    "x.deferred": { headline: "kişi şimdi hareket etmek yerine açıkça daha sonra devam etmek istediğini belirtti", detail: "yaşam döngüsünün başka bir yerinden gelecek daha sonraki bir hatırlatma bu örneği yeniden devreye sokabilir; bu journey kendi başına tekrar göndermez" },
+    "x.deferred": { headline: "kişi şimdi hareket etmek yerine açıkça daha sonra devam etmek istediğini belirtti", detail: "lifecyclenün başka bir yerinden gelecek daha sonraki bir hatırlatma bu örneği yeniden devreye sokabilir; bu journey kendi başına tekrar göndermez" },
     "x.declined": { headline: "akış; tamamlama, canlı destek teması ya da daha sonra devam etme talebi olmadan sonuna kadar işledi", detail: "bekleme süresinden sonra yaşanan yeni bir zorlanma yeniden nitelik kazanabilir; zaten tüm akışden geçmiş birine aynı akış tekrar gönderilmez" },
   },
   },
@@ -1686,7 +1686,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.recognize-next": { headline: "Fiilen üretileni, kendi terimleriyle belirt ve ürettikleri şeyden doğan tek bir sonraki eylemi adlandır: onu paylaşmak, tekrarlamak, genişletmek. Gerçek bir şeyi adlandırmayan bir takdir, sessizlikten daha kötüdür" },
     "a.recognize-only": { headline: "Fiilen üretileni, kendi terimleriyle belirt ve başka bir şey söyleme - uydurma bir sonraki adım, mesajı bir satış mesajına dönüştürür. Gerçek bir şeyi adlandırmayan bir takdir, sessizlikten daha kötüdür" },
     "c.stable": { headline: "Adoption kararlı hâle geldi mi?", edges: [{ label: "Kararlı", detail: "değer, bu kullanım senaryosunun gerektirdiği ritimde, herhangi bir hatırlatma olmadan tekrar tekrar üretiliyor" }, { label: "Henüz değil", detail: "değer üretildi ama güvenilir şekilde tekrarlanmadı" }] },
-    "h.normal": { headline: "external:customer-yaşam döngüsü", detail: "adoption kararlılaşıyor" },
+    "h.normal": { headline: "external:customer-lifecycle", detail: "adoption kararlılaşıyor" },
     "a.next-behavior": { headline: "Bu kullanım senaryosu için fiilen daha fazla değer üretecek sonraki davranışı belirle ve yalnızca onu teşvik et. Değer dar olduğunda genişlik hedeflenmez - tek bir iş akışından ihtiyacı olan her şeyi alan bir kişi, eksik benimsemiş değil, benimsemiş sayılır" },
     "w.observe": { headline: "ürün, kişinin bu kullanım senaryosunda tekrar değer ürettiğini kaydedene kadar", detail: "zaman aşımı: Erken adoption penceresi, ürünün bu kullanım senaryosu için öngördüğü kullanım ritmidir; haftalık bir ürün ile yılda iki kez kullanılan bir ürün aynı pencereyi paylaşamaz, paylaşılan bir pencere ise her mevsimsel hesabı başarısız gibi gösterir. (adoption.observation_window üzerinden yapılandırılır)" },
     "w.confirm": { headline: "ürün, kişinin bu kullanım senaryosunda tekrar değer ürettiğini kaydedene kadar", detail: "zaman aşımı: Hatırlatmadan önceki aynı gözlem penceresi geçerlidir - kullanım senaryosunun ritmi değişmedi. (adoption.observation_window üzerinden yapılandırılır)" },
@@ -2152,7 +2152,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   "DOC-214": {
   shortName: "Eksik Belge Takibi",
   name: "Belge gerekliliği → hatırlatıldı → tamamlandı ya da bir kişiye aktarıldı",
-  purpose: "Yalnızca tarafın sağlayabileceği bir belge, gelene ya da başvurunun kendi son tarihi dolana kadar takip edilir; sonrasında başvuruyu sessizce sona erdirmek yerine bir kişiye aktarılır.",
+  purpose: "Yalnızca tarafın sağlayabileceği bir belge, gelene ya da başvurunun kendi son tarihi dolana kadar takip edilir; sonrasında başvuruyu aksiyon almadan sona erdirmek yerine bir kişiye aktarılır.",
   nodes: {
     "t.required": { headline: "Belge gerekliliği yalnızca tarafın karşılayabileceği noktaya ulaştı" },
     "a.notify": { headline: "Tam olarak hangi belgelerin eksik olduğunu, nasıl gönderileceğini ve son tarihini belirt" },
@@ -2229,7 +2229,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.remind": { headline: "Aynı talep için son bir hatırlatma gönder; mesajı ilkinden farklılaştır ve mümkünse farklı bir rota kullan" },
     "w.response2": { headline: "kişi geri bildirim gönderene kadar", detail: "Zaman aşımı: bu deneyim için izin verilen tek hatırlatma penceresi, ilk talepten daha kısa çünkü talep zaten bir kez yapıldı. (örnek: 3-5 gün; şunu ayarla: feedback_request.reminder_window)" },
     "c.response2": { headline: "Geri bildirim geldi mi?", edges: [{ label: "Geldi", detail: "bu bağlam için geri bildirim herhangi bir rotadan ulaştı" }, { label: "Hâlâ yok", detail: "hatırlatmadan sonra da hiçbir şey gelmedi" }] },
-    "x.received": { headline: "geri bildirim alındı; ne anlama geldiğini FBK-43 belirler", detail: "bu sürecin görevi talep aşamasında sona erdi; gelen yanıtın kendi yaşam döngüsü var" },
+    "x.received": { headline: "geri bildirim alındı; ne anlama geldiğini FBK-43 belirler", detail: "bu sürecin görevi talep aşamasında sona erdi; gelen yanıtın kendi lifecycle var" },
     "x.no-response": { headline: "soruldu, bir kez hatırlatıldı, yanıt gelmedi", detail: "gelecekteki bir deneyim hakkında yeniden soru sorulabilir; burada hiçbir şey sinyal olarak kaydedilmez, çünkü sessizlik memnuniyetsizlik değildir ve sonraki hiçbir süreç bunu öyleymiş gibi okuyamaz" },
   },
   },
@@ -2372,7 +2372,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.alternate": { headline: "Geçerli bir alternatif ödeme yolu mevcut mu ve bu karar kime ait?", edges: [{ label: "Sistemin kullanabileceği tanımlı bir yedek", detail: "kayıtlı başka bir yöntem mevcut ve mevcut yetki, tekrar sormaya gerek kalmadan bu yöntemden tahsilat yapılmasını zaten kapsıyor" }, { label: "Müşterinin seçmesi veya onaylaması gerekiyor", detail: "bir alternatif mevcut ancak buna ilişkin bir yetki bulunmuyor; bu nedenle onu kullanmak, kişinin seçmediği bir yöntemden tahsilat yapmak anlamına gelir" }, { label: "Sunulacak başka bir şey yok", detail: "kullanılabilir veya izin verilen başka bir yol yok" }] },
     "w.recovery": { headline: "yükümlülük ana sistemde karşılanana veya sahibi geri dönüş yolunu takip etmeyi bırakana kadar", detail: "zaman aşımı: Müşterinin sonuç tarihinden önce hâlâ harekete geçebilmesi için yerleştirilmiş tek bir hatırlatma. Bir sonuç tarihi yoksa hatırlatma noktası kurtarma penceresinin kendisidir ve hatırlatma atlanır. (örnek: 2 gün-3 gün; yapılandırma: payment.reminder_point)" },
     "a.use-alternate": { headline: "Onaylı alternatif yolu, kendi tanımlayıcılarına sahip yeni bir deneme olarak tahsil et. Buraya ya mevcut yetkinin bunu zaten kapsaması ya da müşterinin bunu seçmiş olması nedeniyle ulaşılır - her iki durumda da bu yöntemi kullanma yetkisi, kullanılmadan önce mevcuttur" },
-    "a.offer-alternate": { headline: "Mevcut alternatifleri müşteriye sun ve hangisini kullanmak istediğini sor; yükümlülüğün her durumda geçerli olduğunu belirt. Ödeme yöntemini seçmek müşterinin kararıdır; bunu sessizce seçen dahili bir eylem, müşterinin onaylamadığı bir tahsilat anlamına gelir" },
+    "a.offer-alternate": { headline: "Mevcut alternatifleri müşteriye sun ve hangisini kullanmak istediğini sor; yükümlülüğün her durumda geçerli olduğunu belirt. Ödeme yöntemini seçmek müşterinin kararıdır; bunu aksiyon almadan seçen dahili bir eylem, müşterinin onaylamadığı bir tahsilat anlamına gelir" },
     "c.recovered": { headline: "Kurtarma süreci nasıl sonuçlandı?", edges: [{ label: "Karşılandı", detail: "sonraki bir deneme yükümlülüğü kapattı" }, { label: "Vazgeçildi", detail: "müşteri denemeyi bıraktı" }] },
     "c.reminder": { headline: "Bir hatırlatma hâlâ işe yarar mı ve belirtilecek bir sonuç var mı?", edges: [{ label: "Sonuç yaklaşıyor, yükümlülük açık", detail: "yükümlülük hâlâ açık, yöntem hâlâ geçersiz ve belirtilmiş bir sonuç tarihi önde" }, { label: "Eklenecek bir şey yok", detail: "bir sonuç tarihi yok ya da durum, bir hatırlatmanın değiştirebileceği şekilde değişmedi" }] },
     "w.alternate-choice": { headline: "müşteri alternatif bir ödeme yöntemi seçene veya onaylayana kadar", detail: "zaman aşımı: Yöntem seçimi müşterinin kararıdır ve bu karar beklenir. Yanıtsız kalan bir seçim, ödemeyi reddetmek anlamına gelmez; yükümlülük reddedilmiş sayılmak yerine kendi sonucuna doğru ilerler. (örnek: 3 gün-7 gün; yapılandırma: payment.alternate_choice_window)" },
@@ -2383,7 +2383,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "h.grace": { headline: "Ek süreye giriş → geçici devamlılık → kurtar veya sonlandır", detail: "ödenmemiş bir yükümlülüğün ek süreye girmesi" },
     "h.overdue": { headline: "Vade durumu değişikliği → önceliği yeniden hesapla → çöz veya yükselt", detail: "ödenmemiş bir yükümlülüğün vadesinin geçmesi" },
     "h.restrict": { headline: "Erişim askıya alma → kısıtlı durum → geri yükle veya sonlandır", detail: "bir yükümlülük ödenmemişken politikanın yeteneği kısıtlaması" },
-    "w.final": { headline: "yükümlülük ana sistemde karşılanana veya sahibi geri dönüş yolunu takip etmeyi bırakana kadar", detail: "zaman aşımı: Kurtarma penceresi, yükümlülük sınıfının kendi ek süre veya sonuç politikasıdır. Sürenin sona ermesi ödeme, gecikme veya kısıtlama yaşam döngüsününın sonucudur; burada yeni bir uzatma üretilmez. (yapılandırma: payment.recovery_window)" },
+    "w.final": { headline: "yükümlülük ana sistemde karşılanana veya sahibi geri dönüş yolunu takip etmeyi bırakana kadar", detail: "zaman aşımı: Kurtarma penceresi, yükümlülük sınıfının kendi ek süre veya sonuç politikasıdır. Sürenin sona ermesi ödeme, gecikme veya kısıtlama lifecyclenünın sonucudur; burada yeni bir uzatma üretilmez. (yapılandırma: payment.recovery_window)" },
   },
   },
   "FIN-136": {
@@ -2543,7 +2543,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.threshold": { headline: "Gecikme artık tolere edilenin de ötesine geçti mi?", edges: [{ label: "Tolerans içinde", detail: "yeni zamanlama hâlâ taahhüdün veya politikanın kabul ettiği sınırlar içinde" }, { label: "Tolerans dışında", detail: "gecikme, taahhüdün veya politikanın kabul ettiği sınırı ikinci kez aştı" }] },
     "a.track-update": { headline: "Teslimatın hâlâ gecikmekte olduğunu belirt ve bir kez kaymış olan tarihi tekrarlamadan güncel durumu takip edebilecekleri bir yol sun" },
     "c.choice": { headline: "Karşı tarafın vereceği bir karar var mı?", edges: [{ label: "Onlar seçiyor", detail: "gerçek seçenekler mevcut ve aralarındaki seçim onlara ait" }, { label: "Sunacak bir şey yok", detail: "aralarında anlamlı bir seçim yapabilecekleri hiçbir seçenek yok" }] },
-    "a.no-choice-update": { headline: "Gecikmenin taahhüt edilenin ötesine geçtiğini, şu anda kendilerine sunulabilecek bir seçenek olmadığını ve durumun bırakılmak yerine üst mercie yönlendirildiğini belirt. Sessizce üst mercie yönlendirmek, en çok şeyin olduğu tam da o anda alıcıya hiçbir şey olmadığı izlenimini verir" },
+    "a.no-choice-update": { headline: "Gecikmenin taahhüt edilenin ötesine geçtiğini, şu anda kendilerine sunulabilecek bir seçenek olmadığını ve durumun bırakılmak yerine üst mercie yönlendirildiğini belirt. Aksiyon almadan üst mercie yönlendirmek, en çok şeyin olduğu tam da o anda alıcıya hiçbir şey olmadığı izlenimini verir" },
     "a.offer": { headline: "Sunmadan önce yükümlülüğün yeniden devam etme durumunu yeniden oku - bu seçim değerlendirilirken yeniden devam etmiş bir yükümlülüğe yeni bir tarih, farklı bir teslimat noktası veya destek sunulmaz. Fiilen mevcut olan seçenekleri sun - yeni bir tarih, farklı bir teslimat noktası, bir kişiden destek veya iptal. Yerine getirilemeyecek bir seçenek sunmak hiç sunmamaktan daha kötüdür, çünkü bir gecikmeyi bozulmuş ikinci bir vaade dönüştürür" },
     "w.decision": { headline: "kişi sunulan seçimi yapana kadar", detail: "zaman aşımı süresi: Karar penceresi. (fulfillment_delay.decision içinden yapılandırın)" },
     "c.decision": { headline: "Ne seçtiler?", edges: [{ label: "Bekleme", detail: "revize edilmiş zamanlamayı kabul ediyorlar ya da sunulan alternatifler arasından seçim yapmaktan vazgeçiyorlar" }, { label: "Yeni bir tarih", detail: "farklı bir tarih veya pencere istiyorlar" }, { label: "Farklı bir teslimat noktası", detail: "beklemek yerine başka bir yerde teslim almayı tercih ediyorlar" }, { label: "Destek", detail: "otomatik seçenekler arasından seçim yapmak yerine bir kişiden yardım istiyorlar" }, { label: "İptal", detail: "artık istemiyorlar" }] },
@@ -3425,7 +3425,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.outcome": { headline: "Ne değişti?", edges: [{ label: "Kapasite onaylandı", detail: "daha fazla kapasite onaylandı ve yürürlüğe girmesi için plan veya koşullarda bir değişiklik gerekiyor" }, { label: "Pencere sıfırlandı", detail: "kesin sıfırlanma gerçekleşti ve aynı limit kapsamında kapasite yeniden kullanılabilir hale geldi" }, { label: "Hâlâ engelli", detail: "ikisi de gerçekleşmedi ve işlem hâlâ bekletiliyor" }] },
     "a.notify-blocked-party": { headline: "İşlemi bekletilen kişiye, kararın artık başka birine ait olduğunu, bu kişinin kim olduğunu ve her hâlükârda pencerenin ne zaman sıfırlanacağını kesin olarak bildirin. Yalnızca bir limite takıldığı söylenirse, kendisinin beklendiğinden habersiz bir kişiyi beklemiş olur" },
     "h.capacity": { headline: "Plan veya koşul değişikliği talebi → doğrulama → planlama, uygulama veya reddetme", detail: "plan veya koşullarda bir değişiklik olarak uygulanması gereken, onaylanmış bir kapasite artışı" },
-    "a.reset": { headline: "İşlemi bekletilen kişiye, pencerenin sıfırlandığını ve işlemin devam edebileceğini, varsayılan bir saate değil kesin sıfırlanma noktasına dayanarak bildirin. Karar sahibine burada seslenilmez - sıfırlanma bir kapasite kararı değildir, kararsız sona eren bir bekleyiştir ve onun talebi zaten geçerliliğini yitirmiştir. Yerel olarak tahmin edilen bir sıfırlanma, kimsenin onaylamadığı bir kapasite tanır ve bu iki değer sessizce birbirinden uzaklaşır - ta ki biri, kendisine reddedilmeyeceği söylenen tam anda reddedilene kadar" },
+    "a.reset": { headline: "İşlemi bekletilen kişiye, pencerenin sıfırlandığını ve işlemin devam edebileceğini, varsayılan bir saate değil kesin sıfırlanma noktasına dayanarak bildirin. Karar sahibine burada seslenilmez - sıfırlanma bir kapasite kararı değildir, kararsız sona eren bir bekleyiştir ve onun talebi zaten geçerliliğini yitirmiştir. Yerel olarak tahmin edilen bir sıfırlanma, kimsenin onaylamadığı bir kapasite tanır ve bu iki değer aksiyon almadan birbirinden uzaklaşır - ta ki biri, kendisine reddedilmeyeceği söylenen tam anda reddedilene kadar" },
     "x.reset": { headline: "pencere sıfırlandı; aynı limit kapsamında kapasite yeniden kullanılabilir", detail: "daha sonraki bir pencerede limite yeniden ulaşılması, buraya yeniden giriş yapar" },
   },
   },
@@ -4138,7 +4138,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Son kampanya kişiye ulaştığı için pazarlama iletişimine azaltılmış bir sıklıkla dön. Tek bir yanıtı tam hacme dönmek için bir gerekçe olarak okumak yerine kişiyi listede tut.",
     },
     "a.suppress": {
-      headline: "Bu kişi için pazarlama iletişimini gönderen tarafta durdur - kendisine gönderilen her tanıtım ve yaşam döngüsü mesajını kapsar, bunun ötesine geçmez - ve gerekçeyi, okunduğu dönemi ve durdurmayı kaldıracak koşulu birlikte kaydet. Kişinin kendi izin kaydına dokunulmaz: sessizlik bir çıkış talebi değildir ve buraya öyle yazmak, kişinin hiç vermediği bir kararı kaydına geçirmek olur.",
+      headline: "Bu kişi için pazarlama iletişimini gönderen tarafta durdur - kendisine gönderilen her tanıtım ve lifecycle mesajını kapsar, bunun ötesine geçmez - ve gerekçeyi, okunduğu dönemi ve durdurmayı kaldıracak koşulu birlikte kaydet. Kişinin kendi izin kaydına dokunulmaz: sessizlik bir çıkış talebi değildir ve buraya öyle yazmak, kişinin hiç vermediği bir kararı kaydına geçirmek olur.",
     },
     "c.notify": {
       headline: "Sonlandırma kişiye bildirilebilir mi?",
@@ -4151,7 +4151,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Pazarlama iletişiminin sona erdiğini bildir, zaten pazarlama olmadığı için sürmeye devam edecekleri - kişinin elindeki, borçlu olduğu ya da alacaklı olduğu her şeyi - adıyla say ve istediğinde geri dönebileceği yolu bırak. Bu, kendi gönderimimiz hakkında bir bildirimdir; teşekkür etmek ya da bir kez daha sormak yerine bunu söyler.",
     },
     "h.enforce": {
-      headline: "Baskılama",
+      headline: "Durdurma",
       detail: "bu kişi için pazarlama iletişiminin sona ermesi ve durdurmanın artık durdurma durumlarını yöneten mekanizma tarafından tutulması, kapsamlanması ve kaldırılması gerekmesi",
     },
     "h.frequency": {
@@ -4163,7 +4163,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       detail: "kişinin ticari iletişim iznini kendisinin geri çekmesi",
     },
     "a.record-no-action": {
-      headline: "Sorunun neden sorulmadığını ve hangi döneme karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Sorunun neden sorulmadığını ve hangi döneme karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.active-reduced": {
       headline: "Sorulmadan azaltıldı",
@@ -4240,7 +4240,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "Paranın geri geldiğinin doğrulanmadığını açıkça söyle, hareketin yeniden denenmek yerine mutabakata alındığını belirt ve kendisinden başka bir şey beklenmediğini ekle. Belirsiz olan belirsiz olarak söylenir; çünkü kendi parasını bekleyen birine borçlu olunan şey bir güvence değil, gerçeğin kendisidir.",
     },
     "a.record-no-action": {
-      headline: "Neden bildirim gönderilmediğini ve hangi iadeye karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+      headline: "Neden bildirim gönderilmediğini ve hangi iadeye karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" ölçülmeyen bir boşluk değil, ölçülen bir sonuç olur",
     },
     "x.settled": {
       headline: "Geri döndü ve doğrulandı",
