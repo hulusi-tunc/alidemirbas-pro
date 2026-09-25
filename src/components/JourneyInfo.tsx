@@ -38,9 +38,11 @@ function Chip({ icon, tint, children }: { icon: ReactNode; tint: string; childre
 export function JourneyChips({ detail, lang, className = "" }: { detail: JourneyDetail; lang: Lang; className?: string }) {
   return (
     <ul className={`flex list-none flex-wrap gap-2 p-0 ${className}`}>
-      <Chip icon={<GoalIcon id={detail.goal} className="size-3.5" />} tint="bg-primary-50 text-primary-700">
-        {GOAL_LABEL[detail.goal][lang]}
-      </Chip>
+      {detail.id !== "ACQ-09" ? (
+        <Chip icon={<GoalIcon id={detail.goal} className="size-3.5" />} tint="bg-primary-50 text-primary-700">
+          {GOAL_LABEL[detail.goal][lang]}
+        </Chip>
+      ) : null}
       {sortChannels(detail.channels).map((c) => (
         <Chip key={c} icon={<ChannelIcon id={c} className="size-3.5" />} tint={CHANNEL_HUE[c].tile}>
           {CHANNEL_LABEL[c][lang]}
