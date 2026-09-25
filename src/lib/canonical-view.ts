@@ -15,6 +15,7 @@ import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 import { publicJourneyFlowChannels, publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
 import { publicJourneyCopy } from "@/lib/journey-public-copy";
+import { publicJourneyCategoryLabel } from "@/lib/journey-public-categories";
 
 /* The read model the archive renders from.
 
@@ -763,7 +764,7 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = await Promise.all(PUBLIC_JOUR
   ...((publicJourneyCopy(j.id, "en")?.shortName ?? j.shortName) ? { shortName: publicJourneyCopy(j.id, "en")?.shortName ?? j.shortName } : {}),
   purpose: publicJourneyCopy(j.id, "en")?.purpose ?? j.purpose,
   category: j.category,
-  categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
+  categoryTitle: publicJourneyCategoryLabel(j.id, "en") ?? CATEGORY_TITLE.get(j.category) ?? j.category,
   nodeCount: flowNodesOf(j).length,
   goal: j.goal,
   channels: publicJourneyFlowChannels(j.id) ?? actualPublicChannels(j),
@@ -856,7 +857,7 @@ function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): Journey
     name: publicCopy?.name ?? j.name,
     ...((publicCopy?.shortName ?? j.shortName) ? { shortName: publicCopy?.shortName ?? j.shortName } : {}),
     purpose: publicCopy?.purpose ?? j.purpose,
-    categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
+    categoryTitle: publicJourneyCategoryLabel(j.id, "en") ?? CATEGORY_TITLE.get(j.category) ?? j.category,
     goal: j.goal,
     channels: publicJourneyFlowChannels(j.id) ?? actualPublicChannels(j),
     entityScope: publicCopy?.entityScope ?? j.entity.scope,
