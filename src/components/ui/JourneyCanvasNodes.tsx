@@ -134,6 +134,126 @@ export function cardSummary(text: string): string {
   return anyHard === undefined ? text : text.slice(0, anyHard);
 }
 
+
+/* Communication cards already show their channel in the card header. Repeating
+   "Email:", "Push:" or a slash-separated channel list in the body made the
+   canvas read like implementation shorthand instead of a journey someone
+   could scan. Keep the node's full headline intact for the detail panel, but
+   give the canvas a short practitioner-facing sentence. */
+const ACTION_CARD_COPY: Partial<Record<Lang, Record<string, string>>> = {
+  tr: {
+    "100 TL kazandın + ödül kodu": "Kazanılan 100 TL ödülü ve kullanım kodunu göster.",
+    "Teşekkür + ilk kullanım bilgisi": "Teşekkür et ve ilk kullanım bilgisini paylaş.",
+    "Hoş geldin + mevcut seviye veya puan + nasıl kazanılır + ilk ödül": "Mevcut puanı, nasıl puan kazanıldığını ve ilk ödül yolunu anlat.",
+    "İlk puanı kazanmak için son hatırlatma": "İlk puanı kazanmak için son bir fırsat göster.",
+    "Ödül + nasıl kullanılır + son kullanma tarihi": "Ödülü, kullanım şeklini ve varsa son tarihi göster.",
+    "İade onayı + tutar + işlem bilgisi": "İadenin onaylandığını, tutarı ve beklenen işlem süresini paylaş.",
+    "Son geri dönüş teklifi": "Geri dönmek için son teklifi göster.",
+    "Ürünü daha detaylı anlat; nasıl çalışır, kimler için uygun, faydaları": "Ürünün nasıl çalıştığını, kimler için uygun olduğunu ve faydalarını anlat.",
+    "Son hatırlatma": "İlgi devam ediyorsa son kez hatırlat.",
+    "Kaldığın yerden devam et + güncel teklif / ürün gelişmesi": "Kaldığı yerden devam etmesini sağla; güncel teklif veya ürün değişikliğini göster.",
+    "İlgi alanına göre kullanım senaryosu / fayda anlat": "İlgilendiği konuya uygun kullanım senaryosunu ve faydayı anlat.",
+    "Sınırlı süreli ilk alışveriş indirimi / geri dönüş teşviki": "Sınırlı süreli ilk alışveriş avantajını göster.",
+    "Ödeme gecikmesi + ek sürenin biteceği tarih": "Ödeme gecikmesini ve ek sürenin biteceği tarihi açıkça belirt.",
+    "Erişimi kısıtla; e-posta + push ile nedeni ve geri açma yolunu bildir": "Erişimi kısıtla; nedenini ve yeniden açmak için gereken adımı bildir.",
+    "İptal onayı + erişimin biteceği tarih": "İptali onayla ve erişimin sona ereceği tarihi göster.",
+    "Geri dönüş indirimi / kuponu": "Yeniden başlamak için geri dönüş avantajını göster.",
+    "Özür + yeni teslimat tarihi": "Gecikme için özür dile ve yeni teslimat tarihini paylaş.",
+    "Yeniden planlama veya alternatif için son hatırlatma": "Yeni teslimat zamanı veya alternatif teslimat seçeneğini son kez hatırlat.",
+    "Kaydettiğin ürün + ilgili alternatifler": "Kaydedilen ürünü ve ilgili alternatifleri göster.",
+    "Sepettekiler + ödeme bağlantısı + güven unsurları": "Sepette kalan ürünleri, ödeme bağlantısını ve güven veren bilgileri göster.",
+    "Sepettekiler + sepete dönüş bağlantısı": "Sepette kalan ürünleri ve sepete dönüş bağlantısını göster.",
+    "Son, daha doğrudan sepet hatırlatması": "Yüksek değerli sepette son hatırlatmayı daha doğrudan yap.",
+    "Ürün yeniden stokta; stok değişmeden incele": "Ürünün yeniden stokta olduğunu bildir ve ürüne doğrudan dönüş sağla.",
+    "Daha kapsamlı yardım + canlı destek seçeneği": "Daha kapsamlı yardım ve canlı destek seçeneği sun.",
+    "Risk sinyaline göre kişiselleştirilmiş değer hatırlatması": "Risk sinyaline göre kullanıcıya en ilgili değeri yeniden göster.",
+    "Uyumlu alternatif / yeni versiyon öner": "Aynı ürün yoksa uyumlu alternatifi veya yeni versiyonu öner.",
+    "Yenileme hatırlatması + uygun paket / fiyat seçenekleri": "Yenileme zamanını ve uygun paket seçeneklerini göster.",
+    "Sınırlı süreli geri dönüş indirimi": "Geri dönüş için sınırlı süreli avantaj sun.",
+    "İlk alışverişe göre ilgili bir sonraki satın alma teklifi": "İlk alışverişe göre ilgili ikinci satın alma teklifini göster.",
+    "Teklif bitmeden son hatırlatma": "Teklif sona ermeden son kez hatırlat.",
+    "Pazarlama sıklığını azalt; yalnızca önemli mesajları bırak": "Pazarlama sıklığını azalt ve yalnızca önemli iletişimleri sürdür.",
+    "Tek bir son geri dönüş / değer kampanyası gönder": "Tek bir son geri dönüş kampanyası gönder.",
+    "Puanlama / geri bildirim iste": "Deneyimi puanlamasını veya kısa geri bildirim vermesini iste.",
+    "Teşekkür et; uygunsa yorum / referral fırsatına yönlendir": "Teşekkür et; uygunsa yorum veya arkadaş daveti adımına yönlendir.",
+    "Öneriyi aldığını bildir ve ürün / insight havuzuna aktar": "Önerinin alındığını bildir ve ürün ekibine aktar.",
+    "Hata bildirimini teknik destek / ürün ekibine aktar": "Hata bildirimini teknik destek veya ürün ekibine aktar.",
+    "Sorumlu ekibi hatırlat / eskale et ve kaydı açık tut": "Sorumlu ekibe eskale et ve söz verilen aksiyon tamamlanana kadar kaydı açık tut.",
+    "Teslimatında gecikme var + yeni tahmini tarih": "Gecikmeyi ve yeni tahmini teslimat tarihini bildir.",
+    "Gecikme var; yeni tarih netleşince haber vereceğiz": "Gecikmeyi bildir; yeni tarih henüz belli değilse bunu açıkça söyle.",
+    "Özür + yeni tarih + alternatif teslimat veya destek": "Özür dile; yeni tarihi ve alternatif teslimat veya destek seçeneklerini sun.",
+    "İnsan desteğine / uzman ekibe eskale et": "Sorunu insan desteğine veya uzman ekibe aktar.",
+    "Eksik bilgi / belgeyi tamamla": "Randevu öncesi eksik bilgi veya belgeyi tamamlat.",
+    "Randevu tarihi, saati, konumu / bağlantısı": "Randevunun tarihini, saatini ve konum veya bağlantı bilgisini paylaş.",
+    "Rezervasyon özeti + tutar + ödeme son tarihi + ödeme CTA'sı": "Rezervasyon özetini, tutarı ve ödeme son tarihini göster.",
+    "Ödeme alındı; rezervasyon kesinleşti": "Ödemenin alındığını ve rezervasyonun kesinleştiğini bildir.",
+    "Yenileme tarihi + yeni fiyat / paket + ödeme yöntemi": "Yenileme tarihini, yeni fiyatı veya paketi ve ödeme yöntemini göster.",
+    "Eksik belgeler + yükleme adımları + son tarih": "Eksik belgeleri, nasıl yükleneceğini ve son tarihi göster.",
+    "Son tarihten önce son hatırlatma": "Son tarihten önce eksik belgeyi son kez hatırlat.",
+    "Doğum gününü / dönüm noktasını tanımlı faydayla birlikte kutla": "Doğum gününü veya dönüm noktasını tanımlı faydayla kutla.",
+  },
+  en: {
+    "100 TL reward earned + code": "Show the 100 TL reward and its redemption code.",
+    "Thank you + first-use information": "Thank the customer and share the first-use information.",
+    "Welcome + current tier or points + how to earn + first reward": "Show the current balance, how to earn and the path to the first reward.",
+    "One last prompt to earn the first points": "Give one final prompt to earn the first points.",
+    "Reward + how to use it + expiry date": "Show the reward, how to use it and its expiry when relevant.",
+    "Refund approved + amount + expected processing information": "Confirm the refund, amount and expected processing time.",
+    "Final return-to-shop offer": "Show the final reason to return and shop again.",
+    "Explain how the product works, who it fits and the main benefits": "Explain how the product works, who it suits and the main benefits.",
+    "Final reminder": "Send one final reminder while interest is still active.",
+    "Continue where you left off + current offer / product update": "Help the user continue where they left off and show any relevant update.",
+    "Relevant use case / benefit content": "Show a use case and benefit that match the user's interest.",
+    "Limited first-purchase incentive / return offer": "Show a limited first-purchase incentive.",
+    "Payment delay notice + grace-period end date": "Explain the overdue payment and the grace-period end date.",
+    "Restrict access and send email / push explaining how to restore it": "Restrict access and explain why it happened and how to restore it.",
+    "Cancellation confirmation + access end date": "Confirm cancellation and show the access end date.",
+    "Come-back discount / coupon": "Show a return incentive for restarting the subscription.",
+    "Apology + new delivery date": "Apologise for the delay and share the new delivery date.",
+    "Final reminder to reschedule or choose an alternative": "Give one final chance to reschedule or choose an alternative.",
+    "Saved product + relevant alternatives": "Show the saved product and relevant alternatives.",
+    "Items + checkout link + delivery/payment reassurance": "Show the cart, checkout link and the information needed to continue confidently.",
+    "Cart contents + return-to-cart link": "Show the cart contents and a direct return-to-cart link.",
+    "Final direct cart reminder": "Use a more direct final reminder for a high-value cart.",
+    "Back in stock — check it before availability changes": "Confirm that the product is back in stock and link straight to it.",
+    "More complete help + live-support option": "Offer fuller guidance and a live-support option.",
+    "Personalized value reminder based on the risk signal": "Re-surface the most relevant value based on the churn-risk signal.",
+    "Show a compatible alternative / newer version": "Offer a compatible alternative or newer version when the original is unavailable.",
+    "Repurchase reminder + useful pack/price options": "Show the replenishment timing and useful pack or price options.",
+    "Limited return discount / win-back offer": "Offer a limited incentive to return.",
+    "Relevant next-purchase offer based on the first order": "Show a relevant second-purchase offer based on the first order.",
+    "Final reminder before the offer ends": "Send one final reminder before the offer ends.",
+    "Reduce marketing frequency; keep important messages only": "Reduce marketing frequency and keep only important communication.",
+    "Send one final return/value campaign": "Send one final return campaign.",
+    "Ask for a rating / feedback": "Ask for a rating or a short piece of feedback.",
+    "Thank the customer and route to review/referral only when appropriate": "Thank the customer and route to review or referral only when appropriate.",
+    "Acknowledge the suggestion and route it to product insight": "Acknowledge the suggestion and route it to the product team.",
+    "Route the bug report to technical support / product": "Route the bug report to technical support or product.",
+    "Remind / escalate to the responsible team and keep the record open": "Escalate to the responsible team and keep the record open until the promised action is complete.",
+    "Delivery is delayed + new estimated date": "Explain the delay and share the new estimated delivery date.",
+    "Delivery is delayed; we will update you when the new date is clear": "Explain the delay and be clear when a new date is not known yet.",
+    "Apology + new date + delivery alternatives / support": "Apologise, share the new date and offer delivery alternatives or support.",
+    "Escalate to a person / specialist": "Escalate the issue to a person or specialist.",
+    "Complete the missing information / document": "Complete missing information or documents before the appointment.",
+    "Appointment date, time, location / link": "Share the appointment date, time and location or link.",
+    "Reservation details + amount + payment deadline + pay CTA": "Show the reservation summary, amount and payment deadline.",
+    "Payment received; reservation confirmed": "Confirm that payment was received and the reservation is secured.",
+    "Renewal date + new price / plan + payment method": "Show the renewal date, new price or plan and the payment method.",
+    "Missing documents + upload instructions + deadline": "Show which documents are missing, how to upload them and the deadline.",
+  },
+};
+
+function actionCardSummary(text: string, lang: Lang): string {
+  const colon = text.indexOf(":");
+  const lead = colon >= 0 ? text.slice(0, colon) : "";
+  const withoutChannel =
+    colon >= 0 && /(email|e-posta|push|sms|whatsapp|in-app)/i.test(lead)
+      ? text.slice(colon + 1).trim()
+      : text;
+  const rewritten = ACTION_CARD_COPY[lang]?.[withoutChannel] ?? withoutChannel;
+  return cardSummary(rewritten);
+}
+
 function waitLabel(node: FlowNode): string {
   const detail = node.detail;
   const value = detail ? WAIT_VALUE_RE.exec(detail) : null;
@@ -636,7 +756,7 @@ function HumanActionCard({ node, onOpen, humanLabels, lang = "en" }: {
     >
       <Tile kind={KIND.human}><UserRound aria-hidden /></Tile>
       <span className="shrink-0 text-[12px] font-semibold text-amber-800 [[data-lod=far]_&]:hidden">{title}</span>
-      <span className="line-clamp-1 text-[11.5px] text-ink-500 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</span>
+      <span className="line-clamp-1 text-[11.5px] text-ink-500 [[data-lod=far]_&]:hidden">{actionCardSummary(node.headline, lang)}</span>
     </Shell>
   );
 }
@@ -654,20 +774,17 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
   const priority = node.channelPriority;
   const groups: readonly (readonly ChannelId[])[] = plan?.length
     ? plan.map((r) => r.channels)
-    : (priority?.length ?? 0) >= 2
-      ? priority!.map((id) => [id])
+    : priority?.length
+      ? [priority]
       : [];
 
   const channels = uniqueChannels(groups, routes);
   const firstChannel = channels[0] ?? null;
-  const stage = actionTitle(node, lang) ?? w.message;
-  const routed = (priority?.length ?? 0) >= 2;
+  const stage = actionTitle(node, lang);
   const simultaneous = node.channelStrategySimultaneous === true;
-  const channelTitle = routed
-    ? stage
-    : channels.length
-      ? channels.map((id) => CHANNEL_LABEL[id][lang]).join(simultaneous ? " + " : " / ")
-      : stage;
+  const channelTitle = channels.length
+    ? channels.map((id) => CHANNEL_LABEL[id][lang]).join(simultaneous ? " + " : " / ")
+    : stage ?? w.message;
   const accent = firstChannel ? CHANNEL_CARD_ACCENT[firstChannel] : "border-t-ink-300";
   const tileKind = firstChannel ? { tile: CHANNEL_HUE[firstChannel].tile, ink: "" } : KIND.message;
 
@@ -684,11 +801,11 @@ export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, la
         <span className="min-w-0 flex-1 text-[14px] leading-snug font-semibold text-ink-950 [[data-lod=far]_&]:hidden">
           {channelTitle}
         </span>
-        {!routed && stage !== channelTitle ? (
+        {stage && stage !== channelTitle ? (
           <span className="max-w-[108px] truncate text-right text-[11px] font-medium text-ink-400 [[data-lod=far]_&]:hidden">{stage}</span>
         ) : null}
       </span>
-      <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-700 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
+      <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-700 [[data-lod=far]_&]:hidden">{actionCardSummary(node.headline, lang)}</p>
     </Shell>
   );
 }
