@@ -366,6 +366,22 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 275 journeys / 3657 nodes (2026-09-25). ACQ-12
+// (Abandoned Selection Recovery) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: the
+// pre-check wait before the first purchase check now carries a fixed
+// span default instead of a short cart-oriented range, the existing
+// c.availability gate's "nothing available" branch now hands off to a
+// new h.oos node (ACQ-289, Back-in-Stock Alert - a real handoff, since
+// the two journeys already share the commerce-recovery group and
+// ACQ-12's own precedence text already names it) instead of exiting
+// silently, and the second touch's copy now includes genuine
+// platform-surfaced alternatives. The one real outbound handoff to
+// ACQ-11 (a process started from the selection) is unchanged, kept as
+// required plumbing the flowchart does not itself draw. Same id/slug.
+// 275 -> 275 journeys, +1 node net (h.oos). Rules (423), global rules
+// (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 275 journeys / 3656 nodes (2026-09-25). DOC-215
 // (Signature Process) was retired, the site owner's request. It had
 // one real inbound handoff, DOC-220's h.resign, converted into a
@@ -1074,9 +1090,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (275 journeys / 3656 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (275 journeys / 3657 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 275 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3656 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3657 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

@@ -3731,6 +3731,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "text": "An item the platform asserts as unavailable is never shown in a touch; a touch about a selection shows only what can still be acted on."
       },
       {
+        "id": "s.oos",
+        "label": "CANONICAL_RULE",
+        "text": "Before the first touch, every held item is re-checked for availability; if the platform asserts none of them purchasable, the instance hands to the Back-in-Stock Alert (ACQ-289) for those items instead of sending a touch about a selection nothing in it can be acted on."
+      },
+      {
         "id": "s.permission",
         "label": "CANONICAL_RULE",
         "text": "No touch without purpose-level permission for commercial recovery communication; absent permission is a recorded no-action, never a fallback to another channel."
@@ -3857,7 +3862,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "c.state2",
             "c.sendable2"
           ],
-          "purpose": "The selection again, with any genuine change the platform asserts on an item still held - a restored availability, a changed price - and the same link. No urgency the system does not assert.",
+          "purpose": "The selection again, with any genuine change the platform asserts on an item still held - a restored availability, a changed price - genuine alternatives the platform itself surfaces, and the same link. No urgency the system does not assert.",
           "channelRoles": [
             "persistent"
           ],
@@ -3868,7 +3873,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
               "stock is reserved",
               "the price is held",
               "a discount applies",
-              "an expiry"
+              "an expiry",
+              "an alternative the platform did not itself surface"
             ]
           },
           "mandatory": false,
@@ -3880,6 +3886,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.process",
         "s.cleared",
         "s.unavailable-shown",
+        "s.oos",
         "s.permission",
         "s.contest",
         "s.specialised",
@@ -3953,17 +3960,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "timeout": {
           "after": {
             "key": "selection.first_check",
-            "rule": "The first check waits long enough after the last selection activity that the person has actually left rather than paused, and no longer than the selection is likely to be remembered.",
+            "rule": "The first check waits a fixed span after the last selection activity - long enough that the person has actually left rather than paused - before it re-reads the selection.",
             "class": "recovery-window",
             "default": {
-              "value": {
-                "min": "1 hour",
-                "max": "4 hours"
-              },
+              "value": "3 days",
               "confidence": "low",
               "basis": "example-only",
-              "applicableWhen": "a shopping cart",
-              "avoidWhen": "a saved list, where a much longer first check is honest - see the Saved Item Reminder preset"
+              "applicableWhen": "the general selection - cart, basket or saved list - recovered under this journey's own default cadence",
+              "avoidWhen": "a saved list held long enough that an even longer first check is honest - see the Saved Item Reminder preset, which extends this window further"
             },
             "required": false
           },
@@ -4057,7 +4061,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "c.availability",
         "kind": "condition",
-        "asks": "Can any of it still be acted on?",
+        "asks": "Is the selection still in stock and purchasable?",
         "branches": [
           {
             "label": "At least one item available",
@@ -4069,7 +4073,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "Nothing available",
             "when": "the platform asserts every selected item as unavailable",
             "observes": "item_unavailable",
-            "to": "x.unavailable"
+            "to": "h.oos"
           }
         ]
       },
@@ -4132,13 +4136,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "timeout": {
           "after": {
             "key": "selection.second_check",
-            "rule": "The second check comes after the person has had time to act on the first touch in their own time, and before the selection stops being something they remember.",
+            "rule": "The second check comes a fixed span after the first touch, giving the person time to act on it in their own time before the selection stops being something they remember.",
             "class": "recovery-window",
             "default": {
-              "value": {
-                "min": "2 days",
-                "max": "4 days"
-              },
+              "value": "2 days",
               "confidence": "low",
               "basis": "example-only"
             },
@@ -4210,7 +4211,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.touch2",
         "kind": "action",
-        "does": "Show the selection again with any genuine change the platform asserts on a held item - availability restored, price changed - and the same link. No urgency the system does not assert, and no incentive unless policy enables one for the last touch",
+        "does": "Show the selection again with any genuine change the platform asserts on a held item - availability restored, price changed - alongside genuine alternative items the platform itself surfaces for what's held, and the same link. No urgency the system does not assert, and no incentive unless policy enables one for the last touch",
         "execution": "communication",
         "idempotencyKey": "selection_id + touch id",
         "writes": [
@@ -4237,8 +4238,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "class": "recovery-window",
             "default": {
               "value": {
-                "min": "7 days",
-                "max": "14 days"
+                "min": "5 days",
+                "max": "7 days"
               },
               "confidence": "low",
               "basis": "example-only"
@@ -4343,6 +4344,26 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "touches_sent"
           ]
         }
+      },
+      {
+        "id": "h.oos",
+        "kind": "handoff",
+        "to": "ACQ-289",
+        "on": "at the stock-availability gate before the first touch, the platform asserts every held item unavailable - the same recorded interest, redirected to the journey built to alert on its return",
+        "carries": [
+          "the person and each held item now asserted unavailable - each opens its own Back-in-Stock Alert instance, since ACQ-289's instance key is person plus item",
+          "the fact that the interest was first recorded as a held selection, not a bare product view"
+        ],
+        "suppresses": [
+          "every queued recovery touch for this selection"
+        ],
+        "contract": {
+          "requiredFields": [
+            "selection_id",
+            "person_id",
+            "item_id"
+          ]
+        }
       }
     ],
     "implementation": {
@@ -4373,7 +4394,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "x.unavailable",
           "x.no-action",
           "x.lapsed",
-          "h.process"
+          "h.process",
+          "h.oos"
         ]
       },
       "businessOutcome": {
@@ -4479,7 +4501,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     "guardrails": [
       "Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
-      "An unavailable item is never shown; a selection with nothing available exits silently.",
+      "An unavailable item is never shown; a selection with nothing available hands to the Back-in-Stock Alert instead of receiving a touch of its own.",
+      "A similar or alternative item shown on the second touch is only ever one the platform itself surfaces for the held selection; nothing is recommended that the system does not actually offer.",
       "Opens and clicks are engagement evidence and change nothing; only selection, order and process events move the state.",
       "A process started from the selection hands over immediately; two recoveries never run against the same items."
     ],
