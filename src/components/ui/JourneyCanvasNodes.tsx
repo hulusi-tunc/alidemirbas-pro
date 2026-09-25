@@ -784,7 +784,7 @@ function HumanActionCard({ node, onOpen, humanLabels, lang = "en" }: {
   );
 }
 
-export function CommunicationCard({ node, onOpen, messageLabels: _messageLabels, humanLabels, lang = "en" }: {
+export function CommunicationCard({ node, onOpen, messageLabels: _messageLabels, humanLabels: _humanLabels, lang = "en" }: {
   node: FlowNode;
   onOpen: () => void;
   lang?: Lang;
@@ -792,18 +792,28 @@ export function CommunicationCard({ node, onOpen, messageLabels: _messageLabels,
   humanLabels: readonly { id: ChannelId; label: string }[];
 }) {
   const w = CARD_TEXT[lang];
-  const planChannel = node.channelPlan?.[0]?.channels?.[0] ?? null;
-  const priorityChannel = node.channelPriority?.[0] ?? null;
+  const priorityChannels = node.channelPriority ?? [];
+  const plannedChannels = node.channelPlan?.[0]?.channels ?? [];
   const headlineChannel = explicitChannelFromHeadline(node.headline);
-  const channel = priorityChannel ?? planChannel ?? headlineChannel;
+  const channels: readonly ChannelId[] = priorityChannels.length
+    ? priorityChannels
+    : plannedChannels.length
+      ? plannedChannels
+      : headlineChannel
+        ? [headlineChannel]
+        : [];
+  const firstChannel = channels[0] ?? null;
   const sameChannel = /same channel|aynı kanal/i.test(node.headline);
-  const channelTitle = channel
-    ? CHANNEL_LABEL[channel][lang]
+  const simultaneous =
+    node.channelStrategySimultaneous === true ||
+    /\b(?:email|e-posta|push|sms|whatsapp|in-app)\b[^:]*\s\+\s/i.test(node.headline);
+  const channelTitle = channels.length
+    ? channels.map((id) => CHANNEL_LABEL[id][lang]).join(simultaneous ? " + " : " / ")
     : sameChannel
       ? (lang === "tr" ? "Aynı kanal" : "Same channel")
       : w.message;
-  const accent = channel ? CHANNEL_CARD_ACCENT[channel] : "border-t-ink-300";
-  const tileKind = channel ? { tile: CHANNEL_HUE[channel].tile, ink: "" } : KIND.message;
+  const accent = firstChannel ? CHANNEL_CARD_ACCENT[firstChannel] : "border-t-ink-300";
+  const tileKind = firstChannel ? { tile: CHANNEL_HUE[firstChannel].tile, ink: "" } : KIND.message;
 
   return (
     <Shell
@@ -813,12 +823,12 @@ export function CommunicationCard({ node, onOpen, messageLabels: _messageLabels,
     >
       <span className="flex items-center gap-2">
         <Tile kind={tileKind}>
-          {channel ? <ChannelGlyph id={channel} /> : <Mail aria-hidden />}
+          {firstChannel ? <ChannelGlyph id={firstChannel} /> : <Mail aria-hidden />}
         </Tile>
-        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold [[data-lod=far]_&]:hidden ${
-          channel ? CHANNEL_HUE[channel].pill : "bg-paper-soft text-ink-600"
+        <span className={`inline-flex min-w-0 items-center rounded-full px-2.5 py-1 text-xs font-semibold [[data-lod=far]_&]:hidden ${
+          firstChannel ? CHANNEL_HUE[firstChannel].pill : "bg-paper-soft text-ink-600"
         }`}>
-          {channelTitle}
+          <span className="truncate">{channelTitle}</span>
         </span>
       </span>
       <p className="mt-2 line-clamp-2 text-[14px] leading-snug font-semibold text-ink-900 [[data-lod=far]_&]:hidden">
