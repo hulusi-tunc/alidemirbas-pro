@@ -1,5 +1,4 @@
 import {
-import { publicJourneyFlowChannels, publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
   CATEGORIES,
   MERGED_INTO,
   byId,
@@ -14,6 +13,7 @@ import type { Preset } from "@/canonical/types";
 import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, ChannelStrategy, ExitClass, GoalId, SignalSource } from "@/canonical/types";
 import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
+import { publicJourneyFlowChannels, publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
 
 /* The read model the archive renders from.
 
