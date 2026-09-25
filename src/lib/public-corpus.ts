@@ -178,7 +178,16 @@ export const ARCHIVED_SURFACE = "operational" as const;
    owner's request - it had one real inbound handoff, DOC-220's
    h.resign, converted into a genuine exit (x.resign-needed) since
    DOC-220 has no signature-collection machinery of its own to hand that
-   gap to - taking the library to 41.
+   gap to - taking the library to 41. ACQ-11 (Abandoned Process Recovery)
+   was retired next, the site owner's request - it had one real inbound
+   handoff, ACQ-12's h.process, converted into a genuine exit
+   (x.process-started) since no sibling journey has ACQ-11's
+   process-recovery machinery to merge into. ACQ-11 lost its last real
+   role in the commerce-recovery group's precedence text, reworded in
+   ACQ-13, ACQ-287, SCH-282 and RET-31 (7 members remain, no group-of-one
+   risk), and ACQ-13's own distinctFrom row naming it and FIN-134's
+   distinctFrom row about its h.payment handoff were both removed -
+   taking the library to 40.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -234,8 +243,8 @@ export const EXCLUDED_FROM_PUBLIC: ReadonlySet<string> = new Set([
     rather than only as "90 minus 21". Asserted against the derived library
     below - the two can never drift apart without failing the build. */
 export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
-  // Acquisition, intent & qualification - 7
-  "ACQ-09", "ACQ-11", "ACQ-12", "ACQ-13", "ACQ-287", "ACQ-288",
+  // Acquisition, intent & qualification - 6
+  "ACQ-09", "ACQ-12", "ACQ-13", "ACQ-287", "ACQ-288",
   "ACQ-289",
   // Activation, onboarding & early value - 4
   "ACT-14", "ACT-17", "ACT-20",

@@ -3665,7 +3665,7 @@ export const SCHEDULING_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "below checkout recovery (ACQ-287), the generic process pattern (ACQ-11), the held cart (ACQ-288) and the held selection (ACQ-12) for the same person; above predicted-need replenishment (RET-31), the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13), because an availability enquiry for a stated window is a question the person actually asked, where a predicted need is computed from history and an inferred interest was never confirmed at all. Where a higher-precedence member holds the person this journey is suppressed for them rather than queued behind it.",
+        "precedence": "below checkout recovery (ACQ-287), the held cart (ACQ-288) and the held selection (ACQ-12) for the same person; above predicted-need replenishment (RET-31), the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13), because an availability enquiry for a stated window is a question the person actually asked, where a predicted need is computed from history and an inferred interest was never confirmed at all. Where a higher-precedence member holds the person this journey is suppressed for them rather than queued behind it.",
         "onLoss": "suppressed"
       }
     },

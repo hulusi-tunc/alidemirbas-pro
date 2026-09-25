@@ -2182,7 +2182,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "below process recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the complementary next offer (RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they already own. While this journey holds a person, it is suppressed for them rather than queued behind it.",
+        "precedence": "below checkout recovery, held-cart recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the complementary next offer (RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they already own. While this journey holds a person, it is suppressed for them rather than queued behind it.",
         "onLoss": "suppressed"
       }
     },

@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 275", journeys.length === 275);
+check(1, "active journey count = 274", journeys.length === 274);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -365,6 +365,18 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 274 journeys / 3638 nodes (2026-09-25). ACQ-11
+// (Abandoned Process Recovery) was retired, the site owner's request.
+// It had one real inbound handoff, ACQ-12's h.process, converted into
+// a genuine exit (x.process-started) since no sibling journey has
+// ACQ-11's process-recovery machinery to merge into. Its role in the
+// commerce-recovery group's precedence text was reworded in ACQ-13,
+// ACQ-287, SCH-282 and RET-31 (7 members remain, no group-of-one
+// risk), and ACQ-13's own distinctFrom row naming it and FIN-134's
+// distinctFrom row about its h.payment handoff were both removed.
+// 275 -> 274 journeys, -27 nodes net. Rules (423), global rules (31)
+// and merged redirects (8) are unchanged.
 //
 // FROZEN BASELINE: 275 journeys / 3665 nodes (2026-09-25). ACQ-288
 // (Cart Abandonment Recovery) was rebuilt to match a reference flowchart the
@@ -1126,9 +1138,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (275 journeys / 3665 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 275 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3665 &&
+  "canonical source mutation = 0 (274 journeys / 3638 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 274 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3638 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

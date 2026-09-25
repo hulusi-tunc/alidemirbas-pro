@@ -759,11 +759,6 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "ACQ-287 recovers a checkout nobody finished. This opens only where a checkout was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the cart or the items.",
       },
-      {
-        journey: "ACQ-11",
-        because:
-          "ACQ-11 recovers a resumable process nobody finished. This opens only where the process was finished and the payment against it failed - its own handoff is what ends that journey, and this one never returns to the process or the items.",
-      },
     ],
     objective: "Get the obligation paid by responding to the failure that actually happened, while the obligation stays alive and the relationship's own state is decided elsewhere.",
     eligibility: [
