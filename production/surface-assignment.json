@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 278,
-    "customer": 129,
+    "journeys": 277,
+    "customer": 128,
     "customer-silent": 66,
-    "customer-communicating": 63,
+    "customer-communicating": 62,
     "mechanism": 25,
     "operational": 124
   },
@@ -2176,17 +2176,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (email, sms, whatsapp)"
-    },
-    {
-      "id": "SCH-304",
-      "shortName": "Pre-Arrival Preparation",
-      "category": "scheduling",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms)"
     },
     {
       "id": "DEC-181",
