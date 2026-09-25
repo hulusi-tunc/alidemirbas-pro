@@ -191,6 +191,11 @@ const ACTION_CARD_COPY: Partial<Record<Lang, Record<string, string>>> = {
     "Eksik belgeler + yükleme adımları + son tarih": "Eksik belgeleri, nasıl yükleneceğini ve son tarihi göster.",
     "Son tarihten önce son hatırlatma": "Son tarihten önce eksik belgeyi son kez hatırlat.",
     "Doğum gününü / dönüm noktasını tanımlı faydayla birlikte kutla": "Doğum gününü veya dönüm noktasını tanımlı faydayla kutla.",
+    "Son ödeme hatırlatması ve alternatif ödeme bağlantısı": "Ödemeyi tamamlamak için son hatırlatmayı ve alternatif ödeme bağlantısını paylaş.",
+    "Son checkout hatırlatması": "Checkout'u tamamlamak için son kez hatırlat.",
+    "Son randevu hatırlatması": "Randevuya kısa süre kaldığını son kez hatırlat.",
+    "Son eksik hazırlık adımlarını bildir": "Randevu öncesi kalan son hazırlık adımlarını göster.",
+    "Son yenileme hatırlatması": "Üyelik bitmeden önce yenilemeyi son kez hatırlat.",
   },
   en: {
     "100 TL reward earned + code": "Show the 100 TL reward and its redemption code.",
@@ -240,6 +245,16 @@ const ACTION_CARD_COPY: Partial<Record<Lang, Record<string, string>>> = {
     "Payment received; reservation confirmed": "Confirm that payment was received and the reservation is secured.",
     "Renewal date + new price / plan + payment method": "Show the renewal date, new price or plan and the payment method.",
     "Missing documents + upload instructions + deadline": "Show which documents are missing, how to upload them and the deadline.",
+    "There is something new in the product / feature you viewed": "Show what is new in the product or feature the user viewed.",
+    "Final payment reminder and alternative-payment link": "Share a final payment reminder with an alternative payment link.",
+    "Direct final checkout reminder": "Use a direct final reminder to complete checkout.",
+    "Final checkout reminder": "Give one final prompt to complete checkout.",
+    "Use a problem-specific retention action: offer, guidance, support, payment help or value reminder": "Use the intervention that matches the actual churn reason.",
+    "Final replenishment reminder with direct link": "Give one final replenishment reminder with a direct purchase link.",
+    "Final appointment reminder": "Remind the user that the appointment is approaching.",
+    "Final renewal reminder": "Give one final renewal reminder before the subscription ends.",
+    "Missing-document reminder": "Remind the user which required document is still missing.",
+    "Final reminder before the deadline": "Give one final reminder before the document deadline.",
   },
 };
 
