@@ -1,4 +1,4 @@
-import { Box, Quote, ShieldCheck } from "lucide-react";
+import { BarChart3, Quote, Target, Zap } from "lucide-react";
 
 import JourneyCanvas from "@/components/JourneyCanvas";
 import { InfoTile } from "@/components/ui/InfoTile";
@@ -6,6 +6,7 @@ import type { JourneyDetail, MergedRedirect } from "@/lib/canonical-view";
 import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
 import type { copy, Lang } from "@/lib/content";
+import { practitionerJourneyNotes } from "@/lib/journey-practitioner-notes";
 
 /** Everything the canvas needs from a journey, composed once so the figure
     inside the notes and the full-page canvas tab (JourneyRoutes) cannot
@@ -179,6 +180,10 @@ export default async function JourneyDetailBody({
      keeps the channel vocabulary out of the browser bundle. The layout
      comes with them - laid out here, on the server, for the same reason. */
   const canvas = showCanvas ? await journeyCanvasProps(detail, lang, t) : null;
+  const practitionerNotes = practitionerJourneyNotes(detail.id, lang);
+  const practitionerLabels = lang === "tr"
+    ? { trigger: "Tetikleyici", eligibility: "Segment / Uygunluk", kpis: "Journey KPI’ları" }
+    : { trigger: "Trigger", eligibility: "Segment / Eligibility", kpis: "Journey KPIs" };
   return (
     <div>
       {/* A retired id resolves here rather than 404ing, and says so before
@@ -197,21 +202,23 @@ export default async function JourneyDetailBody({
           <p className="max-w-4xl text-xl leading-snug font-medium text-balance text-ink-950">{detail.reusableRule}</p>
         </InfoTile>
 
-        <InfoTile icon={<Box />} tint="bg-teal-50 text-teal-700" title={t.entityLabel}>
-          <p className="text-sm font-medium text-ink-950">{detail.entityScope}</p>
-          <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{detail.entityNote}</p>
-        </InfoTile>
-
-        <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailsLabel}>
-          <ol className="flex list-none flex-col gap-3 p-0">
-            {detail.guardrails.map((g, i) => (
-              <li key={g} className="flex gap-3">
-                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper-soft text-xs font-semibold text-ink-700 tabular-nums">{i + 1}</span>
-                <span className="text-sm leading-relaxed text-pretty text-ink-muted">{g}</span>
-              </li>
-            ))}
-          </ol>
-        </InfoTile>
+        {practitionerNotes ? (
+          <>
+            <InfoTile icon={<Zap />} tint="bg-amber-50 text-amber-700" title={practitionerLabels.trigger}>
+              <p className="text-sm leading-relaxed text-pretty text-ink-muted">{practitionerNotes.trigger}</p>
+            </InfoTile>
+            <InfoTile icon={<Target />} tint="bg-teal-50 text-teal-700" title={practitionerLabels.eligibility}>
+              <ul className="flex list-disc flex-col gap-2 pl-4 text-sm leading-relaxed text-ink-muted">
+                {practitionerNotes.eligibility.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </InfoTile>
+            <InfoTile icon={<BarChart3 />} tint="bg-emerald-50 text-emerald-700" title={practitionerLabels.kpis}>
+              <ul className="flex list-disc flex-col gap-2 pl-4 text-sm leading-relaxed text-ink-muted">
+                {practitionerNotes.kpis.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </InfoTile>
+          </>
+        ) : null}
 
       </div>
 
