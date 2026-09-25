@@ -738,8 +738,8 @@
     "slug": "microcopy-kullanici-davranisini-nasil-etkiliyor",
     "category": "Cart & Checkout",
     "surface": "checkout",
-    "question": "Microcopy kullanıcı davranışını nasıl etkiliyor?",
-    "hypothesis": "Küçük metin değişiklikleri bile karar hızını, güven algısını ve yönlendirilme davranışını etkileyebilir. Bu test, buton altı mesajların ve güven verici ifadelerin dönüşüme etkisini ölçer.",
+    "question": "Checkout microcopy'si dönüşümü etkiler mi?",
+    "hypothesis": "Checkout'taki kısa açıklama veya güven mesajı, kullanıcının bir sonraki adımı anlamasını ve tereddüdünü etkileyebilir. Test başlamadan önce tek bir microcopy alanı ve karşılaştırılacak iki metin açıkça tanımlanmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "element",
     "differenceBehavior": "change",
@@ -768,24 +768,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Güven Mesajları",
-        "explanation": "“Ücret alınmayacak” gibi ifadeler tıklama oranını artırıyor mu?"
+        "label": "Metin",
+        "explanation": "Tek bir microcopy alanında iki açıkça tanımlanmış metin karşılaştırılır."
       },
       {
-        "label": "Kullanıcı tipi",
-        "explanation": "Yeni ve dönen kullanıcıda güven mesajının etkisi farklı mı?"
+        "label": "Sabit kalan",
+        "explanation": "CTA, fiyat, görsel, konum ve checkout akışı değiştirilmez."
       },
       {
-        "label": "Yönlendirme",
-        "explanation": "“Sadece 1 adım kaldı” gibi ifadeler ilerleme hızını artırıyor mu?"
+        "label": "Davranış",
+        "explanation": "Dönüşümün yanında ilgili CTA veya form adımı etkileşimi izlenir."
       },
       {
-        "label": "Fiyat Şeffaflığı",
-        "explanation": "“Vergiler dahil”, “İptal ücretsiz” bilgileri tamamlamayı artırıyor mu?"
+        "label": "Segment",
+        "explanation": "Yeni ve dönen kullanıcı sonuçları ayrı okunabilir."
       },
       {
-        "label": "Ton",
-        "explanation": "Sıcak ve bilgilendirici üslup dönüşümü değiştiriyor mu?"
+        "label": "Sonraki test",
+        "explanation": "Ton, konum veya farklı güven mesajları gerekiyorsa ayrı deneyler olarak planlanır."
       }
     ],
     "guardrails": [
@@ -1705,8 +1705,8 @@
     "slug": "kategori-siralamasi-donusumu-nasil-etkiler",
     "category": "Category & Listing",
     "surface": "plp",
-    "question": "Kategori sırasını değiştirmek keşif ve dönüşümü etkiler mi?",
-    "hypothesis": "Kategorilerin sırası, kullanıcıların hangi seçenekleri önce gördüğünü ve keşfettiğini değiştirir. Davranışa, popülerliğe veya iş önceliğine göre yapılan sıralamalar farklı tıklama ve dönüşüm sonuçları üretebilir.",
+    "question": "Kategori sırası keşif ve dönüşümü nasıl etkiler?",
+    "hypothesis": "Kategori sırası, hangi seçeneklerin önce görüldüğünü ve tıklandığını değiştirebilir. Test başlamadan önce iki açık sıralama kuralı tanımlanmalı; kategori adları, görselleri ve ürün sıralaması sabit tutulmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "structural",
     "differenceBehavior": "change",
@@ -1735,24 +1735,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Popülerlik",
-        "explanation": "Popüler kategorileri üste almak tıklamayı artırıyor mu?"
+        "label": "Sıralama",
+        "explanation": "İki açık kategori sıralama kuralı karşılaştırılır."
       },
       {
-        "label": "Gezinme",
-        "explanation": "Sıra değişince gezinme tercihi değişiyor mu?"
+        "label": "Sabit kalan",
+        "explanation": "Kategori adları, görselleri, ürün sıralaması ve kart tasarımı değiştirilmez."
       },
       {
-        "label": "Mobil",
-        "explanation": "Sıralama scroll davranışını etkiliyor mu?"
+        "label": "Keşif",
+        "explanation": "Kategori tıklamaları ile ürün keşfi birlikte izlenir."
       },
       {
-        "label": "Üst konum",
-        "explanation": "Üste alınanlar ürün görüntülemeyi yükseltiyor mu?"
+        "label": "Dönüşüm",
+        "explanation": "Üst sıraya taşınan kategorilerin yalnızca tıklaması değil satın almaya katkısı da ölçülür."
       },
       {
-        "label": "İlk tıklama",
-        "explanation": "İlk tıklanan kategori yolculuğu değiştiriyor mu?"
+        "label": "Segment",
+        "explanation": "Mobil ve masaüstü sonuçları ayrı incelenebilir."
       }
     ],
     "guardrails": [
@@ -2222,8 +2222,8 @@
     "slug": "kategori-sirasi-menude-onceligi-nasil-etkiler",
     "category": "Category & Listing",
     "surface": "plp",
-    "question": "Kategori sırası menüde önceliği nasıl etkiler?",
-    "hypothesis": "Menüde üst sıralarda yer alan kategoriler daha görünür olduğu için daha fazla tıklama alabilir. Ancak artan tıklamanın kategori görüntüleme ve satın alma performansına yansıyıp yansımadığı ayrıca ölçülmelidir.",
+    "question": "Menüde kategori sırası gezinme ve dönüşümü nasıl etkiler?",
+    "hypothesis": "Menüde üst sıralara taşınan kategoriler daha fazla görünürlük ve tıklama alabilir. Bunun daha iyi gezinmeye ve satın almaya dönüşüp dönüşmediğini görmek için iki açık menü sırası karşılaştırılmalı; kategori adları ve ikonları sabit kalmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "structural",
     "differenceBehavior": "change",
@@ -2252,24 +2252,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Öncelik",
-        "explanation": "Üste alınan kategori daha çok tıklanıyor mu?"
+        "label": "Sıralama",
+        "explanation": "İki açık menü sırası karşılaştırılır."
+      },
+      {
+        "label": "Sabit kalan",
+        "explanation": "Kategori adları, ikonları ve menü yapısı değiştirilmez."
       },
       {
         "label": "Gezinme",
-        "explanation": "Sıra değişince kullanıcının menüde gezinme alışkanlığı bozuluyor mu?"
+        "explanation": "Kategori tıklaması ve doğru bölüme ulaşma davranışı birlikte izlenir."
       },
       {
-        "label": "Görsel etki",
-        "explanation": "Sıra değişimi buton ve menü tıklamasını etkiliyor mu?"
-      },
-      {
-        "label": "Tutarlılık",
-        "explanation": "Sık sıra değiştirmek kullanıcı güvenini düşürüyor mu?"
+        "label": "Dönüşüm",
+        "explanation": "Sıra değişiminin satın almaya katkısı ayrıca ölçülür."
       },
       {
         "label": "Cihaz",
-        "explanation": "Mobil ve masaüstünde etki farklı mı?"
+        "explanation": "Mobil ve masaüstü menü sonuçları ayrı okunabilir."
       }
     ],
     "guardrails": [
@@ -2364,8 +2364,8 @@
     "slug": "pop-up-ne-zaman-gosterilmeli",
     "category": "Category & Listing",
     "surface": "plp",
-    "question": "Pop-up hangi anda gösterilmeli?",
-    "hypothesis": "Sayfa açılır açılmaz gösterilen pop-up ana içeriği kesebilir; çok geç gösterilen pop-up ise yeterli kullanıcıya ulaşmayabilir. Zamanlamayı sayfada geçirilen süre, scroll derinliği veya çıkış niyeti gibi gerçek davranış sinyalleriyle test etmek daha anlamlı sonuç verebilir.",
+    "question": "Pop-up zamanlaması dönüşümü nasıl etkiler?",
+    "hypothesis": "Pop-up'ın ne zaman gösterildiği, teklifin görülmesi ile ana akışın bölünmesi arasındaki dengeyi değiştirebilir. Test başlamadan önce iki zamanlama veya davranış tetikleyicisi seçilmeli; teklif, tasarım ve frekans sabit tutulmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "element",
     "differenceBehavior": "change",
@@ -2395,23 +2395,23 @@
     "whatToTest": [
       {
         "label": "Zamanlama",
-        "explanation": "Hangi anda gösterildiğinde en yüksek performans alınıyor?"
+        "explanation": "İki açık gösterim anı veya tetikleyici karşılaştırılır."
       },
       {
-        "label": "Frekans",
-        "explanation": "Aynı kullanıcıya kaç kez göstermek ideal?"
+        "label": "Sabit kalan",
+        "explanation": "Teklif, tasarım, boyut, konum ve gösterim frekansı değiştirilmez."
       },
       {
-        "label": "Tasarım",
-        "explanation": "Boyut ve ekrandaki konum etkileşimi artırıyor mu?"
+        "label": "Etkileşim",
+        "explanation": "Pop-up yanıtı ana dönüşümle birlikte değerlendirilir."
       },
       {
-        "label": "Teklif",
-        "explanation": "İndirim, ücretsiz kargo veya üyelik hangisi daha çok yanıt alıyor?"
+        "label": "Guardrail",
+        "explanation": "Çıkış oranı ve ana akış performansı bozulmamalıdır."
       },
       {
-        "label": "Segment",
-        "explanation": "Yeni mi, dönen kullanıcı mı daha iyi tepki veriyor?"
+        "label": "Sonraki test",
+        "explanation": "Teklif, tasarım veya frekans ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -2431,8 +2431,8 @@
     "slug": "sayfa-basina-kac-urun-gosterilmeli",
     "category": "Category & Listing",
     "surface": "plp",
-    "question": "Sayfa başına kaç ürün gösterilmeli?",
-    "hypothesis": "Sayfa başına daha fazla ürün göstermek sayfalar arası geçişi azaltabilir, ancak yüklenme süresini ve seçenek yoğunluğunu artırabilir. Daha az ürün daha hızlı bir sayfa sunarken kullanıcıyı sık sık yeni sayfaya geçmeye zorlayabilir.",
+    "question": "Sayfa başına ürün sayısı ürün keşfini nasıl etkiler?",
+    "hypothesis": "Sayfa başına ürün sayısı, kullanıcının gördüğü seçenek miktarı ile sayfa performansı arasındaki dengeyi değiştirebilir. Karşılaştırılacak iki ürün sayısı testten önce belirlenmeli; sıralama, kart tasarımı ve yükleme davranışı sabit kalmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "structural",
     "differenceBehavior": "change",
@@ -2461,24 +2461,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Sayı",
-        "explanation": "Sayfa başına ürün sayısını artırmak dönüşümü etkiliyor mu?"
+        "label": "Ürün sayısı",
+        "explanation": "İki açık sayfa başına ürün sayısı karşılaştırılır."
       },
       {
-        "label": "Hız",
-        "explanation": "Artan ürün sayısı yüklenme süresini ne kadar uzatıyor?"
+        "label": "Sabit kalan",
+        "explanation": "Ürün sıralaması, kart tasarımı ve yükleme davranışı değiştirilmez."
       },
       {
-        "label": "Derinlik",
-        "explanation": "Kullanıcı kaçıncı sayfaya kadar gidiyor?"
+        "label": "Keşif",
+        "explanation": "Liste → ürün tıklaması ve görülen ürün sayısı birlikte izlenir."
       },
       {
-        "label": "Karar",
-        "explanation": "Fazla seçenek karar vermeyi zorlaştırıyor mu?"
+        "label": "Performans",
+        "explanation": "Sayfa yüklenme süresi guardrail olarak takip edilir."
       },
       {
         "label": "Cihaz",
-        "explanation": "Mobilde ve masaüstünde aynı sayı mı kazanıyor?"
+        "explanation": "Mobil ve masaüstü sonuçları ayrı değerlendirilebilir."
       }
     ],
     "guardrails": [
@@ -2723,8 +2723,8 @@
     "slug": "urun-kartinda-hangi-bilgi-one-cikmali",
     "category": "Category & Listing",
     "surface": "plp",
-    "question": "Ürün kartında hangi bilgi öne çıkmalı?",
-    "hypothesis": "Ürün kartında öne çıkarılan fiyat, teslimat, puan, kampanya veya stok bilgisi kararın hangi ölçüte göre verildiğini etkileyebilir. Fazla bilgi taramayı zorlaştırırken eksik bilgi gereksiz ürün sayfası ziyaretine neden olabilir.",
+    "question": "Ürün kartında bilgi hiyerarşisi ürün seçimini nasıl etkiler?",
+    "hypothesis": "Ürün kartında hangi bilginin öne çıktığı, kullanıcının ürünleri karşılaştırma ve ürün sayfasına geçme davranışını etkileyebilir. Test başlamadan önce tek bir bilgi hiyerarşisi değişikliği tanımlanmalı; karttaki bilgi miktarı ve diğer tasarım öğeleri sabit tutulmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "structural",
     "differenceBehavior": "change",
@@ -2753,24 +2753,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Öncelik",
-        "explanation": "Hangi bilgi öne alındığında ürüne geçiş artıyor?"
+        "label": "Hiyerarşi",
+        "explanation": "Tek bir bilgi türünün görsel önceliği değiştirilir."
       },
       {
-        "label": "Sayı",
-        "explanation": "Kartta kaç bilgi satırı okunabilirliği bozmadan durabiliyor?"
+        "label": "Sabit kalan",
+        "explanation": "Karttaki bilgi sayısı, fiyat, görsel ve CTA yapısı değiştirilmez."
       },
       {
-        "label": "Ayırt edicilik",
-        "explanation": "Öne çıkan bilgi ürünler arasında gerçekten farklılaşıyor mu?"
+        "label": "Keşif",
+        "explanation": "Liste → ürün tıklaması ile ürün seçimi birlikte izlenir."
       },
       {
-        "label": "Boş kalma",
-        "explanation": "Bilgisi olmayan üründe alan nasıl davranıyor?"
+        "label": "Guardrail",
+        "explanation": "Yanlış tıklama ve ürün sayfasından geri dönüş artmamalıdır."
       },
       {
-        "label": "Kategori",
-        "explanation": "Belirleyici bilgi kategoriden kategoriye değişiyor mu?"
+        "label": "Sonraki test",
+        "explanation": "Bilgi sayısı veya farklı bilgi türleri ayrı deneylerde ele alınır."
       }
     ],
     "guardrails": [
@@ -8415,8 +8415,8 @@
     "slug": "kac-fiyat-plani-gosterilmeli",
     "category": "Pricing",
     "surface": "pricing",
-    "question": "Kaç fiyat planı gösterilmeli?",
-    "hypothesis": "Fiyat sayfasında gösterilen plan sayısı karar yükünü ve seçeneklerin birbirine göre nasıl algılandığını değiştirebilir. Uygun sayı, mevcut teklif yapısına bağlı olduğu için önce karşılaştırılacak iki plan seti açıkça tanımlanmalıdır.",
+    "question": "Fiyat planı sayısı geliri nasıl etkiler?",
+    "hypothesis": "Gösterilen plan sayısı karar yükünü ve planların birbirine göre algısını değiştirebilir. Test başlamadan önce karşılaştırılacak iki plan seti açıkça tanımlanmalı; fiyatlar, plan içerikleri ve görsel hiyerarşi sabit tutulmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "structural",
     "differenceBehavior": "change",
@@ -8445,24 +8445,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Sayı",
-        "explanation": "Plan sayısını azaltmak toplam geliri artırıyor mu?"
+        "label": "Plan seti",
+        "explanation": "İki açık plan seti karşılaştırılır; test içinde plan sayısı değiştirilmez."
+      },
+      {
+        "label": "Sabit kalan",
+        "explanation": "Fiyatlar, plan içerikleri ve kart tasarımı aynı kalır."
+      },
+      {
+        "label": "Gelir",
+        "explanation": "Karar yalnızca seçim oranıyla değil ziyaretçi başına gelirle verilir."
       },
       {
         "label": "Dağılım",
-        "explanation": "Hangi plan ne oranda seçiliyor, ortadaki plan avantaj sağlıyor mu?"
-      },
-      {
-        "label": "Kaybedilen ihtiyaç",
-        "explanation": "Kaldırılan planı seçenler başka plana mı geçiyor, yoksa kayboluyor mu?"
-      },
-      {
-        "label": "Aşağı kayma",
-        "explanation": "Az seçenek ziyaretçiyi daha ucuz plana mı yönlendiriyor?"
+        "explanation": "Planlar arasındaki seçim dağılımı sonucu açıklamak için izlenir."
       },
       {
         "label": "Segment",
-        "explanation": "Bireysel ve kurumsal ziyaretçi farklı sayıda seçeneğe mi ihtiyaç duyuyor?"
+        "explanation": "Farklı müşteri tipleri ayrı segmentlerde değerlendirilebilir."
       }
     ],
     "guardrails": [
@@ -10582,8 +10582,8 @@
     "slug": "indirimi-nasil-sunmalisiniz",
     "category": "Product Detail Page",
     "surface": "pdp",
-    "question": "İndirimi nasıl sunmalısınız?",
-    "hypothesis": "İndirim mesajının türü, konumu ve sunuluşu davranışı ciddi biçimde değiştirebilir. Bazen tek bir kelime tıklama oranını değiştirir.",
+    "question": "İndirim sunum biçimi ziyaretçi başına geliri etkiler mi?",
+    "hypothesis": "Aynı indirimin nasıl ifade edildiği veya formatlandığı satın alma davranışını etkileyebilir. Testte tek bir sunum değişkeni seçilmeli; indirim oranı, fiyat, konum ve diğer kampanya koşulları sabit tutulmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "element",
     "differenceBehavior": "change",
@@ -10612,24 +10612,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Metin",
-        "explanation": "“Sepette %10 indirim” mi, “Anında %10 indirim” mi daha çok tıklanıyor?"
+        "label": "Değişen",
+        "explanation": "Metin, format veya görsel sunumdan yalnızca biri test değişkeni olarak seçilir."
       },
       {
-        "label": "Renk",
-        "explanation": "Yeşil mi, kırmızı mı etiket daha çok güven veriyor?"
+        "label": "Sabit kalan",
+        "explanation": "İndirim oranı, fiyat, kampanya koşulları ve diğer sunum öğeleri değiştirilmez."
       },
       {
-        "label": "Konum",
-        "explanation": "İndirimi fiyatın üstünde mi, altında mı göstermeli?"
+        "label": "Gelir",
+        "explanation": "Dönüşüm artışı ziyaretçi başına gelir ve brüt marjla birlikte değerlendirilir."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde ve masaüstünde etki aynı mı?"
+        "label": "Guardrail",
+        "explanation": "Brüt marj ve ortalama sepet tutarı bozulmamalıdır."
       },
       {
-        "label": "Format",
-        "explanation": "Yüzde mi, TL tasarrufu mu daha etkili?"
+        "label": "Sonraki test",
+        "explanation": "Konum, renk veya farklı indirim formatları ayrı deneyler olarak planlanır."
       }
     ],
     "guardrails": [
@@ -10724,8 +10724,8 @@
     "slug": "avantaj-bilgilerini-net-sunmak-satin-almayi-etkiler-mi",
     "category": "Product Detail Page",
     "surface": "pdp",
-    "question": "Avantaj bilgilerini net sunmak satın almayı etkiler mi?",
-    "hypothesis": "Taksit, ücretsiz kargo ve kolay iade gibi avantajların net sunulması kullanıcı güvenini ve satın alma motivasyonunu güçlendirebilir.",
+    "question": "Avantaj bilgisinin sunumu satın alma davranışını etkiler mi?",
+    "hypothesis": "Taksit, ücretsiz kargo veya iade gibi mevcut avantajların daha anlaşılır sunulması, satın alma kararını kolaylaştırabilir. Test başlamadan önce tek bir sunum değişikliği tanımlanmalı; avantajların içeriği ve koşulları aynı kalmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "element",
     "differenceBehavior": "change",
@@ -10754,24 +10754,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Format",
-        "explanation": "İkon, kısa başlık ve sade açıklama anlaşılırlığı artırıyor mu?"
+        "label": "Değişen",
+        "explanation": "Avantaj bilgisinin tek bir sunum özelliği değiştirilir."
       },
       {
-        "label": "Konum",
-        "explanation": "Avantaj kutusunu yukarı taşımak fark edilmeyi yükseltiyor mu?"
+        "label": "Sabit kalan",
+        "explanation": "Avantajların içeriği, koşulları, fiyat ve CTA yapısı aynı kalır."
       },
       {
-        "label": "Hiyerarşi",
-        "explanation": "Güçlü görsel hiyerarşi kararı hızlandırıyor mu?"
+        "label": "Anlaşılırlık",
+        "explanation": "İlgili alan etkileşimi dönüşümle birlikte değerlendirilir."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde ve masaüstünde etki aynı mı?"
+        "label": "Guardrail",
+        "explanation": "Yanlış beklenti yaratabilecek koşul kaybı veya iade artışı olmamalıdır."
       },
       {
-        "label": "Sayı",
-        "explanation": "Kaç avantaj göstermek optimum? (2 / 3 / 5)"
+        "label": "Sonraki test",
+        "explanation": "Konum, ikon kullanımı veya avantaj sayısı ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -10866,8 +10866,8 @@
     "slug": "fayda-vurgulamak-donusumu-etkiler-mi",
     "category": "Product Detail Page",
     "surface": "pdp",
-    "question": "Fayda vurgulamak dönüşümü etkiler mi?",
-    "hypothesis": "Ürünün ana faydasını fiyat ve özellik listesinin yanında açıkça göstermek, ziyaretçinin ürünü kendi ihtiyacıyla eşleştirmesini kolaylaştırabilir. Mesaj yalnızca daha görünür olduğu için değil, sepete ekleme ve satın alma davranışını değiştirdiği ölçüde değerlidir.",
+    "question": "Ana faydayı görünür kılmak dönüşümü etkiler mi?",
+    "hypothesis": "Ürünün ana faydasını mevcut ürün bilgisinin yanında görünür kılmak, kullanıcının ürünü ihtiyacıyla eşleştirmesini kolaylaştırabilir. Testte eklenecek tek fayda mesajı önceden tanımlanmalı; fiyat, CTA ve diğer ürün bilgileri sabit kalmalıdır.",
     "setupType": "unresolved",
     "comparisonMode": "element",
     "differenceBehavior": "add",
@@ -10896,24 +10896,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Mesaj Türü",
-        "explanation": "“2 yıl garanti”, “Ücretsiz iade”, “Hızlı teslimat” hangisi öne çıkıyor?"
+        "label": "Fayda mesajı",
+        "explanation": "Variant'a önceden tanımlanmış tek bir ana fayda mesajı eklenir."
       },
       {
-        "label": "Konum",
-        "explanation": "Ürün adının altında mı, fiyatın üstünde mi daha etkili?"
+        "label": "Sabit kalan",
+        "explanation": "Fiyat, CTA, ürün görselleri ve diğer ürün bilgileri değiştirilmez."
       },
       {
-        "label": "İkon",
-        "explanation": "Sadece metin mi, ikonla birlikte mi daha çok etkileşim alıyor?"
+        "label": "Davranış",
+        "explanation": "Sepete ekleme ve satın alma davranışı birlikte izlenir."
       },
       {
-        "label": "Sayı",
-        "explanation": "Tek güçlü fayda mı, 2-3 küçük fayda mı daha iyi?"
+        "label": "Guardrail",
+        "explanation": "Mesaj mevcut ürün koşullarını doğru ve doğrulanabilir biçimde yansıtmalıdır."
       },
       {
-        "label": "Kategori",
-        "explanation": "Teknolojide mi, modada mı daha fazla fark yaratıyor?"
+        "label": "Sonraki test",
+        "explanation": "Konum, ikon veya birden fazla fayda sunumu ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -11158,8 +11158,8 @@
     "slug": "cta-optimizasyonu-donusumu-etkiler-mi",
     "category": "Product Detail Page",
     "surface": "pdp",
-    "question": "CTA optimizasyonu dönüşümü etkiler mi?",
-    "hypothesis": "Renk, boyut ve konum küçük görünen ama davranışı ciddi etkileyen değişkenler. Bazı markalarda %1, bazılarında %10 fark yaratabiliyor. Tahmin etmeyin, test edin.",
+    "question": "CTA metni dönüşümü etkiler mi?",
+    "hypothesis": "CTA metni, kullanıcının bir sonraki aksiyondan ne beklediğini değiştirerek tıklama ve satın alma davranışını etkileyebilir. Bu testte yalnızca CTA metni değişir; renk, boyut, konum ve çevresindeki tasarım sabit kalır.",
     "setupType": "unresolved",
     "comparisonMode": "element",
     "differenceBehavior": "change",
@@ -11188,24 +11188,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Renk",
-        "explanation": "Turuncu, yeşil veya markanın ana rengi hangisi daha çok tıklanıyor?"
-      },
-      {
         "label": "Metin",
-        "explanation": "“Sepete Ekle”, “Hemen Al”, “Satın Al” hangisi daha iyi çalışıyor?"
+        "explanation": "İki açık CTA metni karşılaştırılır."
       },
       {
-        "label": "Boyut",
-        "explanation": "Daha büyük CTA dönüşümü artırıyor mu, dikkat mi dağıtıyor?"
+        "label": "Sabit kalan",
+        "explanation": "Renk, boyut, konum, ikon ve çevresindeki tasarım değiştirilmez."
       },
       {
-        "label": "Konum",
-        "explanation": "Ürünün altında mı, alt sabit barda mı daha etkili?"
+        "label": "Davranış",
+        "explanation": "CTA tıklaması nihai dönüşümle birlikte değerlendirilir."
       },
       {
         "label": "Cihaz",
-        "explanation": "Mobilde ve masaüstünde etki aynı mı?"
+        "explanation": "Mobil ve masaüstü sonuçları ayrı segmentlerde incelenebilir."
+      },
+      {
+        "label": "Sonraki test",
+        "explanation": "Renk, boyut veya konum ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
