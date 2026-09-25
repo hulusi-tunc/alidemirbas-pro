@@ -14,6 +14,7 @@ import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, ChannelStr
 import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 import { publicJourneyFlowChannels, publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
+import { publicJourneyCopy } from "@/lib/journey-public-copy";
 
 /* The read model the archive renders from.
 
@@ -758,9 +759,9 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = await Promise.all(PUBLIC_JOUR
   aliases: j.discovery?.aliases ?? [],
   presetCount: j.discovery?.presets?.length ?? 0,
   slug: j.slug,
-  name: j.name,
-  ...(j.shortName ? { shortName: j.shortName } : {}),
-  purpose: j.purpose,
+  name: publicJourneyCopy(j.id, "en")?.name ?? j.name,
+  ...((publicJourneyCopy(j.id, "en")?.shortName ?? j.shortName) ? { shortName: publicJourneyCopy(j.id, "en")?.shortName ?? j.shortName } : {}),
+  purpose: publicJourneyCopy(j.id, "en")?.purpose ?? j.purpose,
   category: j.category,
   categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
   nodeCount: j.nodes.length,
@@ -847,20 +848,21 @@ for (const p of PRESET_ROWS) if (BY_SLUG.has(p.slug) || MERGED_BY_SLUG.has(p.slu
 function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): JourneyDetail {
   const withDirection = flowNodesOf(j);
   const sf = surfaceOf(j);
+  const publicCopy = publicJourneyCopy(j.id, "en");
 
   return {
     id: j.id,
     slug: j.slug,
-    name: j.name,
-    ...(j.shortName ? { shortName: j.shortName } : {}),
-    purpose: j.purpose,
+    name: publicCopy?.name ?? j.name,
+    ...((publicCopy?.shortName ?? j.shortName) ? { shortName: publicCopy?.shortName ?? j.shortName } : {}),
+    purpose: publicCopy?.purpose ?? j.purpose,
     categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
     goal: j.goal,
     channels: publicJourneyFlowChannels(j.id) ?? actualPublicChannels(j),
-    entityScope: j.entity.scope,
-    entityNote: j.entity.note,
-    reusableRule: j.reusableRule,
-    guardrails: j.guardrails,
+    entityScope: publicCopy?.entityScope ?? j.entity.scope,
+    entityNote: publicCopy?.entityNote ?? j.entity.note,
+    reusableRule: publicCopy?.reusableRule ?? j.reusableRule,
+    guardrails: publicCopy?.guardrails ?? j.guardrails,
     distinctFrom: (j.distinctFrom ?? []).map((d) => {
       const target = byId(d.journey);
       return {
