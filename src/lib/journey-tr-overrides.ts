@@ -2,6 +2,7 @@ import type { FlowNode, JourneyDetail } from "@/lib/canonical-view";
 import { externalTargetName, splitExitState } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
 import { publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
+import { publicJourneyCopy } from "@/lib/journey-public-copy";
 
 /* JOURNEY CANVAS LOCALIZATION for the TR site - applied on top of the
    shared canonical projection at render time, never a change to
@@ -4360,11 +4361,18 @@ function localizeNodeContent(node: FlowNode, override: NodeOverride | undefined)
     this file or its call sites. */
 export function localizedJourneyDetail(detail: JourneyDetail, lang: Lang): JourneyDetail {
   if (lang !== "tr") return detail;
+  const publicCopy = publicJourneyCopy(detail.id, "tr");
   const override = OVERRIDES[detail.id];
   const reviewedFlow = publicJourneyFlowNodes(detail.id, "tr");
   const structured = detail.nodes.map((n) => localizeStructural(n));
   return {
     ...localizedJourneyNaming(detail, lang),
+    ...(publicCopy ? {
+      reusableRule: publicCopy.reusableRule,
+      entityScope: publicCopy.entityScope,
+      entityNote: publicCopy.entityNote,
+      guardrails: publicCopy.guardrails,
+    } : {}),
     /* A "distinct from" row names ANOTHER journey - by that journey's own
        canonical `name`, which is in this table under that journey's id. The
        `because` sentence beside it is an Info-tab field and is outside this
@@ -4410,15 +4418,16 @@ export type JourneyNaming = {
 
 export function localizedJourneyNaming<T extends JourneyNaming>(row: T, lang: Lang): T {
   if (lang !== "tr") return row;
+  const publicCopy = publicJourneyCopy(row.id, "tr");
   const override = OVERRIDES[row.id];
   return {
     ...row,
     categoryTitle: localizedCategoryTitle(row.categoryTitle, lang),
-    name: override?.name ?? row.name,
-    ...(row.shortName !== undefined || override?.shortName !== undefined
-      ? { shortName: override?.shortName ?? row.shortName }
+    name: publicCopy?.name ?? override?.name ?? row.name,
+    ...(row.shortName !== undefined || publicCopy?.shortName !== undefined || override?.shortName !== undefined
+      ? { shortName: publicCopy?.shortName ?? override?.shortName ?? row.shortName }
       : {}),
-    purpose: override?.purpose ?? row.purpose,
+    purpose: publicCopy?.purpose ?? override?.purpose ?? row.purpose,
   };
 }
 
