@@ -5,7 +5,7 @@ import { journeyIdForLocalizedSlug, TR_LOCALIZED_JOURNEY_SLUGS } from "@/lib/jou
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return [...ALL_DETAIL_SLUGS, ...TR_LOCALIZED_JOURNEY_SLUGS].map((slug) => ({ slug }));
+  return [...ALL_DETAIL_SLUGS.filter((slug) => slug !== "lead-nurture"), ...TR_LOCALIZED_JOURNEY_SLUGS].map((slug) => ({ slug }));
 }
 
 export default async function InterceptedJourney({ params }: { params: Promise<{ slug: string }> }) {
