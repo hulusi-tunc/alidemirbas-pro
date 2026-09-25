@@ -3,6 +3,7 @@ import { externalTargetName, splitExitState } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
 import { publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
 import { publicJourneyCopy } from "@/lib/journey-public-copy";
+import { publicJourneyCategoryLabel } from "@/lib/journey-public-categories";
 
 /* JOURNEY CANVAS LOCALIZATION for the TR site - applied on top of the
    shared canonical projection at render time, never a change to
@@ -4422,7 +4423,7 @@ export function localizedJourneyNaming<T extends JourneyNaming>(row: T, lang: La
   const override = OVERRIDES[row.id];
   return {
     ...row,
-    categoryTitle: localizedCategoryTitle(row.categoryTitle, lang),
+    categoryTitle: publicJourneyCategoryLabel(row.id, "tr") ?? localizedCategoryTitle(row.categoryTitle, lang),
     name: publicCopy?.name ?? override?.name ?? row.name,
     ...(row.shortName !== undefined || publicCopy?.shortName !== undefined || override?.shortName !== undefined
       ? { shortName: publicCopy?.shortName ?? override?.shortName ?? row.shortName }
