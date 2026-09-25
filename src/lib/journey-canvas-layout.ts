@@ -221,7 +221,7 @@ function sizeOf(d: DisplayNode): { width: number; height: number } {
   let base = SIZE[d.node.kind];
 
   if (d.node.kind === "action") {
-    if (d.node.execution === "communication") base = { width: 300, height: 132 };
+    if (d.node.execution === "communication") base = { width: 280, height: 96 };
     else if (d.node.execution === "human") base = { width: 252, height: 108 };
     else if ((d.node.channelPriority?.length ?? 0) >= 2) base = { width: 280, height: 58 };
     else base = { width: 252, height: 44 };
