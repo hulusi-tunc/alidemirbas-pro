@@ -366,6 +366,39 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 278 journeys / 3709 nodes (2026-09-25). SUB-163
+// (Renewal Decision) was rebuilt to match a reference flowchart the site
+// owner supplied, literal box for box: an auto-renewal-status fork now
+// runs each side as its own fixed reminder cascade. The auto-renewing
+// side gives its required notice, waits a fixed span, rechecks for a
+// cancellation or a plan change, then either reaches the term end
+// unchanged and exits through the existing h.execute handoff to SUB-164,
+// or splits what the image draws as one generic "hand off to the
+// relevant journey" box into the existing h.scheduled-end handoff to
+// SUB-168 (a cancellation) and a genuinely new h.change handoff to
+// SUB-166 (a plan or terms change) - SUB-166 is a real, distinct
+// plan-change validation journey the corpus already carries, not
+// invented for this. The manually-renewing side asks once by email, then
+// reminds by push and finally by WhatsApp, each gated by its own renewal
+// recheck; a real no-renewal outcome at the end of that cascade now hands
+// off (h.lapsed, new) to RET-32 (Lapsed Customer Win-Back), matching the
+// image's own "Kayıp Müşteri Geri Kazanma" box exactly - RET-32 itself is
+// untouched. h.undefined -> DEC-181 (undefined notice period or renewing
+// terms) is kept as an entry guard the image itself never draws.
+// h.escalate -> OWN-55 had no home in the rebuilt graph: the reference
+// image draws only fixed-window reminder waits, never the old model's
+// open-ended review state, so the review/escalation path (a.review,
+// w.review, h.escalate, a.request, c.model, c.blockers, w.decision,
+// a.default, c.decision, x.superseded) was dropped rather than force-fit
+// onto an unrelated wait. Same id/slug, so nothing that referenced
+// SUB-163 needs to change (it had no real inbound handoffs). channels
+// moved from email/in-app/sms to email/push/whatsapp to match the image;
+// implementation.attributes dropped decision_holder, blockers,
+// has_active_session and urgent_channel_permission and gained push_token
+// and phone_number. 20 -> 29 nodes on SUB-163, +9 net corpus-wide.
+// Journey count (278), rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 278 journeys / 3700 nodes (2026-09-25). FUL-146
 // (Fulfillment Delay) was rebuilt to match a reference flowchart the site
 // owner supplied, literal box for box: the estimate check now splits into
@@ -968,9 +1001,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (278 journeys / 3700 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (278 journeys / 3709 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 278 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3700 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3709 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

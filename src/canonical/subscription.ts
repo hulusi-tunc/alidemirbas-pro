@@ -738,8 +738,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "renewal-decision",
     category: "subscription",
     goal: "eligibility-qualification",
-    channels: ["email", "in-app", "sms"],
-    name: "Renewal window → eligibility → renew, non-renew or review",
+    channels: ["email", "push", "whatsapp"],
+    name: "Renewal window → auto-renewal status fork → renewed, redirected or lapsed",
     shortName: "Renewal Reminder",
     purpose:
       "Reach a decision about the next term, as a decision - separate from anything that makes the next term real.",
@@ -764,10 +764,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "RET-292 recognises an anniversary, which carries no obligation and no deadline - nothing happens if it is ignored. This counts down to a renewal decision the governing terms require, with a notice period, a decision holder and a default the terms themselves define if nobody answers.",
       },
     ],
-    objective: "Bring a renewal cycle to a recorded decision before the notice deadline: give the notice the terms require, put the decision to whoever holds it where one is needed, and apply what the terms say when none is made.",
+    objective: "Bring a renewal cycle to a recorded outcome by the term end: notice or invite according to the relationship's own auto-renewal setting, and run each branch's own fixed reminder cascade through to whichever real outcome the relationship's response reaches.",
     eligibility: [
       "a renewal decision window has opened on a continuing relationship with a current term",
-      "the renewal terms, model and required notice are defined - or the cycle goes to decision resolution first",
+      "the renewal model - whether the relationship auto-renews or requires an explicit renewal - the required notice, and the renewing terms are defined, or the cycle goes to decision resolution first",
       "no renewal instance is already open for this cycle",
       "no open payment recovery process exists on the relationship - payment recovery owns the relationship until it resolves"
     ],
@@ -778,34 +778,24 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         "text": "A window with no defined notice period or renewing terms goes to decision resolution (DEC-181); nothing is asked or noticed on undefined terms."
       },
       {
-        "id": "s.blocked",
-        "label": "CANONICAL_RULE",
-        "text": "An outstanding blocker puts the cycle in review; the relationship stays active on its current term throughout and no decision is requested until the blocker is settled."
-      },
-      {
         "id": "s.decided",
         "label": "CANONICAL_RULE",
-        "text": "A recorded, authorised decision ends asking; nothing further is sent by this journey once the decision exists."
+        "text": "A recorded outcome - a renewal, a cancellation, or a plan change - ends the cascade; nothing further is sent by this journey once one exists."
       },
       {
-        "id": "s.asking-not-deciding",
+        "id": "s.superseded",
         "label": "CANONICAL_RULE",
-        "text": "Putting the decision to its holder is not deciding; a non-response is resolved by what the governing terms define, never assumed."
+        "text": "Every touch re-reads the relationship first; a cancellation, plan change or renewal found on that re-read ends the cascade at that point rather than sending a message that no longer applies."
       },
       {
         "id": "s.payment-recovery",
         "label": "CANONICAL_RULE",
-        "text": "An open payment recovery process on the relationship suppresses the renewal decision request entirely; a routine renewal ask is not put to someone whose current term is already in question over an unresolved payment failure."
+        "text": "An open payment recovery process on the relationship suppresses the renewal cascade entirely; a routine renewal message is not sent to someone whose current term is already in question over an unresolved payment failure."
       },
       {
         "id": "s.hard-gates",
         "label": "CANONICAL_RULE",
-        "text": "Hard gates (GLB-31) apply; pressure caps do not to the required notice, which is an obligation of the terms rather than outreach."
-      },
-      {
-        "id": "s.notice-already-given",
-        "label": "CANONICAL_RULE",
-        "text": "Where the notice has already been sent on this cycle, a later decision request restates the decision needed and its deadline, and does not restate the terms the notice already carried - two near-identical messages about one renewal is a duplicate, not reassurance."
+        "text": "Hard gates (GLB-31) apply; pressure caps do not apply to the auto-renewal notice, which is an obligation of the terms rather than outreach."
       }
     ],
     contact: {
@@ -814,12 +804,12 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "renewal.discretionary_touches",
-          "rule": "Only the decision request counts against the cap; the notice the terms require is an obligation, not a touch to ration.",
+          "rule": "Only the manual-renewal branch's invite and its two reminders, or the auto-renewal branch's approaching-notice push, count against the cap; the auto-renewal notice the terms require is an obligation, not a touch to ration.",
           "default": {
-            "value": 1,
-            "confidence": "high",
+            "value": 3,
+            "confidence": "medium",
             "basis": "corpus-rule",
-            "applicableWhen": "the graph puts the decision once"
+            "applicableWhen": "GLB-24; the graph's own longest discretionary path - the manual-renewal branch's invite, its ending-soon push and its final WhatsApp reminder"
           },
           "required": false
         },
@@ -845,19 +835,19 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
     "channelStrategy": {
       "roles": [
         {
-          "role": "in-session",
-          "channels": ["in-app"],
-          "when": "has_active_session is true and the decision holder can review and act on the renewal decision inside the current relationship surface"
+          "role": "persistent",
+          "channels": ["email"],
+          "when": "the message carries terms, a price or a plan the person needs to keep or return to - the auto-renewal notice, or the manual-renewal branch's invite"
         },
         {
           "role": "urgent",
-          "channels": ["sms"],
-          "when": "urgent_channel_permission is true and the decision has entered the final actionable part of the notice period before term_end_at"
+          "channels": ["push"],
+          "when": "the reminder falls inside the cascade's own fixed pre-deadline window and permission for push is recorded"
         },
         {
-          "role": "persistent",
-          "channels": ["email"],
-          "when": "the notice or renewing terms must be kept, or neither contextual nor urgent routing applies"
+          "role": "low-friction",
+          "channels": ["whatsapp"],
+          "when": "the final reminder needs a route that still reaches someone who has not acted on either earlier touch, with permission for messages on this route recorded"
         }
       ],
       "fallback": "none",
@@ -868,13 +858,12 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "touches": [
         {
           "id": "t-notice",
-          "stage": "required-notice",
-          "action": "a.notice",
+          "stage": "auto-renewal-notice",
+          "action": "a.notice-auto",
           "prerequisites": [
-            "c.notice",
-            "c.notice-required"
+            "c.auto-renew"
           ],
-          "purpose": "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if no decision is made.",
+          "purpose": "Give the notice that the relationship will auto-renew: the new term's price, the plan, the payment method on file, and a link to make changes.",
           "channelRoles": [
             "persistent"
           ],
@@ -884,21 +873,38 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           },
           "mandatory": true,
           "priority": "transactional",
-          "priorityReason": "a notice the governing terms require is an obligation of the relationship, not outreach; it is never rationed or deferred",
+          "priorityReason": "a notice that an auto-renewal is about to take effect is an obligation of the relationship, not outreach; it is never rationed or deferred",
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t-request",
-          "stage": "decision-request",
-          "action": "a.request",
+          "id": "t-approaching",
+          "stage": "approaching-notice",
+          "action": "a.push-approaching",
+          "after": "t-notice",
+          "gatedBy": "w.left1",
           "prerequisites": [
-            "c.blockers",
-            "c.model"
+            "c.cancel-or-change"
           ],
-          "purpose": "Put the renewal decision to whoever holds it - the terms that would apply and the point by which the notice period requires an answer, or, where the notice has already gone out this cycle, the decision needed restated without the terms it already carried.",
+          "purpose": "Say the renewal date is approaching, sent only where no cancellation or plan change has been recorded since the notice.",
           "channelRoles": [
-            "in-session",
-            "urgent",
+            "urgent"
+          ],
+          "destination": {
+            "target": "renewal-terms",
+            "boundTo": "renewal_cycle_id"
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        },
+        {
+          "id": "t-invite",
+          "stage": "renewal-invite",
+          "action": "a.invite",
+          "prerequisites": [
+            "c.auto-renew"
+          ],
+          "purpose": "Ask whether the person wants to renew: the time remaining, the new term's benefits, the price, and a call to action to renew.",
+          "channelRoles": [
             "persistent"
           ],
           "destination": {
@@ -910,13 +916,52 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           },
           "mandatory": false,
           "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-ending",
+          "stage": "ending-notice",
+          "action": "a.push-ending",
+          "after": "t-invite",
+          "gatedBy": "w.right1",
+          "prerequisites": [
+            "c.renewed1"
+          ],
+          "purpose": "Say the membership is about to end, sent only where no renewal has been recorded since the invite.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "destination": {
+            "target": "renewal-decision",
+            "boundTo": "renewal_cycle_id"
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        },
+        {
+          "id": "t-final",
+          "stage": "final-reminder",
+          "action": "a.whatsapp-final",
+          "after": "t-ending",
+          "gatedBy": "w.right2",
+          "prerequisites": [
+            "c.renewed2"
+          ],
+          "purpose": "Send one final renewal reminder, sent only where no renewal has been recorded since the prior reminder.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "destination": {
+            "target": "renewal-decision",
+            "boundTo": "renewal_cycle_id"
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
         }
       ],
       "noAction": [
         "s.undefined-terms",
-        "s.blocked",
         "s.decided",
-        "s.asking-not-deciding",
+        "s.superseded",
         "s.payment-recovery",
         "s.hard-gates"
       ]
@@ -929,23 +974,23 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           "term_end_at",
           "renewal_model",
           "notice_period",
-          "renewing_terms",
-          "decision_holder"
+          "renewing_terms"
         ],
         "optional": [
-          "blockers",
-          "has_active_session",
-          "urgent_channel_permission"
+          "push_token",
+          "phone_number"
         ]
       }
     },
     measurement: {
       "journeyOutcome": {
-        "type": "handoff",
+        "type": "exit-or-handoff",
         "refs": [
+          "x.renewed",
           "h.execute",
           "h.scheduled-end",
-          "h.escalate",
+          "h.change",
+          "h.lapsed",
           "h.undefined"
         ]
       },
@@ -971,10 +1016,10 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "operational": [
         "window_volume",
         "undefined_terms_rate",
-        "notice_given_rate",
-        "decision_requested_rate",
-        "default_applied_rate",
-        "review_escalation_rate"
+        "auto_renew_execution_rate",
+        "cancellation_or_change_rate",
+        "manual_renewal_rate",
+        "lapsed_handoff_rate"
       ]
     },
     discovery: {
@@ -1000,19 +1045,20 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         event: "renewal_decision_window_opens",
         evidence: {
           requires: [
-            "a relationship whose term end is inside the renewal decision window its governing terms define",
+            "a continuing relationship with a current term whose renewal cycle has opened",
           ],
           insufficientAlone: [
             "a renewal reminder having been sent, which is a communication and not a decision window opening",
           ],
           source: "authoritative",
         },
+        detail: "Opens a fixed span before the term end - long enough for whichever branch's own reminder cascade to run its full course before the term ends.",
         next: "a.evaluate",
       },
       {
         id: "a.evaluate",
         kind: "action",
-        does: "Evaluate renewal eligibility, the renewal model, the relationship's current state, the notice the terms require, the pricing and terms that would apply, any outstanding blockers, and whether the counterparty has to decide at all",
+        does: "Evaluate the relationship's current state, whether it auto-renews or requires an explicit renewal, the renewing terms and required notice that would apply, and the term end the cascade counts down to",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "c.notice",
       },
@@ -1024,7 +1070,7 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Defined",
             when: "the governing terms state the notice period, the renewal model and the terms that would apply",
-            to: "c.notice-required",
+            to: "w.lead",
           },
           {
             label: "Not defined",
@@ -1044,190 +1090,188 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "c.notice-required",
-        kind: "condition",
-        asks: "Do the governing terms require notice to actually be given?",
-        branches: [
-          {
-            label: "Notice is required",
-            when: "the terms oblige us to tell them the term is renewing before it does",
-            to: "a.notice",
-          },
-          {
-            label: "No notice obligation",
-            when: "the terms define the model and the period but require no notification",
-            to: "c.blockers",
-          },
-        ],
-      },
-      {
-        id: "a.notice",
-        kind: "action",
-        does: "Give the notice the terms require: the renewal model that will apply, the terms it renews on, and what happens if they do nothing. Having defined a notice period is not the same as having given notice, and an auto-renew that reaches execution silently is exactly the case the obligation exists for. This is notice, not a request - it is never treated as the decision",
-        execution: "communication",
-        next: "c.blockers",
-        idempotencyKey: "renewal_cycle_id + touch id",
-      },
-      {
-        id: "c.blockers",
-        kind: "condition",
-        asks: "Does an outstanding blocker prevent the renewal from being decided?",
-        branches: [
-          {
-            label: "Blocked",
-            when: "an unresolved obligation, dispute or eligibility problem stands in the way",
-            to: "a.review",
-          },
-          {
-            label: "Clear",
-            when: "nothing outstanding prevents a decision",
-            to: "c.model",
-          },
-        ],
-      },
-      {
-        id: "c.model",
-        kind: "condition",
-        asks: "What does the renewal model require?",
-        branches: [
-          {
-            label: "Auto-renew, requirements met",
-            when: "the terms renew automatically and every condition for that is satisfied",
-            to: "a.decided",
-          },
-          {
-            label: "An explicit decision",
-            when: "the terms require the counterparty to choose",
-            to: "a.request",
-          },
-          {
-            label: "Review first",
-            when: "the terms require an internal decision before renewal can be offered",
-            to: "a.review",
-          },
-        ],
-      },
-      {
-        id: "a.request",
-        kind: "action",
-        does: "Put the renewal decision to whoever holds it - the terms that would apply, where the notice has not already gone out this cycle, and the decision needed restated without repeating those terms where it has. Asking is not deciding - a renewal notice sent is a communication, and treating the send as the answer renews relationships nobody agreed to",
-        writes: [{ field: "renewal_log", mode: "append" }],
-        next: "w.decision",
-        execution: "communication",
-        idempotencyKey: "renewal_cycle_id + touch id",
-      },
-      {
-        id: "w.decision",
+        id: "w.lead",
         kind: "wait",
         until: [
           "renewal_decision_recorded"
         ],
-        onEvent: "c.decision",
+        onEvent: "c.auto-renew",
         timeout: {
           "after": {
-            "key": "renewal.decision_deadline",
-            "rule": "The decision is waited for until the last point at which the required notice period still allows one; then the governing terms decide.",
-            "class": "attribute-bound",
+            "key": "renewal.cascade_lead_time",
+            "rule": "The reminder cascade begins a fixed span before the term end, long enough for either branch's own touches to finish before it.",
+            "class": "reminder-before-attribute",
             "default": {
-              "value": "the notice period the terms require, before the term ends",
+              "value": "30 days",
               "confidence": "high",
-              "basis": "attribute-bound"
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the reference cascade's own lead time before the term end"
             },
             "required": false
           },
-          "reason": "the notice period is what makes the deadline real - past it, the terms themselves determine what happens, and pretending the decision is still open misrepresents the relationship",
+          "reason": "starting the cascade earlier than either branch needs wastes the person's attention on a decision that is not yet actionable, and starting it later leaves too little room for the fixed reminder cascade to run",
           "relativeTo": "attribute",
           "attribute": "term_end_at"
         },
-        onTimeout: "a.default",
+        onTimeout: "c.auto-renew",
         windowExtendsOnEngagement: false,
-        recheck: "the cycle re-read: a decision recorded elsewhere, a cancellation in motion, the terms unchanged",
+        recheck: "the relationship re-read: the current auto-renewal setting, the term end date, and any decision already recorded before the cascade even began",
       },
       {
-        id: "a.default",
-        kind: "action",
-        does: "Apply what the governing terms define as the outcome when no decision is made - which for some renewal models is renewal and for others is non-renewal. Record that no decision was made rather than recording a decision, because someone who did not answer did not agree",
-        writes: [{ field: "renewal_log", mode: "append" }],
-        next: "c.decision",
-        idempotencyKey: "renewal_cycle_id + default outcome",
-      },
-      {
-        id: "c.decision",
+        id: "c.auto-renew",
         kind: "condition",
-        asks: "What is the outcome for the next term?",
+        asks: "Is auto-renewal turned on for this relationship?",
         branches: [
           {
-            label: "Cancellation in motion",
-            when: "the cycle re-read shows a cancellation now in motion on the relationship - this journey's own declared precedence is below an active cancellation, and resolving a renewal decision independently while one is in motion would contradict it",
-            to: "x.superseded",
+            label: "Auto-renewal on",
+            when: "the relationship's renewal model is set to auto-renew",
+            observes: "renewal_model",
+            to: "a.notice-auto",
           },
           {
-            label: "Renew",
-            when: "the decision, or the terms' default, is to continue, and no cancellation is in motion",
-            to: "a.decided",
+            label: "Auto-renewal off",
+            when: "the relationship requires an explicit renewal from the counterparty",
+            observes: "renewal_model",
+            to: "a.invite",
           },
+        ],
+      },
+      {
+        id: "a.notice-auto",
+        kind: "action",
+        does: "Give notice that the relationship will auto-renew at the term end: the new term's price, the plan, the payment method on file, and a link to make changes",
+        execution: "communication",
+        next: "w.left1",
+        idempotencyKey: "renewal_cycle_id + touch id",
+      },
+      {
+        id: "w.left1",
+        kind: "wait",
+        until: [
+          "renewal_decision_recorded"
+        ],
+        onEvent: "c.cancel-or-change",
+        timeout: {
+          "after": {
+            "key": "renewal.left_recheck",
+            "rule": "A fixed span before the term end, after the auto-renewal notice, before checking whether the relationship is still auto-renewing.",
+            "class": "reminder-before-attribute",
+            "default": {
+              "value": "7 days",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the reference cascade's own pace between the auto-renewal notice and its approaching-notice push"
+            },
+            "required": false
+          },
+          "reason": "checking again partway through the cascade catches a cancellation or a plan change before the approaching-notice push repeats a message that no longer applies",
+          "relativeTo": "attribute",
+          "attribute": "term_end_at"
+        },
+        onTimeout: "c.cancel-or-change",
+        windowExtendsOnEngagement: false,
+        recheck: "the relationship re-read: a cancellation, a plan change, or the auto-renewal setting itself since changed",
+      },
+      {
+        id: "c.cancel-or-change",
+        kind: "condition",
+        asks: "Did the user cancel or change their plan since the auto-renewal notice?",
+        branches: [
           {
-            label: "Do not renew",
-            when: "the decision, or the terms' default, is to let the term end, and no cancellation is in motion",
+            label: "Cancelled",
+            when: "the counterparty cancelled the auto-renewal before it takes effect",
+            observes: "renewal_log",
             to: "a.non-renew",
           },
+          {
+            label: "Changed plan",
+            when: "the counterparty requested a plan or terms change instead of confirming or cancelling the auto-renewal",
+            observes: "renewal_log",
+            to: "a.change-requested",
+          },
+          {
+            label: "Neither",
+            when: "no cancellation or change is recorded since the auto-renewal notice",
+            observes: "renewal_log",
+            to: "a.push-approaching",
+          },
         ],
       },
       {
-        id: "x.superseded",
-        kind: "exit",
-        state: "renewal decision suppressed; a cancellation in motion on the relationship takes precedence",
-        terminal: false,
-        reEntry:
-          "the cancellation's own resolution decides what happens next - if it is withdrawn, the renewal cycle re-opens fresh rather than resuming a decision made under a since-lifted cancellation",
-        class: "suppression",
-      },
-      {
-        id: "a.review",
+        id: "a.non-renew",
         kind: "action",
-        does: "Record that the renewal is under review, with what has to be settled. The relationship stays active on its current term throughout - a renewal under review is not a relationship in trouble",
+        does: "Record NON_RENEWING with the effective end being the current term's end, since the auto-renewal was cancelled before it took effect. The relationship is still active and still governed by its current term - non-renewing is a decision about the next term and says nothing about this one",
         writes: [{ field: "renewal_log", mode: "append" }],
-        next: "w.review",
-        idempotencyKey: "renewal_cycle_id + relationship_id + a.review",
+        next: "h.scheduled-end",
+        idempotencyKey: "renewal_cycle_id + relationship_id + a.non-renew",
       },
       {
-        id: "w.review",
+        id: "h.scheduled-end",
+        kind: "handoff",
+        to: "SUB-168",
+        on: "a non-renewal scheduling an end at the current term's end",
+        carries: [
+          "the effective end date and the relationship version the decision was made against",
+          "the explicit fact that a later renewal, resubscription or plan change supersedes this and must suppress it",
+        ],
+      },
+      {
+        id: "a.change-requested",
+        kind: "action",
+        does: "Record that the counterparty requested a plan or terms change instead of confirming or cancelling the auto-renewal, with the relationship version the request was raised against",
+        writes: [{ field: "renewal_log", mode: "append" }],
+        next: "h.change",
+        idempotencyKey: "renewal_cycle_id + relationship_id + a.change-requested",
+      },
+      {
+        id: "h.change",
+        kind: "handoff",
+        to: "SUB-166",
+        on: "a plan or terms change requested in place of confirming or cancelling an auto-renewal",
+        carries: [
+          "the relationship and the change requested",
+          "the relationship version the request was raised against",
+        ],
+      },
+      {
+        id: "a.push-approaching",
+        kind: "action",
+        does: "Push that the renewal date is approaching",
+        execution: "communication",
+        next: "w.left2",
+        idempotencyKey: "renewal_cycle_id + touch id",
+      },
+      {
+        id: "w.left2",
         kind: "wait",
         until: [
           "renewal_decision_recorded"
         ],
-        onEvent: "c.decision",
+        onEvent: "a.decided",
         timeout: {
           "after": {
-            "key": "renewal.notice_deadline",
-            "rule": "A review that outlives the notice deadline is escalated to ownership; the relationship stays on its current term meanwhile.",
+            "key": "renewal.term_end",
+            "rule": "The wait ends at the term end itself, once the approaching-notice push has already gone out.",
             "class": "attribute-bound",
             "default": {
-              "value": "the notice period the terms require, before the term ends",
+              "value": "the term end itself, with no further lead time",
               "confidence": "high",
               "basis": "attribute-bound"
             },
             "required": false
           },
-          "reason": "a review that outlives the notice period has removed the counterparty's ability to plan, whichever way it eventually goes",
+          "reason": "the approaching-notice push already said the renewal date was near; nothing more is owed before the term end itself decides it",
           "relativeTo": "attribute",
           "attribute": "term_end_at"
         },
-        onTimeout: "h.escalate",
+        onTimeout: "a.decided",
         windowExtendsOnEngagement: false,
-        recheck: "the review re-read: concluded with an authorised decision, still open, or a cancellation now in motion on the relationship",
-      },
-      {
-        id: "h.escalate",
-        kind: "handoff",
-        to: "OWN-55",
-        on: "a renewal review outliving the notice period",
-        carries: ["the relationship, its term end and what the review is waiting on"],
+        recheck: "the relationship re-read: still auto-renewing, still on its current term, with no cancellation or change now in motion",
       },
       {
         id: "a.decided",
         kind: "action",
-        does: "Record the renewal as decided, with the new term's dates and the terms that would apply. Decided is not renewed - the new term does not exist until its own requirements have been met, and a relationship can sit here and still lapse",
+        does: "Record the renewal as decided, with the new term's dates and the terms that would apply, reached because the term end arrived with the auto-renewal still standing and nothing having changed since the last check. Decided is not renewed - the new term does not exist until SUB-164's own requirements have been met, and a relationship can sit here and still lapse",
         writes: [{ field: "renewal_log", mode: "append" }],
         next: "h.execute",
         idempotencyKey: "renewal_cycle_id + relationship_id + a.decided",
@@ -1244,21 +1288,193 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
         contract: { requiredFields: ["renewal_cycle_id"] },
       },
       {
-        id: "a.non-renew",
+        id: "a.invite",
         kind: "action",
-        does: "Record NON_RENEWING with the effective end being the current term's end. The relationship is still active and still governed by its current term - non-renewing is a decision about the next term and says nothing about this one",
-        writes: [{ field: "renewal_log", mode: "append" }],
-        next: "h.scheduled-end",
-        idempotencyKey: "renewal_cycle_id + relationship_id + a.non-renew",
+        does: "Ask whether the person wants to renew: the time remaining, the new term's benefits, the price, and a call to action to renew. Asking is not deciding - a renewal invitation sent is a communication, and treating the send as the answer renews a relationship nobody agreed to",
+        execution: "communication",
+        next: "w.right1",
+        idempotencyKey: "renewal_cycle_id + touch id",
       },
       {
-        id: "h.scheduled-end",
+        id: "w.right1",
+        kind: "wait",
+        until: [
+          "renewal_decision_recorded"
+        ],
+        onEvent: "c.renewed1",
+        timeout: {
+          "after": {
+            "key": "renewal.right_first_window",
+            "rule": "A fixed span after the renewal invite, before checking whether they renewed.",
+            "class": "response-window",
+            "default": {
+              "value": "7 days",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the reference cascade's own pace after the renewal invite"
+            },
+            "required": false
+          },
+          "reason": "a short wait after the invite gives them room to act on it before a second touch repeats the same ask",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "c.renewed1",
+        windowExtendsOnEngagement: false,
+        recheck: "the relationship re-read for a renewal recorded since the invite went out",
+      },
+      {
+        id: "c.renewed1",
+        kind: "condition",
+        asks: "Did they renew?",
+        branches: [
+          {
+            label: "Yes",
+            when: "a renewal is recorded since the invite went out",
+            observes: "renewal_decision_recorded",
+            to: "x.renewed",
+          },
+          {
+            label: "No",
+            when: "no renewal is recorded since the invite went out",
+            observes: "renewal_decision_recorded",
+            to: "a.push-ending",
+          },
+        ],
+      },
+      {
+        id: "x.renewed",
+        kind: "exit",
+        state: "renewed before the term ended",
+        terminal: false,
+        reEntry:
+          "the next term's own renewal cycle opens its own instance once it in turn approaches its term end",
+        class: "success",
+      },
+      {
+        id: "a.push-ending",
+        kind: "action",
+        does: "Push that the membership is about to end",
+        execution: "communication",
+        next: "w.right2",
+        idempotencyKey: "renewal_cycle_id + touch id",
+      },
+      {
+        id: "w.right2",
+        kind: "wait",
+        until: [
+          "renewal_decision_recorded"
+        ],
+        onEvent: "c.renewed2",
+        timeout: {
+          "after": {
+            "key": "renewal.right_second_window",
+            "rule": "A short fixed span before the term end, after the ending-soon push, before checking again whether they renewed.",
+            "class": "reminder-before-attribute",
+            "default": {
+              "value": "1 to 2 days",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the reference cascade's own pace before its final WhatsApp reminder"
+            },
+            "required": false
+          },
+          "reason": "a short wait after the ending-soon push catches a late renewal before the final reminder goes out on top of one",
+          "relativeTo": "attribute",
+          "attribute": "term_end_at"
+        },
+        onTimeout: "c.renewed2",
+        windowExtendsOnEngagement: false,
+        recheck: "the relationship re-read for a renewal recorded since the ending-soon push",
+      },
+      {
+        id: "c.renewed2",
+        kind: "condition",
+        asks: "Did they renew?",
+        branches: [
+          {
+            label: "Yes",
+            when: "a renewal is recorded since the ending-soon push",
+            observes: "renewal_decision_recorded",
+            to: "x.renewed",
+          },
+          {
+            label: "No",
+            when: "no renewal is recorded since the ending-soon push",
+            observes: "renewal_decision_recorded",
+            to: "a.whatsapp-final",
+          },
+        ],
+      },
+      {
+        id: "a.whatsapp-final",
+        kind: "action",
+        does: "Send a final renewal reminder",
+        execution: "communication",
+        next: "w.right3",
+        idempotencyKey: "renewal_cycle_id + touch id",
+      },
+      {
+        id: "w.right3",
+        kind: "wait",
+        until: [
+          "renewal_decision_recorded"
+        ],
+        onEvent: "c.renewed3",
+        timeout: {
+          "after": {
+            "key": "renewal.right_final_window",
+            "rule": "The wait ends once the term end has passed, with the final reminder already sent.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "the term end having passed, with no further reminder due",
+              "confidence": "high",
+              "basis": "attribute-bound"
+            },
+            "required": false
+          },
+          "reason": "the final reminder has already gone; waiting past the term end confirms whether it worked before handing the relationship to win-back outreach",
+          "relativeTo": "attribute",
+          "attribute": "term_end_at"
+        },
+        onTimeout: "c.renewed3",
+        windowExtendsOnEngagement: false,
+        recheck: "the relationship re-read for a renewal recorded since the final reminder",
+      },
+      {
+        id: "c.renewed3",
+        kind: "condition",
+        asks: "Did they renew?",
+        branches: [
+          {
+            label: "Yes",
+            when: "a renewal is recorded since the final reminder",
+            observes: "renewal_decision_recorded",
+            to: "x.renewed",
+          },
+          {
+            label: "No",
+            when: "no renewal is recorded anywhere across the full reminder cascade",
+            observes: "renewal_decision_recorded",
+            to: "a.lapsed",
+          },
+        ],
+      },
+      {
+        id: "a.lapsed",
+        kind: "action",
+        does: "Record the relationship as lapsed, with the term having ended and no renewal decision ever recorded across the full reminder cascade",
+        writes: [{ field: "renewal_log", mode: "append" }],
+        next: "h.lapsed",
+        idempotencyKey: "renewal_cycle_id + relationship_id + a.lapsed",
+      },
+      {
+        id: "h.lapsed",
         kind: "handoff",
-        to: "SUB-168",
-        on: "a non-renewal scheduling an end at the current term's end",
+        to: "RET-32",
+        on: "a manual-renewal relationship reaching its term end with no renewal decision recorded after the full reminder cascade",
         carries: [
-          "the effective end date and the relationship version the decision was made against",
-          "the explicit fact that a later renewal, resubscription or plan change supersedes this and must suppress it",
+          "the relationship and its lapsed term",
+          "the explicit fact that no decision was ever made - the term simply ran out unrenewed",
         ],
       },
     ],
@@ -1266,9 +1482,8 @@ export const SUBSCRIPTION_JOURNEYS: readonly CanonicalJourney[] = [
       "Renewal eligible is not renewed.",
       "A renewal communication is not a renewal decision.",
       "Renewal notice periods and renewing terms are never invented.",
-      "A relationship under renewal review stays active on its current term.",
       "A relationship with a cancellation already in motion, or with an active risk state, is not sent a routine renewal message. The lifecycle that already owns the person takes precedence, and a renewal reminder arriving during a cancellation reads as a system that is not paying attention.",
-      "A cancellation that starts in motion after the decision request was already sent is not resolved as a renewal or a non-renewal - w.decision's and w.review's own recheck surface it, and c.decision's own branch defers to it (x.superseded) rather than letting a stale wait resolve to a decision the relationship no longer stands behind.",
+      "A cancellation, plan change or renewal recorded after a touch was already sent is resolved from the relationship's current state, not from a stale copy - every wait's own recheck reads it fresh before acting on its timeout.",
     ],
     reusableRule:
       "Renewal is a new term decision governed by the current relationship state and applicable renewal rules.",
