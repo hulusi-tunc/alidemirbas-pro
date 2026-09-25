@@ -1175,12 +1175,12 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   "ACQ-288": {
   shortName: "Sepet Terk Etme Kurtarma",
   name: "Sepete ürün eklendi → checkout başlamadı → satın alma, checkout'a devir veya terk",
-  purpose: "Sepetine ürün ekleyip checkout'a geçmeyen kişiyi geri getiren bir hatırlatma dizisi kurmak; en yüksek değerli sepetlerde daha doğrudan bir kanala geçmek, checkout başlar başlamaz Checkout Abandonment'a devretmek ve satın alma zaten gerçekleştiyse bir daha mesaj göndermemek.",
+  purpose: "Sepetine ürün ekleyip checkout'a geçmeyen kişiyi, en yüksek değerli sepetlerde son adımda daha doğrudan bir kanala geçen üç adımlı bir hatırlatma dizisiyle geri getirmek; checkout başlar başlamaz Checkout Abandonment'a devretmek ve satın alma zaten gerçekleştiyse bir daha mesaj göndermemek.",
   nodes: {
     "t.added": { headline: "Sepete ürün eklendi" },
     "w.first": {
       headline: "satın alma tamamlanana, checkout başlayana, sepet boşalana veya süresi dolana kadar",
-      detail: "Zaman aşımı: kişiye sepete kendi başına dönmesi için süre tanı. (örnek: 2 saat; ayarla: cart_abandonment.first_check)",
+      detail: "Zaman aşımı: kişiye sepete kendi başına dönmesi için kısa, sabit bir süre tanı. (ayarla: cart_abandonment.first_check)",
     },
     "c.state1": {
       headline: "Sepet şu anda ne durumda?",
@@ -1202,39 +1202,24 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       headline: "İlk hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
     },
     "a.router1": {
-      headline: "Bu hatırlatmanın gerçekten ulaşabileceği en yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
+      headline: "Bu hatırlatma için push kanalını seç: geçerli, güncel bir push jetonu kayıtlı ve bunu kapsayan izin hâlâ geçerli. Push'a ulaşılamıyorsa, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
     "a.reminder1": {
-      headline: "Az önce seçilen kanal üzerinden ilk sepet hatırlatmasını gönder; sepeti şu anki hâliyle - platformun hâlâ kullanılabilir saydığı ürünleri ve güncel fiyatlarını - göster ve sepete dönüş bağlantısını ekle. Sistemin doğrulamadığı hiçbir şey iddia edilmez: rezerve stok, tutulan fiyat, indirim veya son tarih yok.",
+      headline: "İlk sepet hatırlatmasını push ile gönder: sepetindeki ürünlerin hâlâ kişiyi beklediğine dair kısa, öz bir hatırlatma ve sepete dönüş bağlantısı. Sistemin doğrulamadığı hiçbir şey iddia edilmez: rezerve stok, tutulan fiyat, indirim veya son tarih yok.",
     },
     "w.second": {
-      headline: "satın alma tamamlanana, checkout başlayana, sepet boşalana veya süresi dolana kadar",
-      detail: "Zaman aşımı: ilk hatırlatmanın gerçekten işe yarayıp yaramadığını görmek için yeterli süre tanı, ikinci ve daha doğrudan bir temasın gerekip gerekmediğine ondan sonra karar ver. (örnek: 20–24 saat; ayarla: cart_abandonment.second_check)",
+      headline: "satın alma tamamlanana, sepet boşalana veya süresi dolana kadar",
+      detail: "Zaman aşımı: ilk hatırlatmanın kısa, sabit bir süre içinde işe yarayıp yaramadığını gör, ikinci temasın gerekip gerekmediğine ondan sonra karar ver. (ayarla: cart_abandonment.second_check)",
     },
     "c.state2": {
       headline: "Sepet şu anda ne durumda?",
       edges: [
         { label: "Satın alındı", detail: "bu sepetten en az bir ürünü içeren yetkili bir satın alma veya sipariş kaydı mevcut" },
-        { label: "Checkout başladı", detail: "bu sepetten yetkili bir checkout kaydı açıldı" },
         { label: "Boşaldı veya süresi doldu", detail: "kişi tüm ürünleri kaldırdı, sepeti sildi veya sepetin tutma ya da oturum süresi doldu" },
-        { label: "Hâlâ duruyor", detail: "sepet, platformun hâlâ kullanılabilir saydığı en az bir ürünü tutuyor, hiçbir sipariş kaydedilmedi ve hiçbir checkout açılmadı" },
+        { label: "Hâlâ duruyor", detail: "sepet, platformun hâlâ kullanılabilir saydığı en az bir ürünü tutuyor ve hiçbir sipariş kaydedilmedi" },
       ],
     },
-    "c.highvalue": {
-      headline: "Yüksek değerli bir sepet mi?",
-      edges: [
-        { label: "Yüksek değerli", detail: "sepetin değeri, uygulayan şirketin yapılandırdığı yüksek-değer eşiğinin üzerinde veya eşitidir - burada hiçbir değer belirtilmez" },
-        { label: "Standart", detail: "sepetin değeri yapılandırılan eşiğin altındadır" },
-      ],
-    },
-    "c.sendable2-hv": {
-      headline: "Yüksek değerli ikinci hatırlatma gönderilebilir mi?",
-      edges: [
-        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon iletişim yoğunluğu limiti, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir bekleme süresi bulunmaması" },
-        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
-      ],
-    },
-    "c.sendable2-std": {
+    "c.sendable2": {
       headline: "İkinci hatırlatma gönderilebilir mi?",
       edges: [
         { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon iletişim yoğunluğu limiti, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir bekleme süresi bulunmaması" },
@@ -1244,45 +1229,69 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.record-no-action-t2": {
       headline: "İkinci hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
     },
-    "a.router2-hv": {
-      headline: "En öncelikli doğrudan kanalı seç: önce WhatsApp (geçerli bir telefon numarası kayıtlıysa ve numara WhatsApp üzerinden ulaşılabilirse), yoksa SMS (geçerli bir telefon numarası kayıtlıysa). Yüksek değerli bir sepet, ilk temasın bir tekrarını değil, daha doğrudan bir kanal alır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
+    "a.router2": {
+      headline: "Bu hatırlatma için e-posta kanalını seç: geçerli, ulaşılabilir bir e-posta adresi kayıtlı. E-posta, sepetin ürünlerini, onlar için platformun şu anda belirttiği fayda veya kampanyayı ve checkout bağlantısını taşıyabilen, kişi dönene kadar dayanabilen kanaldır. E-postaya ulaşılamıyorsa, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
-    "a.reminder2-hv": {
-      headline: "Az önce seçilen kanal üzerinden ikinci sepet hatırlatmasını gönder; yüksek değerli bir sepetin gerektirdiği daha doğrudan üslubu kullan ve sepeti şu anki hâliyle göster.",
-    },
-    "a.router2-std": {
-      headline: "En yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Öncelik sırası ilk temasla aynıdır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
-    },
-    "a.reminder2-std": {
-      headline: "Az önce seçilen kanal üzerinden ikinci sepet hatırlatmasını gönder; sepeti şu anki hâliyle - platformun hâlâ kullanılabilir saydığı ürünleri ve güncel fiyatlarını - göster ve sepete dönüş bağlantısını ekle.",
+    "a.reminder2": {
+      headline: "İkinci sepet hatırlatmasını e-posta ile gönder: hâlâ tutulan ürünler, onlar için platformun şu anda belirttiği fayda veya kampanya ve checkout'a giden bağlantı. Sistemin doğrulamadığı hiçbir şey iddia edilmez: rezerve stok, tutulan fiyat, indirim veya son tarih yok.",
     },
     "w.third": {
       headline: "satın alma tamamlanana, sepet boşalana veya süresi dolana kadar",
-      detail: "Zaman aşımı: son hatırlatmaya iki tam gün tanı; bu sürenin sonunda satın alma tamamlanmadıysa sepet terk edilmiş sayılır. (örnek: 48 saat; ayarla: cart_abandonment.final_check)",
+      detail: "Zaman aşımı: ikinci hatırlatmaya birkaç güne kadar süre tanı, değer eşiğine bağlı son temasın gerekip gerekmediğine ondan sonra karar ver. (ayarla: cart_abandonment.third_check)",
     },
     "c.state3": {
-      headline: "Kademenin sonunda sepet ne durumda?",
+      headline: "Sepet şu anda ne durumda?",
       edges: [
         { label: "Satın alındı", detail: "bu sepetten en az bir ürünü içeren yetkili bir satın alma veya sipariş kaydı mevcut" },
         { label: "Boşaldı veya süresi doldu", detail: "kişi tüm ürünleri kaldırdı, sepeti sildi veya sepetin tutma ya da oturum süresi doldu" },
-        { label: "Hâlâ duruyor", detail: "sepet, platformun hâlâ kullanılabilir saydığı en az bir ürünü tutuyor; başka hiçbir şey gönderilmez" },
+        { label: "Hâlâ duruyor", detail: "sepet, platformun hâlâ kullanılabilir saydığı en az bir ürünü tutuyor ve hiçbir sipariş kaydedilmedi" },
+      ],
+    },
+    "c.highvalue": {
+      headline: "Yüksek değerli bir sepet mi?",
+      edges: [
+        { label: "Yüksek değerli", detail: "sepetin değeri, uygulayan şirketin yapılandırdığı yüksek-değer eşiğinin üzerinde veya eşitidir - burada hiçbir değer belirtilmez" },
+        { label: "Standart", detail: "sepetin değeri yapılandırılan eşiğin altındadır - standart değerli bir sepet üçüncü bir temasa ulaşmaz" },
+      ],
+    },
+    "c.sendable3": {
+      headline: "Son hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon iletişim yoğunluğu limiti, kişi üzerinde daha yüksek öncelikli bir çakışma olmaması ve yürürlükte bir bekleme süresi bulunmaması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.record-no-action-t3": {
+      headline: "Son hatırlatmayı hangi kapının ve hangi sepet için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+    },
+    "a.router3": {
+      headline: "Bu yüksek değerli sepetin son hatırlatması için en öncelikli doğrudan kanalı seç: önce WhatsApp (geçerli bir telefon numarası kayıtlıysa ve numara WhatsApp üzerinden ulaşılabilirse), yoksa SMS (geçerli bir telefon numarası kayıtlıysa). Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
+    },
+    "a.reminder3": {
+      headline: "Az önce seçilen kanal üzerinden son sepet hatırlatmasını gönder; yüksek değerli bir sepetin gerektirdiği daha doğrudan üslupla: sepete dön ve alışverişini tamamla. Sistemin doğrulamadığı hiçbir aciliyet yoktur ve bundan sonra başka bir hatırlatma gönderilmez.",
+    },
+    "w.fourth": {
+      headline: "satın alma tamamlanana, sepet boşalana veya süresi dolana kadar",
+      detail: "Zaman aşımı: son hatırlatmaya kısa, sabit bir süre tanı; bu sürenin sonunda satın alma tamamlanmadıysa sepet terk edilmiş sayılır. (ayarla: cart_abandonment.final_check)",
+    },
+    "c.state4": {
+      headline: "Kademenin sonunda sepet ne durumda?",
+      edges: [
+        { label: "Satın alındı", detail: "bu sepetten en az bir ürünü içeren yetkili bir satın alma veya sipariş kaydı mevcut" },
+        { label: "Satın alınmadı", detail: "kademenin sonunda bu sepet için hiçbir satın alma kaydı yok - duruyor, boşalmış ya da süresi dolmuş olsun, başka hiçbir şey gönderilmez" },
       ],
     },
     "x.purchased": {
       headline: "Satın Alma Tamamlandı",
       detail: "kişi için yeni bir sepet kendi örneğini açar; bu örnekle ilgili hiçbir şey yeniden açılmaz",
     },
-    "x.cleared": {
-      headline: "Sepet Artık Aktif Değil",
-      detail: "kişi için yeni bir sepete-ürün-eklendi olayı yeni bir örnek açar",
-    },
     "x.abandoned": {
       headline: "Sepet Terk Edildi",
-      detail: "kişi için yeni bir sepete-ürün-eklendi olayı kendi saatiyle yeni bir örnek açar; bu örnek yeniden açılmaz",
+      detail: "hiçbir satın alma kaydedilmedi - kademe sepeti hâlâ tutarken sonuna ulaşmış olsun, sepet yol boyunca geçersiz hale gelmiş (boşalmış veya süresi dolmuş) olsun ya da standart değerli bir sepet değer eşiğine takılıp üçüncü temasa hiç ulaşmamış olsun; kişi için yeni bir sepete-ürün-eklendi olayı kendi saatiyle yeni bir örnek açar, bu örnek yeniden açılmaz",
     },
     "h.checkout": {
       headline: "Ödeme süreci başladı → tamamlanmadı → satın alma veya çıkış",
-      detail: "bu sepetten checkout başladı - o andan itibaren kurtarmayı Checkout Abandonment yürütür",
+      detail: "bu sepetten checkout başladı; bu, ilk beklemeden hemen sonra ve ilk hatırlatma gönderilmeden önce bir kez kontrol edilir - o andan itibaren kurtarmayı Checkout Abandonment yürütür",
     },
   },
   },

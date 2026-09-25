@@ -366,6 +366,24 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 275 journeys / 3665 nodes (2026-09-25). ACQ-288
+// (Cart Abandonment Recovery) was rebuilt to match a reference flowchart the
+// site owner supplied, literal box for box: the two-touch cascade became a
+// three-touch cascade (push, then email, then a value-gated final touch),
+// the high-value channel branch moved from the second touch to the third to
+// match the image's own placement of "Sepet değeri yüksek mi?", and a
+// standard-value cart now exits at that gate instead of receiving a third
+// touch. The checkout-started check was repositioned to fire once,
+// immediately after the first wait and before the first reminder is ever
+// sent, matching the image's own placement of "Checkout başladı mı?"; later
+// waits no longer re-check it. The single "cart cleared or expired" exit
+// was folded into the abandoned exit, since the image draws only two
+// terminal outcomes (purchased, abandoned) alongside the real handoff. The
+// one real outbound handoff to ACQ-287 (Checkout Abandonment Recovery) is
+// unchanged in destination, just repositioned to the image's placement.
+// Same id/slug. 275 -> 275 journeys, +2 nodes net (23 -> 25). Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 275 journeys / 3663 nodes (2026-09-25). ACQ-287
 // (Checkout Abandonment Recovery) was rebuilt to match a reference
 // flowchart the site owner supplied, literal box for box: the two-touch
@@ -1108,9 +1126,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (275 journeys / 3663 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (275 journeys / 3665 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 275 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3663 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3665 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
