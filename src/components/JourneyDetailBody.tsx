@@ -1,6 +1,4 @@
-import Link from "next/link";
-
-import { Box, Quote, Scale, ShieldCheck, Split, Zap } from "lucide-react";
+import { Box, Quote, ShieldCheck } from "lucide-react";
 
 import JourneyCanvas from "@/components/JourneyCanvas";
 import { InfoTile } from "@/components/ui/InfoTile";
@@ -40,13 +38,6 @@ export async function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (
   };
   return { nodes: detail.nodes, layout, labels, caption, shape, messageLabels, humanLabels };
 }
-
-/* Connector word for the Competes note's inline "on loss: <state>" clause.
-   Everything else in that line (exclusionGroup, scope, onLoss) is canonical
-   technical vocabulary and stays English on both locales, same as every
-   other note column here (entityScope, guardrails, ...) - only this one
-   word is UI-authored prose, so only it needs a TR counterpart. */
-const ON_LOSS_PREFIX: Record<Lang, string> = { en: "on loss:", tr: "kaybedince:" };
 
 /* The body of one journey, shared by the full page and the modal that
    intercepts it. A server component: it takes one journey's detail and hands
@@ -201,11 +192,6 @@ export default async function JourneyDetailBody({
 
       {canvas && <JourneyCanvas {...canvas} basePath={basePath} />}
 
-      {/* The canonical archive's deeper note fields are still authored in
-          English. Keep them on the English route only; the Turkish route
-          stays fully Turkish instead of mixing translated journey copy with
-          untranslated technical prose. */}
-      {lang === "en" ? (
       <div className={`${showCanvas ? "mt-10" : ""} grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3`}>
         <InfoTile icon={<Quote />} title={t.ruleLabel} className="sm:col-span-2 lg:col-span-3">
           <p className="max-w-4xl text-xl leading-snug font-medium text-balance text-ink-950">{detail.reusableRule}</p>
@@ -227,48 +213,7 @@ export default async function JourneyDetailBody({
           </ol>
         </InfoTile>
 
-        {detail.distinctFrom.length ? (
-          <InfoTile icon={<Split />} tint="bg-violet-50 text-violet-700" title={t.distinctLabel}>
-            <ul className="flex list-none flex-col gap-3.5 p-0">
-              {detail.distinctFrom.map((d) => (
-                <li key={d.journey} className="text-sm leading-relaxed text-pretty text-ink-muted">
-                  {d.slug ? (
-                    <Link href={`${basePath}/${d.slug}`} className="font-medium text-ink-950 underline decoration-ink-300 underline-offset-4 hover:decoration-ink-950">
-                      {d.name ?? d.journey}
-                    </Link>
-                  ) : (
-                    <span className="font-medium text-ink-950">{d.name ?? d.journey}</span>
-                  )}
-                  <span className="mt-1 block">{d.because}</span>
-                </li>
-              ))}
-            </ul>
-          </InfoTile>
-        ) : null}
-
-        {detail.competition ? (
-          <InfoTile icon={<Scale />} tint="bg-amber-50 text-amber-700" title={t.competesLabel}>
-            <p className="text-sm font-medium text-ink-950">
-              {detail.competition.exclusionGroup} · {detail.competition.scope} · {ON_LOSS_PREFIX[lang]} {detail.competition.onLoss}
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{detail.competition.precedence}</p>
-          </InfoTile>
-        ) : null}
-
-        {detail.preemptedBy.length ? (
-          <InfoTile icon={<Zap />} tint="bg-amber-50 text-amber-700" title={t.preemptedLabel}>
-            <ul className="flex list-none flex-col gap-3.5 p-0">
-              {detail.preemptedBy.map((p) => (
-                <li key={p.event} className="text-sm leading-relaxed text-pretty text-ink-muted">
-                  <span className="font-medium text-ink-950">{p.event}</span>
-                  <span className="mt-1 block">{p.then}</span>
-                </li>
-              ))}
-            </ul>
-          </InfoTile>
-        ) : null}
       </div>
-      ) : null}
 
     </div>
   );
