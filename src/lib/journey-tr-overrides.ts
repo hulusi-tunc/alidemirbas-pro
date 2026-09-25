@@ -1035,12 +1035,12 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   "ACQ-287": {
   shortName: "Checkout Tamamlama Kurtarma",
   name: "Ödeme süreci başladı → tamamlanmadı → satın alma veya çıkış",
-  purpose: "Checkout'u başlatıp tamamlamayan kişiyi geri getiren bir hatırlatma dizisi kurmak; en yüksek değerli checkout'larda daha doğrudan bir kanala geçmek ve satın alma zaten gerçekleştiyse bir daha mesaj göndermemek.",
+  purpose: "Checkout'u başlatıp tamamlamayan kişiyi geri getiren üç adımlı bir hatırlatma dizisi kurmak; son adımda en yüksek değerli checkout'larda daha doğrudan bir kanala geçmek ve satın alma zaten gerçekleştiyse bir daha mesaj göndermemek.",
   nodes: {
     "t.started": { headline: "Ödeme süreci başladı" },
     "w.first": {
       headline: "checkout tamamlanana kadar",
-      detail: "Zaman aşımı: kişiye kendi başına tamamlaması için süre tanı. (örnek: 45 dakika; ayarla: checkout_abandonment.first_check)",
+      detail: "Zaman aşımı: kişiye kendi başına tamamlaması için kısa, sabit bir süre tanı. (örnek: 30 dakika – 1 saat; ayarla: checkout_abandonment.first_check)",
     },
     "c.completed1": {
       headline: "Checkout şu anda ne durumda?",
@@ -1061,25 +1061,46 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "a.record-no-action-t1": {
       headline: "İlk hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
     },
-    "x.purchased": {
-      headline: "Satın Alma Tamamlandı",
-      detail: "kişi için yeni bir checkout kendi örneğini açar; bu örnekle ilgili hiçbir şey yeniden açılmaz",
-    },
-    "x.invalid": {
-      headline: "Tamamlanmadan Kapandı",
-      detail: "iptal edildi ya da süresi doldu; başka hiçbir şey gönderilmez - yeni bir checkout kendi örneğini açar",
-    },
     "a.router1": {
-      headline: "Bu hatırlatmanın gerçekten ulaşabileceği en yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
+      headline: "Bu hatırlatma için push kanalını seç: geçerli, güncel bir push jetonu kayıtlı olmalı ve bunu kapsayan izin hâlâ geçerli olmalı. Push'a ulaşılamazsa, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
     "a.reminder1": {
-      headline: "Az önce seçilen kanal üzerinden ilk checkout hatırlatmasını gönder; kişiyi başladığı checkout'a, o anki durumuyla geri yönlendir.",
+      headline: "Push ile ilk checkout hatırlatmasını gönder: ödemenin tamamlanmadığını ve seçilenlerin kişiyi beklemeye devam ettiğini bildiren kısa bir hatırlatma.",
     },
     "w.second": {
       headline: "checkout tamamlanana kadar",
-      detail: "Zaman aşımı: ilk hatırlatmanın gerçekten işe yarayıp yaramadığını görmek için yeterli süre tanı, ikinci ve daha doğrudan bir temasın gerekip gerekmediğine ondan sonra karar ver. (örnek: 6 saat; ayarla: checkout_abandonment.second_check)",
+      detail: "Zaman aşımı: ilk hatırlatmaya (push) tam bir gün tanı; ikinci, daha kalıcı temasın gerekip gerekmediğine ondan sonra karar ver. (örnek: 1 gün; ayarla: checkout_abandonment.second_check)",
     },
     "c.completed2": {
+      headline: "Checkout şu anda ne durumda?",
+      edges: [
+        { label: "Tamamlandı", detail: "bu checkout örneği için yetkili bir satın alma veya sipariş kaydı mevcut" },
+        { label: "Ödeme başarısız", detail: "bu checkout'a karşı bir ödeme hatası kaydedildi - başarısız bir ödeme terk anlamına gelmez" },
+        { label: "İptal edildi veya süresi doldu", detail: "kişi checkout'u iptal etti ya da platform süresini doldurdu" },
+        { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı, ödeme hatası veya iptal/süre dolumu yok" },
+      ],
+    },
+    "c.sendable2": {
+      headline: "İkinci hatırlatma gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon iletişim yoğunluğu limiti, yürürlükte bir bekleme süresi bulunmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
+        { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
+      ],
+    },
+    "a.record-no-action-t2": {
+      headline: "İkinci hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+    },
+    "a.router2": {
+      headline: "Bu hatırlatma için e-posta kanalını seç: geçerli, ulaşılabilir bir e-posta adresi kayıtlı olmalı. E-posta, sepet ürünlerini ve ödeme bağlantısını taşıyabilen ve kişi geri dönene kadar kalıcı olan kanaldır. E-postaya ulaşılamazsa, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
+    },
+    "a.reminder2": {
+      headline: "E-posta ile ikinci checkout hatırlatmasını gönder: sepet ürünleri ve ödemeye dönüş bağlantısı, yalnızca platformun checkout sırasında zaten gösterdiği güven unsurlarıyla birlikte - kargo, güvenli ödeme, kolay iade - bu akışın kendi başına iddia ettiği unsurlar değil.",
+    },
+    "w.third": {
+      headline: "checkout tamamlanana kadar",
+      detail: "Zaman aşımı: ikinci hatırlatmaya (e-posta) bir veya iki gün tanı; son ve en doğrudan temasın gerekip gerekmediğine ondan sonra karar ver. (örnek: 1–2 gün; ayarla: checkout_abandonment.third_check)",
+    },
+    "c.completed3": {
       headline: "Checkout şu anda ne durumda?",
       edges: [
         { label: "Tamamlandı", detail: "bu checkout örneği için yetkili bir satın alma veya sipariş kaydı mevcut" },
@@ -1095,40 +1116,40 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
         { label: "Standart", detail: "checkout değeri yapılandırılan eşiğin altındadır" },
       ],
     },
-    "c.sendable2-hv": {
-      headline: "Yüksek değerli ikinci hatırlatma gönderilebilir mi?",
+    "c.sendable3-hv": {
+      headline: "Yüksek değerli son hatırlatma gönderilebilir mi?",
       edges: [
         { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon iletişim yoğunluğu limiti, yürürlükte bir bekleme süresi bulunmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
-    "c.sendable2-std": {
-      headline: "İkinci hatırlatma gönderilebilir mi?",
+    "c.sendable3-std": {
+      headline: "Son hatırlatma gönderilebilir mi?",
       edges: [
         { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor: ticari kurtarma iletişimi izni, ulaşılabilir bir hedef, promosyon iletişim yoğunluğu limiti, yürürlükte bir bekleme süresi bulunmaması ve ticaret-kurtarma çekişmesinde bu kişiyi şu anda daha yüksek öncelikli bir akışın tutmuyor olması" },
         { label: "Engellendi", detail: "bir kapı akışı durduruyor; hangi kapının durdurduğu gerekçe olarak kaydedilir" },
       ],
     },
-    "a.record-no-action-t2": {
-      headline: "İkinci hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
+    "a.record-no-action-t3": {
+      headline: "Son hatırlatmayı hangi kapının ve hangi checkout için durdurduğunu kaydet; böylece işlem yapılmaması sessiz bir yokluk değil, ölçülen bir sonuç olur",
     },
-    "a.router2-hv": {
-      headline: "En öncelikli doğrudan kanalı seç: önce WhatsApp (geçerli bir telefon numarası kayıtlıysa ve numara WhatsApp üzerinden ulaşılabilirse), yoksa SMS (geçerli bir telefon numarası kayıtlıysa). Yüksek değerli bir checkout, ilk temasın bir tekrarını değil, daha doğrudan bir kanal alır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
+    "a.router3-hv": {
+      headline: "En öncelikli doğrudan kanalı seç: önce WhatsApp (geçerli bir telefon numarası kayıtlıysa ve numara WhatsApp üzerinden ulaşılabilirse), yoksa SMS (geçerli bir telefon numarası kayıtlıysa). Yüksek değerli bir checkout, kademenin son temasında en doğrudan kanalı alır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
-    "a.router2-std": {
-      headline: "En yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Öncelik sırası ilk temasla aynıdır. Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
+    "a.reminder3-hv": {
+      headline: "Az önce seçilen kanal üzerinden son checkout hatırlatmasını gönder; yüksek değerli bir checkout'un gerektirdiği daha doğrudan üslupla: siparişi tamamlamak için bağlantı ve soruları için bir yardım teklifi.",
     },
-    "a.reminder2-hv": {
-      headline: "Az önce seçilen kanal üzerinden ikinci checkout hatırlatmasını gönder; yüksek değerli bir checkout'un gerektirdiği daha doğrudan üslubu kullan.",
+    "a.router3-std": {
+      headline: "Bu hatırlatmanın gerçekten ulaşabileceği en yüksek öncelikli kanalı seç: önce push (geçerli, güncel bir push jetonu kayıtlıysa), yoksa e-posta (geçerli, ulaşılabilir bir e-posta adresi kayıtlıysa). Hiçbir kanal ulaşılabilirlik testini geçemezse, kanal bulunamadığını kaydet ve mesaj göndermeden doğrudan sonraki bekleme adımına geç.",
     },
-    "a.reminder2-std": {
-      headline: "Az önce seçilen kanal üzerinden ikinci checkout hatırlatmasını gönder; kişiyi başladığı checkout'a, o anki durumuyla geri yönlendir.",
+    "a.reminder3-std": {
+      headline: "Az önce seçilen kanal üzerinden son checkout hatırlatmasını gönder: başladığı checkout'a şimdi geri dönmesi için son, sade bir hatırlatma.",
     },
-    "w.third": {
+    "w.fourth": {
       headline: "checkout tamamlanana kadar",
-      detail: "Zaman aşımı: son hatırlatmaya tam bir gün tanı; bu sürenin sonunda checkout tamamlanmadıysa tamamlanmamış sayılır. (örnek: 24 saat; ayarla: checkout_abandonment.final_check)",
+      detail: "Zaman aşımı: son hatırlatmaya tam bir gün tanı; bu sürenin sonunda checkout tamamlanmadıysa terk edilmiş sayılır. (örnek: 1 gün; ayarla: checkout_abandonment.final_check)",
     },
-    "c.completed3": {
+    "c.completed4": {
       headline: "Kademenin sonunda checkout ne durumda?",
       edges: [
         { label: "Tamamlandı", detail: "bu checkout örneği için yetkili bir satın alma veya sipariş kaydı mevcut" },
@@ -1136,6 +1157,14 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
         { label: "İptal edildi veya süresi doldu", detail: "kişi checkout'u iptal etti ya da platform süresini doldurdu" },
         { label: "Tamamlanmadı", detail: "bu checkout örneği için hiçbir tamamlanma kaydı, ödeme hatası veya iptal/süre dolumu yok" },
       ],
+    },
+    "x.purchased": {
+      headline: "Satın Alma Tamamlandı",
+      detail: "kişi için yeni bir checkout kendi örneğini açar; bu örnekle ilgili hiçbir şey yeniden açılmaz",
+    },
+    "x.invalid": {
+      headline: "Tamamlanmadan Kapandı",
+      detail: "iptal edildi ya da süresi doldu; başka hiçbir şey gönderilmez - yeni bir checkout kendi örneğini açar",
     },
     "x.abandoned": {
       headline: "Checkout Tamamlanmadı",

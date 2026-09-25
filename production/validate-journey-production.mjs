@@ -366,6 +366,24 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 275 journeys / 3663 nodes (2026-09-25). ACQ-287
+// (Checkout Abandonment Recovery) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: the two-touch
+// cascade became a three-touch cascade (push, then email, then a
+// value-gated final touch), the high-value channel branch moved from the
+// second touch to the third to match the image's own placement of
+// "checkout değeri yüksek mi?", and the wait spans were aligned to the
+// image's own timing (30 minutes - 1 hour before the first check, 1 day
+// before the second, 1-2 days before the third, and a final 1-day
+// recheck before the terminal exit, modelled as a real condition node
+// rather than a bare timeout). The one real inbound handoff from ACQ-288
+// (Cart Abandonment Recovery's own checkout-started handoff) and the one
+// real outbound handoff to FIN-134 (Payment Failure Recovery) are both
+// unchanged, reachable at the same conceptual points - a payment-failure
+// recheck before every touch, a real event the image itself does not
+// draw. Same id/slug. 275 -> 275 journeys, +6 nodes net. Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
 // FROZEN BASELINE: 275 journeys / 3657 nodes (2026-09-25). ACQ-12
 // (Abandoned Selection Recovery) was rebuilt to match a reference
 // flowchart the site owner supplied, literal box for box: the
@@ -1090,9 +1108,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (275 journeys / 3657 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (275 journeys / 3663 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 275 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3657 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3663 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

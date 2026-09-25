@@ -5067,7 +5067,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     "channels": ["push", "email", "whatsapp", "sms"],
     "name": "Checkout started → not completed → recovered or abandoned",
     "shortName": "Checkout Abandonment Recovery",
-    "purpose": "Return a person who started checkout but did not finish it, with a reminder cascade that reaches for the highest-value checkouts on a more direct channel and never sends once the purchase is already there.",
+    "purpose": "Return a person who started checkout but did not finish it, with a three-step reminder cascade that reaches for the highest-value checkouts on a more direct channel at its final step and never sends once the purchase is already there.",
     "objective": "Get the checkout finished by the person who started it, without ever sending about a checkout that is already complete and without speaking over the payment recovery that owns a failed payment.",
     "entity": {
       "scope": "one checkout instance - a basket, its items and its resume destination",
@@ -5147,10 +5147,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "key": "checkout_abandonment.touches",
           "rule": "Every reminder runs against a budget fixed when the instance opened; the budget is the most reminders any single path through the cascade reaches, and no reminder is repeated because nothing could tell whether it arrived.",
           "default": {
-            "value": 2,
+            "value": 3,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the cascade's own length - a first reminder and one second reminder, whose high-value and standard forms sit on branches the same instance can never both take"
+            "applicableWhen": "GLB-24; the cascade's own length - a first reminder, a second reminder and one final reminder, whose high-value and standard forms sit on branches the same instance can never both take"
           },
           "required": false
         },
@@ -5210,10 +5210,9 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "c.sendable1",
             "a.router1"
           ],
-          "purpose": "The checkout is still open and unfinished; here is the way back into the exact one they started, with its state as it stands. Nothing the system does not assert.",
+          "purpose": "A short, compact nudge that the payment was not completed and what was selected is still waiting - the first touch, and the least intrusive one.",
           "channelRoles": [
-            "low-friction",
-            "persistent"
+            "low-friction"
           ],
           "destination": {
             "target": "checkout-resume",
@@ -5228,18 +5227,46 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t2-hv",
-          "stage": "second-reminder-high-value",
-          "action": "a.reminder2-hv",
+          "id": "t2",
+          "stage": "second-reminder",
+          "action": "a.reminder2",
           "after": "t1",
           "gatedBy": "w.second",
           "prerequisites": [
             "c.completed2",
-            "c.highvalue",
-            "c.sendable2-hv",
-            "a.router2-hv"
+            "c.sendable2",
+            "a.router2"
           ],
-          "purpose": "The same way back, in the more direct register a high-value checkout warrants - not a repeat of the first reminder, and still nothing the system does not assert.",
+          "purpose": "A channel that can carry the checkout's contents and survive until the person returns: the cart items and the payment link, alongside only the trust reassurances the platform already shows at checkout. Nothing the system does not assert.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "checkout-resume",
+            "boundTo": "checkout_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "a trust reassurance the platform does not itself show"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3-hv",
+          "stage": "final-reminder-high-value",
+          "action": "a.reminder3-hv",
+          "after": "t2",
+          "gatedBy": "w.third",
+          "prerequisites": [
+            "c.completed3",
+            "c.highvalue",
+            "c.sendable3-hv",
+            "a.router3-hv"
+          ],
+          "purpose": "The last touch, in the more direct register a high-value checkout warrants - not a repeat of the earlier reminders, and still nothing the system does not assert.",
           "channelRoles": [
             "urgent"
           ],
@@ -5257,18 +5284,18 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "RECOMMENDED_DEFAULT"
         },
         {
-          "id": "t2-std",
-          "stage": "second-reminder",
-          "action": "a.reminder2-std",
-          "after": "t1",
-          "gatedBy": "w.second",
+          "id": "t3-std",
+          "stage": "final-reminder",
+          "action": "a.reminder3-std",
+          "after": "t2",
+          "gatedBy": "w.third",
           "prerequisites": [
-            "c.completed2",
+            "c.completed3",
             "c.highvalue",
-            "c.sendable2-std",
-            "a.router2-std"
+            "c.sendable3-std",
+            "a.router3-std"
           ],
-          "purpose": "The same way back into the checkout they started, with its state as it stands. No urgency the system does not assert.",
+          "purpose": "The last touch: one final, plain reminder to come back and finish the checkout they started. No urgency the system does not assert, and no further message after it.",
           "channelRoles": [
             "low-friction",
             "persistent"
@@ -5318,9 +5345,9 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "timeout": {
           "after": {
             "key": "checkout_abandonment.first_check",
-            "rule": "Give the person time to finish on their own before the first reminder.",
+            "rule": "Give the person a short, fixed span to finish on their own before the first reminder.",
             "class": "recovery-window",
-            "default": { "value": "45 minutes", "confidence": "low", "basis": "example-only" },
+            "default": { "value": { "min": "30 minutes", "max": "1 hour" }, "confidence": "low", "basis": "example-only" },
             "required": false
           },
           "reason": "long enough that a person mid-payment or mid-form is not interrupted, short enough that the checkout is still warm",
@@ -5371,14 +5398,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.router1",
         "kind": "action",
-        "does": "Select the highest-priority channel this reminder may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
+        "does": "Select the push channel for this reminder: a valid, current push token is on file and the permission covering it still stands. If push cannot be reached, record that no channel is available and skip straight to the next wait without sending anything.",
         "writes": [{ "field": "selected_channel_t1", "mode": "set" }],
         "next": "a.reminder1"
       },
       {
         "id": "a.reminder1",
         "kind": "action",
-        "does": "Send the first checkout reminder on the channel just selected, pointing the person back to the exact checkout they started with its state as it stands.",
+        "does": "Send the first checkout reminder by push: a short nudge that the payment was not completed and what was selected is still waiting for the person.",
         "execution": "communication",
         "idempotencyKey": "person_id + checkout_id + touch id",
         "next": "w.second"
@@ -5391,12 +5418,12 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "timeout": {
           "after": {
             "key": "checkout_abandonment.second_check",
-            "rule": "Give the first reminder real time to work before deciding whether a second, more direct touch is warranted.",
+            "rule": "Give the first reminder a full day to work before deciding whether the second, more persistent touch is warranted.",
             "class": "recovery-window",
-            "default": { "value": "6 hours", "confidence": "low", "basis": "example-only" },
+            "default": { "value": "1 day", "confidence": "low", "basis": "example-only" },
             "required": false
           },
-          "reason": "enough of the day for the first reminder to be seen and acted on before a second touch is considered",
+          "reason": "a full day is enough for a push notification to be seen and acted on before a second, more persistent touch is considered",
           "relativeTo": "previous-touch"
         },
         "onTimeout": "c.completed2",
@@ -5411,39 +5438,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "observes": "process_completed", "to": "x.purchased" },
           { "label": "Payment failed", "when": "a payment failure is recorded against this checkout - a failed payment is not abandonment", "observes": "payment_failed", "to": "h.payment" },
           { "label": "Cancelled or expired", "when": "the person cancelled the checkout, or the platform expired it", "observes": "process_cancelled, process_expired", "to": "x.invalid" },
-          { "label": "Not completed", "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance", "observes": "checkout state", "to": "c.highvalue" }
+          { "label": "Not completed", "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance", "observes": "checkout state", "to": "c.sendable2" }
         ]
       },
       {
-        "id": "c.highvalue",
-        "kind": "condition",
-        "asks": "Is this a high-value checkout?",
-        "branches": [
-          { "label": "High-value", "when": "the checkout's value is at or above the adopting company's configured high-value threshold - no value is asserted here", "observes": "checkout_value", "to": "c.sendable2-hv" },
-          { "label": "Standard", "when": "the checkout's value is below the configured threshold", "observes": "checkout_value", "to": "c.sendable2-std" }
-        ]
-      },
-      {
-        "id": "c.sendable2-hv",
-        "kind": "condition",
-        "asks": "May the high-value second reminder go out?",
-        "branches": [
-          {
-            "label": "Sendable",
-            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest",
-            "observes": "send path stages 1-8",
-            "to": "a.router2-hv"
-          },
-          {
-            "label": "Suppressed",
-            "when": "a gate stops it; the gate is recorded as the reason",
-            "observes": "send path stages 1-8",
-            "to": "a.record-no-action-t2"
-          }
-        ]
-      },
-      {
-        "id": "c.sendable2-std",
+        "id": "c.sendable2",
         "kind": "condition",
         "asks": "May the second reminder go out?",
         "branches": [
@@ -5451,7 +5450,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "Sendable",
             "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest",
             "observes": "send path stages 1-8",
-            "to": "a.router2-std"
+            "to": "a.router2"
           },
           {
             "label": "Suppressed",
@@ -5470,31 +5469,16 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "next": "w.third"
       },
       {
-        "id": "a.router2-hv",
+        "id": "a.router2",
         "kind": "action",
-        "does": "Select the highest-priority direct channel: WhatsApp first (a valid phone number is on file and the number is reachable on WhatsApp), otherwise SMS (a valid phone number is on file). A high-value checkout gets a more direct channel than the first touch, not a repeat of it. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
+        "does": "Select the email channel for this reminder: a valid, deliverable email address is on file. Email is the channel that can carry the cart items and the payment link and survive until the person returns. If email cannot be reached, record that no channel is available and skip straight to the next wait without sending anything.",
         "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
-        "next": "a.reminder2-hv"
+        "next": "a.reminder2"
       },
       {
-        "id": "a.reminder2-hv",
+        "id": "a.reminder2",
         "kind": "action",
-        "does": "Send the second checkout reminder on the channel just selected, using the more direct register a high-value checkout warrants.",
-        "execution": "communication",
-        "idempotencyKey": "person_id + checkout_id + touch id",
-        "next": "w.third"
-      },
-      {
-        "id": "a.router2-std",
-        "kind": "action",
-        "does": "Select the highest-priority channel: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). Same priority as the first touch. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
-        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
-        "next": "a.reminder2-std"
-      },
-      {
-        "id": "a.reminder2-std",
-        "kind": "action",
-        "does": "Send the second checkout reminder on the channel just selected, pointing the person back to the exact checkout they started with its state as it stands.",
+        "does": "Send the second checkout reminder by email: the cart items and the link back into payment, alongside only the trust reassurances the platform already shows at checkout - shipping, payment security, returns - never ones this journey asserts on its own.",
         "execution": "communication",
         "idempotencyKey": "person_id + checkout_id + touch id",
         "next": "w.third"
@@ -5506,21 +5490,137 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "onEvent": "c.completed3",
         "timeout": {
           "after": {
-            "key": "checkout_abandonment.final_check",
-            "rule": "The last reminder gets a full day to work before the checkout is treated as abandoned.",
+            "key": "checkout_abandonment.third_check",
+            "rule": "Give the second reminder a day or two to work before deciding whether the final, most direct touch is warranted.",
             "class": "recovery-window",
-            "default": { "value": "24 hours", "confidence": "low", "basis": "example-only" },
+            "default": { "value": { "min": "1 day", "max": "2 days" }, "confidence": "low", "basis": "example-only" },
             "required": false
           },
-          "reason": "a full day past the second reminder is the point past which a checkout this old is read as abandoned rather than merely delayed",
+          "reason": "a day or two is enough for an email to be seen and acted on before the final touch is considered",
           "relativeTo": "previous-touch"
         },
         "onTimeout": "c.completed3",
-        "recheck": "the checkout re-read from the system of record at the end of the cascade: whether a completion was recorded against it, whether a payment failure was recorded on it, and whether it was cancelled or expired",
+        "recheck": "the checkout re-read from the system of record since the second reminder: no completion recorded against it, no payment failure recorded on it, and no cancellation or expiry recorded against it",
         "windowExtendsOnEngagement": false
       },
       {
         "id": "c.completed3",
+        "kind": "condition",
+        "asks": "What is the checkout now?",
+        "branches": [
+          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "observes": "process_completed", "to": "x.purchased" },
+          { "label": "Payment failed", "when": "a payment failure is recorded against this checkout - a failed payment is not abandonment", "observes": "payment_failed", "to": "h.payment" },
+          { "label": "Cancelled or expired", "when": "the person cancelled the checkout, or the platform expired it", "observes": "process_cancelled, process_expired", "to": "x.invalid" },
+          { "label": "Not completed", "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance", "observes": "checkout state", "to": "c.highvalue" }
+        ]
+      },
+      {
+        "id": "c.highvalue",
+        "kind": "condition",
+        "asks": "Is this a high-value checkout?",
+        "branches": [
+          { "label": "High-value", "when": "the checkout's value is at or above the adopting company's configured high-value threshold - no value is asserted here", "observes": "checkout_value", "to": "c.sendable3-hv" },
+          { "label": "Standard", "when": "the checkout's value is below the configured threshold", "observes": "checkout_value", "to": "c.sendable3-std" }
+        ]
+      },
+      {
+        "id": "c.sendable3-hv",
+        "kind": "condition",
+        "asks": "May the high-value final reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest",
+            "observes": "send path stages 1-8",
+            "to": "a.router3-hv"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action-t3"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable3-std",
+        "kind": "condition",
+        "asks": "May the final reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest",
+            "observes": "send path stages 1-8",
+            "to": "a.router3-std"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action-t3"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action-t3",
+        "kind": "action",
+        "does": "Record which gate stopped the final reminder and against which checkout, so no-action is a measured outcome rather than a silent absence",
+        "writes": [{ "field": "suppressed_sends", "mode": "append" }],
+        "idempotencyKey": "person_id + checkout_id + touch id",
+        "next": "w.fourth"
+      },
+      {
+        "id": "a.router3-hv",
+        "kind": "action",
+        "does": "Select the highest-priority direct channel: WhatsApp first (a valid phone number is on file and the number is reachable on WhatsApp), otherwise SMS (a valid phone number is on file). A high-value checkout gets the most direct channel in the cascade for its final touch. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t3", "mode": "set" }],
+        "next": "a.reminder3-hv"
+      },
+      {
+        "id": "a.reminder3-hv",
+        "kind": "action",
+        "does": "Send the final checkout reminder on the channel just selected, in the more direct register a high-value checkout warrants: the link to finish the order, and an offer of help if the person has questions.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + checkout_id + touch id",
+        "next": "w.fourth"
+      },
+      {
+        "id": "a.router3-std",
+        "kind": "action",
+        "does": "Select the highest-priority channel this reminder may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t3", "mode": "set" }],
+        "next": "a.reminder3-std"
+      },
+      {
+        "id": "a.reminder3-std",
+        "kind": "action",
+        "does": "Send the final checkout reminder on the channel just selected: one last, plain nudge to come back now and finish the checkout they started.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + checkout_id + touch id",
+        "next": "w.fourth"
+      },
+      {
+        "id": "w.fourth",
+        "kind": "wait",
+        "until": ["process_completed", "payment_failed", "process_cancelled", "process_expired"],
+        "onEvent": "c.completed4",
+        "timeout": {
+          "after": {
+            "key": "checkout_abandonment.final_check",
+            "rule": "The final reminder gets a full day to work before the checkout is treated as abandoned.",
+            "class": "recovery-window",
+            "default": { "value": "1 day", "confidence": "low", "basis": "example-only" },
+            "required": false
+          },
+          "reason": "a full day past the final reminder is the point past which a checkout this old is read as abandoned rather than merely delayed",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.completed4",
+        "recheck": "the checkout re-read from the system of record at the end of the cascade: whether a completion was recorded against it, whether a payment failure was recorded on it, and whether it was cancelled or expired",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.completed4",
         "kind": "condition",
         "asks": "At the end of the cascade, what is the checkout?",
         "branches": [
@@ -5647,13 +5747,13 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       "useCases": [
         "a started checkout with items that has gone quiet and can still be finished",
-        "a high-value checkout that warrants a more direct second reminder than the first"
+        "a high-value checkout that warrants a more direct final reminder than the earlier ones"
       ]
     },
     "distinctFrom": [
       {
         "journey": "ACQ-11",
-        "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed two-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover. It ranks above ACQ-11 in the commerce-recovery group, and while it holds a checkout that pattern is suppressed for it."
+        "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed three-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel on its final touch - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover. It ranks above ACQ-11 in the commerce-recovery group, and while it holds a checkout that pattern is suppressed for it."
       },
       {
         "journey": "ACQ-288",
