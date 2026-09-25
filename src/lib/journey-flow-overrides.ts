@@ -68,7 +68,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.used", "condition", "Ödül kodu kullanıldı mı?", [edge("x.used", "Evet"), edge("a.push", "Hayır")], { branchCount: 2 }),
       n("a.push", "action", "Push: Ödülün dolmadan kullan", [edge("x.unused")], { execution: "communication", channelPriority: ch("push") }),
       n("x.used", "exit", "Ödül kullanıldı"),
-      n("x.unused", "exit", "Hatırlatma gönderildi; journey bitti"),
+      n("x.unused", "exit", "Hatırlatma gönderildi; akış bitti"),
     ],
   },
 
@@ -114,8 +114,8 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.repeat", "condition", "Aynı veya ikinci önemli aksiyonu tekrar yaptı mı?", [edge("c.stable", "Evet"), edge("a.feature", "Hayır")], { branchCount: 2 }),
       n("a.feature", "action", "Push: Farklı ve ilgili bir özelliği öne çıkar", [edge("c.stable")], { execution: "communication", channelPriority: ch("push") }),
       n("c.stable", "condition", "Düzenli kullanıma geçti mi?", [edge("x.stable", "Evet"), edge("h.reengage", "Hayır")], { branchCount: 2 }),
-      n("h.upsell", "handoff", "Upsell journey'sine taşı"),
-      n("h.reengage", "handoff", "Nurture / re-engagement akışına taşı"),
+      n("h.upsell", "handoff", "Upsell akışına taşı"),
+      n("h.reengage", "handoff", "Yeniden etkileşim akışına taşı"),
       n("x.stable", "exit", "Düzenli kullanıcı"),
     ],
   },
@@ -150,7 +150,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.buy2", "condition", "Satın alındı mı?", [edge("x.end", "Evet"), edge("a.wa", "Hayır")], { branchCount: 2 }),
       n("a.wa", "action", "WhatsApp: Satın aldığın ürünü tamamlayacak öneri burada", [edge("c.buy3")], { execution: "communication", channelPriority: ch("whatsapp") }),
       n("c.buy3", "condition", "Satın alındı mı?", [edge("x.end", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -286,7 +286,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("w.short", "wait", "Kısa bir süre bekle", [edge("c.done2")]),
       n("c.done2", "condition", "Yükseltme tamamlandı mı?", [edge("x.done", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
       n("x.done", "exit", "Yükseltme tamamlandı"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -324,7 +324,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("w.last", "wait", "Kısa bir süre bekle", [edge("c.buy3")]),
       n("c.buy3", "condition", "Satın aldı mı?", [edge("x.end", "Evet"), edge("a.sms", "Hayır")], { branchCount: 2 }),
       n("a.sms", "action", "SMS: Son geri dönüş teklifi", [edge("x.end")], { execution: "communication", channelPriority: ch("sms") }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -360,7 +360,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("a.final", "action", "Push: Son hatırlatma", [edge("c.return")], { execution: "communication", channelPriority: ch("push") }),
       n("c.return", "condition", "Tekrar ilgilendi mi?", [edge("h.sales", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
       n("h.sales", "handoff", "Satış / conversion sürecine aktar"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -393,18 +393,18 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.last", "condition", "Son anlamlı davranışı neydi?", [edge("a.email-close", "Satın almaya çok yaklaştı"), edge("a.push-interest", "Ürün / kategori ilgisi"), edge("a.email-content", "Sadece içerik")], { branchCount: 3 }),
       n("a.email-close", "action", "E-posta: Kaldığın yerden devam et + güncel teklif / ürün gelişmesi", [edge("w.response")], { execution: "communication", channelPriority: ch("email") }),
       n("a.push-interest", "action", "Push: İlgilendiğin ürün veya özellikte yenilik var", [edge("w.response")], { execution: "communication", channelPriority: ch("push") }),
-      n("a.email-content", "action", "E-posta: İlgi alanına göre use case / fayda anlat", [edge("w.response")], { execution: "communication", channelPriority: ch("email") }),
+      n("a.email-content", "action", "E-posta: İlgi alanına göre kullanım senaryosu / fayda anlat", [edge("w.response")], { execution: "communication", channelPriority: ch("email") }),
       n("w.response", "wait", "3–5 gün bekle", [edge("c.return")]),
       n("c.return", "condition", "Geri döndü mü?", [edge("c.did", "Evet"), edge("a.sms", "Hayır")], { branchCount: 2 }),
       n("c.did", "condition", "Ne yaptı?", [edge("h.convert", "Checkout / satın alma niyeti"), edge("h.sales", "Teklif / demo"), edge("h.browse", "Tekrar gezindi"), edge("x.active", "Satın aldı")], { branchCount: 4 }),
       n("a.sms", "action", "SMS: Sınırlı süreli ilk alışveriş indirimi / geri dönüş teşviki", [edge("w.offer")], { execution: "communication", channelPriority: ch("sms") }),
       n("w.offer", "wait", "Teklif süresi boyunca bekle", [edge("c.return2")]),
       n("c.return2", "condition", "Geri döndü mü?", [edge("c.did", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
-      n("h.convert", "handoff", "Conversion journey'sine aktar"),
-      n("h.sales", "handoff", "Lead nurture / satış sürecine aktar"),
-      n("h.browse", "handoff", "Browse / interest journey'sine aktar"),
+      n("h.convert", "handoff", "Satın alma akışına aktar"),
+      n("h.sales", "handoff", "Aday müşteri geliştirme / satış sürecine aktar"),
+      n("h.browse", "handoff", "Ürün ilgisi akışına aktar"),
       n("x.active", "exit", "Aktif / dönüştü"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -458,9 +458,9 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.converted", "condition", "Satın aldı veya sepete ekledi mi?", [edge("x.purchase", "Satın aldı"), edge("h.cart", "Sepete ekledi"), edge("a.push", "Hayır")], { branchCount: 3 }),
       n("a.push", "action", "Push: Baktığın ürün hâlâ seni bekliyor", [edge("c.after")], { execution: "communication", channelPriority: ch("push") }),
       n("c.after", "condition", "Hatırlatma sonrası ne oldu?", [edge("x.purchase", "Satın aldı"), edge("h.cart", "Sepete ekledi"), edge("x.end", "Aksiyon yok")], { branchCount: 3 }),
-      n("h.cart", "handoff", "Sepet journey'sine aktar"),
+      n("h.cart", "handoff", "Sepet akışına aktar"),
       n("x.purchase", "exit", "Satın aldı"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -488,7 +488,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("a.offer", "action", "E-posta: Geri dönüş indirimi / kuponu", [edge("w.offer")], { execution: "communication", channelPriority: ch("email") }),
       n("w.offer", "wait", "Teklif süresi boyunca bekle", [edge("c.active2")]),
       n("c.active2", "condition", "Abonelik yeniden aktif mi?", [edge("x.end", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -684,7 +684,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("w.final", "wait", "5–7 gün bekle", [edge("c.purchase3")]),
       n("c.purchase3", "condition", "Ürün satın alındı mı?", [edge("x.end", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
       n("h.stock", "handoff", "Stok yenilendiğinde haber ver akışına aktar"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -726,7 +726,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.done4", "condition", "Satın alma tamamlandı mı?", [edge("x.done", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
       n("h.failure", "handoff", "Ödeme başarısızlığından kurtarma akışına aktar"),
       n("x.done", "exit", "Satın alma tamamlandı"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -762,7 +762,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("a.direct", "action", "WhatsApp / SMS: Son, daha doğrudan sepet hatırlatması", [edge("x.end")], { execution: "communication", channelPriority: ch("whatsapp", "sms") }),
       n("h.checkout", "handoff", "Checkout Terk Etme akışına aktar"),
       n("x.done", "exit", "Satın alma tamamlandı"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -790,7 +790,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("w.2d", "wait", "2 gün bekle", [edge("c.buy2")]),
       n("c.buy2", "condition", "Satın aldı mı?", [edge("x.end", "Evet"), edge("a.sms", "Hayır")], { branchCount: 2 }),
       n("a.sms", "action", "SMS: Ürün yeniden stokta; stok değişmeden incele", [edge("x.end")], { execution: "communication", channelPriority: ch("sms") }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -822,7 +822,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("a.email", "action", "E-posta: Daha kapsamlı yardım + canlı destek seçeneği", [edge("w.final")], { execution: "communication", channelPriority: ch("email") }),
       n("w.final", "wait", "3–5 gün bekle", [edge("c.done3")]),
       n("c.done3", "condition", "Onboarding tamamlandı mı?", [edge("x.end", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -902,7 +902,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("w.3d", "wait", "3 gün bekle", [edge("c.buy2")]),
       n("c.buy2", "condition", "Satın aldı mı?", [edge("x.end", "Evet"), edge("a.wa", "Hayır")], { branchCount: 2 }),
       n("a.wa", "action", "WhatsApp: Doğrudan bağlantıyla son yenileme hatırlatması", [edge("x.end")], { execution: "communication", channelPriority: ch("whatsapp") }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -930,7 +930,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("a.sms", "action", "SMS: Sınırlı süreli geri dönüş indirimi", [edge("w.offer")], { execution: "communication", channelPriority: ch("sms") }),
       n("w.offer", "wait", "Teklif süresi boyunca bekle", [edge("c.returned3")]),
       n("c.returned3", "condition", "Yeniden satın aldı mı?", [edge("x.end", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -960,7 +960,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("w.offer", "wait", "Teklif süresi boyunca bekle", [edge("c.second3")]),
       n("c.second3", "condition", "İkinci satın alma gerçekleşti mi?", [edge("x.repeat", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
       n("x.repeat", "exit", "Tekrar satın alan müşteri"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -996,7 +996,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("w.7d", "wait", "Yaklaşık 7 gün bekle", [edge("c.engaged")]),
       n("c.engaged", "condition", "Etkileşim veya satın alma oldu mu?", [edge("x.end", "Evet"), edge("x.suppress", "Hayır")], { branchCount: 2 }),
       n("x.suppress", "exit", "Zorunlu olmayan pazarlama iletişimini durdur"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -1031,8 +1031,8 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.score", "condition", "Geri bildirim nasıl?", [edge("h.positive", "Yüksek"), edge("h.middle", "Orta"), edge("h.low", "Düşük")], { branchCount: 3 }),
       n("h.positive", "handoff", "Yorum / referral fırsatına aktar"),
       n("h.middle", "handoff", "Kısa iyileştirme geri bildirimine aktar"),
-      n("h.low", "handoff", "Recovery / destek akışına aktar"),
-      n("x.end", "exit", "Journey bitti"),
+      n("h.low", "handoff", "Sorun çözümü / destek akışına aktar"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -1088,7 +1088,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.used", "condition", "Davet kodu kullanıldı mı?", [edge("a.reward", "Evet"), edge("a.push", "Hayır")], { branchCount: 2 }),
       n("a.reward", "action", "E-posta: Arkadaşın da sen de ödül kazandınız", [edge("x.end")], { execution: "communication", channelPriority: ch("email") }),
       n("a.push", "action", "Push: Arkadaşlarını bu fırsattan mahrum bırakma", [edge("x.end")], { execution: "communication", channelPriority: ch("push") }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -1148,7 +1148,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.resolved", "condition", "Sorun çözüldü mü?", [edge("a.followup", "Evet"), edge("a.escalate", "Hayır")], { branchCount: 2 }),
       n("a.followup", "action", "Çözüm sonrası kullanıcıya geri dön ve kaydı kapat", [edge("x.end")], { execution: "communication", channelPriority: ch("email", "push") }),
       n("a.escalate", "action", "İnsan desteğine / uzman ekibe eskale et", [edge("x.end")], { execution: "human" }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -1176,7 +1176,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("a.sms", "action", "SMS: Son randevu hatırlatması", [edge("c.ready2")], { execution: "communication", channelPriority: ch("sms") }),
       n("c.ready2", "condition", "Hazırlık tamam mı?", [edge("x.end", "Evet"), edge("a.final", "Hayır")], { branchCount: 2 }),
       n("a.final", "action", "E-posta: Son eksik hazırlık adımlarını bildir", [edge("x.end")], { execution: "communication", channelPriority: ch("email") }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -1244,7 +1244,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("c.paid2", "condition", "Ödeme tamamlandı mı?", [edge("a.confirm", "Evet"), edge("a.release", "Hayır")], { branchCount: 2 }),
       n("a.confirm", "action", "E-posta: Ödeme alındı; rezervasyon kesinleşti", [edge("x.end")], { execution: "communication", channelPriority: ch("email") }),
       n("a.release", "action", "Rezervasyonu serbest bırak ve kullanıcıya bildir", [edge("x.end")], { execution: "communication", channelPriority: ch("email") }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -1294,7 +1294,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("w.end", "wait", "Üyelik bitişine kadar bekle", [edge("c.renewed3")]),
       n("c.renewed3", "condition", "Yeniledi mi?", [edge("x.end", "Evet"), edge("h.winback", "Hayır")], { branchCount: 2 }),
       n("h.winback", "handoff", "Lapsed Customer Win-Back akışına aktar"),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -1338,7 +1338,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("t.anniversary", "trigger", "İlk satın alma yıl dönümü yaklaşıyor", [edge("c.active")]),
       n("c.active", "condition", "Müşteri ilişkisi hâlâ aktif mi?", [edge("a.push", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
       n("a.push", "action", "Push: İlk satın alma yıl dönümünü kutla", [edge("x.end")], { execution: "communication", channelPriority: ch("push") }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   },
 
@@ -1354,7 +1354,7 @@ const SPECS: Readonly<Record<string, FlowSpec>> = {
       n("t.milestone", "trigger", "Doğum günü veya tanımlı müşteri dönüm noktası geldi", [edge("c.eligible")]),
       n("c.eligible", "condition", "Bu dönüm noktası için iletişim uygun mu?", [edge("a.email", "Evet"), edge("x.end", "Hayır")], { branchCount: 2 }),
       n("a.email", "action", "E-posta: Doğum gününü / dönüm noktasını tanımlı faydayla birlikte kutla", [edge("x.end")], { execution: "communication", channelPriority: ch("email") }),
-      n("x.end", "exit", "Journey bitti"),
+      n("x.end", "exit", "Akış bitti"),
     ],
   }
 };
