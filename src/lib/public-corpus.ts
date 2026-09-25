@@ -174,7 +174,11 @@ export const ARCHIVED_SURFACE = "operational" as const;
    text), all removed or reworded. REM-151 lost its last
    competition-group partner (service-request) in the process and its
    `competition` field was set to the literal "none" - taking the
-   library to 42.
+   library to 42. DOC-215 (Signature Process) was retired next, the site
+   owner's request - it had one real inbound handoff, DOC-220's
+   h.resign, converted into a genuine exit (x.resign-needed) since
+   DOC-220 has no signature-collection machinery of its own to hand that
+   gap to - taking the library to 41.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -248,8 +252,8 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   // Subscriptions & scheduling - 9
   "SCH-266", "SCH-282", "SCH-303", "SUB-163",
   "SUB-262", "SUB-296", "SUB-297", "SUB-298", "SUB-299",
-  // Risk, documents, rollout & incidents - 4
-  "DOC-214", "DOC-215", "RLT-279", "RSK-273",
+  // Risk, documents, rollout & incidents - 3
+  "DOC-214", "RLT-279", "RSK-273",
 ]);
 
 export function isPublicJourney(j: Pick<CanonicalJourney, "id" | "category" | "channels" | "entity">): boolean {

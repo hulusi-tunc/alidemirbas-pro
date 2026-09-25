@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 276,
-    "customer": 127,
+    "journeys": 275,
+    "customer": 126,
     "customer-silent": 66,
-    "customer-communicating": 61,
+    "customer-communicating": 60,
     "mechanism": 25,
     "operational": 124
   },
@@ -2550,17 +2550,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "declares a message channel (email, push, sms)"
-    },
-    {
-      "id": "DOC-215",
-      "shortName": "Signature Reminder",
-      "category": "document",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email)"
     },
     {
       "id": "DOC-216",

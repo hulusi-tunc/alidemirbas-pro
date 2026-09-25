@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 276", journeys.length === 276);
+check(1, "active journey count = 275", journeys.length === 275);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -365,6 +365,14 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 275 journeys / 3656 nodes (2026-09-25). DOC-215
+// (Signature Process) was retired, the site owner's request. It had
+// one real inbound handoff, DOC-220's h.resign, converted into a
+// genuine exit (x.resign-needed) since DOC-220 has no
+// signature-collection machinery of its own to hand that gap to.
+// 276 -> 275 journeys, -21 nodes net. Rules (423), global rules (31)
+// and merged redirects (8) are unchanged.
 //
 // FROZEN BASELINE: 276 journeys / 3677 nodes (2026-09-25). CON-300
 // (Unengaged Subscriber Sunset) was rebuilt to match a reference
@@ -1066,9 +1074,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (276 journeys / 3677 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 276 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3677 &&
+  "canonical source mutation = 0 (275 journeys / 3656 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 275 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3656 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
