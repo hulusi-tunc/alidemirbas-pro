@@ -2005,7 +2005,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
   /* ------------------------------------------------------------ ACQ-09 */
   {
     id: "ACQ-09",
-    slug: "bounded-education-progress-or-sunset",
+    slug: "lead-nurture",
     category: "acquisition",
     goal: "progression-milestone",
     channels: ["email"],
