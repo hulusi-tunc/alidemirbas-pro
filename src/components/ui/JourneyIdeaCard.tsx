@@ -84,7 +84,7 @@ export default function JourneyIdeaCard({
       badges={badges}
       body={purpose}
       footLeft={categoryTitle}
-      footRight={`${id} · ${nodeCount} ${nodesLabel}`}
+      footRight={`${nodeCount} ${nodesLabel}`}
     />
   );
 }
