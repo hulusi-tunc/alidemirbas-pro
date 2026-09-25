@@ -1060,24 +1060,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Konum",
-        "explanation": "Rozetler kart alanının üstünde mi altında mı daha etkili?"
+        "label": "Değişen",
+        "explanation": "Variant'a önceden tanımlanmış güven rozetleri eklenir."
       },
       {
-        "label": "Sayı",
-        "explanation": "Rozet sayısı değiştiğinde tamamlama ve güven sinyalleri nasıl etkileniyor?"
+        "label": "Sabit kalan",
+        "explanation": "Rozetlerin konumu, formatı, ödeme akışı, metinler ve alan yapısı değiştirilmez."
       },
       {
-        "label": "Format",
-        "explanation": "Metin + ikon mu, sadece ikon mu daha hızlı algılanıyor?"
+        "label": "Tamamlama",
+        "explanation": "Ödeme tamamlama oranı ve adım terk oranı birlikte izlenir."
       },
       {
-        "label": "Alternatif",
-        "explanation": "Banka ve kart logoları güven rozetlerinden daha mı güçlü sinyal?"
+        "label": "Guardrail",
+        "explanation": "Hata, reddedilme ve sipariş sonrası iptal oranları bozulmamalıdır."
       },
       {
-        "label": "Segment",
-        "explanation": "Yeni ve dönen kullanıcıda etki farkı var mı?"
+        "label": "Sonraki test",
+        "explanation": "Rozet sayısı, konumu veya formatı ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -3270,24 +3270,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Görünürlük",
-        "explanation": "Gri/soluk gösterim mi, listeden tamamen kaldırma mı tamamlanan satın alma sayısını artırıyor?"
+        "label": "Değişen",
+        "explanation": "Stokta olmayan ürünler listede gri gösterilir veya listeden gizlenir."
       },
       {
-        "label": "Sıralama",
-        "explanation": "Stokta olmayan ürünler listenin sonuna mı itilmeli, yoksa doğal sırasında mı kalmalı?"
+        "label": "Sabit kalan",
+        "explanation": "Ürün sıralaması, stok etiketi, filtreler ve stoktaki ürün kartları değiştirilmez."
       },
       {
-        "label": "Etiket",
-        "explanation": "“Stokta yok” etiketi ürün görseline mi, ürün adının yanına mı konduğunda daha net anlaşılıyor?"
+        "label": "Satın alma",
+        "explanation": "Kategori sayfasından satın alma oranı iki seçenek arasında karşılaştırılır."
       },
       {
-        "label": "Filtre",
-        "explanation": "“Yalnızca stokta olanları göster” filtresi varsayılan olarak açık mı gelmeli?"
+        "label": "Guardrail",
+        "explanation": "Sayfa terk oranı ve stoktaki ürünlere geçiş bozulmamalıdır."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde gri ürünlerin kapladığı alan kaydırma süresini ciddi biçimde uzatıyor mu?"
+        "label": "Sonraki test",
+        "explanation": "Sıralama, stok etiketi veya filtre varsayılanı ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -13401,7 +13401,7 @@
     "category": "Search & Filtering",
     "surface": "generic-ui",
     "question": "Mega menü mü, yatay menü mü?",
-    "hypothesis": "Mega menü mü, sade yatay menü mü daha iyi gezinme sunuyor? Yapıdaki fark, içerik keşif davranışını ciddi biçimde değiştirebilir.",
+    "hypothesis": "Mega menü daha fazla seçeneği aynı anda görünür kılabilir; sade yatay menü ise daha az seçenekle daha basit bir navigasyon sunar. İki yapı aynı kategori adları ve sıralamayla karşılaştırılmalı; sonuç hedef içeriğe ulaşma ve dönüşüm davranışı üzerinden değerlendirilmelidir.",
     "setupType": "option-vs-option",
     "comparisonMode": "structural",
     "differenceBehavior": "change",
