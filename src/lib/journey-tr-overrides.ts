@@ -1,6 +1,7 @@
 import type { FlowNode, JourneyDetail } from "@/lib/canonical-view";
 import { externalTargetName, splitExitState } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
+import { publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
 
 /* JOURNEY CANVAS LOCALIZATION for the TR site - applied on top of the
    shared canonical projection at render time, never a change to
@@ -4360,6 +4361,7 @@ function localizeNodeContent(node: FlowNode, override: NodeOverride | undefined)
 export function localizedJourneyDetail(detail: JourneyDetail, lang: Lang): JourneyDetail {
   if (lang !== "tr") return detail;
   const override = OVERRIDES[detail.id];
+  const reviewedFlow = publicJourneyFlowNodes(detail.id, "tr");
   const structured = detail.nodes.map((n) => localizeStructural(n));
   return {
     ...localizedJourneyNaming(detail, lang),
@@ -4372,7 +4374,7 @@ export function localizedJourneyDetail(detail: JourneyDetail, lang: Lang): Journ
     distinctFrom: detail.distinctFrom.map((d) =>
       d.name ? { ...d, name: OVERRIDES[d.journey]?.name ?? d.name } : d,
     ),
-    nodes: structured.map((n) => localizeNodeContent(n, override?.nodes?.[n.id])),
+    nodes: reviewedFlow ? [...reviewedFlow] : structured.map((n) => localizeNodeContent(n, override?.nodes?.[n.id])),
     /* The preset half of the page: the applied preset and the parent's list
        of its own presets. `localizedPreset` is the single mechanism - see
        its own comment for every place a preset's text surfaces. */
