@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
-import IdeaCard from "@/components/ui/IdeaCard";
 import { Button } from "@/components/ui/Button";
 import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, CategoryIcon, CategoryRail, ChannelIcon, GoalIcon, SEARCH_SHELL, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { PUBLIC_JOURNEY_CATEGORIES, publicJourneyCategoryLabel } from "@/lib/journey-public-categories";
 import { FilterMenu } from "@/components/ui/FilterMenu";
 import { clsx } from "@/lib/clsx";
 import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
@@ -43,50 +43,7 @@ const SECTION_PREVIEW_COUNT = 6;
    content itself. Keep the canonical taxonomy untouched and group only the
    browse/navigation layer into seven practitioner-friendly buckets. The
    original category headers and card metadata still render below. */
-const CUSTOMER_CATEGORY_GROUPS = [
-  {
-    id: "acquisition-activation",
-    label: { en: "Acquisition & Activation", tr: "Kazanım ve Aktivasyon" },
-    categories: ["acquisition", "activation"],
-    iconCategory: "acquisition",
-  },
-  {
-    id: "engagement-relationships",
-    label: { en: "Engagement & Communication", tr: "Etkileşim ve İletişim" },
-    categories: ["retention", "feedback", "consent", "communication"],
-    iconCategory: "retention",
-  },
-  {
-    id: "trust-identity-access",
-    label: { en: "Identity & Access", tr: "Kimlik ve Erişim" },
-    categories: ["access", "identity", "structure", "terminal"],
-    iconCategory: "identity",
-  },
-  {
-    id: "transactions-orders",
-    label: { en: "Payments & Orders", tr: "Ödeme ve Siparişler" },
-    categories: ["financial", "fulfillment", "remedy"],
-    iconCategory: "financial",
-  },
-  {
-    id: "subscriptions-scheduling",
-    label: { en: "Subscriptions & Scheduling", tr: "Abonelik ve Planlama" },
-    categories: ["subscription", "time", "scheduling"],
-    iconCategory: "subscription",
-  },
-  {
-    id: "decisions-governance",
-    label: { en: "Decisions & Governance", tr: "Karar, Risk ve Kontrol" },
-    categories: ["ownership", "decision", "risk", "control"],
-    iconCategory: "decision",
-  },
-  {
-    id: "data-operations",
-    label: { en: "Data & Operations", tr: "Veri ve Operasyon" },
-    categories: ["integration", "processing", "document", "data", "rollout", "incident"],
-    iconCategory: "document",
-  },
-] as const;
+
 
 
 function CategorySection({
@@ -234,51 +191,25 @@ export default function JourneyGallery({
 
   const customerGroups = useMemo(() => {
     if (surface !== "customer-journeys" || !isDefault) return [];
-    const byId = new Map(sections.map((s) => [s.meta.id, s]));
-    const mapped = new Set<string>();
-    const grouped: Array<{
-      id: string;
-      label: string;
-      iconCategory: string;
-      sections: Array<(typeof sections)[number]>;
-      count: number;
-    }> = CUSTOMER_CATEGORY_GROUPS.map((group) => {
-      const childSections = group.categories
-        .map((id) => byId.get(id))
-        .filter((s): s is (typeof sections)[number] => Boolean(s));
-      for (const s of childSections) mapped.add(s.meta.id);
+    const rowById = new Map(allRows.map((row) => [row.id, row]));
+    return PUBLIC_JOURNEY_CATEGORIES.map((group) => {
+      const items = group.journeyIds
+        .map((id) => rowById.get(id))
+        .filter((row): row is JourneyRow => Boolean(row));
       return {
         id: group.id,
         label: group.label[lang],
+        description: group.description[lang],
         iconCategory: group.iconCategory,
-        sections: childSections,
-        count: childSections.reduce((sum, s) => sum + s.items.length, 0),
+        items,
+        count: items.length,
       };
-    }).filter((group) => group.sections.length > 0);
-
-    // Defensive fallback: a future public category must never disappear just
-    // because this presentation grouping has not been updated yet.
-    for (const s of sections) {
-      if (mapped.has(s.meta.id)) continue;
-      grouped.push({
-        id: `category-${s.meta.id}`,
-        label: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr),
-        iconCategory: s.meta.id,
-        sections: [s],
-        count: s.items.length,
-      });
-    }
-    return grouped;
-  }, [surface, isDefault, sections, lang]);
+    }).filter((group) => group.items.length > 0);
+  }, [surface, isDefault, allRows, lang]);
 
   // Presets answer to their own names and aliases; a category or channel
   // filter does not apply to them (they are cards over a parent, not rows).
-  const matchingPresets = useMemo(() => {
-    if (!presets.length || channel || goal) return isDefault ? presets : [];
-    const q = query.trim().toLowerCase();
-    if (!q) return presets;
-    return presets.filter((p) => [p.name, p.parentName, ...p.aliases].some((x) => x.toLowerCase().includes(q)));
-  }, [presets, query, channel, goal, isDefault]);
+  const matchingPresets: readonly PresetRow[] = [];
 
   const clearEverything = () => {
     setChannel("");
@@ -390,9 +321,6 @@ export default function JourneyGallery({
         <CategoryRail
           title={labels.railTitle}
           items={[
-            ...(matchingPresets.length
-              ? [{ id: "presets", anchor: "presets", label: labels.presetsTitle, count: matchingPresets.length, icon: <CategoryIcon id="presets" className={categoryAccent("presets").ink} /> }]
-              : []),
             ...(surface === "customer-journeys"
               ? customerGroups.map((group) => ({
                   id: group.id,
@@ -413,61 +341,50 @@ export default function JourneyGallery({
         />
       ) : null}
       <div className="min-w-0">
-      {matchingPresets.length ? (
-        <section id="presets" data-cat="presets" className="scroll-mt-24">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="text-h3 text-ink-950">{labels.presetsTitle}</h2>
-            <span className="shrink-0 text-sm text-ink-500 tabular-nums">{matchingPresets.length}</span>
-          </div>
-          <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-ink-600">{labels.presetsIntro}</p>
-          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {matchingPresets.map((p) => (
-              <IdeaCard
-                key={p.id}
-                href={`${basePath}/${p.slug}`}
-                icon={<CategoryIcon id="presets" />}
-                iconTone={categoryAccent("presets").tile}
-                title={p.name}
-                badges={[{ label: labels.presetBadge, tone: "accent" }]}
-                body={p.applicableWhen}
-                footLeft={`${labels.presetOf} ${p.parentName}`}
-                footRight={p.categoryTitle}
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
+
 
       {isDefault ? (
         surface === "customer-journeys" ? (
-          <div className={clsx("flex flex-col gap-14", matchingPresets.length ? "mt-14" : "")}>
+          <div className="flex flex-col gap-14">
             {customerGroups.map((group) => (
-              <div
+              <section
                 key={group.id}
                 id={`group-${group.id}`}
                 data-cat={group.id}
-                className="scroll-mt-24 flex flex-col gap-14"
+                className="scroll-mt-24"
               >
-                {group.sections.map((s) => (
-                  <CategorySection
-                    key={s.meta.id}
-                    meta={s.meta}
-                    items={s.items}
-                    lang={lang}
-                    t={t}
-                    basePath={basePath}
-                    labels={labels}
-                    surface={surface}
-                    emptyChannelLabel={emptyChannelLabel}
-                    humanRoutingLabel={humanRoutingLabel}
-                    trackInRail={false}
-                  />
-                ))}
-              </div>
+                <CategoryHeader
+                  id={group.iconCategory}
+                  code=""
+                  title={group.label}
+                  count={group.count}
+                  countLabel={labels.journeysLabel[surface][group.count === 1 ? 0 : 1]}
+                  purpose={group.description}
+                />
+                <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {group.items.map((j) => (
+                    <JourneyIdeaCard
+                      key={j.id}
+                      href={`${basePath}/${j.slug}`}
+                      id={j.id}
+                      lang={lang}
+                      title={j.shortName ?? j.name}
+                      category={j.category}
+                      categoryTitle={group.label}
+                      purpose={j.purpose}
+                      nodeCount={j.nodeCount}
+                      nodesLabel={t.nodesLabel}
+                      channels={sortChannels(j.channels)}
+                      internalLabel={emptyChannelLabel}
+                      typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
+                    />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
         ) : (
-          <div className={clsx("flex flex-col gap-14", matchingPresets.length ? "mt-14" : "")}>
+          <div className="flex flex-col gap-14">
             {sections.map((s) => (
               <CategorySection
                 key={s.meta.id}
@@ -494,7 +411,7 @@ export default function JourneyGallery({
           </Button>
         </div>
       ) : (
-        <div className={clsx("grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3", matchingPresets.length ? "mt-14" : "")}>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {localFiltered.map((j) => (
             <JourneyIdeaCard
               key={j.id}
@@ -503,7 +420,7 @@ export default function JourneyGallery({
               lang={lang}
               title={j.shortName ?? j.name}
               category={j.category}
-              categoryTitle={j.categoryTitle}
+              categoryTitle={publicJourneyCategoryLabel(j.id, lang) ?? j.categoryTitle}
               purpose={j.purpose}
               nodeCount={j.nodeCount}
               nodesLabel={t.nodesLabel}
