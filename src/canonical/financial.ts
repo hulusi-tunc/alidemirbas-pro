@@ -2745,7 +2745,7 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.decision",
         "label": "CANONICAL_RULE",
-        "text": "The decision to refund is not this journey's to announce. Whether a refund was approved, refused or is under review is said by the journey that decided it (FIN-137). This one opens only once money is actually moving, and it is the only journey that announces that movement: the case-closure message from the support request acknowledgement (REM-305) says that the request is closed and that a resolution was reached, and states no amount, no timing and no settlement state, so the two complement each other rather than compete."
+        "text": "The decision to refund is not this journey's to announce. Whether a refund was approved, refused or is under review is said by the journey that decided it (FIN-137). This one opens only once money is actually moving, and it is the only journey that announces that movement."
       },
       {
         "id": "s.approved",
@@ -3285,10 +3285,6 @@ export const FINANCIAL_JOURNEYS: readonly CanonicalJourney[] = [
         "journey": "FIN-134",
         "because": "FIN-134 is money that failed to come in and an obligation that stays open. This is money going back out against an obligation already discharged; the two share a payment record and nothing else."
       },
-      {
-        "journey": "REM-305",
-        "because": "REM-305 closes a support request and tells the requester that a resolution was reached; its subject is the case, and it states no amount, no timing and no settlement state. This journey is the one that announces the money, read from the financial record rather than from the case. Where a refund closed a request the two messages sit beside each other - a closed case and a payment moving - and neither is in the other's competition group, because suppressing either would leave the person with half the story."
-      }
     ],
     "guardrails": [
       "Approved is not refunded and submitted is not settled; each message says which is true at the moment it is sent.",

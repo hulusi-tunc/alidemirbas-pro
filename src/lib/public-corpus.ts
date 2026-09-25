@@ -168,6 +168,13 @@ export const ARCHIVED_SURFACE = "operational" as const;
    booking-lifecycle group; SCH-266 now holds that lowest precedence in
    its place, and every reworded precedence text keeps the same real
    ordering among the two remaining members - taking the library to 43.
+   REM-305 (Support Request Acknowledgement) was retired next, the site
+   owner's request - it had no real inbound handoffs, only three prose
+   distinctFrom rows (REM-151, FBK-43's own note, FIN-138's suppression
+   text), all removed or reworded. REM-151 lost its last
+   competition-group partner (service-request) in the process and its
+   `competition` field was set to the literal "none" - taking the
+   library to 42.
    Everything below that
    still says "69" is describing
    how the count got there, not the current total - see PUBLIC_LIBRARY_IDS
@@ -235,9 +242,9 @@ export const PUBLIC_LIBRARY_IDS: ReadonlySet<string> = new Set([
   "FBK-41", "FBK-43",
   // Access, identity & relationship - 2
   "ACC-261", "REL-284",
-  // Transactions, fulfillment & remedies - 7
+  // Transactions, fulfillment & remedies - 6
   "FIN-134", "FIN-302", "FUL-146", "FUL-148", "FUL-291",
-  "REM-151", "REM-305",
+  "REM-151",
   // Subscriptions & scheduling - 9
   "SCH-266", "SCH-282", "SCH-303", "SUB-163",
   "SUB-262", "SUB-296", "SUB-297", "SUB-298", "SUB-299",

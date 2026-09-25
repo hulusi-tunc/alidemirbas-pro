@@ -735,11 +735,6 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
           "FBK-41 begins only if something actually comes back, and most requests do not produce one. This begins once feedback has actually arrived and reacts to what it says.",
       },
       {
-        journey: "REM-305",
-        because:
-          "REM-305 starts from a request made of us and owns acknowledging it to the person who asked. This starts from an account of an experience; where that experience is a support need, this journey raises the work item and REM-305, not this one, tells the requester it was received.",
-      },
-      {
         journey: "REM-151",
         because:
           "REM-151 starts from a concrete problem with something already delivered and asks which recovery route would satisfy it - the obligation is already known to exist. This journey starts from an account of an experience and works out whether an operational issue exists at all; where one clearly does, REM-151 owns the remedy route rather than this journey re-assessing it.",
@@ -1345,7 +1340,7 @@ export const FEEDBACK_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "a.obligation",
         kind: "action",
-        does: "Create the work item in the owning process, carrying the feedback record id so the two stay linked. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events. The requester is acknowledged by REM-305 on support_request_received - not from here",
+        does: "Create the work item in the owning process, carrying the feedback record id so the two stay linked. From here the issue has its own lifecycle and its own owner; this record stays open independently, because the issue closing and the person hearing back are two different events. No acknowledgement is sent from here",
         writes: [{ field: "feedback_log", mode: "append" }],
         next: "w.outcome",
         execution: "human",

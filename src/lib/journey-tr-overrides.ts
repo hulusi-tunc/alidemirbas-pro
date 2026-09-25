@@ -365,109 +365,6 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     },
   },
   },
-  "REM-305": {
-  shortName: "Destek Talebi Alındı Bildirimi",
-  name: "Hizmet talebi alındı → alındı bildirildi ya da zaten çözülmüştü → kapandı veya işi yürütene devredildi",
-  purpose: "Bir sorunu bildiren kişiye, o talebin var olduğunu, bir sahibi bulunduğunu ve kaybolmadığını söylemek - bir kez, işlemsel olarak ve henüz kimsenin karar vermediği bir sonucu vaat etmeden.",
-  nodes: {
-    "t.received": { headline: "Hizmet talebi alındı" },
-    "a.capture": {
-      headline: "Talebi, kişinin geri okuyabileceği ve ekibin bulabileceği bir referansla kaydet: kimin bildirdiği, sorunu nasıl anlattığı, hangi kanaldan geldiği, ne zaman geldiği ve şu anda kimin sahiplendiği. Sahibi bir isim değil de bir kuyruk olan talep, kimsenin üstlenmediği taleptir",
-    },
-    "c.covered": {
-      headline: "Bu sorunu zaten kapsayan açık bir talep var mı?",
-      edges: [
-        { label: "Zaten kapsanıyor", detail: "aynı kişiden gelen açık bir talep aynı sorunla ilgili" },
-        { label: "Açık talep yok", detail: "bu kişiden gelen hiçbir açık talep bu sorunla ilgili değil" },
-      ],
-    },
-    "a.attach": {
-      headline: "Yeni anlatılanı, o sorun için zaten açık olan talebe ekle ve o talebin kendi alındı bildirimini geçerli bırak. İkinci bir talep açmak iki sahip, iki yanıt ve hangisine inanacağına karar vermeye çalışan bir kişi üretir",
-    },
-    "c.immediate": {
-      headline: "Bu talep, alındığı anda çoktan çözülmüş müydü?",
-      edges: [
-        { label: "Alındığında çözülmüş", detail: "kayıt, talebin girişte çözülmüş olarak kapandığını ve onu neyin çözdüğünü gösteriyor" },
-        { label: "Hâlâ açık", detail: "talep bir sahiple açık olarak kayıtlı ve karşısında herhangi bir çözüm yok" },
-      ],
-    },
-    "c.sendable-now": {
-      headline: "\"Zaten çözülmüş\" mesajı gönderilebilir mi?",
-      edges: [
-        { label: "Gönderilebilir", detail: "sert kapılar bu amaçla iletişime izin veriyor ve iletişim noktası ulaşılabilir durumda" },
-        { label: "Engellendi", detail: "sert bir kapı durduruyor; başka bir yol zorlanmak yerine hangi kapının durdurduğu gerekçe olarak kaydedilir" },
-      ],
-    },
-    "a.resolved-now": {
-      headline: "Bildirdikleri şeyin çoktan yapılmış olduğunu ve talebi hangi çözümün kapattığını, talebin başına ne geldiği olarak söyle. O çözüm paranın geri dönmesiyse, paranın kendisi burada anılmaz - tutar, zamanlama ve paranın hesaba geçip geçmediği finansal kaydın duyuracağı şeylerdir (FIN-302). Burada bir alındı bildirimi, artık var olmayan bir soruna ilgi göstereceğini vaat eder ve kişi o ilgiyi beklemeye başlar",
-    },
-    "c.sendable": {
-      headline: "Alındı bildirimi gönderilebilir mi?",
-      edges: [
-        { label: "Gönderilebilir", detail: "zorunlu kontroller bu amaçla iletişime izin veriyor ve iletişim noktası ulaşılabilir durumda; bu mesaj kişiye borçlu olunduğu için iletişim yoğunluğu limiti uygulanmaz" },
-        { label: "Engellendi", detail: "sert bir kapı durduruyor; hangi kapının durdurduğu kaydedilir ve talep yine de sahibine ulaşır" },
-      ],
-    },
-    "a.acknowledge": {
-      headline: "Talebin var olduğunu, hangi referansla kayıtlı olduğunu, şu anda kimin sahiplendiğini ve bundan sonra ne olacağını söyle. Çözüm yok, hak ediş yok, kusur atfı yok - hiçbirine karar verilmedi ve burada yapılacak bir tahmin, kişinin sonradan herkesi bağlı tutacağı şey olur",
-    },
-    "w.window": {
-      headline: "talep sahibi ekip ya da sistem tarafından çözülmüş olarak kaydedilene ya da talep sahibi talebini geri çekene kadar",
-      detail: "Zaman aşımı: alındı bildiriminin kapsadığı süre - hiçbir şey olmadığı için başka bir şey söylememenin dürüst olduğu süre. Bu sürenin ardından talep sessiz değildir, yalnızca sahibi başkasıdır. (support_ack.window ayarlanmalı)",
-    },
-    "c.outcome": {
-      headline: "Alındı bildirimi penceresi neyle sonuçlandı?",
-      edges: [
-        { label: "Çözüldü", detail: "talep, sahibi olan taraf tarafından çözülmüş olarak kayda geçti" },
-        { label: "Geri çekildi", detail: "talep sahibi talebini geri çekti" },
-      ],
-    },
-    "c.open": {
-      headline: "Alındı bildirimi penceresi kapandığına göre talep hâlâ açık mı?",
-      edges: [
-        { label: "Hâlâ açık - tamamlanmış bir teslimat ya da hizmet sorunu", detail: "talep bir sahibe karşı açık olarak kayıtlı; ne bir çözüm ne de bir geri çekme var ve yetkili talep bağlamı, bunun tamamlanmış bir teslimatı ya da somut, çözülmemiş bir sorunu olan tamamlanmış bir hizmeti ilgilendirdiğini gösteriyor" },
-        { label: "Hâlâ açık - başka bir konu", detail: "talep bir sahibe karşı açık olarak kayıtlı; ne bir çözüm ne de bir geri çekme var, ve tamamlanmış bir teslimatı ya da somut, çözülmemiş bir sorunu olan tamamlanmış bir hizmeti ilgilendirmiyor" },
-        { label: "Pencere sürerken kapanmış", detail: "talep pencere kapanmadan önce çözülmüş olarak kaydedilmiş ve bu olay mutabakatla doğrulanmış" },
-      ],
-    },
-    "c.sendable2": {
-      headline: "Çözüm bildirimi gönderilebilir mi?",
-      edges: [
-        { label: "Gönderilebilir", detail: "sert kapılar bu amaçla iletişime izin veriyor, iletişim noktası ulaşılabilir durumda ve kayıt talebi neyin kapattığını gerçekten taşıyor" },
-        { label: "Engellendi", detail: "sert bir kapı durduruyor ya da kayıt, talebin kişiye anlatılabilecek hiçbir şey olmadan kapandığını gösteriyor; gerekçe kaydedilir" },
-      ],
-    },
-    "a.resolution": {
-      headline: "Talebin kapandığını ve bir çözüme ulaşıldığını, talep sahibinin sorunu anlattığı terimlerle söyle - hareket eden paranın terimleriyle değil; o FIN-302'ye aittir. Bu mesaj, talebin kendi durumu değiştiği için gönderilir; ikinci bir mesajın var olmasının tek nedeni budur",
-    },
-    "a.record-no-action": {
-      headline: "Mesajı hangi kapının ve hangi aşamada durdurduğunu kaydet; böylece hiçbir şey duymayan bir talep sahibi sessiz bir boşluk değil, ölçülen bir sonuç olur - ve kimse bu sessizliği talebin hiç ulaşmadığı biçiminde okumaz",
-    },
-    "h.owner": {
-      detail: "alındı bildirimi penceresi kapandığında hâlâ açık olan ve artık sorunun kendisinin tespit edilmesi gereken bir talep",
-    },
-    "x.resolved": {
-      headline: "Çözüldü",
-      detail: "aynı kişiden gelen başka bir talep kendi örneğidir; hiçbir şey açık değilken yeniden anlatılan aynı sorun yeni bir talep olarak girer",
-    },
-    "x.attached": {
-      headline: "Bu sorun için zaten açık olan talebe eklendi",
-      detail: "o talep sorun hâlâ ortadayken kapanırsa, sorunun bir sonraki anlatımı kendi kanıtıyla yeni bir talep olarak girer",
-    },
-    "x.withdrawn": {
-      headline: "Talep sahibi tarafından geri çekildi",
-      detail: "aynı sorunla ilgili yeni bir talep yeni bir örnektir; kişi bu konuda başka iletişim istemediğini söylemediyse",
-    },
-    "x.no-action": {
-      headline: "Hiçbir mesaj gönderilmedi",
-      detail: "aynı kişiden gelen sonraki bir talep kendi kapılarıyla değerlendirilir",
-    },
-    "x.owned": {
-      headline: "Talep, işi sahiplenen ekipte; bu süreç bundan sonra hiçbir şey söylemiyor",
-      detail: "aynı kişiden gelen sonraki bir talep kendi örneğidir; bu sürecin kendi alındı bildirimi ve damlama karşıtı kuralı ona da aynen uygulanır",
-    },
-  },
-  },
   "ACQ-289": {
   shortName: "Yeniden Stokta Bildirimi",
   name: "Ürün alınamazken ilgi kaydedildi → ürün yeniden alınabilir oldu → bildirildi → satın alındı veya kapandı",
@@ -2373,7 +2270,7 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     "c.route": { headline: "Bu, operasyonel olarak ne anlama geliyor?", edges: [{ label: "Övgü", detail: "olumlu, arkasında somut bir gerekçe var" }, { label: "Hizmet sorunu veya şikayet", detail: "bir şey yanlış gitti, ya da yanlış gittiği iddia ediliyor" }, { label: "Yardım talebi", detail: "bir arıza bildirmek yerine bir konuda yardıma ihtiyaçları var" }, { label: "Ürün geri bildirimi", detail: "bu kişiye karşı herhangi bir yükümlülük doğurmayan, ürünle ilgili bir gözlem" }, { label: "Genel yorum", detail: "saklanmaya değer, yapılacak bir şey yok" }, { label: "Anlamı belirsiz", detail: "anlam, yönlendirme yapılabilecek kadar güvenilir şekilde belirlenemiyor" }] },
     "a.persist-positive": { headline: "Bunu tarihli, kapsamı belirli, olumlu bir ilişki kanıtı parçası olarak kaydet. Bir etiket değil, bir durum değil, bir savunucu işareti değil - bir ana dair bir gerçek" },
     "c.existing": { headline: "Açık bir sorun veya vaka bunu zaten kapsıyor mu?", edges: [{ label: "Zaten açık", detail: "aynı deneyim veya varlıkla ilgili açık bir sorun, anlattıklarıyla eşleşiyor" }, { label: "Açık bir şey yok", detail: "eşleşen açık bir sorun yok" }] },
-    "a.obligation": { headline: "Sahip süreçte iş kalemini, iki kaydın bağlantılı kalması için geri bildirim kayıt kimliğiyle oluştur. Bu noktadan itibaren sorunun kendi yaşam döngüsünü ve sahibi vardır; kayıt bağımsız olarak açık kalır çünkü sorunun kapanması ile kişiye geri dönüş yapılması iki farklı olay'tir. Talep sahibi burada değil, support_request_received üzerine REM-305 tarafından bilgilendirilir" },
+    "a.obligation": { headline: "Sahip süreçte iş kalemini, iki kaydın bağlantılı kalması için geri bildirim kayıt kimliğiyle oluştur. Bu noktadan itibaren sorunun kendi yaşam döngüsünü ve sahibi vardır; kayıt bağımsız olarak açık kalır çünkü sorunun kapanması ile kişiye geri dönüş yapılması iki farklı olay'tir. Buradan hiçbir bilgilendirme gönderilmez" },
     "a.product": { headline: "Bunu kanıt olarak ürün girdisine ilet. Karşılığında bu kişiye hiçbir şey borçlu değiliz ve kendilerine hiçbir söz verilmez" },
     "c.acknowledge": { headline: "Bir teyit uygun mu?", edges: [{ label: "Teyit edilmeye değer", detail: "bize doğrudan hitap ettiler ve bir yanıt bekliyor olabilirler" }, { label: "Gerekli değil", detail: "bir teyit gürültüden başka bir şey olmaz" }] },
     "h.triage": { headline: "Karar talebi → doğrula → yönlendir, reddet veya beklet", detail: "güvenilir şekilde sınıflandırılamayan geri bildirim" },

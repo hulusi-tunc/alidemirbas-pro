@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 277", journeys.length === 277);
+check(1, "active journey count = 276", journeys.length === 276);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -365,6 +365,16 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 276 journeys / 3668 nodes (2026-09-25). REM-305
+// (Support Request Acknowledgement) was retired, the site owner's
+// request. It had no real inbound handoffs, only three prose
+// distinctFrom rows (REM-151, FBK-43's own note, FIN-138's suppression
+// text), all removed or reworded. REM-151 lost its last
+// competition-group partner (service-request) in the process and its
+// `competition` field was set to the literal "none", dropping the
+// group count from 11 to 10. 277 -> 276 journeys, -21 nodes net. Rules
+// (423), global rules (31) and merged redirects (8) are unchanged.
 //
 // FROZEN BASELINE: 277 journeys / 3689 nodes (2026-09-25). SCH-304
 // (Pre-Arrival Preparation) was retired, the site owner's request. It
@@ -1011,9 +1021,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (277 journeys / 3689 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 277 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3689 &&
+  "canonical source mutation = 0 (276 journeys / 3668 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 276 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3668 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

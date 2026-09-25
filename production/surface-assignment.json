@@ -2,10 +2,10 @@
   "generatedFrom": "production/canonical-dump.json",
   "rule": "src/canonical/surface.ts",
   "totals": {
-    "journeys": 277,
-    "customer": 128,
+    "journeys": 276,
+    "customer": 127,
     "customer-silent": 66,
-    "customer-communicating": 62,
+    "customer-communicating": 61,
     "mechanism": 25,
     "operational": 124
   },
@@ -1857,17 +1857,6 @@
       "silent": false,
       "excludedFromPublic": false,
       "reason": "no message channel and a system-side entity or category"
-    },
-    {
-      "id": "REM-305",
-      "shortName": "Support Request Acknowledgement",
-      "category": "remedy",
-      "surface": "customer",
-      "sends": true,
-      "routesToHuman": false,
-      "silent": false,
-      "excludedFromPublic": false,
-      "reason": "declares a message channel (email, in-app)"
     },
     {
       "id": "SUB-161",
