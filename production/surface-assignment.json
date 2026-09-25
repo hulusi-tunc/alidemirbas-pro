@@ -1691,7 +1691,7 @@
       "routesToHuman": false,
       "silent": false,
       "excludedFromPublic": false,
-      "reason": "declares a message channel (email, sms)"
+      "reason": "declares a message channel (email, push, whatsapp)"
     },
     {
       "id": "FUL-147",

@@ -366,6 +366,35 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 278 journeys / 3700 nodes (2026-09-25). FUL-146
+// (Fulfillment Delay) was rebuilt to match a reference flowchart the site
+// owner supplied, literal box for box: the estimate check now splits into
+// two distinct notice touches - a push notice naming the new date when the
+// cause is understood well enough to predict one, an email notice saying
+// plainly that no reliable date exists yet otherwise - dropping the old
+// c.recipient-impact judgment gate the image never draws, since every delay
+// gets a notice unconditionally there. A short fixed wait then re-reads the
+// record for delivery (reusing the existing x.resumed exit rather than
+// inventing a second success exit for the same real event), and a second
+// slip re-checks the same tolerance threshold as before: within it, a push
+// keeps the recipient pointed at tracking and feeds the same open-ended
+// w.resume wait the graph already had; beyond it, the apology-and-alternative
+// offer goes out on WhatsApp and email together, naming a new date, a
+// different delivery point, or support rather than the old wait/reschedule/
+// alternative/cancel wording. All three real outbound handoffs survive the
+// rebuild: h.exception -> FUL-145 now reads as a delivery-point change
+// rather than a generic "alternative", h.cancel -> FUL-150 is kept as a
+// real, always-available outcome even though the image's own offer copy
+// never enumerates it, and h.escalate -> OWN-55 keeps both of its real
+// paths (nothing left to offer; outliving the revised horizon) and gains a
+// third - the counterparty explicitly asking for a person's help - rather
+// than being routed to a fabricated new target. channels moves from
+// email/sms to email/push/whatsapp (sms drops out entirely; nothing in the
+// rebuilt graph still sends one), and implementation.attributes gains
+// push_token and phone_number to match. Same id/slug, so the three real
+// sibling h.delay handoffs into this journey (FUL-144, FUL-145, FUL-147)
+// stay valid without any change on their side. 19 -> 22 nodes, +3 net.
+//
 // FROZEN BASELINE: 278 journeys / 3697 nodes (2026-09-24). ACT-14
 // (Struggling User Assistance) was rebuilt to match a reference flowchart
 // the site owner supplied, literal box for box: the hard-gate eligibility
@@ -939,9 +968,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (278 journeys / 3697 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (278 journeys / 3700 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 278 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3697 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3700 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

@@ -1493,7 +1493,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "fulfillment-delay",
     category: "fulfillment",
     goal: "scheduling-commitment",
-    channels: ["email", "sms"],
+    channels: ["email", "push", "whatsapp"],
     name: "Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
     shortName: "Delivery Delay Alert",
     purpose:
@@ -1546,12 +1546,12 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "fulfillment_delay.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "rule": "Every touch runs against a budget fixed when the instance opened, counted as the longest path through the cascade rather than the node count: the delay or status notice, the tracking update, and the offer or no-choice update.",
           "default": {
-            "value": 2,
+            "value": 3,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; one delay update and one offer or no-choice update"
+            "applicableWhen": "GLB-24; the graph's own touch count - the delay or status notice, the tracking update, and the offer or no-choice update"
           },
           "required": false
         },
@@ -1582,12 +1582,23 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         {
           "role": "urgent",
           "channels": [
-            "sms"
+            "push"
           ],
           "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "whatsapp"
+          ],
+          "when": "the second-slip offer benefits from a route with high open rates and permission for messages on this channel is recorded"
         }
       ],
       "fallback": "same-role-other-channel",
+      "simultaneous": {
+        "allowed": true,
+        "reason": "the email carries the full offer - a new date, a different delivery point, support, or cancelling - in a form that survives until they act; the WhatsApp message is the faster-opening route to the same offer. Sent together once the delay has exceeded tolerance a second time."
+      },
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -1598,10 +1609,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "stage": "delay-update",
           "action": "a.delay-update",
           "prerequisites": [
-            "c.estimate",
-            "c.recipient-impact"
+            "c.estimate"
           ],
-          "purpose": "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed.",
+          "purpose": "State the current estimate and the date it points to, with the original commitment preserved behind it.",
           "channelRoles": [
             "urgent"
           ],
@@ -1610,11 +1620,41 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         {
           "id": "t2",
+          "stage": "status-update",
+          "action": "a.status-update",
+          "prerequisites": [
+            "c.estimate"
+          ],
+          "purpose": "Say plainly that no reliable estimate exists yet and that a confirmed date will follow once the cause is understood well enough to name one.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "track-update",
+          "action": "a.track-update",
+          "prerequisites": [
+            "c.estimate",
+            "c.delivered",
+            "c.threshold"
+          ],
+          "purpose": "Say that the delivery is still delayed and give a way to track its current status, without repeating a date that already slipped once.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t4",
           "stage": "no-choice-update",
           "action": "a.no-choice-update",
           "prerequisites": [
             "c.estimate",
-            "c.recipient-impact",
+            "c.delivered",
             "c.threshold",
             "c.choice"
           ],
@@ -1626,18 +1666,19 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t3",
+          "id": "t5",
           "stage": "offer",
           "action": "a.offer",
           "prerequisites": [
             "c.estimate",
-            "c.recipient-impact",
+            "c.delivered",
             "c.threshold",
             "c.choice"
           ],
-          "purpose": "Offer the choices that are actually available - wait, reschedule, an alternative, or cancel.",
+          "purpose": "Offer the choices that are actually available - a new date, a different delivery point, support from a person, or cancelling.",
           "channelRoles": [
-            "persistent"
+            "persistent",
+            "low-friction"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -1668,7 +1709,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "available_choices",
           "fulfillment_log"
         ],
-        "optional": []
+        "optional": [
+          "push_token",
+          "phone_number"
+        ]
       }
     },
     measurement: {
@@ -1716,7 +1760,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       "useCases": [
         "a material slip stated with the original commitment intact behind the new estimate",
-        "a delay beyond tolerance with real choices - wait, reschedule, an alternative, cancel"
+        "a delay beyond tolerance with real choices - a new date, a different delivery point, support, or cancelling"
       ]
     },
     entry: "t.slip",
@@ -1766,7 +1810,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Update the expected timing, appending to the commitment history. The original commitment is preserved - what was promised and what it became are two facts, and keeping both is the only way a repeated slip becomes visible",
         writes: [{ field: "fulfillment_log", mode: "append" }],
-        next: "c.recipient-impact",
+        next: "a.delay-update",
         idempotencyKey: "obligation_id + a.update",
       },
       {
@@ -1774,62 +1818,96 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record that no reliable estimate exists rather than issuing one. Repeatedly promising dates that do not hold costs more trust than admitting the date is unknown, and each broken date makes the next one worth less",
         writes: [{ field: "fulfillment_log", mode: "append" }],
-        next: "c.recipient-impact",
+        next: "a.status-update",
         idempotencyKey: "obligation_id + a.no-estimate",
-      },
-      {
-        id: "c.recipient-impact",
-        kind: "condition",
-        asks: "Does the changed timing alter what the recipient should plan around?",
-        branches: [
-          {
-            label: "It changes their plans",
-            when: "the new estimate, or the loss of a reliable one, moves something they arranged their own time or commitments around",
-            observes: "current_estimate",
-            to: "a.delay-update",
-          },
-          {
-            label: "No material change for them",
-            when: "the slip stays inside what they were already told to expect and nothing they arranged moves",
-            observes: "current_estimate",
-            to: "w.resume",
-          },
-        ],
       },
       {
         id: "a.delay-update",
         kind: "action",
-        does: "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed. A slip that is real in the record and invisible to the person waiting is the failure this journey exists to prevent - and it stays true inside tolerance, because tolerance is ours, not theirs",
+        does: "State the current estimate and the date it points to, with the original commitment preserved behind it. A slip that is real in the record and invisible to the person waiting is the failure this journey exists to prevent - and it stays true inside tolerance, because tolerance is ours, not theirs",
         execution: "communication",
-        next: "c.threshold",
+        next: "w.check1",
         idempotencyKey: "obligation_id + a.delay-update",
       },
       {
-        id: "a.no-choice-update",
+        id: "a.status-update",
         kind: "action",
-        does: "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left. Escalating in silence tells the recipient nothing is happening at the exact moment most is",
+        does: "Say plainly that no reliable estimate exists yet and that a confirmed date will follow once the cause is understood well enough to name one. Repeatedly promising dates that do not hold costs more trust than admitting the date is unknown, and each broken date makes the next one worth less",
         execution: "communication",
-        next: "h.escalate",
-        idempotencyKey: "obligation_id + a.no-choice-update",
+        next: "w.check1",
+        idempotencyKey: "obligation_id + a.status-update",
+      },
+      {
+        id: "w.check1",
+        kind: "wait",
+        until: [
+          "fulfillment_resumed_or_completed"
+        ],
+        onEvent: "x.resumed",
+        timeout: {
+          "after": {
+            "key": "fulfillment_delay.first_recheck",
+            "rule": "A short fixed span after the delay notice, before the record is re-read for delivery.",
+            "class": "observation-window",
+            "default": {
+              "value": "1 day",
+              "confidence": "low",
+              "basis": "example-only"
+            },
+            "required": false
+          },
+          "reason": "a short wait before checking delivery again catches the common case without turning every notice into a running commentary",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "c.delivered",
+        windowExtendsOnEngagement: false,
+        recheck: "the obligation and its timing commitment re-read from the system of record before acting on the timeout",
+      },
+      {
+        id: "c.delivered",
+        kind: "condition",
+        asks: "Has the record shown the obligation fulfilled?",
+        branches: [
+          {
+            label: "Delivered",
+            when: "the system of record now shows the obligation fulfilled",
+            observes: "fulfillment_log",
+            to: "x.resumed",
+          },
+          {
+            label: "Not delivered",
+            when: "the obligation remains open against its current estimate",
+            observes: "fulfillment_log",
+            to: "c.threshold",
+          },
+        ],
       },
       {
         id: "c.threshold",
         kind: "condition",
-        asks: "Does the delay exceed the acceptable threshold?",
+        asks: "Has the delay now also exceeded what was tolerated?",
         branches: [
           {
             label: "Within tolerance",
             when: "the new timing is still inside what the commitment or policy accepts",
             observes: "tolerance",
-            to: "w.resume",
+            to: "a.track-update",
           },
           {
             label: "Beyond tolerance",
-            when: "the delay has passed what the commitment or policy accepts",
+            when: "the delay has passed what the commitment or policy accepts a second time",
             observes: "tolerance",
             to: "c.choice",
           },
         ],
+      },
+      {
+        id: "a.track-update",
+        kind: "action",
+        does: "Say that the delivery is still delayed and give a way to track its current status, without repeating a date that already slipped once",
+        execution: "communication",
+        next: "w.resume",
+        idempotencyKey: "obligation_id + a.track-update",
       },
       {
         id: "c.choice",
@@ -1851,9 +1929,17 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
+        id: "a.no-choice-update",
+        kind: "action",
+        does: "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left. Escalating in silence tells the recipient nothing is happening at the exact moment most is",
+        execution: "communication",
+        next: "h.escalate",
+        idempotencyKey: "obligation_id + a.no-choice-update",
+      },
+      {
         id: "a.offer",
         kind: "action",
-        does: "Re-read the obligation's resumption state before offering - an obligation that resumed while this choice was being evaluated is not offered cancel or reschedule. Offer the choices that are actually available - wait, reschedule, an alternative, or cancel. Offering a choice that cannot be honoured is worse than offering none, because it converts a delay into a broken second promise",
+        does: "Re-read the obligation's resumption state before offering - an obligation that resumed while this choice was being evaluated is not offered a new date, a different delivery point, or support. Offer the choices that are actually available - a new date, a different delivery point, support from a person, or cancelling. Offering a choice that cannot be honoured is worse than offering none, because it converts a delay into a broken second promise",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.decision",
         execution: "communication",
@@ -1878,19 +1964,24 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "w.resume",
         windowExtendsOnEngagement: false,
-        recheck: "the the obligation and its timing commitment re-read from the system of record before acting on the timeout",
+        recheck: "the obligation and its timing commitment re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.decision",
         kind: "condition",
         asks: "What did they choose?",
         branches: [
-          { label: "Wait", when: "they accept the revised timing", to: "w.resume" },
-          { label: "Reschedule", when: "they want a different date or window", to: "a.reschedule" },
+          { label: "Wait", when: "they accept the revised timing, or decline to choose among the alternatives offered", to: "w.resume" },
+          { label: "A new date", when: "they want a different date or window", to: "a.reschedule" },
           {
-            label: "An alternative",
-            when: "they would take something different instead",
+            label: "A different delivery point",
+            when: "they would take delivery somewhere else instead of waiting",
             to: "h.exception",
+          },
+          {
+            label: "Support",
+            when: "they ask for a person's help rather than choosing among the automated options",
+            to: "h.escalate",
           },
           { label: "Cancel", when: "they no longer want it", to: "h.cancel" },
         ],
@@ -1922,7 +2013,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
-        recheck: "the the obligation and its timing commitment re-read from the system of record before acting on the timeout",
+        recheck: "the obligation and its timing commitment re-read from the system of record before acting on the timeout",
       },
       {
         id: "x.resumed",
@@ -1936,8 +2027,8 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "h.exception",
         kind: "handoff",
         to: "FUL-145",
-        on: "a counterparty choosing an alternative over waiting",
-        carries: ["the alternative they chose", "the obligation as it currently stands"],
+        on: "a counterparty choosing a different delivery point over waiting",
+        carries: ["the delivery point they chose instead", "the obligation as it currently stands"],
       },
       {
         id: "h.cancel",
@@ -1953,7 +2044,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "h.escalate",
         kind: "handoff",
         to: "OWN-55",
-        on: "a delay beyond tolerance with nothing to offer, or outliving its revised horizon",
+        on: "a delay beyond tolerance with nothing to offer, outliving its revised horizon, or the counterparty explicitly asking for a person's help instead of choosing among the automated options",
         carries: [
           "the original commitment, every revision and the cause",
           "the fact that communicating about the delay has not resolved the operational problem behind it",
