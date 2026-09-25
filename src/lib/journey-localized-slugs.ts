@@ -23,3 +23,16 @@ export function journeyIdForLocalizedSlug(slug: string, lang: Lang): string | nu
 }
 
 export const TR_LOCALIZED_JOURNEY_SLUGS = Object.values(TR_SLUG_BY_ID);
+
+export const TR_REPLACED_CANONICAL_SLUGS: readonly string[] = [
+  "bounded-education-progress-or-sunset",
+  "abandoned-selection-recovery",
+  "unresolved-interest-recovery",
+  "checkout-abandonment",
+  "cart-abandonment",
+  "back-in-stock-alert",
+  "struggling-user-assistance",
+  "early-adoption-to-stable-use",
+  "dormant-non-customer-reactivation",
+  "churn-risk-escalation",
+];

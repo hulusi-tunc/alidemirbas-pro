@@ -2,14 +2,18 @@ import type { Metadata } from "next";
 
 import { JourneyFullPage, journeyMetadata } from "@/components/JourneyRoutes";
 import { ALL_DETAIL_SLUGS, journeyDetail } from "@/lib/canonical-view";
-import { journeyIdForLocalizedSlug, TR_LOCALIZED_JOURNEY_SLUGS } from "@/lib/journey-localized-slugs";
+import { journeyIdForLocalizedSlug, TR_LOCALIZED_JOURNEY_SLUGS, TR_REPLACED_CANONICAL_SLUGS } from "@/lib/journey-localized-slugs";
 
 /* Every journey plus every retired id that resolves into one, prerendered.
-   Nothing else is a journey, so nothing else gets a page. */
+   Canonical English slugs replaced by localized Turkish slugs are intentionally
+   excluded so the old Turkish URLs no longer resolve. */
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return [...ALL_DETAIL_SLUGS.filter((slug) => slug !== "lead-nurture"), ...TR_LOCALIZED_JOURNEY_SLUGS].map((slug) => ({ slug }));
+  return [
+    ...ALL_DETAIL_SLUGS.filter((slug) => !TR_REPLACED_CANONICAL_SLUGS.includes(slug)),
+    ...TR_LOCALIZED_JOURNEY_SLUGS,
+  ].map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({

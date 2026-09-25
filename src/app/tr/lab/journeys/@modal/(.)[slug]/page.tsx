@@ -1,11 +1,14 @@
 import { JourneyModalPage } from "@/components/JourneyRoutes";
 import { ALL_DETAIL_SLUGS, journeyDetail } from "@/lib/canonical-view";
-import { journeyIdForLocalizedSlug, TR_LOCALIZED_JOURNEY_SLUGS } from "@/lib/journey-localized-slugs";
+import { journeyIdForLocalizedSlug, TR_LOCALIZED_JOURNEY_SLUGS, TR_REPLACED_CANONICAL_SLUGS } from "@/lib/journey-localized-slugs";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return [...ALL_DETAIL_SLUGS.filter((slug) => slug !== "lead-nurture"), ...TR_LOCALIZED_JOURNEY_SLUGS].map((slug) => ({ slug }));
+  return [
+    ...ALL_DETAIL_SLUGS.filter((slug) => !TR_REPLACED_CANONICAL_SLUGS.includes(slug)),
+    ...TR_LOCALIZED_JOURNEY_SLUGS,
+  ].map((slug) => ({ slug }));
 }
 
 export default async function InterceptedJourney({ params }: { params: Promise<{ slug: string }> }) {
