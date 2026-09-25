@@ -4084,8 +4084,8 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
   },
   "CON-300": {
   shortName: "Yanıt Vermeyen Aboneyi Sonlandırma",
-  name: "Pazarlama iletişimi yanıtsız kaldı → soru bir kez soruldu → sürdürüldü, azaltıldı veya sonlandırıldı",
-  purpose: "Gönderilenlerin hiçbirine yanıt vermemiş biriyle pazarlama iletişimini sürdürmenin hâlâ gerekçeli olup olmadığına karar vermek - bunu bir kez sorarak, \"daha az\" seçeneğini \"hiç\" seçeneğinin yanına gerçek bir yanıt olarak koyarak ve yanıt hiç gelmediğinde iletişimi sonlandırarak.",
+  name: "Pazarlama iletişimi yanıtsız kaldı → aktif kullanıcı atlaması, ardından soruldu, hatırlatıldı ve bir kez teklif sunuldu → sürdürüldü, azaltıldı veya sonlandırıldı",
+  purpose: "Gönderilenlerin hiçbirine yanıt vermemiş biriyle pazarlama iletişimini sürdürmenin hâlâ gerekçeli olup olmadığına karar vermek - başka bir yerde hareketli olduğu görülen herkesi atlayarak, sonra bir kez sorarak, bir kez hatırlatarak ve bir örnek gerçekten kapanmadan önce sonlandırmanın yanına gerçek bir son teklif koyarak.",
   nodes: {
     "t.unengaged": { headline: "Pazarlama iletişimi bir dönem boyunca yanıtsız kaldı" },
     "c.evidence": {
@@ -4096,6 +4096,16 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
         { label: "Zaten yanıtlanmış", detail: "kişi dönem içinde kendi tercihini belirlemiş ya da izniyle ilgili bir karar vermiş" },
       ],
     },
+    "c.active": {
+      headline: "Pazarlama dışında bir şey bu kişinin hâlâ etrafta olduğunu söylüyor mu?",
+      edges: [
+        { label: "Başka yerde aktif", detail: "şirketin kendi yakın zamanlı etkinlik penceresi içinde kaydedilmiş bir satın alma, ürün kullanımı ya da ziyaret, ilişkinin durgun olmadığını söylüyor" },
+        { label: "Aktif değil", detail: "pazarlama iletişimi dışında hiçbir şey bu kişinin hâlâ etrafta olduğunu söylemiyor; sessizlik pazarlamanın da ötesine uzanıyor" },
+      ],
+    },
+    "a.reduce-bypass": {
+      headline: "Pazarlama dışındaki etkinlik ilişkinin durgun olmadığını söylediği için - pazarlama iletişimi kendisi yanıtsız kalmış olsa bile - gönderim sıklığını doğrudan düşür ve önemli olan dışındaki her şeyi geri tut. Bu bir sıklık değişikliğidir, iletişim sorusuna verilmiş bir yanıt değildir ve böyle bir soru sormaz.",
+    },
     "c.sendable": {
       headline: "Soru gönderilebilir mi?",
       edges: [
@@ -4104,11 +4114,11 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "a.ask": {
-      headline: "Pazarlama iletişiminin sürüp sürmeyeceğini bir kez sor ve azaltılmış bir sıklığı tamamen durdurmanın yanına koy; böylece \"daha az\" kişinin gerçekten verebileceği bir yanıt olsun. Hiçbir teklif, hiçbir ayrıcalık ve ilişkiyi savunan hiçbir gerekçe taşıma.",
+      headline: "Pazarlama iletişiminin sürüp sürmeyeceğini bir kez sor ve azaltılmış bir sıklıkla önemli duyurular seçeneğini tamamen durdurmanın yanına koy; böylece \"daha az\" kişinin gerçekten verebileceği bir yanıt olsun. Hiçbir teklif, hiçbir ayrıcalık ve ilişkiyi savunan hiçbir gerekçe taşıma.",
     },
     "w.answer": {
       headline: "soru yanıtlanana kadar",
-      detail: "Zaman aşımı: soruya, son bir bildirim gerekmeden önce yanıtlanması için tanınan süre. (unengaged_sunset.answer_window ayarlanmalı)",
+      detail: "Zaman aşımı: soruya, bir hatırlatma gerekmeden önce yanıtlanması için tanınan sabit süre. (unengaged_sunset.answer_window ayarlanmalı)",
     },
     "c.answered": {
       headline: "Soru bir yanıt aldı mı?",
@@ -4120,27 +4130,53 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
       ],
     },
     "c.sendable2": {
-      headline: "Son bildirim gönderilebilir mi?",
+      headline: "Hatırlatma gönderilebilir mi?",
       edges: [
         { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor ve bu kişiyi şu anda tutan daha yüksek öncelikli bir ulaşılabilirlik akışı yok" },
-        { label: "Kalan yol yok", detail: "bu amaç için izinli ve ulaşılabilir hiçbir hedef kalmamış; bildirimi iletebileceğimiz kimse yok ve gerekçe kaydedilir" },
+        { label: "Kalan yol yok", detail: "bu amaç için izinli ve ulaşılabilir hiçbir hedef kalmamış; hatırlatabileceğimiz kimse yok ve gerekçe kaydedilir" },
       ],
     },
-    "a.final": {
-      headline: "Sona erme tarihini taşıyan tek bir son bildirim ver: pazarlama iletişiminin hangi tarihte biteceğini, onu sürdürecek tek eylemi ve arada duran yanıt olarak azaltılmış sıklığı söyle. İlişkiyi savunan hiçbir şey eklenmez ve başka neyin değiştiğine dair hiçbir iddiada bulunulmaz.",
+    "a.remind": {
+      headline: "Tercih belirlemenin sadece bir dakika sürdüğünü hatırlatan kısa bir mesaj gönder - henüz ilk soruyu yanıtlamamış olana. Hiçbir teklif, hiçbir ayrıcalık ve ilişkiyi savunan hiçbir gerekçe taşıma.",
     },
-    "w.final": {
-      headline: "bildirim süresi dolana kadar",
-      detail: "Zaman aşımı: son bildirimde belirtilen süre; bildirimin bir anlamı olması için bu tarihin gerçekten gelmesi gerekir. (unengaged_sunset.notice_period ayarlanmalı)",
+    "w.remind": {
+      headline: "hatırlatma yanıtlanana kadar",
+      detail: "Zaman aşımı: hatırlatmaya, son kampanya gerekmeden önce yanıtlanması için tanınan sabit süre. (unengaged_sunset.reminder_window ayarlanmalı)",
     },
-    "c.final": {
-      headline: "Bildirim süresi neyle sonuçlandı?",
+    "c.answered2": {
+      headline: "Hatırlatma bir yanıt aldı mı?",
       edges: [
-        { label: "Sürsün", detail: "bu kişi için bildirim süresi içinde pazarlama iletişimiyle kurulmuş kayıtlı bir etkileşim var ya da kişi duymaya devam etmek istediğini belirtti" },
+        { label: "Sürsün", detail: "bu kişi için hatırlatma süresi içinde pazarlama iletişimiyle kurulmuş kayıtlı bir etkileşim var ya da kişi duymaya devam etmek istediğini belirtti" },
         { label: "Daha az olsun", detail: "kişi sonlandırma yerine azaltılmış bir sıklık belirledi" },
         { label: "Dursun", detail: "kişi ticari iletişim iznini kendisi geri çekti" },
-        { label: "Sessizlikle sona erdi", detail: "bildirim süresi, hiçbir kayıt oluşmadan kapandı" },
+        { label: "Yanıt yok", detail: "hatırlatma süresi, hiçbir kayıt oluşmadan kapandı" },
       ],
+    },
+    "c.sendable3": {
+      headline: "Son kampanya gönderilebilir mi?",
+      edges: [
+        { label: "Gönderilebilir", detail: "gönderim yolu geçiliyor ve bu kişiyi şu anda tutan daha yüksek öncelikli bir ulaşılabilirlik akışı yok" },
+        { label: "Kalan yol yok", detail: "bu amaç için izinli ve ulaşılabilir hiçbir hedef kalmamış; kampanyayı sunabileceğimiz kimse yok ve gerekçe kaydedilir" },
+      ],
+    },
+    "a.campaign": {
+      headline: "Hâlâ yanıt vermemiş kişiye son, değer odaklı bir teklif gönder - dürüstçe bir teklif olarak adlandırılan, gerçek ve süreli bir ayrıcalık - doğrudan bir erişim yoluyla birlikte; yanıtsız kalırsa ne olacağına dair sonuç bildiriminin söyleyeceğinin ötesinde hiçbir şey iddia etme.",
+    },
+    "w.campaign": {
+      headline: "kampanyanın kendi süresi dolana ya da bir etkileşim veya satın alma kaydedilene kadar",
+      detail: "Zaman aşımı: son kampanyanın kendi belirtilen süresinin sonucunu okumadan önce çalışması için tanınan sabit gözlem penceresi. (unengaged_sunset.campaign_window ayarlanmalı)",
+    },
+    "c.campaign-result": {
+      headline: "Son kampanya bir etkileşim ya da satın alma üretti mi?",
+      edges: [
+        { label: "Geri kazanıldı", detail: "kampanya penceresi içinde bu kişi için bir kampanya tıklaması, teklife bağlı bir site ziyareti ya da bir satın alma kayıtlı" },
+        { label: "Daha az olsun", detail: "kişi sonlandırma yerine azaltılmış bir sıklık belirledi" },
+        { label: "Dursun", detail: "kişi ticari iletişim iznini kendisi geri çekti" },
+        { label: "Yanıt yok", detail: "kampanya süresi, hiçbir kayıt oluşmadan kapandı" },
+      ],
+    },
+    "a.return-normal": {
+      headline: "Son kampanya kişiye ulaştığı için pazarlama iletişimine azaltılmış bir sıklıkla dön. Tek bir yanıtı tam hacme dönmek için bir gerekçe olarak okumak yerine kişiyi listede tut.",
     },
     "a.suppress": {
       headline: "Bu kişi için pazarlama iletişimini gönderen tarafta durdur - kendisine gönderilen her tanıtım ve yaşam döngüsü mesajını kapsar, bunun ötesine geçmez - ve gerekçeyi, okunduğu dönemi ve durdurmayı kaldıracak koşulu birlikte kaydet. Kişinin kendi izin kaydına dokunulmaz: sessizlik bir çıkış talebi değildir ve buraya öyle yazmak, kişinin hiç vermediği bir kararı kaydına geçirmek olur.",
@@ -4169,6 +4205,14 @@ const OVERRIDES: Readonly<Record<string, JourneyOverride>> = {
     },
     "a.record-no-action": {
       headline: "Sorunun neden sorulmadığını ve hangi döneme karşı olduğunu kaydet; böylece \"hiçbir şey yapılmadı\" sessiz bir boşluk değil, ölçülen bir sonuç olur",
+    },
+    "x.active-reduced": {
+      headline: "Sorulmadan azaltıldı",
+      detail: "pazarlama dışında kaydedilen etkinlik ilişkinin durgun olmadığını söylüyor; sonraki bir yanıtsız dönem, bekleme süresinden sonra kendi kanıtıyla değerlendirilir",
+    },
+    "x.campaign-retained": {
+      headline: "Azaltılmış sıklıkla sürdürüldü",
+      detail: "son kampanya gerçek bir teklifle kişiye ulaştı; sonraki bir yanıtsız dönem, bekleme süresinden sonra kendi kanıtıyla değerlendirilir",
     },
     "x.kept": {
       headline: "Sürdürüldü",

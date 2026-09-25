@@ -3381,7 +3381,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       },
       {
         "journey": "CON-300",
-        "because": "CON-300 is not trying to keep anybody: it asks whether marketing contact should continue and takes the answer, offer-free. This journey is the argument for coming back, and it runs on a lapsed paid relationship rather than on unanswered contact - a person can be perfectly engaged with our messages and still lapsed, or still buying and entirely silent on everything we send."
+        "because": "CON-300 acts on unanswered marketing contact alone - it opens whether the relationship has ever paid, is still buying, or long ago lapsed, and its own final offer exists only because nothing earlier in its cascade got an answer. This journey is the argument for coming back, and it runs specifically on a lapsed paid relationship rather than on unanswered contact - a person can be perfectly engaged with our messages and still lapsed, or still buying and entirely silent on everything we send."
       }
     ],
     "guardrails": [

@@ -366,6 +366,51 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
 // public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
 //
+// FROZEN BASELINE: 276 journeys / 3677 nodes (2026-09-25). CON-300
+// (Unengaged Subscriber Sunset) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: a new
+// c.active condition, reading a real registered event
+// (meaningful_return), now runs right after the evidence check and
+// bypasses anyone whose purchases, product use or visits say the
+// relationship is not dormant straight to a new a.reduce-bypass action
+// and x.active-reduced exit, before the cascade ever asks a question.
+// Everyone else proceeds through the existing email ask (a.ask/
+// w.answer/c.answered), now followed by a new push reminder tier
+// (a.remind/w.remind/c.answered2) and a new final win-back campaign
+// tier (a.campaign/w.campaign/c.campaign-result) carrying a genuine,
+// time-boxed offer - the site owner explicitly authorized adding a
+// real incentive at this final tier, overriding the journey's prior
+// no-offer rule (s.notwinback, removed) after confirming the image's
+// third contact intentionally overlaps in spirit with RET-32's
+// territory. A campaign that lands (engagement or a purchase) now
+// returns the person to contact at a reduced frequency through a new
+// a.return-normal action and x.campaign-retained exit, rather than
+// the old model's binary kept-or-ended outcome; a campaign that lands
+// nothing still falls through to the existing a.suppress/c.notify/
+// a.confirm-end/h.enforce chain, which keeps writing the same
+// marketing_suppression field the ~30 other references to CON-300
+// across the corpus depend on. The three real outbound handoffs
+// (h.enforce -> CON-38, h.frequency -> CON-283, h.permission -> CON-35)
+// all survive the rebuild and gain a third inbound source apiece (the
+// new reminder and campaign conditions), since they are load-bearing
+// corpus plumbing the reference image's own boxes never draw but the
+// site owner's other journeys still depend on. s.lessbeforenone and
+// s.bounded were reworded to describe the new graduated preference
+// menu and the new four-touch bounded shape honestly; RET-32's own
+// distinctFrom entry naming CON-300 as "offer-free" was corrected in
+// src/canonical/retention.ts to rest on eligibility (unanswered
+// contact regardless of purchase/relationship history vs. a lapsed
+// paid relationship) instead, since both journeys now genuinely offer
+// something at their final tier. channels moved from email-only to
+// email/push to match the image; implementation.attributes gained
+// recent_activity_at and push_token. Same id/slug, so nothing that
+// referenced CON-300 by name needed to change except that one RET-32
+// sentence - the ~30 other references describe CON-300's
+// marketing_suppression contract, which this rebuild still honestly
+// produces, and were left untouched. 21 -> 30 nodes, +9 net. Journey
+// count (276), rules (423), global rules (31) and merged redirects (8)
+// are unchanged.
+//
 // FROZEN BASELINE: 276 journeys / 3668 nodes (2026-09-25). REM-305
 // (Support Request Acknowledgement) was retired, the site owner's
 // request. It had no real inbound handoffs, only three prose
@@ -1021,9 +1066,9 @@ check(29, "production manifest covers all 303", manifest.length === 303);
 // restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (276 journeys / 3668 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  "canonical source mutation = 0 (276 journeys / 3677 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
   journeys.length === 276 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3668 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3677 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,
