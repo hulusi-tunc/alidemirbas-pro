@@ -1031,7 +1031,7 @@
     "category": "Cart & Checkout",
     "surface": "checkout",
     "question": "Ödeme adımındaki güven rozetleri tamamlamayı artırır mı?",
-    "hypothesis": "Kart bilgisi girilen ekran, terk oranının en yüksek olduğu andır. Güvenli ödeme, iade garantisi ve 3D Secure gibi görsel sinyaller tereddüdü azaltabilir; fazlası ise şüphe uyandırabilir.",
+    "hypothesis": "Ödeme adımındaki güven sinyalleri, kart bilgisi girerken oluşan tereddüdü azaltabilir. Bu testte mevcut checkout'a önceden tanımlanmış güven rozetleri eklenir; ödeme akışı, metinler ve alan yapısı sabit kalır.",
     "setupType": "control-vs-treatment",
     "comparisonMode": "element",
     "differenceBehavior": "add",
@@ -1065,7 +1065,7 @@
       },
       {
         "label": "Sayı",
-        "explanation": "Kaç rozet optimum? (1 / 3 / 5)"
+        "explanation": "Rozet sayısı değiştiğinde tamamlama ve güven sinyalleri nasıl etkileniyor?"
       },
       {
         "label": "Format",
@@ -1585,24 +1585,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Konum",
-        "explanation": "İkonlar ürün sayfasında mı, sepette mi, ikisinde birden mi daha etkili?"
+        "label": "Değişen",
+        "explanation": "Kabul edilen ödeme yöntemi ikonları checkout CTA'sından önce sepete eklenir."
       },
       {
-        "label": "Sayı",
-        "explanation": "Tüm yöntemler mi, yalnızca en çok kullanılan 3-4’ü mü daha iyi çalışıyor?"
+        "label": "Sabit kalan",
+        "explanation": "Ödeme yöntemleri, checkout CTA'sı, ikon seti ve checkout akışı değiştirilmez."
       },
       {
-        "label": "Boyut",
-        "explanation": "İkonların göze çarpma derecesi güven algısını değiştiriyor mu?"
+        "label": "Davranış",
+        "explanation": "Checkout'a geçiş ve sipariş tamamlama birlikte izlenir."
       },
       {
-        "label": "Tıklanabilirlik",
-        "explanation": "İkonlar tıklanabilir olup ödeme koşullarını mı açmalı, yoksa salt bilgi mi olmalı?"
+        "label": "Guardrail",
+        "explanation": "Sepet alanı kalabalıklaşmamalı ve ana CTA'nın görünürlüğü bozulmamalıdır."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde ikon şeridi ekran alanını gereğinden fazla mı kaplıyor?"
+        "label": "Sonraki test",
+        "explanation": "İkon sayısı, boyutu veya farklı konumlar ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -1848,7 +1848,7 @@
     "category": "Category & Listing",
     "surface": "plp",
     "question": "Mobilde 2’li mi 3’lü grid mi daha çok dönüştürüyor?",
-    "hypothesis": "Üç sütun aynı ekranda daha fazla ürün gösterirken görselleri küçültür. İki sütun ürün detayını görünür kılar ancak aynı anda daha az seçenek sunar. Kazanan düzen, ürünün görsel değerlendirmeye ne kadar ihtiyaç duyduğuna göre değişebilir.",
+    "hypothesis": "Üç sütun aynı ekranda daha fazla ürün gösterirken görselleri küçültür. İki sütun ürün detayını görünür kılar ancak aynı anda daha az seçenek sunar. Sonuç, ürünün görsel değerlendirmeye ne kadar ihtiyaç duyduğuna göre değişebilir.",
     "setupType": "option-vs-option",
     "comparisonMode": "structural",
     "differenceBehavior": "change",
@@ -1952,24 +1952,24 @@
     ],
     "whatToTest": [
       {
+        "label": "Değişen",
+        "explanation": "Ürün kartına ikinci görsele geçiş imkânı eklenir."
+      },
+      {
+        "label": "Sabit kalan",
+        "explanation": "Kart tasarımı, ürün sıralaması, fiyat ve diğer bilgiler aynı kalır."
+      },
+      {
+        "label": "Davranış",
+        "explanation": "Ürün sayfasına geçiş ve satın alma davranışı birlikte izlenir."
+      },
+      {
         "label": "Cihaz",
-        "explanation": "Mobilde swipe ile masaüstünde hover aynı etkiyi veriyor mu?"
+        "explanation": "Mobil ve masaüstünde kullanılan etkileşim biçimi kendi bağlamında izlenir."
       },
       {
-        "label": "Tetikleyici",
-        "explanation": "Swipe mi, otomatik geçiş mi daha iyi çalışıyor?"
-      },
-      {
-        "label": "Sayı",
-        "explanation": "Kaç görsel gösterilmeli? (2 / 3 / tümü)"
-      },
-      {
-        "label": "Denge",
-        "explanation": "Detay sayfası düşerken toplam dönüşüm artıyor mu?"
-      },
-      {
-        "label": "Tür",
-        "explanation": "İkinci görselin türü (detay / lifestyle) sonucu değiştiriyor mu?"
+        "label": "Sonraki test",
+        "explanation": "Otomatik geçiş, görsel sayısı veya ikinci görsel türü ayrı deneylerdir."
       }
     ],
     "guardrails": [
@@ -2177,24 +2177,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Varsayılan",
-        "explanation": "“Yalnızca farkları göster” varsayılan olduğunda karar hızı artıyor mu?"
+        "label": "Değişen",
+        "explanation": "Variant'ta karşılaştırma tablosu varsayılan olarak yalnızca farklı özellikleri gösterir."
       },
       {
-        "label": "Sadelik",
-        "explanation": "Sade tablo gereksiz bilgi yükünü engelliyor mu?"
+        "label": "Sabit kalan",
+        "explanation": "Ürünler, özellik verisi, tablo tasarımı ve CTA'lar değiştirilmez."
       },
       {
-        "label": "Ayrışma",
-        "explanation": "Farkların net ayrıştırılması sepete ekleme oranını artırıyor mu?"
+        "label": "Karar",
+        "explanation": "Karar süresi ile hedef aksiyon birlikte izlenir."
       },
       {
-        "label": "Düğme",
-        "explanation": "Düğmenin rengi, ikonu ve konumu kullanım oranını etkiliyor mu?"
+        "label": "Guardrail",
+        "explanation": "Kullanıcı tüm özelliklere erişmeye devam edebilmelidir."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde daralan tabloda etki masaüstüyle aynı mı?"
+        "label": "Sonraki test",
+        "explanation": "Toggle tasarımı, rengi veya konumu ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -3570,24 +3570,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Konum",
-        "explanation": "Etiket alanın üstünde mi, solunda mı daha hızlı doldurtuyor?"
+        "label": "Değişen",
+        "explanation": "Aynı form alanları üst hizalı ve sol hizalı etiketlerle karşılaştırılır."
       },
       {
-        "label": "Tarama",
-        "explanation": "Üst hizalı etiket tek sütunlu dikey akışı bozmadan okunuyor mu?"
+        "label": "Sabit kalan",
+        "explanation": "Alan seti, etiket metinleri, validasyon ve form genişliği aynı kalır."
       },
       {
-        "label": "Uzun metin",
-        "explanation": "Sola hizalı etikette uzun etiketler giriş alanını daraltıyor mu?"
+        "label": "Tamamlama",
+        "explanation": "Form tamamlama ve doldurma süresi birlikte izlenir."
       },
       {
-        "label": "Algılanan uzunluk",
-        "explanation": "Üst hizalama formu gözle daha uzun gösterip başlamayı caydırıyor mu?"
+        "label": "Okunabilirlik",
+        "explanation": "Uzun etiketlerin alan genişliğini veya tarama akışını bozup bozmadığı kontrol edilir."
       },
       {
         "label": "Cihaz",
-        "explanation": "Mobilde ve masaüstünde aynı hizalama mı kazanıyor?"
+        "explanation": "Mobil ve masaüstü sonuçları ayrı değerlendirilir."
       }
     ],
     "guardrails": [
@@ -3962,7 +3962,7 @@
       },
       {
         "label": "Cihaz",
-        "explanation": "Masaüstünde kazanan davranış mobilde de kazanıyor mu?"
+        "explanation": "Masaüstü ve mobil sonuçları aynı yönde mi?"
       }
     ],
     "guardrails": [
@@ -5220,24 +5220,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Biçim",
-        "explanation": "Radio button mu, dropdown mu ilgili alanın doldurulma oranını artırıyor?"
+        "label": "Değişen",
+        "explanation": "Aynı seçenek seti radio button ve dropdown olarak karşılaştırılır."
       },
       {
-        "label": "Seçenek sayısı",
-        "explanation": "Kaç seçenekten sonra dropdown radio button’dan daha avantajlı hâle geliyor?"
+        "label": "Sabit kalan",
+        "explanation": "Seçenekler, sıralama, varsayılan seçim ve validasyon aynı kalır."
       },
       {
-        "label": "Varsayılan",
-        "explanation": "Dropdown’da hiçbir seçeneğin önceden seçili gelmemesi doğru seçime mi yönlendiriyor, yoksa atlanmasına mı yol açıyor?"
+        "label": "Tamamlama",
+        "explanation": "İlgili alanın ve formun tamamlanma oranı birlikte izlenir."
       },
       {
         "label": "Hata",
-        "explanation": "Yanlış seçim oranı biçime göre değişiyor mu?"
+        "explanation": "Yanlış veya geri alınan seçimler takip edilir."
       },
       {
         "label": "Cihaz",
-        "explanation": "Mobilde platformun kendi dropdown bileşeni radio button’a göre nasıl bir fark yaratıyor?"
+        "explanation": "Mobil ve masaüstü sonuçları ayrı değerlendirilir."
       }
     ],
     "guardrails": [
@@ -5295,24 +5295,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Konum",
-        "explanation": "CTA kaydırmadan görünen alanda mı, açıklamadan sonra mı daha çok tıklanıyor?"
+        "label": "Değişen",
+        "explanation": "Ana CTA açıklama sonrasından ilk ekrana taşınır."
       },
       {
-        "label": "Erken tıklama",
-        "explanation": "Erken tıklayanlar sonraki adımı da tamamlıyor mu?"
+        "label": "Sabit kalan",
+        "explanation": "CTA metni, stili, hedefi ve çevresindeki içerik değiştirilmez."
       },
       {
-        "label": "Yer baskısı",
-        "explanation": "CTA yukarı alınınca başlık ve değer önerisi kısalıyor mu?"
+        "label": "Davranış",
+        "explanation": "CTA tıklaması sonraki adım tamamlama ile birlikte değerlendirilir."
       },
       {
-        "label": "Tekrar",
-        "explanation": "CTA hem yukarıda hem aşağıda olduğunda toplam tıklama artıyor mu?"
+        "label": "Yerleşim",
+        "explanation": "CTA taşınırken başlık veya değer önerisi kısaltılmaz."
       },
       {
         "label": "Cihaz",
-        "explanation": "Mobilde görünen alan çok daha dar; kazanan konum masaüstüyle aynı mı?"
+        "explanation": "Mobil ve masaüstü sonuçları ayrı değerlendirilir."
       }
     ],
     "guardrails": [
@@ -7562,7 +7562,7 @@
       },
       {
         "label": "Sayı",
-        "explanation": "Kaç servisi öne çıkarmak optimum? (1 / 2 / 3)"
+        "explanation": "Öne çıkarılan servis sayısı değiştiğinde kullanım dağılımı nasıl etkileniyor?"
       }
     ],
     "guardrails": [
@@ -7779,7 +7779,7 @@
       },
       {
         "label": "Fayda",
-        "explanation": "“%70’e varan indirim” devam oranını yükseltiyor mu?"
+        "explanation": "Yükleme sırasında gösterilen fayda mesajı devam oranını etkiliyor mu?"
       },
       {
         "label": "Keşif",
@@ -7925,7 +7925,7 @@
       },
       {
         "label": "Sayı",
-        "explanation": "Kaç ürün göstermek optimum? (3 / 6 / 10)"
+        "explanation": "Gösterilen ürün sayısı değiştiğinde etkileşim ve geri dönüş nasıl etkileniyor?"
       },
       {
         "label": "Filtre",
@@ -8375,7 +8375,7 @@
       },
       {
         "label": "Eşik",
-        "explanation": "Tamamlanma oranı belirli bir yüzdenin (ör. %80) üzerine çıkınca “bitirmeye yakın” hissi motivasyonu artırıyor mu?"
+        "explanation": "Tamamlanma oranı tamamlanmaya yaklaştıkça “bitirmeye yakın” hissi motivasyonu artırıyor mu?"
       },
       {
         "label": "Konum",
@@ -10092,7 +10092,7 @@
       },
       {
         "label": "Güven",
-        "explanation": "Sosyal kanıt (“kullanıcıların %82’si”) öneriyi daha ikna edici yapıyor mu?"
+        "explanation": "Doğrulanabilir sosyal kanıt öneriyi daha ikna edici yapıyor mu?"
       },
       {
         "label": "Girdi",
@@ -10283,7 +10283,7 @@
     "category": "Product Detail Page",
     "surface": "pdp",
     "question": "Stok bilgisi aciliyet hissi oluşturur mu?",
-    "hypothesis": "Gerçek stok adedini göstermek kararı hızlandırabilir; aynı mesaj baskı hissi yaratarak sayfadan çıkışı da artırabilir. Kazanan yalnızca satın alma oranıyla değil, iptal ve iade davranışıyla birlikte değerlendirilmelidir.",
+    "hypothesis": "Gerçek stok adedini göstermek kararı hızlandırabilir; aynı mesaj baskı hissi yaratarak sayfadan çıkışı da artırabilir. Sonuç yalnızca satın alma oranıyla değil, iptal ve iade davranışıyla birlikte değerlendirilmelidir.",
     "setupType": "control-vs-treatment",
     "comparisonMode": "element",
     "differenceBehavior": "add",
@@ -10508,7 +10508,7 @@
     "category": "Product Detail Page",
     "surface": "pdp",
     "question": "Küsuratlı fiyat mı, tam sayı fiyat mı?",
-    "hypothesis": "299,99 TL ile 300 TL arasındaki tek kuruşluk fark, algılanan fiyatı farklı kırar. Küsurat ucuzluk sinyali verirken, tam sayı premium ve sade durur. Kategoriye göre kazanan değişir.",
+    "hypothesis": "299,99 TL ile 300 TL arasındaki tek kuruşluk fark, algılanan fiyatı farklı kırar. Küsurat ucuzluk sinyali verirken, tam sayı premium ve sade durur. Sonuç kategoriye göre değişebilir.",
     "setupType": "variant-vs-variant",
     "comparisonMode": "element",
     "differenceBehavior": "change",
@@ -10679,24 +10679,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Format",
-        "explanation": "İkon ve kısa metinle sunmak satın alma oranını artırıyor mu?"
+        "label": "Değişen",
+        "explanation": "Mevcut kargo ve iade bilgisi daha görünür hale getirilir."
       },
       {
-        "label": "Konum",
-        "explanation": "Bilgiyi sayfanın üstüne taşımak fark edilmeyi yükseltiyor mu?"
+        "label": "Sabit kalan",
+        "explanation": "Bilginin içeriği, koşulları, fiyat ve CTA yapısı aynı kalır."
       },
       {
-        "label": "Düzen",
-        "explanation": "Tek sırada sunmak kullanıcı güvenini artırıyor mu?"
+        "label": "Davranış",
+        "explanation": "Sepete ekleme ve satın alma davranışı birlikte izlenir."
       },
       {
-        "label": "Gruplama",
-        "explanation": "Ayrı ayrı mı, tek blokta mı vermek daha etkili?"
+        "label": "Guardrail",
+        "explanation": "Koşullar sadeleştirme sırasında kaybolmamalı veya yanlış anlaşılmamalıdır."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde ve masaüstünde etki aynı mı?"
+        "label": "Sonraki test",
+        "explanation": "Format, konum veya gruplama ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -10821,24 +10821,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Hız",
-        "explanation": "Kritik soruların hızlı yanıtlanması kararı hızlandırıyor mu?"
+        "label": "Değişen",
+        "explanation": "Ürün sayfasına önceden tanımlanmış SSS bölümü eklenir."
       },
       {
-        "label": "Belirsizlik",
-        "explanation": "Ürüne özel SSS belirsizliği azaltıyor mu?"
+        "label": "Sabit kalan",
+        "explanation": "SSS içeriği, ürün bilgileri, fiyat ve CTA yapısı test boyunca aynı kalır."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde ve masaüstünde etki aynı mı?"
+        "label": "Davranış",
+        "explanation": "SSS etkileşimi satın alma davranışıyla birlikte değerlendirilir."
       },
       {
-        "label": "Format",
-        "explanation": "Soru-cevap formatı güven algısını artırıyor mu?"
+        "label": "Guardrail",
+        "explanation": "Yanıtlar ürün koşullarıyla tutarlı ve güncel olmalıdır."
       },
       {
-        "label": "Konum",
-        "explanation": "SSS sayfanın neresinde daha çok okunuyor?"
+        "label": "Sonraki test",
+        "explanation": "Konum veya SSS formatı ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -11272,7 +11272,7 @@
       },
       {
         "label": "Sayı",
-        "explanation": "Kaç paket seçeneği optimum? (2 / 3 / 4)"
+        "explanation": "Paket seçeneği sayısı değiştiğinde tercih dağılımı ve sepet tutarı nasıl etkileniyor?"
       }
     ],
     "guardrails": [
@@ -11422,7 +11422,7 @@
       },
       {
         "label": "Cihaz",
-        "explanation": "Masaüstünde kazanan yerleşim mobilde de geçerli mi?"
+        "explanation": "Masaüstü ve mobil sonuçları aynı yönde mi?"
       }
     ],
     "guardrails": [
@@ -11780,24 +11780,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Varlık",
-        "explanation": "Özelleştirme seçeneği sunmak satın alma niyetini artırıyor mu?"
+        "label": "Değişen",
+        "explanation": "Variant'a önceden tanımlanmış ürün özelleştirme seçeneği eklenir."
       },
       {
-        "label": "Adım sayısı",
-        "explanation": "Kaç özelleştirme adımı ilgiyi artırıp kaçında yorucu hâle geliyor?"
+        "label": "Sabit kalan",
+        "explanation": "Fiyat, temel ürün seçeneği, CTA ve diğer ürün bilgileri aynı kalır."
       },
       {
-        "label": "Önizleme",
-        "explanation": "Seçimin ürün görseline anında yansıması etkiyi güçlendiriyor mu?"
+        "label": "Davranış",
+        "explanation": "Özelleştirme kullanımı ile satın alma birlikte izlenir."
       },
       {
-        "label": "Varsayılan",
-        "explanation": "Özelleştirme adımı varsayılan bir kombinasyonla mı başlamalı, boş mu?"
+        "label": "Guardrail",
+        "explanation": "Özelleştirme akışı ana satın alma yolunu kapatmamalıdır."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde özelleştirme arayüzü masaüstünden farklı bir tamamlama oranı mı üretiyor?"
+        "label": "Sonraki test",
+        "explanation": "Adım sayısı, önizleme veya varsayılan seçim ayrı deneylerdir."
       }
     ],
     "guardrails": [
@@ -12230,24 +12230,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Alan sayısı",
-        "explanation": "6 alan yerine 2 alan talep sayısını artırıyor mu?"
+        "label": "Değişen",
+        "explanation": "Variant'ta yalnızca ilk değerlendirme için gerekli olmayan form alanları kaldırılır."
       },
       {
-        "label": "Hangi alan",
-        "explanation": "Telefon zorunluluğunu kaldırmak en çok farkı yaratıyor mu?"
+        "label": "Sabit kalan",
+        "explanation": "Kalan alanların metni, validasyonu, CTA ve takip akışı aynı kalır."
       },
       {
-        "label": "Zamanlama",
-        "explanation": "Eksik bilgiyi form sonrası e-postayla toplamak işe yarıyor mu?"
+        "label": "Hacim",
+        "explanation": "Form tamamlama ve talep sayısı izlenir."
       },
       {
         "label": "Kalite",
-        "explanation": "Az alanla gelen talepler satışa daha az mı dönüyor?"
+        "explanation": "Nitelikli talep oranı ve satış takip süresi guardrail olarak izlenir."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde alan azaltmanın etkisi daha mı yüksek?"
+        "label": "Sonraki test",
+        "explanation": "Belirli bir alanın zorunluluğu veya form sonrası veri toplama ayrı deneylerdir."
       }
     ],
     "guardrails": [
@@ -12314,7 +12314,7 @@
       },
       {
         "label": "Bağlam",
-        "explanation": "Kullanım göstergesi (10/10 kredi) yükseltme kararını hızlandırıyor mu?"
+        "explanation": "Kullanım limitini gösteren sayaç yükseltme kararını hızlandırıyor mu?"
       },
       {
         "label": "Erteleme",
@@ -13955,24 +13955,24 @@
     ],
     "whatToTest": [
       {
-        "label": "Zamanlama",
-        "explanation": "Öneri sipariş özetinden önce mi, sonra mı gösterilmeli?"
+        "label": "Değişen",
+        "explanation": "Sipariş onay sayfasına ilgili ürün önerisi modülü eklenir."
       },
       {
-        "label": "İlgi düzeyi",
-        "explanation": "Az önce alınan ürünle ilişkili öneri mi, genel popüler ürün mü daha çok tıklanıyor?"
+        "label": "Sabit kalan",
+        "explanation": "Sipariş özeti, teslimat bilgisi ve ana onay içeriği değiştirilmez."
       },
       {
-        "label": "Sayı",
-        "explanation": "Tek ürün mü, birkaç seçenekli bir şerit mi daha çok satın alma yaratıyor?"
+        "label": "Davranış",
+        "explanation": "Öneri etkileşimi ve ek satın alma birlikte izlenir."
       },
       {
-        "label": "Fiyat aralığı",
-        "explanation": "Ana siparişten daha düşük fiyatlı öneri daha mı çok kabul görüyor?"
+        "label": "Guardrail",
+        "explanation": "Öneri modülü sipariş onay bilgisinin görünürlüğünü bozmamalıdır."
       },
       {
-        "label": "Cihaz",
-        "explanation": "Mobilde öneri şeridi sipariş onay bilgisinin altına mı, kaydırmadan görünür bir yere mi konmalı?"
+        "label": "Sonraki test",
+        "explanation": "Konum, öneri sayısı ve öneri algoritması ayrı deneylerde test edilir."
       }
     ],
     "guardrails": [
@@ -15568,7 +15568,7 @@
     "category": "UI Elements",
     "surface": "generic-ui",
     "question": "İç promosyon banner’ı tek bir motivasyona mı, birden fazla seçeneğe mi odaklanmalı?",
-    "hypothesis": "Bir sitenin herhangi bir noktasındaki tanıtım banner’ı genellikle birden fazla fayda veya seçeneği aynı anda listeler (“Ücretsiz kargo, yeni koleksiyon, üyelik avantajları”). Banner’ı tek bir net motivasyona kilitlemek (yalnızca “Bugüne özel: ilk siparişte %15”) mesajı netleştirebilir ama diğer tekliflerin görünürlüğünü tamamen kaybettirebilir. Bu, “Süreli kampanya duyurusunu site genelinde göstermek işe yarar mı?” senaryosundan farklıdır: o senaryo banner’ın var olup olmamasını ve zamanlamasını, bu senaryo banner içeriğinin tek mi çok mu odaklı olacağını test eder.",
+    "hypothesis": "Promosyon banner'ında tek bir mesaj kullanmak odağı netleştirebilir; birden fazla mesaj ise farklı motivasyonları aynı alanda görünür tutar. Bu test yalnızca banner içeriğinin tek mi çok mu odaklı olduğunu karşılaştırır; banner'ın konumu, tasarımı ve gösterim zamanı sabit kalır.",
     "setupType": "option-vs-option",
     "comparisonMode": "element",
     "differenceBehavior": "change",
