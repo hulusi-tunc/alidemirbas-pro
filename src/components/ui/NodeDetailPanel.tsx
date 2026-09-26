@@ -9,6 +9,7 @@ import type { FlowNode } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
 import { humanize } from "@/components/ui/JourneyCanvasNodes";
 import { CHANNEL_LABEL } from "@/lib/journey-channels";
+import { localizedJourneySlug } from "@/lib/journey-localized-slugs";
 import { springSnap } from "@/lib/motion";
 
 /* The canvas answers "what is the shape of this journey"; this panel answers
@@ -221,7 +222,7 @@ export function NodeDetailPanel({
                     {e.detail ? <span className="text-ink-600">{e.detail}</span> : null}
                     <span className="mt-0.5 block font-mono text-[11px] text-ink-400">
                       {e.kind === "journey" && e.href ? (
-                        <Link href={`${basePath}/${e.href}`} className="text-blue-700 hover:underline">
+                        <Link href={`${basePath}/${localizedJourneySlug(e.to, e.href, lang)}`} className="text-blue-700 hover:underline">
                           → {e.to}
                         </Link>
                       ) : (

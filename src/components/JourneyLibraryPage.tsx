@@ -20,6 +20,7 @@ import {
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
 import { localizedJourneyNaming, localizedPreset } from "@/lib/journey-tr-overrides";
 import { copy, type Lang } from "@/lib/content";
+import { journeyPath } from "@/lib/journey-localized-slugs";
 import { breadcrumbList } from "@/lib/schema";
 
 /* The Canonical Journey Library's HUB - /lab/journeys.
@@ -181,7 +182,7 @@ function Split({ lang }: { lang: Lang }) {
                 return (
                   <li key={j.id}>
                     <Link
-                      href={`${basePath}/${j.slug}`}
+                      href={journeyPath(lang, j.id, j.slug)}
                       className="flex items-center gap-2.5 rounded-2xl bg-paper px-3.5 py-3 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_12px_30px_-18px_rgb(10_16_32/0.35)]"
                     >
                       <span aria-hidden className={`grid size-8 shrink-0 place-items-center rounded-lg ${accent.tile}`}>

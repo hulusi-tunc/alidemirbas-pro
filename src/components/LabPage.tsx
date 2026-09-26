@@ -21,6 +21,7 @@ import {
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
+import { localizedJourneySlug } from "@/lib/journey-localized-slugs";
 import { localizedJourneyNaming, localizedPreset } from "@/lib/journey-tr-overrides";
 import { breadcrumbList, type BreadcrumbItem } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
@@ -57,7 +58,7 @@ function JourneyBrowserFallback({ lang, t, basePath, rows }: {
         {rows.map((j) => (
           <JourneyRowCard
             key={j.id}
-            href={`${basePath}/${j.slug}`}
+            href={`${basePath}/${localizedJourneySlug(j.id, j.slug, lang)}`}
             id={j.id}
             name={j.name}
             shortName={j.shortName}
@@ -120,7 +121,7 @@ function GalleryFallback({ lang, t, basePath, rows, surface }: {
               {items.map((j) => (
                 <JourneyIdeaCard
                   key={j.id}
-                  href={`${basePath}/${j.slug}`}
+                  href={`${basePath}/${localizedJourneySlug(j.id, j.slug, lang)}`}
                   id={j.id}
                   lang={lang}
                   title={j.shortName ?? j.name}

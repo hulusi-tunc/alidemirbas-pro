@@ -126,3 +126,12 @@ export const TR_REPLACED_CANONICAL_SLUGS: readonly string[] = [
   "dormant-non-customer-reactivation",
   "churn-risk-escalation",
 ];
+
+/** The path of a journey's detail page in `lang` (2026-09-26). The Turkish
+    route serves only the localized slug for the journeys above, so a Turkish
+    link built from the canonical slug is a 404 - every list card, hand-off
+    link, breadcrumb, canonical tag and sitemap entry went through that path
+    until this helper existed. Every link to a journey is built here. */
+export function journeyPath(lang: Lang, id: string, canonicalSlug: string): string {
+  return `${lang === "en" ? "" : "/tr"}/lab/journeys/${localizedJourneySlug(id, canonicalSlug, lang)}`;
+}

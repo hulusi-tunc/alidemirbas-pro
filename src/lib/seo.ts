@@ -11,8 +11,16 @@ export const SITE_URL = "https://alidemirbas.com.tr";
  * the TR counterpart is always the same path under /tr.
  */
 export function pageAlternates(path: string, lang: Lang) {
-  const en = `${SITE_URL}${path}`;
-  const tr = `${SITE_URL}/tr${path}`;
+  return localizedAlternates(path, `/tr${path}`, lang);
+}
+
+/**
+ * The same pair for a route whose Turkish path is not the English one under
+ * /tr - a journey with a localized Turkish slug (lib/journey-localized-slugs).
+ */
+export function localizedAlternates(enPath: string, trPath: string, lang: Lang) {
+  const en = `${SITE_URL}${enPath}`;
+  const tr = `${SITE_URL}${trPath}`;
   return {
     canonical: lang === "en" ? en : tr,
     // x-default falls back to English for visitors whose browser locale

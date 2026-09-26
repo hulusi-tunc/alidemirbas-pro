@@ -3,6 +3,7 @@ import { LIBRARY_JOURNEYS } from "@/lib/public-corpus";
 import type { CanonicalJourney, CanonicalNode } from "@/canonical/types";
 import { configText } from "@/canonical/config-text";
 import { eventText } from "@/canonical/events";
+import { journeyPath } from "@/lib/journey-localized-slugs";
 
 /* Read model for the Journey Builder PRODUCT PAGE (/lab/claude-lifecycle).
 
@@ -187,7 +188,7 @@ export const FEATURED_JOURNEY: FeaturedJourney = (() => {
     category: j.category,
     categoryTitle: cat?.title ?? j.category,
     nodeCount: j.nodes.length,
-    href: (lang: Lang) => (lang === "en" ? `/lab/journeys/${j.slug}` : `/tr/lab/journeys/${j.slug}`),
+    href: (lang: Lang) => journeyPath(lang, j.id, j.slug),
     nodes: j.nodes.map(projectNode),
     trigger: {
       event: trigger.event,
@@ -251,7 +252,6 @@ export type ShowcaseCard = {
 };
 
 export function showcaseCards(lang: Lang): ShowcaseCard[] {
-  const base = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   return SHOWCASE_IDS.map((id) => {
     const j = requireJourney(id);
     const cat = CATEGORIES.find((c) => c.id === j.category);
@@ -263,7 +263,7 @@ export function showcaseCards(lang: Lang): ShowcaseCard[] {
       categoryTitle: cat?.title ?? j.category,
       nodeCount: j.nodes.length,
       strip: j.nodes.slice(0, 6).map((n) => n.kind),
-      href: `${base}/${j.slug}`,
+      href: journeyPath(lang, j.id, j.slug),
     };
   });
 }

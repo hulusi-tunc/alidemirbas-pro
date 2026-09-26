@@ -11,7 +11,8 @@ import JourneyModal from "@/components/JourneyModal";
 import { resolveDetailSlug } from "@/lib/canonical-view";
 import { localizedJourneyDetail, localizedPreset } from "@/lib/journey-tr-overrides";
 import { copy, EMAIL, type Lang } from "@/lib/content";
-import { pageAlternates, SITE_URL } from "@/lib/seo";
+import { localizedAlternates, pageAlternates, SITE_URL } from "@/lib/seo";
+import { journeyPath } from "@/lib/journey-localized-slugs";
 import { breadcrumbList } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
@@ -63,13 +64,13 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
       title: `${merged.from} → ${localizedDetail.id} - ${suffix}`,
       description: localizedDetail.purpose,
       robots: { index: false, follow: true },
-      alternates: { canonical: `${SITE_URL}${basePathFor(lang)}/${detail.slug}` },
+      alternates: { canonical: `${SITE_URL}${journeyPath(lang, detail.id, detail.slug)}` },
     };
   }
   return {
     title: `${localizedDetail.id} ${localizedDetail.shortName ?? localizedDetail.name} - ${suffix}`,
     description: localizedDetail.purpose,
-    alternates: pageAlternates(`/lab/journeys/${detail.slug}`, lang),
+    alternates: localizedAlternates(journeyPath("en", detail.id, detail.slug), journeyPath("tr", detail.id, detail.slug), lang),
   };
 }
 
@@ -93,16 +94,19 @@ export async function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string
         { name: t.title, url: basePath },
         ...(preset
           ? [
-              { name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` },
+              { name: `${detail.id} ${detail.shortName ?? detail.name}`, url: journeyPath(lang, detail.id, detail.slug) },
               // The crumb names the preset, so it names it the way the page does.
               { name: localizedPreset(preset, lang).name, url: `${basePath}/${preset.slug}` },
             ]
-          : [{ name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` }]),
+          : [{ name: `${detail.id} ${detail.shortName ?? detail.name}`, url: journeyPath(lang, detail.id, detail.slug) }]),
       ]);
 
   const canvas = await journeyCanvasProps(detail, lang, t);
   const c = copy[lang];
-  const langHref = lang === "en" ? `/tr/lab/journeys/${slug}` : `/lab/journeys/${slug}`;
+  // A preset and a merged id keep their own slug in both languages; a
+  // journey switches to its slug in the other language (journeyPath).
+  const other: Lang = lang === "en" ? "tr" : "en";
+  const langHref = preset || merged ? `${other === "tr" ? "/tr" : ""}/lab/journeys/${slug}` : journeyPath(other, detail.id, detail.slug);
 
   return (
     <JourneyDetailShell

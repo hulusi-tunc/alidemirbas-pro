@@ -14,6 +14,7 @@ import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNELS, CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { useJourneyFilters } from "@/lib/useJourneyFilters";
 import { copy, type Lang } from "@/lib/content";
+import { localizedJourneySlug } from "@/lib/journey-localized-slugs";
 import type { ChannelId } from "@/canonical/types";
 
 /* The journey library as a browsable gallery: category sections, each with
@@ -99,7 +100,7 @@ function CategorySection({
         {visible.map((j) => (
           <JourneyIdeaCard
             key={j.id}
-            href={`${basePath}/${j.slug}`}
+            href={`${basePath}/${localizedJourneySlug(j.id, j.slug, lang)}`}
             id={j.id}
             lang={lang}
             title={j.shortName ?? j.name}
@@ -365,7 +366,7 @@ export default function JourneyGallery({
                   {group.items.map((j) => (
                     <JourneyIdeaCard
                       key={j.id}
-                      href={`${basePath}/${j.slug}`}
+                      href={`${basePath}/${localizedJourneySlug(j.id, j.slug, lang)}`}
                       id={j.id}
                       lang={lang}
                       title={j.shortName ?? j.name}
@@ -415,7 +416,7 @@ export default function JourneyGallery({
           {localFiltered.map((j) => (
             <JourneyIdeaCard
               key={j.id}
-              href={`${basePath}/${j.slug}`}
+              href={`${basePath}/${localizedJourneySlug(j.id, j.slug, lang)}`}
               id={j.id}
               lang={lang}
               title={j.shortName ?? j.name}

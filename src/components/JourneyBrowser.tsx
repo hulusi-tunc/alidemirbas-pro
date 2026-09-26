@@ -8,6 +8,7 @@ import { GOALS, GOAL_LABEL, type Goal } from "@/lib/journey-taxonomy";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { useJourneyFilters } from "@/lib/useJourneyFilters";
 import type { copy, Lang } from "@/lib/content";
+import { localizedJourneySlug } from "@/lib/journey-localized-slugs";
 
 /* The list. It takes rows as props and imports nothing from the canonical
    library, so the browser downloads one-line rows rather than node graphs;
@@ -149,7 +150,7 @@ export default function JourneyBrowser({
           {rows.map((j) => (
             <JourneyRowCard
               key={j.id}
-              href={`${basePath}/${j.slug}`}
+              href={`${basePath}/${localizedJourneySlug(j.id, j.slug, lang)}`}
               id={j.id}
               name={j.name}
               shortName={j.shortName}

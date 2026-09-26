@@ -12,6 +12,7 @@ import { JOURNEY_ROWS, LIBRARY_ROWS, journeyDetail, type JourneyDetail } from "@
 import { copy, type Lang } from "@/lib/content";
 import { FEATURED_JOURNEY, JOURNEY_CATEGORY_COUNTS, JOURNEY_SCALE, showcaseCards } from "@/lib/journey-marketing";
 import { localizedCategoryTitle, localizedFeaturedJourney, localizedJourneyDetail, localizedJourneyNaming } from "@/lib/journey-tr-overrides";
+import { journeyPath } from "@/lib/journey-localized-slugs";
 
 /* THE LANDING PAGE'S FIGURES, on the canvas's own kit (2026-09-20, Hulusi:
    "update the journey library landing page's visuals - we made such nice
@@ -122,9 +123,8 @@ export async function JourneyCanvas({ lang }: { lang: Lang }) {
   const page = copy[lang].lab.page;
   const canvas = await journeyCanvasProps(detail, lang, page);
   const accent = categoryAccent(row.category);
-  const base = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   return (
-    <Link href={`${base}/${detail.slug}#canvas`} className="group block">
+    <Link href={`${journeyPath(lang, detail.id, detail.slug)}#canvas`} className="group block">
       <Figure className="transition-shadow duration-[var(--duration-fast)] group-hover:shadow-[0_32px_80px_-30px_rgb(10_16_32/0.6)]">
         <div className="h-[24rem] sm:h-[30rem]">
           <JourneyMiniMap layout={canvas.layout} labels={canvas.labels} messageLabels={canvas.messageLabels} humanLabels={canvas.humanLabels} />

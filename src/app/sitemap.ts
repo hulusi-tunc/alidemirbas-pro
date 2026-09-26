@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { JOURNEY_ROWS, PRESET_ROWS, SURFACE_PATH } from "@/lib/canonical-view";
 import { getAllBlogPosts } from "@/lib/blog";
 import { SITE_URL } from "@/lib/seo";
+import { journeyPath } from "@/lib/journey-localized-slugs";
 import { ALL_TOOL_SLUGS } from "@/lib/calc-catalog";
 import { ALL_AB_TEST_SLUGS } from "@/lib/ab-test-view";
 
@@ -34,12 +35,8 @@ const routes = [
   // complete pages (AbTestRoutes.tsx) that were never in this list at all.
   "/lab/ab-testing/library",
   ...ALL_AB_TEST_SLUGS.map((slug) => `/lab/ab-testing/library/${slug}`),
-  // Every PUBLIC canonical journey is its own page (JOURNEY_ROWS is already
-  // the public corpus - src/lib/public-corpus.ts; the 124 archived
-  // operational journeys are not routes and are not listed). The retired ids
-  // that resolve into a survivor are deliberately absent: they are noindex,
-  // and a sitemap entry would ask for exactly the indexing they decline.
-  ...JOURNEY_ROWS.map((j) => `/lab/journeys/${j.slug}`),
+  // Journeys are listed below, not here: a Turkish journey page can live at
+  // a localized slug, so its pair is not the English path under /tr.
   // Presets are their own pages: a parent journey with the preset applied.
   ...PRESET_ROWS.map((p) => `/lab/journeys/${p.slug}`),
   // Every blog post is real in both languages (lib/blog.ts /
@@ -51,10 +48,26 @@ const routes = [
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
+  // Every PUBLIC canonical journey is its own page (JOURNEY_ROWS is already
+  // the public corpus - src/lib/public-corpus.ts; archived operational
+  // journeys are not routes). Retired ids that resolve into a survivor are
+  // absent: they are noindex. The Turkish URL is the localized slug where
+  // one exists (lib/journey-localized-slugs) - until 2026-09-26 this listed
+  // the English slug under /tr, which the Turkish route no longer serves.
+  const journeys = JOURNEY_ROWS.flatMap((j) => {
+    const en = `${SITE_URL}${journeyPath("en", j.id, j.slug)}`;
+    const tr = `${SITE_URL}${journeyPath("tr", j.id, j.slug)}`;
+    const alternates = { languages: { en, tr } };
+    return [
+      { url: en, lastModified: now, changeFrequency: "monthly" as const, priority: 0.4, alternates },
+      { url: tr, lastModified: now, changeFrequency: "monthly" as const, priority: 0.4, alternates },
+    ];
+  });
+
   // Each route is published in both languages: English at the root, Turkish
   // under /tr, cross-referenced with hreflang alternates - blog posts
   // included now that every post has a real /tr counterpart.
-  return routes.flatMap((path) => {
+  return [...routes.flatMap((path) => {
     const en = `${SITE_URL}${path}`;
     const priority = path === "" ? 1 : path.startsWith("/lab/journeys/") ? 0.4 : 0.7;
     const tr = `${SITE_URL}/tr${path}`;
@@ -63,5 +76,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       { url: en, lastModified: now, changeFrequency: "monthly" as const, priority, alternates },
       { url: tr, lastModified: now, changeFrequency: "monthly" as const, priority, alternates },
     ];
-  });
+  }), ...journeys];
 }
