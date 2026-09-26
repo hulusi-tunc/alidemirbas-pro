@@ -10,9 +10,10 @@ import { CategoryIcon, categoryAccent } from "@/components/ui/LibraryChrome";
 import { DOT_STYLE } from "@/lib/canvas-dots";
 import { JOURNEY_ROWS, LIBRARY_ROWS, journeyDetail, type JourneyDetail } from "@/lib/canonical-view";
 import { copy, type Lang } from "@/lib/content";
-import { FEATURED_JOURNEY, JOURNEY_CATEGORY_COUNTS, JOURNEY_SCALE, showcaseCards } from "@/lib/journey-marketing";
-import { localizedCategoryTitle, localizedFeaturedJourney, localizedJourneyDetail, localizedJourneyNaming } from "@/lib/journey-tr-overrides";
+import { FEATURED_JOURNEY, JOURNEY_SCALE, showcaseCards } from "@/lib/journey-marketing";
+import { localizedFeaturedJourney, localizedJourneyDetail, localizedJourneyNaming } from "@/lib/journey-tr-overrides";
 import { journeyPath } from "@/lib/journey-localized-slugs";
+import { PUBLIC_JOURNEY_CATEGORIES } from "@/lib/journey-public-categories";
 
 /* THE LANDING PAGE'S FIGURES, on the canvas's own kit (2026-09-20, Hulusi:
    "update the journey library landing page's visuals - we made such nice
@@ -305,23 +306,26 @@ export async function JourneyLibrarySpread({ lang }: { lang: Lang }) {
   const shown = cards.filter((x): x is NonNullable<typeof x> => x !== null);
   return (
     <div>
-      {/* real library categories, real counts - a curated top slice */}
+      {/* The library's public categories, all of them, with their counts -
+          the same seven groups the list page and its rail show
+          (lib/journey-public-categories.ts). Until 2026-09-26 this row
+          showed six of the fifteen canonical domains and "+9 more", while
+          the list one click away showed seven different groups. */}
       <div className="flex flex-wrap justify-center gap-2">
-        {JOURNEY_CATEGORY_COUNTS.slice(0, 6).map((c) => {
-          const accent = categoryAccent(c.id);
+        {PUBLIC_JOURNEY_CATEGORIES.map((c) => {
+          const count = c.journeyIds.filter((id) => LIBRARY_ROWS.some((r) => r.id === id)).length;
+          if (count === 0) return null;
+          const accent = categoryAccent(c.iconCategory);
           return (
             <span key={c.id} className="flex items-center gap-2 rounded-full bg-paper py-1 pr-3 pl-1 text-sm font-medium text-ink-950 ring-1 ring-ink-950/[0.06]">
               <span aria-hidden className={`grid size-7 place-items-center rounded-full ${accent.tile}`}>
-                <CategoryIcon id={c.id} className="size-3.5" />
+                <CategoryIcon id={c.iconCategory} className="size-3.5" />
               </span>
-              {localizedCategoryTitle(c.title, lang)}
-              <span className="text-ink-subtle tabular-nums">{c.count}</span>
+              {c.label[lang]}
+              <span className="text-ink-subtle tabular-nums">{count}</span>
             </span>
           );
         })}
-        <span className="rounded-full px-3 py-1.5 text-sm text-ink-subtle ring-1 ring-dashed ring-ink-300 tabular-nums">
-          +{JOURNEY_SCALE.categories - 6} {t.moreCategories}
-        </span>
       </div>
 
       <div className="mt-10 -mx-5 overflow-x-auto sm:-mx-8 lg:mx-0 lg:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

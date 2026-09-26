@@ -4,6 +4,7 @@ import type { CanonicalJourney, CanonicalNode } from "@/canonical/types";
 import { configText } from "@/canonical/config-text";
 import { eventText } from "@/canonical/events";
 import { journeyPath } from "@/lib/journey-localized-slugs";
+import { PUBLIC_JOURNEY_CATEGORIES } from "@/lib/journey-public-categories";
 
 /* Read model for the Journey Builder PRODUCT PAGE (/lab/claude-lifecycle).
 
@@ -47,8 +48,10 @@ const kindCounts = (() => {
 export const JOURNEY_SCALE = {
   /** The library: Customer Journeys surface. */
   journeys: LIBRARY_JOURNEYS.length,
-  /** Categories with at least one library journey. */
-  categories: new Set(LIBRARY_JOURNEYS.map((j) => j.category)).size,
+  /** Public browse categories holding a library journey - the seven the
+      list shows (lib/journey-public-categories.ts), not the canonical
+      domains. */
+  categories: PUBLIC_JOURNEY_CATEGORIES.filter((c) => c.journeyIds.some((id) => LIBRARY_JOURNEYS.some((j) => j.id === id))).length,
   nodes: ALL_NODES.length,
   /** trigger, action, condition, wait, outcome, exit, handoff - whichever occur */
   nodeKinds: kindCounts.size,

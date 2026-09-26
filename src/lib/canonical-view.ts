@@ -15,7 +15,7 @@ import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
 import { publicJourneyFlowChannels, publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
 import { publicJourneyCopy } from "@/lib/journey-public-copy";
-import { publicJourneyCategoryLabel } from "@/lib/journey-public-categories";
+import { PUBLIC_JOURNEY_CATEGORIES, publicJourneyCategoryLabel } from "@/lib/journey-public-categories";
 
 /* The read model the archive renders from.
 
@@ -50,8 +50,19 @@ import { publicJourneyCategoryLabel } from "@/lib/journey-public-categories";
    carries `{rules}`, so stale copy fails the build instead of rendering a
    number nothing on the site can stand behind. */
 export const LIBRARY_COUNT = LIBRARY_JOURNEYS.length;
-/** Categories with at least one library (Customer Journeys) journey. */
-export const LIBRARY_CATEGORY_COUNT = new Set(LIBRARY_JOURNEYS.map((j) => j.category)).size;
+/** The library's categories are its PUBLIC browse taxonomy - the groups the
+    list page and its rail show (lib/journey-public-categories.ts) - not the
+    canonical domains, which say where a state machine lives internally.
+    Until 2026-09-26 this counted the canonical domains (15) while the list
+    one click away showed the seven public groups. */
+const LIBRARY_IDS = new Set(LIBRARY_JOURNEYS.map((j) => j.id));
+export const LIBRARY_CATEGORY_COUNT = PUBLIC_JOURNEY_CATEGORIES.filter((c) => c.journeyIds.some((id) => LIBRARY_IDS.has(id))).length;
+/* The list groups strictly by that taxonomy, so a library journey filed in
+   no public category would vanish from it without a trace. */
+const UNFILED = LIBRARY_JOURNEYS.filter((j) => !PUBLIC_JOURNEY_CATEGORIES.some((c) => c.journeyIds.includes(j.id)));
+if (UNFILED.length > 0) {
+  throw new Error(`library journeys with no public category (lib/journey-public-categories.ts): ${UNFILED.map((j) => j.id).join(", ")}`);
+}
 
 /** Categories with at least one PUBLIC journey, for gallery section
     headers and filters (which are per-surface anyway). */
