@@ -1941,7 +1941,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "access-restriction-route-back",
     category: "access",
     goal: "suspension-restoration",
-    channels: ["email", "in-app"],
+    channels: ["email", "push"],
     name: "Access restricted or ending → stated route back → restored or ends",
     shortName: "Access Restriction Notice",
     purpose:
@@ -2001,17 +2001,17 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
       "pressureClass": "service",
       "localCap": {
         "value": {
-          "key": "access_restriction.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "key": "access_restriction.discretionary_touches",
+          "rule": "Every touch in this plan is mandatory; nothing is rationed and nothing discretionary exists to cap.",
           "default": {
-            "value": 2,
+            "value": 0,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; one notice and one confirmation"
+            "applicableWhen": "every touch in the plan is marked mandatory"
           },
           "required": false
         },
-        "appliesTo": "all"
+        "appliesTo": "non-mandatory"
       },
       "cooldown": {
         "key": "access_restriction.cooldown",
@@ -2036,14 +2036,15 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "the message has to be kept and survive until the person can act on it"
         },
         {
-          "role": "in-session",
+          "role": "urgent",
           "channels": [
-            "in-app"
+            "push"
           ],
-          "when": "the person is active in the product and the action is taken there"
+          "when": "sent together with the restriction notice, so a change that actually stops something is seen immediately and not just kept for later"
         }
       ],
       "fallback": "same-role-other-channel",
+      "simultaneous": { "allowed": true, "reason": "the email carries the full account of what stopped, what still works and the release condition; the push is the immediate signal that something changed. Neither substitutes for the other, and only the restriction notice sends both - the inform-only touch and the restoration confirmation are each sent once, on the persistent channel alone." },
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -2054,14 +2055,14 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "stage": "inform-only",
           "action": "a.inform-only",
           "prerequisites": [
+            "c.reachable",
             "c.actionable"
           ],
           "purpose": "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do.",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE"
         },
         {
@@ -2069,15 +2070,15 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           "stage": "notify",
           "action": "a.notify",
           "prerequisites": [
-            "c.actionable",
-            "c.reachable"
+            "c.reachable",
+            "c.actionable"
           ],
           "purpose": "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it.",
           "channelRoles": [
             "persistent",
-            "in-session"
+            "urgent"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE",
           "destination": {
             "target": "resolution-condition",
@@ -2098,10 +2099,9 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Confirm that access is back and name what was restored, so the person can tell the difference between a resolved restriction and a partial one",
           "channelRoles": [
-            "persistent",
-            "in-session"
+            "persistent"
           ],
-          "mandatory": false,
+          "mandatory": true,
           "label": "CANONICAL_RULE"
         }
       ],
@@ -2129,10 +2129,10 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
-          "x.informed",
           "x.security-owned",
           "x.restored",
           "x.stands",
+          "x.permanent",
           "h.unreachable"
         ]
       },
@@ -2191,53 +2191,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           source: "authoritative",
         },
-        next: "c.actionable",
-      },
-      {
-        id: "c.actionable",
-        kind: "condition",
-        asks: "Can the holder do anything about this?",
-        branches: [
-          {
-            label: "Resolvable by them",
-            when: "the release condition is something the account holder can satisfy - a payment, a document, a correction, a re-verification",
-            to: "c.reachable",
-          },
-          {
-            label: "Not theirs to resolve",
-            when: "the condition depends on an internal review, a third party, or a fixed period elapsing",
-            to: "a.inform-only",
-          },
-          {
-            label: "Placed by a security response",
-            when: "the restriction was placed by a security response that is itself telling the owner what happened and what is restricted - a second notice about the same restriction duplicates or contradicts the first",
-            to: "x.security-owned",
-          },
-        ],
-      },
-      {
-        id: "a.inform-only",
-        kind: "action",
-        does: "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
-        next: "x.informed",
-        execution: "communication",
-        idempotencyKey: "account_id + restriction_id + a.inform-only",
-      },
-      {
-        id: "x.informed",
-        kind: "exit",
-        state: "informed, resolution not theirs",
-        terminal: false,
-        reEntry: "if the condition later becomes something they can satisfy, this qualifies again with the actionable path",
-        class: "success",
-      },
-      {
-        id: "x.security-owned",
-        kind: "exit",
-        state: "restriction announced by the security response; no separate notice sent",
-        terminal: false,
-        reEntry: "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
-        class: "suppression",
+        next: "c.reachable",
       },
       {
         id: "c.reachable",
@@ -2247,7 +2201,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Reachable",
             when: "at least one contact point is valid and permitted for a service notice of this kind",
-            to: "a.notify",
+            to: "c.actionable",
           },
           {
             label: "Unreachable",
@@ -2267,6 +2221,44 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
+        id: "c.actionable",
+        kind: "condition",
+        asks: "Can the holder do anything about this?",
+        branches: [
+          {
+            label: "Resolvable by them",
+            when: "the release condition is something the account holder can satisfy - a payment, a document, a correction, a re-verification",
+            to: "a.notify",
+          },
+          {
+            label: "Not theirs to resolve",
+            when: "the condition depends on an internal review, a third party, or a fixed period elapsing",
+            to: "a.inform-only",
+          },
+          {
+            label: "Placed by a security response",
+            when: "the restriction was placed by a security response that is itself telling the owner what happened and what is restricted - a second notice about the same restriction duplicates or contradicts the first",
+            to: "x.security-owned",
+          },
+        ],
+      },
+      {
+        id: "a.inform-only",
+        kind: "action",
+        does: "Tell them what is restricted and until when, with no call to action attached - because there is nothing for them to do. A prompt to act where acting is impossible reads as blame and produces support contacts instead of resolutions",
+        next: "w.resolve",
+        execution: "communication",
+        idempotencyKey: "account_id + restriction_id + a.inform-only",
+      },
+      {
+        id: "x.security-owned",
+        kind: "exit",
+        state: "restriction announced by the security response; no separate notice sent",
+        terminal: false,
+        reEntry: "the security response clearing, or converting the restriction into an ordinary one, re-evaluates it here on its own terms",
+        class: "suppression",
+      },
+      {
         id: "a.notify",
         kind: "action",
         does: "State exactly what is restricted, what still works, the deadline, and the single condition that lifts it. Naming what still works is what stops the person assuming the whole relationship has ended",
@@ -2278,7 +2270,7 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         id: "w.resolve",
         kind: "wait",
         until: [
-          "release_condition_met",
+          "restriction_release_condition_met",
           "restriction_lifted",
           "restriction_made_permanent"
         ],
@@ -2313,6 +2305,11 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
             when: "the deadline passed with the condition unmet",
             to: "x.stands",
           },
+          {
+            label: "Made permanent",
+            when: "the restriction was made permanent; the release condition no longer applies",
+            to: "x.permanent",
+          },
         ],
       },
       {
@@ -2339,6 +2336,14 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
         reEntry: "if the condition is satisfied afterwards, the restoration path runs from the lifting event",
         class: "timeout",
       },
+      {
+        id: "x.permanent",
+        kind: "exit",
+        state: "restriction is now permanent; the release condition no longer applies",
+        terminal: false,
+        reEntry: "a later review that converts the restriction back into a bounded one is a new instance",
+        class: "failure",
+      },
     ],
     guardrails: [
       "A restriction is never announced before it is authoritatively recorded. Warning about a decision nobody has taken is how a support queue fills up.",
@@ -2348,418 +2353,5 @@ export const ACCESS_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "A restriction told to somebody names its own release condition, or it is a punishment rather than a decision.",
-  },
-  {
-    id: "ACC-263",
-    slug: "entitlement-activation-window",
-    category: "access",
-    goal: "progression-milestone",
-    channels: ["email", "in-app"],
-    name: "Entitlement or credential issued → activation window → activated or lapsed unclaimed",
-    shortName: "Activation Reminder",
-    purpose:
-      "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
-    entity: {
-      scope: "the issued entitlement or credential and its activation window",
-      note: "One issuance, one window. A reissued credential is a new instance and does not inherit the old window.",
-      instanceKey: [
-        "entitlement_id",
-        "holder_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "ACC-72",
-        because:
-          "ACC-72 provisions the capability and confirms it is technically reachable. This starts once that is true and is about whether the holder ever uses it.",
-      },
-      {
-        journey: "ACC-76",
-        because:
-          "ACC-76 tracks the credential's own issue/expire/revoke lifecycle. Here the only question is first use inside the window.",
-      },
-    ],
-    objective: "Get somebody to actually use what they have been granted, before the window in which they can claim it closes - because an unredeemed entitlement is indistinguishable from one that was never granted.",
-    eligibility: [
-      "an entitlement or credential authoritatively granted to a named holder",
-      "confirmation that it is provisioned and reachable by that holder",
-      "an activation window or expiry",
-      "no instance of this journey is already open for the the issued entitlement or credential and its activation window",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "One reminder, never two. The window is the pressure; repetition is not."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "A holder who has used this capability before is not re-onboarded onto it."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "Lapsed-unclaimed and revoked-before-use are recorded as different outcomes - one is about the holder, the other is not."
-      },
-      {
-        "id": "s.g4",
-        "label": "CANONICAL_RULE",
-        "text": "The message names one action, not the full capability surface."
-      }
-    ],
-    contact: {
-      "defaultPriority": "service",
-      "pressureClass": "service",
-      "localCap": {
-        "value": {
-          "key": "entitlement_activation.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 2,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; one notice and one reminder"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "entitlement_activation.cooldown",
-        "rule": "This journey is per the issued entitlement or credential and its activation window; a later instance concerns a different the issued entitlement or credential and its activation window and no cooldown applies between them.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule",
-          "applicableWhen": "the entity note: one instance per entity"
-        },
-        "required": false
-      },
-      "competition": "none"
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "offer-decide-remind",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "ready",
-          "action": "a.ready",
-          "prerequisites": [
-            "c.first-time"
-          ],
-          "purpose": "Say what is now available, what it lets them do, and the single first action that uses it.",
-          "channelRoles": [
-            "persistent",
-            "in-session"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "first-use-action",
-            "boundTo": "entitlement_id"
-          }
-        },
-        {
-          "id": "t2",
-          "stage": "brief",
-          "action": "a.brief",
-          "prerequisites": [
-            "c.first-time"
-          ],
-          "purpose": "Confirm the new grant briefly and name only what changed from what they already had.",
-          "channelRoles": [
-            "persistent",
-            "in-session"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t3",
-          "stage": "remind",
-          "action": "a.remind",
-          "gatedBy": "w.first-use",
-          "prerequisites": [
-            "c.remind"
-          ],
-          "purpose": "Send one reminder naming the deadline and the same single first action.",
-          "channelRoles": [
-            "persistent",
-            "in-session"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "first-use-action",
-            "boundTo": "entitlement_id",
-            "mustNotClaim": [
-              "a moved deadline"
-            ]
-          }
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "entitlement_id",
-          "holder_id",
-          "provisioned_at",
-          "activation_window_ends_at",
-          "first_action",
-          "prior_familiarity"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit",
-        "refs": [
-          "x.activated",
-          "x.moot",
-          "x.lapsed"
-        ]
-      },
-      "businessOutcome": {
-        "event": "capability_first_used",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "pre-post"
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "activation reminder",
-        "unused entitlement reminder",
-        "claim your access",
-        "credential activation reminder",
-        "licence activation"
-      ],
-      "useCases": [
-        "a granted licence or credential nobody has used, reminded once before its window closes",
-        "a repeat holder told only what changed"
-      ]
-    },
-    entry: "t.issued",
-    nodes: [
-      {
-        id: "t.issued",
-        kind: "trigger",
-        event: "entitlement_provisioned_and_reachable",
-        evidence: {
-          requires: [
-            "an entitlement or credential authoritatively granted to a named holder",
-            "confirmation that it is provisioned and reachable by that holder",
-            "an activation window or expiry",
-          ],
-          insufficientAlone: [
-            "an eligibility decision with no provisioning behind it",
-            "a grant whose resource is not yet reachable",
-          ],
-          source: "authoritative",
-        },
-        next: "c.first-time",
-      },
-      {
-        id: "c.first-time",
-        kind: "condition",
-        asks: "Is this the holder's first entitlement of this kind?",
-        branches: [
-          {
-            label: "First time",
-            when: "the holder has never used this capability before and needs to be told what it is for",
-            to: "a.ready",
-          },
-          {
-            label: "Already familiar",
-            when: "the holder has used this capability before - a renewal, a replacement or an additional seat",
-            to: "a.brief",
-          },
-        ],
-      },
-      {
-        id: "a.ready",
-        kind: "action",
-        does: "Say what is now available, what it lets them do, and the single first action that uses it. Naming one action rather than listing the capability is the difference between an announcement and an activation",
-        next: "w.first-use",
-        execution: "communication",
-        idempotencyKey: "entitlement_id + holder_id + a.ready",
-      },
-      {
-        id: "a.brief",
-        kind: "action",
-        does: "Confirm the new grant briefly and name only what changed from what they already had. Re-explaining a capability somebody already uses reads as a system that does not know them",
-        next: "w.first-use",
-        execution: "communication",
-        idempotencyKey: "entitlement_id + holder_id + a.brief",
-      },
-      {
-        id: "w.first-use",
-        kind: "wait",
-        until: [
-          "capability_first_used",
-          "entitlement_revoked_or_replaced"
-        ],
-        onEvent: "c.used",
-        timeout: {
-          "after": {
-            "key": "entitlement_activation.first_use",
-            "rule": "The single reminder is placed before the activation window closes, late enough that the first notice has had its chance and early enough that claiming is still possible.",
-            "class": "reminder-before-attribute",
-            "required": true
-          },
-          "reason": "an unclaimed entitlement past its window is a different fact from an unused one inside it, and the two must not be counted together",
-          "relativeTo": "attribute",
-          "attribute": "activation_window_ends_at"
-        },
-        onTimeout: "c.remind",
-        windowExtendsOnEngagement: false,
-        recheck: "the the issued entitlement or credential and its activation window re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "c.used",
-        kind: "condition",
-        asks: "What ended the wait?",
-        branches: [
-          {
-            label: "Used",
-            when: "an authoritative first-use event was recorded",
-            to: "x.activated",
-          },
-          {
-            label: "Withdrawn",
-            when: "the entitlement was revoked or replaced before any use",
-            to: "x.moot",
-          },
-        ],
-      },
-      {
-        id: "x.activated",
-        kind: "exit",
-        state: "activated",
-        terminal: false,
-        reEntry: "a further entitlement to the same holder is a new instance",
-        class: "success",
-      },
-      {
-        id: "x.moot",
-        kind: "exit",
-        state: "entitlement withdrawn before use",
-        terminal: false,
-        reEntry: "a reissued entitlement starts a fresh window",
-        class: "invalid-state",
-      },
-      {
-        id: "c.remind",
-        kind: "condition",
-        asks: "Is there still time to claim it?",
-        branches: [
-          {
-            label: "Time remains",
-            when: "the window has a meaningful period left and no reminder has been sent for this issuance",
-            to: "a.remind",
-          },
-          {
-            label: "Window closed",
-            when: "the activation window has ended",
-            to: "x.lapsed",
-          },
-        ],
-      },
-      {
-        id: "a.remind",
-        kind: "action",
-        does: "Send one reminder naming the deadline and the same single first action. There is no second reminder - a capability nobody wanted is not made wanted by asking twice",
-        next: "w.last-chance",
-        execution: "communication",
-        idempotencyKey: "entitlement_id + holder_id + a.remind",
-      },
-      {
-        id: "w.last-chance",
-        kind: "wait",
-        until: [
-          "capability_first_used"
-        ],
-        onEvent: "x.activated",
-        timeout: {
-          "after": {
-            "key": "entitlement_activation.last_chance",
-            "rule": "After the reminder the instance waits until the activation window itself closes; there is no second reminder.",
-            "class": "attribute-bound",
-            "required": true
-          },
-          "reason": "the window is what makes this an entitlement rather than a standing offer",
-          "relativeTo": "attribute",
-          "attribute": "activation_window_ends_at"
-        },
-        onTimeout: "x.lapsed",
-        windowExtendsOnEngagement: false,
-        recheck: "the the issued entitlement or credential and its activation window re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "x.lapsed",
-        kind: "exit",
-        state: "lapsed unclaimed",
-        terminal: false,
-        reEntry: "a new grant of the same capability starts a new window",
-        class: "timeout",
-      },
-    ],
-    guardrails: [
-      "One reminder, never two. The window is the pressure; repetition is not.",
-      "A holder who has used this capability before is not re-onboarded onto it.",
-      "Lapsed-unclaimed and revoked-before-use are recorded as different outcomes - one is about the holder, the other is not.",
-      "The message names one action, not the full capability surface.",
-    ],
-    reusableRule:
-      "A granted capability nobody has used is not yet a benefit, and the activation window is the only period in which saying so still helps.",
   },
 ];

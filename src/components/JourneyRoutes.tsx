@@ -9,7 +9,7 @@ import JourneyInfo, { JourneyChips, journeyCategoryId, journeyTitle } from "@/co
 import { CategoryIcon, categoryAccent } from "@/components/ui/LibraryChrome";
 import JourneyModal from "@/components/JourneyModal";
 import { resolveDetailSlug } from "@/lib/canonical-view";
-import { localizedJourneyDetail } from "@/lib/journey-tr-overrides";
+import { localizedJourneyDetail, localizedPreset } from "@/lib/journey-tr-overrides";
 import { copy, EMAIL, type Lang } from "@/lib/content";
 import { pageAlternates, SITE_URL } from "@/lib/seo";
 import { breadcrumbList } from "@/lib/schema";
@@ -40,14 +40,18 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
   const resolved = resolveDetailSlug(slug);
   if (!resolved) return {};
   const { detail, merged, preset } = resolved;
+  const localizedDetail = localizedJourneyDetail(detail, lang);
   const suffix = lang === "en" ? "Journey Library" : "Journey Kütüphanesi";
 
-  /* A preset is its own page: its own title, its own canonical, the parent's
-     practitioner view with the preset applied. */
+  /* A preset is its own page: its own title and its own canonical. The title
+     and description are the preset's own two strings, so they take the same
+     TR content layer the page body does - a Turkish page whose <title> and
+     meta description are English is the same leak one layer up. */
   if (preset) {
+    const p = localizedPreset(preset, lang);
     return {
-      title: `${preset.name} - ${suffix}`,
-      description: preset.applicableWhen,
+      title: `${p.name} - ${suffix}`,
+      description: p.applicableWhen,
       alternates: pageAlternates(`/lab/journeys/${preset.slug}`, lang),
     };
   }
@@ -56,15 +60,15 @@ export function journeyMetadata(lang: Lang, slug: string): Metadata {
      is not a second canonical page for the same journey. */
   if (merged) {
     return {
-      title: `${merged.from} → ${detail.id} - ${suffix}`,
-      description: detail.purpose,
+      title: `${merged.from} → ${localizedDetail.id} - ${suffix}`,
+      description: localizedDetail.purpose,
       robots: { index: false, follow: true },
       alternates: { canonical: `${SITE_URL}${basePathFor(lang)}/${detail.slug}` },
     };
   }
   return {
-    title: `${detail.id} ${detail.shortName ?? detail.name} - ${suffix}`,
-    description: detail.purpose,
+    title: `${localizedDetail.id} ${localizedDetail.shortName ?? localizedDetail.name} - ${suffix}`,
+    description: localizedDetail.purpose,
     alternates: pageAlternates(`/lab/journeys/${detail.slug}`, lang),
   };
 }
@@ -90,7 +94,8 @@ export async function JourneyFullPage({ lang, slug }: { lang: Lang; slug: string
         ...(preset
           ? [
               { name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` },
-              { name: preset.name, url: `${basePath}/${preset.slug}` },
+              // The crumb names the preset, so it names it the way the page does.
+              { name: localizedPreset(preset, lang).name, url: `${basePath}/${preset.slug}` },
             ]
           : [{ name: `${detail.id} ${detail.shortName ?? detail.name}`, url: `${basePath}/${detail.slug}` }]),
       ]);

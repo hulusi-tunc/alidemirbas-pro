@@ -1493,7 +1493,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "fulfillment-delay",
     category: "fulfillment",
     goal: "scheduling-commitment",
-    channels: ["email", "sms"],
+    channels: ["email", "push", "whatsapp"],
     name: "Fulfillment delay → recalculate commitment → continue, reschedule or escalate",
     shortName: "Delivery Delay Alert",
     purpose:
@@ -1506,6 +1506,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
+    distinctFrom: [],
     objective: "Hold lateness as its own state, with the original commitment intact behind whatever the new estimate is.",
     eligibility: [
       "a material slip against the timing this obligation was committed to",
@@ -1536,7 +1537,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.g5",
         "label": "CANONICAL_RULE",
-        "text": "Once the obligation is handed to a delivery executor, an in-transit slip on the same obligation is FUL-265's delay-or-tracking state to hold and report; this journey does not open a second, competing delay narrative about a slip FUL-265 is already tracking under its own wait."
+        "text": "Once the obligation's latest authoritative state is a failed delivery attempt, the failed attempt is FUL-148's to narrate, and this journey does not open beside it."
       }
     ],
     contact: {
@@ -1545,12 +1546,12 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "fulfillment_delay.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "rule": "Every touch runs against a budget fixed when the instance opened, counted as the longest path through the cascade rather than the node count: the delay or status notice, the tracking update, and the offer or no-choice update.",
           "default": {
-            "value": 2,
+            "value": 3,
             "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; one delay update and one offer or no-choice update"
+            "applicableWhen": "GLB-24; the graph's own touch count - the delay or status notice, the tracking update, and the offer or no-choice update"
           },
           "required": false
         },
@@ -1581,12 +1582,23 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         {
           "role": "urgent",
           "channels": [
-            "sms"
+            "push"
           ],
           "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "whatsapp"
+          ],
+          "when": "the second-slip offer benefits from a route with high open rates and permission for messages on this channel is recorded"
         }
       ],
       "fallback": "same-role-other-channel",
+      "simultaneous": {
+        "allowed": true,
+        "reason": "the email carries the full offer - a new date, a different delivery point, support, or cancelling - in a form that survives until they act; the WhatsApp message is the faster-opening route to the same offer. Sent together once the delay has exceeded tolerance a second time."
+      },
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
@@ -1597,12 +1609,10 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "stage": "delay-update",
           "action": "a.delay-update",
           "prerequisites": [
-            "c.estimate",
-            "c.recipient-impact"
+            "c.estimate"
           ],
-          "purpose": "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed.",
+          "purpose": "State the current estimate and the date it points to, with the original commitment preserved behind it.",
           "channelRoles": [
-            "persistent",
             "urgent"
           ],
           "mandatory": false,
@@ -1610,36 +1620,65 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         {
           "id": "t2",
-          "stage": "no-choice-update",
-          "action": "a.no-choice-update",
+          "stage": "status-update",
+          "action": "a.status-update",
           "prerequisites": [
-            "c.estimate",
-            "c.recipient-impact",
-            "c.threshold",
-            "c.choice"
+            "c.estimate"
           ],
-          "purpose": "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left.",
+          "purpose": "Say plainly that no reliable estimate exists yet and that a confirmed date will follow once the cause is understood well enough to name one.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
         },
         {
           "id": "t3",
+          "stage": "track-update",
+          "action": "a.track-update",
+          "prerequisites": [
+            "c.estimate",
+            "c.delivered",
+            "c.threshold"
+          ],
+          "purpose": "Say that the delivery is still delayed and give a way to track its current status, without repeating a date that already slipped once.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t4",
+          "stage": "no-choice-update",
+          "action": "a.no-choice-update",
+          "prerequisites": [
+            "c.estimate",
+            "c.delivered",
+            "c.threshold",
+            "c.choice"
+          ],
+          "purpose": "Say that the delay is beyond what was committed, that no option is currently available to them, and that it is being escalated rather than left.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t5",
           "stage": "offer",
           "action": "a.offer",
           "prerequisites": [
             "c.estimate",
-            "c.recipient-impact",
+            "c.delivered",
             "c.threshold",
             "c.choice"
           ],
-          "purpose": "Offer the choices that are actually available - wait, reschedule, an alternative, or cancel.",
+          "purpose": "Offer the choices that are actually available - a new date, a different delivery point, support from a person, or cancelling.",
           "channelRoles": [
             "persistent",
-            "urgent"
+            "low-friction"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -1670,14 +1709,17 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "available_choices",
           "fulfillment_log"
         ],
-        "optional": []
+        "optional": [
+          "push_token",
+          "phone_number"
+        ]
       }
     },
     measurement: {
       "journeyOutcome": {
-        "type": "handoff",
+        "type": "exit-or-handoff",
         "refs": [
-          "h.resume",
+          "x.resumed",
           "h.exception",
           "h.cancel",
           "h.escalate"
@@ -1718,7 +1760,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       "useCases": [
         "a material slip stated with the original commitment intact behind the new estimate",
-        "a delay beyond tolerance with real choices - wait, reschedule, an alternative, cancel"
+        "a delay beyond tolerance with real choices - a new date, a different delivery point, support, or cancelling"
       ]
     },
     entry: "t.slip",
@@ -1752,11 +1794,13 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "A reliable estimate",
             when: "the cause is understood well enough to predict when it clears",
+            observes: "current_estimate",
             to: "a.update",
           },
           {
             label: "No reliable estimate",
             when: "the cause is not understood well enough to name a date that will hold",
+            observes: "current_estimate",
             to: "a.no-estimate",
           },
         ],
@@ -1766,7 +1810,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Update the expected timing, appending to the commitment history. The original commitment is preserved - what was promised and what it became are two facts, and keeping both is the only way a repeated slip becomes visible",
         writes: [{ field: "fulfillment_log", mode: "append" }],
-        next: "c.recipient-impact",
+        next: "a.delay-update",
         idempotencyKey: "obligation_id + a.update",
       },
       {
@@ -1774,33 +1818,115 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record that no reliable estimate exists rather than issuing one. Repeatedly promising dates that do not hold costs more trust than admitting the date is unknown, and each broken date makes the next one worth less",
         writes: [{ field: "fulfillment_log", mode: "append" }],
-        next: "c.recipient-impact",
+        next: "a.status-update",
         idempotencyKey: "obligation_id + a.no-estimate",
       },
       {
-        id: "c.recipient-impact",
+        id: "a.delay-update",
+        kind: "action",
+        does: "State the current estimate and the date it points to, with the original commitment preserved behind it. A slip that is real in the record and invisible to the person waiting is the failure this journey exists to prevent - and it stays true inside tolerance, because tolerance is ours, not theirs",
+        execution: "communication",
+        next: "w.check1",
+        idempotencyKey: "obligation_id + a.delay-update",
+      },
+      {
+        id: "a.status-update",
+        kind: "action",
+        does: "Say plainly that no reliable estimate exists yet and that a confirmed date will follow once the cause is understood well enough to name one. Repeatedly promising dates that do not hold costs more trust than admitting the date is unknown, and each broken date makes the next one worth less",
+        execution: "communication",
+        next: "w.check1",
+        idempotencyKey: "obligation_id + a.status-update",
+      },
+      {
+        id: "w.check1",
+        kind: "wait",
+        until: [
+          "fulfillment_resumed_or_completed"
+        ],
+        onEvent: "x.resumed",
+        timeout: {
+          "after": {
+            "key": "fulfillment_delay.first_recheck",
+            "rule": "A short fixed span after the delay notice, before the record is re-read for delivery.",
+            "class": "observation-window",
+            "default": {
+              "value": "1 day",
+              "confidence": "low",
+              "basis": "example-only"
+            },
+            "required": false
+          },
+          "reason": "a short wait before checking delivery again catches the common case without turning every notice into a running commentary",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "c.delivered",
+        windowExtendsOnEngagement: false,
+        recheck: "the obligation and its timing commitment re-read from the system of record before acting on the timeout",
+      },
+      {
+        id: "c.delivered",
         kind: "condition",
-        asks: "Does the changed timing alter what the recipient should plan around?",
+        asks: "Has the record shown the obligation fulfilled?",
         branches: [
           {
-            label: "It changes their plans",
-            when: "the new estimate, or the loss of a reliable one, moves something they arranged their own time or commitments around",
-            to: "a.delay-update",
+            label: "Delivered",
+            when: "the system of record now shows the obligation fulfilled",
+            observes: "fulfillment_log",
+            to: "x.resumed",
           },
           {
-            label: "No material change for them",
-            when: "the slip stays inside what they were already told to expect and nothing they arranged moves",
+            label: "Not delivered",
+            when: "the obligation remains open against its current estimate",
+            observes: "fulfillment_log",
             to: "c.threshold",
           },
         ],
       },
       {
-        id: "a.delay-update",
+        id: "c.threshold",
+        kind: "condition",
+        asks: "Has the delay now also exceeded what was tolerated?",
+        branches: [
+          {
+            label: "Within tolerance",
+            when: "the new timing is still inside what the commitment or policy accepts",
+            observes: "tolerance",
+            to: "a.track-update",
+          },
+          {
+            label: "Beyond tolerance",
+            when: "the delay has passed what the commitment or policy accepts a second time",
+            observes: "tolerance",
+            to: "c.choice",
+          },
+        ],
+      },
+      {
+        id: "a.track-update",
         kind: "action",
-        does: "State the original commitment, the current estimate or the explicit fact that there is not a reliable one, and what is still owed. A slip that is real in the record and invisible to the person waiting is the failure this journey exists to prevent - and it stays true inside tolerance, because tolerance is ours, not theirs",
+        does: "Say that the delivery is still delayed and give a way to track its current status, without repeating a date that already slipped once",
         execution: "communication",
-        next: "c.threshold",
-        idempotencyKey: "obligation_id + a.delay-update",
+        next: "w.resume",
+        idempotencyKey: "obligation_id + a.track-update",
+      },
+      {
+        id: "c.choice",
+        kind: "condition",
+        asks: "Does the counterparty have a decision to make?",
+        branches: [
+          {
+            label: "They choose",
+            when: "real options exist and the choice between them is theirs",
+            observes: "available_choices",
+            to: "a.offer",
+          },
+          {
+            label: "Nothing to offer",
+            when: "no option exists that they could meaningfully choose between",
+            observes: "available_choices",
+            to: "a.no-choice-update",
+          },
+        ],
       },
       {
         id: "a.no-choice-update",
@@ -1811,43 +1937,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         idempotencyKey: "obligation_id + a.no-choice-update",
       },
       {
-        id: "c.threshold",
-        kind: "condition",
-        asks: "Does the delay exceed the acceptable threshold?",
-        branches: [
-          {
-            label: "Within tolerance",
-            when: "the new timing is still inside what the commitment or policy accepts",
-            to: "w.resume",
-          },
-          {
-            label: "Beyond tolerance",
-            when: "the delay has passed what the commitment or policy accepts",
-            to: "c.choice",
-          },
-        ],
-      },
-      {
-        id: "c.choice",
-        kind: "condition",
-        asks: "Does the counterparty have a decision to make?",
-        branches: [
-          {
-            label: "They choose",
-            when: "real options exist and the choice between them is theirs",
-            to: "a.offer",
-          },
-          {
-            label: "Nothing to offer",
-            when: "no option exists that they could meaningfully choose between",
-            to: "a.no-choice-update",
-          },
-        ],
-      },
-      {
         id: "a.offer",
         kind: "action",
-        does: "Offer the choices that are actually available - wait, reschedule, an alternative, or cancel. Offering a choice that cannot be honoured is worse than offering none, because it converts a delay into a broken second promise",
+        does: "Re-read the obligation's resumption state before offering - an obligation that resumed while this choice was being evaluated is not offered a new date, a different delivery point, or support. Offer the choices that are actually available - a new date, a different delivery point, support from a person, or cancelling. Offering a choice that cannot be honoured is worse than offering none, because it converts a delay into a broken second promise",
         writes: [{ field: "fulfillment_log", mode: "append" }],
         next: "w.decision",
         execution: "communication",
@@ -1872,19 +1964,24 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "w.resume",
         windowExtendsOnEngagement: false,
-        recheck: "the the obligation and its timing commitment re-read from the system of record before acting on the timeout",
+        recheck: "the obligation and its timing commitment re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.decision",
         kind: "condition",
         asks: "What did they choose?",
         branches: [
-          { label: "Wait", when: "they accept the revised timing", to: "w.resume" },
-          { label: "Reschedule", when: "they want a different date or window", to: "a.reschedule" },
+          { label: "Wait", when: "they accept the revised timing, or decline to choose among the alternatives offered", to: "w.resume" },
+          { label: "A new date", when: "they want a different date or window", to: "a.reschedule" },
           {
-            label: "An alternative",
-            when: "they would take something different instead",
+            label: "A different delivery point",
+            when: "they would take delivery somewhere else instead of waiting",
             to: "h.exception",
+          },
+          {
+            label: "Support",
+            when: "they ask for a person's help rather than choosing among the automated options",
+            to: "h.escalate",
           },
           { label: "Cancel", when: "they no longer want it", to: "h.cancel" },
         ],
@@ -1903,7 +2000,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         until: [
           "fulfillment_resumed_or_completed"
         ],
-        onEvent: "h.resume",
+        onEvent: "x.resumed",
         timeout: {
           "after": {
             "key": "fulfillment_delay.resume",
@@ -1916,24 +2013,22 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "h.escalate",
         windowExtendsOnEngagement: false,
-        recheck: "the the obligation and its timing commitment re-read from the system of record before acting on the timeout",
+        recheck: "the obligation and its timing commitment re-read from the system of record before acting on the timeout",
       },
       {
-        id: "h.resume",
-        kind: "handoff",
-        to: "FUL-144",
-        on: "a delayed obligation resuming",
-        carries: [
-          "the current commitment and the history of what preceded it",
-          "the scope already completed, which the delay never touched",
-        ],
+        id: "x.resumed",
+        kind: "exit",
+        state: "delayed obligation resumed or completed against its revised commitment",
+        terminal: false,
+        reEntry: "a later slip against the revised commitment opens its own instance",
+        class: "success",
       },
       {
         id: "h.exception",
         kind: "handoff",
         to: "FUL-145",
-        on: "a counterparty choosing an alternative over waiting",
-        carries: ["the alternative they chose", "the obligation as it currently stands"],
+        on: "a counterparty choosing a different delivery point over waiting",
+        carries: ["the delivery point they chose instead", "the obligation as it currently stands"],
       },
       {
         id: "h.cancel",
@@ -1949,7 +2044,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "h.escalate",
         kind: "handoff",
         to: "OWN-55",
-        on: "a delay beyond tolerance with nothing to offer, or outliving its revised horizon",
+        on: "a delay beyond tolerance with nothing to offer, outliving its revised horizon, or the counterparty explicitly asking for a person's help instead of choosing among the automated options",
         carries: [
           "the original commitment, every revision and the cause",
           "the fact that communicating about the delay has not resolved the operational problem behind it",
@@ -2222,6 +2317,18 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
+    distinctFrom: [
+      {
+        journey: "FUL-146",
+        because:
+          "FUL-146 narrates a slip against a timing commitment while the obligation is still moving toward delivery. This runs against a single attempt already known to have failed - a different fact, and one FUL-146 does not narrate beside.",
+      },
+      {
+        journey: "REM-151",
+        because:
+          "REM-151 asks whether an obligation is unresolved after something was delivered; this runs while nothing has been delivered at all and a further attempt is still possible.",
+      },
+    ],
     objective: "Recover a failed delivery according to why it failed, within a bounded number of attempts.",
     eligibility: [
       "a delivery executor confirming an attempt was made and delivery did not occur",
@@ -2248,6 +2355,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "The failure reason is never invented. What the executor reported is what is acted on."
+      },
+      {
+        "id": "s.narrator",
+        "label": "CANONICAL_RULE",
+        "text": "While this journey holds a failed attempt it is the one that tells the recipient about the obligation's timing."
       }
     ],
     contact: {
@@ -2312,7 +2424,6 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Request the exact correction - the address, the access instruction, the contact.",
           "channelRoles": [
-            "persistent",
             "urgent"
           ],
           "mandatory": false,
@@ -2333,8 +2444,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Put the concrete alternatives in front of the recipient - the collection point, the different window, the other executor - and ask which they want, stating that the attempt budget does not reset either way.",
           "channelRoles": [
-            "persistent",
-            "urgent"
+            "persistent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE",
@@ -2369,9 +2479,9 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     },
     measurement: {
       "journeyOutcome": {
-        "type": "handoff",
+        "type": "exit-or-handoff",
         "refs": [
-          "h.retry",
+          "x.reattempt-scheduled",
           "h.return",
           "h.exception"
         ]
@@ -2445,26 +2555,31 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Correctable information needed",
             when: "the destination is wrong, or access to it is blocked in a way information would resolve",
+            observes: "failure_reason",
             to: "a.correct",
           },
           {
             label: "A reattempt is safe",
             when: "the recipient was unavailable, the time window was missed, or the executor itself failed",
+            observes: "failure_reason",
             to: "c.budget",
           },
           {
             label: "The recipient refused it",
             when: "someone with authority to refuse did so",
+            observes: "failure_reason",
             to: "h.return",
           },
           {
             label: "Damaged",
             when: "what arrived is not what should have been delivered",
+            observes: "failure_reason",
             to: "h.exception",
           },
           {
             label: "No usable reason given",
             when: "the executor reported a failure that cannot be turned into an action",
+            observes: "failure_reason",
             to: "c.budget",
           },
         ],
@@ -2497,7 +2612,7 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         onTimeout: "h.return",
         windowExtendsOnEngagement: false,
-        recheck: "the the individual delivery attempt and the obligation it was serving re-read from the system of record before acting on the timeout",
+        recheck: "the individual delivery attempt, the obligation it was serving and the remaining attempt budget re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.budget",
@@ -2507,11 +2622,13 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Attempts remain",
             when: "the policy's attempt limit has not been reached",
+            observes: "attempt_budget",
             to: "c.alternate",
           },
           {
             label: "Exhausted",
             when: "the attempt limit is reached",
+            observes: "attempt_budget",
             to: "h.return",
           },
         ],
@@ -2524,16 +2641,19 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "An alternative is better, and policy authorises it",
             when: "a collection point, a different window or another executor is more likely to succeed, and policy permits the change without asking",
+            observes: "alternative_routes",
             to: "a.alternate",
           },
           {
             label: "An alternative is better, but it is the recipient's to choose",
             when: "the change would move where or when they must be present, which policy does not let us decide for them",
+            observes: "alternative_routes",
             to: "a.offer-route",
           },
           {
             label: "Reattempt the same route",
             when: "the original route remains the best option",
+            observes: "alternative_routes",
             to: "a.reattempt",
           },
         ],
@@ -2542,8 +2662,11 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.alternate",
         kind: "action",
         does: "Use the authorised alternative route, recorded as a change of route rather than a new obligation. Reached either because policy permits the change or because the recipient chose it - the authority exists before the route moves",
-        writes: [{ field: "delivery_log", mode: "append" }],
-        next: "h.retry",
+        writes: [
+          { field: "delivery_log", mode: "append" },
+          { field: "attempt_budget", mode: "set" },
+        ],
+        next: "x.reattempt-scheduled",
         idempotencyKey: "delivery_attempt_id + obligation_id + a.alternate",
       },
       {
@@ -2584,11 +2707,13 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "Selected an alternative",
             when: "they named one of the offered routes",
+            observes: "delivery_alternative_selected",
             to: "a.alternate",
           },
           {
             label: "Declined all of them",
             when: "none of the offered routes works for them and they said so",
+            observes: "delivery_alternatives_declined",
             to: "h.return",
           },
         ],
@@ -2597,19 +2722,20 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.reattempt",
         kind: "action",
         does: "Schedule the bounded reattempt, against the remaining attempt budget rather than a fresh one",
-        writes: [{ field: "delivery_log", mode: "append" }],
-        next: "h.retry",
+        writes: [
+          { field: "delivery_log", mode: "append" },
+          { field: "attempt_budget", mode: "set" },
+        ],
+        next: "x.reattempt-scheduled",
         idempotencyKey: "delivery_attempt_id + obligation_id + a.reattempt",
       },
       {
-        id: "h.retry",
-        kind: "handoff",
-        to: "FUL-147",
-        on: "a further delivery attempt being dispatched",
-        carries: [
-          "the attempt history and the remaining budget, which does not reset",
-          "whatever correction or route change was applied",
-        ],
+        id: "x.reattempt-scheduled",
+        kind: "exit",
+        state: "a further attempt scheduled, against the remaining budget or a policy-authorised alternative route",
+        terminal: false,
+        reEntry: "a further attempt that also fails opens its own instance against its own delivery attempt",
+        class: "success",
       },
       {
         id: "h.return",
@@ -3160,480 +3286,6 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
       "Fulfillment cancellation stops the remaining obligation while preserving and reconciling any work or side effects that already occurred.",
   },
   {
-    id: "FUL-265",
-    slug: "dispatch-to-acceptance",
-    category: "fulfillment",
-    goal: "delivery-confirmation",
-    channels: ["email", "sms"],
-    name: "Dispatch → tracking → delivered → accepted or issue raised",
-    shortName: "Delivery Tracking",
-    purpose:
-      "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
-    entity: {
-      scope: "the dispatched obligation, its recipient, and the acceptance window running against it",
-      note: "One dispatch, one instance. A re-dispatch after a failure is a new instance and does not inherit the first one's acceptance window.",
-      instanceKey: [
-        "obligation_id",
-        "person_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "FUL-147",
-        because:
-          "FUL-147 holds the obligation open while an executor performs it and reconciles whatever the executor reports. This is what the recipient is told across that same period, and it sends nothing the executor has not authoritatively reported.",
-      },
-      {
-        journey: "FUL-149",
-        because:
-          "FUL-149 decides whether acceptance is contractually meaningful and records finalisation. This is the request for that acceptance and the deadline enforced in front of the person who owes it.",
-      },
-    ],
-    objective: "Carry the recipient from the moment execution left our hands to the moment they agree the obligation was discharged correctly - because arriving and being agreed to have arrived correctly are two different facts, and only one of them has a recipient as its source.",
-    eligibility: [
-      "an authoritative dispatch record naming the executor and the destination",
-      "a recipient with a permitted route for a service notice",
-      "no instance of this journey is already open for the the dispatched obligation",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "Dispatched is not delivered, and delivered is not accepted. Each is told at the point it becomes true and never before."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "An intermediate tracking movement is never reported as an outcome."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "No acceptance window is invented beyond what policy defines; where none exists, nothing is asked for."
-      },
-      {
-        "id": "s.g4",
-        "label": "CANONICAL_RULE",
-        "text": "An executor gone quiet is reported as unknown, not as failure."
-      },
-      {
-        "id": "s.g5",
-        "label": "CANONICAL_RULE",
-        "text": "Acceptance by agreement and acceptance by expiry stay separable forever."
-      },
-      {
-        "id": "s.g6",
-        "label": "CANONICAL_RULE",
-        "text": "A pre-dispatch slip against the original commitment is FUL-146's delay narrative, not this journey's; this journey's own tracking begins at dispatch and reports what the executor authoritatively confirms from there."
-      }
-    ],
-    contact: {
-      "defaultPriority": "service",
-      "pressureClass": "service",
-      "localCap": {
-        "value": {
-          "key": "dispatch_to.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 3,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; a dispatch notice, an arrival or non-arrival notice, and an acceptance request"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "dispatch_to.cooldown",
-        "rule": "This journey is per the dispatched obligation; a later instance concerns a different the dispatched obligation and no cooldown applies between them.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule",
-          "applicableWhen": "the entity note: one instance per entity"
-        },
-        "required": false
-      },
-      "competition": "none"
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "urgent",
-          "channels": [
-            "sms"
-          ],
-          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "offer-decide-remind",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "dispatch",
-          "action": "a.dispatch",
-          "prerequisites": [],
-          "purpose": "Say it is on its way, with the expected window and whatever reference genuinely follows it.",
-          "channelRoles": [
-            "persistent",
-            "urgent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t2",
-          "stage": "no-arrival",
-          "action": "a.no-arrival",
-          "after": "t1",
-          "gatedBy": "w.delivery",
-          "prerequisites": [],
-          "purpose": "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of.",
-          "channelRoles": [
-            "persistent",
-            "urgent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t3",
-          "stage": "arrived",
-          "action": "a.arrived",
-          "gatedBy": "w.delivery",
-          "prerequisites": [
-            "c.delivery"
-          ],
-          "purpose": "Confirm it arrived and what the evidence for that is.",
-          "channelRoles": [
-            "persistent",
-            "urgent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "after": "t1"
-        },
-        {
-          "id": "t4",
-          "stage": "accept-request",
-          "action": "a.accept-request",
-          "after": "t3",
-          "prerequisites": [
-            "c.acceptance"
-          ],
-          "purpose": "Ask them to confirm it arrived correctly or to raise an issue, and name the date after which it is treated as accepted.",
-          "channelRoles": [
-            "persistent",
-            "urgent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "accept-or-raise-issue",
-            "boundTo": "obligation_id",
-            "mustNotClaim": [
-              "an acceptance window policy does not define"
-            ]
-          }
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4",
-        "s.g5"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "obligation_id",
-          "person_id",
-          "executor",
-          "expected_window",
-          "tracking_reference",
-          "acceptance_window_ends_at"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.unresolved",
-          "x.delivered",
-          "x.accepted",
-          "x.finalized",
-          "h.issue"
-        ]
-      },
-      "businessOutcome": {
-        "event": "delivery_accepted",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "not-applicable"
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "delivery tracking",
-        "shipping notification",
-        "order shipped",
-        "out for delivery",
-        "delivery confirmation and acceptance"
-      ],
-      "useCases": [
-        "the recipient carried from dispatch to agreed acceptance",
-        "a non-arrival stated as what it is: a confirmed failure or an executor lost sight of"
-      ]
-    },
-    entry: "t.dispatched",
-    nodes: [
-      {
-        id: "t.dispatched",
-        kind: "trigger",
-        event: "obligation_handed_to_delivery_executor",
-        evidence: {
-          requires: [
-            "an authoritative dispatch record naming the executor and the destination",
-            "a recipient with a permitted route for a service notice",
-          ],
-          insufficientAlone: [
-            "a preparation or packing status",
-            "a label or reference created with nothing handed over behind it",
-          ],
-          source: "authoritative",
-        },
-        next: "a.dispatch",
-      },
-      {
-        id: "a.dispatch",
-        kind: "action",
-        does: "Say it is on its way, with the expected window and whatever reference genuinely follows it. Where no reference exists, say so rather than inventing one - a link that resolves to nothing costs more than an honest absence",
-        next: "w.delivery",
-        execution: "communication",
-        idempotencyKey: "obligation_id + person_id + a.dispatch",
-      },
-      {
-        id: "w.delivery",
-        kind: "wait",
-        until: [
-          "delivery_confirmed",
-          "delivery_failed",
-          "delivery_delay_reported"
-        ],
-        onEvent: "c.delivery",
-        timeout: {
-          "after": {
-            "key": "dispatch_to.delivery",
-            "rule": "The executor's own expected window, from the dispatch record; its passing without an authoritative report is a non-arrival to be reconciled, never assumed delivered.",
-            "class": "external-window",
-            "required": true
-          },
-          "reason": "an executor that has gone quiet is not an outcome, and the recipient is the person who notices first",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "a.no-arrival",
-        windowExtendsOnEngagement: false,
-        recheck: "the the dispatched obligation re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "c.delivery",
-        kind: "condition",
-        asks: "What did the executor authoritatively report?",
-        branches: [
-          {
-            label: "Delivered",
-            when: "a final delivery confirmation exists, not an intermediate tracking movement",
-            to: "a.arrived",
-          },
-          {
-            label: "Not delivered",
-            when: "a confirmed failure, or a window that has passed with no final outcome",
-            to: "a.no-arrival",
-          },
-        ],
-      },
-      {
-        id: "a.no-arrival",
-        kind: "action",
-        does: "Tell them it has not arrived and say which of the two it is - a confirmed failure, or an executor we have lost sight of. Calling an unknown a failure produces a replacement that then arrives alongside the original",
-        next: "x.unresolved",
-        execution: "communication",
-        idempotencyKey: "obligation_id + person_id + a.no-arrival",
-      },
-      {
-        id: "x.unresolved",
-        kind: "handoff",
-        to: "FUL-148",
-        on: "a confirmed non-arrival, or an executor gone quiet long enough that the obligation needs active recovery rather than a further wait",
-        carries: [
-          "the failure classification told to the recipient - confirmed failure or executor lost sight of - which becomes FUL-148's failure_reason",
-          "the dispatch and tracking history, so recovery does not start from nothing",
-          "a fresh delivery_attempt_id, minted at this handoff and deterministically derived from obligation_id and the dispatch record - FUL-265 tracks by obligation and person, not by attempt, so FUL-148's per-attempt instance is opened here rather than carried",
-        ],
-        contract: { requiredFields: ["delivery_attempt_id", "obligation_id", "failure_reason"] },
-      },
-      {
-        id: "a.arrived",
-        kind: "action",
-        does: "Confirm it arrived and what the evidence for that is. Proof of delivery is a fact about the executor, and stating it is what lets the recipient contradict it while the memory is fresh",
-        next: "c.acceptance",
-        execution: "communication",
-        idempotencyKey: "obligation_id + person_id + a.arrived",
-      },
-      {
-        id: "c.acceptance",
-        kind: "condition",
-        asks: "Does acceptance carry any consequence here?",
-        branches: [
-          {
-            label: "Acceptance is meaningful",
-            when: "policy defines an acceptance or issue window with something turning on it",
-            to: "a.accept-request",
-          },
-          {
-            label: "Delivery is the end of it",
-            when: "no acceptance window is defined, so there is nothing to ask for",
-            to: "x.delivered",
-          },
-        ],
-      },
-      {
-        id: "x.delivered",
-        kind: "exit",
-        state: "delivered; no acceptance was required",
-        terminal: true,
-        reEntry: "a later obligation to the same recipient is a new instance",
-        class: "success",
-      },
-      {
-        id: "a.accept-request",
-        kind: "action",
-        does: "Ask them to confirm it arrived correctly or to raise an issue, and name the date after which it is treated as accepted. Stating that date is what makes silence mean something they chose rather than something done to them",
-        next: "w.acceptance",
-        execution: "communication",
-        idempotencyKey: "obligation_id + person_id + a.accept-request",
-      },
-      {
-        id: "w.acceptance",
-        kind: "wait",
-        until: [
-          "delivery_accepted",
-          "delivery_issue_raised"
-        ],
-        onEvent: "c.response",
-        timeout: {
-          "after": {
-            "key": "dispatch_to.acceptance",
-            "rule": "The acceptance window policy defines.",
-            "class": "attribute-bound",
-            "required": true
-          },
-          "reason": "an acceptance window with no end leaves the obligation open forever and the recipient unaware it was ever theirs to close",
-          "relativeTo": "attribute",
-          "attribute": "acceptance_window_ends_at"
-        },
-        onTimeout: "a.finalize",
-        windowExtendsOnEngagement: false,
-        recheck: "the the dispatched obligation re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "c.response",
-        kind: "condition",
-        asks: "What did the recipient say?",
-        branches: [
-          {
-            label: "Accepted",
-            when: "the recipient explicitly confirmed it arrived correctly",
-            to: "x.accepted",
-          },
-          {
-            label: "Issue raised",
-            when: "the recipient says what arrived is wrong, incomplete or damaged",
-            to: "h.issue",
-          },
-        ],
-      },
-      {
-        id: "h.issue",
-        kind: "handoff",
-        to: "FUL-149",
-        on: "a delivered obligation the recipient has raised an issue against inside its acceptance window",
-        carries: [
-          "the delivery evidence and when acceptance was requested",
-          "what the recipient says is wrong and when they said it",
-        ],
-      },
-      {
-        id: "x.accepted",
-        kind: "exit",
-        state: "accepted by the recipient",
-        terminal: true,
-        reEntry: "rights policy independently provides afterwards do not run through here",
-        class: "success",
-      },
-      {
-        id: "a.finalize",
-        kind: "action",
-        does: "Record acceptance by expiry, kept distinguishable from acceptance by agreement. One is the recipient saying it was right; the other is nobody saying anything, and a report that cannot tell them apart is reporting satisfaction it does not have",
-        next: "x.finalized",
-        idempotencyKey: "obligation_id + person_id + a.finalize",
-      },
-      {
-        id: "x.finalized",
-        kind: "exit",
-        state: "finalised on expiry of the acceptance window, with no explicit acceptance",
-        terminal: false,
-        reEntry: "an issue raised later runs on whatever right policy independently provides, not on this window",
-        class: "timeout",
-      },
-    ],
-    guardrails: [
-      "Dispatched is not delivered, and delivered is not accepted. Each is told at the point it becomes true and never before.",
-      "An intermediate tracking movement is never reported as an outcome.",
-      "No acceptance window is invented beyond what policy defines; where none exists, nothing is asked for.",
-      "An executor gone quiet is reported as unknown, not as failure.",
-      "Acceptance by agreement and acceptance by expiry stay separable forever.",
-    ],
-    reusableRule:
-      "Delivery is a fact about the executor; acceptance is a fact only the recipient can supply, and the deadline is what makes their silence readable.",
-  },
-  {
     id: "FUL-276",
     slug: "substitution-offer",
     category: "fulfillment",
@@ -4090,5 +3742,386 @@ export const FULFILLMENT_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "A substitute is only a substitute if the person it was offered to could have said no.",
+  },
+  {
+    "id": "FUL-291",
+    "slug": "post-purchase-follow-up",
+    "category": "fulfillment",
+    "goal": "progression-milestone",
+    "channels": ["in-app", "push", "email"],
+    "name": "Fulfillment completed → the useful next step sent → followed up, superseded or not sent",
+    "shortName": "Post-Purchase Follow-Up",
+    "purpose": "Once what was owed has actually arrived, send the one thing that makes it useful - how to start with it, how to look after it, what sensibly follows - and nothing else.",
+    "objective": "Make what the person received work for them, sent only once completion is authoritative; never a status update, never a request for their opinion, and never while a problem is open against it.",
+    "entity": {
+      "scope": "one completed fulfillment - the delivered order or finished service, and the recipient it was completed for",
+      "note": "One instance per completion. A later completion for the same person is its own instance. A problem raised against this completion ends this instance rather than pausing it, because the remedy lifecycle owns the order from that point.",
+      "instanceKey": [
+        "person_id",
+        "fulfillment_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A problem raised against this completion supersedes the instance: the remedy lifecycle owns the order from that moment and this journey sends nothing further about it."
+      }
+    },
+    "eligibility": [
+      "an authoritative record that the recipient has what was owed",
+      "the completion is attributable to a person we may contact",
+      "no problem is open against this completion",
+      "no instance is already open for this completion",
+      "purpose-level permission for service communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.issue",
+        "label": "CANONICAL_RULE",
+        "text": "A problem raised against this completion ends the instance where it stands. Usage guidance sent to somebody waiting on a remedy is the failure this journey exists to prevent."
+      },
+      {
+        "id": "s.status",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never reports status. Where the order is, whether it is late and whether it arrived belong to the tracking and delay journeys, and they have already said it."
+      },
+      {
+        "id": "s.rating",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never asks for a rating, a review or an opinion. Asking is the feedback journey's own work, on its own timing and its own permission, and a follow-up that ends in a request is that journey wearing this one's name."
+      },
+      {
+        "id": "s.confirmation",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never confirms the order. What the business took on is recorded at the opening of the fulfillment record, long before this instance exists, and this journey does not restate it."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for service communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.substance",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "Where nothing useful is recorded against what was delivered - no setup, no care, no sensible next step - nothing is sent. A follow-up with no substance is a promotional message wearing a service label."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "post_purchase_followup.touches",
+          "rule": "The follow-up runs against a budget fixed when the instance opened; the budget is the journey's own length, and it is not repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - one follow-up and nothing after it"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "post_purchase_followup.cooldown",
+        "rule": "Completions for the same person that land close together produce one follow-up rather than one each; the cooldown is what stops somebody who orders often from being taught the same thing again.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "post-purchase-welcome",
+        "scope": "person",
+        "precedence": "above the first-purchase welcome for the same person - what somebody is already holding comes before what they might buy next; below every remedy journey on the same order, which ends this one rather than queueing it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and guidance_destination opens the exact next step for the fulfilled item in the product"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "there is no active session, push_token is present, and the useful next step is short enough to understand before opening its deep link"
+        },
+        {
+          "role": "persistent",
+          "channels": ["email"],
+          "when": "otherwise, especially when the guidance is something the person may need to keep and return to later"
+        }
+      ],
+      "fallback": "none",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "useful-next-step",
+          "action": "a.followup",
+          "gatedBy": "w.settle",
+          "prerequisites": [
+            "c.state",
+            "c.sendable"
+          ],
+          "purpose": "The one thing that makes what they received work: how to start with it, how to look after it, or what sensibly follows. No status, no request for an opinion, no repeat of the order's own confirmation.",
+          "channelRoles": [
+            "in-session",
+            "low-friction",
+            "persistent"
+          ],
+          "destination": {
+            "target": "fulfillment-guidance",
+            "boundTo": "fulfillment_id",
+            "mustNotClaim": [
+              "a warranty the record does not carry",
+              "a service the person has not bought",
+              "an outcome the product does not produce"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.issue",
+        "s.status",
+        "s.rating",
+        "s.confirmation",
+        "s.permission",
+        "s.substance"
+      ]
+    },
+    "entry": "t.completed",
+    "nodes": [
+      {
+        "id": "t.completed",
+        "kind": "trigger",
+        "event": "authoritative_delivery_completion",
+        "evidence": {
+          "requires": [
+            "an authoritative confirmation that the recipient has what was owed",
+            "the fulfillment record the completion belongs to, and the items or service it covers"
+          ],
+          "insufficientAlone": [
+            "an order placed, paid for or accepted - none of those is a completion",
+            "a carrier or provider status that the system of record has not confirmed",
+            "a final delivery attempt whose outcome has not been recorded",
+            "a completion recorded against a recipient who has not resolved to a person"
+          ],
+          "source": "authoritative"
+        },
+        "next": "w.settle"
+      },
+      {
+        "id": "w.settle",
+        "kind": "wait",
+        "until": [
+          "post_completion_issue_reported",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.state",
+        "timeout": {
+          "after": {
+            "key": "post_purchase_followup.settle",
+            "rule": "The follow-up waits until the person has plausibly had what arrived in their hands, so that guidance about using it is guidance rather than another message about an order.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "guidance that lands before the thing does is advice about something the person cannot see yet",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.state",
+        "recheck": "the fulfillment record, any problem raised against it and the person's permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.state",
+        "kind": "condition",
+        "asks": "Is a follow-up still the right thing to send?",
+        "branches": [
+          {
+            "label": "Follow-up due",
+            "when": "the completion stands, no problem has been raised against it, and permission for service communication still holds",
+            "observes": "fulfillment record, problem record, permission record",
+            "to": "c.sendable"
+          },
+          {
+            "label": "A problem is open",
+            "when": "a problem has been raised against this completion",
+            "observes": "post_completion_issue_reported",
+            "to": "x.superseded"
+          },
+          {
+            "label": "No longer reachable",
+            "when": "the person withdrew permission for this kind of communication",
+            "observes": "permission_withdrawn",
+            "to": "x.closed"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the follow-up go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and something is recorded against what was delivered that is actually worth saying",
+            "observes": "send path stages 1-8, guidance record",
+            "to": "a.followup"
+          },
+          {
+            "label": "Nothing to say, or suppressed",
+            "when": "a gate stops it, or nothing useful is recorded against what was delivered; the reason is recorded",
+            "observes": "send path stages 1-8, guidance record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.followup",
+        "kind": "action",
+        "does": "Send the useful next step for what was received: setting it up, looking after it, or what sensibly follows from it. No status, no request for an opinion, no repeat of the order's own confirmation.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + fulfillment_id",
+        "writes": [
+          {
+            "field": "followup_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.followed-up"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no follow-up was sent and against which completion, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + fulfillment_id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.followed-up",
+        "kind": "exit",
+        "state": "followed up; the useful next step for this completion has been sent",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a later completion for this person opens its own instance; this one does not reopen"
+      },
+      {
+        "id": "x.superseded",
+        "kind": "exit",
+        "state": "superseded by a problem; the remedy lifecycle owns this completion",
+        "class": "suppression",
+        "terminal": false,
+        "reEntry": "a later completion for this person opens its own instance; a resolved remedy does not reopen this one"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a follow-up; the person is no longer reachable for this kind of message",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a restored permission makes a later completion eligible again; this instance does not reopen"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no follow-up sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a later completion for this person opens its own instance"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "fulfillment_id",
+          "completed_at",
+          "fulfilled_items",
+          "guidance_destination"
+        ],
+        "optional": [
+          "service_type",
+          "permission_state",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.followed-up",
+          "x.superseded",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "secondary": [
+        "post_completion_issue_reported"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "followup_during_open_issue",
+        "followup_without_substance",
+        "rating_request_sent"
+      ],
+      "operational": [
+        "entry_volume",
+        "followup_rate",
+        "no_action_rate_by_reason",
+        "issue_supersession_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "post-purchase follow-up",
+        "after delivery follow-up",
+        "product usage guidance",
+        "care instructions message",
+        "what to do next after delivery"
+      ],
+      "useCases": [
+        "a delivered order whose owner would get more out of it with one piece of guidance",
+        "a completed service with a sensible next step the person does not yet know about"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "FBK-41",
+        "because": "FBK-41 asks the person for something - their opinion about what happened. This journey gives them something and asks for nothing, so the two are not variants of one message."
+      },
+      {
+        "journey": "RET-290",
+        "because": "RET-290 is about the relationship a first purchase opened and never explains the product. This is about the thing itself, and it opens on every completion rather than only the first."
+      },
+      {
+        "journey": "REM-151",
+        "because": "REM-151 owns the order the moment a problem is raised against it. This journey ends there rather than continuing beside it."
+      }
+    ],
+    "guardrails": [
+      "Completion is read from the system of record, never from a carrier status or a final attempt whose outcome has not been recorded.",
+      "A problem raised against the completion ends this journey; guidance never runs beside a remedy.",
+      "No status, no rating request and no repeat of the order confirmation - each belongs to a journey that already owns it.",
+      "Where nothing useful is recorded against what was delivered, nothing is sent."
+    ],
+    "reusableRule": "A completion is a state with a message of its own, and that message is whatever makes the delivered thing useful - never a restatement of the status that produced it, and never a request for the recipient's opinion about it."
   },
 ];

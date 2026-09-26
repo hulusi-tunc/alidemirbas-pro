@@ -13,19 +13,41 @@ import type { CanonicalJourney, OrchestrationRule } from "./types";
      CHURN         it ended
 
    Every collapse between two of them produces a specific failure, and this
-   category is nine journeys drawing the lines between them. RET-21 keeps
+   category is seven journeys drawing the lines between them. RET-21 keeps
    engagement a changing state rather than a label. RET-22 refuses to read
    absence as evidence without a pattern to read it against. RET-23 insists a
    health score name what moved it before anyone is contacted. RET-24 makes
-   intervention scale with evidence instead of with account value. RET-26 stops
-   compensation being the default apology. RET-27 is the whole category in one
-   journey: a good sign is the start of recovery, not recovery. RET-28 and
-   RET-29 are the two sides of the intent/completion line, and RET-30 makes an
-   intervention finish only when its actual outcome is known.
+   intervention scale with evidence instead of with account value. RET-27 is
+   the whole category in one journey: a good sign is the start of recovery,
+   not recovery. RET-29 is the completion side of the intent/completion line
+   that RET-28 used to share with it.
 
    RET-25 is not here. Evaluating a risk signal is a risk and policy
    responsibility rather than a retention one, and it opened on the same event
    as RSK-192, which now owns it.
+
+   RET-26 is not here either (retired 2026-09-24, site owner's request -
+   "kaldır"). It was the library's general-purpose service-recovery journey;
+   RET-23's h.service branch, its one real inbound handoff, now hands a
+   service failure straight to external:operational-resolution instead.
+
+   RET-30 was retired the same day for the same reason. It closed a
+   retention offer on its actual outcome - accepted, declined, applied or
+   not - rather than on the customer's answer alone. Its one real inbound
+   handoff, an alternative offered at the cancellation decision point, was
+   absorbed into RET-28's own w.decision before RET-28 itself was retired
+   (below).
+
+   RET-28 is not here either (retired 2026-09-24, site owner's request -
+   "kaldır"). It was the cancellation-intent decision point: the moment
+   someone declares they want to leave, before the decision is final. It had
+   no real inbound handoffs of its own. RET-24's h.cancellation, its only
+   real caller, now exits as x.cancellation-in-motion instead: cancellation
+   intent already on record needs no separate retention track opened.
+   RET-29 remains as the completion side of the line RET-28 used to draw
+   with it; RET-32's lapse-eligibility window still excludes an account
+   still inside its own cancellation save window and cooldown, described in
+   RET-32's own terms rather than by naming the journey that used to own it.
 
    Almost everything here can conclude that nothing should be sent. That is
    not a gap in the category, it is most of the point of it. */
@@ -589,7 +611,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "x.cause-found",
           "x.unexplained",
           "h.adoption",
-          "h.setup",
           "h.technical",
           "h.service",
           "h.payment",
@@ -657,13 +678,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             to: "h.adoption",
           },
           {
-            label: "Setup dependency missing",
-            when: "something required was never completed or has since broken",
-            to: "h.setup",
-          },
-          {
             label: "Technical issue or support friction",
-            when: "an unresolved fault, or repeated difficulty getting help with one",
+            when: "an unresolved fault, a required setup dependency never completed or since broken, or repeated difficulty getting help with one",
             to: "h.technical",
           },
           {
@@ -696,16 +712,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "h.adoption",
         kind: "handoff",
-        to: "ACT-18",
+        to: "ACT-17",
         on: "deterioration driven by adoption falling away",
         carries: ["the usage pattern that stopped", "the expected pattern it was measured against"],
-      },
-      {
-        id: "h.setup",
-        kind: "handoff",
-        to: "ACT-13",
-        on: "deterioration traced to a missing or broken setup dependency",
-        carries: ["the named dependency", "what it is blocking now that it was not blocking before"],
       },
       {
         id: "h.technical",
@@ -726,9 +735,17 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "h.service",
         kind: "handoff",
-        to: "RET-26",
+        to: "external:operational-resolution",
         on: "deterioration caused by a service failure on our side",
         carries: ["what failed and when", "whether the customer is still affected"],
+        contract: {
+          "requiredFields": [
+            "relationship_id",
+            "account_id",
+            "handed_at",
+            "reason"
+          ]
+        },
       },
       {
         id: "h.payment",
@@ -862,11 +879,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     slug: "churn-risk-escalation",
     category: "retention",
     goal: "relationship-recovery-intervention",
-    channels: ["task"],
-    name: "Churn risk escalation → evidence → intervention priority",
+    channels: ["push", "email", "in-app", "whatsapp", "task"],
+    name: "Churn risk escalation → tiered evidence ladder → intervention priority",
     shortName: "Churn Risk Escalation",
     purpose:
-      "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
+      "Catch a churn risk signal early and answer it on the channel and at the priority the evidence actually earns, escalating only as the evidence corroborates itself.",
     entity: {
       scope: "customer, account or subscription relationship",
       note: "Risk is held where the evidence was observed. A risky subscription inside a healthy account is a risky subscription.",
@@ -876,9 +893,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       concurrency: "one-active-per-key"
     },
-    objective: "Decide how hard to push back on a relationship at risk, in proportion to how much independent evidence there actually is.",
+    objective: "Catch a churn risk signal early and answer it on the channel and at the priority the evidence actually earns, escalating only as the evidence corroborates itself.",
     eligibility: [
-      "several independent churn-relevant signals crossing a defined threshold together: sustained meaningful usage decline, a failed renewal or payment, a negative support experience, repeated unresolved blockers, explicit dissatisfaction, exploration of cancellation, a key stakeholder leaving, falling account-wide adoption",
+      "at least one churn-relevant signal crossing a defined threshold: usage decline, an extended absence, unused critical features, a payment problem, a support complaint, a low NPS score or a negative comment, an approaching renewal, an approaching plan limit, or several weaker signals together",
       "no instance of this journey is already open for the customer",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
@@ -886,7 +903,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.g1",
         "label": "CANONICAL_RULE",
-        "text": "A single weak signal never constitutes churn risk. Corroboration between independent signals is what the threshold is measuring."
+        "text": "A single weak signal is not evidence of nothing, but it is not strong evidence either. It draws only the lightest tier of this ladder - a push nudge - never a person's attention or a discount; corroboration between independent signals is what moves the tier up."
       },
       {
         "id": "s.g2",
@@ -896,12 +913,17 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.g3",
         "label": "CANONICAL_RULE",
-        "text": "A risk score is not the outcome. It orders attention; it does not decide anything."
+        "text": "A risk score is not the outcome. It orders which tier responds; each outcome check re-reads usage, login, payment and support state before accepting a score drop as recovery."
       },
       {
         "id": "s.g4",
         "label": "CANONICAL_RULE",
-        "text": "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one."
+        "text": "The size of the intervention tracks the tier. No discount or plan offer appears before the issue-based tier or the last-resort tier; the push, email, in-app and WhatsApp touches before that ask what is wrong or point at value, and never negotiate."
+      },
+      {
+        "id": "s.g5",
+        "label": "CANONICAL_RULE",
+        "text": "This journey defers to an open issue already under human ownership and to a declared cancellation intent on the same account - its own competition precedence, not a duplicate check inside this graph."
       }
     ],
     contact: {
@@ -941,31 +963,213 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "the risk is at its lightest tier - one weak signal - and a light nudge is all the evidence supports"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the medium tier's content has to survive until the person can act on it, or the last-resort offer needs the same durability"
+        },
+        {
+          "role": "in-session",
+          "channels": [
+            "in-app"
+          ],
+          "when": "the medium tier's guidance belongs beside the product the person is still using"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "whatsapp"
+          ],
+          "when": "the risk has reached the high tier, or the last-resort offer needs a channel that still reaches someone who has stopped opening email"
+        },
+        {
           "role": "human",
           "channels": [
             "task"
           ],
-          "when": "the step is carried out by a person - a call, a task, a visit - and recorded as done by them"
+          "when": "the issue is a technical cause or a complaint that needs a person to carry it, not a further automated touch"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
-      "strategy": "single-notice",
+      "strategy": "human-escalation-ladder",
       "touches": [
         {
-          "id": "t1",
-          "stage": "owner-task",
-          "action": "a.owner-task",
+          "id": "t-push-low",
+          "stage": "low-risk-touch",
+          "action": "a.push-value",
           "prerequisites": [
-            "c.intent",
-            "c.operational",
-            "c.human"
+            "c.risk-level"
           ],
-          "purpose": "Raise a task for the account owner or customer success, carrying the evidence rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
+          "purpose": "Nudge the account toward its most valuable feature, short and benefit-focused - no diagnostic question, no offer.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-email-medium",
+          "stage": "medium-risk-touch",
+          "action": "a.email-features",
+          "prerequisites": [
+            "c.risk-level"
+          ],
+          "purpose": "Name the features this account may be missing and how to get more value from them.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-inapp-medium",
+          "stage": "medium-risk-touch",
+          "action": "a.inapp-relevant",
+          "after": "t-email-medium",
+          "prerequisites": [
+            "c.risk-level"
+          ],
+          "purpose": "Highlight the relevant feature beside the product, sent together with the medium tier's other touch, for anyone who opens it during this window.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-whatsapp-high",
+          "stage": "high-risk-touch",
+          "action": "a.whatsapp-experience",
+          "prerequisites": [
+            "c.risk-level"
+          ],
+          "purpose": "Ask directly whether the experience can be made better, with a short survey or open question and a route to a person.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-technical",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-technical",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Route a technical cause to the support team, track it through to resolution, and ask a satisfaction question once it closes.",
           "channelRoles": [
             "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-complaint",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-complaint",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Put the account in front of a person, own the issue through to resolution, and read NPS once it closes.",
+          "channelRoles": [
+            "human"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-price",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-price",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Offer a discount or a more suitable plan for a price or value problem.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-usage",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-usage",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Point to product guidance for an account that has not learned how to get value from it.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-payment",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-payment",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Resolve a payment error and lay out alternative or flexible payment options.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-issue-noclear",
+          "stage": "issue-based-intervention",
+          "action": "a.issue-noclear",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Send personalised value recommendations and a short guide series where no specific cause explains the decline.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-final-email",
+          "stage": "final-intervention",
+          "action": "a.final-email",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Make one last personalised, time-limited retention offer.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t-final-whatsapp",
+          "stage": "final-intervention",
+          "action": "a.final-whatsapp",
+          "after": "t-final-email",
+          "prerequisites": [
+            "c.issue-type"
+          ],
+          "purpose": "Summarise the last-resort offer with a quick action link, sent together with the tier's other touch.",
+          "channelRoles": [
+            "urgent"
           ],
           "mandatory": false,
           "label": "CANONICAL_RULE"
@@ -975,7 +1179,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4"
+        "s.g4",
+        "s.g5"
       ]
     },
     implementation: {
@@ -984,22 +1189,23 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "account_id",
           "risk_episode_id",
           "risk_evidence",
-          "cancellation_intent_ref",
           "operational_cause_ref",
           "retention_ownership"
         ],
-        "optional": []
+        "optional": [
+          "push_token",
+          "phone_number"
+        ]
       }
     },
     measurement: {
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
-          "x.monitor",
-          "h.cancellation",
+          "x.recovered",
+          "x.passive-monitoring",
           "h.resolve-first",
-          "h.human",
-          "h.intervention"
+          "h.human"
         ]
       },
       "secondary": [],
@@ -1024,8 +1230,8 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "churn prevention (risk)"
       ],
       "useCases": [
-        "several independent risk signals crossing a threshold on one account",
-        "deciding between a person, an automated intervention, or watching"
+        "several independent risk signals - or one strong one - crossing a threshold on one account, answered by an escalating ladder from a light nudge to a person",
+        "deciding between a push nudge, an email-and-in-app pair, a WhatsApp touch, or a person, in proportion to how much evidence there is"
       ]
     },
     entry: "t.threshold",
@@ -1036,76 +1242,277 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         event: "churn_risk_threshold_crossed",
         evidence: {
           requires: [
-            "several independent churn-relevant signals crossing a defined threshold together: sustained meaningful usage decline, a failed renewal or payment, a negative support experience, repeated unresolved blockers, explicit dissatisfaction, exploration of cancellation, a key stakeholder leaving, falling account-wide adoption",
+            "one or more churn-relevant signals crossing a defined threshold: sustained usage decline, an extended absence from the product, unused critical features, a payment problem, a support complaint, a low NPS score or a negative comment, an approaching renewal, an approaching plan limit, or several weaker signals together",
           ],
           insufficientAlone: [
-            "a single weak signal",
             "high account value, which describes what is at stake rather than the likelihood of losing it",
             "a risk score with no decomposable evidence behind it",
           ],
           source: "authoritative",
         },
-        next: "c.intent",
+        next: "a.evaluate",
       },
       {
-        id: "c.intent",
-        kind: "condition",
-        asks: "Has explicit cancellation intent already been expressed?",
-        branches: [
-          {
-            label: "Already cancelling",
-            when: "a cancellation has been requested or a cancel flow entered",
-            to: "h.cancellation",
-          },
-          {
-            label: "No stated intent",
-            when: "the risk is inferred from behaviour and events, and nobody has said anything",
-            to: "a.evidence",
-          },
-        ],
-      },
-      {
-        id: "h.cancellation",
-        kind: "handoff",
-        to: "RET-28",
-        on: "cancellation intent already on record when risk escalates",
-        carries: [
-          "the risk evidence, which is context for the conversation rather than a second conversation",
-        ],
-        suppresses: [
-          "any separate retention track for this relationship while the cancellation decision is live",
-        ],
-      },
-      {
-        id: "a.evidence",
+        id: "a.evaluate",
         kind: "action",
-        does: "Assemble the signals with their sources and strengths. What matters is whether they corroborate each other, not how many there are - three readings of the same underlying event are one piece of evidence",
+        does: "Evaluate the signals behind the crossed threshold: how many independent signals there are, how strong each one is, the customer's segment and value, the contract or renewal date, and how the relationship has behaved before now",
         writes: [{ field: "risk_evidence", mode: "append" }],
-        next: "c.operational",
-        idempotencyKey: "risk_episode_id + account_id + a.evidence",
+        next: "c.risk-level",
+        idempotencyKey: "risk_episode_id + account_id + a.evaluate",
       },
       {
-        id: "c.operational",
+        id: "c.risk-level",
         kind: "condition",
-        asks: "Is the risk driven by a known operational problem, other than a payment failure already open in payment recovery?",
+        asks: "What level of risk do the evaluated signals add up to?",
         branches: [
           {
-            label: "Known problem",
-            when: "the evidence points at something specific that is broken or unresolved, and it is not a payment failure with an open payment recovery instance on this relationship - that cause already has an owner",
-            to: "h.resolve-first",
+            label: "Low risk",
+            when: "one weak signal is present and nothing else corroborates it",
+            observes: "risk_evidence",
+            to: "a.push-value",
           },
           {
-            label: "No known problem",
-            when: "the relationship is deteriorating and nothing identifiable is causing it, or the identifiable cause is a payment failure that payment recovery already owns",
-            to: "c.human",
+            label: "Medium risk",
+            when: "two signals are present, or usage is in an ongoing decline that has not stopped",
+            observes: "risk_evidence",
+            to: "a.email-features",
+          },
+          {
+            label: "High risk",
+            when: "three or more strong signals are present, or one of the signals is critical on its own",
+            observes: "risk_evidence",
+            to: "a.whatsapp-experience",
           },
         ],
+      },
+      {
+        id: "a.push-value",
+        kind: "action",
+        does: "Push a light, benefit-focused nudge naming the account's most valuable feature - no diagnostic question, no offer",
+        next: "w.low-wait",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.push-value",
+      },
+      {
+        id: "w.low-wait",
+        kind: "wait",
+        until: ["relationship_recovered"],
+        onEvent: "c.low-outcome",
+        timeout: {
+          after: {
+            key: "churn_risk.low_tier_window",
+            rule: "A short fixed span for the lightest tier to work before deciding whether to escalate.",
+            class: "response-window",
+            default: {
+              value: "3 days",
+              confidence: "low",
+              basis: "example-only",
+              applicableWhen: "the low-risk push touch already went out",
+            },
+            required: false,
+          },
+          reason: "a light nudge nobody responds to is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
+          relativeTo: "previous-touch",
+        },
+        onTimeout: "c.low-outcome",
+        windowExtendsOnEngagement: false,
+        recheck: "login activity, critical-feature use and the risk score, re-read from the systems that own them, before the timeout is acted on",
+      },
+      {
+        id: "c.low-outcome",
+        kind: "condition",
+        asks: "Did usage come back?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "a login is present again, the critical feature is back in use, and the risk score has dropped",
+            observes: "relationship_recovered",
+            to: "x.recovered",
+          },
+          {
+            label: "Not yet",
+            when: "none of that is true",
+            to: "a.email-features",
+          },
+        ],
+      },
+      {
+        id: "a.email-features",
+        kind: "action",
+        does: "Send an email naming the features this account may be missing, with personalised recommendations for getting more value - sent alongside the in-app message below",
+        next: "a.inapp-relevant",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.email-features",
+      },
+      {
+        id: "a.inapp-relevant",
+        kind: "action",
+        does: "Show an in-app message highlighting the relevant feature, with short guidance, for anyone who opens the product during this window - sent together with the email above, not as a separate later touch",
+        next: "w.medium-wait",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.inapp-relevant",
+      },
+      {
+        id: "w.medium-wait",
+        kind: "wait",
+        until: ["relationship_recovered"],
+        onEvent: "c.medium-outcome",
+        timeout: {
+          after: {
+            key: "churn_risk.medium_tier_window",
+            rule: "A longer fixed span for the medium tier's more comprehensive content and guidance to work before deciding whether to escalate.",
+            class: "response-window",
+            default: {
+              value: "3-5 days",
+              confidence: "low",
+              basis: "example-only",
+              applicableWhen: "both the email and the in-app message already went out",
+            },
+            required: false,
+          },
+          reason: "content nobody engages with is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
+          relativeTo: "previous-touch",
+        },
+        onTimeout: "c.medium-outcome",
+        windowExtendsOnEngagement: false,
+        recheck: "login frequency, feature usage and the risk score, re-read from the systems that own them, before the timeout is acted on",
+      },
+      {
+        id: "c.medium-outcome",
+        kind: "condition",
+        asks: "Did usage recover?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "login frequency increased, feature usage increased, and the risk score has dropped",
+            observes: "relationship_recovered",
+            to: "x.recovered",
+          },
+          {
+            label: "Not yet",
+            when: "none of that is true",
+            to: "a.whatsapp-experience",
+          },
+        ],
+      },
+      {
+        id: "a.whatsapp-experience",
+        kind: "action",
+        does: "Message on WhatsApp asking directly whether the experience can be made better, with a short survey or an open-ended question, and a route to support or a consultant if the reply asks for one",
+        next: "w.high-wait",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.whatsapp-experience",
+      },
+      {
+        id: "w.high-wait",
+        kind: "wait",
+        until: ["relationship_recovered"],
+        onEvent: "c.high-outcome",
+        timeout: {
+          after: {
+            key: "churn_risk.high_tier_window",
+            rule: "The shortest fixed span in the ladder, because a high-risk relationship is not one to leave waiting.",
+            class: "response-window",
+            default: {
+              value: "2-3 days",
+              confidence: "low",
+              basis: "example-only",
+              applicableWhen: "the WhatsApp touch already went out",
+            },
+            required: false,
+          },
+          reason: "an unanswered high-risk touch is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
+          relativeTo: "previous-touch",
+        },
+        onTimeout: "c.high-outcome",
+        windowExtendsOnEngagement: false,
+        recheck: "usage, the payment record and any open support ticket, re-read from the systems that own them, before the timeout is acted on",
+      },
+      {
+        id: "c.high-outcome",
+        kind: "condition",
+        asks: "Was the issue resolved?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "usage came back, any payment problem is resolved, any support ticket is closed, and the risk score has dropped",
+            observes: "relationship_recovered",
+            to: "x.recovered",
+          },
+          {
+            label: "Not yet",
+            when: "none of that is true",
+            to: "c.issue-type",
+          },
+        ],
+      },
+      {
+        id: "c.issue-type",
+        kind: "condition",
+        asks: "What kind of issue is behind the risk that the WhatsApp touch did not resolve?",
+        branches: [
+          {
+            label: "Price or value problem",
+            when: "the account is disengaging over cost or perceived value against what it pays",
+            to: "a.issue-price",
+          },
+          {
+            label: "Product usage problem",
+            when: "the account has not learned how to get value from the product",
+            to: "a.issue-usage",
+          },
+          {
+            label: "Technical problem",
+            when: "something specific is broken or unresolved and it is not a payment failure with an open payment recovery instance on this relationship - that cause already has an owner",
+            to: "a.issue-technical",
+          },
+          {
+            label: "Payment problem",
+            when: "the risk traces to a payment error, a failed method or a plan that no longer fits how the account pays",
+            to: "a.issue-payment",
+          },
+          {
+            label: "Dissatisfaction or complaint",
+            when: "the evidence is explicit dissatisfaction or an unresolved complaint that needs a person, not a further automated touch",
+            to: "a.issue-complaint",
+          },
+          {
+            label: "No clear issue, usage still declining",
+            when: "nothing specific identifies the cause, and the decline is otherwise unexplained",
+            to: "a.issue-noclear",
+          },
+        ],
+      },
+      {
+        id: "a.issue-price",
+        kind: "action",
+        does: "Offer a special discount or a more suitable plan, and suggest the plan change directly",
+        next: "a.final-email",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-price",
+      },
+      {
+        id: "a.issue-usage",
+        kind: "action",
+        does: "Point to a how-to guide, a live demo or webinar, and one-on-one onboarding support",
+        next: "a.final-email",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-usage",
+      },
+      {
+        id: "a.issue-technical",
+        kind: "action",
+        does: "Route the account to the support team, track the issue through to resolution, and ask a satisfaction question once it closes",
+        writes: [{ field: "operational_cause_ref", mode: "set" }],
+        next: "h.resolve-first",
+        execution: "human",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-technical",
       },
       {
         id: "h.resolve-first",
         kind: "handoff",
         to: "RET-23",
-        on: "risk with an identifiable operational cause",
+        on: "risk with an identifiable operational cause that the WhatsApp touch did not resolve",
         carries: [
           "the risk evidence and which part of it names the problem",
           "the fact that this is already at risk level, so the cause-specific recovery knows what is at stake",
@@ -1113,56 +1520,30 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         suppresses: ["promotional retention offers on this relationship until the problem is resolved"],
       },
       {
-        id: "c.human",
-        kind: "condition",
-        asks: "Does the evidence justify a person?",
-        branches: [
-          {
-            label: "Justified",
-            when: "the evidence is strong and corroborated, and the relationship warrants the cost of someone's attention",
-            to: "c.priority-clear",
-          },
-          {
-            label: "Not justified",
-            when: "the evidence is real but thin, and putting a person on it would be a larger intervention than the signal supports",
-            to: "c.automated",
-          },
-        ],
-      },
-      {
-        id: "c.priority-clear",
-        kind: "condition",
-        asks: "Does a higher-precedence retention-outreach contender already claim this account?",
-        branches: [
-          {
-            label: "Clear",
-            when: "no open issue under human ownership (FBK-46) currently claims this account - this journey's own declared precedence is below that, above generic retention intervention",
-            to: "a.owner-task",
-          },
-          {
-            label: "Contended",
-            when: "an open issue under human ownership already claims this account - raising a second, competing owner-task would contradict the person already working it rather than corroborate their evidence",
-            to: "x.monitor",
-          },
-        ],
-      },
-      {
-        id: "a.owner-task",
+        id: "a.issue-payment",
         kind: "action",
-        does: "Raise a task for the account owner or customer success, carrying the evidence rather than the score, and suppress automated retention on this relationship so the person is not contradicted by a sequence while they work",
+        does: "Resolve the payment error, offer an alternative payment method, and lay out flexible payment options",
+        next: "a.final-email",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-payment",
+      },
+      {
+        id: "a.issue-complaint",
+        kind: "action",
+        does: "Put the account in front of a person - human support or the account representative - own the issue through to resolution, and read NPS once it closes",
         writes: [
           { field: "retention_ownership", mode: "set" },
           { field: "suppressed_sends", mode: "append" },
         ],
         next: "h.human",
         execution: "human",
-        idempotencyKey: "risk_episode_id + account_id + a.owner-task",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-complaint",
       },
       {
         id: "h.human",
         kind: "handoff",
         to: "external:human-in-the-loop-lifecycle",
-        on: "risk strong enough to justify a person",
+        on: "an unresolved complaint or dissatisfaction that needs a person",
         carries: [
           "the assembled evidence, so the first conversation is informed",
           "what has already been sent, so it is not repeated in person",
@@ -1177,408 +1558,100 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         },
       },
       {
-        id: "c.automated",
-        kind: "condition",
-        asks: "Is a proportionate automated recovery available?",
-        branches: [
-          {
-            label: "Available",
-            when: "something exists that matches the evidence at this strength",
-            to: "h.intervention",
-          },
-          {
-            label: "Nothing proportionate",
-            when: "the only available responses are larger than the evidence justifies",
-            to: "x.monitor",
-          },
-        ],
-      },
-      {
-        id: "h.intervention",
-        kind: "handoff",
-        to: "RET-30",
-        on: "a proportionate automated retention intervention being delivered",
-        carries: [
-          "the evidence it was chosen against",
-          "the risk state at the time it was sent",
-          "a retention_episode_id minted at this handoff, deterministically derived from account_id + risk_episode_id, since this journey's own episode concept (a churn-risk evaluation) is not itself a retention episode - RET-30 remembers a decline against this identity the same way it does for RET-28's own cancellation-episode-scoped handoff",
-        ],
-        contract: { requiredFields: ["account_id", "retention_episode_id"] },
-      },
-      {
-        id: "x.monitor",
-        kind: "exit",
-        state: "risk recorded, nothing proportionate to do, or a higher-precedence contender already owns this account",
-        terminal: false,
-        reEntry:
-          "stronger or fresher evidence re-opens this at a higher level - doing nothing is a legitimate response to weak evidence, and doing something disproportionate is not; where the reason was a higher-precedence contender's active claim, that contender resolving re-opens this evaluation from current evidence rather than resuming a stale one",
-        class: "no-action",
-      },
-    ],
-    guardrails: [
-      "A single weak signal never constitutes churn risk. Corroboration between independent signals is what the threshold is measuring.",
-      "A high-value customer is not automatically at high risk. Value is what is at stake, not the probability of losing it.",
-      "A risk score is not the outcome. It orders attention; it does not decide anything.",
-      "The size of the intervention tracks the strength of the evidence. An expensive save offer on thin evidence teaches customers what to do when they want one.",
-      "This journey's own owner-task never fires while a higher-precedence retention-outreach contender (an open issue under human ownership, FBK-46) already claims the account - c.priority-clear re-reads that live claim immediately before a.owner-task rather than trusting declared precedence text alone. c.intent's own cancellation-intent check already covers the other higher-precedence contender (RET-28).",
-      "h.intervention mints a retention_episode_id at handoff rather than reusing risk_episode_id, since this journey's own episode is a churn-risk evaluation and RET-30's decline memory is scoped to a retention episode - a genuinely different, narrower concept that does not exist here until this specific intervention is chosen.",
-    ],
-    reusableRule:
-      "Churn intervention should increase only as independent evidence of relationship risk becomes stronger.",
-  },
-
-  /* ------------------------------------------------------------ RET-26 */
-  {
-    id: "RET-26",
-    slug: "negative-experience-recovery",
-    category: "retention",
-    goal: "compensation-remedy",
-    channels: ["email", "push"],
-    name: "Negative experience → recovery eligibility → appropriate response",
-    shortName: "Service Recovery",
-    purpose:
-      "Match the response to what actually failed, whether it is fixed, and whether a remedy is genuinely owed.",
-    entity: {
-      scope: "person or account plus the experience or service entity that failed",
-      note: "The recovery belongs to the failure. A second unrelated failure is a second instance, and one apology does not cover both.",
-      instanceKey: [
-        "person_id",
-        "failure_ref"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    objective: "After an authoritative service failure, say what failed, what was done and what prevents it recurring - once, only when it is useful, only after the failure is resolved, and only where no other process already owns it; route anything owed to remedy.",
-    eligibility: [
-      "an authoritative record of a negative experience or service failure attributable to this person and an experience entity",
-      "no other recovery process is already handling the same failure",
-      "the underlying issue is resolved - nothing is said about a failure that is still ongoing",
-      "hard gates (GLB-31) permit service communication"
-    ],
-    suppressions: [
-      {
-        "id": "s.duplicate",
-        "label": "CANONICAL_RULE",
-        "text": "Another recovery process already handling this failure owns it; this instance defers and nothing is sent."
-      },
-      {
-        "id": "s.unresolved",
-        "label": "CANONICAL_RULE",
-        "text": "While the underlying issue is still broken the operational owner has it; a recovery message before the fix is a promise the journey cannot keep."
-      },
-      {
-        "id": "s.not-useful",
-        "label": "CANONICAL_RULE",
-        "text": "A recovery communication is sent only where it is useful to the person - a failure they noticed or were affected by; a silent fix of something they never saw stays silent."
-      },
-      {
-        "id": "s.compensation",
-        "label": "CANONICAL_RULE",
-        "text": "Where policy and impact support compensation the remedy journey (REM-159) owns it; no discount is offered here standing in for an explanation."
-      },
-      {
-        "id": "s.permission",
-        "label": "CANONICAL_RULE",
-        "text": "Hard gates apply; pressure caps do not, because this is service communication about something that happened to the person."
-      }
-    ],
-    contact: {
-      "defaultPriority": "service",
-      "pressureClass": "service",
-      "localCap": {
-        "value": {
-          "key": "service_recovery.touches",
-          "rule": "One acknowledgement per failure; a second message about the same failure is a second failure.",
-          "default": {
-            "value": 1,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "the graph reaches at most one acknowledgement per instance"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "service_recovery.cooldown",
-        "rule": "Recovery is per failure; a later failure is its own instance and no cooldown applies between failures, though repeated failures are themselves evidence for the relationship's health.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule"
-        },
-        "required": false
-      },
-      "competition": "none"
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the acknowledgement should be something the person can keep - what failed, what was done, what prevents it - which is the default"
-        },
-        {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "the failure happened inside the app, the person is active there, and the acknowledgement is short"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "single-notice",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "acknowledgement",
-          "action": "a.acknowledge",
-          "prerequisites": [
-            "c.duplicate",
-            "c.resolved",
-            "c.useful",
-            "c.compensation"
-          ],
-          "purpose": "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation.",
-          "channelRoles": [
-            "persistent",
-            "low-friction"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.duplicate",
-        "s.unresolved",
-        "s.not-useful",
-        "s.compensation",
-        "s.permission"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "person_id",
-          "failure_ref",
-          "experience_ref",
-          "failed_at",
-          "impact",
-          "resolution_status",
-          "resolved_at"
-        ],
-        "optional": [
-          "open_recovery_process_ref",
-          "compensation_policy_id",
-          "has_active_app_session"
-        ]
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.acknowledged",
-          "x.silent",
-          "x.defer",
-          "h.operational",
-          "h.compensation"
-        ]
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "support_contact_within_24h",
-        "message_before_resolution",
-        "discount_offered_here"
-      ],
-      "operational": [
-        "entry_volume",
-        "duplicate_defer_rate",
-        "unresolved_handoff_rate",
-        "acknowledgement_rate",
-        "compensation_handoff_rate"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "service recovery",
-        "service failure apology",
-        "incident follow-up",
-        "experience recovery",
-        "failed delivery follow-up",
-        "outage follow-up"
-      ],
-      "useCases": [
-        "a delivery that failed and was later completed",
-        "an outage or error that affected this person and has been fixed",
-        "a service appointment that went wrong and was put right"
-      ]
-    },
-    entry: "t.negative",
-    nodes: [
-      {
-        id: "t.negative",
-        kind: "trigger",
-        event: "authoritative_negative_experience",
-        evidence: {
-          requires: [
-            "a recorded failure: a service failure, a failed fulfilment, a confirmed disruption, a failed critical action, or severe support dissatisfaction",
-          ],
-          insufficientAlone: [
-            "negative feedback on its own, which reports an experience rather than confirming a failure",
-            "a low survey score with no incident behind it",
-          ],
-          source: "authoritative",
-        },
-        next: "a.assess",
-      },
-      {
-        id: "a.assess",
+        id: "a.issue-noclear",
         kind: "action",
-        does: "Establish what failed, what it cost the customer, whether it has been resolved, whether they are still affected, and whether some other process is already handling it",
-        writes: [{ field: "failure_record", mode: "append" }],
-        next: "c.duplicate",
-      },
-      {
-        id: "c.duplicate",
-        kind: "condition",
-        asks: "Is another recovery process already handling this failure?",
-        branches: [
-          {
-            label: "Already handled",
-            when: "an open case, an assigned owner or another recovery journey covers the same incident",
-            to: "x.defer",
-          },
-          {
-            label: "Nobody on it",
-            when: "no existing process covers it",
-            to: "c.resolved",
-          },
-        ],
-      },
-      {
-        id: "x.defer",
-        kind: "exit",
-        state: "deferred to the process already handling it",
-        terminal: false,
-        reEntry:
-          "if that process closes with the customer still affected, this re-opens - two apologies from two systems is worse than one, because it proves neither knew about the other",
-        class: "suppression",
-      },
-      {
-        id: "c.resolved",
-        kind: "condition",
-        asks: "Is the underlying issue still unresolved?",
-        branches: [
-          {
-            label: "Still broken",
-            when: "the customer remains affected",
-            to: "h.operational",
-          },
-          {
-            label: "Resolved",
-            when: "the failure is over and the customer is no longer affected",
-            to: "c.useful",
-          },
-        ],
-      },
-      {
-        id: "h.operational",
-        kind: "handoff",
-        to: "external:operational-resolution",
-        on: "a failure that is still ongoing",
-        carries: ["what failed and who is affected", "the fact that no recovery message has been sent yet"],
-        suppresses: [
-          "apology and compensation messaging until the thing being apologised for has stopped happening",
-        ],
-        contract: {
-          "requiredFields": [
-            "failure_ref",
-            "experience_ref",
-            "person_id",
-            "impact",
-            "detected_at"
-          ]
-        },
-      },
-      {
-        id: "c.useful",
-        kind: "condition",
-        asks: "Is a recovery communication actually useful here?",
-        branches: [
-          {
-            label: "Useful",
-            when: "the customer noticed, or would want to know it was handled",
-            to: "c.compensation",
-          },
-          {
-            label: "Not useful",
-            when: "the failure was resolved before it reached them - raising it now creates the concern it would be apologising for",
-            to: "x.silent",
-          },
-        ],
-      },
-      {
-        id: "x.silent",
-        kind: "exit",
-        state: "resolved without contact",
-        terminal: false,
-        reEntry: "a recurrence, or any sign they did notice, re-opens this",
-        class: "no-action",
-      },
-      {
-        id: "c.compensation",
-        kind: "condition",
-        asks: "Does policy and the actual impact support compensation?",
-        branches: [
-          {
-            label: "Owed",
-            when: "the impact and the policy both support a remedy",
-            to: "h.compensation",
-          },
-          {
-            label: "Not owed",
-            when: "the failure was real but no remedy is justified - which is most failures",
-            to: "a.acknowledge",
-          },
-        ],
-      },
-      {
-        id: "h.compensation",
-        kind: "handoff",
-        to: "REM-159",
-        on: "a remedy that policy and impact both support",
-        carries: ["the failure and its assessed impact", "what has already been said to the customer"],
-      },
-      {
-        id: "a.acknowledge",
-        kind: "action",
-        does: "Say what failed, what was done about it, and what stops it happening again. No discount standing in for an explanation - a remedy offered instead of an account of what went wrong reads as buying silence",
-        next: "x.acknowledged",
+        does: "Send personalised value recommendations, introduce features the account has not tried, and continue with a short content or guide series",
+        next: "a.final-email",
         execution: "communication",
-        idempotencyKey: "person_id + failure_ref + touch id",
+        idempotencyKey: "risk_episode_id + account_id + a.issue-noclear",
       },
       {
-        id: "x.acknowledged",
+        id: "a.final-email",
+        kind: "action",
+        does: "Send one last personalised discount or plan as a time-limited offer - sent alongside the WhatsApp reminder below",
+        next: "a.final-whatsapp",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.final-email",
+      },
+      {
+        id: "a.final-whatsapp",
+        kind: "action",
+        does: "Send a short WhatsApp reminder summarising the offer with a quick action link, together with the email above",
+        next: "w.final-wait",
+        execution: "communication",
+        idempotencyKey: "risk_episode_id + account_id + a.final-whatsapp",
+      },
+      {
+        id: "w.final-wait",
+        kind: "wait",
+        until: ["relationship_recovered"],
+        onEvent: "c.final-outcome",
+        timeout: {
+          after: {
+            key: "churn_risk.final_tier_window",
+            rule: "One last fixed span for the final retention offer to be acted on before the account is moved to passive tracking.",
+            class: "response-window",
+            default: {
+              value: "3-5 days",
+              confidence: "low",
+              basis: "example-only",
+              applicableWhen: "both the final email and the final WhatsApp reminder already went out",
+            },
+            required: false,
+          },
+          reason: "an unanswered last-resort offer is itself a result - the alternative to acting on that is waiting indefinitely for a reply that may never come",
+          relativeTo: "previous-touch",
+        },
+        onTimeout: "c.final-outcome",
+        windowExtendsOnEngagement: false,
+        recheck: "usage and purchase activity, re-read from the systems that own them, before the timeout is acted on",
+      },
+      {
+        id: "c.final-outcome",
+        kind: "condition",
+        asks: "Did usage or purchase recover?",
+        branches: [
+          {
+            label: "Recovered",
+            when: "usage or a purchase measurably recovered",
+            observes: "relationship_recovered",
+            to: "x.recovered",
+          },
+          {
+            label: "Not yet",
+            when: "nothing measurably recovered through the whole ladder",
+            to: "x.passive-monitoring",
+          },
+        ],
+      },
+      {
+        id: "x.recovered",
         kind: "exit",
-        state: "failure acknowledged, no remedy owed",
+        state: "the relationship recovered; risk cleared without further escalation",
         terminal: false,
-        reEntry: "a recurrence changes the assessment, and repetition is itself part of the impact",
+        reEntry: "a fresh risk evaluation is a new instance if the threshold crosses again",
         class: "success",
       },
+      {
+        id: "x.passive-monitoring",
+        kind: "exit",
+        state: "no recovery through the full escalation ladder; churn risk moved to passive tracking",
+        terminal: false,
+        reEntry: "a fresh threshold crossing on this account opens a new episode from current evidence",
+        class: "failure",
+      },
     ],
     guardrails: [
-      "Negative feedback is not a confirmed service failure. One is a report of an experience, the other is a record of something going wrong.",
-      "A discount is not a default apology. Compensation follows impact and policy, not the awkwardness of the conversation.",
-      "An existing support case suppresses this entirely. A parallel recovery journey contradicts the person already handling it.",
+      "A single weak signal is not evidence of nothing, but it is not strong evidence either. It draws only the lightest tier of this ladder - a push nudge - never a person's attention or a discount; corroboration between independent signals is what moves the tier up.",
+      "A high-value customer is not automatically at high risk. Value is what is at stake, not the probability of losing it.",
+      "A risk score is not the outcome. It orders which tier responds; each outcome check re-reads usage, login, payment and support state before accepting a score drop as recovery.",
+      "The size of the intervention tracks the tier. No discount or plan offer appears before the issue-based tier or the last-resort tier; the push, email, in-app and WhatsApp touches before that ask what is wrong or point at value, and never negotiate.",
+      "This journey defers to an open issue already under human ownership and to a declared cancellation intent on the same account - its own competition precedence, not a duplicate check inside this graph.",
+      "The technical-problem and dissatisfaction-or-complaint branches of the issue-type classifier (c.issue-type) end this journey's ownership rather than continuing to the last-resort tier: h.resolve-first hands the operational cause to RET-23 (health-deterioration-diagnosis), and h.human hands the account to a person, in both cases before any discount or offer from this journey is made on that branch.",
+      "Nobody is escalated on the strength of a bare, unanswered touch: c.low-outcome, c.medium-outcome, c.high-outcome and c.final-outcome each treat a timeout with no recovered signal exactly as an explicit non-recovery, never as agreement.",
     ],
     reusableRule:
-      "Service recovery should reflect the actual failure, current resolution state and justified remedy rather than use compensation as a default response.",
+      "Churn intervention should escalate in channel and priority only as independent evidence of relationship risk keeps corroborating itself.",
   },
 
   /* ------------------------------------------------------------ RET-27 */
@@ -1782,485 +1855,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "A positive signal begins recovery observation; stable recovery requires evidence that the improvement persists.",
-  },
-
-  /* ------------------------------------------------------------ RET-28 */
-  {
-    id: "RET-28",
-    slug: "cancellation-intent-decision-point",
-    category: "retention",
-    goal: "cancellation-termination",
-    channels: ["email", "in-app"],
-    name: "Cancellation intent → understand state → save or proceed",
-    shortName: "Cancellation Save",
-    purpose:
-      "Treat stated intent to leave as a decision point where a genuinely relevant alternative may be offered, and never as an obstacle course.",
-    entity: {
-      scope: "the subscription, membership or service relationship being cancelled",
-      note: "Intent is against one relationship. Cancelling one subscription says nothing about the others an account holds.",
-      instanceKey: [
-        "person_id",
-        "relationship_id",
-        "intent_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "RET-29",
-        because:
-          "This runs while the decision is still reversible and the person is still deciding. RET-29 runs after it is made, and the two must never share an event.",
-      },
-    ],
-    objective: "At the moment a person declares they want to cancel, learn why if that is useful, offer one genuine alternative if one matches the reason, and let them decide - with the cancellation path fully open at every step.",
-    eligibility: [
-      "an explicit cancellation intent is declared by the person - in the product, by message or by phone",
-      "the relationship is active and cancellable by this person",
-      "no save instance is already open for this intent",
-      "hard gates (GLB-31) permit service communication"
-    ],
-    suppressions: [
-      {
-        "id": "s.path",
-        "label": "CANONICAL_RULE",
-        "text": "The cancellation path is never obstructed: the question and the offer sit beside it, never in front of it, and no contest with another journey delays the cancellation itself."
-      },
-      {
-        "id": "s.once",
-        "label": "CANONICAL_RULE",
-        "text": "The reason is asked once and the alternative is offered once; a second ask or a second offer is pressure on a decision already being made."
-      },
-      {
-        "id": "s.no-genuine",
-        "label": "CANONICAL_RULE",
-        "text": "No offer is made where nothing genuinely matches the reason; the person proceeds to decide without one."
-      },
-      {
-        "id": "s.decided",
-        "label": "CANONICAL_RULE",
-        "text": "A confirmed cancellation goes to execution and nothing further is sent by this journey; an abandoned flow leaves the relationship unchanged and silent."
-      },
-      {
-        "id": "s.contest",
-        "label": "CANONICAL_RULE",
-        "text": "A declared intent outranks inferred risk on the same account; only the offer step yields to an open issue under human ownership (GLB-06)."
-      }
-    ],
-    contact: {
-      "defaultPriority": "retention",
-      "pressureClass": "lifecycle",
-      "localCap": {
-        "value": {
-          "key": "cancellation_save.touches",
-          "rule": "One question and one offer at most, both at the decision point; the plan has nothing after the decision.",
-          "default": {
-            "value": 2,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "the graph reaches at most one ask and one offer per intent"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "cancellation_save.cooldown",
-        "rule": "The same intent re-expressed inside the intent window is the same instance; a new intent after a lapsed one is a new instance and the question is not repeated inside the cooldown.",
-        "class": "cooldown",
-        "default": {
-          "value": {
-            "min": "30 days",
-            "max": "90 days"
-          },
-          "confidence": "low",
-          "basis": "example-only"
-        },
-        "required": false
-      },
-      "competition": {
-        "exclusionGroup": "retention-outreach",
-        "scope": "account",
-        "precedence": "above risk-driven escalation and offer follow-up on the same account - a declared intent to leave outranks an inferred risk. Only the offer step ever yields; the cancellation path itself is never obstructed by any contest",
-        "onLoss": "suppressed"
-      }
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the intent was declared inside the product - the question and the offer are put beside the cancellation step the person is on"
-        },
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the intent was declared outside the product, by message or by phone, and the question or offer has to reach the person where they are"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "offer-decide-remind",
-      "touches": [
-        {
-          "id": "t-ask",
-          "stage": "reason-ask",
-          "action": "a.ask",
-          "prerequisites": [
-            "c.reason",
-            "c.ask"
-          ],
-          "purpose": "Ask once why, with the cancellation path fully open beside the question. The question is never a step that has to be passed.",
-          "destination": { "target": "reason-question-beside-cancel-step", "boundTo": "intent_id", "mustNotClaim": ["that answering is required to cancel"] },
-          "channelRoles": [
-            "in-session",
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t-offer",
-          "stage": "alternative-offer",
-          "action": "a.offer",
-          "prerequisites": [
-            "c.resolution"
-          ],
-          "purpose": "Offer the one alternative that matches the reason, once, alongside an unobstructed route to continue cancelling.",
-          "channelRoles": [
-            "in-session",
-            "persistent"
-          ],
-          "destination": {
-            "target": "alternative-with-cancel-route",
-            "boundTo": "intent_id",
-            "mustNotClaim": [
-              "that cancelling is harder than it is",
-              "an alternative that does not match the reason"
-            ]
-          },
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.path",
-        "s.once",
-        "s.no-genuine",
-        "s.decided",
-        "s.contest"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "person_id",
-          "relationship_id",
-          "intent_id",
-          "declared_at",
-          "declared_via",
-          "holdings",
-          "effective_date_if_cancelled"
-        ],
-        "optional": [
-          "declared_reason",
-          "alternatives_catalogue",
-          "has_active_session"
-        ]
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "h.intervention",
-          "h.execute",
-          "x.lapsed"
-        ]
-      },
-      "businessOutcome": {
-        "event": "cancellation_flow_abandoned",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "pre-post"
-      },
-      "secondary": [
-        "cancellation_reason_given"
-      ],
-      "guardrails": [
-        "complaint",
-        "cancel_path_obstructed",
-        "second_offer_sent",
-        "support_contact_within_24h"
-      ],
-      "operational": [
-        "intent_volume",
-        "reason_asked_rate",
-        "reason_given_rate",
-        "offer_rate",
-        "decision_distribution"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "cancellation save",
-        "cancel flow",
-        "churn prevention (declared intent)",
-        "save offer",
-        "cancellation intercept",
-        "exit survey"
-      ],
-      "useCases": [
-        "a subscriber who clicks cancel and is asked once why",
-        "a member who tells support they are leaving and is offered the one alternative that fits"
-      ]
-    },
-    entry: "t.intent",
-    nodes: [
-      {
-        id: "t.intent",
-        kind: "trigger",
-        event: "explicit_cancellation_intent",
-        evidence: {
-          requires: [
-            "an explicit act: a cancel flow entered, a cancellation requested while still reversible, or a cancellation asked for through a person",
-          ],
-          insufficientAlone: [
-            "viewing the billing page",
-            "a pricing question to support",
-            "declining usage, which is a signal about risk and not a statement of intent",
-          ],
-          source: "declared",
-        },
-        next: "a.context",
-      },
-      {
-        id: "a.context",
-        kind: "action",
-        does: "Read what they currently hold, what cancelling would end, and when it would take effect - so anything said next is about their actual relationship rather than a generic one",
-        next: "c.reason",
-      },
-      {
-        id: "c.reason",
-        kind: "condition",
-        asks: "Is a declared reason available?",
-        branches: [
-          {
-            label: "Declared",
-            when: "the person has stated a reason",
-            to: "a.record-reason",
-          },
-          {
-            label: "Not declared",
-            when: "no reason has been given",
-            to: "c.ask",
-          },
-        ],
-      },
-      {
-        id: "c.ask",
-        kind: "condition",
-        asks: "Is asking for a reason useful and appropriate here?",
-        branches: [
-          {
-            label: "Worth asking",
-            when: "the answer would change what is offered, and asking does not delay the cancellation",
-            to: "a.ask",
-          },
-          {
-            label: "Not worth asking",
-            when: "the answer would change nothing, or asking would function as friction",
-            to: "a.no-reason",
-          },
-        ],
-      },
-      {
-        id: "a.ask",
-        kind: "action",
-        does: "Ask once, with the cancellation path fully open beside the question. The question is never a step that has to be passed to leave - a reason obtained that way is not information, it is a toll",
-        next: "w.answer",
-        execution: "communication",
-        idempotencyKey: "intent_id + touch id",
-      },
-      {
-        id: "w.answer",
-        kind: "wait",
-        until: [
-          "cancellation_reason_given",
-          "cancellation_confirmed",
-          "cancellation_flow_abandoned"
-        ],
-        onEvent: "c.answered",
-        timeout: {
-          "after": {
-            "key": "cancellation_save.answer_window",
-            "rule": "The question is open only while the person is at the point where it was put; when they leave that point, unanswered is the answer.",
-            "class": "attribute-bound",
-            "default": {
-              "value": "the end of the session or conversation in which the question was put",
-              "confidence": "high",
-              "basis": "attribute-bound"
-            },
-            "required": false
-          },
-          "reason": "a reason is useful only while the choice it informs is still open - an unanswered question is itself an answer, and chasing it is what turns a question into a toll",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "a.no-reason",
-        windowExtendsOnEngagement: false,
-        recheck: "the intent re-read: still open, not confirmed, not abandoned",
-      },
-      {
-        id: "c.answered",
-        kind: "condition",
-        asks: "What came back?",
-        branches: [
-          { label: "A reason", when: "the person stated a reason", to: "a.record-reason" },
-          {
-            label: "They decided meanwhile",
-            when: "the cancellation was confirmed or abandoned while the question was still open",
-            to: "c.decision",
-          },
-        ],
-      },
-      {
-        id: "a.record-reason",
-        kind: "action",
-        does: "Record the reason with its source among PRICE, LOW_USAGE, MISSING_VALUE, TECHNICAL_PROBLEM, SERVICE_ISSUE, TEMPORARY_NEED, SWITCHING or OTHER. A reason inferred later never overwrites one that was declared",
-        writes: [{ field: "cancellation_reason_history", mode: "append" }],
-        next: "c.resolution",
-        idempotencyKey: "intent_id + declared_reason",
-      },
-      {
-        id: "a.no-reason",
-        kind: "action",
-        does: "Proceed without a reason and record that none was given. An inferred reason may be stored, but never in the field that holds declared ones",
-        writes: [{ field: "cancellation_reason_history", mode: "append" }],
-        next: "c.resolution",
-      },
-      {
-        id: "c.resolution",
-        kind: "condition",
-        asks: "Does a legitimate resolution exist for this reason?",
-        branches: [
-          {
-            label: "A real alternative",
-            when: "something genuinely addresses the stated reason - technical help for a technical problem, a plan change or pause for cost or temporary need, education for unrealised value, service recovery for a service failure",
-            to: "a.offer",
-          },
-          {
-            label: "Nothing genuine",
-            when: "no alternative actually answers the reason, or no reason was given to answer",
-            to: "w.decision",
-          },
-        ],
-      },
-      {
-        id: "a.offer",
-        kind: "action",
-        does: "Offer the alternative that matches the reason, once, alongside an unobstructed path to continue cancelling. A discount appears only where the reason is price and policy supports it - offering one for a technical fault answers the wrong question and reveals that nobody read the reason",
-        next: "h.intervention",
-        execution: "communication",
-        idempotencyKey: "intent_id + touch id",
-      },
-      {
-        id: "h.intervention",
-        kind: "handoff",
-        to: "RET-30",
-        on: "a retention alternative offered at the decision point",
-        carries: [
-          "the declared reason and the alternative chosen against it",
-          "the cancellation episode this belongs to, so a decline is remembered inside it",
-        ],
-      },
-      {
-        id: "w.decision",
-        kind: "wait",
-        until: [
-          "cancellation_confirmed",
-          "cancellation_flow_abandoned"
-        ],
-        onEvent: "c.decision",
-        timeout: {
-          "after": {
-            "key": "cancellation_save.intent_window",
-            "rule": "An intent stays meaningful for a bounded period; past it, an unconfirmed cancellation is a lapsed intent and the relationship stands unchanged.",
-            "class": "observation-window",
-            "default": {
-              "value": {
-                "min": "7 days",
-                "max": "14 days"
-              },
-              "confidence": "low",
-              "basis": "example-only"
-            },
-            "required": false
-          },
-          "reason": "an intent neither confirmed nor withdrawn is not a standing invitation to keep raising it",
-          "relativeTo": "trigger"
-        },
-        onTimeout: "x.lapsed",
-        windowExtendsOnEngagement: false,
-        recheck: "the relationship re-read: still active, no cancellation executed elsewhere",
-      },
-      {
-        id: "c.decision",
-        kind: "condition",
-        asks: "What did they decide?",
-        branches: [
-          {
-            label: "Confirmed",
-            when: "the cancellation was carried through",
-            to: "h.execute",
-          },
-          {
-            label: "Abandoned",
-            when: "they left the flow with the relationship intact",
-            to: "x.lapsed",
-          },
-        ],
-      },
-      {
-        id: "h.execute",
-        kind: "handoff",
-        to: "SUB-167",
-        on: "cancellation confirmed by the customer",
-        carries: [
-          "the declared reason, which belongs to the record of why this relationship ended",
-          "what was offered, if anything, and what was declined",
-        ],
-      },
-      {
-        id: "x.lapsed",
-        kind: "exit",
-        state: "intent expressed, not carried through; relationship unchanged",
-        terminal: false,
-        reEntry:
-          "a fresh expression of intent opens a new episode, and the earlier one is context - repeatedly approaching cancellation is itself evidence RET-24 should be reading",
-        class: "timeout",
-      },
-    ],
-    guardrails: [
-      "Cancellation intent is not cancellation. Nothing downstream may treat this journey's trigger as an ending.",
-      "No dark patterns. Every alternative is offered beside an unobstructed path to leave, never in front of one.",
-      "A save attempt is bounded by the authoritative renewal or cancellation timing it is competing with, and never contradicts it. An offer that runs past the date it was trying to protect arrives after the decision it was for.",
-      "The cancellation path is never made longer to create room for a save attempt.",
-      "A discount only where the declared reason and policy both support it. Elsewhere it is an answer to a question nobody asked.",
-      "A reason is asked for at most once, and never as a condition of leaving.",
-    ],
-    reusableRule:
-      "Cancellation intent is a decision point where relevant alternatives may be offered without obstructing the user's ability to leave.",
   },
 
   /* ------------------------------------------------------------ RET-29 */
@@ -2492,415 +2086,19 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "Once cancellation is confirmed, retention ownership ends and orchestration shifts to termination and remaining-obligation management.",
   },
 
-  /* ------------------------------------------------------------ RET-30 */
-  {
-    id: "RET-30",
-    slug: "retention-intervention-outcome",
-    category: "retention",
-    goal: "reconciliation-correction",
-    channels: ["email", "in-app"],
-    name: "Retention intervention → outcome → suppress, escalate or exit",
-    shortName: "Retention Offer Follow-Up",
-    purpose:
-      "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
-    entity: {
-      scope: "the customer, account or subscription plus the retention episode the intervention belongs to",
-      note: "The episode is the unit. A declined offer is declined for this episode, which is what makes remembering it possible.",
-      instanceKey: [
-        "account_id",
-        "retention_episode_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "RET-27",
-        because:
-          "This asks whether the intervention worked. RET-27 asks whether the improvement lasts, and takes over once this one has a positive answer.",
-      },
-    ],
-    objective: "Close a retention attempt on what actually happened to the relationship, and stop the same offer being made twice.",
-    eligibility: [
-      "a defined intervention actually delivered: a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer",
-      "no instance of this journey is already open for the the customer",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "An accepted offer is not an applied one. Retention is recorded from the relationship state, never from the customer's answer."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "A declined offer is remembered for the whole cancellation episode, not just for the message that carried it."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "The attempt is bounded: the intervention, and at most one follow-up."
-      },
-      {
-        "id": "s.g4",
-        "label": "CANONICAL_RULE",
-        "text": "An operational failure to apply an accepted offer is never recorded as a retention success."
-      }
-    ],
-    contact: {
-      "defaultPriority": "lifecycle",
-      "pressureClass": "lifecycle",
-      "localCap": {
-        "value": {
-          "key": "retention_intervention.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 1,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "retention_intervention.cooldown",
-        "rule": "The cooldown between instances of this journey for the same the customer, so that a re-qualifying the customer is tracked but not messaged again inside it.",
-        "class": "cooldown",
-        "required": true
-      },
-      "competition": {
-        "exclusionGroup": "retention-outreach",
-        "scope": "account",
-        "precedence": "lowest in the group - any live risk case or open issue on the same account outranks it",
-        "onLoss": "suppressed"
-      }
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        },
-        {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "single-notice",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "followup",
-          "action": "a.followup",
-          "gatedBy": "w.outcome",
-          "prerequisites": [
-            "c.followup"
-          ],
-          "purpose": "Send one follow-up and stop.",
-          "channelRoles": [
-            "persistent",
-            "in-session"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "account_id",
-          "retention_episode_id",
-          "intervention_delivered",
-          "offer_status",
-          "retention_episode_history"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.declined",
-          "x.cooldown",
-          "h.observe",
-          "h.fix",
-          "h.proceed"
-        ]
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ],
-      "businessOutcome": {
-        "event": "relationship_recovered",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "pre-post"
-      }
-    },
-    discovery: {
-      "aliases": [
-        "retention offer follow-up",
-        "save offer outcome",
-        "retention intervention outcome",
-        "offer acceptance tracking"
-      ],
-      "useCases": [
-        "a plan alternative or pause offered and its outcome closed on what actually happened",
-        "one follow-up after an unanswered offer, then stop"
-      ]
-    },
-    entry: "t.delivered",
-    nodes: [
-      {
-        id: "t.delivered",
-        kind: "trigger",
-        event: "retention_intervention_delivered",
-        evidence: {
-          requires: [
-            "a defined intervention actually delivered: a plan alternative, a pause option, a support resolution, human outreach, or an approved save offer",
-          ],
-          insufficientAlone: ["an intervention scheduled but not yet delivered"],
-          source: "authoritative",
-        },
-        next: "w.outcome",
-      },
-      {
-        id: "w.outcome",
-        kind: "wait",
-        until: [
-          "retention_offer_accepted",
-          "retention_offer_declined",
-          "relationship_recovered",
-          "intervention_failed"
-        ],
-        onEvent: "c.outcome",
-        timeout: {
-          "after": {
-            "key": "retention_intervention.outcome",
-            "rule": "A bounded decision window.",
-            "class": "response-window",
-            "required": true
-          },
-          "reason": "an unanswered offer is a result, and the alternative to accepting that is asking again until someone leaves",
-          "relativeTo": "trigger"
-        },
-        onTimeout: "c.followup",
-        windowExtendsOnEngagement: false,
-        recheck: "the the customer re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "c.outcome",
-        kind: "condition",
-        asks: "What happened to the intervention?",
-        branches: [
-          { label: "Accepted", when: "the customer took what was offered", to: "a.verify" },
-          {
-            label: "Declined",
-            when: "the customer explicitly turned it down",
-            to: "a.record-decline",
-          },
-          {
-            label: "Recovered without answering",
-            when: "the relationship improved but nobody responded to the offer itself",
-            to: "h.observe",
-          },
-          {
-            label: "Failed to execute",
-            when: "the intervention was accepted or attempted and did not actually apply",
-            to: "h.fix",
-          },
-        ],
-      },
-      {
-        id: "a.verify",
-        kind: "action",
-        does: "Verify against the system of record that the relationship actually changed - the plan changed, the pause is active, the issue is closed, the subscription is retained. Acceptance is a customer saying yes; application is the state having moved, and the gap between them is where retention numbers go wrong",
-        next: "c.applied",
-        idempotencyKey: "retention_episode_id + account_id + a.verify",
-      },
-      {
-        id: "c.applied",
-        kind: "condition",
-        asks: "Did the state actually change?",
-        branches: [
-          {
-            label: "Applied",
-            when: "the authoritative record shows the change",
-            to: "h.observe",
-          },
-          {
-            label: "Accepted but not applied",
-            when: "the customer agreed and the change did not take effect",
-            to: "h.fix",
-          },
-        ],
-      },
-      {
-        id: "h.observe",
-        kind: "handoff",
-        to: "RET-27",
-        on: "a retention outcome that looks positive",
-        carries: [
-          "what was accepted and what actually changed",
-          "the fact that this is one positive event, which is why it goes to observation rather than to a recovered state",
-        ],
-      },
-      {
-        id: "h.fix",
-        kind: "handoff",
-        to: "external:operational-resolution",
-        on: "an intervention that did not apply",
-        carries: [
-          "what was agreed and what failed to happen",
-          "the explicit fact that retention has not succeeded, however the customer answered",
-        ],
-        suppresses: ["any recording of this as a retained relationship until the change actually applies"],
-        contract: {
-          "requiredFields": [
-            "relationship_id",
-            "account_id",
-            "handed_at",
-            "reason"
-          ]
-        },
-      },
-      {
-        id: "a.record-decline",
-        kind: "action",
-        does: "Record the decline against this cancellation episode, so the same offer is not made again inside it. Repeating a declined offer is the behaviour that makes a save attempt read as an obstacle",
-        writes: [{ field: "retention_episode_history", mode: "append" }],
-        next: "c.proceed",
-        idempotencyKey: "retention_episode_id + account_id + a.record-decline",
-      },
-      {
-        id: "c.proceed",
-        kind: "condition",
-        asks: "Is a cancellation still in progress?",
-        branches: [
-          {
-            label: "Still cancelling",
-            when: "the customer declined and is continuing to leave",
-            to: "h.proceed",
-          },
-          {
-            label: "No cancellation underway",
-            when: "the offer was declined but nothing is being cancelled",
-            to: "x.declined",
-          },
-        ],
-      },
-      {
-        id: "h.proceed",
-        kind: "handoff",
-        to: "SUB-167",
-        on: "a declined save offer with cancellation continuing",
-        carries: ["what was offered and declined", "the declared reason it was chosen against"],
-      },
-      {
-        id: "x.declined",
-        kind: "exit",
-        state: "intervention declined, relationship intact",
-        terminal: false,
-        reEntry:
-          "a new episode with new evidence may justify a different intervention; the declined one is not re-sent inside this episode",
-        class: "no-action",
-      },
-      {
-        id: "c.followup",
-        kind: "condition",
-        asks: "With no response, is one bounded follow-up justified?",
-        branches: [
-          {
-            label: "Justified",
-            when: "the offer is time-limited or its terms were plausibly not understood",
-            to: "a.followup",
-          },
-          {
-            label: "Not justified",
-            when: "silence is a clear enough answer and repeating it adds only pressure",
-            to: "x.cooldown",
-          },
-        ],
-      },
-      {
-        id: "a.followup",
-        kind: "action",
-        does: "Send one follow-up and stop. There is no second, whatever the value of the relationship",
-        next: "x.cooldown",
-        execution: "communication",
-        idempotencyKey: "retention_episode_id + account_id + a.followup",
-      },
-      {
-        id: "x.cooldown",
-        kind: "exit",
-        state: "no response; episode closed, cooldown in force",
-        terminal: false,
-        reEntry:
-          "a new episode may open on new evidence, and this intervention is not repeated within the cooldown",
-        class: "timeout",
-      },
-    ],
-    guardrails: [
-      "An accepted offer is not an applied one. Retention is recorded from the relationship state, never from the customer's answer.",
-      "A declined offer is remembered for the whole cancellation episode, not just for the message that carried it.",
-      "The attempt is bounded: the intervention, and at most one follow-up.",
-      "An operational failure to apply an accepted offer is never recorded as a retention success.",
-    ],
-    reusableRule:
-      "Retention intervention is complete only when its business outcome is known, and unsuccessful interventions should not loop indefinitely.",
-  },
   {
     "id": "RET-31",
     "slug": "predicted-need-replenishment",
     "category": "retention",
     "goal": "recovery-retry",
-    "channels": [
-      "email",
-      "push",
-      "in-app"
-    ],
-    "name": "Depletion predicted → replenishment prompted before it → replenished, dismissed or lapsed",
+    "channels": ["push", "email", "in-app", "whatsapp"],
+    "name": "Depletion predicted → cadence-gated reminder cascade → replenished, subscribed or lapsed",
     "shortName": "Predicted Need Replenishment",
-    "purpose": "Prompt a person to replenish a consumable or recurring-use item shortly before its usable period is predicted to end, stating the prediction as an estimate, and stop the moment they buy, dismiss, or the cycle passes.",
-    "objective": "Get the replenishment made before the need bites, with the prediction stated honestly as an estimate and a direct route to reorder; never prompt a need already met, dismissed, or covered by a subscription.",
+    "purpose": "Prompt a person to replenish a consumable or recurring-use item shortly before its usable period is predicted to end, stating the prediction as an estimate, routing regular repurchasers toward a subscription first, and stop the moment they buy, subscribe, or the cascade runs out.",
+    "objective": "Get the replenishment made before the need bites, with the prediction stated honestly as an estimate, a direct route to reorder, and a subscription offered where the person's own history shows a standing cadence; never prompt a need already met, covered by a subscription, or unreliable to predict.",
     "entity": {
       "scope": "the predicted need - one consumable or recurring-use item, or a category the person buys on a cadence, whose usable period is computed from their own purchase and the item's usable life",
-      "note": "One instance per need and prediction cycle. The prediction is inferred from the person's own purchases and the item's usable period, never from a category average alone; a dismissal mutes the need for this cycle and the next prediction opens a new instance. An active subscription or auto-replenishment for the need means no instance at all.",
+      "note": "One instance per need and prediction cycle. The prediction is inferred from the person's own purchases and the item's usable period, never from a category average alone; an active subscription or auto-replenishment for the need means no instance at all.",
       "instanceKey": [
         "person_id",
         "need_key"
@@ -2913,10 +2111,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       }
     },
     "eligibility": [
+      "the predicted depletion date is reliable enough to act on, computed from this person's own purchase and the item's usable period",
       "a prior purchase of the need by this person, with a usable period the company can compute for it",
       "no newer purchase of the need since the one the prediction is based on",
       "no active subscription or auto-replenishment covering the need",
-      "no dismissal recorded for the need in this prediction cycle",
       "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
     ],
     "suppressions": [
@@ -2926,11 +2124,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "text": "Exit the moment a purchase of the need is recorded by any channel; every touch re-reads purchases first."
       },
       {
-        "id": "s.dismissed",
-        "label": "CANONICAL_RULE",
-        "text": "A dismissal - not needed, already have it, stop reminding - mutes the need for this cycle and nothing further is sent; a dismissal that asks for no more prompts mutes the need key until the person changes it."
-      },
-      {
         "id": "s.subscription",
         "label": "CANONICAL_RULE",
         "text": "An active subscription or auto-replenishment for the need sends nothing; the prompt would ask for a purchase already arranged."
@@ -2938,7 +2131,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.estimate",
         "label": "CANONICAL_RULE",
-        "text": "The prediction is stated as an estimate from their own purchase history, never as a fact about what they have left."
+        "text": "The prediction is stated as an estimate from their own purchase history, never as a fact about what they have left; an unreliable estimate does not open an instance at all."
       },
       {
         "id": "s.permission",
@@ -2948,13 +2141,14 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "A process recovery or a selection recovery for the same person outranks this journey; an open complaint, payment recovery or retention-outreach journey suppresses it (GLB-06)."
+        "text": "A process recovery or a selection recovery for the same person outranks this journey; an open complaint, payment recovery or retention-outreach journey suppresses it (GLB-06); so does an open availability enquiry (SCH-282) for the same person."
       },
       {
-        "id": "s.incentive",
-        "label": "OPTIONAL_STRATEGY",
-        "text": "If the company enables an incentive (replenishment.incentive_policy), it appears only on the last enabled touch, once, and its issuance is recorded per person. The library recommends none by default."
-      }
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "promotional",
@@ -2964,10 +2158,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "key": "replenishment.touches",
           "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
           "default": {
-            "value": 2,
+            "value": 4,
             "confidence": "medium",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the plan has a lead prompt and one follow-up"
+            "applicableWhen": "GLB-24; the plan's longest path - the opening push, a subscription-offer stage for a regular repurchaser, the reminder email, and the final WhatsApp touch"
           },
           "required": false
         },
@@ -2975,7 +2169,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       },
       "cooldown": {
         "key": "replenishment.cooldown",
-        "rule": "A lapsed or dismissed instance is not re-prompted inside the same prediction cycle; the next predicted depletion for the need opens the next instance.",
+        "rule": "A lapsed instance is not re-prompted inside the same prediction cycle; the next predicted depletion for the need opens the next instance.",
         "class": "cooldown",
         "default": {
           "value": "until the next predicted depletion for the same need",
@@ -2988,29 +2182,34 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "below process recovery and selection recovery for the same person; above interest recovery",
+        "precedence": "below checkout recovery, held-cart recovery, selection recovery and the availability enquiry (SCH-282) for the same person - a question the person asked about a stated window outranks a need computed from their history; above the back-in-stock alert (ACQ-289) and inferred-interest recovery (ACQ-13); and above the complementary next offer (RET-294) for the same person - a purchase the person's own history says is due is a stronger claim on the moment than a next step inferred from what they already own. While this journey holds a person, it is suppressed for them rather than queued behind it.",
         "onLoss": "suppressed"
       }
     },
     "channelStrategy": {
       "roles": [
         {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the prompt should carry the item, the estimate and the reorder route and survive until the person can act - the default for a prompt sent days ahead of a need"
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "the opening touch, routing directly to the appropriate product page while the predicted window is still ahead"
         },
         {
-          "role": "low-friction",
-          "channels": [
-            "push",
-            "in-app"
-          ],
-          "when": "an app session or a valid push token exists and the reorder route is a single step from the notification"
+          "role": "persistent",
+          "channels": ["email"],
+          "when": "the subscription offer or either reminder needs to stay available past the moment it arrives"
+        },
+        {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "the subscription offer belongs beside the product the person is already using, sent together with the email that carries it"
+        },
+        {
+          "role": "urgent",
+          "channels": ["whatsapp"],
+          "when": "the closing touch needs a channel that still reaches someone who has not acted on either touch before it"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -3020,14 +2219,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "id": "t1",
           "stage": "lead-prompt",
           "action": "a.touch1",
-          "gatedBy": "w.lead",
           "prerequisites": [
-            "c.state",
-            "c.sendable"
+            "c.product-ref"
           ],
-          "purpose": "The item, the estimated point at which it runs out - stated as an estimate from their own purchases - and the route to reorder. Nothing about stock or price that the system does not assert.",
+          "purpose": "The item or its in-stock compatible alternative, the estimated point at which it runs out - stated as an estimate from their own purchases - and the route to reorder. Nothing about stock or price that the system does not assert.",
           "channelRoles": [
-            "persistent",
             "low-friction"
           ],
           "destination": {
@@ -3044,19 +2240,74 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "label": "CANONICAL_RULE"
         },
         {
-          "id": "t2",
-          "stage": "follow-up",
-          "action": "a.touch2",
+          "id": "t2a-email",
+          "stage": "cadence-fork",
+          "action": "a.subscribe-email",
           "after": "t1",
-          "gatedBy": "w.window",
+          "gatedBy": "w.touch1",
           "prerequisites": [
-            "c.outcome",
-            "c.sendable2"
+            "c.regular"
           ],
-          "purpose": "One follow-up after the estimated depletion has passed unmet, with the same reorder route and no invented urgency.",
+          "purpose": "Tell a regular repurchaser they buy this on a cadence and offer a subscription or auto-renewal option, sent together with the paired touch below - only where the person's own history shows the cadence.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2a-inapp",
+          "stage": "cadence-fork",
+          "action": "a.subscribe-inapp",
+          "after": "t2a-email",
+          "prerequisites": [
+            "c.regular"
+          ],
+          "purpose": "Offer the same subscription or auto-renewal option beside the product, for anyone who opens it in this window - sent together with the paired touch above, not as a separate later touch.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2b",
+          "stage": "follow-up",
+          "action": "a.touch2b",
+          "after": "t1",
+          "gatedBy": "w.touch1",
+          "prerequisites": [
+            "c.outcome1",
+            "c.regular"
+          ],
+          "purpose": "Remind them of the last purchase and the estimated depletion, and suggest the reorder, an economy pack or a multi-pack - reached either directly, for someone without a repurchase cadence, or after a regular repurchaser declines the subscription offer.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "reorder",
+            "boundTo": "need_key",
+            "mustNotClaim": [
+              "how much they have left",
+              "stock is reserved",
+              "the price is held"
+            ]
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        },
+        {
+          "id": "t3",
+          "stage": "final-reminder",
+          "action": "a.touch3",
+          "after": "t2b",
+          "gatedBy": "w.touch2b",
+          "prerequisites": [
+            "c.outcome2"
+          ],
+          "purpose": "Say once, short and direct, that the item may run out soon, with a direct repurchase link and no invented urgency.",
+          "channelRoles": [
+            "urgent"
           ],
           "destination": {
             "target": "reorder",
@@ -3073,7 +2324,6 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       "noAction": [
         "s.replenished",
-        "s.dismissed",
         "s.subscription",
         "s.estimate",
         "s.permission",
@@ -3095,144 +2345,89 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "insufficientAlone": [
             "a category average with no purchase by this person behind it",
             "a purchase covered by an active subscription or auto-replenishment",
-            "a need dismissed in this prediction cycle",
-            "a newer purchase of the need since the one the prediction rests on"
+            "an estimate the underlying data does not support treating as reliable"
           ],
           "source": "inferred"
         },
-        "next": "c.eligible"
+        "next": "c.reliable"
       },
       {
-        "id": "c.eligible",
+        "id": "c.reliable",
         "kind": "condition",
-        "asks": "Is there a need to prompt, and may we?",
+        "asks": "Is the estimate reliable enough to act on?",
         "branches": [
           {
-            "label": "Eligible",
-            "when": "no newer purchase, no subscription, no dismissal this cycle, no open instance, and commercial permission recorded",
-            "observes": "purchase record, subscription record, dismissal record, permission record",
-            "to": "a.open"
+            "label": "Reliable",
+            "when": "the purchase and usable-period data behind the prediction support treating it as reliable",
+            "observes": "expected_depletion_at",
+            "to": "c.already-bought"
           },
           {
-            "label": "Already met",
-            "when": "a newer purchase of the need exists",
-            "observes": "purchase_completed",
-            "to": "x.replenished"
-          },
-          {
-            "label": "Not eligible",
-            "when": "a subscription covers it, it was dismissed this cycle, permission is absent, or an instance is open - the reason is recorded",
-            "observes": "subscription record, dismissal record, permission record",
-            "to": "a.record-no-action"
+            "label": "Not reliable",
+            "when": "the data behind the prediction does not support acting on it",
+            "observes": "expected_depletion_at",
+            "to": "x.not-started"
           }
         ]
       },
       {
-        "id": "a.open",
-        "kind": "action",
-        "does": "Open the instance against the need and the prediction cycle, recording the expected depletion date the prompt will be timed against",
-        "writes": [
-          {
-            "field": "replenishment_log",
-            "mode": "append"
-          }
-        ],
-        "idempotencyKey": "person_id + need_key + prediction cycle",
-        "next": "w.lead"
+        "id": "x.not-started",
+        "kind": "exit",
+        "state": "the journey never opened; the estimate was not reliable enough to act on",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the next prediction cycle, computed as the purchase history grows, may open a new instance if the estimate is then reliable"
       },
       {
-        "id": "w.lead",
-        "kind": "wait",
-        "until": [
-          "purchase_completed",
-          "replenishment_need_dismissed"
-        ],
-        "onEvent": "c.state",
-        "timeout": {
-          "after": {
-            "key": "replenishment.lead_time",
-            "rule": "The prompt is timed a lead period before the expected depletion - long enough for a reorder to arrive before the need bites, short enough that the estimate still means something.",
-            "class": "reminder-before-attribute",
-            "default": {
-              "value": {
-                "min": "3 days",
-                "max": "7 days"
-              },
-              "confidence": "low",
-              "basis": "example-only",
-              "applicableWhen": "delivered goods with a delivery lead time of days",
-              "avoidWhen": "items bought in person the same day - a shorter lead is honest"
-            },
-            "required": false
-          },
-          "reason": "a prompt long before the need is noise and a prompt after it is late; the lead period is the delivery lead time plus a margin",
-          "relativeTo": "attribute",
-          "attribute": "expected_depletion_at"
-        },
-        "onTimeout": "c.state",
-        "recheck": "purchases, subscriptions and dismissals for the need re-read from the system of record; the expected depletion date recomputed from the latest purchase",
-        "windowExtendsOnEngagement": false
-      },
-      {
-        "id": "c.state",
+        "id": "c.already-bought",
         "kind": "condition",
-        "asks": "At the lead point, is the need still unmet?",
+        "asks": "Did the person already repurchase the product?",
         "branches": [
           {
-            "label": "Still unmet",
-            "when": "no purchase, no subscription and no dismissal since the instance opened",
-            "observes": "purchase and dismissal records",
-            "to": "c.sendable"
-          },
-          {
-            "label": "Replenished",
-            "when": "a purchase of the need is recorded",
+            "label": "Already repurchased",
+            "when": "a purchase of the need is recorded since the one the prediction rests on",
             "observes": "purchase_completed",
-            "to": "x.replenished"
+            "to": "x.already-repurchased"
           },
           {
-            "label": "Dismissed",
-            "when": "the person dismissed the need",
-            "observes": "replenishment_need_dismissed",
-            "to": "x.dismissed"
+            "label": "Not yet",
+            "when": "no newer purchase of the need is recorded",
+            "observes": "purchase_completed",
+            "to": "c.product-ref"
           }
         ]
       },
       {
-        "id": "c.sendable",
+        "id": "x.already-repurchased",
+        "kind": "exit",
+        "state": "already repurchased; a purchase of the need was recorded before any touch went out",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "the next prediction cycle, computed from this purchase, opens the next instance"
+      },
+      {
+        "id": "c.product-ref",
         "kind": "condition",
-        "asks": "May the lead prompt go out?",
+        "asks": "Is the same product still on sale and in stock?",
         "branches": [
           {
-            "label": "Sendable",
-            "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
-            "observes": "send path stages 1-8",
+            "label": "Same product",
+            "when": "the product the prediction was computed against is still on sale and in stock",
+            "observes": "product catalog and stock record",
             "to": "a.touch1"
           },
           {
-            "label": "Suppressed",
-            "when": "a gate stops it; the gate is recorded as the reason",
-            "observes": "send path stages 1-8",
-            "to": "a.record-no-action"
+            "label": "Compatible alternative",
+            "when": "the original product is no longer on sale or in stock, and a compatible alternative or newer version is",
+            "observes": "product catalog and stock record",
+            "to": "a.touch1"
           }
         ]
-      },
-      {
-        "id": "a.record-no-action",
-        "kind": "action",
-        "does": "Record why nothing was sent and against which need, so no-action is a measured outcome rather than a silent absence",
-        "writes": [
-          {
-            "field": "suppressed_sends",
-            "mode": "append"
-          }
-        ],
-        "next": "x.no-action"
       },
       {
         "id": "a.touch1",
         "kind": "action",
-        "does": "Name the item, say when it is estimated to run out and that this is an estimate from their own purchases, and give the route to reorder. Claim nothing about what they have left, no reserved stock, no held price, no discount",
+        "does": "Push naming the item - the original product or, where that is no longer available, the compatible alternative or new version the prior condition selected - saying when it is estimated to run out and that this is an estimate from their own purchases, and giving the route to reorder. Claim nothing about what they have left, no reserved stock, no held price, no discount",
         "execution": "communication",
         "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
         "writes": [
@@ -3241,148 +2436,223 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "mode": "append"
           }
         ],
-        "next": "w.window"
+        "next": "w.touch1"
       },
       {
-        "id": "w.window",
+        "id": "w.touch1",
         "kind": "wait",
         "until": [
-          "purchase_completed",
-          "replenishment_need_dismissed"
+          "purchase_completed"
         ],
-        "onEvent": "c.outcome",
+        "onEvent": "c.outcome1",
         "timeout": {
           "after": {
-            "key": "replenishment.follow_margin",
-            "rule": "The follow-up waits until the expected depletion has passed by a margin, so that it is sent to a need that is by then plausibly real and not to one still ahead.",
-            "class": "observation-window",
+            "key": "replenishment.first_window",
+            "rule": "A short fixed span for the opening push to work before the cascade re-reads the purchase record and moves on to the cadence-gated reminder.",
+            "class": "response-window",
             "default": {
-              "value": {
-                "min": "3 days",
-                "max": "7 days"
-              },
+              "value": "2 days",
               "confidence": "low",
-              "basis": "example-only"
+              "basis": "example-only",
+              "applicableWhen": "the opening push already went out"
             },
             "required": false
           },
-          "reason": "a follow-up before the estimated depletion is a repeat of the first prompt; after it, the need is plausibly present",
-          "relativeTo": "attribute",
-          "attribute": "expected_depletion_at"
-        },
-        "onTimeout": "c.outcome",
-        "recheck": "purchases, subscriptions and dismissals for the need re-read from the system of record",
-        "windowExtendsOnEngagement": false
-      },
-      {
-        "id": "c.outcome",
-        "kind": "condition",
-        "asks": "After the estimated depletion, what happened?",
-        "branches": [
-          {
-            "label": "Replenished",
-            "when": "a purchase of the need is recorded",
-            "observes": "purchase_completed",
-            "to": "x.replenished"
-          },
-          {
-            "label": "Dismissed",
-            "when": "the person dismissed the need",
-            "observes": "replenishment_need_dismissed",
-            "to": "x.dismissed"
-          },
-          {
-            "label": "Still unmet",
-            "when": "nothing has changed",
-            "observes": "purchase and dismissal records",
-            "to": "c.sendable2"
-          }
-        ]
-      },
-      {
-        "id": "c.sendable2",
-        "kind": "condition",
-        "asks": "May the follow-up go out?",
-        "branches": [
-          {
-            "label": "Sendable",
-            "when": "the send path passes and the touch budget is not spent",
-            "observes": "send path stages 1-8, touch budget",
-            "to": "a.touch2"
-          },
-          {
-            "label": "Suppressed",
-            "when": "a gate stops it; the gate is recorded",
-            "observes": "send path stages 1-8",
-            "to": "a.record-no-action"
-          }
-        ]
-      },
-      {
-        "id": "a.touch2",
-        "kind": "action",
-        "does": "Say once that the estimated point has passed and give the same reorder route. No invented urgency, and no incentive unless policy enables one for the last touch",
-        "execution": "communication",
-        "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
-        "writes": [
-          {
-            "field": "replenishment_log",
-            "mode": "append"
-          }
-        ],
-        "next": "w.final"
-      },
-      {
-        "id": "w.final",
-        "kind": "wait",
-        "until": [
-          "purchase_completed",
-          "replenishment_need_dismissed"
-        ],
-        "onEvent": "c.final",
-        "timeout": {
-          "after": {
-            "key": "replenishment.lifetime",
-            "rule": "After the follow-up the instance stays open only to observe a replenishment or a dismissal; then it lapses and the next prediction cycle is the next chance.",
-            "class": "observation-window",
-            "default": {
-              "value": {
-                "min": "14 days",
-                "max": "30 days"
-              },
-              "confidence": "low",
-              "basis": "example-only"
-            },
-            "required": false
-          },
-          "reason": "there is no third prompt to time; the instance only observes",
+          "reason": "a push nobody acts on is itself a result - the alternative to acting on that is waiting indefinitely for a purchase that may never come",
           "relativeTo": "previous-touch"
         },
-        "onTimeout": "x.lapsed",
-        "recheck": "purchases and dismissals for the need re-read from the system of record",
+        "onTimeout": "c.outcome1",
+        "recheck": "purchases and subscription status for the need, re-read from the system of record, before the timeout is acted on",
         "windowExtendsOnEngagement": false
       },
       {
-        "id": "c.final",
+        "id": "c.outcome1",
         "kind": "condition",
-        "asks": "What ended the observation?",
+        "asks": "Did they purchase?",
         "branches": [
           {
-            "label": "Replenished",
+            "label": "Purchased",
             "when": "a purchase of the need is recorded",
             "observes": "purchase_completed",
-            "to": "x.replenished"
+            "to": "x.repurchased"
           },
           {
-            "label": "Dismissed",
-            "when": "the person dismissed the need",
-            "observes": "replenishment_need_dismissed",
-            "to": "x.dismissed"
+            "label": "Not yet",
+            "when": "no purchase of the need is recorded",
+            "observes": "purchase_completed",
+            "to": "c.regular"
           }
         ]
       },
       {
-        "id": "x.replenished",
+        "id": "c.regular",
+        "kind": "condition",
+        "asks": "Does the person regularly repurchase this product - is there a repurchase cadence in their history?",
+        "branches": [
+          {
+            "label": "Regular repurchaser",
+            "when": "the person's own purchase history shows a standing cadence for this need",
+            "observes": "purchase history cadence",
+            "to": "a.subscribe-email"
+          },
+          {
+            "label": "No cadence",
+            "when": "the person's purchase history shows no standing cadence for this need",
+            "observes": "purchase history cadence",
+            "to": "a.touch2b"
+          }
+        ]
+      },
+      {
+        "id": "a.subscribe-email",
+        "kind": "action",
+        "does": "Send an email telling the person they buy this product on a cadence and offering a subscription or auto-renewal option - sent alongside the in-app message below",
+        "execution": "communication",
+        "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
+        "writes": [
+          {
+            "field": "replenishment_log",
+            "mode": "append"
+          }
+        ],
+        "next": "a.subscribe-inapp"
+      },
+      {
+        "id": "a.subscribe-inapp",
+        "kind": "action",
+        "does": "Show an in-app message offering the same subscription or auto-renewal option, for anyone who opens the product during this window - sent together with the email above, not as a separate later touch",
+        "execution": "communication",
+        "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
+        "writes": [
+          {
+            "field": "replenishment_log",
+            "mode": "append"
+          }
+        ],
+        "next": "c.subscribed"
+      },
+      {
+        "id": "c.subscribed",
+        "kind": "condition",
+        "asks": "Did they switch to a subscription?",
+        "branches": [
+          {
+            "label": "Subscribed",
+            "when": "the person authorised a subscription or auto-renewal covering the need",
+            "observes": "continuing_relationship_creation_authorized",
+            "to": "x.subscribed"
+          },
+          {
+            "label": "Declined",
+            "when": "no subscription or auto-renewal was authorised",
+            "observes": "continuing_relationship_creation_authorized",
+            "to": "a.touch2b"
+          }
+        ]
+      },
+      {
+        "id": "x.subscribed",
+        "kind": "exit",
+        "state": "switched to a subscription or auto-renewal covering the need",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "the subscription now covers the need; a new instance would only open again if the subscription later lapses"
+      },
+      {
+        "id": "a.touch2b",
+        "kind": "action",
+        "does": "Send an email reminding them of the last purchase date and the estimated depletion time, and suggesting the reorder, an economy pack or a multi-pack - reached directly for someone with no repurchase cadence, or after a regular repurchaser declines the subscription offer",
+        "execution": "communication",
+        "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
+        "writes": [
+          {
+            "field": "replenishment_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.touch2b"
+      },
+      {
+        "id": "w.touch2b",
+        "kind": "wait",
+        "until": [
+          "purchase_completed"
+        ],
+        "onEvent": "c.outcome2",
+        "timeout": {
+          "after": {
+            "key": "replenishment.reminder_window",
+            "rule": "A short fixed span for the reminder email to work before the cascade re-reads the purchase record and moves to the closing WhatsApp touch.",
+            "class": "response-window",
+            "default": {
+              "value": "3 days",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "the reminder email already went out"
+            },
+            "required": false
+          },
+          "reason": "a reminder nobody acts on is itself a result - the alternative to acting on that is waiting indefinitely for a purchase that may never come",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.outcome2",
+        "recheck": "purchases for the need, re-read from the system of record, before the timeout is acted on",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.outcome2",
+        "kind": "condition",
+        "asks": "Did they purchase?",
+        "branches": [
+          {
+            "label": "Purchased",
+            "when": "a purchase of the need is recorded",
+            "observes": "purchase_completed",
+            "to": "x.repurchased"
+          },
+          {
+            "label": "Not yet",
+            "when": "no purchase of the need is recorded",
+            "observes": "purchase_completed",
+            "to": "a.touch3"
+          }
+        ]
+      },
+      {
+        "id": "a.touch3",
+        "kind": "action",
+        "does": "Message on WhatsApp saying the item may run out soon, short and direct, with a clear repurchase link and no invented urgency",
+        "execution": "communication",
+        "idempotencyKey": "person_id + need_key + prediction cycle + touch id",
+        "writes": [
+          {
+            "field": "replenishment_log",
+            "mode": "append"
+          }
+        ],
+        "next": "c.outcome3"
+      },
+      {
+        "id": "c.outcome3",
+        "kind": "condition",
+        "asks": "Did they purchase?",
+        "branches": [
+          {
+            "label": "Purchased",
+            "when": "a purchase of the need is recorded",
+            "observes": "purchase_completed",
+            "to": "x.repurchased"
+          },
+          {
+            "label": "Not purchased",
+            "when": "no purchase of the need is recorded",
+            "observes": "purchase_completed",
+            "to": "x.ended"
+          }
+        ]
+      },
+      {
+        "id": "x.repurchased",
         "kind": "exit",
         "state": "replenished; a purchase of the need is recorded",
         "class": "success",
@@ -3390,25 +2660,9 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "reEntry": "the next prediction cycle, computed from this purchase, opens the next instance"
       },
       {
-        "id": "x.dismissed",
+        "id": "x.ended",
         "kind": "exit",
-        "state": "dismissed by the person; the need is muted for this cycle",
-        "class": "suppression",
-        "terminal": false,
-        "reEntry": "the next prediction cycle opens a new instance unless the dismissal asked for no more prompts"
-      },
-      {
-        "id": "x.no-action",
-        "kind": "exit",
-        "state": "no prompt sent; the reason is recorded",
-        "class": "no-action",
-        "terminal": false,
-        "reEntry": "the next prediction cycle opens a new instance"
-      },
-      {
-        "id": "x.lapsed",
-        "kind": "exit",
-        "state": "prompted, neither replenished nor dismissed; nothing further this cycle",
+        "state": "the cascade ran out; neither replenished nor subscribed, nothing further this cycle",
         "class": "timeout",
         "terminal": false,
         "reEntry": "the next prediction cycle opens a new instance"
@@ -3424,13 +2678,15 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "usable_period",
           "expected_depletion_at",
           "prediction_cycle",
+          "product_reference",
           "reorder_destination"
         ],
         "optional": [
           "subscription_status",
-          "dismissal_status",
           "has_active_app_session",
-          "delivery_lead_time"
+          "delivery_lead_time",
+          "push_token",
+          "phone_number"
         ]
       }
     },
@@ -3438,10 +2694,11 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "journeyOutcome": {
         "type": "exit",
         "refs": [
-          "x.replenished",
-          "x.dismissed",
-          "x.no-action",
-          "x.lapsed"
+          "x.not-started",
+          "x.already-repurchased",
+          "x.repurchased",
+          "x.subscribed",
+          "x.ended"
         ]
       },
       "businessOutcome": {
@@ -3467,22 +2724,22 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         }
       },
       "secondary": [
-        "replenishment_need_dismissed"
+        "continuing_relationship_creation_authorized"
       ],
       "guardrails": [
         "unsubscribe",
         "complaint",
         "message_after_success",
-        "prompt_after_dismissal",
-        "prediction_error_reported",
-        "incentive_issued"
+        "prediction_error_reported"
       ],
       "operational": [
         "entry_volume",
         "no_action_rate_by_reason",
         "lead_prompt_rate",
+        "cadence_fork_rate",
+        "subscription_conversion_rate",
         "follow_up_rate",
-        "dismissal_rate",
+        "final_touch_rate",
         "prediction_error_distribution"
       ]
     },
@@ -3497,31 +2754,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       ],
       "useCases": [
         "a consumable bought on a cadence whose usable period is ending",
-        "a category the person repurchases predictably, prompted before the next expected purchase"
-      ],
-      "presets": [
-        {
-          "id": "predicted-next-purchase",
-          "name": "Predicted Next Purchase",
-          "applicableWhen": {
-            "id": "p.next-purchase",
-            "label": "CANONICAL_RULE",
-            "text": "The need is predicted from the person's own purchase cadence in a category rather than from a single item's usable period; the machine is the same and the estimate is stated as one."
-          },
-          "overrides": {
-            "replenishment.lead_time": {
-              "min": "5 days",
-              "max": "10 days"
-            }
-          },
-          "destination": "the category reorder route",
-          "aliases": [
-            "predicted next purchase",
-            "next order reminder",
-            "repeat purchase prompt",
-            "cadence reminder"
-          ]
-        }
+        "a category the person repurchases predictably, prompted before the next expected purchase, with a subscription offered first where their own history shows the cadence"
       ]
     },
     "distinctFrom": [
@@ -3532,32 +2765,42 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "RET-32",
         "because": "RET-32 addresses a relationship that ended. A predicted need addresses an active buyer whose next purchase is due."
+      },
+      {
+        "journey": "RET-294",
+        "because": "This is a purchase the person's own history says is due. RET-294 offers the thing that completes a declared product relationship, matured by ownership rather than computed from a due date - the two never hold the same person for the same purchase at once."
+      },
+      {
+        "journey": "ACQ-289",
+        "because": "This is a predicted need computed from the person's own purchase history. ACQ-289 is a back-in-stock alert for a specific item the person asked to be told about - a different signal and a different claim on the moment."
+      },
+      {
+        "journey": "RET-290",
+        "because": "This is an ongoing predicted-need cycle that can recur for the life of the relationship. RET-290 is a one-time first-purchase moment that never reopens."
       }
     ],
     "guardrails": [
       "The prediction is an estimate from the person's own purchases and is stated as one; nothing is claimed about what they have left.",
-      "A dismissal is honoured for the cycle, and a dismissal asking for no more prompts is honoured until the person changes it.",
+      "An unreliable estimate does not open an instance at all.",
       "A subscription or auto-replenishment for the need means no prompt at all.",
-      "Opens and clicks change nothing; only purchase and dismissal events move the state."
+      "A regular repurchaser is offered a subscription before the plain reminder, never instead of the reorder route.",
+      "Opens and clicks change nothing; only a purchase or a subscription authorization moves the state."
     ],
-    "reusableRule": "A predicted need is prompted once before its estimated point and at most once after it, against the person's own purchase record re-read before each touch, with the estimate stated as an estimate."
+    "reusableRule": "A predicted need is prompted with a lead push, then, for a regular repurchaser, a subscription offer before the plain reminder that everyone else reaches directly, and closed with one short final touch - against the person's own purchase record re-read before each step, with the estimate stated as an estimate."
   },
   {
     "id": "RET-32",
     "slug": "lapsed-customer-win-back",
     "category": "retention",
     "goal": "recovery-retry",
-    "channels": [
-      "email",
-      "push"
-    ],
+    "channels": ["email", "sms"],
     "name": "Paid relationship lapsed → outreach permitted → won back, declined or left alone",
     "shortName": "Lapsed Customer Win-Back",
     "purpose": "Invite a person whose paid relationship ended or went dormant to come back - once, honestly, with whatever has actually changed since they left - after the cancellation's own window has passed and only where the recorded reason and history do not rule it out.",
     "objective": "Win back a formerly paying relationship with a plain invitation that speaks to why they left where that is known, with a long cooldown afterwards; never write to someone whose recorded reason or history says not to.",
     "entity": {
       "scope": "a formerly paying relationship that ended or went dormant under the company's lapse rule and has no active obligation, subscription, open complaint or process",
-      "note": "Distinct from a never-paid reactivation (ACT-20) by eligibility - there was a paid relationship - and from a cancellation in motion (RET-28) by timing: this journey starts only after the cancellation's own save window and cooldown have passed. One instance per relationship and lapse; a long cooldown separates instances.",
+      "note": "Distinct from a never-paid reactivation (ACT-20) by eligibility - there was a paid relationship - and from a cancellation still in motion by timing: this journey starts only after the cancellation's own save window and cooldown have passed. One instance per relationship and lapse; a long cooldown separates instances.",
       "instanceKey": [
         "person_id",
         "relationship_id"
@@ -3580,7 +2823,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.recent",
         "label": "CANONICAL_RULE",
-        "text": "A cancellation still inside its own save window or the cooldown after it is Cancellation Save's territory (RET-28); nothing is sent here."
+        "text": "A cancellation still inside its own save window or the cooldown after it is excluded by definition; nothing is sent here."
       },
       {
         "id": "s.reason",
@@ -3609,9 +2852,15 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       },
       {
         "id": "s.incentive",
-        "label": "OPTIONAL_STRATEGY",
-        "text": "If the company enables a win-back incentive (winback.incentive_policy), it appears only on the last enabled touch, once, and its issuance is recorded per person so it cannot be re-issued on the next lapse."
-      }
+        "label": "CANONICAL_RULE",
+        "text": "The comeback discount appears once, on the second and final touch, where win-back incentive policy allows one, and its issuance is recorded per person so it cannot be re-issued on the next lapse."
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "promotional",
@@ -3619,12 +2868,12 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "winback.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and the second touch exists only where the company enables it.",
+          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the cascade's own length - the email invitation and the SMS comeback discount, and nothing after the second.",
           "default": {
             "value": 2,
-            "confidence": "medium",
+            "confidence": "high",
             "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; one invitation and one optional follow-up"
+            "applicableWhen": "GLB-24; the cascade's own length - one invitation and one comeback discount"
           },
           "required": false
         },
@@ -3649,7 +2898,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "retention-outreach",
         "scope": "account",
-        "precedence": "lowest in the group - any live retention, complaint, risk or payment journey on the account means the relationship is not lapsed and this journey does not run",
+        "precedence": "any live retention, complaint, risk or payment journey on the account means the relationship is not lapsed and this journey does not run",
         "onLoss": "suppressed"
       }
     },
@@ -3657,20 +2906,16 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       "roles": [
         {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the invitation should say what changed and carry the route back, and survive until the person reads it - the default for someone who is not in the product"
+          "channels": ["email"],
+          "when": "the first invitation, where what changed since they left needs enough context to stand on its own"
         },
         {
-          "role": "low-friction",
-          "channels": [
-            "push"
-          ],
-          "when": "a valid push token still exists on a device the person kept the app on, and the route back is a single step"
+          "role": "urgent",
+          "channels": ["sms"],
+          "when": "the second and final touch, a time-limited comeback discount that needs to be seen before it lapses"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -3680,15 +2925,15 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           "id": "t1",
           "stage": "invitation",
           "action": "a.touch1",
+          "gatedBy": "w.cooldown30",
           "prerequisites": [
             "c.eligible",
-            "c.basis",
+            "c.returned1",
             "c.sendable"
           ],
           "purpose": "A plain invitation to come back: what actually changed since they left where something did, the route back, and nothing invented.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "return-route",
@@ -3704,18 +2949,17 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         },
         {
           "id": "t2",
-          "stage": "follow-up",
+          "stage": "comeback-discount",
           "action": "a.touch2",
           "after": "t1",
-          "gatedBy": "w.response",
+          "gatedBy": "w.window1",
           "prerequisites": [
-            "c.second",
+            "c.returned2",
             "c.sendable2"
           ],
-          "purpose": "One follow-up, only where the company enables it and there is something honest to add - an incentive policy enables, or a further change - with the same route back.",
+          "purpose": "One time-limited comeback discount, with a strong call to action and the same route back.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "urgent"
           ],
           "destination": {
             "target": "return-route",
@@ -3726,7 +2970,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             ]
           },
           "mandatory": false,
-          "label": "OPTIONAL_STRATEGY"
+          "label": "CANONICAL_RULE"
         }
       ],
       "noAction": [
@@ -3753,7 +2997,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "insufficientAlone": [
             "low usage on an active relationship - that is usage-drop territory, not a lapse",
-            "a cancellation still inside its save window - Cancellation Save (RET-28) owns it",
+            "a cancellation still inside its save window - that window and its cooldown own it, not this journey",
             "a lapse caused by an unpaid obligation that is still open - payment recovery owns it",
             "a trial or free relationship that never paid - reactivation (ACT-20) owns it"
           ],
@@ -3791,23 +3035,51 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
           }
         ],
         "idempotencyKey": "person_id + relationship_id + lapse date",
-        "next": "c.basis"
+        "next": "w.cooldown30"
       },
       {
-        "id": "c.basis",
+        "id": "w.cooldown30",
+        "kind": "wait",
+        "until": [
+          "relationship_repaid",
+          "purchase_completed"
+        ],
+        "onEvent": "x.won",
+        "timeout": {
+          "after": {
+            "key": "winback.cooldown30",
+            "rule": "The lapsed relationship is left alone for a fixed period before the first invitation, so outreach never lands on someone who only just left.",
+            "class": "observation-window",
+            "default": {
+              "value": "30 days",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace before the first touch"
+            },
+            "required": false
+          },
+          "reason": "someone who just lapsed is not yet a win-back candidate; the wait comes before anything is sent",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.returned1",
+        "recheck": "the relationship re-read: still lapsed, nothing opened on it, permission still recorded",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.returned1",
         "kind": "condition",
-        "asks": "What can the invitation honestly say?",
+        "asks": "Did they become a customer again?",
         "branches": [
           {
-            "label": "Something changed that speaks to why they left",
-            "when": "a recorded change since the lapse addresses the recorded reason - a fixed problem, a changed plan, a restored feature",
-            "observes": "cancellation reason, change record",
-            "to": "c.sendable"
+            "label": "Yes",
+            "when": "an authoritative record shows the relationship repaid or a purchase completed since the lapse",
+            "observes": "relationship_repaid, purchase_completed",
+            "to": "x.won"
           },
           {
-            "label": "Nothing specific",
-            "when": "no recorded change speaks to the reason, or no reason was recorded - the invitation is plain",
-            "observes": "cancellation reason, change record",
+            "label": "No",
+            "when": "no such record exists",
+            "observes": "relationship record",
             "to": "c.sendable"
           }
         ]
@@ -3846,7 +3118,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.touch1",
         "kind": "action",
-        "does": "Invite them back plainly: what actually changed since they left where something did, and the route back. Nothing invented, no terms held that are not held, no discount policy does not enable",
+        "does": "Say by email what actually changed since they left: new features, product improvements, new perks - and the route back. Nothing invented, no terms held that are not held, no discount policy does not enable",
         "execution": "communication",
         "idempotencyKey": "person_id + relationship_id + lapse date + touch id",
         "writes": [
@@ -3855,10 +3127,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "mode": "append"
           }
         ],
-        "next": "w.response"
+        "next": "w.window1"
       },
       {
-        "id": "w.response",
+        "id": "w.window1",
         "kind": "wait",
         "until": [
           "relationship_repaid",
@@ -3867,49 +3139,50 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "onEvent": "x.won",
         "timeout": {
           "after": {
-            "key": "winback.response_window",
-            "rule": "The invitation is given time to be acted on in the person's own time; a follow-up inside that time is pressure on someone who already left once.",
+            "key": "winback.window1",
+            "rule": "The invitation is given a short fixed window before the cascade re-reads the relationship and moves to the comeback discount.",
             "class": "response-window",
             "default": {
               "value": {
-                "min": "14 days",
-                "max": "30 days"
+                "min": "3 days",
+                "max": "5 days"
               },
-              "confidence": "low",
-              "basis": "example-only"
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace between the two touches"
             },
             "required": false
           },
-          "reason": "someone who left is not in a hurry to return; the window is weeks, not days",
+          "reason": "the cascade advances to the discount on a fixed clock, not an open-ended one",
           "relativeTo": "previous-touch"
         },
-        "onTimeout": "c.second",
+        "onTimeout": "c.returned2",
         "recheck": "the relationship re-read: still lapsed, nothing opened on it, permission still recorded",
         "windowExtendsOnEngagement": false
       },
       {
-        "id": "c.second",
+        "id": "c.returned2",
         "kind": "condition",
-        "asks": "Is a follow-up enabled, and is there something honest to add?",
+        "asks": "Did they come back?",
         "branches": [
           {
-            "label": "Enabled with something to add",
-            "when": "the company has enabled the follow-up (winback.follow_up_enabled) and either an incentive policy enables an offer for the last touch or a further change is recorded",
-            "observes": "winback.follow_up_enabled, winback.incentive_policy, change record",
-            "to": "c.sendable2"
+            "label": "Yes",
+            "when": "an authoritative record shows the relationship repaid or a purchase completed since the invitation",
+            "observes": "relationship_repaid, purchase_completed",
+            "to": "x.won"
           },
           {
-            "label": "Not enabled, or nothing to add",
-            "when": "the follow-up is disabled, or there is nothing honest to say beyond the invitation already sent",
-            "observes": "winback.follow_up_enabled, change record",
-            "to": "x.lapsed"
+            "label": "No",
+            "when": "no such record exists",
+            "observes": "relationship record",
+            "to": "c.sendable2"
           }
         ]
       },
       {
         "id": "c.sendable2",
         "kind": "condition",
-        "asks": "May the follow-up go out?",
+        "asks": "May the comeback discount go out?",
         "branches": [
           {
             "label": "Sendable",
@@ -3928,7 +3201,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.touch2",
         "kind": "action",
-        "does": "Say once what is being added - the enabled incentive, or the further change - with the same route back, and record the incentive's issuance per person where one is issued",
+        "does": "Say by SMS about a limited-time comeback discount, with a strong call to action and the same route back, and record the incentive's issuance per person",
         "execution": "communication",
         "idempotencyKey": "person_id + relationship_id + lapse date + touch id",
         "writes": [
@@ -3941,10 +3214,10 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
             "mode": "append"
           }
         ],
-        "next": "w.final"
+        "next": "w.offer"
       },
       {
-        "id": "w.final",
+        "id": "w.offer",
         "kind": "wait",
         "until": [
           "relationship_repaid",
@@ -3953,25 +3226,41 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "onEvent": "x.won",
         "timeout": {
           "after": {
-            "key": "winback.lifetime",
-            "rule": "After the follow-up the instance stays open only to observe a return; then it lapses and the long cooldown starts.",
-            "class": "observation-window",
+            "key": "winback.offer_window",
+            "rule": "The discount is given the offer's own duration to be acted on, after which the instance closes; there is no third touch.",
+            "class": "response-window",
             "default": {
-              "value": {
-                "min": "30 days",
-                "max": "60 days"
-              },
+              "value": "7 days",
               "confidence": "low",
               "basis": "example-only"
             },
             "required": false
           },
-          "reason": "there is no third touch; the instance only observes",
+          "reason": "the discount lapses with the offer; the instance only observes until then",
           "relativeTo": "previous-touch"
         },
-        "onTimeout": "x.lapsed",
+        "onTimeout": "c.returned3",
         "recheck": "the relationship re-read from the system of record",
         "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.returned3",
+        "kind": "condition",
+        "asks": "Did they purchase again?",
+        "branches": [
+          {
+            "label": "Yes",
+            "when": "an authoritative record shows the relationship repaid or a purchase completed within the offer window",
+            "observes": "relationship_repaid, purchase_completed",
+            "to": "x.won"
+          },
+          {
+            "label": "No",
+            "when": "no such record exists inside the window",
+            "observes": "relationship record",
+            "to": "x.lapsed"
+          }
+        ]
       },
       {
         "id": "x.won",
@@ -3992,7 +3281,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "x.lapsed",
         "kind": "exit",
-        "state": "invited, not returned; left alone for the cooldown",
+        "state": "this journey ended; invited and discounted, not returned, left alone for the cooldown",
         "class": "timeout",
         "terminal": false,
         "reEntry": "no further win-back instance until the cooldown has passed"
@@ -4012,7 +3301,7 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
         "optional": [
           "change_record_since_lapse",
-          "has_push_token",
+          "phone_number",
           "previous_plan",
           "winback_incentive_eligibility"
         ]
@@ -4091,16 +3380,1833 @@ export const RETENTION_JOURNEYS: readonly CanonicalJourney[] = [
         "because": "ACT-20 reactivates a relationship that never paid. This addresses one that did, which changes the eligibility, the economics and what the invitation may honestly say."
       },
       {
-        "journey": "RET-28",
-        "because": "RET-28 acts at the moment of cancellation intent, inside the cancellation's own window. This starts only after that window and its cooldown have passed."
+        "journey": "CON-300",
+        "because": "CON-300 acts on unanswered marketing contact alone - it opens whether the relationship has ever paid, is still buying, or long ago lapsed, and its own final offer exists only because nothing earlier in its cascade got an answer. This journey is the argument for coming back, and it runs specifically on a lapsed paid relationship rather than on unanswered contact - a person can be perfectly engaged with our messages and still lapsed, or still buying and entirely silent on everything we send."
       }
     ],
     "guardrails": [
       "A recorded reason or history that policy lists as excluding outreach is final for the instance.",
       "The invitation says what actually changed or is plain; no change is invented.",
-      "One invitation, one optional follow-up, then a long cooldown; a person who left and was asked once has answered.",
-      "An incentive, where enabled, appears once on the last enabled touch and is recorded per person so it is never re-issued on the next lapse."
+      "The relationship is re-read for a return at three points - before the invitation, before the discount, and after the discount's own offer window - and the cascade ends the moment any of them finds one.",
+      "Exactly two touches, email then SMS, then a long cooldown; a person who left, was asked once and offered once has answered.",
+      "The comeback discount appears once, on the second and final touch, and is recorded per person so it is never re-issued on the next lapse."
     ],
-    "reusableRule": "A lapsed paid relationship is invited back at most twice, only after its cancellation's own window has passed and only where reason, history and permission allow, with whatever honestly changed and a long cooldown afterwards."
+    "reusableRule": "A lapsed paid relationship is invited back at most twice - an email invitation, then an SMS comeback discount - only where reason, history and permission allow, re-read for a return before each touch and after the last, with a long cooldown afterwards."
+  },
+  {
+    "id": "RET-290",
+    "slug": "first-purchase-welcome",
+    "category": "retention",
+    "goal": "progression-milestone",
+    "channels": ["email", "sms"],
+    "name": "First purchase completed → repurchase window waited out → returned, converted or ended",
+    "shortName": "First-to-Second Purchase",
+    "purpose": "Turn a first purchase into a second one: wait out the product's own natural repurchase period, then offer the next purchase honestly, twice, and stop the moment it happens.",
+    "objective": "Wait for the product's natural repurchase period, then make at most two honest offers toward a second purchase - an email offer, then an SMS reminder before it lapses - re-reading the purchase record before each and stopping the instant a second purchase is recorded.",
+    "entity": {
+      "scope": "the new customer relationship - one person, opened by their first purchase",
+      "note": "One instance per person, ever, because a relationship is a first one only once. A second purchase inside the window closes the instance as returned rather than opening another.",
+      "instanceKey": [
+        "person_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A second purchase by the same person supersedes this instance: the relationship is no longer a new one and nothing further is sent under this journey."
+      }
+    },
+    "eligibility": [
+      "an authoritative purchase record for this person that their own purchase history confirms is their first",
+      "the order's own transactional confirmation is owned and sent by the journey whose job that is, not by this one",
+      "no earlier instance of this journey exists for this person",
+      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.transactional",
+        "label": "CANONICAL_RULE",
+        "text": "This journey never carries the order's confirmation and never competes with it. What the business took on is recorded at the opening of the order, before this journey speaks; this answers only whether a second purchase should be offered, and it waits out the product's own natural repurchase period before asking."
+      },
+      {
+        "id": "s.returned",
+        "label": "CANONICAL_RULE",
+        "text": "A second purchase by this person closes the instance as returned. An offer sent to somebody who has already come back is the failure this journey exists to prevent, and each offer is reached only through a condition that just re-read the purchase record."
+      },
+      {
+        "id": "s.offer",
+        "label": "CANONICAL_RULE",
+        "text": "Each offer names only a recommendation and a return offer the business has actually issued and recorded, for the period the business will honour. Where there is none, nothing is promised and nothing is invented to fill the gap."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for lifecycle communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A post-purchase follow-up on the same person's order outranks this journey in the post-purchase-welcome group; while it holds the person, this journey's touch is deferred and re-evaluated against current state rather than queued blindly (GLB-06)."
+      },
+      {
+        "id": "s.cancelled",
+        "label": "CANONICAL_RULE",
+        "text": "A first purchase cancelled or fully reversed before the first offer goes out is not a first purchase; the instance ends without a touch."
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
+    ],
+    "contact": {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "first_purchase_welcome.touches",
+          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the cascade's own length - an email offer and one SMS reminder - and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the cascade's own length - one email offer and one SMS reminder"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "first_purchase_welcome.cooldown",
+        "rule": "The instance opens once per person and never reopens, so the cooldown governs only how long the SMS reminder may sit behind the email offer before the ordinary lifecycle journeys take the relationship over.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "post-purchase-welcome",
+        "scope": "person",
+        "precedence": "below the post-purchase follow-up on the same person's order - what somebody is already holding comes before what they might buy next; above every promotional journey addressed to a person whose relationship is this new",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": ["email"],
+          "when": "the first offer, sent once the product's own natural repurchase period has passed"
+        },
+        {
+          "role": "urgent",
+          "channels": ["sms"],
+          "when": "the second and final touch, a reminder before the limited-time offer lapses"
+        }
+      ],
+      "fallback": "none",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "next-purchase-offer",
+          "action": "a.touch1",
+          "gatedBy": "w.natural",
+          "prerequisites": [
+            "c.returned1",
+            "c.sendable"
+          ],
+          "purpose": "A related product or category recommendation based on the first purchase, with a limited-time offer toward the next one. No offer unless the business has issued one.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "next-purchase-offer",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "an offer that has not been issued",
+              "stock is reserved",
+              "the price is held"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "offer-reminder",
+          "action": "a.touch2",
+          "after": "t1",
+          "gatedBy": "w.window1",
+          "prerequisites": [
+            "c.returned2",
+            "c.sendable2"
+          ],
+          "purpose": "A last call before the same offer lapses - sent only to somebody who has not already come back.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "destination": {
+            "target": "next-purchase-offer",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "an offer that has not been issued",
+              "stock is reserved",
+              "the price is held"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.transactional",
+        "s.returned",
+        "s.offer",
+        "s.permission",
+        "s.contest",
+        "s.cancelled"
+      ]
+    },
+    "entry": "t.first",
+    "nodes": [
+      {
+        "id": "t.first",
+        "kind": "trigger",
+        "event": "first_purchase_completed",
+        "evidence": {
+          "requires": [
+            "an authoritative purchase record for this person",
+            "the person's own purchase history, confirming that no earlier purchase exists for them"
+          ],
+          "insufficientAlone": [
+            "a purchase by somebody who has bought before - that is an ordinary repeat purchase",
+            "an order placed but not yet accepted by the system of record",
+            "an account created with no purchase behind it",
+            "a purchase attributed to an identity that has not resolved to a person, which may well have a history under another one"
+          ],
+          "source": "authoritative"
+        },
+        "next": "w.natural"
+      },
+      {
+        "id": "w.natural",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.returned1",
+        "timeout": {
+          "after": {
+            "key": "first_purchase_welcome.natural_repurchase_period",
+            "rule": "The first offer waits out the product's own natural repurchase period, so it never lands on somebody who was already going to buy again on their own timeline.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an offer spent before the product's own repurchase point buys nothing that would not have happened anyway",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.returned1",
+        "recheck": "the purchase record, the order's own state and the person's permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.returned1",
+        "kind": "condition",
+        "asks": "Did the second purchase happen?",
+        "branches": [
+          {
+            "label": "Yes",
+            "when": "an authoritative second purchase by this person is recorded",
+            "observes": "purchase_completed",
+            "to": "x.returning"
+          },
+          {
+            "label": "Relationship ended",
+            "when": "the person withdrew permission, or the first purchase was cancelled or fully reversed",
+            "observes": "permission_withdrawn",
+            "to": "x.closed"
+          },
+          {
+            "label": "No",
+            "when": "the first purchase stands, no second purchase is recorded, and permission for lifecycle communication still holds",
+            "observes": "purchase record, permission record",
+            "to": "c.sendable"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the offer go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, no higher-precedence journey currently holding this person, and the business has an issued recommendation or offer to name",
+            "observes": "send path stages 1-8, offer record",
+            "to": "a.touch1"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it, or there is nothing issued to name; the reason is recorded",
+            "observes": "send path stages 1-8, offer record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.touch1",
+        "kind": "action",
+        "does": "Say by email: a related product or category recommendation based on the first purchase, and a limited-time offer toward the next one. Nothing invented, and nothing sent to somebody who has already bought again.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + touch id",
+        "writes": [
+          {
+            "field": "welcome_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.window1"
+      },
+      {
+        "id": "w.window1",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.returned2",
+        "timeout": {
+          "after": {
+            "key": "first_purchase_welcome.window1",
+            "rule": "The offer is given a short fixed window before the cascade re-reads the purchase record and moves to the SMS reminder.",
+            "class": "response-window",
+            "default": {
+              "value": {
+                "min": "3 days",
+                "max": "5 days"
+              },
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace between the two touches"
+            },
+            "required": false
+          },
+          "reason": "the cascade advances to the reminder on a fixed clock, not an open-ended one",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.returned2",
+        "recheck": "the person's purchase record and their permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.returned2",
+        "kind": "condition",
+        "asks": "Did the second purchase happen?",
+        "branches": [
+          {
+            "label": "Yes",
+            "when": "an authoritative second purchase by this person is recorded",
+            "observes": "purchase_completed",
+            "to": "x.returning"
+          },
+          {
+            "label": "No",
+            "when": "no purchase since the first one is recorded for this person",
+            "observes": "purchase record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes, the touch budget is not spent, and the offer named in the first touch is still honoured",
+            "observes": "send path stages 1-8, offer record",
+            "to": "a.touch2"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it, or the offer has lapsed; the reason is recorded",
+            "observes": "send path stages 1-8, offer record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.touch2",
+        "kind": "action",
+        "does": "Say by SMS a last call before the same offer lapses, with the same route to use it. Nothing invented, and nothing sent to somebody who has already bought again.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + touch id",
+        "writes": [
+          {
+            "field": "welcome_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.offer"
+      },
+      {
+        "id": "w.offer",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.returned3",
+        "timeout": {
+          "after": {
+            "key": "first_purchase_welcome.offer_window",
+            "rule": "The reminder is given the offer's own duration to be acted on, after which the instance ends; there is no third touch.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "the offer lapses with its own window; the instance only observes until then",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.returned3",
+        "recheck": "the person's purchase record re-read from the system of record",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.returned3",
+        "kind": "condition",
+        "asks": "Did they purchase?",
+        "branches": [
+          {
+            "label": "Yes",
+            "when": "an authoritative second purchase by this person is recorded within the offer window",
+            "observes": "purchase_completed",
+            "to": "x.returning"
+          },
+          {
+            "label": "No",
+            "when": "no such record exists inside the window",
+            "observes": "purchase record",
+            "to": "x.prompted"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + touch id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.returning",
+        "kind": "exit",
+        "state": "returned; a second purchase is recorded and the relationship is no longer a new one",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a first purchase happens once per person; the ordinary retention journeys own the relationship from here"
+      },
+      {
+        "id": "x.prompted",
+        "kind": "exit",
+        "state": "this journey ended; offered and reminded, not returned",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "this instance does not reopen; whether the offer is later taken is the ordinary lifecycle's to observe"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without an offer; the relationship ended or the first purchase did not stand",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a reinstated first purchase and a restored permission are re-evaluated against the reinstated record; otherwise nothing reopens"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no touch sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the instance does not reopen; a person whose offer was suppressed is not offered later as if it were new"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "first_purchase_id",
+          "first_purchase_at",
+          "customer_account_destination"
+        ],
+        "optional": [
+          "bounceback_offer_id",
+          "offer_honoured_until",
+          "email_address",
+          "phone_number"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.returning",
+          "x.prompted",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "purchase_completed",
+        "unit": "person",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "first_purchase_welcome.holdout_share",
+          "rule": "A persistent per-person holdout is required: a share of first-time buyers come back without being asked, and without a holdout this journey claims every one of them.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "permission_withdrawn"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "bounceback_after_second_purchase",
+        "offer_named_without_record"
+      ],
+      "operational": [
+        "entry_volume",
+        "welcome_rate",
+        "bounceback_rate",
+        "no_action_rate_by_reason",
+        "second_purchase_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "first purchase bounceback",
+        "second purchase prompt",
+        "post-purchase repurchase offer",
+        "first-to-second purchase nudge"
+      ],
+      "useCases": [
+        "a recent first purchase that has not yet become a second one, once the product's own natural repurchase period has passed"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "FUL-291",
+        "because": "FUL-291 speaks about the order the person is now holding - how to use it, look after it, or what follows from it. This journey speaks about the relationship that order opened, and it never explains the product."
+      },
+      {
+        "journey": "RET-31",
+        "because": "RET-31 prompts a repeat of something the person's own history says is due. Here there is no history yet - one purchase is not a cadence - so the prompt is an offer rather than a prediction."
+      },
+      {
+        "journey": "SUB-296",
+        "because": "SUB-296 opens on an enrolment into a loyalty membership and its whole subject is that membership - what it grants and how it is used. This opens on a first purchase and owns the customer relationship that purchase created. Where somebody enrols at the moment they first buy, both are true at once and neither carries the other's message: this journey owns the first-purchase moment and never explains the membership, and SUB-296 owns the membership and never makes the bounceback."
+      },
+      {
+        "journey": "RET-292",
+        "because": "RET-292 recognises the anniversary of this journey's own first-purchase date, a year later. This journey is the one-time moment that dates it; RET-292 is the one-time recognition of it, and the two never run at once."
+      }
+    ],
+    "guardrails": [
+      "The order's own confirmation is never carried by this journey and never competes with it; the first offer waits out the product's own natural repurchase period.",
+      "An offer is never sent to somebody who has already bought again - the purchase record is re-read immediately before each touch and after the last.",
+      "An offer is named only where one has actually been issued and recorded, for the period the business will honour.",
+      "Exactly two touches, an email offer then an SMS reminder before it lapses; there is no third touch to time."
+    ],
+    "reusableRule": "A second purchase is offered honestly, twice - an email offer once the product's own repurchase period has passed, then an SMS reminder before it lapses - re-reading the purchase record before each touch and after the last, and stopping the instant a second purchase is recorded."
+  },
+  {
+    "id": "RET-292",
+    "slug": "first-purchase-anniversary",
+    "category": "retention",
+    "goal": "progression-milestone",
+    "channels": ["in-app", "push"],
+    "name": "First purchase completed → anniversary interval waited → eligibility checked → recognised or not sent",
+    "shortName": "First Purchase Anniversary",
+    "purpose": "Recognise the anniversary of the date somebody first bought - the relationship's own age, counted from its first transaction and from nothing else - and say so once.",
+    "objective": "Mark how long the relationship has lasted, measured from the first purchase, to somebody who is still in it - without attaching anything the record does not carry.",
+    "entity": {
+      "scope": "the customer relationship dated from its first purchase - one person, one anniversary interval",
+      "note": "The entity is the FIRST PURCHASE date and nothing else: not a sign-up date, not a birthday, not the most recent order. One instance per person per anniversary interval, and an interval that passes unsent is closed rather than made up later.",
+      "instanceKey": [
+        "person_id",
+        "anniversary_cycle"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "The next anniversary interval supersedes the last: an interval that passed unsent is closed, never sent late and never folded into the following one."
+      }
+    },
+    "eligibility": [
+      "a recorded first-purchase date for this person, from which the anniversary interval is computed",
+      "the relationship is still open - the account is not closed and the first purchase still stands",
+      "no instance is already open for this person and this anniversary interval",
+      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.interval",
+        "label": "CANONICAL_RULE",
+        "text": "An anniversary is recognised on its own interval or not at all. An interval that passed without a message is closed; it is never sent late and never merged into the next one."
+      },
+      {
+        "id": "s.date",
+        "label": "CANONICAL_RULE",
+        "text": "The date is the first purchase and nothing else. A sign-up date, a birthday or a most-recent-order date is a different entity with a different journey, and substituting one for another makes the recognition untrue."
+      },
+      {
+        "id": "s.ended",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship that has ended is not congratulated on its length. A closed account, a fully reversed first purchase or a withdrawn permission ends the instance without a message."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No message without purpose-level permission for lifecycle communication and a deliverable destination; absent either, it is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.claim",
+        "label": "CANONICAL_RULE",
+        "text": "The message states only what the record supports - how long the relationship has lasted. It never attaches a reward, a tier or a benefit that has not been issued."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A personal milestone recognition addressed to the same person outranks this one in the date-recognition group; while it holds the person's window this interval is suppressed and closes unsent rather than being queued to arrive after the date it was about."
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
+    ],
+    "contact": {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "first_purchase_anniversary.touches",
+          "rule": "One recognition per anniversary interval, fixed when the instance opened; there is no follow-up to time and nothing is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - a single recognition per interval"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "first_purchase_anniversary.cooldown",
+        "rule": "Between one recognition and the next lies a whole anniversary interval; nothing shorter reopens this journey for the same person.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "date-recognition",
+        "scope": "person",
+        "precedence": "below the personal milestone recognition for the same person - the company's own count of how long the relationship has lasted yields to a date the person would call their own; where both fall in the same window this one is suppressed and its interval closes unsent, exactly as an interval that passes unsent always does here",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the anniversary can be recognised naturally inside the customer account"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "there is no active session, push_token is present, and the recognition is complete as a short message with a route back to the account"
+        }
+      ],
+      "fallback": "none",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "recognition",
+          "action": "a.recognise",
+          "prerequisites": [
+            "c.eligible"
+          ],
+          "purpose": "How long this relationship has lasted, counted from the first purchase, said once and, if the person engages with the first notice, said again where they can dwell on it - with nothing attached that the record does not carry.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "destination": {
+            "target": "customer-account",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "a reward that has not been issued",
+              "a tier the account does not hold",
+              "a benefit tied to the anniversary that does not exist"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "recognition",
+          "action": "a.show-in-app",
+          "prerequisites": [
+            "c.opened"
+          ],
+          "purpose": "The same recognition, shown again where the person is already looking, for the person who engaged with the first notice.",
+          "channelRoles": [
+            "in-session"
+          ],
+          "destination": {
+            "target": "customer-account",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "a reward that has not been issued",
+              "a tier the account does not hold",
+              "a benefit tied to the anniversary that does not exist"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.interval",
+        "s.date",
+        "s.ended",
+        "s.permission",
+        "s.claim",
+        "s.contest"
+      ]
+    },
+    "entry": "t.purchase",
+    "nodes": [
+      {
+        "id": "t.purchase",
+        "kind": "trigger",
+        "event": "first_purchase_completed",
+        "evidence": {
+          "requires": [
+            "an authoritative first-purchase record for this person"
+          ],
+          "insufficientAlone": [
+            "a sign-up or account-creation date, which dates a different relationship entirely",
+            "a birthday or any other date about the person rather than about the relationship",
+            "a most-recent-order date, which measures recency and not length"
+          ],
+          "source": "authoritative"
+        },
+        "next": "w.interval"
+      },
+      {
+        "id": "w.interval",
+        "kind": "wait",
+        "until": [
+          "account_closure_succeeded"
+        ],
+        "onEvent": "c.eligible",
+        "timeout": {
+          "after": {
+            "key": "first_purchase_anniversary.interval",
+            "rule": "The recognition waits for the relationship's own configured anniversary interval to elapse since the first purchase - not sooner, and on no other clock.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "1 year",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "a standard annual recognition cadence",
+              "avoidWhen": "a business that defines its own anniversary cycle on a different cadence"
+            },
+            "required": false
+          },
+          "reason": "the recognition is timed to the relationship's own configured anniversary interval, counted from the first purchase and from nothing else",
+          "relativeTo": "attribute",
+          "attribute": "first_purchase_at"
+        },
+        "onTimeout": "c.eligible",
+        "recheck": "the relationship record, first-purchase record and recognition log re-read before acting",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.eligible",
+        "kind": "condition",
+        "asks": "Is this anniversary still ours to recognise?",
+        "branches": [
+          {
+            "label": "Recognise",
+            "when": "the relationship is open, the first purchase still stands, this interval has not already been recognised, and the send path passes",
+            "observes": "relationship record, first-purchase record, send path stages 1-8",
+            "to": "a.recognise"
+          },
+          {
+            "label": "Relationship ended",
+            "when": "the account is closed, the first purchase has been fully reversed, or the person withdrew permission for this kind of communication",
+            "observes": "relationship record, permission record",
+            "to": "x.closed"
+          },
+          {
+            "label": "Not sendable",
+            "when": "a send-path gate stops it, or this interval has already been recognised; the reason is recorded",
+            "observes": "send path stages 1-8, recognition record",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.recognise",
+        "kind": "action",
+        "does": "Send a push reminder stating how long the relationship has lasted, counted from the first purchase, and say nothing the record does not support. No reward, tier or benefit unless one has actually been issued.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + anniversary_cycle",
+        "writes": [
+          {
+            "field": "recognition_log",
+            "mode": "append"
+          }
+        ],
+        "next": "c.opened"
+      },
+      {
+        "id": "c.opened",
+        "kind": "condition",
+        "asks": "Did the person open the app in response to the push?",
+        "branches": [
+          {
+            "label": "Opened",
+            "when": "an app session followed the push while the recognition is still current",
+            "observes": "app session activity following the push",
+            "to": "a.show-in-app"
+          },
+          {
+            "label": "Not opened",
+            "when": "no app session followed the push before the recognition window closed",
+            "observes": "app session activity following the push",
+            "to": "x.recognised"
+          }
+        ]
+      },
+      {
+        "id": "a.show-in-app",
+        "kind": "action",
+        "does": "Show the same recognition inside the account - how long the relationship has lasted, counted from the first purchase - now that the person is in a session to see it.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + anniversary_cycle",
+        "next": "x.recognised"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no recognition was sent and for which interval, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + anniversary_cycle",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.recognised",
+        "kind": "exit",
+        "state": "recognised; the anniversary was marked once for this interval",
+        "class": "success",
+        "terminal": true,
+        "reEntry": "this journey recognises the first-purchase anniversary once, from the first-purchase event that opened it; a merged or restated relationship with a new first-purchase date starts it again from its trigger"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no recognition sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": true,
+        "reEntry": "this journey does not retry this interval; a merged or restated relationship with a new first-purchase date starts it again from its trigger"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a message; the relationship this anniversary would have counted has ended",
+        "class": "invalid-state",
+        "terminal": true,
+        "reEntry": "a reopened relationship is dated from its own first purchase and starts this journey again from its trigger"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "first_purchase_at",
+          "anniversary_interval",
+          "anniversary_cycle",
+          "customer_account_destination"
+        ],
+        "optional": [
+          "relationship_state",
+          "push_token",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.closed"
+        ]
+      },
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "recognition_after_relationship_ended",
+        "interval_recognised_twice",
+        "benefit_named_without_record"
+      ],
+      "operational": [
+        "entry_volume",
+        "recognition_rate",
+        "no_action_rate_by_reason"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "first purchase anniversary",
+        "customer anniversary",
+        "relationship anniversary",
+        "years as a customer",
+        "purchase anniversary recognition"
+      ],
+      "useCases": [
+        "a customer reaching a whole interval measured from their first purchase",
+        "a relationship whose length is worth saying out loud without attaching an offer to it"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-290",
+        "because": "RET-290 works at the start of the relationship and is trying to produce a second purchase. This works on the relationship's age and is trying to produce nothing; the recognition is the whole point."
+      },
+      {
+        "journey": "SUB-163",
+        "because": "SUB-163 counts down to an obligation somebody has to act on before a date. An anniversary carries no obligation and no deadline - nothing happens if it is ignored."
+      },
+      {
+        "journey": "RET-295",
+        "because": "RET-295 recognises a date that belongs to the person - a birthday they gave us, or a milestone their own record reached. This counts the relationship's length from the first purchase, which is the company's side of it. The two share the date-recognition exclusion group, and this one is the side that yields, so a person never receives both in the same window."
+      }
+    ],
+    "guardrails": [
+      "The date is the first purchase; no other date is substituted for it.",
+      "An interval that passed without a message is closed, never sent late.",
+      "A relationship that has ended is not congratulated on its length.",
+      "Nothing is attached that has not been issued - no reward, no tier, no benefit."
+    ],
+    "reusableRule": "A recognition dated from one specific record states only what that record supports, happens on its own interval or not at all, and is never made up afterwards."
+  },
+  {
+    "id": "RET-294",
+    "slug": "complementary-next-offer",
+    "category": "retention",
+    "goal": "progression-milestone",
+    "channels": ["in-app", "push", "email"],
+    "name": "Purchase with a declared complement → matured → offered → taken, declined or closed",
+    "shortName": "Cross-Sell / Next Best Offer",
+    "purpose": "Offer the thing that genuinely completes something the person already owns, once the first thing has had time to be used, and stop the moment they have it.",
+    "objective": "Get the complementary next step taken by somebody who already owns the thing it completes - never an accessory proposed to a person still waiting for the product it attaches to.",
+    "entity": {
+      "scope": "one complementary opportunity - the person, the subject they own, and the declared product relationship that makes the next thing complementary rather than merely similar",
+      "note": "One instance per person and owned subject. The offer is bound to a relationship the company has declared between two products, not to resemblance: where that relationship no longer holds, or the person already has the complement, the instance closes rather than substituting a different offer.",
+      "instanceKey": [
+        "person_id",
+        "owned_subject_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "Acquiring the complement by any route closes the instance; a further purchase of the same owned subject does not open a second one while this instance is open."
+      }
+    },
+    "eligibility": [
+      "an authoritative record that this person owns the subject the offer would complete",
+      "a relationship between that subject and the complementary product that the company has declared, rather than one inferred from resemblance",
+      "the complement is available and permitted for this person, and they do not already have it",
+      "no instance is already open for this person and this owned subject",
+      "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.owned",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing already owned is offered as a next step. Ownership is re-read immediately before every touch and never trusted from the record that opened the instance."
+      },
+      {
+        "id": "s.relationship",
+        "label": "CANONICAL_RULE",
+        "text": "The offer rests on a declared relationship between two products. Where no such relationship is recorded, what is left is a resemblance, and a resemblance belongs to the recommendation journey rather than to this one."
+      },
+      {
+        "id": "s.premature",
+        "label": "CANONICAL_RULE",
+        "text": "Nothing is offered before the thing it completes has plausibly been received and used. An accessory proposed to somebody still waiting for the product it attaches to is the failure this journey exists to prevent."
+      },
+      {
+        "id": "s.segment",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "A segment split is made only where the offer itself genuinely differs by segment. Splitting one offer into branches that send the same thing adds a decision the business does not actually have."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No touch without purpose-level permission for commercial communication and a deliverable destination; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "Predicted-need replenishment (RET-31) outranks this journey for the same person - a purchase the person's own history says is due is a stronger claim on the moment, and this journey is suppressed for them rather than queued behind it."
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
+    ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "next_offer.touches",
+          "rule": "Both touches run against a budget fixed when the instance opened; the budget is the plan's own length - an offer and at most one reminder of it - and no touch is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the plan's own length - an offer and one optional reminder"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "next_offer.cooldown",
+        "rule": "After an offer closes unaccepted, the same complement is not offered again for the same owned subject until the cooldown has passed; acquiring the complement carries no cooldown.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": "none"
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the complementary item can be shown beside the owned subject that makes it relevant"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "the first offer was not acted on, push_token is present, and complement_destination can open the exact item; use it for the bounded reminder"
+        },
+        {
+          "role": "persistent",
+          "channels": ["email"],
+          "when": "otherwise, especially when the relationship between the owned subject and the complement needs enough space to explain"
+        }
+      ],
+      "fallback": "none",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "offer",
+          "action": "a.offer",
+          "gatedBy": "w.maturation",
+          "prerequisites": [
+            "c.opportunity",
+            "c.sendable"
+          ],
+          "purpose": "The thing that completes what they already own, named against what they own rather than on its own. Nothing about stock, price or a deadline the platform does not enforce.",
+          "channelRoles": [
+            "in-session",
+            "persistent"
+          ],
+          "destination": {
+            "target": "complementary-item",
+            "boundTo": "owned_subject_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "that the complement is required to use what they already own"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "reminder",
+          "action": "a.remind",
+          "after": "t1",
+          "gatedBy": "w.response",
+          "prerequisites": [
+            "c.outcome",
+            "c.sendable2"
+          ],
+          "purpose": "One reminder of the same offer, to somebody who still does not have the complement and has not said they do not want it. Nothing new is added to make it land.",
+          "channelRoles": [
+            "low-friction",
+            "persistent"
+          ],
+          "destination": {
+            "target": "complementary-item",
+            "boundTo": "owned_subject_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies"
+            ]
+          },
+          "mandatory": false,
+          "label": "OPTIONAL_STRATEGY"
+        }
+      ],
+      "noAction": [
+        "s.owned",
+        "s.relationship",
+        "s.premature",
+        "s.segment",
+        "s.permission",
+        "s.contest"
+      ]
+    },
+    "entry": "t.owned",
+    "nodes": [
+      {
+        "id": "t.owned",
+        "kind": "trigger",
+        "event": "purchase_with_known_complement",
+        "evidence": {
+          "requires": [
+            "an authoritative record that this person owns the subject the offer would complete",
+            "a relationship between that subject and a complementary product that the company has declared",
+            "the complement's current availability and eligibility for this person"
+          ],
+          "insufficientAlone": [
+            "a purchase with no declared complementary relationship behind it - a resemblance is not a complement",
+            "a complement the person already owns",
+            "a pairing inferred from what other people bought together, with nothing declared behind it",
+            "an order placed but not yet accepted by the system of record"
+          ],
+          "source": "authoritative"
+        },
+        "next": "w.maturation"
+      },
+      {
+        "id": "w.maturation",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.opportunity",
+        "timeout": {
+          "after": {
+            "key": "next_offer.maturation",
+            "rule": "The offer waits until the thing it completes has plausibly been received and used, so that a complement arrives as a next step rather than as an upsell attached to an order still in transit.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an accessory offered to somebody who has not yet used the product it attaches to interrupts the purchase they already made",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "c.opportunity",
+        "recheck": "ownership of the subject and of the complement, the declared product relationship and the person's permission re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.opportunity",
+        "kind": "condition",
+        "asks": "Is there still a complementary next step worth offering?",
+        "branches": [
+          {
+            "label": "Opportunity stands",
+            "when": "the person still owns the subject, does not have the complement, the declared relationship still holds, and the complement is available and permitted for them",
+            "observes": "ownership record, product relationship record, item availability",
+            "to": "c.sendable"
+          },
+          {
+            "label": "Already complete",
+            "when": "the person has since acquired the complement by any route",
+            "observes": "purchase_completed",
+            "to": "x.complete"
+          },
+          {
+            "label": "No longer applicable",
+            "when": "the declared relationship no longer holds, the complement is unavailable or not permitted for this person, or permission was withdrawn",
+            "observes": "permission_withdrawn",
+            "to": "x.closed"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the offer go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial communication, a deliverable destination, the promotional pressure cap, no higher-precedence journey currently holding this person, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.offer"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.offer",
+        "kind": "action",
+        "does": "Make the offer against what the person already owns: the complement, what it completes, and the route to add it. Claim no reserved stock, no held price, no discount, and never that the complement is required.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + owned_subject_id + touch id",
+        "writes": [
+          {
+            "field": "offer_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.response"
+      },
+      {
+        "id": "w.response",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "interest_dismissed"
+        ],
+        "onEvent": "c.outcome",
+        "timeout": {
+          "after": {
+            "key": "next_offer.response_window",
+            "rule": "The offer is given a window in which it can be acted on before a single reminder is considered; after that reminder there is nothing further to time.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "a reminder sent before the offer has had time to be read is a repeat, and one sent long afterwards is a new offer pretending to be a reminder",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.outcome",
+        "recheck": "ownership of the complement and any dismissal of the offer re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.outcome",
+        "kind": "condition",
+        "asks": "Was the offer taken?",
+        "branches": [
+          {
+            "label": "Taken",
+            "when": "an authoritative purchase of the complement by this person is recorded",
+            "observes": "purchase_completed",
+            "to": "x.complete"
+          },
+          {
+            "label": "Declined",
+            "when": "the person signalled that the complement is not wanted",
+            "observes": "interest_dismissed",
+            "to": "x.declined"
+          },
+          {
+            "label": "No answer yet",
+            "when": "the complement is still not owned and nothing has been declined",
+            "observes": "ownership record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the single reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and the touch budget is not spent",
+            "observes": "send path stages 1-8, touch budget",
+            "to": "a.remind"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it or the budget is spent; the reason is recorded",
+            "observes": "send path stages 1-8, touch budget",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.remind",
+        "kind": "action",
+        "does": "Remind once of the same offer against the same owned subject, adding nothing that was not in the first one.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + owned_subject_id + touch id",
+        "writes": [
+          {
+            "field": "offer_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.offered"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why nothing was sent and at which stage, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + owned_subject_id + touch id",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.complete",
+        "kind": "exit",
+        "state": "complete; the person has the complementary thing the offer was about",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a different owned subject with its own declared complement opens its own instance"
+      },
+      {
+        "id": "x.declined",
+        "kind": "exit",
+        "state": "declined; the person said the complement is not wanted",
+        "class": "suppression",
+        "terminal": false,
+        "reEntry": "a different owned subject with its own declared complement opens its own instance; this complement is not offered again"
+      },
+      {
+        "id": "x.offered",
+        "kind": "exit",
+        "state": "offered and reminded; the plan ran to its end without the complement being taken",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "the cooldown governs when the same complement may be offered again for the same subject"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed; the relationship the offer rested on no longer holds",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a restored product relationship and a restored permission make the subject eligible again at the next evaluation"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no touch sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a different owned subject with its own declared complement opens its own instance"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "owned_subject_id",
+          "complement_item_id",
+          "product_relationship_id",
+          "owned_since",
+          "complement_destination"
+        ],
+        "optional": [
+          "complement_availability",
+          "permission_state",
+          "push_token",
+          "email_address",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.complete",
+          "x.declined",
+          "x.offered",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "purchase_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "next_offer.holdout_share",
+          "rule": "A persistent per-person holdout is required: people buy the obvious complement to what they own without being asked, and without a holdout this journey claims every one of those purchases.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "interest_dismissed"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "offer_for_owned_complement",
+        "offer_before_maturation"
+      ],
+      "operational": [
+        "entry_volume",
+        "maturation_survival_rate",
+        "offer_rate",
+        "reminder_rate",
+        "no_action_rate_by_reason"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "cross-sell",
+        "next best offer",
+        "complementary product offer",
+        "accessory offer",
+        "what goes with what you bought"
+      ],
+      "useCases": [
+        "a product with a declared complementary item its owner does not have",
+        "a completed purchase whose natural next step the company can name rather than guess"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-31",
+        "because": "RET-31 prompts the same purchase again because the first one is running out. This proposes a different thing, and ownership of the first is exactly what makes it relevant."
+      },
+      {
+        "journey": "ACQ-288",
+        "because": "ACQ-288 recovers a selection the person made and left behind. Here the purchase completed; nothing is being recovered, and the subject of the offer is something they never selected."
+      },
+      {
+        "journey": "SUB-297",
+        "because": "SUB-297 is about a membership the person is enrolled in and a benefit they already hold. This is about a product they already own and a second product that completes it. Neither may borrow the other's authority: a membership benefit is never presented as a complementary product, and a complementary product is never presented as something the membership grants."
+      }
+    ],
+    "guardrails": [
+      "The offer rests on a relationship the company has declared between two products, never on resemblance - resemblance belongs to the recommendation journey.",
+      "Ownership of the complement is re-read immediately before every touch; nothing already owned is offered.",
+      "Nothing is offered before the thing it completes has plausibly been received and used.",
+      "A segment split is made only where the offer itself genuinely differs; a split that sends the same thing down two branches is a decision the business does not have.",
+      "One offer and at most one reminder, and the reminder adds nothing the offer did not have."
+    ],
+    "reusableRule": "A complementary offer is bound to a relationship the company has actually declared between two things and to ownership of the first of them, re-read before every touch - which is what keeps it a next step rather than a second guess at what somebody likes."
+  },
+  {
+    "id": "RET-295",
+    "slug": "milestone-recognition",
+    "category": "retention",
+    "goal": "progression-milestone",
+    "channels": ["email"],
+    "name": "A date belonging to the person recorded → its cycle waited → eligibility checked → recognised or not sent",
+    "shortName": "Birthday Journey",
+    "purpose": "Recognise a date that belongs to the person themselves - a birthday they told us, or a milestone their own record has reached - and say so once, with nothing attached that has not been issued.",
+    "objective": "Mark one date the person would recognise as theirs, to somebody the relationship is still open with, without turning the recognition into an offer and without inventing the date.",
+    "entity": {
+      "scope": "one recognisable date about the person - the person, the milestone that date marks, and the cycle this occurrence belongs to",
+      "note": "The entity is a date the person would call theirs: a birthday they gave us, or a milestone their own record reached. A relationship anniversary is a different entity and belongs to the anniversary journey. One instance per person per milestone cycle, and a cycle that passes unsent is closed rather than made up later.",
+      "instanceKey": [
+        "person_id",
+        "milestone_cycle"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "The next cycle of the same milestone supersedes the last: a cycle that passed unsent is closed, never sent late and never folded into the following one."
+      }
+    },
+    "eligibility": [
+      "a recorded date for this person that the person themselves supplied, or a milestone their own record has authoritatively reached",
+      "the relationship is still open - the account is not closed and the person has not asked to be left alone",
+      "no instance is already open for this person and this milestone cycle",
+      "purpose-level permission for lifecycle communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.cycle",
+        "label": "CANONICAL_RULE",
+        "text": "A milestone is recognised on its own cycle or not at all. A cycle that passed without a message is closed; it is never sent late and never merged into the next one."
+      },
+      {
+        "id": "s.date",
+        "label": "CANONICAL_RULE",
+        "text": "The date is one the person would recognise as theirs, taken from what they supplied or from what their own record reached. A guessed birthday, a date inferred from something else, and the relationship's own anniversary are each a different claim, and substituting one for another makes the recognition untrue."
+      },
+      {
+        "id": "s.ended",
+        "label": "CANONICAL_RULE",
+        "text": "A relationship that has ended is not congratulated. A closed account, a withdrawn permission or a request to be left alone ends the instance without a message."
+      },
+      {
+        "id": "s.claim",
+        "label": "CANONICAL_RULE",
+        "text": "The message states only what the record supports. It never attaches a reward, a discount, a tier or a benefit that has not been issued, and the recognition is not turned into an offer to make it earn its place."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No message without purpose-level permission for lifecycle communication and a deliverable destination; absent either, it is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "Where a higher-precedence journey already holds this person's window, the recognition is suppressed and its cycle closes with it; nothing is queued behind another journey to arrive after the date it was about."
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
+    ],
+    "contact": {
+      "defaultPriority": "lifecycle",
+      "pressureClass": "lifecycle",
+      "localCap": {
+        "value": {
+          "key": "milestone_recognition.touches",
+          "rule": "One recognition per milestone cycle, fixed when the instance opened; there is no follow-up to time and nothing is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 1,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - a single recognition per cycle"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "milestone_recognition.cooldown",
+        "rule": "Between one recognition and the next lies a whole milestone cycle; nothing shorter reopens this journey for the same person, and two different milestones falling close together are one recognition, not two.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "date-recognition",
+        "scope": "person",
+        "precedence": "above the first-purchase anniversary for the same person - a date the person would call their own comes before the company's own count of how long the relationship has lasted; while this journey holds the person's window, that one is suppressed for it rather than queued behind it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": ["email"],
+          "when": "the recognition should be kept rather than glanced at"
+        }
+      ],
+      "fallback": "none",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "single-notice",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "recognition",
+          "action": "a.recognise",
+          "prerequisites": [
+            "c.date"
+          ],
+          "purpose": "The date, said plainly and once, to somebody the relationship is still open with - and nothing attached to it that the record does not already carry.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "customer-account",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "a reward that has not been issued",
+              "a discount the business has not authorised",
+              "a tier the account does not hold",
+              "a benefit tied to the date that does not exist"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.cycle",
+        "s.date",
+        "s.ended",
+        "s.claim",
+        "s.permission",
+        "s.contest"
+      ]
+    },
+    "entry": "t.recorded",
+    "nodes": [
+      {
+        "id": "t.recorded",
+        "kind": "trigger",
+        "event": "personal_milestone_date_recorded",
+        "evidence": {
+          "requires": [
+            "a date this person supplied about themselves, or a milestone their own record has authoritatively reached, now on file"
+          ],
+          "insufficientAlone": [
+            "a birthday guessed, modelled or bought rather than given by the person",
+            "the relationship's own anniversary, which counts the company's side of it and has its own journey",
+            "a milestone belonging to a segment rather than to this person's own record"
+          ],
+          "source": "authoritative"
+        },
+        "next": "w.cycle"
+      },
+      {
+        "id": "w.cycle",
+        "kind": "wait",
+        "until": [
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.date",
+        "timeout": {
+          "after": {
+            "key": "milestone_recognition.cycle",
+            "rule": "The recognition waits for this milestone's own next cycle to arrive, counted from the date the person supplied or their own record reached - not sooner, and on no other clock.",
+            "class": "attribute-bound",
+            "default": {
+              "value": "1 year",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "a birthday or other yearly-recurring personal milestone",
+              "avoidWhen": "a milestone whose own cycle is not annual"
+            },
+            "required": false
+          },
+          "reason": "the recognition is timed to the milestone's own cycle, counted from the date on record and from nothing else",
+          "relativeTo": "attribute",
+          "attribute": "milestone_date"
+        },
+        "onTimeout": "c.date",
+        "recheck": "the milestone record, relationship record and recognition log re-read before acting",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.date",
+        "kind": "condition",
+        "asks": "Is this date still ours to recognise?",
+        "branches": [
+          {
+            "label": "Recognise",
+            "when": "the date is one the person supplied or one their own record reached, the relationship is open, this cycle has not already been recognised, and the send path passes - purpose-level permission for lifecycle communication, a deliverable destination, the lifecycle pressure cap, and no higher-precedence journey currently holding this person",
+            "observes": "milestone record, relationship record, send path stages 1-8",
+            "to": "a.recognise"
+          },
+          {
+            "label": "Relationship ended",
+            "when": "the account is closed, the person withdrew permission for this kind of communication, or they asked to be left alone",
+            "observes": "permission_withdrawn",
+            "to": "x.closed"
+          },
+          {
+            "label": "Cycle already spent",
+            "when": "this cycle has already been recognised, or the date has passed and the cycle closed unsent",
+            "observes": "recognition record",
+            "to": "a.record-no-action"
+          },
+          {
+            "label": "Not sendable",
+            "when": "a send-path gate stops it, or a higher-precedence date recognition holds this person's window; the reason is recorded",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.recognise",
+        "kind": "action",
+        "does": "Send an email saying the date and what it marks, in the person's own terms, and say nothing the record does not support. No reward, discount, tier or benefit unless one has actually been issued.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + milestone_cycle",
+        "writes": [
+          {
+            "field": "recognition_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.recognised"
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why no recognition was sent and for which cycle, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + milestone_cycle",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.recognised",
+        "kind": "exit",
+        "state": "recognised; the date was marked once for this cycle",
+        "class": "success",
+        "terminal": true,
+        "reEntry": "this journey recognises this milestone's first cycle once, from the record event that opened it; a merged or restated record with a new date, or a genuinely different milestone belonging to this person, starts it again from its trigger"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "closed without a message; the relationship this recognition would have been addressed to has ended",
+        "class": "invalid-state",
+        "terminal": true,
+        "reEntry": "a reopened relationship with a restored permission and a new record of the date starts this journey again from its trigger; a person who asked to be left alone is not re-entered"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no recognition sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": true,
+        "reEntry": "this journey does not retry this cycle; a merged or restated record with a new date starts it again from its trigger"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "milestone_date",
+          "milestone_kind",
+          "milestone_cycle",
+          "customer_account_destination"
+        ],
+        "optional": [
+          "relationship_state",
+          "email_address"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.recognised",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "secondary": [
+        "permission_withdrawn"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "recognition_after_relationship_ended",
+        "cycle_recognised_twice",
+        "benefit_named_without_record",
+        "recognition_sent_off_its_own_date"
+      ],
+      "operational": [
+        "entry_volume",
+        "recognition_rate",
+        "no_action_rate_by_reason",
+        "suppressed_by_higher_precedence_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "birthday message",
+        "birthday recognition",
+        "milestone recognition",
+        "customer milestone",
+        "personal milestone greeting"
+      ],
+      "useCases": [
+        "a birthday the person themselves gave the business",
+        "a milestone the person's own record has reached and that they would recognise as theirs"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-292",
+        "because": "RET-292 counts the relationship's own length from the first purchase - the company's side of it. This recognises a date that belongs to the person, which the company holds only because they supplied it or because their own record reached it. The two share an exclusion group so that a person never receives both in the same window."
+      },
+      {
+        "journey": "SUB-299",
+        "because": "SUB-299 announces that a membership's standing actually changed, which is a fact about an enrolled relationship. A milestone recognition changes nothing and is deliberately not an announcement of anything the person has newly gained."
+      },
+      {
+        "journey": "RET-294",
+        "because": "RET-294 proposes something to buy. This proposes nothing; attaching an offer to it is the specific failure its own guardrails forbid."
+      }
+    ],
+    "guardrails": [
+      "The date is one the person supplied or one their own record reached; a guessed or purchased date is not recognised at all.",
+      "A cycle that passed without a message is closed, never sent late.",
+      "A relationship that has ended is not congratulated.",
+      "Nothing is attached that has not been issued - no reward, no discount, no tier, no benefit.",
+      "Where the anniversary journey and this one both fall in the same window, only one of them speaks, and which one is decided by the declared precedence rather than by whichever fires first."
+    ],
+    "reusableRule": "A recognition addressed to the person is only honest if the date came from them or from their own record, and it is only a recognition if nothing is being sold under it."
   },
 ];

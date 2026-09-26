@@ -10,9 +10,9 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { PixelHighlight } from "@/components/ui/PixelHighlight";
 import { WorkScroll } from "@/components/ui/WorkScroll";
-import { withJourneyCount } from "@/lib/archive";
 import { copy, type Lang } from "@/lib/content";
 import { FEATURED_JOURNEY } from "@/lib/journey-marketing";
+import { withLabProjectFacts } from "@/lib/lab-project-facts";
 import { CHANGE_HISTORY_REAL, DASHBOARD_REAL } from "@/lib/lab-material";
 
 /* THE "WHAT I DO" BAND (homepage). Four services with one drawn piece of
@@ -184,7 +184,7 @@ export async function Work({ t, lang }: { t: T; lang: Lang }) {
   const projectOf = (slug: string) => t.lab.projects.find((p) => p.slug === slug);
   const journeyCanvas = await miniCanvas(FEATURED_JOURNEY.id, lang);
   const evidence = (slug: string): ReactNode => {
-    const proof = withJourneyCount(projectOf(slug)?.proof ?? "");
+    const proof = withLabProjectFacts(projectOf(slug)?.proof ?? "");
     let card: ReactNode = null;
     switch (slug) {
       case "dashboard-builder":
@@ -217,7 +217,7 @@ export async function Work({ t, lang }: { t: T; lang: Lang }) {
         </span>
         <div className="min-w-0">
           <h3 className="text-h3 text-ink-950">{service.title}</h3>
-          <p className="mt-3 max-w-[52ch] leading-relaxed text-pretty text-ink-600">{service.body}</p>
+          <p className="mt-3 max-w-[52ch] leading-relaxed text-pretty text-ink-600">{withLabProjectFacts(service.body)}</p>
           {project && (
             <Link
               href={project.links[0].href}

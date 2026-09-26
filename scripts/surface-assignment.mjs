@@ -7,6 +7,8 @@
      node scripts/surface-assignment.mjs            # after npm run dump:canonical */
 import { readFile, writeFile } from "node:fs/promises";
 
+import { EXCLUDED_FROM_PUBLIC } from "./public-scope.mjs";
+
 const dump = JSON.parse(await readFile("production/canonical-dump.json", "utf8"));
 const surfaceSrc = await readFile("src/canonical/surface.ts", "utf8");
 const pick = (name) => {
@@ -29,7 +31,14 @@ const rows = dump.journeys.map((j) => {
   // No combined `communicating` field - see src/canonical/surface.ts's SurfaceAssignment
   // comment for why that name is retired. `sends` and `routesToHuman` are independent;
   // a caller wanting the union reads `sends || routesToHuman` at the call site.
-  return { id: j.id, shortName: j.shortName, category: j.category, surface, sends, routesToHuman, silent: surface === "customer" && !sends, reason };
+  /* The 52-journey scope decision (audit/public-journey-scope.md), carried
+     here so every consumer of this file - the search index in particular,
+     which cannot import TypeScript - drops the 21 exactly where it already
+     drops the archived operational surface. `surface` stays whatever the
+     rule derives, because that is still the true surface of the journey;
+     what changes is whether the public product publishes it. */
+  const excludedFromPublic = EXCLUDED_FROM_PUBLIC.has(j.id);
+  return { id: j.id, shortName: j.shortName, category: j.category, surface, sends, routesToHuman, silent: surface === "customer" && !sends, excludedFromPublic, reason };
 });
 
 const counts = rows.reduce((m, r) => { const k = r.surface === "customer" ? (r.silent ? "customer-silent" : "customer-communicating") : r.surface; m[k] = (m[k] || 0) + 1; return m; }, {});

@@ -31,7 +31,7 @@ const check = (n, desc, ok) => {
 };
 
 // 1
-check(1, "active journey count = 286", journeys.length === 286);
+check(1, "active journey count = 274", journeys.length === 274);
 
 // 2
 check(2, "merged redirect count = 8", Object.keys(dump.mergedInto).length === 8);
@@ -248,8 +248,8 @@ const requiredGraphFixtures = ["SUB-166", "DOC-216", "RSK-194", "ACQ-10", "RET-2
 const missingGraphFixtures = requiredGraphFixtures.filter((i) => !fixtureIds.has(i));
 check(28, "extreme graph fixtures included", missingGraphFixtures.length === 0);
 
-// 29 — production manifest covers all 286
-check(29, "production manifest covers all 286", manifest.length === 286);
+// 29 — production manifest covers all 303
+check(29, "production manifest covers all 303", manifest.length === 303);
 
 // 30 — canonical source mutation = 0 (checked via node/edge/rule counts matching the last known validate:canonical baseline)
 // Baseline moved from 3674 to 3682 nodes in the operational-workflow production-readiness repair
@@ -271,15 +271,895 @@ check(29, "production manifest covers all 286", manifest.length === 286);
 // (still used by the quote-abandonment, application-abandonment and incomplete-registration presets).
 // Baseline moved again from 285/3706 to 286/3728 journeys/nodes (2026-09-18, same day): ACQ-288
 // "Cart Abandonment Recovery" added the same way - freed from ACQ-12's discovery.presets (which
-// carried the "cart-abandonment" slug as a zero-override preset) so its own fixed three-touch
-// cascade, channel-router priorities, high-value branch and explicit handoff into ACQ-287 on
-// checkout start could be authored without disturbing ACQ-12 (still used by the
-// saved-item-reminder preset).
+// carried the "cart-abandonment" slug as a zero-override preset) so its own two-touch cascade,
+// channel-router priorities, high-value branch and explicit handoff into ACQ-287 on checkout
+// start could be authored without disturbing ACQ-12 (still used by the saved-item-reminder
+// preset).
+// Baseline moved to 3732 nodes (2026-09-20), journeys unchanged at 286. FOUR nodes, all required
+// by approved ownership decisions, none of them a new journey:
+//   ACQ-287 h.payment    - a payment failure on the checkout hands the instance to FIN-134 and
+//                          stops reminder messaging, so checkout-abandonment and payment-recovery
+//                          can never message the same failed payment (decision A3). ACQ-287 had
+//                          zero handoff nodes before this; ACQ-11 already carried the same
+//                          mechanism and this mirrors it.
+//   ACQ-09  w.first, c.still-open, a.educate2
+//                        - Lead Nurture was a single email that then waited out its whole window
+//                          while its own objective promised "a window of useful education". It is
+//                          now a bounded TWO-touch nurture, and the added condition is the reason
+//                          it is safe: before the second education it re-checks progression,
+//                          permission and deliverability, and a lead that already progressed is
+//                          handed over instead of being spent on (decision B3).
+// Baseline moved from 286/3732 to 292/3802 journeys/nodes (2026-09-20) by BATCH A of the
+// commerce / post-purchase journey additions — six new canonical journeys, ids allocated in
+// audit/new-journey-id-map.md, 70 nodes between them:
+//   ACQ-289 Back-in-Stock Alert            (13 nodes, src/canonical/acquisition.ts)
+//   RET-290 First Purchase Thank You & Bounceback (14 nodes, src/canonical/retention.ts)
+//   FUL-291 Post-Purchase Follow-Up        (10 nodes, src/canonical/fulfillment.ts)
+//   RET-292 First Purchase Anniversary     (7 nodes,  src/canonical/retention.ts)
+//   RET-293 Personalized Recommendations   (11 nodes, src/canonical/retention.ts)
+//   RET-294 Cross-Sell / Next Best Offer   (15 nodes, src/canonical/retention.ts)
+// The public library moved 52 -> 58 with the same batch (src/lib/public-corpus.ts,
+// scripts/public-scope.mjs); rules, global rules and merged redirects are unchanged.
+// FROZEN BASELINE: 303 journeys / 3959 nodes - the seventeen additions are complete.
+// Batches B, C and D were authored in PARALLEL, each against 292/3802, so each bumped
+// this to its own total and the merge reconciled them:
+//   292 + 5 (B) + 3 (D) + 3 (C) = 303 journeys
+//   3802 + 52 (B) + 58 (D) + 47 (C) = 3959 nodes
+// The public library is 69 / 21 excluded / 90 source. Rules, global rules and merged
+// redirects are unchanged throughout.
+// FROZEN BASELINE: 300 journeys / 3912 nodes. Batches B and D were authored in
+// PARALLEL, each against 292/3802, so each bumped this to its own total and the
+// merge reconciled them: 292 + 5 (B) + 3 (D) = 300 journeys, 3802 + 52 + 58 = 3912
+// nodes. Batch C lands the last three and takes it to 303/<nodes>.
+// BATCH B took the baseline 292/3802 -> 297/3854 (2026-09-20) of the
+// additions — the five loyalty / relationship journeys, ids allocated in the same map,
+// 52 nodes between them:
+//   RET-295 Birthday & Milestone           (8 nodes,  src/canonical/retention.ts)
+//                        - a date the PERSON owns (a birthday they gave us, a milestone their
+//                          own record reached), deliberately separate from RET-292's
+//                          relationship anniversary. The two now share the `date-recognition`
+//                          exclusion group with RET-295 above RET-292, so a person can never
+//                          receive both in one window; RET-292 gained that competition block
+//                          and an `s.contest` suppression in the same change (it previously
+//                          declared "none"), which is why its hash moves here too.
+//   SUB-296 Loyalty Program Welcome        (13 nodes, src/canonical/subscription.ts)
+//   SUB-297 Loyalty Program Nurture        (13 nodes, src/canonical/subscription.ts)
+//   SUB-298 Reward Confirmation            (7 nodes,  src/canonical/subscription.ts)
+//   SUB-299 Loyalty Tier Upgrade           (11 nodes, src/canonical/subscription.ts)
+//                        - the four membership journeys share the `membership-standing`
+//                          exclusion group, scope `subscription`, ordered reward confirmation
+//                          (transactional) > tier change > welcome > nurture, so a marketing-
+//                          shaped loyalty send can never speak over a state the membership
+//                          actually reached.
+// Four already-shipped journeys gained one reciprocal `distinctFrom` row each and no graph
+// change — RET-290 -> SUB-296, RET-293 -> SUB-297, RET-294 -> SUB-297, ACT-12 -> SUB-296 —
+// because an ownership boundary stated from one side only is a bug in this corpus.
+// The public library moved 58 -> 63 with this batch (src/lib/public-corpus.ts,
+// scripts/public-scope.mjs); rules, global rules and merged redirects are unchanged.
+// BATCH D then added 3 journeys / 58 nodes on top (2026-09-20) of the
+// scheduling / service journey additions — three new canonical journeys, ids allocated in
+// audit/new-journey-id-map.md, 58 nodes between them:
+//   SCH-303 Reservation Payment Reminder   (18 nodes, src/canonical/scheduling.ts)
+//   SCH-304 Pre-Arrival Preparation        (20 nodes, src/canonical/scheduling.ts)
+//   REM-305 Support Request Acknowledgement (20 nodes, src/canonical/remedy.ts)
+// The public library moved 58 -> 61 with the same batch. Four EXISTING journeys changed in
+// the same commit and nothing else did: SCH-266, SCH-277, REM-151 and REM-157 each replaced
+// `contact.competition: "none"` with a competition block, because an ownership boundary that
+// is stated from one side only is not a boundary — see audit/batch-d-notes.md. No node, edge,
+// rule, global rule or merged redirect was touched on any of the four, so the node total above
+// is Batch D's three journeys and nothing more.
+// BATCH C then added 3 journeys / 47 nodes on top (2026-09-20) of the same
+// seventeen-journey addition — three new canonical journeys, ids allocated in
+// audit/new-journey-id-map.md, 47 nodes between them:
+//   CON-300 Unengaged Subscriber Sunset    (21 nodes, src/canonical/consent.ts)
+//   FUL-301 Order Confirmation             (11 nodes, src/canonical/fulfillment.ts)
+//   FIN-302 Refund Notification            (15 nodes, src/canonical/financial.ts)
+// CON-300 is the largest of the three because the sunset has to hold four endings apart that are
+// routinely collapsed into one: the person answered, the person reduced instead, the person
+// withdrew permission themselves, and nobody answered at all — and only the last of those may
+// produce a suppression, which is why it also carries three handoffs (CON-38 for the sender-side
+// suppression, CON-283 for a reduction, CON-35 for a real permission withdrawal).
+// No node was added to any existing journey. Eleven existing journeys were edited in the same
+// change for RECIPROCITY only — a boundary stated from one side is a bug here — and those edits
+// touch competition/suppression/distinctFrom prose, never graphs: CON-272 and CON-283 (join the
+// new contactability-question group), CON-38, RET-32, RET-290, FUL-291, FUL-265, FUL-146,
+// FIN-137, FIN-138 and REM-157. Rules, global rules and merged redirects are unchanged; the
+// public library moved 58 -> 61 (src/lib/public-corpus.ts, scripts/public-scope.mjs).
+//
+// FROZEN BASELINE: 274 journeys / 3623 nodes (2026-09-25). FBK-43
+// (Feedback Routing and Loop Closure) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: a six-way
+// classifier (positive, product suggestion, complaint, bug report,
+// information request, other) replaces the old PRAISE/SERVICE_ISSUE/
+// SUPPORT_NEED/PRODUCT_FEEDBACK/GENERAL_COMMENT scheme, each category
+// routing to its own acknowledgement before converging on a shared
+// promised-follow-up gate; a promise now opens a fixed SLA wait, a
+// completion recheck, and either a closure notice or an internal
+// reminder that escalates into a deeper, attribute-bound wait on the
+// promise's own deadline. Both real outbound handoffs to DEC-181 are
+// unchanged: h.triage for feedback that cannot be classified at all (a
+// case the image does not draw) and h.promise for a genuinely broken
+// promise past its own deadline. The advocacy/contribution and
+// existing-case-attach machinery, none of it drawn in the image, was
+// removed along with the h.issue handoff to FBK-46 it depended on. Same
+// id/slug. 274 -> 274 journeys, -15 nodes net (34 -> 19 nodes on FBK-43).
+// Rules (423), global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 274 journeys / 3638 nodes (2026-09-25). ACQ-11
+// (Abandoned Process Recovery) was retired, the site owner's request.
+// It had one real inbound handoff, ACQ-12's h.process, converted into
+// a genuine exit (x.process-started) since no sibling journey has
+// ACQ-11's process-recovery machinery to merge into. Its role in the
+// commerce-recovery group's precedence text was reworded in ACQ-13,
+// ACQ-287, SCH-282 and RET-31 (7 members remain, no group-of-one
+// risk), and ACQ-13's own distinctFrom row naming it and FIN-134's
+// distinctFrom row about its h.payment handoff were both removed.
+// 275 -> 274 journeys, -27 nodes net. Rules (423), global rules (31)
+// and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 275 journeys / 3665 nodes (2026-09-25). ACQ-288
+// (Cart Abandonment Recovery) was rebuilt to match a reference flowchart the
+// site owner supplied, literal box for box: the two-touch cascade became a
+// three-touch cascade (push, then email, then a value-gated final touch),
+// the high-value channel branch moved from the second touch to the third to
+// match the image's own placement of "Sepet değeri yüksek mi?", and a
+// standard-value cart now exits at that gate instead of receiving a third
+// touch. The checkout-started check was repositioned to fire once,
+// immediately after the first wait and before the first reminder is ever
+// sent, matching the image's own placement of "Checkout başladı mı?"; later
+// waits no longer re-check it. The single "cart cleared or expired" exit
+// was folded into the abandoned exit, since the image draws only two
+// terminal outcomes (purchased, abandoned) alongside the real handoff. The
+// one real outbound handoff to ACQ-287 (Checkout Abandonment Recovery) is
+// unchanged in destination, just repositioned to the image's placement.
+// Same id/slug. 275 -> 275 journeys, +2 nodes net (23 -> 25). Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 275 journeys / 3663 nodes (2026-09-25). ACQ-287
+// (Checkout Abandonment Recovery) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: the two-touch
+// cascade became a three-touch cascade (push, then email, then a
+// value-gated final touch), the high-value channel branch moved from the
+// second touch to the third to match the image's own placement of
+// "checkout değeri yüksek mi?", and the wait spans were aligned to the
+// image's own timing (30 minutes - 1 hour before the first check, 1 day
+// before the second, 1-2 days before the third, and a final 1-day
+// recheck before the terminal exit, modelled as a real condition node
+// rather than a bare timeout). The one real inbound handoff from ACQ-288
+// (Cart Abandonment Recovery's own checkout-started handoff) and the one
+// real outbound handoff to FIN-134 (Payment Failure Recovery) are both
+// unchanged, reachable at the same conceptual points - a payment-failure
+// recheck before every touch, a real event the image itself does not
+// draw. Same id/slug. 275 -> 275 journeys, +6 nodes net. Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 275 journeys / 3657 nodes (2026-09-25). ACQ-12
+// (Abandoned Selection Recovery) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: the
+// pre-check wait before the first purchase check now carries a fixed
+// span default instead of a short cart-oriented range, the existing
+// c.availability gate's "nothing available" branch now hands off to a
+// new h.oos node (ACQ-289, Back-in-Stock Alert - a real handoff, since
+// the two journeys already share the commerce-recovery group and
+// ACQ-12's own precedence text already names it) instead of exiting
+// silently, and the second touch's copy now includes genuine
+// platform-surfaced alternatives. The one real outbound handoff to
+// ACQ-11 (a process started from the selection) is unchanged, kept as
+// required plumbing the flowchart does not itself draw. Same id/slug.
+// 275 -> 275 journeys, +1 node net (h.oos). Rules (423), global rules
+// (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 275 journeys / 3656 nodes (2026-09-25). DOC-215
+// (Signature Process) was retired, the site owner's request. It had
+// one real inbound handoff, DOC-220's h.resign, converted into a
+// genuine exit (x.resign-needed) since DOC-220 has no
+// signature-collection machinery of its own to hand that gap to.
+// 276 -> 275 journeys, -21 nodes net. Rules (423), global rules (31)
+// and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 276 journeys / 3677 nodes (2026-09-25). CON-300
+// (Unengaged Subscriber Sunset) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: a new
+// c.active condition, reading a real registered event
+// (meaningful_return), now runs right after the evidence check and
+// bypasses anyone whose purchases, product use or visits say the
+// relationship is not dormant straight to a new a.reduce-bypass action
+// and x.active-reduced exit, before the cascade ever asks a question.
+// Everyone else proceeds through the existing email ask (a.ask/
+// w.answer/c.answered), now followed by a new push reminder tier
+// (a.remind/w.remind/c.answered2) and a new final win-back campaign
+// tier (a.campaign/w.campaign/c.campaign-result) carrying a genuine,
+// time-boxed offer - the site owner explicitly authorized adding a
+// real incentive at this final tier, overriding the journey's prior
+// no-offer rule (s.notwinback, removed) after confirming the image's
+// third contact intentionally overlaps in spirit with RET-32's
+// territory. A campaign that lands (engagement or a purchase) now
+// returns the person to contact at a reduced frequency through a new
+// a.return-normal action and x.campaign-retained exit, rather than
+// the old model's binary kept-or-ended outcome; a campaign that lands
+// nothing still falls through to the existing a.suppress/c.notify/
+// a.confirm-end/h.enforce chain, which keeps writing the same
+// marketing_suppression field the ~30 other references to CON-300
+// across the corpus depend on. The three real outbound handoffs
+// (h.enforce -> CON-38, h.frequency -> CON-283, h.permission -> CON-35)
+// all survive the rebuild and gain a third inbound source apiece (the
+// new reminder and campaign conditions), since they are load-bearing
+// corpus plumbing the reference image's own boxes never draw but the
+// site owner's other journeys still depend on. s.lessbeforenone and
+// s.bounded were reworded to describe the new graduated preference
+// menu and the new four-touch bounded shape honestly; RET-32's own
+// distinctFrom entry naming CON-300 as "offer-free" was corrected in
+// src/canonical/retention.ts to rest on eligibility (unanswered
+// contact regardless of purchase/relationship history vs. a lapsed
+// paid relationship) instead, since both journeys now genuinely offer
+// something at their final tier. channels moved from email-only to
+// email/push to match the image; implementation.attributes gained
+// recent_activity_at and push_token. Same id/slug, so nothing that
+// referenced CON-300 by name needed to change except that one RET-32
+// sentence - the ~30 other references describe CON-300's
+// marketing_suppression contract, which this rebuild still honestly
+// produces, and were left untouched. 21 -> 30 nodes, +9 net. Journey
+// count (276), rules (423), global rules (31) and merged redirects (8)
+// are unchanged.
+//
+// FROZEN BASELINE: 276 journeys / 3668 nodes (2026-09-25). REM-305
+// (Support Request Acknowledgement) was retired, the site owner's
+// request. It had no real inbound handoffs, only three prose
+// distinctFrom rows (REM-151, FBK-43's own note, FIN-138's suppression
+// text), all removed or reworded. REM-151 lost its last
+// competition-group partner (service-request) in the process and its
+// `competition` field was set to the literal "none", dropping the
+// group count from 11 to 10. 277 -> 276 journeys, -21 nodes net. Rules
+// (423), global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 277 journeys / 3689 nodes (2026-09-25). SCH-304
+// (Pre-Arrival Preparation) was retired, the site owner's request. It
+// had no real inbound handoffs, only prose distinctFrom rows and
+// precedence text in SCH-266 and SCH-303 naming it as the
+// lowest-precedence member of the booking-lifecycle group; SCH-266 now
+// holds that lowest precedence in its place, and every reworded
+// precedence text keeps the same real ordering among the two remaining
+// members. 278 -> 277 journeys, -20 nodes net. Rules (423), global
+// rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 278 journeys / 3709 nodes (2026-09-25). SUB-163
+// (Renewal Decision) was rebuilt to match a reference flowchart the site
+// owner supplied, literal box for box: an auto-renewal-status fork now
+// runs each side as its own fixed reminder cascade. The auto-renewing
+// side gives its required notice, waits a fixed span, rechecks for a
+// cancellation or a plan change, then either reaches the term end
+// unchanged and exits through the existing h.execute handoff to SUB-164,
+// or splits what the image draws as one generic "hand off to the
+// relevant journey" box into the existing h.scheduled-end handoff to
+// SUB-168 (a cancellation) and a genuinely new h.change handoff to
+// SUB-166 (a plan or terms change) - SUB-166 is a real, distinct
+// plan-change validation journey the corpus already carries, not
+// invented for this. The manually-renewing side asks once by email, then
+// reminds by push and finally by WhatsApp, each gated by its own renewal
+// recheck; a real no-renewal outcome at the end of that cascade now hands
+// off (h.lapsed, new) to RET-32 (Lapsed Customer Win-Back), matching the
+// image's own "Kayıp Müşteri Geri Kazanma" box exactly - RET-32 itself is
+// untouched. h.undefined -> DEC-181 (undefined notice period or renewing
+// terms) is kept as an entry guard the image itself never draws.
+// h.escalate -> OWN-55 had no home in the rebuilt graph: the reference
+// image draws only fixed-window reminder waits, never the old model's
+// open-ended review state, so the review/escalation path (a.review,
+// w.review, h.escalate, a.request, c.model, c.blockers, w.decision,
+// a.default, c.decision, x.superseded) was dropped rather than force-fit
+// onto an unrelated wait. Same id/slug, so nothing that referenced
+// SUB-163 needs to change (it had no real inbound handoffs). channels
+// moved from email/in-app/sms to email/push/whatsapp to match the image;
+// implementation.attributes dropped decision_holder, blockers,
+// has_active_session and urgent_channel_permission and gained push_token
+// and phone_number. 20 -> 29 nodes on SUB-163, +9 net corpus-wide.
+// Journey count (278), rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 278 journeys / 3700 nodes (2026-09-25). FUL-146
+// (Fulfillment Delay) was rebuilt to match a reference flowchart the site
+// owner supplied, literal box for box: the estimate check now splits into
+// two distinct notice touches - a push notice naming the new date when the
+// cause is understood well enough to predict one, an email notice saying
+// plainly that no reliable date exists yet otherwise - dropping the old
+// c.recipient-impact judgment gate the image never draws, since every delay
+// gets a notice unconditionally there. A short fixed wait then re-reads the
+// record for delivery (reusing the existing x.resumed exit rather than
+// inventing a second success exit for the same real event), and a second
+// slip re-checks the same tolerance threshold as before: within it, a push
+// keeps the recipient pointed at tracking and feeds the same open-ended
+// w.resume wait the graph already had; beyond it, the apology-and-alternative
+// offer goes out on WhatsApp and email together, naming a new date, a
+// different delivery point, or support rather than the old wait/reschedule/
+// alternative/cancel wording. All three real outbound handoffs survive the
+// rebuild: h.exception -> FUL-145 now reads as a delivery-point change
+// rather than a generic "alternative", h.cancel -> FUL-150 is kept as a
+// real, always-available outcome even though the image's own offer copy
+// never enumerates it, and h.escalate -> OWN-55 keeps both of its real
+// paths (nothing left to offer; outliving the revised horizon) and gains a
+// third - the counterparty explicitly asking for a person's help - rather
+// than being routed to a fabricated new target. channels moves from
+// email/sms to email/push/whatsapp (sms drops out entirely; nothing in the
+// rebuilt graph still sends one), and implementation.attributes gains
+// push_token and phone_number to match. Same id/slug, so the three real
+// sibling h.delay handoffs into this journey (FUL-144, FUL-145, FUL-147)
+// stay valid without any change on their side. 19 -> 22 nodes, +3 net.
+//
+// FROZEN BASELINE: 278 journeys / 3697 nodes (2026-09-24). ACT-14
+// (Struggling User Assistance) was rebuilt to match a reference flowchart
+// the site owner supplied, literal box for box: the hard-gate eligibility
+// check now feeds a four-way struggle-cause classifier (form/data-entry,
+// technical error, doesn't-know-how, cause unclear) that all route into one
+// in-app help offer naming the relevant tip or guide, ahead of a three-tier
+// help cascade - in-app, then push, then email and a live-support offer
+// sent together - each tier gated by its own short response window and its
+// own completion recheck read from the system of record. Four exits replace
+// the old five: completed (reused after each tier's recheck, whether the
+// stuck step or the whole of onboarding is what the record shows done),
+// got-help (the person took up live support instead of finishing alone),
+// deferred (an explicit "continue later" choice, distinct from silent non-
+// response, with a reEntry note that a later reminder elsewhere in the
+// lifecycle may re-engage the instance), and declined (the terminal no-
+// progress ending once the cascade has run its course). The journey's own
+// outbound handoff to ACT-16 (h.activated, firing on activation reached)
+// is not in the reference image - every exit box there reads "journey
+// sonlanır" (journey ends) rather than a handoff - so it was converted into
+// the reused x.completed exit rather than carried forward; no other journey
+// hands off to or references ACT-14, so nothing outside this journey's own
+// block needed to change. The ACT-13-era wording already removed from
+// c.duplicate in that retirement is gone from the graph entirely along with
+// the duplicate-ownership check itself, which the image does not show.
+// Same id/slug, so the (zero) real inbound references stay valid.
+// 3696 -> 3697 nodes, +1 net.
+//
+// FROZEN BASELINE: 278 journeys / 3696 nodes (2026-09-24). SCH-303
+// (Reservation Payment Reminder) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: an eligibility
+// pre-check pulled from the reservation's own details (already-paid and
+// no-longer-valid exits) ahead of a three-tier reminder cascade - email,
+// then push/SMS, then an optional WhatsApp last chance - each tier gated
+// by its own send-path check and each wait gated by its own payment
+// recheck, converging on an outcome check at the final payment point that
+// ends in a confirmation email on success or a release notice on expiry.
+// The reference image's side panel of alternative scenarios is real graph
+// content, not description: a partial-payment branch and an extension-
+// request branch were added to the first two rechecks (continuing the
+// cascade for the remainder, or against the new dates, rather than
+// resetting it), and an availability-lost branch was added to the second
+// recheck, pointing at a new alternative-suggestion touch. "Payment via
+// another channel" needed no new node - the existing recheck conditions
+// already read the obligation "by any route". The one real outbound
+// handoff (to FIN-134, on an attempt the payment system itself states
+// failed) is preserved at all three outcome checks; the image draws only
+// a timeout/no-action case and an out-of-band success case, neither of
+// which is a declined attempt, so the handoff is kept as the corpus's own
+// real plumbing rather than folded into the release exit. channels gained
+// "whatsapp" (SMS was already declared, so no new SMS attribute plumbing
+// was needed; whatsapp reuses the existing phone_number attribute per
+// RET-24/RET-31's own precedent). Same id/slug, and the highest-precedence
+// booking-lifecycle competition block is untouched. 18 -> 29 nodes on
+// SCH-303, +11 net corpus-wide. Journey count (278), rules (423), global
+// rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 278 journeys / 3685 nodes (2026-09-24). RET-31
+// (Predicted Need Replenishment) was rebuilt to match a reference
+// flowchart the site owner supplied, literal box for box: a reliability
+// gate and an already-repurchased check ahead of the opening push, a
+// same-product-or-compatible-alternative branch that both feed the same
+// push touch, a cadence fork that gives a regular repurchaser an extra
+// subscription-offer touch (email plus in-app, sent together) before
+// converging on the reminder-email touch everyone else reaches
+// directly, and a closing WhatsApp touch - each touch gated by its own
+// purchase-outcome recheck. The dismissal path the old graph carried
+// (a.record-no-action, x.dismissed, x.no-action, c.sendable/c.sendable2)
+// is not in the reference image and was dropped rather than kept
+// unreferenced; permission, subscription and contest gates remain as
+// background suppressions the way RET-24's ladder carries its own.
+// channels gained "in-app" and "whatsapp" (both already valid ChannelId
+// literals); channelStrategy gained in-session and urgent roles for
+// them. Same id/slug, and it still has no real inbound or outbound
+// handoffs, so nothing else in the corpus references it. 18 -> 21 nodes
+// on RET-31, +3 net corpus-wide. Journey count (278), rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 278 journeys / 3682 nodes (2026-09-24). RET-24 (Churn
+// Risk Escalation) was rebuilt to match a reference flowchart the site
+// owner supplied, literal box for box: a three-tier risk-level ladder
+// (push at low risk, an email-and-in-app pair at medium, WhatsApp at
+// high), each tier gated by its own outcome recheck before escalating;
+// a six-way issue-type classifier at the high-risk tier once WhatsApp
+// alone did not resolve it; and a final last-resort tier (email plus a
+// WhatsApp reminder) ending in either recovery or passive churn tracking.
+// The classifier's technical-problem and dissatisfaction-or-complaint
+// branches carry the journey's two real handoffs (to RET-23 and to
+// external:human-in-the-loop-lifecycle) rather than inventing new ones.
+// channels gained "push" and "whatsapp" (both already valid ChannelId
+// literals); channelStrategy gained low-friction and urgent roles for
+// them. Same id/slug, so integration.ts's one real inbound handoff into
+// RET-24 stays valid. 18 -> 28 nodes on RET-24, +10 net corpus-wide.
+// Journey count (278), rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 278 journeys / 3672 nodes (2026-09-24). FUL-265
+// (Delivery Tracking) was retired, the site owner's request. It had no
+// real inbound handoffs, only two prose distinctFrom rows (FUL-146,
+// REM-151) and one suppression clause in FUL-146's own s.g5 naming it
+// as the owner of in-transit delay tracking, all removed or reworded.
+// 279 -> 278 journeys, -17 nodes net. Rules (423), global rules (31)
+// and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 279 journeys / 3689 nodes (2026-09-24). REM-157
+// (Remedy Confirmation) was retired, the site owner's request. It was a
+// heavily-connected hub with 13 real inbound handoffs - data.ts's
+// h.remedy, decision.ts's h.correct, document.ts's h.remedy (which
+// minted a fresh issue_id at the handoff), incident.ts's h.remedy,
+// remedy.ts's REM-152 h.alternative, REM-154 h.remedy, REM-155
+// h.alternative, REM-156 h.alternative, REM-158 h.continue and
+// h.alternative, and REM-160 h.remedy, scheduling.ts's SCH-178
+// h.remainder and SCH-180 h.remedy (the latter also minting a fresh
+// issue_id), and time.ts's h.forward - each converted into a genuine
+// exit rather than reinvented inline logic, since no sibling journey
+// has its own remedy-selection machinery to merge into. Four prose
+// distinctFrom rows naming it (REM-159 and REM-305 in remedy.ts,
+// financial.ts, subscription.ts) were removed, along with the
+// "remedy selection (REM-157)" clause in REM-305's own suppression and
+// competition precedence text and a fifth prose mention in a
+// financial.ts suppression. REM-157's own TR override block was
+// deleted and the affected TR node translations in the caller
+// journeys were updated to match. 280 -> 279 journeys, -18 nodes net.
+// Rules (423), global rules (31) and merged redirects (8) are
+// unchanged.
+//
+// FROZEN BASELINE: 280 journeys / 3707 nodes (2026-09-24). TIM-274
+// (Grace Period Recovery) was retired, the site owner's request. It had
+// no real inbound handoffs, only two prose distinctFrom rows: ACC-261's
+// (which lost its last competition-group partner and had its
+// `competition` field set to the literal "none", dropping the group
+// count from 12 to 11) and FIN-134's (which had misnamed its own real
+// handoff target as TIM-274 rather than TIM-65, the journey its
+// h.grace actually points to - corrected in the same edit). 281 -> 280
+// journeys, -17 nodes net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 281 journeys / 3724 nodes (2026-09-24). ACT-13
+// (Onboarding Blocker Reminder) was retired, the site owner's request.
+// It had two real inbound handoffs: ACT-11's h.requirement, converted
+// into a genuine exit (x.blocked) instead of a handoff, and RET-23's
+// h.setup, merged into RET-23's own h.technical branch (both are silent
+// routers with no mechanism of their own to absorb the work). ACT-14's
+// one prose distinctFrom row and its c.duplicate condition's one branch
+// naming ACT-13 were reworded, and its s.named-blocker suppression
+// (which deferred to ACT-13) was removed. The marketing-page showcase
+// slot now shows ACT-17 in ACT-13's place. 282 -> 281 journeys, -18
+// nodes net. Rules (423), global rules (31) and merged redirects (8)
+// are unchanged.
+//
+// FROZEN BASELINE: 282 journeys / 3742 nodes (2026-09-24). ACQ-285
+// (New Lead Welcome) was retired, the site owner's request. It had no
+// real inbound handoffs, only prose distinctFrom/eligibility/suppression
+// text in ACQ-09 (which owned the "no ACQ-285 instance is open"
+// precedence gate) and one distinctFrom row in RET-290, both removed.
+// 283 -> 282 journeys, -17 nodes net. Rules (423), global rules (31)
+// and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 283 journeys / 3759 nodes (2026-09-24). RET-28
+// (Cancellation Intent Decision Point) was retired, the site owner's
+// request. It had no real inbound handoffs; RET-24's h.cancellation, its
+// only real caller, became a genuine exit (x.cancellation-in-motion)
+// instead. RET-32's own suppression/eligibility text, which named RET-28
+// as owning the still-inside-its-save-window case, now states that
+// exclusion in its own terms, and SUB's cancellation-confirmation
+// journey's one prose distinctFrom row naming RET-28 was removed. 284 ->
+// 283 journeys, -15 nodes net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 284 journeys / 3774 nodes (2026-09-24). FBK-49
+// (Missing Critical Data) was retired, the site owner's request. It
+// had no real inbound handoffs, only three prose distinctFrom rows
+// (DEC-184, DOC-214, IDN-81) naming it, all removed. 285 -> 284
+// journeys, -16 nodes net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 285 journeys / 3790 nodes (2026-09-24). FBK-42
+// (Advocacy Request) was retired, the site owner's request. It had one
+// real inbound handoff, FBK-43's h.advocacy, converted into a genuine
+// exit (x.advocacy-eligible) rather than reinventing the ask inline -
+// asking for advocacy is a distinct concern from feedback routing and
+// does not belong inside FBK-43. FBK-41 lost its last competition-
+// group partner (outbound-ask) in the process and its `competition`
+// field was set to the literal "none". REL-284's one prose distinctFrom
+// row naming FBK-42 was also removed. 286 -> 285 journeys, -15 nodes
+// net. Rules (423), global rules (31) and merged redirects (8) are
+// unchanged.
+//
+// FROZEN BASELINE: 286 journeys / 3805 nodes (2026-09-24). SCH-282
+// (Availability Search Abandonment) was rebuilt as a literal
+// three-channel cascade matching a reference image's shape exactly: a
+// push for the exact slot originally searched (checked immediately
+// after sending, no separate wait), then - only if that slot is still
+// gone - an email offering the nearest alternatives with a 1-day
+// response window, then - only if nothing fits - an SMS waitlist
+// offer. Each step re-reads availability from the system of record
+// immediately before it sends. channels moved from email-only to
+// push+email+sms; the old single generic "offer" touch was split into
+// the exact-slot and nearest-alternative touches the image shows as
+// separate steps. 286 journeys unchanged, +2 nodes net. Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 286 journeys / 3803 nodes (2026-09-24). SCH-277
+// (Booking Confirmation) was retired, the site owner's request. It had
+// no real inbound handoffs, only prose distinctFrom rows and
+// precedence text in SCH-266, SCH-303 and SCH-304 naming it as the
+// highest-precedence member of the booking-lifecycle competition
+// group; SCH-303 now holds that highest precedence in its place, and
+// every reworded precedence text keeps the same real ordering among
+// the three remaining members. 287 -> 286 journeys, -16 nodes net.
+// Rules (423), global rules (31) and merged redirects (8) are
+// unchanged.
+//
+// FROZEN BASELINE: 287 journeys / 3819 nodes (2026-09-24). TIM-61
+// (Deadline Tracking) was retired, the site owner's request. It had no
+// real inbound handoffs and no prose distinctFrom rows anywhere in the
+// corpus - both already cleaned up when TIM-268 was retired earlier in
+// the same session. Two remaining illustrative prose mentions (the
+// application-abandonment preset's applicableWhen text, EN and TR)
+// were reworded to drop the now-nonexistent reference. 288 -> 287
+// journeys, -16 nodes net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 288 journeys / 3835 nodes (2026-09-24). INC-254
+// (Incident Update) was retired, the site owner's request. It had one
+// real inbound handoff, INC-253's h.communicate; since INC-253 is
+// itself a silent (channels: []) operational journey that cannot
+// perform a communication action directly (it only ever delegated
+// that job), the guidance-change branch was removed rather than
+// reinvented inline - INC-253's mitigation path now goes straight to
+// its own sufficiency check (c.sufficient) on every path. 289 -> 288
+// journeys, -16 nodes net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 289 journeys / 3851 nodes (2026-09-24). SCH-266
+// (Appointment Readiness Reminder) was rebuilt as a literal
+// push/email/SMS cascade matching a reference image's shape exactly:
+// an unconditional push notice that the appointment is approaching,
+// preceded by an email only where a prerequisite is still missing;
+// then, a fixed span before the appointment, an "is it still active?"
+// recheck, an SMS final reminder, and a "is preparation complete?"
+// check that either exits ready or sends one last email naming the
+// gap before exiting not-ready. The two real outbound handoffs
+// (h.at-risk -> SCH-174, h.prestart -> SCH-177) were removed in favor
+// of the image's plain terminal exits (x.ready, x.not-ready); SCH-174
+// and SCH-177 do not depend on receiving them, since SCH-174 tracks
+// the same prerequisite state on its own (s.silent) and SCH-177 opens
+// on its own pre-service trigger. channels moved from email+sms to
+// push+email+sms. 289 journeys unchanged, -2 nodes net. Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 289 journeys / 3853 nodes (2026-09-24). IDN-84
+// (Verification Recovery) was retired, the site owner's request. It had
+// two real inbound handoffs, IDN-81's h.failure and IDN-82's h.failure,
+// each converted into its own genuine exit (x.rejected on IDN-81,
+// x.verification-failed on IDN-82) instead of routing to a shared
+// verification-failure-recovery engine; the deleted engine's own
+// retry/escalation logic was not reproduced inline, matching the ACT-12
+// precedent. DEC-183's one prose distinctFrom row naming it was
+// removed. 290 -> 289 journeys, -14 nodes net. Rules (423), global
+// rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 290 journeys / 3867 nodes (2026-09-24). TIM-63
+// (Expiry Reminder) and TIM-268 (Action Required Reminder, the corpus's
+// generic fallback obligation reminder) were retired together, the site
+// owner's request. Neither had a real inbound handoff, but both were
+// named explicitly in several other journeys' own suppression and
+// precedence text as the generic reminder each defers to or is deferred
+// by; every one of those mentions (TIM-61, ACT-13, DOC-214's signature
+// journey, FBK-49, FIN-134, RLT-279, SCH-266, REL-284's referral-reward,
+// and SUB-163's renewal cycle) was rewritten to drop the now-
+// nonexistent reference while keeping its own real ownership claim
+// intact. TIM-61 lost its last competition-group partner
+// (obligation-reminder) in the process and its `competition` field was
+// set to the literal "none" rather than left in a group of one. 292 ->
+// 290 journeys, -29 nodes net. Rules (423), global rules (31) and
+// merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 292 journeys / 3896 nodes (2026-09-24). RET-290
+// (First Purchase Thank You & Bounceback) was rebuilt as a literal
+// two-channel cascade matching a reference image's shape exactly: the
+// welcome touch was removed entirely (the image shows no thank-you
+// message), leaving a pure repurchase-offer cascade - a fixed wait for
+// the product's own natural repurchase period, an email offer, a 3-5
+// day wait, an SMS reminder before the offer lapses, then a wait for
+// the offer's own window - with a "did the second purchase happen?"
+// recheck before each send and after the last. Renamed to
+// "First-to-Second Purchase" / shortName unchanged id/slug. channels
+// moved from in-app+push+email to email+sms. 292 journeys unchanged,
+// +2 nodes net. Rules (423), global rules (31) and merged redirects
+// (8) are unchanged.
+//
+// FROZEN BASELINE: 292 journeys / 3894 nodes (2026-09-24). RET-32
+// (Lapsed Customer Win-Back) was rebuilt as a literal two-channel
+// cascade matching a reference image's shape exactly: an email
+// invitation after a fixed 30-day wait, a "did they come back?" recheck
+// before it sends, then an SMS comeback discount 3-5 days later if not,
+// with its own recheck before it sends, then a final recheck after the
+// discount's own offer window - three explicit "did they return?"
+// checkpoints in total, matching the image's three decision diamonds,
+// where the corpus previously read the same intent through onEvent/
+// onTimeout wait semantics without a visible recheck node at each step.
+// channels moved from push+email to email+sms; the second touch's
+// enablement toggle (winback.follow_up_enabled) was removed since the
+// image shows an unconditional two-touch sequence. 292 journeys
+// unchanged, +3 nodes net (three new c.returned* condition nodes, one
+// new w.cooldown30 wait node, c.second removed). Rules (423), global
+// rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 292 journeys / 3891 nodes (2026-09-24). RET-30
+// (Retention Offer Follow-Up) was retired entirely, the site owner's
+// request. Its one real inbound handoff, RET-28's h.intervention, now
+// routes straight into RET-28's own w.decision instead of forking to a
+// separate journey - the same wait that already watches for
+// cancellation_confirmed / cancellation_flow_abandoned on the branch
+// where no genuine alternative was found, so an offered alternative's
+// outcome is tracked by the mechanism RET-28 already has for it. RET-24's
+// guardrail explaining why it does not hand off to RET-30 was rewritten,
+// since RET-30 no longer exists to explain not handing off to. 293 -> 292
+// journeys, -15 nodes net (RET-30's own 15 nodes removed, RET-28's
+// h.intervention handoff node removed, no nodes added). Rules (423),
+// global rules (31) and merged redirects (8) are unchanged; RET-30 was a
+// hard delete, not a merge.
+//
+// FROZEN BASELINE: 293 journeys / 3906 nodes (2026-09-24). ACQ-289
+// (Back-in-Stock Alert) was rebuilt from a single push/email alert into a
+// literal three-channel sequential cascade matching a reference image's
+// shape exactly: push, then (if still unbought) email one day later, then
+// (if still unbought) SMS two days after that, each channel re-reading
+// availability and the purchase record immediately before it sends and
+// each suppressed touch continuing the cascade into the next wait rather
+// than ending the instance - only the SMS channel's suppression closes it,
+// since nothing is left to try. orchestration.strategy moved from
+// single-notice to progressive-recovery; the old router (a.router1) was
+// removed in favor of one explicit touch per channel. 11 -> 20 nodes on
+// ACQ-289, +9 net. Rules (423), global rules (31) and merged redirects (8)
+// are unchanged.
+//
+// FROZEN BASELINE: 293 journeys / 3897 nodes (2026-09-24). RSK-273 gained
+// two real additions matching a reference image's usage-limit shape: a
+// pre-check (c.alternative -> a.alt-continue -> x.alternative) offering an
+// already-available substitute before anything about capacity or waiting,
+// and a near-reset nudge (w.capacity split into w.capacity1 -> onTimeout
+// a.nudge-reset -> w.capacity2, using the reminder-before-attribute
+// timeout class already established elsewhere in this corpus) so somebody
+// waiting on an automatic reset is told it is about to happen, not only
+// that it did. 13 -> 18 nodes on RSK-273, +5 net. Rules (423), global
+// rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 293 journeys / 3892 nodes (2026-09-24). SCH-280
+// (No-Show Follow-Up) was retired entirely from the corpus, same pattern
+// as the deletions above. It had no real inbound handoffs and no prose
+// distinctFrom rows naming it anywhere in the corpus. Public library drops
+// from 60 to 59 (src/lib/public-corpus.ts). 294 -> 293 journeys, 3905 ->
+// 3892 nodes (-13: SCH-280 carried 13 of its own nodes). Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 294 journeys / 3905 nodes (2026-09-24). REL-284 was
+// rebuilt in place, same id and slug, to match a reference image's
+// referral-reward shape: it now fires when a referral code is issued
+// (referral_code_issued, new event) instead of a formal structural-
+// relationship invitation, waits for redemption (referral_code_redeemed,
+// new event), and either confirms the reward both sides earned or sends
+// one nudge back to sharing the code. Its old content (a two-party
+// account/org link needing formal acceptance) had no real inbound
+// handoffs, so nothing else needed retargeting; distinctFrom now points
+// at FBK-42 (advocacy asks) and TIM-268 instead of REL-91/SUB-161. 13 ->
+// 7 nodes on REL-284, -6 net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 294 journeys / 3911 nodes (2026-09-24). IDN-271
+// (Account Security Alert) was retired entirely from the corpus, same
+// pattern as the deletions above. It had no real inbound handoffs and no
+// prose distinctFrom rows naming it anywhere in the corpus. Public library
+// drops from 61 to 60 (src/lib/public-corpus.ts). 295 -> 294 journeys,
+// 3924 -> 3911 nodes (-13: IDN-271 carried 13 of its own nodes). Rules
+// (423), global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 295 journeys / 3924 nodes (2026-09-24). TIM-281
+// (Expired Access Recovery) was retired entirely from the corpus, same
+// pattern as the deletions above. It had no real inbound handoffs, only
+// one prose distinctFrom row naming it in TIM-274's own section, removed.
+// Public library drops from 62 to 61 (src/lib/public-corpus.ts). 296 -> 295
+// journeys, 3937 -> 3924 nodes (-13: TIM-281 carried 13 of its own nodes).
+// Rules (423), global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 296 journeys / 3937 nodes (2026-09-24). ACT-12
+// (Onboarding Nurture) was retired entirely from the corpus, site owner's
+// request, despite being load-bearing: it was the only step-by-step
+// onboarding nurture engine, and three real inbound handoffs - ACT-11's
+// h.progress, ACT-13's h.resume, ACT-20's h.onboarding - each became a
+// real exit (x.ready, x.unblocked, x.resumed) instead, since no other
+// journey absorbs its role; onboarding now stops at "ready to proceed"
+// rather than actively walking the next step. ACT-20 lost its
+// "lifecycle-stage" exclusionGroup (ACT-12 was its only other member,
+// leaving a group of one) - replaced with a plain suppression
+// (s.onboarding-open) checking the same real condition without a formal
+// competition. Three prose distinctFrom rows naming ACT-12 were removed
+// (ACT-14's, ACT-17's and SUB-296's own sections, one row each). The
+// marketing-page showcase slot (src/lib/journey-marketing.ts) now shows
+// ACT-13. Public library drops from 63 to 62. 297 -> 296 journeys,
+// 3950 -> 3937 nodes (-13: ACT-12 carried 13 of its own nodes; ACT-11,
+// ACT-13 and ACT-20 each net even, losing a handoff and gaining an exit).
+// Rules (423), global rules (31) and merged redirects (8) are unchanged;
+// competition groups drop from 15 to 14.
+//
+// FROZEN BASELINE: 297 journeys / 3950 nodes (2026-09-24). FBK-41 gained a
+// real channel-priority cascade (c.channel: in-app where has_active_session
+// is true, then push where has_push_token is true, then email otherwise -
+// using two attributes already declared, not the experience-type routing
+// this file's own comment once refused) and a bounded second touch (c.response
+// -> a.remind -> w.response2 -> c.response2, one reminder on a different
+// route before giving up), matching a reference image's ask/wait/decide/
+// remind/wait/decide shape. localCap moved from 1 to 2 touches. 12 -> 19
+// nodes on FBK-41, +7 net. Rules (423), global rules (31) and merged
+// redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 297 journeys / 3943 nodes (2026-09-24). ACC-263
+// (Activation Reminder) was retired entirely from the corpus, same pattern
+// as the deletions above (delete + fix every reciprocal reference, not just
+// exclude from public listing). It had no real inbound handoffs, only two
+// prose distinctFrom rows naming it - DOC-216's own section (document.ts)
+// and TIM-268's own section (time.ts) - both removed. Public library drops
+// from 64 to 63 (src/lib/public-corpus.ts). 298 -> 297 journeys, 3955 ->
+// 3943 nodes (-12: ACC-263 carried 12 of its own nodes). Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 298 journeys / 3955 nodes (2026-09-24). CON-272 was
+// rebuilt in place, same id and slug, to match a reference image's
+// permission-reopen shape: it now fires on a channel's permission closing
+// (authoritative_permission_change) rather than on a dead destination, asks
+// to reopen it on whichever other channel or in-app surface is still open,
+// reminds once more on the same route, then gives up. Its old content
+// (repairing an undeliverable destination) had no real inbound handoffs.
+// It stays highest-precedence in the contactability-question group; CON-283
+// and CON-300's own precedence prose, which described the old "route that
+// broke" framing, was corrected to describe a permission repair instead -
+// same ordering, accurate reason. 12 -> 14 nodes on CON-272, +2 net. Rules
+// (423), global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 298 journeys / 3953 nodes (2026-09-24). DOC-214 was
+// rebuilt in place, same id and slug, to match a reference image's
+// missing-document-collection shape - notice, two escalating reminders
+// bound to the submission's own deadline, then a handoff to a person. Its
+// old content (sending an already-issued document to a recipient) had no
+// real inbound handoffs, so nothing else needed retargeting. It was not a
+// clean fit: this same business process already exists as FBK-49 (missing
+// critical data), so DOC-214 was scoped narrower - a document specifically,
+// owed specifically by the party completing their own submission, never a
+// field/value or a document the business itself must supply (that split
+// stays DOC-211's) - and both directions got a reciprocal distinctFrom row
+// (src/canonical/feedback.ts, src/canonical/document.ts). 11 -> 10 nodes on
+// DOC-214, -1 net. Rules (423), global rules (31) and merged redirects (8)
+// are unchanged.
+//
+// FROZEN BASELINE: 298 journeys / 3954 nodes (2026-09-24). RET-26 (Service
+// Recovery) was retired entirely from the corpus, same pattern as ACT-18/
+// ACT-19/RET-293/FUL-301 above (delete + fix every reciprocal reference,
+// not just exclude from public listing). It was load-bearing on one real
+// edge: RET-23's h.service handoff (a health-deterioration diagnosis
+// branch for "deterioration caused by a service failure on our side") used
+// to target it; that now hands off to external:operational-resolution
+// instead, the same generic operational sink RET-26's own h.operational
+// node used to use for an unresolved failure. Two prose-only distinctFrom
+// rows that named RET-26 were removed with no graph change: REM-151's own
+// (src/canonical/remedy.ts) and CON-300's (src/canonical/consent.ts, whose
+// row text was already about product engagement rather than service
+// recovery - a pre-existing mismatch, not something this change caused).
+// Public library drops from 65 to 64 (src/lib/public-corpus.ts). 299 -> 298
+// journeys, 3966 -> 3954 nodes (-12: RET-26 carried 11 of its own nodes;
+// RET-23 nets +1, losing a handoff's target but gaining its contract
+// object - node count itself is unchanged on RET-23). Rules (423), global
+// rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 299 journeys / 3966 nodes (2026-09-24). REM-151 (Post-
+// Completion Issue) was rebuilt in place, same id and slug so the four real
+// inbound handoffs from other journeys stayed valid, to match a reference
+// image's routed-then-resolved shape: the old capture/duplicate-check/
+// assess/classify chain that terminated in a handoff to REM-157 is gone,
+// replaced by a type classifier (c.type) that routes into one of three
+// existing processes (REM-152 for a wrong/damaged item, a support person for
+// a usage problem, FUL-148 for a missing-delivery shortfall), a wait for the
+// routed process's own resolution signal (w.resolve, using the already-
+// declared resolution_confirmed/resolution_disputed events), and a real
+// escalation to a person (h.escalate, to external:human-in-the-loop-
+// lifecycle) when it is disputed or the window closes instead of confirmed.
+// REM-157's own precedence prose, which claimed REM-151 "hands the case
+// over" to it, was corrected to describe the new suppression-while-held
+// relationship instead. 11 -> 10 nodes on REM-151, -1 net. Rules (423),
+// global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 299 journeys / 3967 nodes (2026-09-24). Three more
+// journeys retired entirely at the site owner's request, same pattern as
+// ACT-18 above (delete + fix every reciprocal reference, not just exclude
+// from public listing): ACT-19 (Onboarding Personalization - deeply coupled
+// to ACT-12/ACT-14 via a shared instance key and real eligibility/
+// suppression text, all rewritten), RET-293 (Personalized Recommendations -
+// its "recommendation-offer" exclusion group lost a member, so RET-294's
+// competition became a plain distinctFrom entry against RET-31 instead of a
+// group-of-one), and FUL-301 (Order Confirmation - the single most
+// cross-referenced journey removed so far: 8 mentions across fulfillment.ts,
+// retention.ts and scheduling.ts, all as prose/precedence, no real handoffs
+// in or out). ACT-17 also gained a real nudge retry loop (c.stable-after-
+// nudge's "Still not" branch now loops back to a.next-behavior instead of
+// going straight to x.stalled) plus a push channel role, matching an
+// already-declared but previously unwired attemptBudget of 3. Public
+// library drops from 68 to 65 (ACT-19, RET-293, FUL-301 were all public).
+// 302 -> 299 journeys, 4000 -> 3967 nodes. Rules (423), global rules (31)
+// and merged redirects (8) unchanged.
+//
+// FROZEN BASELINE: 302 journeys / 4000 nodes (2026-09-24). SUB-262 gained a
+// lead-time push reminder (w.lead, c.lead-withdrawn, a.push-lead) a few days
+// before the wind-down's effective end date, ahead of the existing w.window
+// wait - matching a reference image's Trigger/Email/Wait/Push/Wait/Decision
+// shape as far as it goes honestly. The image's second half (a win-back
+// discount offered after cancellation) was NOT implemented: this journey's
+// own s.no-relitigation rule is explicit that a save attempt belongs before
+// cancellation is confirmed, not after ("a different journey... this one
+// never re-litigates it") - that is RET-28's job. channels gained "push";
+// channelStrategy gained a low-friction role for it. 3997 -> 4000 nodes,
+// +3 net. Rules (423), global rules (31) and merged redirects (8) unchanged.
+//
+// FROZEN BASELINE: 302 journeys / 3997 nodes (2026-09-24). ACT-18 (Adoption
+// Recovery) was retired from the corpus entirely, at the site owner's request
+// ("kaldır her yerden") - not excluded from public listing, deleted from
+// canonical. It was load-bearing: RET-24's h.adoption handoff pointed at it
+// (now retargeted to ACT-17, which absorbed the "stalled adoption" role) and
+// ACT-17 itself had a reciprocal handoff into it (ACT-17's own h.stall
+// became a real exit, x.stalled, since there is no longer a dedicated
+// recovery journey to hand off to). RET-30's precedence prose that ranked
+// itself against "the adoption recovery nudge (ACT-18)" had that clause
+// removed. Public library drops from 69 to 68 (src/lib/public-corpus.ts).
+// 303 -> 302 journeys, 4007 -> 3997 nodes (-10: ACT-18 carried 10 of its own
+// nodes; ACT-17 nets even, losing a handoff and gaining an exit). Rules
+// (423), global rules (31) and merged redirects (8) are unchanged.
+//
+// FROZEN BASELINE: 303 journeys / 4007 nodes (2026-09-24). SUB-298 gained c.expires,
+// w.act, c.used, c.sendable2 and a.remind (+5: 8 -> 13 nodes), reusing the same
+// trigger -> wait -> used?-condition -> reminder shape already established by SUB-297
+// (the "unused benefit" journey) rather than inventing a new one: after the initial
+// confirmation, the journey now waits for the reward's own expiry (reward_usable_until,
+// already a declared attribute) before sending a push-only expiry reminder if the
+// reward is still unused. No new event needed - loyalty_reward_earned, loyalty_benefit_used
+// and permission_withdrawn all already existed. x.confirmed/x.closed/x.no-action are
+// unchanged (still one instance per reward_id, still non-terminal exits - this journey's
+// trigger was already a genuine one-time event, so none of RET-292/295's one-shot
+// consequences apply here). Rules (423), global rules (31) and merged redirects (8) are
+// unchanged. 4002 -> 4007 nodes, +5 net.
+//
+// FROZEN BASELINE: 303 journeys / 4002 nodes (2026-09-24). RET-292 and RET-295 were each
+// rebuilt from an externally-recomputed "approaching" trigger into a real in-graph
+// trigger -> wait -> send shape: RET-292 gained w.interval, c.opened and a.show-in-app
+// (+3: 7 -> 10 nodes) and RET-295 gained w.cycle (+1: 7 -> 8 nodes). Both journeys'
+// touches were narrowed to the one channel they actually send on (push for RET-292,
+// email for RET-295), and both became one-shot (their new trigger event fires once per
+// person, so their exits are now terminal rather than re-instancing per cycle). One new
+// event was added to the registry: personal_milestone_date_recorded. Rules (423), global
+// rules (31) and merged redirects (8) are unchanged. 3998 -> 4002 nodes, +4 net.
+//
+// FROZEN BASELINE: 303 journeys / 3998 nodes (2026-09-21). The 69-journey quality refactor
+// (audit/refactor/69-journey-final-plan.md, product decisions locked and implemented across 8
+// commits on refactor/69-journeys) touched every one of the 69 public journeys' canonical data:
+// channel rosters cut to what each touch actually resolves, several new nodes (RET-24's customer
+// check-in and its supporting wait/conditions, REM-305's x.owned exit, REM-157's four remedy
+// confirmations, SCH-277's re-read step, SUB-297's expiry condition, FUL-265's revision path,
+// RSK-273's merged wall message, and others), some deleted (RET-32's degenerate c.basis, RET-24's
+// dangling h.intervention/RET-30 handoff), reciprocal distinctFrom rows completed across domain
+// boundaries, and two corpus-wide precedence deadlocks resolved (RET-30/ACT-18, and the ordering
+// already fixed pre-refactor for ACQ-13/ACQ-289). 3959 -> 3998 nodes, +39 net. Rules (423), global
+// rules (31) and merged redirects (8) are unchanged; the 69/21/90 public-scope split never moved.
+// Two events were added to the registry via scripts/event-curation.json + build-event-registry.mjs:
+// restriction_release_condition_met, refund_submission_withdrawn.
 check(
   30,
-  "canonical source mutation = 0 (286 journeys / 3728 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
-  journeys.length === 286 &&
-    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3728 &&
+  "canonical source mutation = 0 (274 journeys / 3623 nodes / 423 rules / 31 global rules / 8 merged, matches validate:canonical baseline)",
+  journeys.length === 274 &&
+    journeys.reduce((n, j) => n + j.nodes.length, 0) === 3623 &&
     dump.rules.length === 423 &&
     dump.globalRules.length === 31 &&
     Object.keys(dump.mergedInto).length === 8,

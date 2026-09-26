@@ -217,6 +217,12 @@
   "the release condition is satisfied": {
    "id": "release_condition_met"
   },
+  "the refund submission is withdrawn or reversed after the notice went out": {
+   "id": "refund_submission_withdrawn",
+   "source": "authoritative",
+   "entity": "the refund submission",
+   "meaning": "the refund submission is withdrawn or reversed after the notice went out"
+  },
   "the new destination confirms": {
    "id": "destination_confirmed",
    "source": "declared",
@@ -468,6 +474,12 @@
    "source": "authoritative",
    "entity": "the restriction",
    "meaning": "the restriction is lifted by its owner"
+  },
+  "the recorded release condition for this restriction is met": {
+   "id": "restriction_release_condition_met",
+   "source": "authoritative",
+   "entity": "the restriction",
+   "meaning": "the condition recorded to release this specific restriction is met"
   },
   "the restriction becomes permanent": {
    "id": "restriction_made_permanent",
@@ -1167,6 +1179,95 @@
   },
   "the change is superseded or withdrawn": {
    "id": "change_withdrawn"
+  },
+  "item_available_again": {
+   "id": "item_available_again",
+   "source": "authoritative",
+   "entity": "the item an unmet interest is held against",
+   "meaning": "the platform asserts that an item which was not purchasable is purchasable again",
+   "commonMappings": [
+    "back_in_stock",
+    "restocked",
+    "inventory_available",
+    "availability_restored"
+   ]
+  },
+  "loyalty_benefit_used": {
+   "id": "loyalty_benefit_used",
+   "source": "authoritative",
+   "entity": "the membership and the specific balance, reward or benefit it grants",
+   "meaning": "an authoritative record that something a membership grants - a balance, a reward or a benefit - was actually used by the member it is held for",
+   "commonMappings": [
+    "reward_redeemed",
+    "points_spent",
+    "benefit_used",
+    "member_benefit_applied"
+   ]
+  },
+  "loyalty_membership_ended": {
+   "id": "loyalty_membership_ended",
+   "source": "authoritative",
+   "entity": "the loyalty membership itself",
+   "meaning": "an authoritative record that a loyalty membership no longer exists - cancelled, closed, reversed or lapsed out of the programme",
+   "commonMappings": [
+    "membership_cancelled",
+    "membership_closed",
+    "programme_enrolment_reversed",
+    "membership_lapsed"
+   ]
+  },
+  "check_in_completed": {
+   "id": "check_in_completed",
+   "source": "authoritative",
+   "entity": "the booking occurrence and the check-in step its terms require before arrival",
+   "meaning": "the holder completes the check-in step a booking requires ahead of arrival - a step that records readiness, and which is not attendance",
+   "commonMappings": [
+    "online_check_in_completed",
+    "pre_registration_completed",
+    "web_check_in"
+   ]
+  },
+  "support_request_resolved": {
+   "id": "support_request_resolved",
+   "source": "authoritative",
+   "entity": "the service request as it was raised",
+   "meaning": "the team or system that owns a service request records it resolved, with what resolved it",
+   "commonMappings": [
+    "ticket_closed",
+    "case_resolved",
+    "request_completed"
+   ]
+  },
+  "marketing_engagement_recorded": {
+   "id": "marketing_engagement_recorded",
+   "source": "behavioral",
+   "entity": "one person's marketing contactability - the permission it runs on, the sends made against it, and the unengaged window being decided",
+   "meaning": "the company records that this person acted on a marketing communication, on a route where such action is actually reported",
+   "commonMappings": [
+    "message_engaged",
+    "link_followed",
+    "in_app_message_acted_on"
+   ]
+  },
+  "refund_settlement_confirmed": {
+   "id": "refund_settlement_confirmed",
+   "source": "authoritative",
+   "entity": "one refund in motion - the submitted refund, the original transaction it is issued against, and the person owed the money",
+   "meaning": "the financial record confirms that funds were returned against the submitted refund, in whole or in part, with the amount actually returned",
+   "commonMappings": [
+    "refund_completed",
+    "refund_settled"
+   ]
+  },
+  "refund_settlement_failed": {
+   "id": "refund_settlement_failed",
+   "source": "authoritative",
+   "entity": "one refund in motion - the submitted refund, the original transaction it is issued against, and the person owed the money",
+   "meaning": "the financial record shows the submitted refund did not settle, or produced no outcome that can be read as a return of funds",
+   "commonMappings": [
+    "refund_failed",
+    "refund_returned_unsettled"
+   ]
   }
  },
  "measurementEvents": [

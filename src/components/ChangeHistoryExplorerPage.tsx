@@ -11,7 +11,9 @@ import { ProductBenefitStory, ProductHeading, ProductSection } from "@/component
 import { ChangeCell, explorerTabLabel, explorerTabs, ExplorerWindow, explorerDelta } from "@/components/ui/LabProductWindows";
 import { AppBar, AppMeta, AppTitle, Badge, CheckRow, Field, FormLabel, Rail, Table, TabStrip, Td, Th, Toggle, Tr, Window } from "@/components/ui/LabWindow";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
+import { CHANGE_HISTORY_PAGE_COPY as T } from "@/lib/skill-pages/change-history";
+import { resolveLabCopy } from "@/lib/lab-project-facts";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, softwareApplication } from "@/lib/schema";
 import { clsx } from "@/lib/clsx";
@@ -73,130 +75,7 @@ import { CHANGE_HISTORY_REAL } from "@/lib/lab-material";
 
 const REAL = CHANGE_HISTORY_REAL;
 
-const T = {
-  en: {
-    eyebrow: "Lab / Google Ads Change History",
-    title: "What changed in Google Ads, when, and who changed it.",
-    sub: "Turns your Google Ads change history into a searchable dashboard. Campaign, category, old value, new value and timestamp for every change, side by side.",
-    ctaGithub: "View on GitHub",
-    proof: ["No dependencies", "Runs fully offline", "57 built-in tests"],
 
-    workedEyebrow: "One real change",
-    workedLine1: "A change log says something changed.",
-    workedLine2: "The dashboard shows what.",
-
-    explorerEyebrow: "Search and filter",
-    explorerTitle: "Every change, classified and searchable.",
-    explorerSub: "Search and filter by account, campaign, date and category. Then open any record to see the full change.",
-    explorerCols: ["Date", "Account", "Campaign", "Ad group", "Category", "Old value", "New value"],
-
-    baEyebrow: "Before / After",
-    baTitle: "Before and after are shown together.",
-    baSub: "Open a change. What was there before, what replaced it, which campaign it was in.",
-
-    actEyebrow: "Activity",
-    actTitle: "What's been touched, and what hasn't.",
-    actSub: "On one side, how often each account changes. On the other, when each campaign was last touched.",
-    actActivityLabel: "Change activity by account",
-    actLastLabel: "Campaign last changes",
-    actTotal: (n: number, period: string) => `${n} changes · ${period}`,
-    daysSince: (n: number) => (n === 0 ? "Changed today" : n === 1 ? "1 day since last change" : `${n} days since last change`),
-
-    rulesEyebrow: "Rule matches",
-    rulesTitle: "Set your own thresholds.",
-    rulesSub: "Off by default. Set a magnitude or structural rule. Everything is computed in the browser. A match is shown as a match, never scored or ranked.",
-    rulesMagnitudeLabel: "Magnitude (±% change)",
-    rulesStructuralLabel: "Structural",
-    rulesExampleLabel: "Example: budget change set to ±20%",
-    rulesExampleNote: "Matched the ±20% rule you set",
-    principleTitle: "Factual by design.",
-    principleBody: "The dashboard reports what happened. It doesn't label a change good, bad or risky.",
-
-    fileEyebrow: "Portable",
-    fileTitle: "One dashboard, one HTML file.",
-    fileSub: "Produces a single file that runs locally with no server, CDN or external dependency.",
-    fileFlow: ["Google Ads export", "Run", "dashboard.html"],
-    fileFormats: "CSV · TSV · ChangeEvent JSON",
-    fileNote: "Open it locally, archive it or attach it to an email.",
-
-    installEyebrow: "Install",
-    installTitle: "Install",
-    installSub: "No account, no API key, no dependencies to install.",
-    stepInstall: "Install it, or run the script directly",
-    stepTest: "Run the tests",
-    claudeTab: "Claude Code",
-    pythonTab: "Python",
-    selfTestNote: "57 built-in tests pass in the current version.",
-    reliabilityTitle: "It doesn't stay quiet on errors.",
-    reliabilityBody: "Ambiguous dates or unknown columns stop the run instead of being silently interpreted.",
-    viewRepo: "Read the repo",
-
-    faqEyebrow: "FAQ",
-    ctaEyebrow: "OPEN SOURCE",
-    ctaTitle: "Look at the change history your account already keeps.",
-  },
-  tr: {
-    eyebrow: "Lab / Google Ads Değişiklik Geçmişi",
-    title: "Google Ads'te ne değişti, ne zaman, kim değiştirdi.",
-    sub: "Google Ads değişiklik geçmişini aranabilir bir dashboard'a çevirir. Her değişikliğin kampanyası, kategorisi, eski ve yeni değeri ve zamanı yan yana.",
-    ctaGithub: "GitHub'da görüntüle",
-    proof: ["Bağımlılık yok", "Tamamen çevrimdışı çalışır", "57 yerleşik test"],
-
-    workedEyebrow: "Gerçek bir değişiklik",
-    workedLine1: "Değişiklik günlüğü bir şeyin değiştiğini söyler.",
-    workedLine2: "Dashboard neyin değiştiğini gösterir.",
-
-    explorerEyebrow: "Arama ve filtre",
-    explorerTitle: "Her değişiklik sınıflandırılmış ve aranabilir.",
-    explorerSub: "Hesaba, kampanyaya, tarihe ve kategoriye göre ara ve filtrele. Sonra herhangi bir kaydı açıp tam değişikliği gör.",
-    explorerCols: ["Tarih", "Hesap", "Kampanya", "Reklam grubu", "Kategori", "Eski değer", "Yeni değer"],
-
-    baEyebrow: "Öncesi / Sonrası",
-    baTitle: "Öncesi ve sonrası birlikte gösterilir.",
-    baSub: "Bir değişikliği aç. Öncesinde ne vardı, yerine ne geldi, hangi kampanyadaydı.",
-
-    actEyebrow: "Aktivite",
-    actTitle: "Neye dokunulmuş, neye dokunulmamış.",
-    actSub: "Bir tarafta her hesabın ne sıklıkla değiştiği, diğer tarafta her kampanyaya en son ne zaman dokunulduğu.",
-    actActivityLabel: "Hesaba göre değişiklik aktivitesi",
-    actLastLabel: "Kampanya son değişiklikleri",
-    actTotal: (n: number, period: string) => `${n} değişiklik · ${period}`,
-    daysSince: (n: number) => (n === 0 ? "Bugün değişti" : n === 1 ? "Son değişiklikten bu yana 1 gün" : `Son değişiklikten bu yana ${n} gün`),
-
-    rulesEyebrow: "Kural eşleşmeleri",
-    rulesTitle: "Kendi eşiklerini belirle.",
-    rulesSub: "Varsayılan olarak kapalı. Bir büyüklük ya da yapısal kural belirle. Tamamen tarayıcıda hesaplanır. Eşleşme yalnızca eşleşme olarak gösterilir, puanlanmaz, sıralanmaz.",
-    rulesMagnitudeLabel: "Büyüklük (±% değişim)",
-    rulesStructuralLabel: "Yapısal",
-    rulesExampleLabel: "Örnek: bütçe değişimi ±%20 olarak ayarlandığında",
-    rulesExampleNote: "Ayarladığın ±%20 kuralıyla eşleşti",
-    principleTitle: "Tasarım gereği tarafsız.",
-    principleBody: "Dashboard ne olduğunu raporlar. Bir değişikliği iyi, kötü ya da riskli diye etiketlemez.",
-
-    fileEyebrow: "Taşınabilir",
-    fileTitle: "Tek dashboard, tek HTML dosyası.",
-    fileSub: "Sunucu, CDN ya da dış bağımlılık olmadan yerelde çalışan tek bir dosya üretir.",
-    fileFlow: ["Google Ads dışa aktarımı", "Çalıştır", "dashboard.html"],
-    fileFormats: "CSV · TSV · ChangeEvent JSON",
-    fileNote: "Yerelde aç, arşivle ya da e-postaya ekle.",
-
-    installEyebrow: "Kurulum",
-    installTitle: "Kurulum",
-    installSub: "Hesap yok, API anahtarı yok, kurulacak bağımlılık yok.",
-    stepInstall: "Kur ya da betiği doğrudan çalıştır",
-    stepTest: "Testleri çalıştır",
-    claudeTab: "Claude Code",
-    pythonTab: "Python",
-    selfTestNote: "Mevcut sürümde 57 yerleşik test geçiyor.",
-    reliabilityTitle: "Hata olduğunda sessiz kalmaz.",
-    reliabilityBody: "Belirsiz tarihler ya da tanınmayan sütunlar, sessizce yorumlanmak yerine çalıştırmayı durdurur.",
-    viewRepo: "Repoyu oku",
-
-    faqEyebrow: "SSS",
-    ctaEyebrow: "AÇIK KAYNAK",
-    ctaTitle: "Hesabının zaten tuttuğu değişiklik geçmişine bak.",
-  },
-} as const;
 
 const CLAUDE_CODE_CMD = `/plugin marketplace add ali-demirbas/google-ads-change-history-dashboard\n/plugin install google-ads-change-history-dashboard@google-ads-change-history-dashboard`;
 const PYTHON_CMD = `python3 ads_change_history.py run export.csv --out-dir ./out --open`;
@@ -671,7 +550,7 @@ function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
 
 export default function ChangeHistoryExplorerPage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
   const copyT = copy[lang];
-  const t = T[lang];
+  const t = resolveLabCopy(T[lang]);
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? `/tr/lab/${content.slug}` : `/lab/${content.slug}`;
   const path = lang === "en" ? `/lab/${content.slug}` : `/tr/lab/${content.slug}`;

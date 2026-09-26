@@ -69,38 +69,80 @@ const T = {
     surface: "Page",
     difference: "Difference",
     testedElement: "Tested element",
-    conceptNote: "This record defines the element to test, not a prescribed control and variant.",
+    conceptNote: "This scenario defines the element under test. Build the control and variant from your current experience and the evidence behind the problem.",
     hypothesis: "Hypothesis",
     primaryKpi: "Primary KPI",
     guardrailMetrics: "Guardrail metrics",
-    whatToTest: "What to watch during the test",
-    neverDo: "Never do",
-    reusableRule: "Reusable rule",
+    whatToTest: "What to check before and during the test",
+    neverDo: "Setup mistakes to avoid",
+    reusableRule: "What this test can teach you",
   },
   tr: {
-    run: "Bu test nasıl yürütülür",
-    runStrip: "Yürütme notları",
+    run: "Test planı",
+    runStrip: "Test planı",
     prev: "Önceki kart",
     next: "Sonraki kart",
-    controlVariant: "Kontrol / Varyant",
+    controlVariant: "Control / Variant",
     optionVsOption: "Seçenek A / Seçenek B",
-    variantVsVariant: "Varyant A / Varyant B",
+    variantVsVariant: "Variant A / Variant B",
     testConcept: "Test fikri",
-    roles: { control: "Kontrol", variant: "Varyant", "option-a": "Seçenek A", "option-b": "Seçenek B", "variant-a": "Varyant A", "variant-b": "Varyant B" } as Record<string, string>,
+    roles: { control: "Control", variant: "Variant", "option-a": "Seçenek A", "option-b": "Seçenek B", "variant-a": "Variant A", "variant-b": "Variant B" } as Record<string, string>,
     diff: { add: "eklendi", remove: "kaldırıldı", change: "değişti", move: "taşındı" } as Record<string, string>,
     whatChanges: "Ne değişiyor",
     changed: "Değişen",
     surface: "Sayfa",
-    difference: "Fark",
+    difference: "Değişiklik",
     testedElement: "Test edilen öğe",
-    conceptNote: "Bu kayıt test edilecek öğeyi tanımlar; hazır bir kontrol ve varyant önermez.",
+    conceptNote: "Bu senaryo test edilecek öğeyi tanımlar. Control ve variant'ı mevcut deneyimine ve problemin arkasındaki kanıta göre kurmalısın.",
     hypothesis: "Hipotez",
     primaryKpi: "Birincil KPI",
     guardrailMetrics: "Guardrail metrikleri",
-    whatToTest: "Test sırasında bakılacaklar",
-    neverDo: "Yapılmaması gerekenler",
-    reusableRule: "Yeniden kullanılabilir kural",
+    whatToTest: "Testten önce ve test sırasında kontrol edilecekler",
+    neverDo: "Kurulumda kaçınılması gerekenler",
+    reusableRule: "Bu testten ne öğrenirsin?",
   },
+} as const;
+
+const VARIABLE_LABEL: Record<AbVariableKind, string> = {
+  timing: "Timing",
+  threshold: "Threshold",
+  quantity: "Quantity",
+  ordering: "Order",
+  "ordering-nav": "Menu order",
+  hierarchy: "Information hierarchy",
+  emphasis: "Emphasis",
+  anatomy: "Component properties",
+  microcopy: "Microcopy",
+  placement: "Placement",
+  presence: "Presence",
+  behavior: "Behavior",
+  personalization: "Personalization",
+  default: "Default selection",
+  size: "Size",
+  style: "Visual style",
+  format: "Format",
+  options: "Options",
+  media: "Media",
+  layout: "Layout",
+  wording: "Wording",
+};
+
+/* The source dataset is authored in Turkish. English records already carry
+   an editorial title and summary, but the long run notes do not have a
+   verified translation yet. English pages therefore use a shared,
+   methodology-safe checklist built only from fields that can be rendered
+   without translating or inventing a treatment. Turkish pages keep the
+   record-specific KPI notes, checks and guardrails below. */
+const EN_RUN_GUIDANCE = {
+  primary: "Use this as the decision metric. Supporting metrics can explain the movement, but they should not replace the metric chosen before launch.",
+  variable: "Change only this element between the control and the variant. Keep copy, placement, timing and surrounding design stable unless one of them is the named variable.",
+  guardrail: "Choose at least one metric that must not get worse while the primary KPI improves. The right guardrail depends on the risk this change creates.",
+  setup: [
+    "Write the sample-size or duration rule before launch.",
+    "Do not run another experiment on the same surface and audience at the same time.",
+    "Check tracking and exposure before reading the result.",
+    "Stop early only when a safety or business guardrail is clearly breaking.",
+  ],
 } as const;
 
 const DIFF_SIGN: Record<string, string> = { add: "+", remove: "−", change: "≠", move: "↔" };
@@ -134,12 +176,15 @@ function Note({ label, note }: { label: string; note: string }) {
 
 export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: AbTestDetail; lang: Lang; breadcrumb: object }) {
   const t = T[lang];
-  const { lede, hypothesis, takeaway } = abPlaybookText(test.hypothesis);
   const mode = abSetupMode(test);
   /* What the experiment varies. Drives the diagram; exposed as a data
      attribute so the classification can be audited against the rendered
      page rather than against a copy of the rule. */
   const kind = abVariableKind(test);
+  const displayQuestion = lang === "en" ? test.seoTitle ?? test.question : test.question;
+  const displayHypothesis = lang === "en" ? test.seoDescription ?? test.hypothesis : test.hypothesis;
+  const displaySlot = lang === "en" ? VARIABLE_LABEL[kind] : test.testedSlot ?? "—";
+  const { lede, hypothesis, takeaway } = abPlaybookText(displayHypothesis);
   /* Which interface element the screens draw as real UI (ui/AbScreen.tsx). */
   const element = abElementKind(test);
   /* The one behaviour whose two sides the data fixes: on `add` the control
@@ -175,7 +220,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
         {categoryLabel(test.category, lang)}
       </p>
       <h1 data-ab-id={test.id} className="mt-5 max-w-4xl text-h1 text-balance text-ink-950">
-        {test.question}
+        {displayQuestion}
       </h1>
       {lede && <p className="mt-5 max-w-3xl text-lg leading-relaxed text-pretty text-ink-muted">{lede}</p>}
       <ul className="mt-6 flex list-none flex-wrap gap-2 p-0">
@@ -193,7 +238,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
   );
 
   const facts: { label: string; value: string }[] = [
-    { label: t.changed, value: test.testedSlot ?? "—" },
+    { label: t.changed, value: displaySlot },
     { label: t.surface, value: surfaceLabel(test.surface, lang) },
     // The same word the variant's pill uses; the raw stored value only for
     // a behaviour the two label maps do not know.
@@ -244,6 +289,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
           <Side
             label={roleLabel(test.sideA!.role, t.roles.control)}
             letter="A"
+            description={lang === "tr" ? test.sideA!.label : null}
             screen={{ surface: test.surface, element, kind, side: "a", presence: presenceOf("a"), behavior: test.differenceBehavior, slot: test.testedSlot, lang, address: surfaceLabel(test.surface, lang) }}
           />
           <div className="flex items-center justify-center">
@@ -254,8 +300,9 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
           <Side
             label={roleLabel(test.sideB!.role, t.roles.variant)}
             letter="B"
+            description={lang === "tr" ? test.sideB!.label : null}
             screen={{ surface: test.surface, element, kind, side: "b", presence: presenceOf("b"), behavior: test.differenceBehavior, slot: test.testedSlot, lang, address: surfaceLabel(test.surface, lang) }}
-            change={diffWord && test.testedSlot ? { sign: diffSign, word: diffWord, slot: test.testedSlot } : undefined}
+            change={diffWord ? { sign: diffSign, word: diffWord, slot: displaySlot } : undefined}
           />
         </div>
         </ProductFrame>
@@ -268,7 +315,7 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
             <div className="flex flex-col gap-4">
               <div>
                 <p className="text-xs font-medium text-ink-subtle">{t.whatChanges}</p>
-                <p className="mt-1 text-lg leading-snug font-semibold text-ink-950">{test.testedSlot ?? "—"}</p>
+                <p className="mt-1 text-lg leading-snug font-semibold text-ink-950">{displaySlot}</p>
               </div>
               <p className="text-sm leading-relaxed text-pretty text-ink-muted">{t.conceptNote}</p>
             </div>
@@ -313,7 +360,57 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
      where the record's own hypothesis ends in one. */
   const card = "flex w-[min(22rem,85vw)] shrink-0 snap-start";
   const tile = "w-full bg-paper-soft ring-0";
-  const run = (
+  const englishRun = (
+    <section className="mt-14">
+      <CardCarousel
+        label={t.runStrip}
+        prevLabel={t.prev}
+        nextLabel={t.next}
+        heading={
+          <h2 className="flex items-center gap-3 text-base font-semibold text-ink-950">
+            <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-700 [&>svg]:size-5">
+              <ClipboardList />
+            </span>
+            {t.run}
+          </h2>
+        }
+      >
+        <div data-card className={card}>
+          <InfoTile icon={<Target />} title={t.primaryKpi} className={tile}>
+            <p className="text-2xl font-semibold tracking-tight text-ink-950">{kpi}</p>
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{EN_RUN_GUIDANCE.primary}</p>
+          </InfoTile>
+        </div>
+        <div data-card className={card}>
+          <InfoTile icon={<Eye />} tint="bg-amber-50 text-amber-700" title={t.whatChanges} className={tile}>
+            <p className="text-xl font-semibold tracking-tight text-ink-950">{displaySlot}</p>
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{EN_RUN_GUIDANCE.variable}</p>
+          </InfoTile>
+        </div>
+        <div data-card className={card}>
+          <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailMetrics} className={tile}>
+            <p className="text-sm leading-relaxed text-pretty text-ink-muted">{EN_RUN_GUIDANCE.guardrail}</p>
+          </InfoTile>
+        </div>
+        <div data-card className={card}>
+          <InfoTile icon={<Ban />} tint="bg-rose-50 text-rose-700" title={t.neverDo} className={tile}>
+            <ol className="flex list-none flex-col gap-3 p-0">
+              {EN_RUN_GUIDANCE.setup.map((item, i) => (
+                <li key={item} className="flex gap-3 text-sm leading-relaxed text-pretty text-ink-700">
+                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper text-xs font-semibold text-ink-700 tabular-nums ring-1 ring-ink-950/[0.06]">
+                    {i + 1}
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ol>
+          </InfoTile>
+        </div>
+      </CardCarousel>
+    </section>
+  );
+
+  const turkishRun = (
     /* The cards are grey, the page stays white (Hulusi, 2026-09-20: "add a
        grey background" - then "not the section, the cards"): each card on
        the site's soft surface with no hairline, the way the phone menu's
@@ -381,6 +478,8 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
     </section>
   );
 
+  const run = lang === "en" ? englishRun : turkishRun;
+
   return (
     <div className="px-4 py-10 md:px-8 md:py-14">
       <div className="mx-auto max-w-[1180px]">
@@ -399,11 +498,13 @@ export default function AbTestPlaybookPage({ test, lang, breadcrumb }: { test: A
 function Side({
   label,
   letter,
+  description,
   screen,
   change,
 }: {
   label: string;
   letter: string;
+  description?: string | null;
   screen: { surface: string; element: AbElementKind; kind: AbVariableKind; side: "a" | "b"; presence: "absent" | "present" | null; behavior: string; slot: string | null; lang: Lang; address: string };
   change?: { sign: string; word: string; slot: string };
 }) {
@@ -429,7 +530,10 @@ function Side({
           </span>
         ) : null}
       </div>
-      <AbScreen {...screen} label={label} ring={Boolean(change)} className="flex-1" />
+      {description ? (
+        <p className={`mb-3 px-1 text-sm leading-snug ${STAGE.dark ? "text-white/80" : "text-ink-700"}`}>{description}</p>
+      ) : null}
+      <AbScreen {...screen} label={description ? `${label}: ${description}` : label} ring={Boolean(change)} className="flex-1" />
     </div>
   );
 }

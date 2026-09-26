@@ -20,8 +20,9 @@ import { SpyList } from "@/components/ui/LabScroll";
 import { LabShowcase, type ShowcaseItem } from "@/components/ui/LabShowcase";
 import { PixelFill } from "@/components/ui/PixelFill";
 import { Reveal } from "@/components/ui/Reveal";
-import { withJourneyCount } from "@/lib/archive";
+import { withLabProjectFacts } from "@/lib/lab-project-facts";
 import { JOURNEY_ROWS } from "@/lib/canonical-view";
+import { localizedJourneyNaming } from "@/lib/journey-tr-overrides";
 import { clsx } from "@/lib/clsx";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
@@ -210,12 +211,12 @@ function LabHero({ t, lang, projects }: { t: (typeof copy)[Lang]; lang: Lang; pr
     slug: p.slug,
     label: p.short,
     name: p.name,
-    fact: withJourneyCount(p.proof),
-    tagline: withJourneyCount(p.tagline),
+    fact: withLabProjectFacts(p.proof),
+    tagline: withLabProjectFacts(p.tagline),
     tags: p.tags,
     href: p.links[0].href,
     cta: p.links[0].label,
-    panel: <LabHeroPanel slug={p.slug} lang={lang} journey={HERO_JOURNEY} />,
+    panel: <LabHeroPanel slug={p.slug} lang={lang} journey={localizedJourneyNaming(HERO_JOURNEY, lang)} />,
   }));
 
   return (
@@ -324,7 +325,7 @@ function Proof({ project, dark }: { project: Project; dark: boolean }) {
   if (!project.proof) return null;
   return (
     <p className={clsx("mt-5 text-[15px] font-medium tabular-nums", dark ? "text-white" : "text-ink-950")}>
-      {withJourneyCount(project.proof)}
+      {withLabProjectFacts(project.proof)}
     </p>
   );
 }
@@ -332,7 +333,7 @@ function Proof({ project, dark }: { project: Project; dark: boolean }) {
 function Desc({ project, dark, center }: { project: Project; dark: boolean; center?: boolean }) {
   return (
     <p className={clsx("mt-3 max-w-[52ch] text-[15px] leading-relaxed", center && "mx-auto", dark ? "text-white/70" : "text-ink-600")}>
-      {withJourneyCount(project.desc)}
+      {withLabProjectFacts(project.desc)}
     </p>
   );
 }

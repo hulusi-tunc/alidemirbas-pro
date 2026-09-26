@@ -673,13 +673,6 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
       scope: "the decision case and this instance of review against it",
       note: "A case can have several review instances across reassignments and reopenings. Each is recorded; none replaces the last.",
     },
-    distinctFrom: [
-      {
-        journey: "IDN-84",
-        because:
-          "IDN-84 recovers from a verification that failed - a mechanical outcome with retry and remediation routes. This is a person exercising judgment against criteria, where the failure mode is deciding outside your authority rather than failing a check.",
-      },
-    ],
     entry: "t.begins",
     nodes: [
       {
@@ -929,12 +922,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
       concurrency: "one-active-per-key"
     },
     distinctFrom: [
-      {
-        journey: "FBK-49",
-        because:
-          "FBK-49 resolves missing data blocking a process generally. This is evidence a named reviewer needs to answer a specific open question - it is scoped by the decision rather than by the record, and it ends by resuming a review rather than by unblocking a pipeline.",
-      },
-    ],
+      ],
     objective: "Pause a decision for the fact it is actually missing, without losing the review already done.",
     eligibility: [
       "a reviewer identifying a specific fact the decision turns on and which is not available",
@@ -2512,7 +2500,7 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "They need correcting now",
             when: "the execution was wrong on its own terms - an error, or an upstream correction that invalidates it",
-            to: "h.correct",
+            to: "x.correction-owed",
           },
           {
             label: "They stand pending the new decision",
@@ -2522,14 +2510,12 @@ export const DECISION_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.correct",
-        kind: "handoff",
-        to: "REM-157",
-        on: "executed consequences that need correcting independently of the reconsidered decision",
-        carries: [
-          "what was executed, on whose authority and when",
-          "the explicit fact that changing the decision record does not undo any of it - the correction is its own lifecycle with its own outcome",
-        ],
+        id: "x.correction-owed",
+        kind: "exit",
+        state: "what was executed, on whose authority and when is recorded as needing correction independently of the reconsidered decision; changing the decision record does not undo any of it, and no remedy engine in this journey picks up the correction",
+        terminal: false,
+        reEntry: "the correction being recorded reopens this case with that correction as part of its history",
+        class: "no-action",
       },
       {
         id: "h.review",

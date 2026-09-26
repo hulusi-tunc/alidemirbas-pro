@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowRightLeft, CheckCircle2, Clock, Cog, Flag, LogOut, Mail, Route, Split, UserRound, Zap } from "lucide-react";
+import { ArrowRightLeft, Bell, CheckCircle2, Clock, Cog, Flag, LogOut, Mail, MessageCircle, MessageSquareText, Route, Smartphone, Split, UserRound, Zap } from "lucide-react";
 
 import type { FlowNode } from "@/lib/canonical-view";
 import type { Lang } from "@/lib/content";
@@ -42,34 +42,26 @@ export function humanize(text: string): string {
    duration on the one route where this card's main text has to be short.
 
    A REQUIRED wait with no configured default (vNext, `Config.required:
-   true`) has no value to pull out - config-text.ts's own wrapper is
-   "<rule sentence> (configure <key>)", mechanically translated by
-   journey-tr-overrides.ts's regex layer to "(<key> ayarlanmalı)" wherever
-   no hand-authored override exists for that node. Where an override DOES
-   exist (most nodes, corpus-wide - the free-prose TR translation effort),
-   the translator re-wrote the whole sentence by hand and the trailing
-   wrapper varies in wording per node ("... ayarlanmalı", "... üzerinden
-   yapılandırılır", and a few left as the untranslated English "(configure
-   ...)" - confirmed by sampling journey-tr-overrides.ts directly, not
-   assumed). Matching each wording is a losing game against future
-   variants; instead this pulls the dotted key out of whichever trailing
-   parenthetical is present, ignoring the wrapper words around it - which
-   also quietly fixes the untranslated-English-leftover case, since only
-   the key (already language-neutral) ever reaches the card. Falling all
-   the way back to the full "until <event meaning>, or <event meaning>,
-   ..." headline in the no-parenthetical case is what left multi-clause
-   corpus sentences (confirmed corpus-wide, not a guess) sitting on a wait
-   pill meant to say "45 minutes"; past a length worth worrying about, the
-   headline's own first clause (up to its first comma/"or"/"veya"/"ya da")
-   stands in for the whole thing - the full multi-condition sentence stays
-   reachable in the detail panel, this card is a summary. The config key
-   alone is shorter and, left unhumanized rather than turned into a
-   natural-looking phrase, reads honestly as the technical reference it
-   is - the same "don't translate canonical keys" rule this corpus already
-   applies to node ids and event ids, not a new exception. */
+   true`) has NO value to pull out - config-text.ts's wrapper for it is
+   "<rule sentence> (configure <key>)", and 46 of the library's 81 waits are
+   this case, because the honest length depends on the company's own
+   product rather than on anything the corpus can assert.
+
+   Those 46 used to render the config key itself - `bounded_education.window`,
+   `onboarding.step_interval` - scraped back out of that parenthetical. It
+   was reasoned as "the key is language-neutral, so it is safe on both
+   routes", which is true and beside the point: a dotted identifier is
+   engine vocabulary standing where a duration belongs, on a customer-journey
+   canvas, which is exactly what "no canonical config keys on the canvas"
+   forbids. Removed 2026-09-20.
+
+   What they render instead is the fall-through that was always below it and
+   never reached: the wait's own headline, "until <event meaning>, or
+   <event meaning>, ...", cut at its first clause. Already localized, already
+   short, and the right thing to say when there is no number to say - what
+   the journey is waiting FOR. The rule sentence and the key both stay
+   reachable, unchanged, in the detail panel's `detail`. */
 const WAIT_VALUE_RE = /\((?:example|recommended|örnek|önerilen): ([^;)]+)[;)]/i;
-const TRAILING_PAREN_RE = /\(([^()]*)\)\s*$/;
-const DOTTED_KEY_RE = /\b([a-z][\w]*(?:\.[a-z][\w]*)+)\b/i;
 const CLAUSE_SEP_RE = /, | veya | ya da | or |; /;
 
 function firstClause(text: string): string {
@@ -78,13 +70,225 @@ function firstClause(text: string): string {
   return m && m.index <= 90 ? text.slice(0, m.index) : text;
 }
 
+/* Card body budget - the same idea as the wait pill's `firstClause` above,
+   applied to every card that renders a canonical sentence.
+
+   Every body below is already `line-clamp-2`: two lines, then an ellipsis.
+   That stops a long sentence overflowing its slot, but it cuts wherever the
+   second line happens to run out - mid-word, mid-clause - so the corpus's
+   longest action sentences (412 characters on FBK-47's `a.apply`, 391 on
+   FBK-46's `a.close-unconfirmed`, measured, not estimated) reach the canvas
+   as a fragment. A reader glancing at the graph gets half a subordinate
+   clause and no way to tell there was more.
+
+   Cutting at the sentence's OWN first boundary instead gives them a whole
+   clause. Order of preference: the end of the first sentence, then a
+   semicolon or a dash, then - only if none of those exists - the softer
+   comma/"or"/"veya" break `firstClause` already uses. Nothing is
+   paraphrased and nothing is lost: the detail panel renders `node.headline`
+   in full, unchanged, which is the same contract the wait pill and the
+   clamp itself have always had. A sentence that already fits the budget is
+   passed through exactly as authored, so short cards - the majority - are
+   untouched.
+
+   Every boundary in the sentence is collected, not just the first, and the
+   LONGEST one that still fits the budget wins - the most the card can say
+   inside its two lines, rather than the least. The 24-character floor drops
+   a cut so early that the card would say nothing ("Establish what failed");
+   the next boundary is taken instead. A sentence with no boundary at all
+   inside the budget keeps its full text and the clamp handles it, which is
+   exactly the behaviour before this function existed. */
+const CARD_BODY_BUDGET = 120;
+const MIN_CARD_BODY = 24;
+/* `keep: 1` keeps the full stop itself; the others cut before the mark. The
+   sentence rule wants a capital after the stop so that an abbreviation
+   mid-sentence ("e.g. the ...") is not read as the end of one. */
+const HARD_CUTS: readonly { re: RegExp; keep: number }[] = [
+  { re: /\.\s+[A-ZÇĞİÖŞÜ]/g, keep: 1 },
+  { re: /: /g, keep: 0 },
+  { re: /; /g, keep: 0 },
+  { re: / - | — /g, keep: 0 },
+];
+const SOFT_CUTS = /, | veya | ya da | or /g;
+
+function cutPoints(text: string, re: RegExp, keep: number): number[] {
+  const out: number[] = [];
+  re.lastIndex = 0;
+  for (let m = re.exec(text); m; m = re.exec(text)) {
+    const at = m.index + keep;
+    if (at >= MIN_CARD_BODY) out.push(at);
+  }
+  return out;
+}
+
+export function cardSummary(text: string): string {
+  if (text.length <= CARD_BODY_BUDGET) return text;
+  const hard: number[] = [];
+  for (const { re, keep } of HARD_CUTS) hard.push(...cutPoints(text, re, keep));
+  const fits = (points: number[]) => points.filter((p) => p <= CARD_BODY_BUDGET).sort((a, b) => b - a)[0];
+  const hardFit = fits(hard);
+  if (hardFit !== undefined) return text.slice(0, hardFit);
+  const softFit = fits(cutPoints(text, SOFT_CUTS, 0));
+  if (softFit !== undefined) return text.slice(0, softFit);
+  const anyHard = hard.sort((a, b) => a - b)[0];
+  return anyHard === undefined ? text : text.slice(0, anyHard);
+}
+
+
+/* Communication cards already show their channel in the card header. Repeating
+   "Email:", "Push:" or a slash-separated channel list in the body made the
+   canvas read like implementation shorthand instead of a journey someone
+   could scan. Keep the node's full headline intact for the detail panel, but
+   give the canvas a short practitioner-facing sentence. */
+const ACTION_CARD_COPY: Partial<Record<Lang, Record<string, string>>> = {
+  tr: {
+    "100 TL kazandın + ödül kodu": "Kazanılan 100 TL ödülü ve kullanım kodunu göster.",
+    "Teşekkür + ilk kullanım bilgisi": "Teşekkür et ve ilk kullanım bilgisini paylaş.",
+    "Hoş geldin + mevcut seviye veya puan + nasıl kazanılır + ilk ödül": "Mevcut puanı, nasıl puan kazanıldığını ve ilk ödül yolunu anlat.",
+    "İlk puanı kazanmak için son hatırlatma": "İlk puanı kazanmak için son bir fırsat göster.",
+    "Ödül + nasıl kullanılır + son kullanma tarihi": "Ödülü, kullanım şeklini ve varsa son tarihi göster.",
+    "İade onayı + tutar + işlem bilgisi": "İadenin onaylandığını, tutarı ve beklenen işlem süresini paylaş.",
+    "Son geri dönüş teklifi": "Geri dönmek için son teklifi göster.",
+    "Ürünü daha detaylı anlat; nasıl çalışır, kimler için uygun, faydaları": "Ürünün nasıl çalıştığını, kimler için uygun olduğunu ve faydalarını anlat.",
+    "Son hatırlatma": "İlgi devam ediyorsa son kez hatırlat.",
+    "Kaldığın yerden devam et + güncel teklif / ürün gelişmesi": "Kaldığı yerden devam etmesini sağla; güncel teklif veya ürün değişikliğini göster.",
+    "İlgi alanına göre kullanım senaryosu / fayda anlat": "İlgilendiği konuya uygun kullanım senaryosunu ve faydayı anlat.",
+    "Sınırlı süreli ilk alışveriş indirimi / geri dönüş teşviki": "Sınırlı süreli ilk alışveriş avantajını göster.",
+    "Ödeme gecikmesi + ek sürenin biteceği tarih": "Ödeme gecikmesini ve ek sürenin biteceği tarihi açıkça belirt.",
+    "Erişimi kısıtla; e-posta + push ile nedeni ve geri açma yolunu bildir": "Erişimi kısıtla; nedenini ve yeniden açmak için gereken adımı bildir.",
+    "İptal onayı + erişimin biteceği tarih": "İptali onayla ve erişimin sona ereceği tarihi göster.",
+    "Geri dönüş indirimi / kuponu": "Yeniden başlamak için geri dönüş avantajını göster.",
+    "Özür + yeni teslimat tarihi": "Gecikme için özür dile ve yeni teslimat tarihini paylaş.",
+    "Yeniden planlama veya alternatif için son hatırlatma": "Yeni teslimat zamanı veya alternatif teslimat seçeneğini son kez hatırlat.",
+    "Kaydettiğin ürün + ilgili alternatifler": "Kaydedilen ürünü ve ilgili alternatifleri göster.",
+    "Sepettekiler + ödeme bağlantısı + güven unsurları": "Sepette kalan ürünleri, ödeme bağlantısını ve güven veren bilgileri göster.",
+    "Sepettekiler + sepete dönüş bağlantısı": "Sepette kalan ürünleri ve sepete dönüş bağlantısını göster.",
+    "Son, daha doğrudan sepet hatırlatması": "Yüksek değerli sepette son hatırlatmayı daha doğrudan yap.",
+    "Ürün yeniden stokta; stok değişmeden incele": "Ürünün yeniden stokta olduğunu bildir ve ürüne doğrudan dönüş sağla.",
+    "Daha kapsamlı yardım + canlı destek seçeneği": "Daha kapsamlı yardım ve canlı destek seçeneği sun.",
+    "Risk sinyaline göre kişiselleştirilmiş değer hatırlatması": "Risk sinyaline göre kullanıcıya en ilgili değeri yeniden göster.",
+    "Uyumlu alternatif / yeni versiyon öner": "Aynı ürün yoksa uyumlu alternatifi veya yeni versiyonu öner.",
+    "Yenileme hatırlatması + uygun paket / fiyat seçenekleri": "Yenileme zamanını ve uygun paket seçeneklerini göster.",
+    "Sınırlı süreli geri dönüş indirimi": "Geri dönüş için sınırlı süreli avantaj sun.",
+    "İlk alışverişe göre ilgili bir sonraki satın alma teklifi": "İlk alışverişe göre ilgili ikinci satın alma teklifini göster.",
+    "Teklif bitmeden son hatırlatma": "Teklif sona ermeden son kez hatırlat.",
+    "Pazarlama sıklığını azalt; yalnızca önemli mesajları bırak": "Pazarlama sıklığını azalt ve yalnızca önemli iletişimleri sürdür.",
+    "Tek bir son geri dönüş / değer kampanyası gönder": "Tek bir son geri dönüş kampanyası gönder.",
+    "Puanlama / geri bildirim iste": "Deneyimi puanlamasını veya kısa geri bildirim vermesini iste.",
+    "Teşekkür et; uygunsa yorum / referral fırsatına yönlendir": "Teşekkür et; uygunsa yorum veya arkadaş daveti adımına yönlendir.",
+    "Öneriyi aldığını bildir ve ürün / insight havuzuna aktar": "Önerinin alındığını bildir ve ürün ekibine aktar.",
+    "Hata bildirimini teknik destek / ürün ekibine aktar": "Hata bildirimini teknik destek veya ürün ekibine aktar.",
+    "Sorumlu ekibi hatırlat / eskale et ve kaydı açık tut": "Sorumlu ekibe eskale et ve söz verilen aksiyon tamamlanana kadar kaydı açık tut.",
+    "Teslimatında gecikme var + yeni tahmini tarih": "Gecikmeyi ve yeni tahmini teslimat tarihini bildir.",
+    "Gecikme var; yeni tarih netleşince haber vereceğiz": "Gecikmeyi bildir; yeni tarih henüz belli değilse bunu açıkça söyle.",
+    "Özür + yeni tarih + alternatif teslimat veya destek": "Özür dile; yeni tarihi ve alternatif teslimat veya destek seçeneklerini sun.",
+    "İnsan desteğine / uzman ekibe eskale et": "Sorunu insan desteğine veya uzman ekibe aktar.",
+    "Eksik bilgi / belgeyi tamamla": "Randevu öncesi eksik bilgi veya belgeyi tamamlat.",
+    "Randevu tarihi, saati, konumu / bağlantısı": "Randevunun tarihini, saatini ve konum veya bağlantı bilgisini paylaş.",
+    "Rezervasyon özeti + tutar + ödeme son tarihi + ödeme CTA'sı": "Rezervasyon özetini, tutarı ve ödeme son tarihini göster.",
+    "Ödeme alındı; rezervasyon kesinleşti": "Ödemenin alındığını ve rezervasyonun kesinleştiğini bildir.",
+    "Yenileme tarihi + yeni fiyat / paket + ödeme yöntemi": "Yenileme tarihini, yeni fiyatı veya paketi ve ödeme yöntemini göster.",
+    "Eksik belgeler + yükleme adımları + son tarih": "Eksik belgeleri, nasıl yükleneceğini ve son tarihi göster.",
+    "Son tarihten önce son hatırlatma": "Son tarihten önce eksik belgeyi son kez hatırlat.",
+    "Doğum gününü / dönüm noktasını tanımlı faydayla birlikte kutla": "Doğum gününü veya dönüm noktasını tanımlı faydayla kutla.",
+    "Son ödeme hatırlatması ve alternatif ödeme bağlantısı": "Ödemeyi tamamlamak için son hatırlatmayı ve alternatif ödeme bağlantısını paylaş.",
+    "Son checkout hatırlatması": "Checkout'u tamamlamak için son kez hatırlat.",
+    "Son randevu hatırlatması": "Randevuya kısa süre kaldığını son kez hatırlat.",
+    "Son eksik hazırlık adımlarını bildir": "Randevu öncesi kalan son hazırlık adımlarını göster.",
+    "Son yenileme hatırlatması": "Üyelik bitmeden önce yenilemeyi son kez hatırlat.",
+  },
+  en: {
+    "100 TL reward earned + code": "Show the 100 TL reward and its redemption code.",
+    "Thank you + first-use information": "Thank the customer and share the first-use information.",
+    "Welcome + current tier or points + how to earn + first reward": "Show the current balance, how to earn and the path to the first reward.",
+    "One last prompt to earn the first points": "Give one final prompt to earn the first points.",
+    "Reward + how to use it + expiry date": "Show the reward, how to use it and its expiry when relevant.",
+    "Refund approved + amount + expected processing information": "Confirm the refund, amount and expected processing time.",
+    "Final return-to-shop offer": "Show the final reason to return and shop again.",
+    "Explain how the product works, who it fits and the main benefits": "Explain how the product works, who it suits and the main benefits.",
+    "Final reminder": "Send one final reminder while interest is still active.",
+    "Continue where you left off + current offer / product update": "Help the user continue where they left off and show any relevant update.",
+    "Relevant use case / benefit content": "Show a use case and benefit that match the user's interest.",
+    "Limited first-purchase incentive / return offer": "Show a limited first-purchase incentive.",
+    "Payment delay notice + grace-period end date": "Explain the overdue payment and the grace-period end date.",
+    "Restrict access and send email / push explaining how to restore it": "Restrict access and explain why it happened and how to restore it.",
+    "Cancellation confirmation + access end date": "Confirm cancellation and show the access end date.",
+    "Come-back discount / coupon": "Show a return incentive for restarting the subscription.",
+    "Apology + new delivery date": "Apologise for the delay and share the new delivery date.",
+    "Final reminder to reschedule or choose an alternative": "Give one final chance to reschedule or choose an alternative.",
+    "Saved product + relevant alternatives": "Show the saved product and relevant alternatives.",
+    "Items + checkout link + delivery/payment reassurance": "Show the cart, checkout link and the information needed to continue confidently.",
+    "Cart contents + return-to-cart link": "Show the cart contents and a direct return-to-cart link.",
+    "Final direct cart reminder": "Use a more direct final reminder for a high-value cart.",
+    "Back in stock — check it before availability changes": "Confirm that the product is back in stock and link straight to it.",
+    "More complete help + live-support option": "Offer fuller guidance and a live-support option.",
+    "Personalized value reminder based on the risk signal": "Re-surface the most relevant value based on the churn-risk signal.",
+    "Show a compatible alternative / newer version": "Offer a compatible alternative or newer version when the original is unavailable.",
+    "Repurchase reminder + useful pack/price options": "Show the replenishment timing and useful pack or price options.",
+    "Limited return discount / win-back offer": "Offer a limited incentive to return.",
+    "Relevant next-purchase offer based on the first order": "Show a relevant second-purchase offer based on the first order.",
+    "Final reminder before the offer ends": "Send one final reminder before the offer ends.",
+    "Reduce marketing frequency; keep important messages only": "Reduce marketing frequency and keep only important communication.",
+    "Send one final return/value campaign": "Send one final return campaign.",
+    "Ask for a rating / feedback": "Ask for a rating or a short piece of feedback.",
+    "Thank the customer and route to review/referral only when appropriate": "Thank the customer and route to review or referral only when appropriate.",
+    "Acknowledge the suggestion and route it to product insight": "Acknowledge the suggestion and route it to the product team.",
+    "Route the bug report to technical support / product": "Route the bug report to technical support or product.",
+    "Remind / escalate to the responsible team and keep the record open": "Escalate to the responsible team and keep the record open until the promised action is complete.",
+    "Delivery is delayed + new estimated date": "Explain the delay and share the new estimated delivery date.",
+    "Delivery is delayed; we will update you when the new date is clear": "Explain the delay and be clear when a new date is not known yet.",
+    "Apology + new date + delivery alternatives / support": "Apologise, share the new date and offer delivery alternatives or support.",
+    "Escalate to a person / specialist": "Escalate the issue to a person or specialist.",
+    "Complete the missing information / document": "Complete missing information or documents before the appointment.",
+    "Appointment date, time, location / link": "Share the appointment date, time and location or link.",
+    "Reservation details + amount + payment deadline + pay CTA": "Show the reservation summary, amount and payment deadline.",
+    "Payment received; reservation confirmed": "Confirm that payment was received and the reservation is secured.",
+    "Renewal date + new price / plan + payment method": "Show the renewal date, new price or plan and the payment method.",
+    "Missing documents + upload instructions + deadline": "Show which documents are missing, how to upload them and the deadline.",
+    "There is something new in the product / feature you viewed": "Show what is new in the product or feature the user viewed.",
+    "Final payment reminder and alternative-payment link": "Share a final payment reminder with an alternative payment link.",
+    "Direct final checkout reminder": "Use a direct final reminder to complete checkout.",
+    "Final checkout reminder": "Give one final prompt to complete checkout.",
+    "Use a problem-specific retention action: offer, guidance, support, payment help or value reminder": "Use the intervention that matches the actual churn reason.",
+    "Final replenishment reminder with direct link": "Give one final replenishment reminder with a direct purchase link.",
+    "Final appointment reminder": "Remind the user that the appointment is approaching.",
+    "Final renewal reminder": "Give one final renewal reminder before the subscription ends.",
+    "Missing-document reminder": "Remind the user which required document is still missing.",
+    "Final reminder before the deadline": "Give one final reminder before the document deadline.",
+  },
+};
+
+function actionCardSummary(text: string, lang: Lang): string {
+  const colon = text.indexOf(":");
+  const lead = colon >= 0 ? text.slice(0, colon) : "";
+  const withoutChannel =
+    colon >= 0 && /(email|e-posta|push|sms|whatsapp|in-app)/i.test(lead)
+      ? text.slice(colon + 1).trim()
+      : text;
+  const rewritten = ACTION_CARD_COPY[lang]?.[withoutChannel] ?? withoutChannel;
+  return cardSummary(rewritten);
+}
+
 function waitLabel(node: FlowNode): string {
   const detail = node.detail;
   const value = detail ? WAIT_VALUE_RE.exec(detail) : null;
   if (value) return value[1].trim();
-  const paren = detail ? TRAILING_PAREN_RE.exec(detail) : null;
-  const key = paren ? DOTTED_KEY_RE.exec(paren[1]) : null;
-  if (key) return key[1];
+  /* NO CONFIGURED VALUE - and therefore no duration to name. 35 of the
+     library's 81 waits carry a `Config.default` the line above reads; the
+     other 46 are `required: true` with no default, because the honest
+     length depends on the company's own product. The card used to print
+     that Config's KEY in that case - `bounded_education.window`,
+     `onboarding.step_interval` - which is a database-shaped string sitting
+     where a duration should be, on 46 cards, in both locales, and exactly
+     what "no canonical config keys on the canvas" forbids.
+
+     The fall-through below was always the right answer for these and was
+     simply unreachable: a wait's headline is `until <event>, or <event>…`,
+     already localized and already the thing a reader needs when there is no
+     number to show - what it is waiting FOR. "Until a nurture progression
+     signal" is a true statement about the journey; the config key is a
+     statement about the codebase. The key stays reachable in the detail
+     panel, which renders `detail` in full. */
   return humanize(firstClause(node.headline));
 }
 
@@ -122,6 +326,7 @@ const TOUCH_STAGE_TR: Readonly<Record<string, string>> = {
   "arrived": "Varış bildirimi", "ask": "Soru", "ask-heavy": "Detaylı soru",
   "ask-light": "Kısa soru", "assign": "Atama bildirimi", "assisted": "Destekli yönlendirme",
   "at-risk-notice": "Risk bildirimi", "at-the-wall": "Son aşama bildirimi", "attempt": "Deneme bildirimi",
+  "availability-alert": "Erişilebilirlik uyarısı",
   "behaviour-nudge": "Davranış hatırlatması", "brief": "Özet bilgilendirme", "challenge": "Doğrulama isteği",
   "cleared": "Temizlendi bildirimi", "closed-full": "Tam kapanış bildirimi", "closed-partial": "Kısmi kapanış bildirimi",
   "communicate": "Bilgilendirme", "communicate-outcome": "Sonuç bildirimi", "confirm": "Onay",
@@ -129,15 +334,15 @@ const TOUCH_STAGE_TR: Readonly<Record<string, string>> = {
   "confirmation": "Onay", "confirmation-ask": "Onay isteği", "confirmation-request": "Onay talebi",
   "correct": "Düzeltme", "correct-distribution": "Dağıtım düzeltmesi", "correctable": "Düzeltilebilir bildirim",
   "corrective-request": "Düzeltme talebi", "decision-request": "Karar talebi", "decline": "Red bildirimi",
-  "delay-update": "Gecikme güncellemesi", "deliver": "Teslimat bildirimi", "dispatch": "Sevkiyat bildirimi",
-  "distribute": "Dağıtım bildirimi", "educate": "Bilgilendirme", "ending": "Sonlanma bildirimi",
-  "expired": "Süresi doldu bildirimi", "explain": "Açıklama", "explain-terminal": "Sonlanma açıklaması",
+  "delay-update": "Gecikme güncellemesi", "deliver": "Teslimat bildirimi", "dependency-hold": "Bağımlılık bekleme bildirimi", "dispatch": "Sevkiyat bildirimi",
+  "distribute": "Dağıtım bildirimi", "educate": "Bilgilendirme", "educate-again": "İkinci bilgilendirme", "ending": "Sonlanma bildirimi",
+  "expired": "Süresi doldu bildirimi", "expiry-notice": "Son kullanma bildirimi", "explain": "Açıklama", "explain-terminal": "Sonlanma açıklaması",
   "final": "Son bildirim", "final-notice": "Son uyarı", "first-touch": "İlk temas",
   "fix-auth": "Yetkilendirme düzeltmesi", "fix-capability": "Yetenek düzeltmesi", "fix-scope": "Kapsam düzeltmesi",
   "follow-up": "Takip bildirimi", "followup": "Takip bildirimi", "generic": "Bildirim",
   "in-force-actionable": "Yürürlükte, aksiyon gerekli", "in-force-standing": "Yürürlükte bildirim", "inform": "Bilgilendirme",
   "inform-hold": "Bekletme bilgilendirmesi", "inform-only": "Yalnızca bilgilendirme", "informational-notice": "Bilgilendirme notu",
-  "initial-recovery": "İlk kurtarma hatırlatması", "invitation": "Davet", "invite-known": "Bilinen kişiye davet",
+  "initial-recovery": "İlk kurtarma hatırlatması", "initial-reminder": "İlk hatırlatma", "invitation": "Davet", "invite-known": "Bilinen kişiye davet",
   "invite-new": "Yeni davet", "issue": "Sorun bildirimi", "lapse": "Sona erme bildirimi",
   "last-call": "Son çağrı", "lead-prompt": "Potansiyel müşteri hatırlatması", "lost": "Kayıp bildirimi",
   "name-blocker": "Engel bildirimi", "next-action": "Sıradaki aksiyon", "next-step": "Sıradaki adım",
@@ -149,18 +354,23 @@ const TOUCH_STAGE_TR: Readonly<Record<string, string>> = {
   "offer-alternate": "Alternatif teklif", "offer-holder": "Hak sahibine teklif", "offer-route": "Yönlendirme teklifi",
   "offer-self": "Kendi kendine teklif", "overdue": "Gecikme bildirimi", "owner-task": "Sahip görevi",
   "partial": "Kısmi bildirim", "prerequisite-prompt": "Ön koşul hatırlatması", "present": "Sunum",
-  "prompt-alt": "Alternatif hatırlatma", "prompt-in-app": "Uygulama içi hatırlatma", "ready": "Hazır bildirimi",
+  "prompt-email": "E-posta hatırlatması", "prompt-in-app": "Uygulama içi hatırlatma", "prompt-sms": "SMS hatırlatması", "ready": "Hazır bildirimi",
   "reapply": "Yeniden başvuru", "reason-ask": "Neden sorgusu", "rebooking-offer": "Yeniden rezervasyon teklifi",
   "received": "Alındı bildirimi", "recognition": "Takdir bildirimi", "recovery": "Kurtarma hatırlatması",
-  "reject": "Red", "reject-scope": "Kapsam reddi", "remind": "Hatırlatma",
-  "reminder": "Hatırlatma", "renew": "Yenileme", "reoffer": "Yeniden teklif",
+  "reject": "Red", "reject-scope": "Kapsam reddi", "remedy-confirmed": "Çözüm onayı", "remind": "Hatırlatma",
+  "remind-final": "Son hatırlatma", "reminder": "Hatırlatma", "renew": "Yenileme", "reoffer": "Yeniden teklif",
   "replace": "Değiştirme", "replacement-notice": "Değişiklik bildirimi", "requalify": "Yeniden yeterlilik",
   "request": "Talep", "request-internal": "İç talep", "request-more": "Ek bilgi talebi",
   "request-more-info": "Ek bilgi talebi", "required-notice": "Zorunlu bildirim", "reset": "Sıfırlama bildirimi",
   "resolution": "Çözüm bildirimi", "restored": "Geri yüklendi bildirimi", "review": "İnceleme",
-  "route-dependency": "Yönlendirme bağımlılığı", "routing": "Yönlendirme", "signature-request": "İmza talebi",
+  "revised-window": "Revize pencere bildirimi",
+  "risk-check-in": "Risk kontrol mesajı",
+  "route-dependency": "Yönlendirme bağımlılığı", "routing": "Yönlendirme",
+  "second-reminder": "İkinci hatırlatma", "second-reminder-high-value": "Yüksek değerli ikinci hatırlatma",
+  "signature-request": "İmza talebi",
   "specific-action": "Özel aksiyon", "surface": "Görünür kılma", "total": "Toplam bildirim",
   "unverified": "Doğrulanmadı bildirimi", "verify": "Doğrulama", "waitlist": "Bekleme listesi",
+  "withdrawn": "Geri çekildi bildirimi",
 };
 
 function stageTitle(stage: string, lang: Lang): string | null {
@@ -179,23 +389,51 @@ function actionTitle(node: FlowNode, lang: Lang): string | null {
   return node.touchStage ? stageTitle(node.touchStage, lang) : null;
 }
 
-/** The channel-priority rows: a labelled "Primary"/"Fallback" pair (or
-    longer chain), never a bare arrow - "Push → Email" alone read as two
-    channels a message goes out on in sequence, not as "try Push, and only
-    if it fails, Email" (2026-09-19 feedback: the arrow-only chip was
-    genuinely ambiguous). Shared by a channel-selecting action and, when it
-    inherited that action's own priority, the message/human action right
-    after it (see `FlowNode.channelPriority`) - one presentation for every
-    router+message pairing on the canvas, not a per-journey choice. */
-function ChannelPriorityRow({ ids, lang }: { ids: readonly ChannelId[]; lang: Lang }) {
+/** The channel row: plain pills by default, and a labelled "Primary" /
+    "Fallback" pair (or longer chain) ONLY where the journey backs that
+    claim - never a bare arrow either, which "Push → Email" alone read as
+    two channels a message goes out on in sequence rather than as "try
+    Push, and only if it fails, Email" (2026-09-19 feedback: the
+    arrow-only chip was genuinely ambiguous).
+
+    `ranked` decides which of those two this row is. It must be true only
+    when the groups it is given really are a tried-in-order cascade:
+    - a single group is never ranked - one channel, or one role's set of
+      alternates, is not a priority relative to anything else, and a lone
+      "Primary" row asserted a cascade of one (2026-09-21 fix: this is
+      what put `Primary: Task` on an internal owner-task card, and
+      `Primary: Email` on every single-channel journey in the corpus).
+    - two or more groups are ranked only when the journey's own
+      `channelStrategy.fallback` is `"next-eligible-role"` - the one
+      value that means the roles `channelPlan` lists are actually tried
+      in that order. `"same-role-other-channel"` describes delivery
+      recovery inside ONE role, never a cascade between the roles this
+      row is showing, and `"none"` or an absent value backs no ordering
+      claim at all. Callers that already know their own priority list is
+      a genuine resolved cascade (`RouterCard`, over an actual router
+      node's own sequential logic) pass `ranked` themselves instead of
+      deriving it from `channelStrategy.fallback`.
+
+    Un-ranked, multi-group rows still stack one row per group (a role can
+    carry more than one channel - "low-friction" is push AND in-app, both
+    pills on that one row) but carry no rank word at all, so nothing on
+    the card claims an order the data does not. */
+function ChannelPriorityRow({ groups, lang, ranked }: { groups: readonly (readonly ChannelId[])[]; lang: Lang; ranked: boolean }) {
   const w = CARD_TEXT[lang];
+  const showRank = ranked && groups.length >= 2;
   return (
     <div className="mt-2.5 flex flex-col gap-1 [[data-lod=far]_&]:hidden">
-      {ids.map((id, i) => (
-        <span key={id} className="flex items-center gap-2">
-          <span className="w-[62px] shrink-0 text-[11px] text-ink-400">{i === 0 ? w.primary : w.fallback}</span>
-          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[id].pill}`}>
-            {CHANNEL_LABEL[id][lang]}
+      {groups.map((ids, i) => (
+        <span key={ids.join("+")} className="flex items-center gap-2">
+          {showRank ? (
+            <span className="w-[62px] shrink-0 text-[11px] text-ink-400">{i === 0 ? w.primary : w.fallback}</span>
+          ) : null}
+          <span className="flex flex-wrap gap-1">
+            {ids.map((id) => (
+              <span key={id} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[id].pill}`}>
+                {CHANNEL_LABEL[id][lang]}
+              </span>
+            ))}
           </span>
         </span>
       ))}
@@ -216,6 +454,40 @@ const KIND = {
 } as const;
 
 type Kind = (typeof KIND)[keyof typeof KIND];
+
+const CHANNEL_CARD_ACCENT: Record<ChannelId, string> = {
+  email: "border-t-violet-500",
+  push: "border-t-sky-500",
+  sms: "border-t-teal-500",
+  "in-app": "border-t-amber-500",
+  whatsapp: "border-t-emerald-500",
+  sales: "border-t-rose-500",
+  task: "border-t-orange-500",
+};
+
+function ChannelGlyph({ id }: { id: ChannelId }) {
+  if (id === "email") return <Mail aria-hidden />;
+  if (id === "push") return <Bell aria-hidden />;
+  if (id === "sms") return <MessageSquareText aria-hidden />;
+  if (id === "in-app") return <Smartphone aria-hidden />;
+  if (id === "whatsapp") return <MessageCircle aria-hidden />;
+  return <UserRound aria-hidden />;
+}
+
+function uniqueChannels(groups: readonly (readonly ChannelId[])[], routes: readonly { id: ChannelId }[]): ChannelId[] {
+  const source = groups.length ? groups.flat() : routes.map((r) => r.id);
+  return [...new Set(source)];
+}
+
+function explicitChannelFromHeadline(text: string): ChannelId | null {
+  const lead = text.split(":")[0]?.trim().toLowerCase() ?? "";
+  if (lead === "e-posta" || lead === "email") return "email";
+  if (lead === "push") return "push";
+  if (lead === "sms") return "sms";
+  if (lead === "whatsapp") return "whatsapp";
+  if (lead === "in-app") return "in-app";
+  return null;
+}
 
 /** The trigger's evidence-source pill (SignalSource is a closed 4-value
     enum, not canonical free prose) - a small bilingual lookup, same shape
@@ -243,10 +515,10 @@ const CARD_TEXT = {
     fallback: "Fallback",
   },
   tr: {
-    trigger: "Tetikleyici",
+    trigger: "Trigger",
     decision: "Karar",
     wait: "Bekleme",
-    handoff: "Devir",
+    handoff: "Handoff",
     outcome: "Sonuç",
     exit: "Çıkış",
     external: "Dış",
@@ -256,7 +528,7 @@ const CARD_TEXT = {
     internalAction: "İç işlem",
     channelSelection: "Kanal seçimi",
     primary: "Öncelikli",
-    fallback: "Yedek",
+    fallback: "Fallback",
   },
 } as const;
 
@@ -344,14 +616,17 @@ export function TriggerCard({ node, onOpen, entryLabel, lang = "en" }: { node: F
           {entryLabel}
         </span>
       ) : null}
-      <Shell onClick={onOpen} ariaLabel={node.headline} className="rounded-2xl bg-primary-600 px-3.5 py-3 text-white ring-1 ring-primary-700/40 shadow-[0_10px_24px_-14px_rgb(46_92_255/0.6)]">
+      <Shell onClick={onOpen} ariaLabel={node.headline} className="rounded-2xl bg-ink-950 px-3.5 py-3 text-white ring-1 ring-ink-900/70 shadow-[0_12px_28px_-16px_rgb(10_16_32/0.65)]">
         <span className="flex items-center gap-2">
           <Tile kind={{ tile: "bg-white/15 text-white", ink: "" }}>
             <Zap aria-hidden />
           </Tile>
           <span className="text-xs font-medium text-white/85 [[data-lod=far]_&]:hidden">{w.trigger}</span>
         </span>
-        <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium [[data-lod=far]_&]:hidden">{humanize(node.headline)}</p>
+        <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium [[data-lod=far]_&]:hidden">{humanize(cardSummary(node.headline))}</p>
+        {node.detail ? (
+          <p className="mt-1 line-clamp-2 text-[11.5px] leading-snug text-white/70 [[data-lod=far]_&]:hidden">{node.detail}</p>
+        ) : null}
         {node.evidenceSource ? (
           <span className="mt-2 flex [[data-lod=far]_&]:hidden">
             <Pill onDark>{SIGNAL_SOURCE_LABEL[lang][node.evidenceSource]}</Pill>
@@ -365,26 +640,29 @@ export function TriggerCard({ node, onOpen, entryLabel, lang = "en" }: { node: F
 export function HandoffCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
   const w = CARD_TEXT[lang];
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.handoff}`}>
-      <KindRow kind={KIND.handoff} icon={<ArrowRightLeft aria-hidden />}>
-        {w.handoff}
-      </KindRow>
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
-      <span className="mt-2 flex [[data-lod=far]_&]:hidden">
-        <Pill>{node.external ? w.external : w.internal}</Pill>
-      </span>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="flex max-w-[252px] items-center gap-2 rounded-full bg-indigo-50/60 py-1.5 pr-3 pl-1.5 ring-1 ring-indigo-200 shadow-[0_1px_2px_rgb(10_16_32/0.04)]"
+    >
+      <Tile kind={KIND.handoff}><ArrowRightLeft aria-hidden /></Tile>
+      <span className="line-clamp-1 text-[12.5px] font-medium text-indigo-800 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</span>
+      {node.external ? <span className="text-[10px] text-indigo-500 [[data-lod=far]_&]:hidden">{w.external}</span> : null}
     </Shell>
   );
 }
 
-export function OutcomeCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
-  const w = CARD_TEXT[lang];
+export function OutcomeCard({ node, onOpen }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.outcome}`}>
-      <KindRow kind={KIND.outcome} icon={<Flag aria-hidden />}>
-        {w.outcome}
-      </KindRow>
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="flex max-w-[244px] items-center gap-2 rounded-full bg-emerald-50/70 py-1.5 pr-3 pl-1.5 ring-1 ring-emerald-200"
+    >
+      <Tile kind={KIND.outcome}><Flag aria-hidden /></Tile>
+      <span className="line-clamp-1 text-[12.5px] font-medium text-emerald-800 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</span>
     </Shell>
   );
 }
@@ -416,13 +694,19 @@ export function ExitCard({ node, onOpen, terminalLabel }: { node: FlowNode; onOp
       {/* No line-clamp here on purpose: `line-clamp` establishes a
           `-webkit-box` that does not size predictably inside a `w-fit`
           flex shell (verified - it truncated a longer TR exit headline to
-          "Checkout..." well before the pill's own max-width). Exit
-          headlines are already short by construction (`splitExitState`,
-          canonical-view.ts), so plain wrapping inside `max-w-[220px]`
-          costs at most one extra line on the rare longer one, never a
-          silently broken truncation. */}
+          "Checkout..." well before the pill's own max-width). That still
+          holds, so the budget is applied in STRING space instead, where the
+          flex shell has no opinion: `cardSummary` cuts at the sentence's own
+          boundary, the same rule every other card body uses.
+
+          It catches only the genuinely long ones. `splitExitState` bounds
+          clause count, not length, so nothing stopped a run-on exit state
+          reaching the capsule - but most of the overflow measured across
+          the 51 was shorter than the shared budget and wrapped on WIDTH
+          instead, which a string budget cannot fix. That half is handled by
+          the slot: SIZE.exit is 68, the measured worst case. */}
       <span className={`text-[13px] leading-snug font-medium [[data-lod=far]_&]:hidden ${success ? "text-emerald-700" : "text-ink-600"}`}>
-        {node.headline}
+        {cardSummary(node.headline)}
       </span>
       {node.terminal ? <Pill>{terminalLabel}</Pill> : null}
     </Shell>
@@ -439,72 +723,135 @@ export function ExitCard({ node, onOpen, terminalLabel }: { node: FlowNode; onOp
 function RouterCard({ node, onOpen, priority, lang }: { node: FlowNode; onOpen: () => void; priority: readonly ChannelId[]; lang: Lang }) {
   const w = CARD_TEXT[lang];
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.router} py-2.5`}>
-      <KindRow kind={KIND.router} icon={<Route aria-hidden />}>
-        {w.channelSelection}
-      </KindRow>
-      <ChannelPriorityRow ids={priority} lang={lang} />
+    <Shell onClick={onOpen} ariaLabel={node.headline} fit className="flex max-w-[264px] items-center gap-2 rounded-full bg-paper px-2.5 py-2 ring-1 ring-cyan-200 shadow-[0_1px_2px_rgb(10_16_32/0.04)]">
+      <Tile kind={KIND.router}><Route aria-hidden /></Tile>
+      <span className="text-[12px] font-medium text-ink-600 [[data-lod=far]_&]:hidden">{w.channelSelection}</span>
+      <span className="flex items-center gap-1 [[data-lod=far]_&]:hidden">
+        {priority.map((id, i) => (
+          <span key={id} className="flex items-center gap-1">
+            {i > 0 ? <span className="text-[11px] text-ink-300">→</span> : null}
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[id].pill}`}>
+              {CHANNEL_LABEL[id][lang]}
+            </span>
+          </span>
+        ))}
+      </span>
     </Shell>
   );
 }
 
-/* Communication and human actions - a journey builder's own action card:
-   an icon, the action's real name, the channel(s) it goes out on. No
-   paragraph, ever (the full canonical sentence is one click away, in the
-   detail panel - never lost, never paraphrased there) and no sequence
-   number (nothing left on the card that needs one to stay distinct; the
-   node's own id already does that job in the detail panel). `priority`
+/* Communication and human actions - a journey builder's own message card:
+   an icon, the action's real name, a ONE-LINE preview of what it says, and
+   the channel(s) it goes out on.
+
+   The preview is new (2026-09-20). This card previously carried no body text
+   at all, on the reasoning that a paragraph belongs in the detail panel -
+   correct about paragraphs, wrong about the card: it left every one of the
+   122 message cards in the library saying only "Follow-up" or "Reminder"
+   and a channel pill, so the canvas could tell you a message went out but
+   never what it said. A lifecycle builder's message card shows a line of the
+   message ("SMS #1 / Your cart is waiting…"), and that is the one thing a
+   reader is actually scanning the canvas for.
+
+   It stays a PREVIEW, not the copy: `cardSummary` cuts at the sentence's own
+   first boundary inside the shared card budget and the clamp holds it to one
+   line, with the full canonical sentence one click away in the detail panel,
+   never paraphrased there. Still no sequence number (nothing left on the
+   card needs one to stay distinct; the node's own id does that job in the
+   panel). `priority`
    is usually inherited from a channel-selecting action the display graph
    collapsed into this same card (journey-canvas-layout.ts) - the router's
    own full logic is still one click away too, surfaced in the panel under
    its own "Routing logic" section (NodeDetailPanel's `collapsedRouter`). */
-export function CommunicationCard({ node, onOpen, messageLabels, humanLabels, lang = "en" }: {
+function HumanActionCard({ node, onOpen, humanLabels, lang = "en" }: {
+  node: FlowNode;
+  onOpen: () => void;
+  humanLabels: readonly { id: ChannelId; label: string }[];
+  lang?: Lang;
+}) {
+  const title = humanLabels[0]?.label ?? CARD_TEXT[lang].human;
+  return (
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="flex max-w-[268px] items-center gap-2 rounded-full bg-amber-50/70 py-1.5 pr-3 pl-1.5 ring-1 ring-amber-200 shadow-[0_1px_2px_rgb(10_16_32/0.04)]"
+    >
+      <Tile kind={KIND.human}><UserRound aria-hidden /></Tile>
+      <span className="shrink-0 text-[12px] font-semibold text-amber-800 [[data-lod=far]_&]:hidden">{title}</span>
+      <span className="line-clamp-1 text-[11.5px] text-ink-500 [[data-lod=far]_&]:hidden">{actionCardSummary(node.headline, lang)}</span>
+    </Shell>
+  );
+}
+
+export function CommunicationCard({ node, onOpen, messageLabels: _messageLabels, humanLabels: _humanLabels, lang = "en" }: {
   node: FlowNode;
   onOpen: () => void;
   lang?: Lang;
-  /** The journey's message-delivery surfaces, localised and ordered - the
-      fallback shown only when nothing more specific (`channelPriority`)
-      is known for this exact action. */
   messageLabels: readonly { id: ChannelId; label: string }[];
-  /** The journey's human routes (sales, task), same fallback role. */
   humanLabels: readonly { id: ChannelId; label: string }[];
 }) {
   const w = CARD_TEXT[lang];
-  const isHuman = node.execution === "human";
-  const kind = isHuman ? KIND.human : KIND.message;
-  const far = isHuman ? FAR.human : FAR.message;
-  const routes = isHuman ? humanLabels : messageLabels;
-  const priority = node.channelPriority;
-  const title = actionTitle(node, lang) ?? (isHuman ? w.human : w.message);
+  const priorityChannels = node.channelPriority ?? [];
+  const plannedChannels = node.channelPlan?.[0]?.channels ?? [];
+  const headlineChannel = explicitChannelFromHeadline(node.headline);
+  const channels: readonly ChannelId[] = priorityChannels.length
+    ? priorityChannels
+    : plannedChannels.length
+      ? plannedChannels
+      : headlineChannel
+        ? [headlineChannel]
+        : [];
+  const firstChannel = channels[0] ?? null;
+  const sameChannel = /same channel|aynı kanal/i.test(node.headline);
+  const simultaneous =
+    node.channelStrategySimultaneous === true ||
+    /\b(?:email|e-posta|push|sms|whatsapp|in-app)\b[^:]*\s\+\s/i.test(node.headline);
+  const channelTitle = channels.length
+    ? channels.map((id) => CHANNEL_LABEL[id][lang]).join(simultaneous ? " + " : " / ")
+    : sameChannel
+      ? (lang === "tr" ? "Aynı kanal" : "Same channel")
+      : w.message;
+  const accent = firstChannel ? CHANNEL_CARD_ACCENT[firstChannel] : "border-t-ink-300";
+  const tileKind = firstChannel ? { tile: CHANNEL_HUE[firstChannel].tile, ink: "" } : KIND.message;
+
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${far} py-2.5`}>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      className={`${CARD} ${FAR.message} border-t-[3px] ${accent} px-3.5 py-2.5`}
+    >
       <span className="flex items-center gap-2">
-        <Tile kind={kind}>{isHuman ? <UserRound aria-hidden /> : <Mail aria-hidden />}</Tile>
-        <span className="text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{title}</span>
-      </span>
-      {priority && priority.length >= 2 ? (
-        <ChannelPriorityRow ids={priority} lang={lang} />
-      ) : routes.length > 0 ? (
-        <span className="mt-2.5 flex flex-wrap gap-1 [[data-lod=far]_&]:hidden">
-          {routes.map((r) => (
-            <span key={r.id} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CHANNEL_HUE[r.id].pill}`}>
-              {r.label}
-            </span>
-          ))}
+        <Tile kind={tileKind}>
+          {firstChannel ? <ChannelGlyph id={firstChannel} /> : <Mail aria-hidden />}
+        </Tile>
+        <span className={`inline-flex min-w-0 items-center rounded-full px-2.5 py-1 text-xs font-semibold [[data-lod=far]_&]:hidden ${
+          firstChannel ? CHANNEL_HUE[firstChannel].pill : "bg-paper-soft text-ink-600"
+        }`}>
+          <span className="truncate">{channelTitle}</span>
         </span>
-      ) : null}
+      </span>
+      <p className="mt-2 line-clamp-2 text-[14px] leading-snug font-semibold text-ink-900 [[data-lod=far]_&]:hidden">
+        {actionCardSummary(node.headline, lang)}
+      </p>
     </Shell>
   );
 }
 
 /* A plain internal action - state or data work with no outward effect
    (`ActionNode.execution` unset) that isn't a channel-selecting router
-   either. Unchanged in shape from before this round: a kind label plus
-   sequence (still the only same-kind cards on a canvas without a name of
-   their own) and its own sentence clamped short. */
-export function ActionCard({ node, sequence, onOpen, messageLabels, humanLabels, lang = "en" }: {
+   either: a kind label and its own sentence clamped short.
+
+   The `Internal · 03` counter is gone (2026-09-20). It existed because these
+   cards once had nothing else to tell them apart, and that stopped being
+   true twice over: `cardSummary` now puts the action's own sentence on the
+   card, and the bookkeeping absorption means the only internal actions still
+   drawn are the 14 that write real state - each one a distinct, nameable
+   step. What was left was an implementation counter on a customer-journey
+   canvas, which is what "no sequence numbers" forbids. ConditionCard dropped
+   its branch count for exactly this reason; this is the same removal. */
+export function ActionCard({ node, onOpen, messageLabels, humanLabels, lang = "en" }: {
   node: FlowNode;
-  sequence: number;
   onOpen: () => void;
   lang?: Lang;
   messageLabels: readonly { id: ChannelId; label: string }[];
@@ -517,35 +864,84 @@ export function ActionCard({ node, sequence, onOpen, messageLabels, humanLabels,
   // the message too and mislabel it a router. Only a plain action (no
   // execution) with a self-detected priority is an actual, undrawn router -
   // the rare case journey-canvas-layout.ts's collapse did not absorb.
-  if (node.execution === "communication" || node.execution === "human") {
+  if (node.execution === "communication") {
     return <CommunicationCard node={node} onOpen={onOpen} messageLabels={messageLabels} humanLabels={humanLabels} lang={lang} />;
+  }
+  if (node.execution === "human") {
+    return <HumanActionCard node={node} onOpen={onOpen} humanLabels={humanLabels} lang={lang} />;
   }
   const priority = node.channelPriority;
   if (priority && priority.length >= 2) return <RouterCard node={node} onOpen={onOpen} priority={priority} lang={lang} />;
+  /* A plain internal action whose own write IS a declared suppression - the
+     corpus's `*_suppression` field convention (`marketing_suppression` is
+     the one live instance today, CON-300's `a.suppress`) - is this
+     journey's declared end state, not bookkeeping on the way to one.
+     `absorbableBookkeeping` (journey-canvas-layout.ts) already keeps it
+     from being folded into its host card because its write is real, not
+     journal-only; what was still missing is the card KIND itself, which
+     defaulted to the generic "Internal" cog regardless. Read off the
+     authored field name, never a journey or node id, so a future second
+     writer of a different `*_suppression` field renders the same way with
+     no code change here. */
+  const isDeclaredSuppression = (node.writesFields ?? []).some((f) => f.endsWith("_suppression"));
+  if (isDeclaredSuppression) {
+    return (
+      <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.outcome}`}>
+        <KindRow kind={KIND.outcome} icon={<Flag aria-hidden />}>
+          {w.outcome}
+        </KindRow>
+        <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</p>
+      </Shell>
+    );
+  }
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.internal}`}>
-      <KindRow kind={KIND.internal} icon={<Cog aria-hidden />}>
-        {w.internalAction} · {String(sequence).padStart(2, "0")}
-      </KindRow>
-      {/* The canonical sentence itself, clamped short - a glance, not a read;
-          the full text is in the detail panel, never a paraphrase. */}
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="flex max-w-[252px] items-center gap-2 rounded-full bg-paper-soft py-1.5 pr-3 pl-1.5 ring-1 ring-line-soft"
+    >
+      <Tile kind={KIND.internal}><Cog aria-hidden /></Tile>
+      <span className="line-clamp-1 text-[12px] font-medium text-ink-600 [[data-lod=far]_&]:hidden">{cardSummary(node.headline)}</span>
     </Shell>
   );
 }
 
-export function ConditionCard({ node, onOpen, lang = "en" }: { node: FlowNode; onOpen: () => void; lang?: Lang }) {
-  const w = CARD_TEXT[lang];
+export function ConditionCard({
+  node,
+  waitNode,
+  repeatCheck,
+  onOpen,
+}: {
+  node: FlowNode;
+  waitNode?: FlowNode;
+  /** journey-canvas-layout.ts's `repeatedChecks()`: this condition asks the
+      same question as another one elsewhere in the journey - a re-check a
+      cascade makes at a later stage. Drawn as a small position/total tag so
+      a reader recognizes it as a repeat rather than re-reading the question
+      to work that out. Numbers only, no words - reads the same in TR/EN. */
+  repeatCheck?: { position: number; total: number };
+  onOpen: () => void;
+  lang?: Lang;
+}) {
   return (
-    <Shell onClick={onOpen} ariaLabel={node.headline} className={`${CARD} ${FAR.condition} py-2.5`}>
-      <KindRow kind={KIND.condition} icon={<Split aria-hidden />}>
-        {w.decision}
-      </KindRow>
-      {/* Branch count used to show here too - dropped: the branches
-          themselves, labelled, are drawn right below on the canvas, so a
-          count added nothing a reader couldn't already see. Still on
-          FlowNode (`branchCount`) for anything else that wants it. */}
-      <p className="mt-2 line-clamp-2 text-[13.5px] leading-snug font-medium text-ink-950 [[data-lod=far]_&]:hidden">{node.headline}</p>
+    <Shell
+      onClick={onOpen}
+      ariaLabel={node.headline}
+      fit
+      className="max-w-[280px] rounded-2xl bg-emerald-50/80 px-3 py-2 ring-1 ring-emerald-200 shadow-[0_1px_2px_rgb(10_16_32/0.03)]"
+    >
+      <span className="flex items-center justify-center gap-1.5 [[data-lod=far]_&]:hidden">
+        {waitNode ? <Clock aria-hidden className="size-3 shrink-0 text-teal-600" /> : <Split aria-hidden className="size-3 shrink-0 text-emerald-600" />}
+        {repeatCheck ? (
+          <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-px font-mono text-[9px] font-medium tracking-[0.04em] text-emerald-800 tabular-nums">
+            {repeatCheck.position}/{repeatCheck.total}
+          </span>
+        ) : null}
+        <span className="line-clamp-2 text-[12px] leading-snug font-semibold text-emerald-800">
+          {waitNode ? `${waitLabel(waitNode)} · ${cardSummary(node.headline)}` : cardSummary(node.headline)}
+        </span>
+      </span>
     </Shell>
   );
 }

@@ -11,7 +11,7 @@
       },
       {
         "value": "journey",
-        "documentCount": 162,
+        "documentCount": 69,
         "lowUtility": false
       },
       {
@@ -36,13 +36,13 @@
     "distinctValues": 11,
     "values": [
       {
-        "value": "acquisition-and-onboarding",
-        "documentCount": 79,
+        "value": "search-and-discovery",
+        "documentCount": 72,
         "lowUtility": false
       },
       {
-        "value": "search-and-discovery",
-        "documentCount": 72,
+        "value": "acquisition-and-onboarding",
+        "documentCount": 69,
         "lowUtility": false
       },
       {
@@ -173,13 +173,13 @@
     "distinctValues": 5,
     "values": [
       {
-        "value": "cross-lifecycle",
-        "documentCount": 121,
+        "value": "acquisition-qualification",
+        "documentCount": 61,
         "lowUtility": false
       },
       {
-        "value": "acquisition-qualification",
-        "documentCount": 69,
+        "value": "cross-lifecycle",
+        "documentCount": 43,
         "lowUtility": false
       },
       {
@@ -188,114 +188,104 @@
         "lowUtility": false
       },
       {
-        "value": "ending-closure",
-        "documentCount": 9,
+        "value": "activation-onboarding",
+        "documentCount": 7,
         "lowUtility": false
       },
       {
-        "value": "activation-onboarding",
-        "documentCount": 9,
+        "value": "ending-closure",
+        "documentCount": 4,
         "lowUtility": false
       }
     ]
   },
   "businessObjective": {
     "dimension": "businessObjective",
-    "distinctValues": 20,
+    "distinctValues": 18,
     "values": [
       {
         "value": "review-required",
-        "documentCount": 200,
+        "documentCount": 199,
         "lowUtility": false
       },
       {
         "value": "risk-compliance",
-        "documentCount": 47,
+        "documentCount": 36,
         "lowUtility": false
       },
       {
         "value": "cancellation-termination",
-        "documentCount": 23,
+        "documentCount": 14,
         "lowUtility": false
       },
       {
         "value": "recovery-retry",
-        "documentCount": 23,
+        "documentCount": 11,
         "lowUtility": false
       },
       {
         "value": "eligibility-qualification",
-        "documentCount": 18,
-        "lowUtility": false
-      },
-      {
-        "value": "identity-verification",
-        "documentCount": 12,
-        "lowUtility": false
-      },
-      {
-        "value": "progression-milestone",
-        "documentCount": 10,
+        "documentCount": 11,
         "lowUtility": false
       },
       {
         "value": "delivery-confirmation",
-        "documentCount": 10,
+        "documentCount": 6,
         "lowUtility": false
       },
       {
-        "value": "consent-permission",
-        "documentCount": 9,
-        "lowUtility": false
-      },
-      {
-        "value": "expiry-renewal",
-        "documentCount": 8,
-        "lowUtility": false
-      },
-      {
-        "value": "reconciliation-correction",
-        "documentCount": 7,
-        "lowUtility": false
-      },
-      {
-        "value": "suspension-restoration",
+        "value": "progression-milestone",
         "documentCount": 5,
-        "lowUtility": false
-      },
-      {
-        "value": "ownership-transfer",
-        "documentCount": 5,
-        "lowUtility": false
-      },
-      {
-        "value": "scheduling-commitment",
-        "documentCount": 5,
-        "lowUtility": false
-      },
-      {
-        "value": "escalation-exception",
-        "documentCount": 4,
-        "lowUtility": false
-      },
-      {
-        "value": "revocation-access-change",
-        "documentCount": 3,
         "lowUtility": false
       },
       {
         "value": "change-versioning",
-        "documentCount": 3,
+        "documentCount": 5,
         "lowUtility": false
       },
       {
-        "value": "compensation-remedy",
+        "value": "expiry-renewal",
+        "documentCount": 4,
+        "lowUtility": false
+      },
+      {
+        "value": "suspension-restoration",
         "documentCount": 2,
         "lowUtility": true
       },
       {
-        "value": "merge-consolidation",
+        "value": "escalation-exception",
         "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "reconciliation-correction",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "identity-verification",
+        "documentCount": 2,
+        "lowUtility": true
+      },
+      {
+        "value": "revocation-access-change",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "consent-permission",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "compensation-remedy",
+        "documentCount": 1,
+        "lowUtility": true
+      },
+      {
+        "value": "scheduling-commitment",
+        "documentCount": 1,
         "lowUtility": true
       },
       {
@@ -2688,43 +2678,43 @@
     "distinctValues": 8,
     "values": [
       {
-        "value": "cross-journey-handoff",
-        "documentCount": 126,
-        "lowUtility": false
-      },
-      {
         "value": "wait-timeout",
-        "documentCount": 114,
+        "documentCount": 62,
         "lowUtility": false
       },
       {
         "value": "multi-exit",
-        "documentCount": 101,
+        "documentCount": 59,
         "lowUtility": false
       },
       {
         "value": "backward-edge",
-        "documentCount": 91,
-        "lowUtility": false
-      },
-      {
-        "value": "external-handoff",
-        "documentCount": 42,
+        "documentCount": 50,
         "lowUtility": false
       },
       {
         "value": "competition",
-        "documentCount": 22,
+        "documentCount": 43,
+        "lowUtility": false
+      },
+      {
+        "value": "cross-journey-handoff",
+        "documentCount": 42,
+        "lowUtility": false
+      },
+      {
+        "value": "external-handoff",
+        "documentCount": 13,
         "lowUtility": false
       },
       {
         "value": "no-re-entry",
-        "documentCount": 11,
+        "documentCount": 6,
         "lowUtility": false
       },
       {
         "value": "preemption",
-        "documentCount": 2,
+        "documentCount": 1,
         "lowUtility": true
       }
     ]

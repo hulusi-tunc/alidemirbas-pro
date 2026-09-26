@@ -1,8 +1,8 @@
 import { Code2, MoreHorizontal, MousePointer2, Terminal } from "lucide-react";
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
 import { CodeBlock, ToolSelectorCards, type ToolOption } from "@/components/ui/InstallationStepper";
 import { getAllSkillProjects, getSkillProject, githubUrl } from "@/lib/skill-catalog";
-import { withJourneyCount } from "@/lib/archive";
+import { withLabProjectFacts, resolveLabCopy } from "@/lib/lab-project-facts";
 import type { Lang } from "@/lib/content";
 
 /* The tool picker every install flow will eventually need (numerspace and
@@ -32,9 +32,8 @@ const toolOptions = (lang: Lang): ToolOption[] => [
 
    EVERY CLAIM BELOW IS CHECKED AGAINST THE TOOL ITSELF, not written
    from the project's one-line description. The repository was cloned and
-   read for this page, and the two numbers on it were produced rather
-   than copied: `python3 ads_change_history.py self-test` was run and its
-   57 passing checks counted, and the file's import block was read to
+   read for this page, and its technical claims were checked against the tool itself. The
+   built-in self-test was run, and the file's import block was read to
    confirm the zero-dependency claim (argparse, csv, hashlib, json, re,
    string, sys, webbrowser, collections, datetime, difflib, pathlib -
    all standard library). The three CLI commands are the three
@@ -48,15 +47,140 @@ const toolOptions = (lang: Lang): ToolOption[] => [
    not a ceiling: where real, verified material exists, the page should
    carry it, and here it does. */
 
+export const CHANGE_HISTORY_PAGE_COPY = {
+  en: {
+    eyebrow: "Lab / Google Ads Change History",
+    title: "See what changed in Google Ads, when it changed, and who changed it.",
+    sub: "Turns your exported Google Ads change history into a searchable dashboard, with campaign, category, before-and-after values, and timestamps in one place.",
+    ctaGithub: "View on GitHub",
+    proof: ["No dependencies", "Runs fully offline", "Built-in self-test"],
+
+    workedEyebrow: "One real change",
+    workedLine1: "The export records that a change happened.",
+    workedLine2: "The dashboard shows exactly what changed.",
+
+    explorerEyebrow: "Search and filter",
+    explorerTitle: "Find the change you're looking for.",
+    explorerSub: "Filter by account, campaign, date, or category. Open any record to see the full change.",
+    explorerCols: ["Date", "Account", "Campaign", "Ad group", "Category", "Old value", "New value"],
+
+    baEyebrow: "Before / After",
+    baTitle: "Old and new values, side by side.",
+    baSub: "Open a record to see the previous value, new value, campaign, and timestamp in one place.",
+
+    actEyebrow: "Activity",
+    actTitle: "Track account and campaign activity.",
+    actSub: "See change volume by account and the latest change date for each campaign.",
+    actActivityLabel: "Change activity by account",
+    actLastLabel: "Campaign last changes",
+    actTotal: (n: number, period: string) => `${n} changes · ${period}`,
+    daysSince: (n: number) => (n === 0 ? "Changed today" : n === 1 ? "1 day since last change" : `${n} days since last change`),
+
+    rulesEyebrow: "Rule matches",
+    rulesTitle: "Set the thresholds that matter to you.",
+    rulesSub: "Define thresholds for budget, Target CPA, Target ROAS, or bid changes. You can also track structural changes such as pauses and removals. Matches are shown, not scored.",
+    rulesMagnitudeLabel: "Magnitude (±% change)",
+    rulesStructuralLabel: "Structural",
+    rulesExampleLabel: "Example: budget change set to ±20%",
+    rulesExampleNote: "Matched the ±20% rule you set",
+    principleTitle: "It shows what changed. You decide what it means.",
+    principleBody: "The dashboard doesn't score or rank changes as good, bad, or risky.",
+
+    fileEyebrow: "Single file",
+    fileTitle: "The dashboard runs as a single HTML file.",
+    fileSub: "No server, CDN, or external dependency required.",
+    fileFlow: ["Google Ads export", "Run", "dashboard.html"],
+    fileFormats: "CSV · TSV · ChangeEvent JSON",
+    fileNote: "Open it locally, archive it, or share it.",
+
+    installEyebrow: "Install",
+    installTitle: "Install",
+    installSub: "No account or API key required. It works locally from your exported file.",
+    stepInstall: "Install it, or run the script directly",
+    stepTest: "Run the self-test",
+    claudeTab: "Claude Code",
+    pythonTab: "Python",
+    selfTestNote: "Run the built-in checks with a single command.",
+    reliabilityTitle: "It doesn't stay quiet on errors.",
+    reliabilityBody: "Ambiguous dates or unknown columns stop the run instead of being silently interpreted.",
+    viewRepo: "Read the repo",
+
+    faqEyebrow: "FAQ",
+    ctaEyebrow: "OPEN SOURCE",
+    ctaTitle: "Turn your account's change history into something you can search.",
+  },
+  tr: {
+    eyebrow: "Lab / Google Ads Değişiklik Geçmişi",
+    title: "Google Ads'te neyin, ne zaman ve kim tarafından değiştirildiğini gör.",
+    sub: "Dışa aktardığın Google Ads değişiklik geçmişini aranabilir bir dashboard'a dönüştürür. Kampanya, kategori, eski-yeni değer ve zaman bilgisi aynı yerde.",
+    ctaGithub: "GitHub'da görüntüle",
+    proof: ["Bağımlılık yok", "Tamamen çevrimdışı çalışır", "Yerleşik self-test"],
+
+    workedEyebrow: "Gerçek bir değişiklik",
+    workedLine1: "Dışa aktarım bir değişiklik yapıldığını kaydeder.",
+    workedLine2: "Dashboard tam olarak neyin değiştiğini gösterir.",
+
+    explorerEyebrow: "Arama ve filtre",
+    explorerTitle: "İhtiyacın olan değişikliği hızlıca bul.",
+    explorerSub: "Hesap, kampanya, tarih veya kategoriye göre filtrele. Bir kaydı açtığında değişikliğin tüm detayını gör.",
+    explorerCols: ["Tarih", "Hesap", "Kampanya", "Reklam grubu", "Kategori", "Eski değer", "Yeni değer"],
+
+    baEyebrow: "Öncesi / Sonrası",
+    baTitle: "Eski ve yeni değer yan yana.",
+    baSub: "Bir kaydı açtığında önceki değer, yeni değer, kampanya ve zaman bilgisi tek yerde görünür.",
+
+    actEyebrow: "Aktivite",
+    actTitle: "Hesap ve kampanya aktivitesini takip et.",
+    actSub: "Hesap bazında değişiklik yoğunluğunu, kampanya bazında son değişiklik tarihini gör.",
+    actActivityLabel: "Hesaba göre değişiklik aktivitesi",
+    actLastLabel: "Kampanya son değişiklikleri",
+    actTotal: (n: number, period: string) => `${n} değişiklik · ${period}`,
+    daysSince: (n: number) => (n === 0 ? "Bugün değişti" : n === 1 ? "Son değişiklikten bu yana 1 gün" : `Son değişiklikten bu yana ${n} gün`),
+
+    rulesEyebrow: "Kural eşleşmeleri",
+    rulesTitle: "Eşikleri sen belirle.",
+    rulesSub: "Bütçe, Target CPA, Target ROAS veya teklif değişimleri için eşik tanımla. İstersen duraklatma ve kaldırma gibi yapısal değişiklikleri de takip et. Eşleşmeler gösterilir, puanlanmaz.",
+    rulesMagnitudeLabel: "Büyüklük (±% değişim)",
+    rulesStructuralLabel: "Yapısal",
+    rulesExampleLabel: "Örnek: bütçe değişimi ±%20 olarak ayarlandığında",
+    rulesExampleNote: "Ayarladığın ±%20 kuralıyla eşleşti",
+    principleTitle: "Ne olduğunu gösterir, ne anlama geldiğine sen karar verirsin.",
+    principleBody: "Dashboard değişiklikleri iyi, kötü veya riskli diye puanlamaz ya da sıralamaz.",
+
+    fileEyebrow: "Tek dosya",
+    fileTitle: "Dashboard tek bir HTML dosyası olarak çalışır.",
+    fileSub: "Sunucuya, CDN'e veya ek bağımlılığa ihtiyaç duymaz.",
+    fileFlow: ["Google Ads dışa aktarımı", "Çalıştır", "dashboard.html"],
+    fileFormats: "CSV · TSV · ChangeEvent JSON",
+    fileNote: "Yerelde açabilir, arşivleyebilir veya paylaşabilirsin.",
+
+    installEyebrow: "Kurulum",
+    installTitle: "Kurulum",
+    installSub: "Hesap veya API anahtarı gerekmez. Dışa aktardığın dosyayla yerelde çalışır.",
+    stepInstall: "Kur ya da betiği doğrudan çalıştır",
+    stepTest: "Self-test'i çalıştır",
+    claudeTab: "Claude Code",
+    pythonTab: "Python",
+    selfTestNote: "Temel kontrolleri tek komutla çalıştır.",
+    reliabilityTitle: "Hata olduğunda sessiz kalmaz.",
+    reliabilityBody: "Belirsiz tarihler ya da tanınmayan sütunlar, sessizce yorumlanmak yerine çalıştırmayı durdurur.",
+    viewRepo: "Repoyu oku",
+
+    faqEyebrow: "SSS",
+    ctaEyebrow: "AÇIK KAYNAK",
+    ctaTitle: "Hesabındaki değişiklik geçmişini aranabilir hâle getir.",
+  },
+} as const;
+
 const T = {
   en: {
     eyebrow: "Lab",
     whatItDoesTitle: "What it does",
     whatItDoesBody:
       "Turns a Google Ads change history export (CSV, TSV or flattened ChangeEvent JSON) into a single-file HTML dashboard that opens offline. Who changed what, in which account, campaign and ad group, what the old and new values were, and which category the change falls into.",
-    howItWorksTitle: "What it will and won't tell you",
+    howItWorksTitle: "What it reports and what it leaves to you",
     howItWorksBody:
-      "The tool reports, it doesn't grade. It will say a campaign hasn't changed in 23 days; it won't say that's neglect. Deciding whether a change is good, risky or overdue is deliberately out of scope, which is why the dashboard has no severity colors and no unexplained badges.",
+      "The tool reports what happened without judging it. It can show that a campaign has not changed in 23 days, but it does not call that neglect. Whether a change was good, risky or overdue stays with the person reading the data, so the dashboard avoids severity colors and unexplained badges.",
     bullets: [
       "Answers who changed this campaign's budget last week, and what it was before.",
       "Shows which campaigns haven't been touched in 30+ days, and which category of change is most common right now.",
@@ -73,7 +197,7 @@ const T = {
     step2Desc: "Python 3 and its standard library are the only requirements - there are no dependencies to install.",
     step3Title: "Check it against its own fixtures",
     step3Desc:
-      "The built-in suite runs the whole pipeline end to end on synthetic data. 57 checks pass on the current version.",
+      "Run the built-in checks with a single command.",
     viewRepo: "Read the repository",
     copyLabel: "Copy",
     copiedLabel: "Copied",
@@ -82,22 +206,22 @@ const T = {
       {
         id: "live-api",
         q: "Does it read my Google Ads account directly?",
-        a: "Not by default. The plugin reads the file you export, which is what keeps it dependency-free and offline. If you have API access, the fetch_live_data.py script in the repo pulls change history live and writes it in the same format. That skips the export step; the plugin itself works the same way.",
+        a: "Not by default. The tool reads the file you export. If you have API access, you can use fetch_live_data.py in the repo to pull change history directly.",
       },
       {
         id: "formats",
         q: "Which export formats does it accept?",
-        a: "CSV, TSV, and pre-flattened ChangeEvent JSON. It will not read an XLSX file or a Google Sheets URL directly - export to one of those three first.",
+        a: "CSV, TSV, and flattened ChangeEvent JSON. XLSX files and Google Sheets URLs aren't read directly.",
       },
       {
         id: "offline",
         q: "Does the dashboard need to be online?",
-        a: "No. It is a single HTML file with no CDN references, so it works fully offline and can be sent to someone as one attachment. Filters, the activity timeline, the account and campaign drill-down, the category distribution and the searchable change explorer all run in the browser from data embedded in that file.",
+        a: "No. The dashboard is a single HTML file with no CDN dependency. All data is processed in the browser.",
       },
       {
         id: "sharing",
         q: "Can I share it without exposing who did what?",
-        a: "Pass --mask-users. People's names and emails become User A, User B, and the labels are kept stable across runs, so the same person carries the same label in every report. Account and campaign names are never masked. They're your own data, not someone's identity.",
+        a: "Yes. --mask-users replaces names and email addresses with labels such as User A and User B. Account and campaign names remain unchanged.",
       },
     ],
     relatedTitle: "Other Lab projects",
@@ -107,9 +231,9 @@ const T = {
     whatItDoesTitle: "Ne işe yarar",
     whatItDoesBody:
       "Google Ads değişiklik geçmişi dışa aktarımını (CSV, TSV ya da düzleştirilmiş ChangeEvent JSON) çevrimdışı açılan tek dosyalık bir HTML dashboard'a çevirir. Kim neyi değiştirmiş, hangi hesap, kampanya ve reklam grubunda, eski değer neydi, yeni değer ne oldu, hangi kategoriye giriyor.",
-    howItWorksTitle: "Ne söyler, ne söylemez",
+    howItWorksTitle: "Neyi raporlar, neyi sana bırakır",
     howItWorksBody:
-      "Araç raporlar, not vermez. Bir kampanyanın 23 gündür değişmediğini söyler; bunun ihmal olduğunu söylemez. Bir değişikliğin iyi, riskli ya da gecikmiş olduğuna karar vermek bilinçli olarak kapsam dışı. Bu yüzden dashboard'da ne önem rengi ne de açıklamasız rozet var.",
+      "Araç ne olduğunu gösterir, yorum katmaz. Bir kampanyanın 23 gündür değişmediğini gösterebilir ama bunu ihmal diye etiketlemez. Değişikliğin iyi, riskli ya da gecikmiş olup olmadığına veriyi okuyan kişi karar verir; bu yüzden dashboard'da önem rengi veya açıklamasız rozet kullanılmaz.",
     bullets: [
       "Bu kampanyanın bütçesini geçen hafta kimin değiştirdiğini ve önceki değerin ne olduğunu gösterir.",
       "30+ gündür dokunulmamış kampanyaları ve şu an en sık görülen değişiklik kategorisini gösterir.",
@@ -126,7 +250,7 @@ const T = {
     step2Desc: "Tek gereksinim Python 3 ve standart kütüphanesi. Kurulacak bağımlılık yok.",
     step3Title: "Kendi test verisiyle doğrula",
     step3Desc:
-      "Yerleşik test paketi tüm akışı sentetik veri üzerinde baştan sona çalıştırır. Mevcut sürümde 57 test geçiyor.",
+      "Temel kontrolleri tek komutla çalıştır.",
     viewRepo: "Repoyu oku",
     copyLabel: "Kopyala",
     copiedLabel: "Kopyalandı",
@@ -135,22 +259,22 @@ const T = {
       {
         id: "live-api",
         q: "Google Ads hesabımı doğrudan okuyor mu?",
-        a: "Varsayılan olarak hayır. Eklenti senin dışa aktardığın dosyayı okur; bağımlılıksız ve çevrimdışı çalışmasının sebebi bu. API erişimin varsa repodaki fetch_live_data.py betiği değişiklik geçmişini canlı çekip aynı biçimde yazar. Böylece dışa aktarma adımını atlarsın, eklentinin çalışma şekli değişmez.",
+        a: "Varsayılan olarak hayır. Araç dışa aktardığın dosyayı okur. API erişimin varsa repodaki fetch_live_data.py ile değişiklik geçmişini doğrudan çekebilirsin.",
       },
       {
         id: "formats",
         q: "Hangi dışa aktarma biçimlerini kabul ediyor?",
-        a: "CSV, TSV ve düzleştirilmiş ChangeEvent JSON. XLSX dosyasını ya da bir Google Sheets bağlantısını doğrudan okumaz; önce bu üç biçimden birine aktar.",
+        a: "CSV, TSV ve düzleştirilmiş ChangeEvent JSON. XLSX veya Google Sheets bağlantısını doğrudan okumaz.",
       },
       {
         id: "offline",
         q: "Dashboard'un çevrimiçi olması gerekiyor mu?",
-        a: "Hayır. CDN bağlantısı olmayan tek bir HTML dosyası; tamamen çevrimdışı çalışır ve tek ek olarak gönderilebilir. Filtreler, zaman çizelgesi, hesap ve kampanya kırılımı, kategori dağılımı ve aranabilir değişiklik listesi, hepsi dosyanın içindeki veriden tarayıcıda çalışır.",
+        a: "Hayır. Dashboard tek bir HTML dosyasıdır ve CDN kullanmaz. Tüm veriler tarayıcıda işlenir.",
       },
       {
         id: "sharing",
         q: "Kimin ne yaptığını göstermeden paylaşabilir miyim?",
-        a: "--mask-users ver. Kişi adları ve e-postaları User A, User B diye etiketlenir; etiketler çalıştırmalar arasında korunur, aynı kişi her raporda aynı etiketi taşır. Hesap ve kampanya adları hiçbir zaman maskelenmez. Onlar senin kendi verin, başkasının kimliği değil.",
+        a: "Evet. --mask-users ile kişi adlarını ve e-postaları User A, User B gibi etiketlere dönüştürebilirsin. Hesap ve kampanya adları değişmez.",
       },
     ],
     relatedTitle: "Diğer Lab projeleri",
@@ -162,13 +286,13 @@ const SLUG = "google-ads-change-history-dashboard";
 export function getChangeHistoryContent(lang: Lang): SkillProductContent | null {
   const project = getSkillProject(lang, SLUG);
   if (!project) return null;
-  const t = T[lang];
+  const t = resolveLabCopy(T[lang]);
   const repo = githubUrl(project);
 
   const related = getAllSkillProjects(lang)
     .filter((p) => p.slug !== SLUG)
     .slice(0, 4)
-    .map((p) => ({ href: p.links[0].href, name: p.name, desc: withJourneyCount(p.desc) }));
+    .map((p) => ({ href: p.links[0].href, name: p.name, desc: withLabProjectFacts(p.desc) }));
 
   return {
     slug: SLUG,

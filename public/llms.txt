@@ -15,7 +15,7 @@
 ## Lab projects
 
 - [Lifecycle Marketing Journey Builder](https://alidemirbas.com.tr/lab/claude-lifecycle): An open-source Claude Code plugin that turns the customer signals you already track into lifecycle journeys you can trigger, measure and improve. Repository: https://github.com/ali-demirbas/claude-lifecycle
-- [Canonical Journey Library](https://alidemirbas.com.tr/lab/journeys): Domain-neutral lifecycle journeys written as state machines: triggers, branches, waits, handoffs and exits, not campaign templates. Three public surfaces: customer journeys (/lab/customer-journeys), lifecycle states (/lab/lifecycle-states) and runtime mechanisms (/lab/runtime-mechanisms). Each journey has its own page under /lab/journeys/.
+- [Canonical Journey Library](https://alidemirbas.com.tr/lab/journeys): Domain-neutral customer journeys written as state machines: triggers, branches, waits, handoffs and exits, not campaign templates. Browse the library at /lab/customer-journeys; each journey has its own page under /lab/journeys/.
 - [A/B Test Playbook](https://alidemirbas.com.tr/lab/ab-testing): Real-world A/B test scenarios with the hypothesis, primary metric, guardrails and statistical checks needed to run them properly. Each scenario has its own page under /lab/ab-testing/.
 - [Marketing Dashboard Builder](https://alidemirbas.com.tr/lab/dashboard-builder): Turns marketing exports into validated, comparable metrics and the dashboards built on them.
 - [Google Ads Change History Explorer](https://alidemirbas.com.tr/lab/google-ads-change-history-dashboard): Turns a Google Ads change-history export into a searchable single-file dashboard.

@@ -26,7 +26,7 @@ const CHANNEL_STYLE: Record<FlowChannel, { label: { en: string; tr: string }; ba
   email: { label: { en: "Email", tr: "E-posta" }, badge: "bg-violet-50 text-violet-700", bar: "bg-violet-500" },
   push: { label: { en: "Push", tr: "Push" }, badge: "bg-sky-50 text-sky-700", bar: "bg-sky-500" },
   sms: { label: { en: "SMS", tr: "SMS" }, badge: "bg-teal-50 text-teal-700", bar: "bg-teal-500" },
-  "in-app": { label: { en: "In-app", tr: "Uygulama içi" }, badge: "bg-amber-50 text-amber-700", bar: "bg-amber-500" },
+  "in-app": { label: { en: "In-app message", tr: "Uygulama içi mesaj" }, badge: "bg-amber-50 text-amber-700", bar: "bg-amber-500" },
 };
 
 type FlowStep = {
@@ -120,7 +120,7 @@ export const PATTERNS: Pattern[] = [
     exit: { en: "subscription_start", tr: "subscription_start" },
   },
   {
-    name: { en: "Winback", tr: "Winback" },
+    name: { en: "Winback", tr: "Geri kazanım" },
     trigger: "segment: lapsed",
     steps: [
       {

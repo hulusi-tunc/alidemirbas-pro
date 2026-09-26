@@ -69,3 +69,4 @@ export default function UtmBuilder({ lang }: { lang: "en" | "tr" }) {
     </div>
   );
 }
+

@@ -47,6 +47,21 @@ export type DisplayNode = {
   layoutId: string;
   canonicalNodeId: string;
   node: FlowNode;
+  /** Family B (`collapsibleWaitFollowers` below): the wait node this
+      condition is the sole, exclusive successor of - both its "on event"
+      and "on timeout" arms land here and nothing else points at it, so the
+      card carries a compact duration strip above the question instead of
+      drawing the wait as a second box. Undefined for every ordinary node;
+      only ever set on a `kind: "condition"` DisplayNode. */
+  mergedWait?: FlowNode;
+  /** `repeatedChecks()` below: set when this condition asks the exact same
+      question (`FlowNode.asks`, verbatim) as another condition elsewhere in
+      the same journey - the re-check a cascade makes at a later stage, not
+      an unrelated decision that merely reads alike. `position` is this
+      node's 1-based place in canonical node order among the group,
+      `total` the group's size. Undefined for every condition that asks a
+      question nothing else in its journey repeats - the ordinary case. */
+  repeatCheck?: { position: number; total: number };
 };
 
 export type CanvasEdgeKind = "linear" | "branch" | "wait-event" | "wait-timeout";
@@ -79,6 +94,10 @@ export type LaidOutNode = {
   layoutId: string;
   canonicalNodeId: string;
   node: FlowNode;
+  /** Carried through from `DisplayNode.mergedWait` - see there. */
+  mergedWait?: FlowNode;
+  /** Carried through from `DisplayNode.repeatCheck` - see there. */
+  repeatCheck?: { position: number; total: number };
   /** Layer index from the top and rank from the left within it - the
       structural coordinates the card thumbnails draw from. Derived from
       ELK's placement (ELK does not export layer ids through its JSON
@@ -126,13 +145,35 @@ export type CanvasLayout = {
    JourneyCanvasNodes.tsx: the padding, the badges and the line-clamps all
    feed these. */
 export const SIZE: Record<CanvasNodeKind, { width: number; height: number }> = {
-  trigger: { width: 240, height: 124 },
-  action: { width: 264, height: 108 },
-  condition: { width: 240, height: 100 },
-  wait: { width: 240, height: 56 },
-  handoff: { width: 240, height: 124 },
-  outcome: { width: 232, height: 100 },
-  exit: { width: 200, height: 48 },
+  /* The canvas is channel-first: message cards carry the visual weight;
+     decisions, waits and internal mechanics are deliberately smaller. */
+  trigger: { width: 300, height: 132 },
+  action: { width: 300, height: 132 },
+  condition: { width: 280, height: 56 },
+  wait: { width: 220, height: 44 },
+  handoff: { width: 252, height: 44 },
+  outcome: { width: 244, height: 44 },
+  /* 48 -> 68 (2026-09-20). A PARTIAL fix to a pre-existing overflow, not a
+     complete one - stated plainly so the next reader does not trust this
+     number the way the others can be trusted.
+
+     Measured over all 51 public journeys in both locales with the slot
+     released to `height: auto` (the method this table's own doctrine
+     prescribes): 343 of 772 exit capsules render at 46px and fit the old
+     48px slot, 43 do not - 38 at 50px, 4 at 59px, 1 at 68px - and were
+     drawing outside their own border. 68 covers all 43.
+
+     What it does NOT cover: released to auto AND given the full slot width,
+     the worst Turkish exit state wants 103px, because a 200px slot leaves
+     roughly 24 characters a line and "bu pencerede daha fazla kapasiteye
+     giden bir yol olmaksızın limitte kalındı" is 75 characters with no
+     clause boundary to cut at. Sizing to 103 would make a terminal capsule
+     the tallest small card on the canvas, against the visual language's own
+     "exit should be lightweight"; the real fix is either a wider exit slot
+     or per-node content-aware sizing (`sizeOf` already exists and handles
+     one such case), and both are bigger than this change. Recorded as open
+     in audit/visual-review.md rather than papered over here. */
+  exit: { width: 200, height: 68 },
 };
 
 /** Height of a label chip (`text-xs` pill with `py-0.5`), as ELK sees it. */
@@ -164,6 +205,31 @@ export function estimatedLabelWidth(label: string | null): number {
   return Math.min(360, Math.max(70, 6 * weighted + 36));
 }
 
+/** Height a Family B combined card needs beyond an ordinary condition slot:
+    a compact duration strip above the question - icon, one clamped line,
+    a hairline rule, its own margin (`ConditionCard`'s `waitNode` header in
+    JourneyCanvasNodes.tsx). Measured against that markup at ~31px; biased
+    high like every other estimate here (`LABEL_CHAR_WEIGHT`'s own comment:
+    "an overestimate costs a little space, an underestimate a collision"). */
+const MERGED_WAIT_STRIP = 40;
+
+/** The SLOT a display node reserves - `SIZE[kind]` for every ordinary node,
+    `SIZE.condition` plus `MERGED_WAIT_STRIP` for a Family B combined card.
+    The one place both the ELK graph and its read-back size a node, so they
+    can never disagree about how tall a merged card is. */
+function sizeOf(d: DisplayNode): { width: number; height: number } {
+  let base = SIZE[d.node.kind];
+
+  if (d.node.kind === "action") {
+    if (d.node.execution === "communication") base = { width: 280, height: 96 };
+    else if (d.node.execution === "human") base = { width: 252, height: 108 };
+    else if ((d.node.channelPriority?.length ?? 0) >= 2) base = { width: 280, height: 58 };
+    else base = { width: 252, height: 44 };
+  }
+
+  return d.mergedWait ? { width: base.width, height: base.height + MERGED_WAIT_STRIP } : base;
+}
+
 function edgeKindFor(node: FlowNode, edge: FlowEdge): CanvasEdgeKind {
   if (node.kind === "wait") return edge.label === "on timeout" ? "wait-timeout" : "wait-event";
   if (node.kind === "condition") return "branch";
@@ -177,30 +243,370 @@ const INSTANCED_KINDS: ReadonlySet<CanvasNodeKind> = new Set(["exit", "handoff",
 
 /* A channel-selecting action (`FlowNode.channelPriority`, self-detected -
    see canonical-view.ts) that leads directly into the one send action it
-   selects for is, on the CANVAS, the same step as that send - "pick a
-   channel" and "send on it" read as one action to a journey reader, not
-   two. The canonical graph keeps both nodes exactly as authored (nothing
-   here reads or writes src/canonical); this is a DISPLAY GRAPH decision
-   only, the same kind this module already makes for a shared terminal
-   drawn once per parent below - here the router simply draws no box of
-   its own, and whatever fed into it connects straight through to the
-   message/human action instead. Detail panel access to the router's own
-   full priority/fallback prose is JourneyCanvas.tsx's concern (it still
-   has the router as an ordinary FlowNode, just not laid out); this
-   function only decides what gets a box. Generic: works for any journey
-   with the shape, not looked up by journey or node id. */
-export function collapsibleRouters(nodes: readonly FlowNode[], byId: ReadonlyMap<string, FlowNode>): ReadonlyMap<string, string> {
-  const collapsed = new Map<string, string>();
-  for (const n of nodes) {
-    if (n.kind !== "action" || n.execution || (n.channelPriority?.length ?? 0) < 2) continue;
+   selects for was, until 2026-09-21, folded into that send on the CANVAS -
+   "pick a channel" and "send on it" read as one action to a journey
+   reader, not two. That reasoning was overruled by
+   `audit/refactor/_ARBITRATION.md` §5: measured against the whole 69-
+   journey public corpus, this shape matches exactly seven nodes, all in
+   ACQ-287/288/289, and all seven are the library's only real channel
+   *resolution* - they read live state (a push token's validity, whether a
+   number is reachable on WhatsApp) and pick between REAL alternatives, the
+   one case in the corpus where a fallback or a segment split is not
+   asserted in prose but actually decided by a node. Where a stage's
+   pattern is conditional or fallback, that deciding node has to be
+   **visible**, not folded into the card it feeds - a reader must be able
+   to tell a real substitution from one merely claimed on a card. This
+   function keeps its shape (and both call sites below) as a documented,
+   verifiable no-op rather than being deleted outright: the collapse it
+   used to perform is never correct for this corpus and returning an empty
+   map states that as a checkable fact, not a silent removal. Generic: not
+   looked up by journey or node id - if the corpus ever grows a channel-
+   resolving action that is NOT one of these seven, it renders exactly the
+   same way, visible, with no code change needed here. */
+export function collapsibleRouters(_nodes: readonly FlowNode[], _byId: ReadonlyMap<string, FlowNode>): ReadonlyMap<string, string> {
+  return new Map();
+}
+
+/** A binary condition (exactly two branches) where one side is a real
+    continuation and the other is a bookkeeping short-circuit is, on the
+    DISPLAY graph, not a decision a reader needs to see - "may this touch
+    go out" is inherent to every communication node's own permission/
+    reachability/pressure rules, and "is this instance even eligible to
+    open" right after a trigger is entry plumbing, not a journey branch.
+    The qualifying signal is `ExitNode.class === "no-action"` on the short
+    side (resolved through at most one plain-internal bookkeeping hop, the
+    corpus's own "record why nothing was sent" step) - already-authored
+    vNext data, not a guess from either branch's prose or the condition's
+    own question. That is what tells this apart from a structurally
+    identical-looking gate a reader DOES need (ACQ-11's "is a final notice
+    enabled, and is there a real expiry to name?" short-circuits to
+    `x.lapsed`, class `timeout` - a business-meaningful ending, not a
+    no-action record - so it is left alone and drawn as an ordinary
+    branch). Absorbed the same way `collapsibleRouters` absorbs a channel-
+    selecting action: the gate (and the bookkeeping hop on either side, and
+    the no-action exit itself) draw no box, and whatever fed into the gate
+    connects straight through to the continuation side. Generic: any
+    condition with this exact shape qualifies, not looked up by journey or
+    node id - collapsibleGates never reads a journey id, only edge/kind/
+    class shape shared by the whole corpus's Config schema. */
+export function collapsibleGates(
+  nodes: readonly FlowNode[],
+  byId: ReadonlyMap<string, FlowNode>,
+): { hidden: ReadonlySet<string>; into: ReadonlyMap<string, string> } {
+  const isPlainInternal = (n: FlowNode | undefined): n is FlowNode => !!n && n.kind === "action" && !n.execution;
+  const soleNext = (n: FlowNode): FlowNode | undefined => {
     const out = n.edges.filter((e) => e.kind === "node");
-    if (out.length !== 1) continue;
-    const next = byId.get(out[0].to);
-    if (next?.kind === "action" && (next.execution === "communication" || next.execution === "human")) {
-      collapsed.set(n.id, out[0].to);
+    return out.length === 1 ? byId.get(out[0].to) : undefined;
+  };
+  // Up to one plain-internal hop past `start`; returns the real target and
+  // any internal node stepped over on the way to it.
+  const resolveChain = (start: FlowNode): { end: FlowNode; hops: readonly string[] } => {
+    if (isPlainInternal(start)) {
+      const next = soleNext(start);
+      if (next) return { end: next, hops: [start.id] };
+    }
+    return { end: start, hops: [] };
+  };
+
+  /* Who points at what, canonically - needed because a bookkeeping hop is
+     frequently SHARED between several gates, and hiding it on behalf of one
+     of them would cut the arm of another that is still drawn. */
+  const parents = new Map<string, Set<string>>();
+  for (const n of nodes) {
+    for (const e of n.edges) {
+      if (e.kind !== "node") continue;
+      const set = parents.get(e.to) ?? new Set<string>();
+      set.add(n.id);
+      parents.set(e.to, set);
     }
   }
+
+  type Candidate = { gate: string; contEnd: string; contHops: readonly string[]; shortHops: readonly string[] };
+  const candidates: Candidate[] = [];
+  for (const n of nodes) {
+    if (n.kind !== "condition") continue;
+    const branchTargets = n.edges.filter((e) => e.kind === "node").map((e) => byId.get(e.to));
+    if (branchTargets.length !== 2 || branchTargets.some((t) => !t)) continue;
+    const chains = branchTargets.map((t) => resolveChain(t!));
+    const shortCircuits = chains.filter((c) => c.end.kind === "exit" && c.end.exitClass === "no-action");
+    const continuations = chains.filter((c) => !(c.end.kind === "exit" && c.end.exitClass === "no-action"));
+    if (shortCircuits.length !== 1 || continuations.length !== 1) continue;
+    const cont = continuations[0];
+    // Never collapse into another (possibly also-collapsible) condition -
+    // this stays a single hop, not a chain of guesses.
+    if (cont.end.kind === "condition" || cont.end.kind === "exit") continue;
+    /* THE SHORT ARM MUST RECORD BEFORE IT ENDS. An exit classed
+       "no-action" was not, on its own, enough evidence that a gate is
+       plumbing: a genuine business decision can end in one too, and
+       collapsing those erased authored logic - RET-24's "is a
+       proportionate automated recovery available?" (the journey's whole
+       objective, and its ONLY exit) and TIM-63's "is telling anyone useful
+       even though nothing can be done?" (its authored `s.nothing-to-say`
+       suppression) both disappeared. What separates them is where the
+       short arm goes FIRST: a business decision branches straight to its
+       outcome, while a send-path gate books the reason it did not send and
+       only then ends. Requiring that bookkeeping hop takes the rule from
+       24 gates to 9 corpus-wide, and those 9 are exactly the ones whose
+       own question is "may this touch go out?" - the 15 it now leaves
+       alone are all real questions a reader needs. */
+    if (shortCircuits[0].hops.length === 0) continue;
+    candidates.push({ gate: n.id, contEnd: cont.end.id, contHops: cont.hops, shortHops: shortCircuits[0].hops });
+  }
+
+  const collapsedGates = new Set(candidates.map((c) => c.gate));
+  /* A hop may only disappear when EVERY node pointing at it is a gate that
+     collapsed. RET-32 is the case that proves it: its `a.record-no-action`
+     is reached from three conditions, two of which collapse and one of
+     which (its eligibility check, whose own continuation is another
+     condition) does not - hiding the hop for the two would have deleted
+     the third's "Excluded" arm from the drawing while leaving the decision
+     itself on screen, a branch silently lost. */
+  const hideable = (hop: string): boolean => {
+    const ps = parents.get(hop);
+    return !!ps && [...ps].every((p) => collapsedGates.has(p));
+  };
+
+  const hidden = new Set<string>(collapsedGates);
+  const into = new Map<string, string>();
+  for (const c of candidates) {
+    for (const id of c.shortHops) if (hideable(id)) hidden.add(id);
+    /* The continuation hop is the same question: where it is shared and
+       stays drawn, this gate collapses only as far as the hop rather than
+       past it, so the node still has its edge in. */
+    const contHopsHidden = c.contHops.every((id) => hideable(id));
+    for (const id of c.contHops) if (hideable(id)) hidden.add(id);
+    into.set(c.gate, contHopsHidden ? c.contEnd : (c.contHops[0] ?? c.contEnd));
+  }
+  /* The no-action exit itself is deliberately NOT hidden here. It is
+     usually reached only through gates like this one and then falls away
+     on its own as unreachable (buildDisplayGraph prunes that below), but
+     a journey where something still visible points at the same exit
+     keeps it drawn - hiding it eagerly would cut a live branch off at
+     the knee on a shape this function has not seen. */
+  return { hidden, into };
+}
+
+/* A journey's own bookkeeping - "open the instance and start the clock",
+   "record the return and re-arm the wait", "read what they currently hold"
+   - is real implementation work and stays in the canonical graph, but it is
+   not a step in the story the canvas tells. Drawn as full cards these are
+   both the most numerous boxes on the canvas and the longest text on it
+   (audited across all 73 library journeys: the single biggest source of
+   clutter, and every card over 110 characters is one of them).
+
+   Three conditions, all structural or authored - never a journey or node id:
+
+   1. `execution` is unset. A communication or human action reaches a
+      person and is always its own step.
+   2. It is a pass-through: exactly one node points at it, and it points at
+      exactly one node. Anything a branch converges on, or that forks, is
+      load-bearing on the drawing.
+   3. It writes nothing, or writes ONLY the corpus's own journal fields
+      (`*_log`, `*_history`, `suppressed_sends`). This is the line between
+      bookkeeping and work: measured across the library, 103 of 117
+      pass-through internal actions journal or write nothing, while the 14
+      that write real state are exactly the ones a reader needs - the
+      channel routers (`selected_channel_*`, already collapsed by
+      `collapsibleRouters`), and steps like "resolve the existing account"
+      (`commercial_entity_link`), "identify the exact requirement"
+      (`blocking_requirement`) or "assemble the signals" (`risk_evidence`),
+      whose output later steps depend on. Those keep their card.
+
+   The absorbed node keeps everything: it is still in `FlowNode[]`, still
+   carries its full prose, and JourneyCanvas hands it to the detail panel
+   of the card that absorbed it, so a reader who opens that card sees every
+   canonical step it represents. Nothing is deleted, only un-boxed. */
+const JOURNAL_WRITE = /(_log$|_history$|_trail$|_audit$|^suppressed_sends$)/;
+
+export function absorbableBookkeeping(
+  nodes: readonly FlowNode[],
+  byId: ReadonlyMap<string, FlowNode>,
+): ReadonlyMap<string, string> {
+  const inDegree = new Map<string, number>();
+  for (const n of nodes) {
+    for (const e of n.edges) {
+      if (e.kind === "node") inDegree.set(e.to, (inDegree.get(e.to) ?? 0) + 1);
+    }
+  }
+
+  const absorbed = new Map<string, string>();
+  for (const n of nodes) {
+    if (n.kind !== "action" || n.execution || n.isEntry) continue;
+
+    /* Channel resolution is customer-visible behaviour, not plumbing.
+       ACQ-287/288/289 and any future journey with the same canonical shape
+       keep their router on the canvas. */
+    if ((n.channelPriority?.length ?? 0) >= 2) continue;
+
+    /* Only collapse true pass-through mechanics. Anything that merges,
+       forks, or is shared by several parents remains visible because it is
+       structurally meaningful even when it is not a customer touch. */
+    if ((inDegree.get(n.id) ?? 0) !== 1) continue;
+    const out = n.edges.filter((e) => e.kind === "node");
+    if (out.length !== 1) continue;
+    const host = byId.get(out[0].to);
+    if (!host) continue;
+
+    /* Public canvas grammar is channel-first. Canonical state writes,
+       bookkeeping and measurement remain fully available in the detail
+       panel through representedSteps; they do not each need a separate
+       card merely because an implementation field is written here. */
+    absorbed.set(n.id, out[0].to);
+  }
+  return absorbed;
+}
+
+/* Family B (Hulusi's spec, 2026-09-20): a wait whose "on event" and "on
+   timeout" arms both land on the SAME condition, with nothing else pointing
+   at that condition, is one reading unit on the canvas - "wait, then read
+   what happened" - not two boxes. The canonical graph keeps both wait edges
+   and the condition node exactly as authored; this only decides that the
+   condition's own card carries a compact duration strip instead of the wait
+   being drawn as a card of its own.
+
+   Two conditions, both structural, read straight off the edges every
+   journey already has - never a journey or node id:
+
+   1. The wait's "on event" and "on timeout" arms name the exact same
+      target, and that target is a condition. `canonical-view.ts` already
+      collapses this pair to two unlabeled edges when they agree (the twin-
+      route edge merge draws one line for them either way), so this is the
+      SAME signal the drawing already uses for "these two arms say the same
+      thing" - not a second test invented for this collapse.
+   2. That condition's only incoming edges - by distinct SOURCE, not raw
+      count, which is what lets the wait's own two same-target arms both
+      count as "one source" instead of failing an `=== 1` check they can
+      never pass - all come from this wait. A condition three routes lead
+      into is not exclusively this wait's question.
+
+   Measured against the corpus (`audit/family-b-detector.mjs`, not
+   estimated): of the library's 105 waits, 86 send the two arms to DIFFERENT
+   nodes - collapsing those would erase a real branch, so condition 1 is
+   exact equality, not "usually agree". Of the 19 that agree, 2 land on
+   something that is not a condition and 2 share that condition with another
+   route - collapsing either would delete or misattribute an edge that is
+   not this wait's alone. The remaining 15, across 7 journeys, are
+   exclusive. A broader reading - any wait whose "on event" target is a
+   sole-parent condition, letting the two arms disagree - was tested and
+   rejected: the corpus does not populate a branch's `observes` with event
+   ids, so there is no way to tell "this branch is naming which event fired"
+   from "this is an unrelated decision that happens to be this wait's only
+   child" at the other 24 sites that shape matches. */
+export function collapsibleWaitFollowers(
+  nodes: readonly FlowNode[],
+  byId: ReadonlyMap<string, FlowNode>,
+): ReadonlyMap<string, string> {
+  const sources = new Map<string, Set<string>>();
+  for (const n of nodes) {
+    for (const e of n.edges) {
+      if (e.kind !== "node") continue;
+      const set = sources.get(e.to) ?? new Set<string>();
+      set.add(n.id);
+      sources.set(e.to, set);
+    }
+  }
+
+  const collapsed = new Map<string, string>();
+  for (const n of nodes) {
+    if (n.kind !== "wait") continue;
+    const out = n.edges.filter((e) => e.kind === "node");
+    // Every corpus wait carries both arms (WaitNode.onEvent/onTimeout are
+    // both required in src/canonical/types.ts) - defensive only.
+    if (out.length !== 2) continue;
+    const [onEvent, onTimeout] = out;
+    if (onEvent.to !== onTimeout.to) continue;
+    const target = byId.get(onEvent.to);
+    if (!target || target.kind !== "condition") continue;
+    const only = sources.get(target.id);
+    if (!only || only.size !== 1 || !only.has(n.id)) continue;
+    collapsed.set(n.id, target.id);
+  }
   return collapsed;
+}
+
+/** Drawn node id -> the canonical nodes it stands in for, in canonical
+    order. The traceability half of every collapse this module makes: a card
+    that represents more than itself must be able to say so, and the detail
+    panel renders this list as "represented canonical steps" so the
+    simplification never costs a reader the implementation. Covers all four
+    collapses (channel router, permission gate and its bookkeeping hop,
+    absorbed bookkeeping, Family B's wait+condition merge). */
+export function representedSteps(nodes: readonly FlowNode[]): ReadonlyMap<string, readonly FlowNode[]> {
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const routers = collapsibleRouters(nodes, byId);
+  const gates = collapsibleGates(nodes, byId);
+  const bookkeeping = absorbableBookkeeping(nodes, byId);
+  const waitFollowers = collapsibleWaitFollowers(nodes, byId);
+
+  const order = new Map(nodes.map((n, i) => [n.id, i]));
+  const hostOf = new Map<string, string>();
+  for (const [absorbed, host] of routers) hostOf.set(absorbed, host);
+  for (const [gate, host] of gates.into) hostOf.set(gate, host);
+  for (const [absorbed, host] of bookkeeping) hostOf.set(absorbed, host);
+  for (const [waitId, host] of waitFollowers) hostOf.set(waitId, host);
+  /* A gate's own hidden bookkeeping hop has no `into` of its own; it belongs
+     to whatever that gate collapsed into. */
+  for (const hidden of gates.hidden) {
+    if (hostOf.has(hidden)) continue;
+    const parent = nodes.find((n) => n.edges.some((e) => e.kind === "node" && e.to === hidden && gates.into.has(n.id)));
+    const host = parent ? gates.into.get(parent.id) : undefined;
+    if (host) hostOf.set(hidden, host);
+  }
+
+  /* Resolve chains so an absorbed node whose host was itself absorbed lands
+     on the card actually drawn. Bounded, like `resolve` below. */
+  const resolveHost = (id: string): string => {
+    let at = id;
+    for (let i = 0; i < 4; i++) {
+      const next = hostOf.get(at);
+      if (!next || next === at) break;
+      at = next;
+    }
+    return at;
+  };
+
+  const out = new Map<string, FlowNode[]>();
+  for (const absorbed of hostOf.keys()) {
+    const host = resolveHost(absorbed);
+    if (host === absorbed) continue;
+    const node = byId.get(absorbed);
+    if (!node) continue;
+    const list = out.get(host) ?? [];
+    list.push(node);
+    out.set(host, list);
+  }
+  for (const list of out.values()) list.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+  return out;
+}
+
+/** Node id -> its place in a repeated-question group, where a group is every
+    condition in the SAME journey whose `asks` matches another verbatim
+    (case-sensitive, no fuzzy reading - the signal from Family F's own audit:
+    "the signal is a set of conditions in one journey sharing an `asks`
+    string"). Unlike the four collapses above, this never hides a node: two
+    conditions asking the same question at different stages of a cascade are
+    each a real decision with its own branches and its own place in the
+    graph, not implementation duplication - what a reader is missing is not
+    less canvas but the fact that this question already came up once. So the
+    group is surfaced as a small `position/total` marker on every member
+    instead of removing any of them (a design choice the Family F write-up
+    called for a render-and-critique pass rather than a transform). Position
+    is 1-based, in canonical node order - the order this journey's own
+    authoring already puts the cascade's stages in. */
+export function repeatedChecks(nodes: readonly FlowNode[]): ReadonlyMap<string, { position: number; total: number }> {
+  const groups = new Map<string, string[]>();
+  for (const n of nodes) {
+    if (n.kind !== "condition" || !n.asks) continue;
+    const list = groups.get(n.asks) ?? [];
+    list.push(n.id);
+    groups.set(n.asks, list);
+  }
+  const out = new Map<string, { position: number; total: number }>();
+  for (const ids of groups.values()) {
+    if (ids.length < 2) continue;
+    ids.forEach((id, i) => out.set(id, { position: i + 1, total: ids.length }));
+  }
+  return out;
 }
 
 /* ---------------------------------------------------------------- display graph */
@@ -208,8 +614,39 @@ export function collapsibleRouters(nodes: readonly FlowNode[], byId: ReadonlyMap
 export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const entry = nodes.find((n) => n.isEntry) ?? nodes[0];
-  const collapsed = collapsibleRouters(nodes, byId);
-  const resolve = (id: string): string => collapsed.get(id) ?? id;
+  const routers = collapsibleRouters(nodes, byId);
+  const gates = collapsibleGates(nodes, byId);
+  const bookkeeping = absorbableBookkeeping(nodes, byId);
+  const waitFollowers = collapsibleWaitFollowers(nodes, byId);
+  const repeats = repeatedChecks(nodes);
+  /* All four collapses answer the same question - "what does an edge
+     pointing at this node actually reach on the canvas?" - so they share
+     one resolver. Chained (a gate whose continuation is itself a collapsed
+     router) resolves through in a bounded loop rather than one hop; the
+     bound is what keeps a pathological cycle of collapses from spinning. */
+  const hop = (id: string): string => routers.get(id) ?? gates.into.get(id) ?? bookkeeping.get(id) ?? waitFollowers.get(id) ?? id;
+  const resolve = (id: string): string => {
+    let at = id;
+    for (let i = 0; i < 4; i++) {
+      const next = hop(at);
+      if (next === at) break;
+      at = next;
+    }
+    return at;
+  };
+  const hiddenNodes = new Set<string>([...routers.keys(), ...gates.hidden, ...bookkeeping.keys(), ...waitFollowers.keys()]);
+  /* Family B's host is drawn from ITS OWN kind (the condition), not
+     absorbed invisibly like the other three collapses - its card needs the
+     wait's own data to draw the duration strip. Inverted from
+     `waitFollowers` (wait -> host) to host -> wait, and resolved through
+     `resolve()` below only implicitly: if the host condition is itself
+     later hidden by something else, `reachable`/`hiddenNodes` already keep
+     it (and this map) from ever being read. */
+  const mergedWaitOf = new Map<string, FlowNode>();
+  for (const [waitId, hostId] of waitFollowers) {
+    const waitNode = byId.get(waitId);
+    if (waitNode) mergedWaitOf.set(hostId, waitNode);
+  }
 
   /* Internal edges only - an edge to another journey or an external system
      is where this journey's drawing ends. A collapsed router contributes
@@ -220,13 +657,17 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
   const internal = new Map<string, FlowEdge[]>();
   const parents = new Map<string, Set<string>>();
   for (const n of nodes) {
-    if (collapsed.has(n.id)) {
+    if (hiddenNodes.has(n.id)) {
       internal.set(n.id, []);
       continue;
     }
     const raw = n.edges
       .filter((e) => e.kind === "node" && byId.has(e.to))
-      .map((e) => (collapsed.has(e.to) ? { ...e, to: resolve(e.to) } : e));
+      .map((e) => (hiddenNodes.has(e.to) ? { ...e, to: resolve(e.to) } : e))
+      /* An edge whose target is still hidden after resolving is one of the
+         collapsed short-circuit's own arms (the bookkeeping hop a gate
+         absorbed); it has no box to point at any more. */
+      .filter((e) => !hiddenNodes.has(e.to));
     /* Twin routes (Hulusi, 2026-09-20: "why do two lines leave here?"): a
        wait whose "on event" and "on timeout" both lead to the same node -
        ACQ-11's second wait feeds one decision either way - drew two
@@ -276,10 +717,35 @@ export function buildDisplayGraph(nodes: readonly FlowNode[]): DisplayGraph {
       .map((n) => n.id),
   );
 
+  /* Reachability AFTER the collapses. A node whose only parents were gates
+     that just collapsed - the corpus's shared "no touch sent" exit is the
+     usual one - has nothing pointing at it any more, and a box nothing
+     reaches is not a step a reader can follow. Measured from the
+     post-collapse edges rather than assumed, so the same exit stays drawn
+     on a journey where something still visible points at it. */
+  const reachable = new Set<string>();
+  const walk = (id: string) => {
+    if (reachable.has(id)) return;
+    reachable.add(id);
+    for (const e of internal.get(id) ?? []) walk(e.to);
+  };
+  if (entry) walk(entry.id);
+
   const displayNodes: DisplayNode[] = [];
   const displayEdges: DisplayEdge[] = [];
   for (const n of nodes) {
-    if (!instanced.has(n.id) && !collapsed.has(n.id)) displayNodes.push({ layoutId: n.id, canonicalNodeId: n.id, node: n });
+    if (!reachable.has(n.id)) continue;
+    if (!instanced.has(n.id)) {
+      const mergedWait = mergedWaitOf.get(n.id);
+      const repeatCheck = repeats.get(n.id);
+      displayNodes.push({
+        layoutId: n.id,
+        canonicalNodeId: n.id,
+        node: n,
+        ...(mergedWait ? { mergedWait } : {}),
+        ...(repeatCheck ? { repeatCheck } : {}),
+      });
+    }
     const out = internal.get(n.id)!;
     /* Instances go into the model order right after their parent, which is
        where ELK's model-order tie-breaking keeps them on the canvas too. */
@@ -348,12 +814,12 @@ const ROOT_OPTIONS: Record<string, string> = {
      breaking reverses the same edge the display graph found, so the loop
      never turns a forward edge upward instead. */
   "elk.layered.cycleBreaking.strategy": "DEPTH_FIRST",
-  "elk.spacing.nodeNode": "48",
-  "elk.layered.spacing.nodeNodeBetweenLayers": "72",
-  "elk.spacing.edgeNode": "32",
-  "elk.spacing.edgeEdge": "28",
-  "elk.layered.spacing.edgeNodeBetweenLayers": "32",
-  "elk.layered.spacing.edgeEdgeBetweenLayers": "28",
+  "elk.spacing.nodeNode": "40",
+  "elk.layered.spacing.nodeNodeBetweenLayers": "56",
+  "elk.spacing.edgeNode": "28",
+  "elk.spacing.edgeEdge": "24",
+  "elk.layered.spacing.edgeNodeBetweenLayers": "28",
+  "elk.layered.spacing.edgeEdgeBetweenLayers": "24",
   "elk.spacing.edgeLabel": "8",
   "elk.padding": `[top=${PAD_Y},left=${PAD_X},bottom=${PAD_BOTTOM},right=${PAD_X}]`,
 };
@@ -399,7 +865,7 @@ function toElkGraph(graph: DisplayGraph): ElkNode {
       sourcePort.set(e.id, id);
       ports.push({ id, width: 0, height: 0, layoutOptions: { "elk.port.side": "WEST", "elk.port.index": String(next++) } });
     }
-    const size = SIZE[d.node.kind];
+    const size = sizeOf(d);
     return {
       id: d.layoutId,
       width: size.width,
@@ -460,9 +926,20 @@ function readBack(graph: DisplayGraph, out: ElkNode): CanvasLayout {
   const byLayoutId = new Map(graph.nodes.map((d) => [d.layoutId, d]));
   const placed = (out.children ?? []).map((c) => {
     const d = byLayoutId.get(c.id)!;
-    const width = c.width ?? SIZE[d.node.kind].width;
-    const height = c.height ?? SIZE[d.node.kind].height;
-    return { layoutId: d.layoutId, canonicalNodeId: d.canonicalNodeId, node: d.node, x: (c.x ?? 0) + width / 2, y: c.y ?? 0, width, height };
+    const size = sizeOf(d);
+    const width = c.width ?? size.width;
+    const height = c.height ?? size.height;
+    return {
+      layoutId: d.layoutId,
+      canonicalNodeId: d.canonicalNodeId,
+      node: d.node,
+      ...(d.mergedWait ? { mergedWait: d.mergedWait } : {}),
+      ...(d.repeatCheck ? { repeatCheck: d.repeatCheck } : {}),
+      x: (c.x ?? 0) + width / 2,
+      y: c.y ?? 0,
+      width,
+      height,
+    };
   });
   const grid = structuralGrid(placed);
   const nodes: LaidOutNode[] = placed.map((p) => ({ ...p, ...grid.get(p.layoutId)! }));
@@ -534,7 +1011,12 @@ const cache = new Map<string, Promise<CanvasLayout>>();
 
 function signature(graph: DisplayGraph): string {
   return (
-    graph.nodes.map((d) => `${d.layoutId}:${d.node.kind}`).join("|") +
+    // `+w` when a condition carries a Family B merged wait: not otherwise
+    // implied by layoutId/kind/edges (the absorbed wait itself is hidden,
+    // so it leaves no trace in either), and it changes the node's own
+    // reserved height (`sizeOf`) - two graphs identical everywhere else
+    // must still cache separately if they differ only in this.
+    graph.nodes.map((d) => `${d.layoutId}:${d.node.kind}${d.mergedWait ? "+w" : ""}`).join("|") +
     "//" +
     graph.edges.map((e) => `${e.from}>${e.to}:${e.label ?? ""}:${e.loop ? "L" : ""}`).join("|")
   );

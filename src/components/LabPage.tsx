@@ -6,14 +6,13 @@ import JourneyGallery from "@/components/JourneyGallery";
 import JourneyRowCard from "@/components/JourneyRowCard";
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
 import LabShell from "@/components/LabShell";
-import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, ChevronSelect, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW } from "@/components/ui/LibraryChrome";
+import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, ChevronSelect, SEARCH_SHELL, TOOLBAR_ROW } from "@/components/ui/LibraryChrome";
 import { ProductMark } from "@/components/ui/ProductFrame";
 import {
   CATEGORY_META,
   JOURNEY_ROWS,
   MERGED_REDIRECTS,
   PRESET_ROWS,
-  SURFACE_KEYS,
   SURFACE_PATH,
   withLibraryCount,
   type JourneyRow,
@@ -22,6 +21,7 @@ import {
 import { GOAL_LABEL } from "@/lib/journey-taxonomy";
 import { CHANNEL_LABEL, sortChannels } from "@/lib/journey-channels";
 import { copy, type Lang } from "@/lib/content";
+import { localizedJourneyNaming, localizedPreset } from "@/lib/journey-tr-overrides";
 import { breadcrumbList, type BreadcrumbItem } from "@/lib/schema";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 
@@ -95,13 +95,8 @@ function GalleryFallback({ lang, t, basePath, rows, surface }: {
     byCat.set(j.category, arr);
   }
   const sections = CATEGORY_META.filter((c) => byCat.has(c.id)).map((c) => ({ meta: c, items: byCat.get(c.id)! }));
-  const surfaceLinks = SURFACE_KEYS.map((k) => ({ key: k, href: (lang === "en" ? "" : "/tr") + SURFACE_PATH[k], label: labels.surfaceLabels[k] }));
-
   return (
     <div>
-      <div className="flex justify-center">
-        <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
-      </div>
       <div className={`${TOOLBAR_ROW} opacity-60`}>
         <div className={`${SEARCH_SHELL} min-w-0 lg:flex-1`}>
           <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
@@ -196,6 +191,21 @@ export default function LabPage({
   surface?: SurfaceKey;
 }) {
   const t = copy[lang];
+  /* EVERY CARD ON THIS PAGE, THROUGH THE TR CONTENT LAYER. The three surface
+     galleries render a JourneyRow's name, shortName, purpose and category
+     title, and JOURNEY_ROWS is the English canonical projection
+     (canonical-view.ts, computed once at module load and shared by both
+     locales). Passing it straight to the gallery listed every card's purpose
+     in English on /tr - 58 of them on Customer Journeys alone. One map here,
+     at the one boundary all three surfaces pass through; the row's shape,
+     order, counts and thumbnails are untouched, and on `en` the function
+     returns its argument. */
+  const localizedRows = rows.map((r) => localizedJourneyNaming(r, lang));
+  /* Same boundary, same rule, for the preset cards the customer-journeys
+     gallery shows above the list: name, applicable-when, parent name and
+     category title, translated once here rather than inside the client
+     component. `localizedPreset` returns its argument on `en`. */
+  const localizedPresets = PRESET_ROWS.map((p) => localizedPreset(p, lang));
   const basePath = lang === "en" ? "/lab/journeys" : "/tr/lab/journeys";
   const pageTitle = title ?? t.lab.page.title;
   const pageIntro =
@@ -233,32 +243,25 @@ export default function LabPage({
       <div className="pt-4 pb-16 md:pb-24">
         <div className="altor-container-wide">
           {browser === "gallery" && surface ? (
-            <Suspense fallback={<GalleryFallback lang={lang} t={t.lab.page} basePath={basePath} rows={rows} surface={surface} />}>
+            <Suspense fallback={<GalleryFallback lang={lang} t={t.lab.page} basePath={basePath} rows={localizedRows} surface={surface} />}>
               <JourneyGallery
                 lang={lang}
                 t={t.lab.page}
-                rows={rows}
+                rows={localizedRows}
                 merged={MERGED_REDIRECTS}
                 basePath={basePath}
                 categories={CATEGORY_META}
                 surface={surface}
-                surfaceLinks={SURFACE_KEYS.map((k) => ({ key: k, href: (lang === "en" ? "" : "/tr") + SURFACE_PATH[k], label: t.lab.journeysSplit.surfaceLabels[k] }))}
-                presets={surface === "customer-journeys" ? PRESET_ROWS : []}
-                emptyChannelLabel={
-                  surface === "lifecycle-states"
-                    ? t.lab.journeysSplit.silentBadge
-                    : surface === "runtime-mechanisms"
-                      ? t.lab.journeysSplit.mechanismBadge
-                      : t.lab.journeysSplit.internalBadge
-                }
+                presets={surface === "customer-journeys" ? localizedPresets : []}
+                emptyChannelLabel={t.lab.journeysSplit.internalBadge}
               />
             </Suspense>
           ) : (
-            <Suspense fallback={<JourneyBrowserFallback lang={lang} t={t.lab.page} basePath={basePath} rows={rows} />}>
+            <Suspense fallback={<JourneyBrowserFallback lang={lang} t={t.lab.page} basePath={basePath} rows={localizedRows} />}>
               <JourneyBrowser
                 lang={lang}
                 t={t.lab.page}
-                rows={rows}
+                rows={localizedRows}
                 merged={MERGED_REDIRECTS}
                 basePath={basePath}
               />

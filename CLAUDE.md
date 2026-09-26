@@ -1,266 +1,100 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 @AGENTS.md
 
 ## Commands
 
 ```bash
-npm run dev                 # next dev on :3000 (see .claude/launch.json)
-npm run build               # plain `next build` — no prebuild hook, no validator runs
-npm run lint                # eslint; 6 pre-existing warnings in production/, 0 errors
-npx tsc --noEmit            # typecheck; currently clean
+npm run dev
+npm run build
+npm run lint
+npx tsc --noEmit
+
+npm run validate:canonical
+npm run validate:journey-production
+npm run validate:seo
 ```
 
-There is **no test framework**. Correctness is enforced by validator scripts, and by
-Playwright/Puppeteer QA harnesses that are not wired into CI. Only four validators are npm
-scripts; the rest must be run by hand with `node`:
+Run `npm run build` before merging code changes. When lint reports an inherited problem, separate it from errors introduced by the files you touched rather than changing unrelated code.
 
-```bash
-npm run validate:canonical            # journey graph invariants + vNext rules — the real gate for src/canonical/
-node scripts/surface-assignment.mjs   # production/surface-assignment.json (customer / mechanism / operational)
-node scripts/build-event-registry.mjs # regenerates src/canonical/events.ts from scripts/event-curation.json
-node scripts/vnext-readiness.mjs [out] # readiness scorer; VNEXT_CUSTOMER_READINESS.json when a path is given
-node scripts/vnext-recipes.mjs        # production/vnext-recipes.md (implementation recipes, generated)
-node scripts/vnext-changelog.mjs      # VNEXT_MIGRATION_CHANGELOG.md (generated)
-npm run dump:canonical                # regenerates production/canonical-dump.json
-npm run validate:journey-production   # asserts production/ artifacts against frozen baselines
-npm run validate:seo                  # title/description corpus + cannibalization clustering
+## Routing
 
-node seo/seo-validator.mjs            # 20 SEO contract checks
-node search/search-validator.mjs      # 34 checks — REBUILDS the 6 search index files as a side effect
-node search/build-search-index.mjs    # rebuild search index only
-node search/run-query-fixtures.mjs    # query relevance fixtures
-node production/calculators/validate-calculators.mjs
-node production/calculators/validate-calculator-content.mjs
-node production/calculators/validate-calculator-seo.mjs
-node production/calculators/test-calculators.mjs
-```
+The site has two route trees:
 
-**Known-failing today, from pre-existing drift — not from your change:**
+- English: `src/app/(en)/...`
+- Turkish: `src/app/tr/...`
 
-- `node seo/seo-validator.mjs` fails check 14. It expects `43` calculator content files; there
-  are `19`, matching the 19 live slugs.
-- `node search/search-validator.mjs` fails checks 30 and 31, and `node search/run-query-fixtures.mjs`
-  fails 9 fixtures. All of them expect calculator documents (MDE, CTOR, cart-abandonment, ...) that
-  left the live catalog when it went from 43 to 19; the index is rebuilt from the 19 live files.
-  (Four fixtures — `CTL-239`, `CTL-240`, `RET-25`, `risk signal correlation` — are `expectedAbsent`
-  assertions since the Operational Workflows archive: the archived journey must NOT surface. They
-  pass; they are not among the 9.)
-- `production/build_seo_metadata.py` needs the A/B canon from another repository; it falls back to
-  `src/data/ab-tests.json` for ids.
+There is no dynamic `[lang]` segment. Shared pages live in `src/components` and receive a `lang` prop; route files should stay thin.
 
-`npm run validate:canonical`, `npm run validate:journey-production` and `npm run validate:seo`
-pass. Re-run a validator before and after your change so you can tell your failures from the
-inherited ones.
+This is a demo / portfolio site. Do not preserve legacy URLs with redirects. When an old page is retired, remove the route and let Next.js return its default 404. Do not add custom catch-all 404 routes or custom locale 404 pages unless explicitly requested.
 
-## Architecture
+Add only active public routes to `src/app/sitemap.ts`.
 
-### Every page exists twice — there is no `[lang]` segment
+## Content ownership
 
-`src/app/(en)/<path>/page.tsx` and `src/app/tr/<path>/page.tsx` are duplicated folders with two
-independent root layouts and **no shared `src/app/layout.tsx`**. Each tree declares its own
-`<html lang>` at build time, which is what keeps the site free of the dynamic `headers()` API
-and fully prerenderable. Shipping a page in one locale only is the default failure mode here.
+General site copy lives in `src/lib/content.ts`.
 
-Both page files are thin wrappers — a `metadata` export plus a shared component from
-`src/components/` taking a `lang: Lang` prop. All copy lives in one dictionary,
-`src/lib/content.ts` (~1650 lines, `copy.en` / `copy.tr`); there is no i18n library and no
-`dictionaries/` folder.
+Lab project card metadata also lives in `copy[lang].lab.projects` and is accessed through `src/lib/skill-catalog.ts`.
 
-Dynamic routes keep the two locales in lockstep through a shared `*Routes.tsx` module that
-exports both a metadata factory and a page component — `CalculatorRoutes.tsx`,
-`JourneyRoutes.tsx`, `AbTestRoutes.tsx`. The route files stay ~15-line shells.
+Detailed copy for bespoke Lab product pages lives in:
+- `src/lib/skill-pages/change-history.tsx`
+- `src/lib/skill-pages/dashboard-builder.tsx`
+- `src/lib/skill-pages/numerspace.tsx`
 
-**Adding a bilingual page:** shared component in `src/components/` → `en`/`tr` keys in
-`copy` → both route files with `alternates: pageAlternates("/<path>", lang)` → add the path to
-the hand-maintained `routes` array in `src/app/sitemap.ts`.
+The corresponding page components import that copy. Do not create a second copy block in the component.
 
-Three routes are EN-only by design: `experiment-a`, `experiment-b`, `qa-canvas-sweep/[id]`.
-`blog/[slug]` used to be a fourth (`src/lib/blog.ts`'s `getAllBlogPosts` returned `[]` for any
-non-`en` lang) until every post got a real `tr` translation (`blog-posts.ts`'s per-post `tr`
-field) and its own `src/app/tr/blog/[slug]/page.tsx` route.
+Blog content lives in `src/lib/blog-posts.ts`.
 
-### Invariants that look like bugs and are not
+A/B test source data lives in `src/data/ab-tests.json`.
 
-- **`[...catchall]/page.tsx` in both trees just calls `notFound()`.** With two root layouts there
-  is no app-root fallback, so an unmatched URL would render Next's generic 404 instead of the
-  tree's own locale-correct `not-found.tsx`. The catch-all makes "unknown path" a real match.
-- **The site is `noindex` sitewide** (`robots: { index: false, follow: false }` in both root
-  layouts) while `src/app/robots.ts` deliberately *allows* crawling. A crawler must fetch a page
-  to read its noindex tag. Do not "fix" this by adding a `Disallow`.
-- **Every route must prerender.** After `next build` every route should be `○` or `●`. The only
-  legitimate `ƒ` entries are the two `[...catchall]` routes and `/qa-canvas-sweep/[id]`.
-- **`src/lib/seo.ts` is 22 lines and owns every canonical and hreflang pair.** `pageAlternates`
-  takes the **EN path, no trailing slash** (`""` for home); the `/tr` twin is derived.
+## Numbers in copy
 
-### Canonical journey library — the largest subsystem
+Do not type corpus, test, template, calculator, category or year counts directly into user-facing copy when they can be derived.
 
-`src/canonical/` is **hand-authored TypeScript**: `types.ts` plus 26 flat domain files, each
-exporting exactly `<DOMAIN>_JOURNEYS` and `<DOMAIN>_RULES`, aggregated by `index.ts`. A journey
-is a **graph, not a sequence** — an `entry` node plus nodes that name their own successors.
-Currently 286 journeys / 3728 nodes / 8 merged (retired) ids.
+Current Lab metrics are resolved through `src/lib/lab-project-facts.ts` from their source data. Journey library counts are derived through the canonical/public corpus adapters. Footer year is dynamic.
 
-**vNext (Customer Journeys).** Every customer-surface journey carries the vNext contract
-(`eligibility`, `suppressions`, `implementation`, `measurement`, `discovery`; communicating ones
-also `contact`, `channelStrategy`, `orchestration`). The presence of `measurement` is the
-migration marker and turns the vNext validator rules from warnings into errors for that
-journey. Waits carry a `Config` (`required: true`, or a default with `confidence` and an honest
-`basis`), `until` values are registry ids from the generated `src/canonical/events.ts`, and every
-exit has a `class`. Warnings on vNext journeys must be fixed or recorded in
-`production/vnext-warning-reviews.json`; the validator counts unreviewed ones. Product
-surfaces are read per journey by `src/canonical/surface.ts` (customer journeys / lifecycle
-states / runtime mechanisms / operational workflows) and rendered by `SURFACE_ROWS` in
-`src/lib/canonical-view.ts`; presets (`discovery.presets`) are their own URLs under
-`/lab/journeys/<preset-id>` and open the parent's practitioner view (`src/lib/practitioner-view.ts`).
-See `JOURNEY_VNEXT_ARCHITECTURE.md`, `ARCHITECTURE_PATCH_0_5.md` and `VNEXT_MIGRATION_REPORT.md`.
+If a number cannot be derived from a maintained source, prefer removing the number from copy.
 
-Data flows **`src/canonical/index.ts` → `src/lib/canonical-view.ts` → pages**. That adapter is the
-only bridge and it is **server-only**: `JOURNEY_ROWS` and the preview thumbnails are computed
-once at module load. Importing `@/canonical` or `@/lib/canonical-view` from a `"use client"`
-file ships all 286 journey graphs (3728 nodes) to the browser — client components take shaped props and import
-only *types*. The canvas layout engine is ELK (`elkjs`, `src/lib/journey-canvas-layout.ts`):
-asynchronous and server-only - `layoutJourneyCanvas()` runs in async server components and
-the client `JourneyCanvas` takes the finished `layout` as a prop; `canonical-view.ts` awaits
-it at module load for the thumbnails (top-level await, so a plain `tsx` run of that module
-needs an ESM bundle). It lays out a DISPLAY graph in which a shared exit/handoff is drawn once
-per parent (`x.converted@c.state`, keyed by `layoutId`, opened by `canonicalNodeId`); the
-canonical graph is untouched. `journey-preview.ts` consumes the same `CanvasLayout` so a card
-thumbnail and its detail canvas can never disagree; do not add a second layout engine.
+## Journey architecture
 
-`npm run validate:canonical` parses those `.ts` files **as text** and evals the literals — it
-never sees your types. So keep `export const <DOMAIN>_JOURNEYS = [...]` at top level, and
-register any new domain file in the `FILES` array of **both** `scripts/validate-canonical.mjs`
-and `scripts/dump-canonical.mjs`. It enforces roughly 25 hard invariants: exactly one trigger
-which must equal `entry`, every node reachable, at least one reachable exit-or-handoff, every
-condition ≥ 2 branches, every wait with timeout and explicit `windowExtendsOnEngagement`, every
-exit with `reEntry`, and `channels` that must be *backed* by an action carrying
-`execution: "communication" | "human"` — it errors in both directions.
+`src/canonical` is the authored source for the journey graph. The public website reads it through server-side adapters in `src/lib`, especially `canonical-view.ts` and `public-corpus.ts`.
 
-Merged ids are addressable but are not journeys: they get a slug, render the survivor's detail,
-are forced `noindex` with a canonical pointing at the survivor, and are excluded from the
-sitemap. `src/lib/journey-marketing.ts` hard-references 5 journey ids (the featured `ACQ-01` plus 4 showcase
-cards) and **throws at module load** if any is removed. Three of the five (`ACQ-01`, `CON-38`, `TIM-65`)
-are public but are silent lifecycle states, not library journeys.
+Do not import the canonical corpus or `canonical-view.ts` from a `"use client"` component. Shape data on the server and pass plain props to client components.
 
-**The public site projects THREE of the four surfaces (since 2026-09-05).** The Operational
-Workflows surface (`/lab/operational-workflows`, 124 journeys) was removed from the public
-website and archived under `archive/operational-workflows/` — read its README before touching
-anything surface-related. The canonical graph is UNCHANGED (286 journeys; `validate:canonical`
-still reports `operational 124`) because 54 public journeys hand off into operational ones (78 handoff
-edges to 23 targets; 67 public journeys reference 41 of them once `distinctFrom` rows are counted) and
-the validator requires every handoff target to exist. The archive is enforced at the publishing
-boundary by one predicate, `src/lib/public-corpus.ts` (`isPublicJourney` = surface is not
-`operational`): `JOURNEY_ROWS`, `ALL_DETAIL_SLUGS`, `MERGED_REDIRECTS` (5 of 8 — the 3 whose
-survivor is archived are not public routes), the sitemap, and every cross-journey `href` the
-detail pages build all read it.
+Some canonical journeys are intentionally excluded from public listings. Do not delete canonical records merely because they are not exposed on the website; other journeys may still hand off to or reference them.
 
-**The library's stated size is the Customer Journeys surface: 73 journeys / 21 categories.**
-`LIBRARY_JOURNEYS` (`public-corpus.ts`, `isLibraryJourney` = public AND customer AND sends-or-routes-
-to-a-person) feeds `LIBRARY_COUNT`/`LIBRARY_CATEGORY_COUNT`/`LIBRARY_ROWS` in `canonical-view.ts`,
-`withLibraryCount()` (the only `{count}`/`{categories}` filler — it THROWS on a `{rules}` token; no
-public page states a rule count), and `journey-marketing.ts`'s `JOURNEY_SCALE`/category counts. The
-162 public journeys are still routed, and the two supporting surfaces state their own counts on their
-own pages (64 lifecycle states, 25 runtime mechanisms) — but a headline, project card, metadata
-description or stat strip that says "the library" means 73/21. Never type a corpus number into copy;
-`lab.page.intro` is a template shipped as a client prop and is not rendered by the gallery.
-A handoff into an archived journey renders as the target's name in text, never a link.
-`search/build-search-index.mjs` applies the same rule through `production/surface-assignment.json`.
-`surfaceKeyOf` throws if an operational row ever reaches a public listing. `archive/` is excluded
-from `tsconfig.json` and ESLint (same treatment as `reference/`) so its verbatim route snapshots
-stay byte-for-byte.
+Journey detail routes use the shared journey route layer and the `@modal` interceptor under `/lab/journeys`.
 
-The `/lab/journeys` routes use a parallel `@modal` slot with an intercepting `(.)[slug]` route:
-a client-side navigation from the list overlays a modal, while a hard load of the same URL falls
-through to the full page (`@modal/default.tsx` returns `null`). Both shapes are built from the
-same `resolveDetailSlug()` result.
+## Calculators
 
-### Calculators are registered in six places
+Runtime calculator data is not dead repository material.
 
-A calculator slug must be added to all of: the spec tuples in
-`production/calculators/_generate-catalog.mjs` (then regenerate — never hand-edit
-`calculator-catalog.json`); `LIVE_CALCULATOR_SLUGS` **and** `LIBRARY_GROUP` in
-`src/lib/calc-catalog.ts` (a missing group silently falls back to `revenue-unit-economics`);
-`REGISTRY` in `src/lib/calc-registry.ts`; a content JSON at
-`production/calculators/content/{slug}.json`; the static import map `CONTENT_BY_SLUG` in
-`src/lib/calc-content.ts`; and the hand-mirrored slug lists in the two calculator validators.
-Routes and the sitemap need no change — both derive from `ALL_TOOL_SLUGS`.
+The site imports:
+- `production/calculators/calculator-catalog.json`
+- `production/calculators/content/*.json`
 
-Calculator **UI** is bilingual but the **editorial content is EN-only** — `getContent(slug, "tr")`
-returns `undefined` and the TR page falls back to English prose inside a Turkish shell.
+through `src/lib/calc-catalog.ts` and `src/lib/calc-content.ts`.
 
-### Where content actually lives
+Keep catalog, registry, content and validator changes in sync when adding or removing a calculator.
 
-No MDX anywhere. Blog posts are a TS array in `src/lib/blog-posts.ts` (5, EN-only). A/B tests are
-a frozen 211-record `src/data/ab-tests.json` owned by an upstream repo, read through three
-server-only view models. Lab/skill projects are authored **only** in `copy[lang].lab.projects` in
-`src/lib/content.ts`; `src/lib/skill-catalog.ts` is a typed accessor that adds no content.
+## Search
 
-### Design tokens
+`src/app/api/search/route.ts` statically imports the search engine and index data from `search/`. Those files are part of the deployed search feature and must not be removed as generic audit output.
 
-`src/app/globals.css` is a ~1650-line design constitution — a Tailwind v4 `@theme` block holding
-the neutral/ink/primary ramps, the type ramp, the radius scale, and motion durations, each with
-the reasoning written inline. Read the comment before changing a token; several are guardrails
-(`--font-serif` is aliased to the sans so the `font-serif` utility cannot produce a serif).
-Per `AGENTS.md`, design work loads the `ali-web-design` skill first, never restyles
-`SiteHeader`/`SiteFooter` as part of a page change, and never puts a fabricated number on a page.
+Keep search data imports static so Next.js includes them in the server bundle.
 
-## Generated vs authored
+## Generated and tooling directories
 
-`src/` is the only runtime source of truth. **Nothing in `src/` imports `seo/*.json` or
-`production/*seo-metadata.json`** — those are audit artifacts, so editing a contract JSON changes
-nothing that ships.
+Not everything outside `src` ships to the browser.
 
-Generated and git-tracked (a stale artifact shows up as a visible diff):
-`production/canonical-dump.json` (`npm run dump:canonical`); the `production/journey-*.json`
-model, built by the Python scripts in `production/` which must be run **with `production/` as the
-working directory**; the six `search/search-index*.json` / `search-facets` / `search-relations` /
-`search-aliases` files (`node search/build-search-index.mjs`); and the `*-report.json` files the
-validators write.
+- `production/calculators` contains runtime calculator data.
+- `search` contains runtime search data plus search tooling.
+- `production`, `seo`, `scripts` and `qa` also contain generation and validation material.
 
-Hand-authored: everything in `src/`, every contract JSON in `seo/` and `search/`, and the
-validators themselves. `archive/` is preserved-but-retired repository content (currently the
-Operational Workflows corpus): a verbatim export plus the removed route shells, taxonomy and copy,
-with a README explaining structure and restoration. Nothing in the build imports from it. Several validators and the search index generator **hardcode corpus
-counts** (`211` ab-tests, `286` journeys, `3728` nodes, `8` merged ids, `43` calculators, `5` blog posts), so
-adding a record fails them until those constants are updated in lockstep. Those `286`/`8` are the
-CANONICAL corpus and stay correct after the Operational Workflows archive; the PUBLIC corpus is
-162 routed journeys / 5 public merged redirects, the stated LIBRARY is 73 journeys / 21 categories,
-and none of those is hardcoded — all derived in `src/lib/public-corpus.ts` and
-`src/lib/canonical-view.ts`. `search/build-search-index.mjs` derives the same 73/21 for the library's
-lab-product card from `production/surface-assignment.json`. `build-search-index.mjs`
-also duplicates the goal taxonomy from `src/lib/journey-taxonomy.ts` by hand — plain Node cannot
-resolve the `@/` alias, and the copy must be kept in sync manually.
+Before deleting a generated file, check both runtime imports and validator/generator consumers. Do not keep one-off historical artifacts in main simply because they existed in an earlier version of the repo.
 
-Rebuild the search index after any corpus change. `src/app/api/search/route.ts` must consume it
-via **static JSON imports, never `fs` reads** — Next's file tracer cannot see through a
-dynamically built path, so an `fs` read is not included in the Vercel serverless bundle.
+## Design
 
-## QA harnesses
+For design or visual work, follow `AGENTS.md` and load `.claude/skills/ali-web-design/SKILL.md`.
 
-`qa/journey-canvas/*` uses **Playwright via hardcoded absolute Linux paths**
-(`/opt/node22/...`, `/opt/pw-browsers/chromium`) and expects the app on **port 4022**. Those paths
-do not exist on macOS and Playwright is not in `node_modules` — only `puppeteer-core` is. Editing
-the two constants is a prerequisite for running them here. `link-integrity.mjs` is pure data and
-runs anywhere.
-
-```bash
-npm run build && npx next start -p 4022
-node qa/journey-canvas/qa-gate.mjs          # fast 19-check gate over a 39-journey fixture
-
-ENABLE_QA_CANVAS_SWEEP=1 npx next start -p 4022   # required for the sweep + perf scripts
-node qa/journey-canvas/full-sweep-255.mjs   # ~15-20 min, pre-ship only
-```
-
-The env flag gates `/qa-canvas-sweep/[id]` and is checked against the literal string `"1"`.
-Reports are written to `/tmp/`. `scripts/shot.mjs` is separate: puppeteer-core against the local
-Chrome app, `OUT=<dir> node scripts/shot.mjs [url]`, defaulting to port **5182**. Three workflows,
-three different ports (dev 3000, shots 5182, journey QA 4022).
-
-## Root-level markdown
-
-The many capitalized `.md` files at the repo root (`DESIGN-MIGRATION-PLAN.md`, `EXPERIMENT-1.md`,
-`*-HANDOFF.md`, `*-AUDIT.md`) are design handoffs, audits and frozen experiment dossiers. Most
-state explicitly that nothing was implemented. Treat them as background, not as a spec to follow,
-unless the current task references one.
+Do not restyle the global header/footer as a side effect of a page-specific task. Do not invent product metrics, screenshots or proof points.

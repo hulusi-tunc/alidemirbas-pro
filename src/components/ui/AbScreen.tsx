@@ -108,6 +108,10 @@ const UI = {
   subtotal: { en: "Subtotal", tr: "Ara toplam" },
   shipping: { en: "Shipping", tr: "Kargo" },
   perMonth: { en: "/ month", tr: "/ ay" },
+  perUnit: { en: "per unit", tr: "birim başına" },
+  taxIncluded: { en: "tax included", tr: "vergi dahil" },
+  taxExcluded: { en: "tax excluded", tr: "vergi hariç" },
+  tax: { en: "Tax", tr: "Vergi" },
   search: { en: "Search", tr: "Ara" },
   searchProducts: { en: "Search products", tr: "Ürün ara" },
   filters: { en: "Filters", tr: "Filtreler" },
@@ -190,6 +194,7 @@ const UI = {
   tryAgain: { en: "Try another search", tr: "Başka bir arama dene" },
   clearFilters: { en: "Clear filters", tr: "Filtreleri temizle" },
   recommended: { en: "Recommended", tr: "Önerilen" },
+  bestSelling: { en: "Best-selling", tr: "Çok satan" },
   newest: { en: "Newest", tr: "En yeni" },
   priceLowHigh: { en: "Price: low to high", tr: "Fiyat: artan" },
   sellingFast: { en: "Selling fast", tr: "Hızla tükeniyor" },
@@ -200,6 +205,8 @@ const UI = {
   customise: { en: "Customise", tr: "Özelleştir" },
   engraving: { en: "Add engraving", tr: "Yazı ekle" },
   startTrial: { en: "Start free trial", tr: "Ücretsiz denemeyi başlat" },
+  freeTrial: { en: "Try free", tr: "Ücretsiz Dene" },
+  start14: { en: "Start 14 days free", tr: "14 Gün Ücretsiz Başla" },
   days7: { en: "7 days", tr: "7 gün" },
   days14: { en: "14 days", tr: "14 gün" },
   days30: { en: "30 days", tr: "30 gün" },
@@ -266,7 +273,6 @@ const UI = {
   autoAdvance: { en: "moves on by itself", tr: "kendiliğinden ilerler" },
   mostHelpful: { en: "Most helpful", tr: "En faydalı" },
   relevance: { en: "Relevance", tr: "İlgi düzeyi" },
-  bestSelling: { en: "Best selling", tr: "Çok satan" },
   nameWord: { en: "name", tr: "ad" },
   serviceWord: { en: "service", tr: "hizmet" },
 } as const;
@@ -467,7 +473,7 @@ function Cta({ ctx }: { ctx: Ctx }) {
      interface words, so the two sides carry the two wordings for real. */
   if (/metni cercevesi/.test(f)) return <Btn tone="primary" size="lg">{b ? UI.getMyQuote[l] : UI.send[l]}</Btn>;
   if (/metni kipi/.test(f)) return <Btn tone="primary" size="lg">{b ? UI.imStarting[l] : UI.start[l]}</Btn>;
-  if (/deneme cta/.test(f)) return <Btn tone="primary" size="lg">{b ? UI.startDaysFree[l] : UI.tryForFree[l]}</Btn>;
+  if (/deneme cta(?! metni)/.test(f)) return <Btn tone="primary" size="lg">{b ? UI.startDaysFree[l] : UI.tryForFree[l]}</Btn>;
   if (/tutarlilig/.test(f)) {
     // Three sections' buttons, one under the other: three styles, or one.
     const styles: Array<{ tone: "primary" | "ink" | "outline"; shape: string }> = b
@@ -499,7 +505,10 @@ function Cta({ ctx }: { ctx: Ctx }) {
       ? <span className="flex flex-wrap items-center gap-3"><Btn tone="primary" size="lg">{UI.tryFirst[l]}</Btn><Btn tone="outline" size="lg">{UI.seeThePrice[l]}</Btn></span>
       : <Btn tone="ink" size="lg">{UI.buyNow[l]}</Btn>;
   }
-  const wording = diff(ctx, ["wording", "microcopy"], label, s === "pdp" || s === "plp" ? UI.buyNow[l] : UI.getStarted[l], label);
+  const trialCopy = /deneme cta metni/.test(ctx.slotFold);
+  const wording = trialCopy
+    ? diff(ctx, ["wording", "microcopy"], UI.freeTrial[l], UI.start14[l], UI.freeTrial[l])
+    : diff(ctx, ["wording", "microcopy"], label, s === "pdp" || s === "plp" ? UI.buyNow[l] : UI.getStarted[l], label);
   const tone = diff<"ink" | "primary" | "outline">(ctx, ["style", "anatomy"], "ink", "primary", diff(ctx, "emphasis", "outline", "primary", "primary"));
   const size = diff<"sm" | "md" | "lg">(ctx, ["size", "anatomy"], "md", "lg", diff(ctx, "emphasis", "md", "lg", "lg"));
   const two = diff(ctx, "quantity", false, true, false);
@@ -612,6 +621,41 @@ function Price({ ctx }: { ctx: Ctx }) {
         <span className="text-[15px] font-semibold text-ink-950">{UI.plans[l][1]}</span>
         {b ? <>{benefits}{price}</> : <>{price}{benefits}</>}
         <Btn tone="primary" size="md" className="w-full">{UI.choose[l]}</Btn>
+      </span>
+    );
+  }
+  const fractionSup = /kusurat bicimi/.test(ctx.slotFold);
+  const roundedPrice = /fiyat yazim bicimi/.test(ctx.slotFold);
+  const taxDisplay = /vergi gosterim/.test(ctx.slotFold);
+  const unitPrice = /birim fiyat/.test(ctx.slotFold);
+  if (fractionSup) {
+    const raised = diff(ctx, "format", false, true, false);
+    return (
+      <span className="inline-flex items-start font-semibold text-ink-950">
+        <span className="text-[24px]">₺199</span>
+        <span className={clsx(raised ? "mt-0.5 text-[11px]" : "mt-1.5 text-[18px]")}>{raised ? "90" : ",90"}</span>
+      </span>
+    );
+  }
+  if (roundedPrice) {
+    const rounded = diff(ctx, "format", false, true, false);
+    return <span className="text-[24px] font-semibold text-ink-950">{rounded ? "300 TL" : "299,99 TL"}</span>;
+  }
+  if (taxDisplay) {
+    const excluded = diff(ctx, "format", false, true, false);
+    return (
+      <span className="flex flex-col gap-1">
+        <span className="flex items-end gap-2"><PriceBar big /><span className="text-[11px] text-ink-500">{excluded ? UI.taxExcluded[l] : UI.taxIncluded[l]}</span></span>
+        {excluded ? <span className="flex items-center gap-2 text-[11px] text-ink-500">{UI.tax[l]}<PriceBar /></span> : null}
+      </span>
+    );
+  }
+  if (unitPrice) {
+    const shown = ctx.present;
+    return (
+      <span className="flex items-end gap-3">
+        <PriceBar big />
+        {shown ? <span className="text-[12px] text-ink-500">{UI.perUnit[l]}</span> : null}
       </span>
     );
   }
@@ -791,6 +835,14 @@ function Nav({ ctx }: { ctx: Ctx }) {
 
 function SearchBox({ ctx }: { ctx: Ctx }) {
   const l = ctx.lang;
+  const inMenu = ctx.kind === "placement" && ctx.side === "b";
+  if (inMenu) {
+    return (
+      <span className="inline-flex h-10 items-center gap-2 rounded-md bg-paper px-3 text-[13px] font-medium text-ink-700 ring-1 ring-ink-950/[0.14]">
+        <Menu className="size-4 text-ink-500" />{UI.search[l]}
+      </span>
+    );
+  }
   const iconOnly = diff(ctx, "emphasis", true, false, false);
   if (iconOnly) return <span className="grid size-10 place-items-center rounded-md text-ink-600 ring-1 ring-ink-950/[0.14]"><Search className="size-4" /></span>;
   return (
@@ -905,7 +957,7 @@ function Media({ ctx }: { ctx: Ctx }) {
     );
   }
   const video = diff(ctx, ["media", "options"], false, true, false);
-  const n = diff(ctx, "quantity", 1, 3, 1);
+  const n = diff(ctx, "quantity", 1, 4, 1);
   const big = diff(ctx, "size", false, true, false);
   return (
     <span className="grid gap-3" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
@@ -979,7 +1031,9 @@ function Grid({ ctx }: { ctx: Ctx }) {
   // AB-029: what the card says under its name - the specs, or a line of story.
   const info = /liste sayfasi mesaji/.test(ctx.slotFold) ? (treat(ctx) ? "story" : "specs") : undefined;
   const base = ctx.phone ? 2 : 4;
-  const cols = diff(ctx, "quantity", base - 1, base, base);
+  const cols = ctx.phone && ctx.kind === "quantity"
+    ? diff(ctx, "quantity", 2, 3, 2)
+    : diff(ctx, "quantity", base - 1, base, base);
   const list = diff(ctx, ["options", "layout"], false, true, false);
   const priceFirst = diff(ctx, "hierarchy", false, true, false);
   const badge = diff(ctx, "presence", false, true, false) && ctx.present;
@@ -1448,7 +1502,7 @@ function Sort({ ctx }: { ctx: Ctx }) {
       </span>
     );
   }
-  const opts = [UI.recommended[l], UI.newest[l], UI.priceLowHigh[l]];
+  const opts = [UI.recommended[l], UI.bestSelling[l], UI.priceLowHigh[l]];
   const chosen = diff(ctx, ["ordering", "default", "options"], 0, 1, 0);
   return (
     <span className="inline-flex h-10 items-center gap-2 rounded-md bg-paper px-3 text-[13px] font-medium text-ink-800 ring-1 ring-ink-950/[0.14]">
@@ -1480,9 +1534,12 @@ function Bundle({ ctx }: { ctx: Ctx }) {
       </span>
     );
   }
+  const packOptions = /coklu paket/.test(ctx.slotFold)
+    ? [UI.single[l], `${UI.pack[l]} ×2`, `${UI.pack[l]} ×3`]
+    : [UI.single[l], `${UI.pack[l]} ×3`, `${UI.pack[l]} ×5`];
   return (
     <span className="grid grid-cols-3 gap-2">
-      {[UI.single[l], `${UI.pack[l]} ×3`, `${UI.pack[l]} ×5`].map((o, i) => (
+      {packOptions.map((o, i) => (
         <span key={o} className={clsx("flex flex-col items-center gap-1.5 rounded-lg p-3 ring-1", i === 1 ? "bg-primary-50 text-primary-800 ring-primary-300" : "text-ink-800 ring-ink-950/[0.12]")}>
           <span className="text-[12px] font-semibold">{o}</span><PriceBar />{i === 1 ? <span className="rounded bg-primary-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">%</span> : null}
         </span>
@@ -1501,7 +1558,7 @@ function Steps({ ctx }: { ctx: Ctx }) {
   }
   // AB-169 asks 7 or 14; the days are also drawn as a strip, so the length shows without reading.
   const trialLength = /deneme suresi/.test(ctx.slotFold);
-  const days = trialLength ? (treat(ctx) ? UI.days14[l] : UI.days7[l]) : diff(ctx, ["options", "format", "quantity"], UI.days7[l], UI.days30[l], UI.days14[l]);
+  const days = trialLength ? (treat(ctx) ? UI.days14[l] : UI.days7[l]) : diff(ctx, ["options", "format", "quantity"], UI.days7[l], UI.days14[l], UI.days14[l]);
   const ticks = trialLength ? (treat(ctx) ? 14 : 7) : 0;
   return (
     <span className="flex flex-col gap-3">
@@ -2066,8 +2123,9 @@ export function AbScreen({
   caption?: boolean;
   className?: string;
 }) {
-  const phone = surface === "mobile";
-  const ctx: Ctx = { kind, element, surface, side, present: presence !== "absent", invert: behavior === "remove", slotFold: fold(slot ?? ""), lang, phone };
+  const slotFold = fold(slot ?? "");
+  const phone = surface === "mobile" || slotFold.includes("mobil");
+  const ctx: Ctx = { kind, element, surface, side, present: presence !== "absent", invert: behavior === "remove", slotFold, lang, phone };
   const popup = element === "popup" && ctx.present;
   return (
     <div className={clsx("min-w-0", className)}>

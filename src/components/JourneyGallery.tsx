@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import JourneyIdeaCard from "@/components/ui/JourneyIdeaCard";
-import IdeaCard from "@/components/ui/IdeaCard";
 import { Button } from "@/components/ui/Button";
-import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, CategoryIcon, CategoryRail, ChannelIcon, GoalIcon, SEARCH_SHELL, SurfaceTabs, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { ALL_CHANNELS_ICON, ALL_GOALS_ICON, CategoryHeader, CategoryIcon, CategoryRail, ChannelIcon, GoalIcon, SEARCH_SHELL, TOOLBAR_ROW, categoryAccent, shortCategoryTitle } from "@/components/ui/LibraryChrome";
+import { PUBLIC_JOURNEY_CATEGORIES, publicJourneyCategoryLabel } from "@/lib/journey-public-categories";
 import { FilterMenu } from "@/components/ui/FilterMenu";
 import { clsx } from "@/lib/clsx";
 import { isHumanRoutingRow, type CategoryMeta, type JourneyRow, type MergedRedirect, type PresetRow, type SurfaceKey } from "@/lib/canonical-view";
@@ -38,6 +38,13 @@ import type { ChannelId } from "@/canonical/types";
 
 const SECTION_PREVIEW_COUNT = 6;
 
+/* The customer-journey library has 26 canonical categories, but showing
+   all 26 as first-level navigation makes the rail harder to scan than the
+   content itself. Keep the canonical taxonomy untouched and group only the
+   browse/navigation layer into seven practitioner-friendly buckets. The
+   original category headers and card metadata still render below. */
+
+
 
 function CategorySection({
   meta,
@@ -49,6 +56,7 @@ function CategorySection({
   surface,
   emptyChannelLabel,
   humanRoutingLabel,
+  trackInRail = true,
 }: {
   meta: CategoryMeta;
   items: readonly JourneyRow[];
@@ -65,13 +73,15 @@ function CategorySection({
       reach a customer by routing to a person rather than by message
       (isHumanRoutingRow). Undefined on every other surface. */
   humanRoutingLabel?: string;
+  /** False when several canonical categories sit inside one grouped rail item. */
+  trackInRail?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, SECTION_PREVIEW_COUNT);
   const remaining = items.length - visible.length;
 
   return (
-    <section id={`cat-${meta.id}`} data-cat={meta.id} className="scroll-mt-24">
+    <section id={`cat-${meta.id}`} data-cat={trackInRail ? meta.id : undefined} className="scroll-mt-24">
       {/* The visual marker is the category's own id prefix, which is real
           addressable data (every journey in here is ACQ-nn, RET-nn, ...)
           rather than an icon invented for 26 categories nobody could
@@ -122,7 +132,6 @@ export default function JourneyGallery({
   basePath,
   categories,
   surface,
-  surfaceLinks,
   presets = [],
   emptyChannelLabel,
 }: {
@@ -132,12 +141,8 @@ export default function JourneyGallery({
   merged: readonly MergedRedirect[];
   basePath: string;
   categories: readonly CategoryMeta[];
-  /** Which surface this page is. The surface "filter" is the page itself
-      rather than a dropdown - the public surfaces are separate routes with
-      their own titles and metadata, so switching is a navigation, not a
-      state change. `surfaceLinks` are those surfaces, this one marked. */
+  /** The public Customer Journey surface. */
   surface: SurfaceKey;
-  surfaceLinks: readonly { key: SurfaceKey; href: string; label: string }[];
   /** Practitioner presets, shown first on the customer surface: the
       recognisable use cases a practitioner searches by name. */
   presets?: readonly PresetRow[];
@@ -184,14 +189,27 @@ export default function JourneyGallery({
       .map((c) => ({ meta: c, items: byCat.get(c.id)! }));
   }, [allRows, categories, isDefault]);
 
+  const customerGroups = useMemo(() => {
+    if (surface !== "customer-journeys" || !isDefault) return [];
+    const rowById = new Map(allRows.map((row) => [row.id, row]));
+    return PUBLIC_JOURNEY_CATEGORIES.map((group) => {
+      const items = group.journeyIds
+        .map((id) => rowById.get(id))
+        .filter((row): row is JourneyRow => Boolean(row));
+      return {
+        id: group.id,
+        label: group.label[lang],
+        description: group.description[lang],
+        iconCategory: group.iconCategory,
+        items,
+        count: items.length,
+      };
+    }).filter((group) => group.items.length > 0);
+  }, [surface, isDefault, allRows, lang]);
+
   // Presets answer to their own names and aliases; a category or channel
   // filter does not apply to them (they are cards over a parent, not rows).
-  const matchingPresets = useMemo(() => {
-    if (!presets.length || channel || goal) return isDefault ? presets : [];
-    const q = query.trim().toLowerCase();
-    if (!q) return presets;
-    return presets.filter((p) => [p.name, p.parentName, ...p.aliases].some((x) => x.toLowerCase().includes(q)));
-  }, [presets, query, channel, goal, isDefault]);
+  const matchingPresets: readonly PresetRow[] = [];
 
   const clearEverything = () => {
     setChannel("");
@@ -231,13 +249,6 @@ export default function JourneyGallery({
 
   return (
     <div>
-      {/* Surface: the public surfaces are routes, so this is navigation
-          rather than a select - it changes the page, its title and its
-          metadata, not just the rows. */}
-      <div className="flex justify-center">
-        <SurfaceTabs links={surfaceLinks} active={surface} label={labels.surfaceNavLabel} />
-      </div>
-
       <div className={TOOLBAR_ROW}>
       <div className={`${SEARCH_SHELL} min-w-0 lg:flex-1`}>
         <Search aria-hidden className="size-4 shrink-0 text-ink-500" />
@@ -310,63 +321,86 @@ export default function JourneyGallery({
         <CategoryRail
           title={labels.railTitle}
           items={[
-            ...(matchingPresets.length
-              ? [{ id: "presets", anchor: "presets", label: labels.presetsTitle, count: matchingPresets.length, icon: <CategoryIcon id="presets" className={categoryAccent("presets").ink} /> }]
-              : []),
-            ...sections.map((s) => ({
-              id: s.meta.id,
-              anchor: `cat-${s.meta.id}`,
-              label: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr),
-              count: s.items.length,
-              icon: <CategoryIcon id={s.meta.id} className={categoryAccent(s.meta.id).ink} />,
-            })),
+            ...(surface === "customer-journeys"
+              ? customerGroups.map((group) => ({
+                  id: group.id,
+                  anchor: `group-${group.id}`,
+                  label: group.label,
+                  count: group.count,
+                  icon: <CategoryIcon id={group.iconCategory} className={categoryAccent(group.iconCategory).ink} />,
+                }))
+              : sections.map((s) => ({
+                  id: s.meta.id,
+                  anchor: `cat-${s.meta.id}`,
+                  label: shortCategoryTitle(lang === "en" ? s.meta.title : s.meta.titleTr),
+                  count: s.items.length,
+                  icon: <CategoryIcon id={s.meta.id} className={categoryAccent(s.meta.id).ink} />,
+                }))),
           ]}
           active={activeCat}
         />
       ) : null}
       <div className="min-w-0">
-      {matchingPresets.length ? (
-        <section id="presets" data-cat="presets" className="scroll-mt-24">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="text-h3 text-ink-950">{labels.presetsTitle}</h2>
-            <span className="shrink-0 text-sm text-ink-500 tabular-nums">{matchingPresets.length}</span>
+
+
+      {isDefault ? (
+        surface === "customer-journeys" ? (
+          <div className="flex flex-col gap-14">
+            {customerGroups.map((group) => (
+              <section
+                key={group.id}
+                id={`group-${group.id}`}
+                data-cat={group.id}
+                className="scroll-mt-24"
+              >
+                <CategoryHeader
+                  id={group.iconCategory}
+                  code=""
+                  title={group.label}
+                  count={group.count}
+                  countLabel={labels.journeysLabel[surface][group.count === 1 ? 0 : 1]}
+                  purpose={group.description}
+                />
+                <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {group.items.map((j) => (
+                    <JourneyIdeaCard
+                      key={j.id}
+                      href={`${basePath}/${j.slug}`}
+                      id={j.id}
+                      lang={lang}
+                      title={j.shortName ?? j.name}
+                      category={j.category}
+                      categoryTitle={group.label}
+                      purpose={j.purpose}
+                      nodeCount={j.nodeCount}
+                      nodesLabel={t.nodesLabel}
+                      channels={sortChannels(j.channels)}
+                      internalLabel={emptyChannelLabel}
+                      typeLabel={humanRoutingLabel && isHumanRoutingRow(j) ? humanRoutingLabel : undefined}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
-          <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-ink-600">{labels.presetsIntro}</p>
-          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {matchingPresets.map((p) => (
-              <IdeaCard
-                key={p.id}
-                href={`${basePath}/${p.slug}`}
-                icon={<CategoryIcon id="presets" />}
-                iconTone={categoryAccent("presets").tile}
-                title={p.name}
-                badges={[{ label: labels.presetBadge, tone: "accent" }]}
-                body={p.applicableWhen}
-                footLeft={`${labels.presetOf} ${p.parentName}`}
-                footRight={p.categoryTitle}
+        ) : (
+          <div className="flex flex-col gap-14">
+            {sections.map((s) => (
+              <CategorySection
+                key={s.meta.id}
+                meta={s.meta}
+                items={s.items}
+                lang={lang}
+                t={t}
+                basePath={basePath}
+                labels={labels}
+                surface={surface}
+                emptyChannelLabel={emptyChannelLabel}
+                humanRoutingLabel={humanRoutingLabel}
               />
             ))}
           </div>
-        </section>
-      ) : null}
-
-      {isDefault ? (
-        <div className={clsx("flex flex-col gap-14", matchingPresets.length ? "mt-14" : "")}>
-          {sections.map((s) => (
-            <CategorySection
-              key={s.meta.id}
-              meta={s.meta}
-              items={s.items}
-              lang={lang}
-              t={t}
-              basePath={basePath}
-              labels={labels}
-              surface={surface}
-              emptyChannelLabel={emptyChannelLabel}
-              humanRoutingLabel={humanRoutingLabel}
-            />
-          ))}
-        </div>
+        )
       ) : localFiltered.length === 0 && matchingPresets.length === 0 ? (
         <div className="rounded-2xl bg-paper-soft px-6 py-16 text-center">
           <p className="text-sm text-ink-500 tabular-nums">0 / {allRows.length}</p>
@@ -377,7 +411,7 @@ export default function JourneyGallery({
           </Button>
         </div>
       ) : (
-        <div className={clsx("grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3", matchingPresets.length ? "mt-14" : "")}>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {localFiltered.map((j) => (
             <JourneyIdeaCard
               key={j.id}
@@ -386,7 +420,7 @@ export default function JourneyGallery({
               lang={lang}
               title={j.shortName ?? j.name}
               category={j.category}
-              categoryTitle={j.categoryTitle}
+              categoryTitle={publicJourneyCategoryLabel(j.id, lang) ?? j.categoryTitle}
               purpose={j.purpose}
               nodeCount={j.nodeCount}
               nodesLabel={t.nodesLabel}

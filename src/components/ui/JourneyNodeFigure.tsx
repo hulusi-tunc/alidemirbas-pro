@@ -16,7 +16,6 @@ export function NodeFigure({
   terminalLabel,
   messageLabels = [],
   humanLabels = [],
-  sequence = 1,
   className = "",
 }: {
   node: FlowNode;
@@ -25,7 +24,6 @@ export function NodeFigure({
   terminalLabel: string;
   messageLabels?: readonly { id: ChannelId; label: string }[];
   humanLabels?: readonly { id: ChannelId; label: string }[];
-  sequence?: number;
   className?: string;
 }) {
   const noop = () => {};
@@ -33,7 +31,7 @@ export function NodeFigure({
     node.kind === "trigger" ? (
       <TriggerCard node={node} onOpen={noop} entryLabel={entryLabel} lang={lang} />
     ) : node.kind === "action" ? (
-      <ActionCard node={node} sequence={sequence} onOpen={noop} messageLabels={messageLabels} humanLabels={humanLabels} lang={lang} />
+      <ActionCard node={node} onOpen={noop} messageLabels={messageLabels} humanLabels={humanLabels} lang={lang} />
     ) : node.kind === "condition" ? (
       <ConditionCard node={node} onOpen={noop} lang={lang} />
     ) : node.kind === "wait" ? (

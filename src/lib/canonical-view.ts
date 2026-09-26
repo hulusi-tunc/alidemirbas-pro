@@ -7,13 +7,15 @@ import {
 import { configText } from "@/canonical/config-text";
 import { eventText } from "@/canonical/events";
 import { CHANNEL_LABEL } from "@/lib/journey-channels";
-import { practitionerView, type PractitionerView } from "@/lib/practitioner-view";
 import { surfaceOf } from "@/canonical/surface";
 import { LIBRARY_JOURNEYS, PUBLIC_JOURNEYS, isPublicJourneyId } from "@/lib/public-corpus";
 import type { Preset } from "@/canonical/types";
-import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, ExitClass, GoalId, SignalSource } from "@/canonical/types";
+import type { CanonicalJourney, CanonicalNode, CategoryId, ChannelId, ChannelStrategy, ExitClass, GoalId, SignalSource } from "@/canonical/types";
 import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { buildJourneyPreview, type JourneyPreview } from "@/lib/journey-preview";
+import { publicJourneyFlowChannels, publicJourneyFlowNodes } from "@/lib/journey-flow-overrides";
+import { publicJourneyCopy } from "@/lib/journey-public-copy";
+import { publicJourneyCategoryLabel } from "@/lib/journey-public-categories";
 
 /* The read model the archive renders from.
 
@@ -176,8 +178,10 @@ const MERGED_BY_SLUG = new Map<string, MergedRedirect>(
   MERGED_REDIRECTS.map((m) => [m.from.toLowerCase(), m]),
 );
 
-/** Every slug the detail route builds: 160 public journeys, 5 public merged
-    redirects and 10 preset URLs. */
+/** Every slug the detail route builds: 158 public journeys, 5 public merged
+    redirects and 8 preset URLs. Derived, never hardcoded - these numbers are
+    here to be read, and were 160/10 until the preset localization pass counted
+    them. */
 export const ALL_DETAIL_SLUGS: readonly string[] = [
   ...PUBLIC_JOURNEYS.map((j) => j.slug),
   ...MERGED_REDIRECTS.map((m) => m.from.toLowerCase()),
@@ -223,8 +227,24 @@ export type FlowNode = {
   eventId: string | null;
   /** The supporting detail, where the node carries any. */
   detail: string | null;
-  /** Evidence, timeout reason, writes - whatever this node kind adds. */
+  /** Evidence, timeout reason, writes - whatever this node kind adds.
+      Free-text display prose, localized on the TR route (see
+      `journey-tr-overrides.ts`'s `localizeStructural`) - never read back
+      structurally by anything downstream. `writesFields` below is the
+      structural fact `meta`'s "writes ..." lines are built from, kept
+      raw and unlocalized for exactly that purpose. */
   meta: readonly string[];
+  /** Action nodes only. The authored `writes[].field` names, verbatim and
+      unlocalized (canonical identifiers, the same treatment node and
+      event ids already get) - the structural source `meta`'s "writes
+      <field> (<mode>)" lines are rendered from. Absent means the action
+      writes nothing. Exists so a layout decision that depends on WHAT a
+      node writes (`absorbableBookkeeping`, journey-canvas-layout.ts) can
+      read the fact directly instead of pattern-matching `meta`'s display
+      prose, which is Turkish on the TR route and does not start with the
+      English word "writes" there - the cause of five journeys drawing a
+      different set of nodes on `/tr` than on `/en` (2026-09-21 fix). */
+  writesFields?: readonly string[];
   edges: readonly FlowEdge[];
   /** Action nodes only. What this action's effect is outside the system -
       see ActionNode.execution. Absent means an internal operation, which is
@@ -245,6 +265,15 @@ export type FlowNode = {
       branch count is real layout-relevant information (79% of the library's
       conditions are binary, 21% fan wider) - not invented for display. */
   branchCount?: number;
+  /** Condition nodes only - the raw, unlocalized `ConditionNode.asks` text
+      (same treatment as `writesFields`: kept in English regardless of route
+      so a structural read never depends on which locale's prose it lands
+      on). Never rendered directly - `journey-canvas-layout.ts`'s
+      `repeatedChecks()` groups conditions within one journey that share
+      this string verbatim, which is how a re-asked question (the same
+      eligibility or status check repeated at a later stage) is told apart
+      from an unrelated one that merely reads similarly once translated. */
+  asks?: string;
   /** Handoff nodes only - whether the destination lies outside the canonical
       library (`to` starts with `external:`) rather than resolving to a real
       journey. Already computed once for the headline text below; exposed
@@ -277,12 +306,54 @@ export type FlowNode = {
       or an action no touch references; the card falls back further, to
       the generic kind label, in that case. */
   touchStage?: string;
+  /** Communication/human action nodes only, on a vNext journey whose touch
+      plan declares channel roles. The channels this touch reaches for, in
+      the order it reaches for them - the first entry is what it tries, the
+      rest are what it falls back to. Joined from `Touch.channelRoles` and
+      `channelStrategy.roles` (see `touchChannelPlans`), both authored; a
+      role can carry more than one channel ("low-friction" is push AND
+      in-app), which is why this is a list of groups rather than a flat
+      channel order. Preferred over `channelPriority` where both exist:
+      that one is read off an adjacent router's prose, this one is the
+      plan the journey actually declares. */
+  channelPlan?: readonly { role: string; channels: readonly ChannelId[] }[];
+  /** Action nodes only, on a vNext journey. The journey's own
+      `contact.channelStrategy.fallback` ("next-eligible-role" |
+      "same-role-other-channel" | "none"), passed through so the card can
+      tell a genuine cross-role fallback cascade from a set of declared
+      roles nothing resolves between. Only `"next-eligible-role"` means
+      `channelPlan`'s entries are actually tried in order with each falling
+      back to the next; `"same-role-other-channel"` describes delivery
+      recovery WITHIN one role, never between the roles `channelPlan` lists,
+      and `"none"` or absent means no fallback claim can be made at all.
+      See `ChannelPriorityRow` (JourneyCanvasNodes.tsx) for the renderer
+      rule this backs. */
+  channelStrategyFallback?: ChannelStrategy["fallback"];
+  /** True only when the canonical strategy explicitly says the roles are
+      simultaneous surfaces for the same communication, not alternatives. */
+  channelStrategySimultaneous?: boolean;
 };
 
 const humanEvent = (event: string): string => {
   const words = event.replace(/[_.]+/g, " ").trim();
   return words.charAt(0).toUpperCase() + words.slice(1);
 };
+
+/* A handoff to something outside the canonical library names it with a
+   namespaced id - `external:sales-assignment`,
+   `external:human-in-the-loop-lifecycle`. That id was going onto the card
+   verbatim, on 14 of the library's 80 handoff cards: a colon-prefixed,
+   hyphen-joined identifier is engine vocabulary, and a handoff card's whole
+   job is to say where ownership goes. Same treatment `humanEvent` already
+   gives an event id, extended to the `external:` prefix and to hyphens.
+
+   Deliberately NOT translated per locale: these name systems and teams
+   outside this corpus, which have no TR names to look up - the same "don't
+   translate canonical identifiers" rule the site already applies to node and
+   event ids, rather than inventing Turkish for a system that may not have
+   one. The raw id stays in the detail panel via the edge's own `to`. */
+export const externalTargetName = (target: string): string =>
+  capitalize(target.replace(/^external:/, "").replace(/[-_.]+/g, " ").trim());
 
 /** An exit's `state` is written corpus-wide as "<short clause>; <what that
     implies>" (occasionally "<short clause> - <...>", or, for a minority
@@ -312,13 +383,75 @@ export function splitExitState(state: string): string {
   if (semi !== -1) cuts.push(semi);
   const dash = state.indexOf(" - ");
   if (dash !== -1) cuts.push(dash);
+  if (cuts.length) return state.slice(0, Math.min(...cuts));
+  /* Comma is the LAST resort, not a third equal tier: a state that already
+     carries a real "; "/" - " boundary has its lead clause there, and a
+     comma inside that lead clause is punctuation, not a boundary. Splitting
+     on the earliest of all three cut ACQ-11's TR x.lapsed ("kurtarma
+     süresi, süreç hâlâ açıkken doldu; başka hiçbir şey gönderilmez") down
+     to "kurtarma süresi" - a noun phrase, not a statement of what ended.
+     Reached only where neither separator exists at all (RET-24's x.monitor
+     and the handful like it), where the first comma IS the clause end. */
   const comma = state.indexOf(", ");
-  if (comma !== -1 && comma <= 60) cuts.push(comma);
-  if (cuts.length === 0) return state;
-  return state.slice(0, Math.min(...cuts));
+  return comma !== -1 && comma <= 60 ? state.slice(0, comma) : state;
 }
 
 const capitalize = (s: string): string => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
+/* THE PUBLIC CHANNEL TAXONOMY (2026-09-20, product decision - see
+   audit/public-journey-scope.md).
+
+   The customer-facing channels are Email, SMS, Push, WhatsApp and In-app, and
+   nothing else. `sales` and `task` are real canonical values and stay in the
+   canonical `channels` field: validate:canonical requires a declared channel
+   to be BACKED by an action doing the work, in both directions, so a journey
+   that raises an account-owner task genuinely must declare `task` - removing
+   it from src/canonical would make the corpus lie about itself and fail the
+   canonical validator.
+
+   What they are NOT is a channel the product advertises. "This journey
+   reaches you on Task" is not a sentence about a customer experience, and a
+   badge saying so puts internal routing on the same footing as an email. So
+   the split happens HERE, at the one projection from canonical to page:
+   canonical keeps the operational truth, every public surface reads the
+   filtered list. Four of the 52 are affected (ACT-13, RET-24, FBK-43,
+   FBK-49); three of them also send email and in-app, so only the badge
+   changes.
+
+   A journey left with NO public channel by this filter is a real product
+   problem, not a display one, and scripts/validate-public-scope.mjs fails on
+   it rather than letting this function quietly hide it. */
+const PUBLIC_CHANNELS: ReadonlySet<ChannelId> = new Set<ChannelId>(["email", "sms", "push", "whatsapp", "in-app"]);
+
+export function publicChannels(channels: readonly ChannelId[]): readonly ChannelId[] {
+  return channels.filter((c) => PUBLIC_CHANNELS.has(c));
+}
+
+/** Customer-facing channels the authored touch plan actually uses.
+    Canonical `journey.channels` is intentionally broader in parts of the
+    corpus (legacy availability / potential surfaces). The public library,
+    however, must describe the journey that is actually drawn and sent.
+    Prefer the channels reached through orchestration.touch.channelRoles;
+    fall back to the declared roster only for legacy journeys with no touch
+    plan. */
+export function actualPublicChannels(j: CanonicalJourney): readonly ChannelId[] {
+  const byRole = new Map((j.channelStrategy?.roles ?? []).map((r) => [r.role, r.channels] as const));
+  const used = new Set<ChannelId>();
+  for (const touch of j.orchestration?.touches ?? []) {
+    for (const role of touch.channelRoles ?? []) {
+      for (const channel of byRole.get(role) ?? []) {
+        if (PUBLIC_CHANNELS.has(channel)) used.add(channel);
+      }
+    }
+  }
+  if (!used.size) return publicChannels(j.channels);
+
+  // Preserve the journey's authored channel order where possible; append any
+  // role-resolved channel omitted from the legacy roster defensively.
+  const ordered = publicChannels(j.channels).filter((c) => used.has(c));
+  for (const channel of used) if (!ordered.includes(channel)) ordered.push(channel);
+  return ordered;
+}
 
 const edge = (
   to: string,
@@ -347,7 +480,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
         ...base,
         headline: humanEvent(n.event),
         eventId: n.event,
-        detail: null,
+        detail: n.detail ?? null,
         meta: [
           `evidence: ${n.evidence.source}`,
           ...n.evidence.requires.map((r) => `requires: ${r}`),
@@ -362,6 +495,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
         headline: n.does,
         detail: null,
         meta: (n.writes ?? []).map((w) => `writes ${w.field} (${w.mode})`),
+        ...(n.writes?.length ? { writesFields: n.writes.map((w) => w.field) } : {}),
         edges: [edge(n.next)],
         ...(n.execution ? { execution: n.execution } : {}),
       };
@@ -373,6 +507,7 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
         meta: [],
         edges: n.branches.map((b) => edge(b.to, b.label, b.when)),
         branchCount: n.branches.length,
+        asks: n.asks,
       };
     case "wait": {
       // A wait whose event arm and timeout arm land on the SAME next node
@@ -419,7 +554,14 @@ const nodeView = (n: CanonicalNode, entry: string): FlowNode => {
     case "handoff":
       return {
         ...base,
-        headline: n.to.startsWith("external:") ? n.to : (byId(n.to)?.name ?? n.to),
+        /* The target's PLAIN-LANGUAGE name, the same one the library cards,
+           the lists and every cross-journey link already use - not its
+           state-machine `name` ("Payment failure → classify → recover,
+           alternate or exit"), which is a three-clause sentence on a card
+           whose whole job is to say where this hands off to. The long form
+           is still one click away in the detail panel, and an external
+           handoff (no journey to look up) keeps its own `external:` id. */
+        headline: n.to.startsWith("external:") ? externalTargetName(n.to) : (byId(n.to)?.shortName ?? byId(n.to)?.name ?? n.to),
         detail: n.on,
         meta: [
           ...n.carries.map((c) => `carries: ${c}`),
@@ -457,14 +599,9 @@ export type JourneyDetail = {
       pre-emption ships no empty array to the browser. */
   preemptedBy: readonly { event: string; then: string }[];
   nodes: readonly FlowNode[];
-  /** vNext: the practitioner's view, projected from the journey's own
-      orchestration/timing/contact/measurement fields. Null until a journey
-      is migrated - no view is better than a half view. */
-  practitioner: PractitionerView | null;
   surface: SurfaceName;
   communicating: boolean;
-  /** Set when the URL was a preset's: the parent's detail with the preset
-      applied to its practitioner view. */
+  /** Set when the URL belongs to one of the journey's presets. */
   preset: PresetRow | null;
   presets: readonly { id: string; name: string }[];
 };
@@ -553,10 +690,36 @@ function touchStages(j: CanonicalJourney): ReadonlyMap<string, string> {
   return stages;
 }
 
+/** Action node id -> the channels this touch actually reaches for, in the
+    order it reaches for them (see `FlowNode.channelPlan`). Joined from two
+    authored vNext fields and nothing else: the touch's own ordered
+    `channelRoles` ("low-friction" then "persistent") and the journey's
+    `channelStrategy.roles`, which is where a role's channels are declared
+    (low-friction: push, in-app). That join is what a per-touch priority
+    IS in this schema - a communication action deliberately does not name
+    its channel (the send path picks one at runtime from the permitted
+    set), so the roles are the only place the ORDER is stated. Absent
+    where either half is missing, and the card falls back to the journey's
+    whole roster exactly as before. */
+function touchChannelPlans(j: CanonicalJourney): ReadonlyMap<string, readonly { role: string; channels: readonly ChannelId[] }[]> {
+  const byRole = new Map((j.channelStrategy?.roles ?? []).map((r) => [r.role, r.channels]));
+  const plans = new Map<string, readonly { role: string; channels: readonly ChannelId[] }[]>();
+  for (const t of j.orchestration?.touches ?? []) {
+    const plan = (t.channelRoles ?? [])
+      .map((role) => ({ role, channels: byRole.get(role) ?? [] }))
+      .filter((r) => r.channels.length > 0);
+    if (plan.length) plans.set(t.action, plan);
+  }
+  return plans;
+}
+
 /** The FlowNode projection of one journey - the exact input both the detail
     page's Canvas and the library card's topology thumbnail lay out, so the
     two can never drift into being different graphs. */
 function flowNodesOf(j: CanonicalJourney): FlowNode[] {
+  const reviewed = publicJourneyFlowNodes(j.id, "en");
+  if (reviewed) return [...reviewed];
+
   const nodes = orderedNodes(j).map((n) => nodeView(n, j.entry));
   // Reading order is settled now, so an edge can finally say whether its
   // target is above it. Done here rather than in nodeView because a node on
@@ -564,6 +727,7 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
   const position = new Map(nodes.map((n, i) => [n.id, i]));
   const channelHints = actionChannelHints(j);
   const stages = touchStages(j);
+  const plans = touchChannelPlans(j);
   return nodes.map((n, i) => ({
     ...n,
     edges: n.edges.map((e) =>
@@ -571,6 +735,13 @@ function flowNodesOf(j: CanonicalJourney): FlowNode[] {
     ),
     ...(n.kind === "action" && channelHints.has(n.id) ? { channelPriority: channelHints.get(n.id) } : {}),
     ...(n.kind === "action" && stages.has(n.id) ? { touchStage: stages.get(n.id) } : {}),
+    ...(n.kind === "action" && plans.has(n.id) ? { channelPlan: plans.get(n.id) } : {}),
+    ...(n.kind === "action" && plans.has(n.id) && j.channelStrategy?.fallback
+      ? { channelStrategyFallback: j.channelStrategy.fallback }
+      : {}),
+    ...(n.kind === "action" && plans.has(n.id) && j.channelStrategy?.simultaneous?.allowed
+      ? { channelStrategySimultaneous: true }
+      : {}),
   }));
 }
 
@@ -589,56 +760,31 @@ export const JOURNEY_ROWS: readonly JourneyRow[] = await Promise.all(PUBLIC_JOUR
   aliases: j.discovery?.aliases ?? [],
   presetCount: j.discovery?.presets?.length ?? 0,
   slug: j.slug,
-  name: j.name,
-  ...(j.shortName ? { shortName: j.shortName } : {}),
-  purpose: j.purpose,
+  name: publicJourneyCopy(j.id, "en")?.name ?? j.name,
+  ...((publicJourneyCopy(j.id, "en")?.shortName ?? j.shortName) ? { shortName: publicJourneyCopy(j.id, "en")?.shortName ?? j.shortName } : {}),
+  purpose: publicJourneyCopy(j.id, "en")?.purpose ?? j.purpose,
   category: j.category,
-  categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
-  nodeCount: j.nodes.length,
+  categoryTitle: publicJourneyCategoryLabel(j.id, "en") ?? CATEGORY_TITLE.get(j.category) ?? j.category,
+  nodeCount: flowNodesOf(j).length,
   goal: j.goal,
-  channels: j.channels,
+  channels: publicJourneyFlowChannels(j.id) ?? actualPublicChannels(j),
   preview: buildJourneyPreview(await layoutJourneyCanvas(flowNodesOf(j))),
 })));
 
-/* The product surfaces (three public since 2026-09-05; the operational
-   surface is archived, see public-corpus.ts). The rule is src/canonical/surface.ts's, read
-   per journey - the site never keeps its own notion of what is a customer
-   journey, and the old "has channels / has none" split is gone: a silent
-   customer lifecycle state and an internal operational workflow both have
-   no channels and are different products.
+/* The website exposes one Journey Library surface. Silent lifecycle states,
+   runtime mechanisms and operational workflows remain canonical dependencies
+   but are deliberately absent from the public corpus. */
+export type SurfaceKey = "customer-journeys";
 
-   Within the canonical "customer" surface, the site's own Customer
-   Journeys / Lifecycle States split is `communicating OR routesToHuman`:
-   a journey the customer's own request actually moves - by message, or by
-   putting a person on it - is a journey a practitioner looks for by name,
-   even where it never sends anything itself (ACQ-04, ACT-11, RET-24:
-   `routesToHuman: true`, `communicating: false`). Only a journey that does
-   neither is a silent lifecycle state - state a communicating journey
-   reads and writes, not a thing anyone opens looking for it. This is a
-   listing-classification choice read from src/canonical/surface.ts's own
-   `sends`/`routesToHuman` fields, not a new canonical rule - see
-   research/journey-library-user-taxonomy-audit.md §12. */
-/* THREE public surfaces since 2026-09-05. The fourth, "operational-workflows"
-   (/lab/operational-workflows, 124 journeys), was removed from the public
-   site and archived - archive/operational-workflows/README.md. It is not a
-   SurfaceKey any more because nothing public can render it: JOURNEY_ROWS
-   above is already filtered to the public corpus, so no row here ever
-   carries surface "operational". `surfaceKeyOf` states that as an invariant
-   rather than silently mapping such a row somewhere. */
-export type SurfaceKey = "customer-journeys" | "lifecycle-states" | "runtime-mechanisms";
-
-export const SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys", "lifecycle-states", "runtime-mechanisms"];
+export const SURFACE_KEYS: readonly SurfaceKey[] = ["customer-journeys"];
 
 export const SURFACE_PATH: Readonly<Record<SurfaceKey, string>> = {
   "customer-journeys": "/lab/customer-journeys",
-  "lifecycle-states": "/lab/lifecycle-states",
-  "runtime-mechanisms": "/lab/runtime-mechanisms",
 };
 
 export const surfaceKeyOf = (row: Pick<JourneyRow, "id" | "surface" | "communicating" | "routesToHuman">): SurfaceKey => {
-  if (row.surface === "customer") return row.communicating || row.routesToHuman ? "customer-journeys" : "lifecycle-states";
-  if (row.surface === "mechanism") return "runtime-mechanisms";
-  throw new Error(`${row.id} is on the archived "${row.surface}" surface and must not reach a public listing - see src/lib/public-corpus.ts`);
+  if (row.surface === "customer" && (row.communicating || row.routesToHuman)) return "customer-journeys";
+  throw new Error(`${row.id} is not part of the public Customer Journey library - see src/lib/public-corpus.ts`);
 };
 
 /** Within Customer Journeys only: the practitioner-facing distinction
@@ -652,8 +798,6 @@ export const isHumanRoutingRow = (row: Pick<JourneyRow, "communicating" | "route
 
 export const SURFACE_ROWS: Readonly<Record<SurfaceKey, readonly JourneyRow[]>> = {
   "customer-journeys": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "customer-journeys"),
-  "lifecycle-states": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "lifecycle-states"),
-  "runtime-mechanisms": JOURNEY_ROWS.filter((j) => surfaceKeyOf(j) === "runtime-mechanisms"),
 };
 
 /** The library's rows - the Customer Journeys surface, by the same rule
@@ -667,8 +811,7 @@ if (LIBRARY_ROWS.length !== LIBRARY_COUNT) {
 
 /** A preset is a named specialisation of a communicating customer journey
     whose only differences are config values, a destination and vocabulary.
-    It renders as its own card and its own URL and opens the parent's
-    practitioner view with the preset applied - it is never a journey. */
+    It renders as its own card and its own URL - it is never a journey. */
 export type PresetRow = {
   id: string;
   slug: string;
@@ -706,20 +849,21 @@ for (const p of PRESET_ROWS) if (BY_SLUG.has(p.slug) || MERGED_BY_SLUG.has(p.slu
 function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): JourneyDetail {
   const withDirection = flowNodesOf(j);
   const sf = surfaceOf(j);
+  const publicCopy = publicJourneyCopy(j.id, "en");
 
   return {
     id: j.id,
     slug: j.slug,
-    name: j.name,
-    ...(j.shortName ? { shortName: j.shortName } : {}),
-    purpose: j.purpose,
-    categoryTitle: CATEGORY_TITLE.get(j.category) ?? j.category,
+    name: publicCopy?.name ?? j.name,
+    ...((publicCopy?.shortName ?? j.shortName) ? { shortName: publicCopy?.shortName ?? j.shortName } : {}),
+    purpose: publicCopy?.purpose ?? j.purpose,
+    categoryTitle: publicJourneyCategoryLabel(j.id, "en") ?? CATEGORY_TITLE.get(j.category) ?? j.category,
     goal: j.goal,
-    channels: j.channels,
-    entityScope: j.entity.scope,
-    entityNote: j.entity.note,
-    reusableRule: j.reusableRule,
-    guardrails: j.guardrails,
+    channels: publicJourneyFlowChannels(j.id) ?? actualPublicChannels(j),
+    entityScope: publicCopy?.entityScope ?? j.entity.scope,
+    entityNote: publicCopy?.entityNote ?? j.entity.note,
+    reusableRule: publicCopy?.reusableRule ?? j.reusableRule,
+    guardrails: publicCopy?.guardrails ?? j.guardrails,
     distinctFrom: (j.distinctFrom ?? []).map((d) => {
       const target = byId(d.journey);
       return {
@@ -738,7 +882,6 @@ function detailOf(j: CanonicalJourney, preset: PresetRow | null = null): Journey
     communicating: sf.sends,
     preset,
     presets: (j.discovery?.presets ?? []).map((p) => ({ id: p.id, name: p.name })),
-    practitioner: practitionerView(j, preset?.preset ?? null),
   };
 }
 

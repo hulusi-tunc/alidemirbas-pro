@@ -5,11 +5,9 @@ import { Button } from "@/components/ui/Button";
 import { EMAIL, type copy, type Lang } from "@/lib/content";
 
 /* This site has no backend and no email-sending service configured, so
-   "Submit" can't actually deliver the message server-side. Rather than
-   fake a working form, it builds a mailto: link from the fields and opens
-   the visitor's own email client with everything pre-filled - a real,
-   honest fallback that needs no credentials on either side. t.contact.
-   formNote says exactly this on the page, no surprise on click.
+   "Submit" can't actually deliver the message server-side. It builds a
+   mailto: link from the three visible fields and opens the visitor's own
+   email client with the draft pre-filled.
 
    CONTACT PILOT restyle (round 1, DESIGN-MIGRATION-PLAN.md): fields,
    `required` validation, and the mailto-fallback submission logic below
@@ -36,14 +34,10 @@ import { EMAIL, type copy, type Lang } from "@/lib/content";
 export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [company, setCompany] = useState("");
-  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
   const nameId = useId();
   const emailId = useId();
-  const companyId = useId();
-  const subjectId = useId();
   const messageId = useId();
 
   const onSubmit = (e: React.FormEvent) => {
@@ -53,9 +47,8 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
       "",
       `${t.formName}: ${name}`,
       `${t.formEmail}: ${email}`,
-      company ? `${t.formCompany}: ${company}` : null,
-    ].filter((line): line is string => line !== null);
-    const href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject || t.formTitle)}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    ];
+    const href = `mailto:${EMAIL}?subject=${encodeURIComponent(t.formTitle)}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
     window.location.href = href;
   };
 
@@ -94,7 +87,7 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
      project's already-shipped `--radius-card`), which is the more honest
      fit for a taller control than forcing the short-control geometry onto
      it. Flagged here as a deliberate adaptation, not silently deviated. */
-  const textareaClass = `${fieldBase} rounded-md min-h-40 resize-y`;
+  const textareaClass = `${fieldBase} rounded-md min-h-[18rem] resize-y sm:min-h-[20rem]`;
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -121,27 +114,6 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
           />
         </label>
       </div>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <label htmlFor={companyId} className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-ink-900">{t.formCompany}</span>
-          <input
-            id={companyId}
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            className={fieldClass}
-          />
-        </label>
-        <label htmlFor={subjectId} className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-ink-900">{t.formSubject}</span>
-          <input
-            id={subjectId}
-            required
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            className={fieldClass}
-          />
-        </label>
-      </div>
       {/* Full-width long field, per the Coda reference's own "büyük
           textarea" instruction — rows raised from 5 to 7 and given a
           floor height so it reads as the page's largest single field,
@@ -154,7 +126,7 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
           required
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          rows={7}
+          rows={11}
           className={textareaClass}
         />
       </label>
@@ -182,13 +154,6 @@ export function ContactForm({ t }: { t: (typeof copy)[Lang]["contact"] }) {
           {t.formSubmit}
         </Button>
       </div>
-      {/* text-neutral-500 -> text-ink-500 (round 3): the legal/fallback
-          copy needs to stay legible at this small size — `ink-500` is
-          this project's own already-documented ~6.5:1-on-white step
-          (see globals.css's own `--color-ink-muted` note), a real
-          contrast improvement over the lighter `neutral-500` used before,
-          not a new color. */}
-      <p className="text-xs text-ink-500">{t.formNote}</p>
     </form>
   );
 }

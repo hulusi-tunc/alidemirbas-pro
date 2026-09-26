@@ -1207,6 +1207,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "A cooldown is one reason among the nine this journey holds. It has its own journey because its release is time-based and its scope is deliberately partial, which the general mechanism does not assume.",
       },
+      {
+        journey: "CON-300",
+        because:
+          "CON-300 decides that continued marketing contact is no longer warranted and hands the result here. What it produces is the sender-side kind of suppression this journey keeps apart from a permission the person withdrew: it is recorded against our own sending, it is scoped to every promotional and lifecycle send addressed to that person and to nothing they hold, owe or are owed, and this journey releases it by asking for permission again rather than by switching sending back on.",
+      },
     ],
     objective: "Make every reason something is not being sent an explicit, scoped, releasable state rather than an absence.",
     eligibility: [
@@ -1239,6 +1244,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g5",
         "label": "CANONICAL_RULE",
         "text": "Releasing a sender-side suppression asks for permission again rather than switching sending back on. Silence long enough to suppress for is not consent that survived it."
+      },
+      {
+        "id": "s.g6",
+        "label": "CANONICAL_RULE",
+        "text": "A suppression is held here and read out there. The scope recorded at a.record is what the journeys it binds gate on, so a scope nothing reads is not a suppression at all - it is a log line. The sunset scope CON-300 hands over covers every promotional and lifecycle send addressed to the person, and each of those journeys names that state from its own side; what they hold, owe or are owed is outside it and keeps running."
       }
     ],
     implementation: {
@@ -1398,7 +1408,8 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       "Release is not replay. What was held is discarded and current eligibility is recalculated.",
       "Different reasons carry different scopes, and a suppression without its scope cannot be released correctly.",
       "Suppression we impose on ourselves is a separate state from permission the person gave us. A sender-side hold is not an unsubscribe, it is recorded against our own sending rather than against their consent, and nobody may read it as a decision they made.",
-      "Releasing a sender-side suppression asks for permission again rather than switching sending back on. Silence long enough to suppress for is not consent that survived it."
+      "Releasing a sender-side suppression asks for permission again rather than switching sending back on. Silence long enough to suppress for is not consent that survived it.",
+      "A scope nothing downstream reads is a log line, not a suppression. The journeys a scope binds name that state themselves."
     ],
     reusableRule:
       "Suppression should be explicit, scoped and reversible only when its underlying reason is no longer valid.",
@@ -2146,70 +2157,70 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "CON-272",
     slug: "contactability-repair",
     category: "consent",
-    goal: "delivery-confirmation",
+    goal: "consent-permission",
     channels: ["in-app", "sms", "email"],
-    name: "Contact point unreachable → alternate route → corrected or suppressed",
-    shortName: "Contact Recovery",
+    name: "Channel permission closed → ask on an open route → reopened or left closed",
+    shortName: "Permission Reopen",
     purpose:
-      "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
+      "Win a closed channel's permission back by asking through a route that is still open, without ever contacting the closed channel itself or mistaking a technical fix for a fresh grant.",
     entity: {
-      scope: "the person plus the one contact point that failed - this address, this number, this token",
-      note: "The failure belongs to the destination, not to the person and not to the channel class. A second destination failing is its own instance and gets its own repair cycle.",
+      scope: "the person plus the one channel whose permission is closed",
+      note: "The closure belongs to the channel, not to the person's whole contactability. A second channel closing is its own instance and gets its own repair cycle.",
       instanceKey: [
-        "contact_point_id",
-        "person_id"
+        "person_id",
+        "channel"
       ],
       concurrency: "one-active-per-key"
     },
     distinctFrom: [
       {
+        journey: "CON-35",
+        because:
+          "CON-35 enforces a permission change the moment it is recorded, in either direction, and propagates it to the dependent systems. This journey only ever runs after a narrowing CON-35 has already enforced - it is the one attempt to win the channel back, never the enforcement itself.",
+      },
+      {
         journey: "CON-36",
         because:
-          "CON-36 holds reachability per destination and decides what is suppressed. This journey is the single request to the person that could change that, and it only ever runs on a route CON-36 has already found healthy and permitted.",
+          "CON-36 holds reachability per destination - whether a route works at all. This journey runs only on routes CON-36 has already found healthy; what it repairs is permission, not deliverability.",
       },
       {
         journey: "CON-38",
         because:
-          "CON-38 governs suppression by reason, including permission-based ones. Here the destination is suppressed for a technical failure only, and nothing about what may be sent has changed.",
+          "CON-38 governs suppression by reason and holds it once decided. This journey is the single request that could reverse a permission-based suppression, and it asks once before standing down rather than deciding anything itself.",
       },
       {
-        journey: "CON-264",
+        journey: "CON-300",
         because:
-          "CON-264 confirms a destination that was added or changed through the person's own action. A destination this journey's own a.confirm has already verified came from a repair, not a self-service change, and is not independently re-confirmed by CON-264 for the same event - this journey's change_source marks the origin so CON-264 can tell the two apart.",
+          "CON-300 reads sustained silence across channels as a reason to end marketing contact. This journey runs the moment one channel's permission closes, before any conclusion is drawn from the silence on it - which is why it outranks CON-300 in the contactability-question group and CON-300 stands down while a repair is open.",
       },
     ],
-    objective: "Get a dead destination replaced by asking on a route that still works, so a delivery failure is repaired once rather than retried blind - and without either side mistaking it for a change of permission.",
+    objective:
+      "Win a closed channel's permission back by asking through a route that is still open, without ever contacting the closed channel itself or mistaking a technical fix for a fresh grant.",
     eligibility: [
-      "a permanent delivery failure or invalid-destination result recorded against one specific contact point",
-      "a failure class that marks the destination unusable rather than temporarily unavailable",
-      "no instance of this journey is already open for the the person plus the one contact point that failed",
+      "a recorded permission closure on one specific channel, while at least one other channel remains open or the person is expected to sign in",
+      "no instance of this journey is already open for the person plus the one channel whose permission is closed",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
     suppressions: [
       {
         "id": "s.g1",
         "label": "CANONICAL_RULE",
-        "text": "Undeliverable is not opted out, and nothing here changes what may be sent."
+        "text": "A closed permission is not a dead route, and nothing here is sent to the channel being repaired."
       },
       {
         "id": "s.g2",
         "label": "CANONICAL_RULE",
-        "text": "The repair request never goes to the destination being repaired."
+        "text": "An available open channel is not itself permission to use it for anything beyond this one request."
       },
       {
         "id": "s.g3",
         "label": "CANONICAL_RULE",
-        "text": "An available alternative route is not permission to use it. Availability is the easiest thing to check and the least meaningful."
+        "text": "One repair cycle per closed channel. A permission asked twice over the same closure is asked once too often."
       },
       {
         "id": "s.g4",
         "label": "CANONICAL_RULE",
-        "text": "One repair cycle per destination. A dead route asked twice is still dead and the second ask is paid for in delivery reputation."
-      },
-      {
-        "id": "s.g5",
-        "label": "CANONICAL_RULE",
-        "text": "A corrected value is verified before the destination is treated as usable, and nothing held is replayed on it."
+        "text": "No open channel and no expected session leaves nothing to ask through; the closure stands until a channel opens."
       }
     ],
     contact: {
@@ -2231,7 +2242,7 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       },
       "cooldown": {
         "key": "contactability_repair.cooldown",
-        "rule": "This journey is per the person plus the one contact point that failed; a later instance concerns a different the person plus the one contact point that failed and no cooldown applies between them.",
+        "rule": "This journey is per the person plus the one channel whose permission is closed; a later closure on a different channel is its own instance and no cooldown applies between them.",
         "default": {
           "value": "none",
           "confidence": "high",
@@ -2240,7 +2251,12 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "contactability-question",
+        "scope": "person",
+        "precedence": "highest in the contactability-question group - a channel that just closed has to be given the one chance to reopen before any conclusion is drawn from the silence on it, so while this repair currently holds the person the unengaged sunset stands down rather than reading a closed permission as disinterest",
+        "onLoss": "paused"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -2249,21 +2265,21 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
           "channels": [
             "in-app"
           ],
-          "when": "the person is active in the product and the action is taken there"
+          "when": "the person is active in the product, which can carry the request regardless of which channel closed"
         },
         {
           "role": "urgent",
           "channels": [
             "sms"
           ],
-          "when": "an asserted time bound lies inside the urgent horizon and permission for messages on this channel is recorded"
+          "when": "no session is expected soon, email permission is closed, and SMS permission is open"
         },
         {
           "role": "persistent",
           "channels": [
             "email"
           ],
-          "when": "the message has to be kept and survive until the person can act on it"
+          "when": "no session is expected soon, SMS permission is closed, and email permission is open"
         }
       ],
       "fallback": "same-role-other-channel",
@@ -2275,49 +2291,66 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         {
           "id": "t1",
           "stage": "prompt-in-app",
-          "action": "a.prompt-in-app",
+          "action": "a.ask-inapp",
           "prerequisites": [
             "c.route"
           ],
-          "purpose": "Ask for a corrected destination where the person already is, naming which one stopped working and what is being held because of it.",
+          "purpose": "Ask where the person already is to reopen the closed channel, naming what is being missed and linking to the preference centre.",
           "channelRoles": [
             "in-session"
           ],
           "mandatory": true,
           "label": "CANONICAL_RULE",
           "destination": {
-            "target": "contact-point-update",
-            "boundTo": "contact_point_id"
+            "target": "preference-centre",
+            "boundTo": "person_id"
           }
         },
         {
-          "id": "t2",
-          "stage": "prompt-alt",
-          "action": "a.prompt-alt",
+          "id": "t2a",
+          "stage": "prompt-email",
+          "action": "a.ask-email",
           "prerequisites": [
             "c.route"
           ],
-          "purpose": "Ask for a corrected destination on the surviving permitted route, naming the one that failed.",
+          "purpose": "Ask on the surviving address to reopen the closed channel, naming what is being missed and linking to the preference centre.",
           "channelRoles": [
-            "urgent",
             "persistent"
           ],
           "mandatory": true,
           "label": "CANONICAL_RULE",
           "destination": {
-            "target": "contact-point-update",
-            "boundTo": "contact_point_id"
+            "target": "preference-centre",
+            "boundTo": "person_id"
+          }
+        },
+        {
+          "id": "t2b",
+          "stage": "prompt-sms",
+          "action": "a.ask-sms",
+          "prerequisites": [
+            "c.route"
+          ],
+          "purpose": "Ask on the surviving number to reopen the closed channel, naming what is being missed and linking to the preference centre.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "mandatory": true,
+          "label": "CANONICAL_RULE",
+          "destination": {
+            "target": "preference-centre",
+            "boundTo": "person_id"
           }
         },
         {
           "id": "t3",
-          "stage": "confirm",
-          "action": "a.confirm",
-          "gatedBy": "w.corrected",
+          "stage": "remind",
+          "action": "a.remind",
+          "gatedBy": "w.reopen",
           "prerequisites": [
             "c.outcome"
           ],
-          "purpose": "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent.",
+          "purpose": "Send one last reminder on the same route that carried the original ask, that the channel's permission is still closed.",
           "channelRoles": [
             "in-session",
             "persistent",
@@ -2331,35 +2364,35 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4",
-        "s.g5"
+        "s.g4"
       ]
     },
     implementation: {
       "attributes": {
         "required": [
-          "contact_point_id",
           "person_id",
-          "failure_class",
-          "failed_at",
-          "surviving_routes",
-          "held_messages"
+          "channel",
+          "closed_at",
+          "permission_log"
         ],
-        "optional": []
+        "optional": [
+          "open_channels",
+          "has_active_app_session"
+        ]
       }
     },
     measurement: {
       "journeyOutcome": {
         "type": "exit",
         "refs": [
-          "x.dark",
-          "x.repaired",
-          "x.recovered",
-          "x.suppressed"
+          "x.reopened",
+          "x.stayed-closed",
+          "x.already-open",
+          "x.unreachable"
         ]
       },
       "businessOutcome": {
-        "event": "replacement_destination_verified",
+        "event": "explicit_permission_decision_received",
         "unit": "instance",
         "observationScope": {
           "type": "self"
@@ -2385,32 +2418,28 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     },
     discovery: {
       "aliases": [
-        "contact recovery",
-        "bounce repair",
-        "undeliverable contact fix",
-        "dead address recovery",
-        "contact point repair"
+        "permission reopen",
+        "channel opt back in",
+        "closed channel recovery",
+        "re-permission request",
+        "win-back permission"
       ],
       "useCases": [
-        "a hard bounce repaired by asking on a route that still works",
-        "a dead push token replaced without touching what may be sent"
+        "email permission closed while SMS is still open, asked back via SMS",
+        "both marketing channels closed while the app is still used, asked back in-app"
       ]
     },
-    entry: "t.dead",
+    entry: "t.closed",
     nodes: [
       {
-        id: "t.dead",
+        id: "t.closed",
         kind: "trigger",
-        event: "contact_point_recorded_undeliverable",
+        event: "authoritative_permission_change",
         evidence: {
-          requires: [
-            "a permanent delivery failure or invalid-destination result recorded against one specific contact point",
-            "a failure class that marks the destination unusable rather than temporarily unavailable",
-          ],
+          requires: ["a recorded transition narrowing one channel's permission to closed"],
           insufficientAlone: [
-            "a single soft failure or a full mailbox",
-            "a message that went unopened",
-            "an opt-out, which is a permission fact and says nothing about the route",
+            "a technical delivery failure on a channel whose permission is still open, which is a reachability question (CON-36's job)",
+            "a permission change that leaves no channel newly closed",
           ],
           source: "authoritative",
         },
@@ -2419,131 +2448,198 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
       {
         id: "c.route",
         kind: "condition",
-        asks: "What can carry the repair request without using the broken destination?",
+        asks: "Which channels are open, and is the app active?",
         branches: [
           {
-            label: "Reachable in product",
-            when: "the person signs in, so the request can wait on the surface they already use",
-            to: "a.prompt-in-app",
+            label: "Signed in",
+            when: "the person is active in the product, which can carry the request regardless of which channel closed",
+            to: "a.ask-inapp",
           },
           {
-            label: "Reachable off product",
-            when: "no session is expected soon, and a separate destination is both deliverable and permitted for a service notice of this kind",
-            to: "a.prompt-alt",
+            label: "Email survives",
+            when: "no session is expected soon, SMS permission is closed, and email permission is open",
+            to: "a.ask-email",
           },
           {
-            label: "Nothing left",
-            when: "no other destination is both working and permitted",
-            to: "x.dark",
+            label: "Phone survives",
+            when: "no session is expected soon, email permission is closed, and SMS permission is open",
+            to: "a.ask-sms",
+          },
+          {
+            label: "Already open elsewhere",
+            when: "a fresh read shows another channel besides the one that just closed is already open, and the person is not expected to sign in soon",
+            to: "x.already-open",
+          },
+          {
+            label: "Nothing open",
+            when: "no channel is open and no session is expected soon",
+            to: "x.unreachable",
           },
         ],
       },
       {
-        id: "a.prompt-in-app",
+        id: "a.ask-inapp",
         kind: "action",
-        does: "Ask for a corrected destination where the person already is, naming which one stopped working and what is being held because of it. Seeing the request somewhere other than the failed route is what makes it credible rather than suspicious",
-        next: "w.corrected",
+        does: "Show the in-app permission screen for the closed channel, naming what is being missed and linking to the preference centre. Seeing the request somewhere other than the closed channel is what makes it answerable",
+        next: "w.reopen",
         execution: "communication",
-        idempotencyKey: "contact_point_id + person_id + a.prompt-in-app",
+        idempotencyKey: "person_id + channel + a.ask-inapp",
       },
       {
-        id: "a.prompt-alt",
+        id: "a.ask-email",
         kind: "action",
-        does: "Ask for a corrected destination on the surviving permitted route, naming the one that failed. Nothing is sent to the dead destination to tell it that it is dead - that is the original failure repeating itself and costing another delivery reputation point",
-        next: "w.corrected",
+        does: "Ask on the surviving email address to reopen SMS permission, naming what is being missed and linking to the preference centre. Nothing is sent to the closed channel to ask it to reopen itself",
+        next: "w.reopen",
         execution: "communication",
-        idempotencyKey: "contact_point_id + person_id + a.prompt-alt",
+        idempotencyKey: "person_id + channel + a.ask-email",
       },
       {
-        id: "x.dark",
+        id: "a.ask-sms",
+        kind: "action",
+        does: "Ask on the surviving phone number to reopen email permission, naming what is being missed and linking to the preference centre. Nothing is sent to the closed channel to ask it to reopen itself",
+        next: "w.reopen",
+        execution: "communication",
+        idempotencyKey: "person_id + channel + a.ask-sms",
+      },
+      {
+        id: "x.already-open",
         kind: "exit",
-        state: "no working permitted route; the destination stays suppressed",
+        state: "another channel was already open; nothing needed repairing",
         terminal: false,
-        reEntry: "if any route becomes deliverable and permitted, the repair request runs from there",
+        reEntry: "a later closure on any channel opens its own instance",
+        class: "no-action",
+      },
+      {
+        id: "x.unreachable",
+        kind: "exit",
+        state: "no open channel and no session to carry the request; the closure stands",
+        terminal: false,
+        reEntry: "if any channel becomes open, or a session starts, the repair request runs from there",
         class: "suppression",
       },
       {
-        id: "w.corrected",
+        id: "w.reopen",
         kind: "wait",
         until: [
-          "replacement_destination_verified",
-          "destination_deliverable_again",
-          "destination_removed"
+          "explicit_permission_decision_received"
         ],
         onEvent: "c.outcome",
         timeout: {
           "after": {
-            "key": "contactability_repair.corrected",
-            "rule": "The single repair cycle allowed for this destination.",
-            "class": "observation-window",
-            "required": true
+            "key": "contactability_repair.reopen_window",
+            "rule": "The first bounded window for a decision on the surviving route; where the ask ran in-app rather than by email or SMS, this window instead runs to the person's next expected session.",
+            "class": "response-window",
+            "default": {
+              "value": "2-3 days",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "the ask went out by email or SMS",
+              "avoidWhen": "the ask went out in-app, where the window is the person's own next session rather than a fixed clock"
+            },
+            "required": false
           },
-          "reason": "repair attempts are bounded - a destination not corrected inside its cycle stays suppressed rather than being retried blind against a route already known to be dead",
+          "reason": "a closed channel asked about once and never checked on again is a request that was never really made",
           "relativeTo": "previous-touch"
         },
-        onTimeout: "x.suppressed",
+        onTimeout: "c.outcome",
         windowExtendsOnEngagement: false,
-        recheck: "the the person plus the one contact point that failed re-read from the system of record before acting on the timeout",
+        recheck: "the person's permission state for the closed channel re-read from the system of record before acting on the timeout",
       },
       {
         id: "c.outcome",
         kind: "condition",
-        asks: "What ended the wait?",
+        asks: "Did permission for the closed channel reopen?",
         branches: [
           {
-            label: "Replaced",
-            when: "a new destination was supplied and has verified as reachable",
-            to: "a.confirm",
+            label: "Reopened",
+            when: "the closed channel's permission is now open",
+            to: "x.reopened",
           },
           {
-            label: "Recovered",
-            when: "the original destination is deliverable again on its own evidence",
-            to: "x.recovered",
+            label: "Still closed",
+            when: "the closed channel's permission is still closed",
+            to: "a.remind",
           },
         ],
       },
       {
-        id: "a.confirm",
+        id: "a.remind",
         kind: "action",
-        does: "Confirm on the working route that the replacement is now in use, and say that this changed where things go and not what may be sent. A repaired route is a route - treating a freshly verified destination as a fresh permission is how a technical fix quietly becomes a consent claim",
-        next: "x.repaired",
+        does: "Send one last reminder on the same route that carried the original ask - never a second route - that the channel's permission is still closed, linking to the preference centre",
+        next: "w.reopen2",
         execution: "communication",
-        idempotencyKey: "contact_point_id + person_id + a.confirm",
+        idempotencyKey: "person_id + channel + a.remind",
       },
       {
-        id: "x.repaired",
+        id: "w.reopen2",
+        kind: "wait",
+        until: [
+          "explicit_permission_decision_received"
+        ],
+        onEvent: "c.outcome2",
+        timeout: {
+          "after": {
+            "key": "contactability_repair.reminder_window",
+            "rule": "The single reminder window allowed for this closure, shorter than the first because the ask has already been made once.",
+            "class": "response-window",
+            "default": {
+              "value": "1-2 days",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "the reminder went out on the same route as the original ask",
+              "avoidWhen": "no route survives to carry a reminder"
+            },
+            "required": false
+          },
+          "reason": "the repair cycle is bounded - a closure not reversed inside it stays closed rather than being asked about indefinitely",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "c.outcome2",
+        windowExtendsOnEngagement: false,
+        recheck: "the person's permission state for the closed channel re-read from the system of record before acting on the timeout",
+      },
+      {
+        id: "c.outcome2",
+        kind: "condition",
+        asks: "Did permission for the closed channel reopen?",
+        branches: [
+          {
+            label: "Reopened",
+            when: "the closed channel's permission is now open",
+            to: "x.reopened",
+          },
+          {
+            label: "Still closed",
+            when: "the closed channel's permission is still closed",
+            to: "x.stayed-closed",
+          },
+        ],
+      },
+      {
+        id: "x.reopened",
         kind: "exit",
-        state: "destination replaced and in use; permission unchanged",
+        state: "permission for the closed channel is reopened; normal contact on it resumes",
         terminal: false,
-        reEntry: "a later failure on any destination is its own instance",
+        reEntry: "a later closure on any channel is its own instance",
         class: "success",
       },
       {
-        id: "x.recovered",
+        id: "x.stayed-closed",
         kind: "exit",
-        state: "original destination reachable again; nothing replayed",
+        state: "the channel's permission stays closed after one repair cycle",
         terminal: false,
-        reEntry: "a further failure on the same destination re-enters here with a new repair cycle",
-        class: "success",
-      },
-      {
-        id: "x.suppressed",
-        kind: "exit",
-        state: "destination stays suppressed after one repair cycle",
-        terminal: false,
-        reEntry: "a corrected destination supplied later re-enters at confirmation, once it has verified",
+        reEntry: "the person reopening it themselves later is a fresh grant, not a re-entry into this instance",
         class: "suppression",
       },
     ],
     guardrails: [
-      "Undeliverable is not opted out, and nothing here changes what may be sent.",
-      "The repair request never goes to the destination being repaired.",
-      "An available alternative route is not permission to use it. Availability is the easiest thing to check and the least meaningful.",
-      "One repair cycle per destination. A dead route asked twice is still dead and the second ask is paid for in delivery reputation.",
-      "A corrected value is verified before the destination is treated as usable, and nothing held is replayed on it.",
+      "A closed permission is not a dead route, and nothing is sent to the channel being repaired.",
+      "An available open channel is not permission to use it for anything beyond this one request.",
+      "One repair cycle per closed channel. A permission asked twice over the same closure is asked once too often.",
+      "Reopening a channel changes where the closed permission stands, not what the person has agreed to receive elsewhere.",
     ],
     reusableRule:
-      "You cannot ask somebody to fix a broken route by sending the request down it.",
+      "A closed channel's permission should be asked back once, through a route that is still open, and never re-asked once that one attempt has run its course.",
   },
   {
     id: "CON-283",
@@ -2573,6 +2669,11 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "CON-38",
         because:
           "CON-38 records a stop and decides when it releases. A reduction is not a stop, and recording the two as the same state loses exactly the relationship the person was trying to keep.",
+      },
+      {
+        journey: "CON-300",
+        because:
+          "CON-300 puts the choice in front of somebody who has chosen nothing, and hands the reduction here the moment they take it. This journey never asks - it confirms a cadence the person set themselves, which is why it outranks CON-300 in the contactability-question group: somebody who has just answered is not asked again.",
       },
     ],
     objective: "Confirm to somebody who asked for less that less is what they will get, so that asking for fewer messages stays a real alternative to asking for none.",
@@ -2633,7 +2734,12 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
         },
         "required": false
       },
-      "competition": "none"
+      "competition": {
+        "exclusionGroup": "contactability-question",
+        "scope": "person",
+        "precedence": "above the unengaged sunset in the contactability-question group - somebody who has just chosen a cadence has answered the question the sunset would otherwise ask, so while this confirmation currently holds the person the sunset is suppressed for them; below a permission repair, which is trying to reopen the very channel this confirmation would travel on",
+        "onLoss": "paused"
+      }
     },
     channelStrategy: {
       "roles": [
@@ -2884,5 +2990,904 @@ export const CONSENT_JOURNEYS: readonly CanonicalJourney[] = [
     ],
     reusableRule:
       "Somebody asking for less is staying, and the only way to lose them is to hear it as leaving.",
+  },
+  {
+    "id": "CON-300",
+    "slug": "unengaged-sunset",
+    "category": "consent",
+    "goal": "consent-permission",
+    "channels": ["email", "push"],
+    "name": "Marketing contact unanswered → active-user bypass, then asked, reminded and offered once → kept, reduced or ended",
+    "shortName": "Unengaged Subscriber Sunset",
+    "purpose": "Decide whether continued marketing contact is still warranted for somebody who has answered none of it - by bypassing anyone whose other activity says they are not dormant, then asking once, reminding once, and putting a real final offer beside ending contact before any instance actually closes it.",
+    "objective": "End marketing contact that nothing in the record supports any more, without ending the relationship, without touching what the person is owed, and without recording a decision on their consent that they never made - while giving a genuinely active person a lighter cadence instead of a full cascade, and giving the otherwise-unresponsive person one real, honestly-labeled offer before contact ends.",
+    "entity": {
+      "scope": "one person's marketing contactability - the permission it runs on, the sends made against it, and the unengaged window being decided",
+      "note": "The entity is the standing to keep sending, not the customer. Nothing here changes what the person has bought, owes or is owed, and nothing here changes what they may be told about those things. One instance per person and unengaged window; a window that closes is decided rather than extended.",
+      "instanceKey": [
+        "person_id",
+        "unengaged_window"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A recorded engagement with marketing communication, or a preference or permission decision the person makes themselves, supersedes the instance: the question has been answered and this journey stops asking it."
+      }
+    },
+    "eligibility": [
+      "an authoritative record of the marketing sends actually made to this person across the company's unengaged window",
+      "those sends were made on a route whose engagement the company can observe, so that silence is evidence rather than a gap in instrumentation",
+      "no recorded engagement with any of them inside that window",
+      "purpose-level permission for commercial communication is still recorded - somebody who has already opted out is not a sunset case",
+      "no instance is already open for this person and this window, and hard gates (GLB-31) allow communication for this purpose"
+    ],
+    "suppressions": [
+      {
+        "id": "s.unmeasurable",
+        "label": "CANONICAL_RULE",
+        "text": "Silence is evidence only where engagement could have been seen. A route that does not report engagement, a window in which nothing was actually sent, or a person whose sends were held back for some other reason produce no evidence of disinterest and no sunset."
+      },
+      {
+        "id": "s.transactional",
+        "label": "CANONICAL_RULE",
+        "text": "A sunset ends marketing contact and nothing else. What the person holds, owes or is owed stays governed by its own rules, and an implementation that stops those messages too has made an opt-out out of something nobody chose."
+      },
+      {
+        "id": "s.lessbeforenone",
+        "label": "CANONICAL_RULE",
+        "text": "Fewer is offered before none, and offered more than one way: the question itself puts a reduced cadence and an important-only tier beside stopping altogether, so a person who wants less has a real, graduated answer to give short of ending contact. Taking any of those reduced tiers is the frequency preference journey's (CON-283) work, not this one's."
+      },
+      {
+        "id": "s.notconsent",
+        "label": "CANONICAL_RULE",
+        "text": "Silence is not an opt-out. What this journey reaches is a sender-side suppression recorded against our own sending, never a withdrawal recorded against the person's consent, and it is released by asking for permission again rather than by switching sending back on (CON-38)."
+      },
+      {
+        "id": "s.scope",
+        "label": "CANONICAL_RULE",
+        "text": "Marketing contact means every promotional and lifecycle send addressed to this person, not promotions alone. The narrow reading - stop the offers, keep the birthday, the anniversary, the membership welcome and the tier announcement - defeats the journey and is worse than not having it, because the business believes it has stopped while the same person keeps hearing from us on the same evidence of disinterest. The line is drawn at the send's declared purpose class, which is the only thing a gate can read: promotional and lifecycle stop, service, transactional, security and mandatory do not."
+      },
+      {
+        "id": "s.enforced",
+        "label": "CANONICAL_RULE",
+        "text": "The suppression has to be read by the journeys it binds, or it has ended nothing. Every journey in the library whose sends are promotional or lifecycle class stands down while it stands - the recoveries, the nurtures, the offers, the recognitions and the membership announcements - and each says so from its own side. It is carried as a hard gate under GLB-31 and evaluated at the send path's purpose stage (CMS-203) rather than declared in this journey's contactability-question group, because it is a standing state and not a contest: it decides who may be sent to afterwards, where a competition group decides only who asks the question now, and it outlives every send window either of them could share."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A permission repair or a frequency change already running for this person outranks this journey in the contactability-question group; while either holds the person, this journey is suppressed for them rather than queued behind it (GLB-06). A channel whose permission just closed is why nothing was engaged with there, not evidence that nothing was wanted."
+      },
+      {
+        "id": "s.bounded",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "The question, a short reminder, one final campaign carrying a real offer, and the resolution that follows - and nothing else. A further message to somebody who has answered nothing is the volume this journey exists to end."
+      }
+    ],
+    "contact": {
+      "defaultPriority": "service",
+      "pressureClass": "service",
+      "localCap": {
+        "value": {
+          "key": "unengaged_sunset.discretionary_touches",
+          "rule": "The question, the reminder and the final campaign are the discretionary touches and run against a budget fixed when the instance opened; the confirmation that contact has ended is a notice about our own sending and is mandatory, so it is not rationed against them.",
+          "default": {
+            "value": 3,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - the question, one reminder and one final campaign before the ending"
+          },
+          "required": false
+        },
+        "appliesTo": "non-mandatory"
+      },
+      "cooldown": {
+        "key": "unengaged_sunset.cooldown",
+        "rule": "Somebody whose marketing contact has ended is not asked again until permission has been given afresh; somebody who answered is left alone for a cooldown before another unengaged window is opened against them.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "contactability-question",
+        "scope": "person",
+        "precedence": "lowest in the contactability-question group - a permission repair is trying to reopen a channel that just closed and a frequency confirmation is answering a cadence the person themselves chose, and both are already answering the question this journey would otherwise ask over the top of; when either currently holds the person this journey is suppressed for them rather than queued behind it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the question has to reach somebody who is not in the product and survive until they answer it - the default route, the one the unengaged window was measured on, and the route the final campaign and the ending notice both stay on"
+        },
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a short reminder that only needs to be seen once, not kept, for someone who has not answered the first question yet"
+        }
+      ],
+      "fallback": "none",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "offer-decide-remind",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "the-question",
+          "action": "a.ask",
+          "prerequisites": [
+            "c.evidence",
+            "c.active",
+            "c.sendable"
+          ],
+          "purpose": "Ask once whether marketing contact should continue, with a reduced cadence and an important-only tier set beside stopping altogether so that fewer is an answer the person can actually give.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "preference-centre",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "that messages about what they hold, owe or are owed will stop",
+              "that the account will be closed",
+              "that anything has already been decided"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "reminder",
+          "action": "a.remind",
+          "after": "t1",
+          "gatedBy": "w.answer",
+          "prerequisites": [
+            "c.answered",
+            "c.sendable2"
+          ],
+          "purpose": "A short reminder that setting a contact preference takes only a moment, to whoever has not yet answered the first question.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "destination": {
+            "target": "preference-centre",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "that messages about what they hold, owe or are owed will stop",
+              "that the account will be closed",
+              "that anything has already been decided"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "final-campaign",
+          "action": "a.campaign",
+          "after": "t2",
+          "gatedBy": "w.remind",
+          "prerequisites": [
+            "c.answered2",
+            "c.sendable3"
+          ],
+          "purpose": "One last, honestly-labeled campaign for the still-unresponsive person: a genuine, time-boxed incentive, named as an offer rather than folded into the contact-preference question.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "offer-route",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "a discount or incentive the business has not issued",
+              "that ignoring it ends the relationship rather than marketing contact",
+              "that anything has already been decided"
+            ]
+          },
+          "mandatory": false,
+          "priority": "promotional",
+          "priorityReason": "the only touch in this journey that carries a real, time-boxed incentive rather than a contact-preference question; the journey's own pressure class stays service because the question, the reminder and the resolution are not offers",
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t4",
+          "stage": "resolution",
+          "action": "a.confirm-end",
+          "after": "t3",
+          "gatedBy": "w.campaign",
+          "prerequisites": [
+            "c.campaign-result",
+            "c.notify"
+          ],
+          "purpose": "Confirm that marketing contact has ended, name what continues because it was never marketing, and leave the route back for whenever they want it.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "preference-centre",
+            "boundTo": "person_id",
+            "mustNotClaim": [
+              "that the person opted out",
+              "that anything they hold or are owed has changed"
+            ]
+          },
+          "mandatory": true,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.unmeasurable",
+        "s.transactional",
+        "s.lessbeforenone",
+        "s.notconsent",
+        "s.contest",
+        "s.bounded"
+      ]
+    },
+    "entry": "t.unengaged",
+    "nodes": [
+      {
+        "id": "t.unengaged",
+        "kind": "trigger",
+        "event": "marketing_contact_unanswered_across_window",
+        "evidence": {
+          "requires": [
+            "an authoritative record of the marketing sends actually made to this person across the company's unengaged window",
+            "confirmation that those sends ran on a route whose engagement the company can observe",
+            "no recorded engagement with any of them inside that window, and a purpose-level permission for commercial communication that still stands"
+          ],
+          "insufficientAlone": [
+            "a period without a purchase - that is a lapse, and the lapsed-customer win-back owns it",
+            "a single message that went unanswered",
+            "silence on a route that cannot report engagement at all, which is an absence of measurement rather than an absence of interest",
+            "a window in which nothing was actually sent to this person",
+            "an opt-out already recorded, which is an answer rather than a question"
+          ],
+          "source": "behavioral"
+        },
+        "next": "c.evidence"
+      },
+      {
+        "id": "c.evidence",
+        "kind": "condition",
+        "asks": "Does the record actually support the conclusion that marketing contact is unwanted?",
+        "branches": [
+          {
+            "label": "Supported",
+            "when": "sends were made inside the window on a route that reports engagement, none of them was engaged with, and permission for commercial communication still stands",
+            "observes": "send log, engagement record, permission record",
+            "to": "c.active"
+          },
+          {
+            "label": "Nothing to read",
+            "when": "nothing was sent inside the window, or the route it was sent on cannot report engagement; there is no silence here to draw a conclusion from",
+            "observes": "send log, engagement reporting availability",
+            "to": "a.record-no-action"
+          },
+          {
+            "label": "Already answered",
+            "when": "the person set a preference or made a permission decision of their own inside the window",
+            "observes": "frequency_preference_changed",
+            "to": "x.answered"
+          }
+        ]
+      },
+      {
+        "id": "c.active",
+        "kind": "condition",
+        "asks": "Does anything outside marketing say this person is still around, even though marketing contact itself has gone unanswered?",
+        "branches": [
+          {
+            "label": "Active elsewhere",
+            "when": "a purchase, a use of the product or a visit recorded inside the company's own recent-activity window says the relationship is not dormant",
+            "observes": "meaningful_return",
+            "to": "a.reduce-bypass"
+          },
+          {
+            "label": "Not active",
+            "when": "nothing outside marketing contact says the person is still around; the silence extends past marketing itself",
+            "observes": "meaningful_return",
+            "to": "c.sendable"
+          }
+        ]
+      },
+      {
+        "id": "a.reduce-bypass",
+        "kind": "action",
+        "does": "Lower the marketing send frequency directly and hold back everything but what matters, since activity outside marketing says the relationship is not dormant even though marketing contact itself went unanswered. This is a cadence change, not an answer to the contact question, and it does not ask one.",
+        "idempotencyKey": "person_id + unengaged_window + a.reduce-bypass",
+        "writes": [
+          {
+            "field": "sunset_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.active-reduced"
+      },
+      {
+        "id": "c.sendable",
+        "kind": "condition",
+        "asks": "May the question go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for this purpose, a deliverable destination, the service pressure cap, no cooldown in force, and no higher-precedence contactability journey currently holds this person",
+            "observes": "send path stages 1-8",
+            "to": "a.ask"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason and nothing is forced onto another route",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action"
+          }
+        ]
+      },
+      {
+        "id": "a.ask",
+        "kind": "action",
+        "does": "Ask once whether marketing contact should continue, and set a reduced cadence and an important-only tier beside stopping altogether so that fewer is an answer the person can actually give. Carry no offer, no incentive and no argument for the relationship.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + unengaged_window + a.ask",
+        "writes": [
+          {
+            "field": "sunset_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.answer"
+      },
+      {
+        "id": "w.answer",
+        "kind": "wait",
+        "until": [
+          "marketing_engagement_recorded",
+          "frequency_preference_changed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.answered",
+        "timeout": {
+          "after": {
+            "key": "unengaged_sunset.answer_window",
+            "rule": "The fixed span the question is given to be answered before a reminder is due.",
+            "class": "response-window",
+            "default": {
+              "value": {
+                "min": "3 days",
+                "max": "5 days"
+              },
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "an email-first ask with no other contactability journey already holding the person"
+            },
+            "required": false
+          },
+          "reason": "a question left open indefinitely is a person kept on a list by inertia, which is the state this journey exists to end",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.answered",
+        "recheck": "the engagement record, the preference record and the permission record re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.answered",
+        "kind": "condition",
+        "asks": "Did the question get an answer?",
+        "branches": [
+          {
+            "label": "Keep it",
+            "when": "a recorded engagement with marketing communication is on file for this person inside the window, or they asked to keep hearing from us",
+            "observes": "marketing_engagement_recorded",
+            "to": "x.kept"
+          },
+          {
+            "label": "Fewer instead",
+            "when": "the person set a reduced cadence rather than an ending",
+            "observes": "frequency_preference_changed",
+            "to": "h.frequency"
+          },
+          {
+            "label": "Stop it",
+            "when": "the person withdrew permission for commercial communication themselves",
+            "observes": "permission_withdrawn",
+            "to": "h.permission"
+          },
+          {
+            "label": "No answer",
+            "when": "the window closed with nothing recorded against it",
+            "observes": "engagement record, preference record, permission record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and no higher-precedence contactability journey currently holds this person",
+            "observes": "send path stages 1-8",
+            "to": "a.remind"
+          },
+          {
+            "label": "No route left",
+            "when": "no permitted, deliverable destination remains for this purpose; there is nobody left to remind and the reason is recorded",
+            "observes": "send path stages 1-8",
+            "to": "a.suppress"
+          }
+        ]
+      },
+      {
+        "id": "a.remind",
+        "kind": "action",
+        "does": "Send a short reminder that setting a contact preference takes only a moment, to whoever has not yet answered the first question. Carry no offer, no incentive and no argument for the relationship.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + unengaged_window + a.remind",
+        "writes": [
+          {
+            "field": "sunset_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.remind"
+      },
+      {
+        "id": "w.remind",
+        "kind": "wait",
+        "until": [
+          "marketing_engagement_recorded",
+          "frequency_preference_changed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.answered2",
+        "timeout": {
+          "after": {
+            "key": "unengaged_sunset.reminder_window",
+            "rule": "The fixed span the reminder is given to be answered before the final campaign is due.",
+            "class": "response-window",
+            "default": {
+              "value": {
+                "min": "2 days",
+                "max": "3 days"
+              },
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "a push reminder following an unanswered email ask"
+            },
+            "required": false
+          },
+          "reason": "a reminder left open indefinitely is a person kept on a list by inertia, which is the state this journey exists to end",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.answered2",
+        "recheck": "the engagement record, the preference record and the permission record re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.answered2",
+        "kind": "condition",
+        "asks": "Did the reminder get an answer?",
+        "branches": [
+          {
+            "label": "Keep it",
+            "when": "a recorded engagement with marketing communication is on file for this person inside the reminder window, or they asked to keep hearing from us",
+            "observes": "marketing_engagement_recorded",
+            "to": "x.kept"
+          },
+          {
+            "label": "Fewer instead",
+            "when": "the person set a reduced cadence rather than an ending",
+            "observes": "frequency_preference_changed",
+            "to": "h.frequency"
+          },
+          {
+            "label": "Stop it",
+            "when": "the person withdrew permission for commercial communication themselves",
+            "observes": "permission_withdrawn",
+            "to": "h.permission"
+          },
+          {
+            "label": "No answer",
+            "when": "the reminder window closed with nothing recorded against it",
+            "observes": "engagement record, preference record, permission record",
+            "to": "c.sendable3"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable3",
+        "kind": "condition",
+        "asks": "May the final campaign go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes and no higher-precedence contactability journey currently holds this person",
+            "observes": "send path stages 1-8",
+            "to": "a.campaign"
+          },
+          {
+            "label": "No route left",
+            "when": "no permitted, deliverable destination remains for this purpose; there is nobody left to offer the campaign to and the reason is recorded",
+            "observes": "send path stages 1-8",
+            "to": "a.suppress"
+          }
+        ]
+      },
+      {
+        "id": "a.campaign",
+        "kind": "action",
+        "does": "Send one final, value-focused offer to the person who still has not answered - a genuine, time-boxed incentive named honestly as an offer, with a direct route to it - and nothing claimed about what happens if it goes unanswered beyond what the resolution notice will say.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + unengaged_window + a.campaign",
+        "writes": [
+          {
+            "field": "sunset_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.campaign"
+      },
+      {
+        "id": "w.campaign",
+        "kind": "wait",
+        "until": [
+          "marketing_engagement_recorded",
+          "purchase_completed",
+          "frequency_preference_changed",
+          "permission_withdrawn"
+        ],
+        "onEvent": "c.campaign-result",
+        "timeout": {
+          "after": {
+            "key": "unengaged_sunset.campaign_window",
+            "rule": "A fixed observation window for the final campaign's own stated duration to run before its outcome is read.",
+            "class": "observation-window",
+            "default": {
+              "value": "7 days",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "a time-boxed final offer with its own stated campaign length"
+            },
+            "required": false
+          },
+          "reason": "a campaign whose own window never closes is not a campaign; the outcome has to be read at the point the offer itself said it would end",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.campaign-result",
+        "recheck": "the engagement record, the purchase record, the preference record and the permission record re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.campaign-result",
+        "kind": "condition",
+        "asks": "Did the final campaign produce engagement or a purchase?",
+        "branches": [
+          {
+            "label": "Won back",
+            "when": "a campaign click, a site visit tied to the offer, or a purchase is on file for this person inside the campaign window",
+            "observes": "marketing_engagement_recorded, purchase_completed",
+            "to": "a.return-normal"
+          },
+          {
+            "label": "Fewer instead",
+            "when": "the person set a reduced cadence rather than an ending",
+            "observes": "frequency_preference_changed",
+            "to": "h.frequency"
+          },
+          {
+            "label": "Stop it",
+            "when": "the person withdrew permission for commercial communication themselves",
+            "observes": "permission_withdrawn",
+            "to": "h.permission"
+          },
+          {
+            "label": "No response",
+            "when": "the campaign window closed with nothing recorded against it",
+            "observes": "engagement record, purchase record, preference record, permission record",
+            "to": "a.suppress"
+          }
+        ]
+      },
+      {
+        "id": "a.return-normal",
+        "kind": "action",
+        "does": "Return the person to marketing contact at a reduced frequency, since the final campaign reached them. Keep them on the list rather than reading one response as a reason to resume full volume.",
+        "idempotencyKey": "person_id + unengaged_window + a.return-normal",
+        "writes": [
+          {
+            "field": "sunset_log",
+            "mode": "append"
+          }
+        ],
+        "next": "x.campaign-retained"
+      },
+      {
+        "id": "a.suppress",
+        "kind": "action",
+        "does": "Record a sender-side suppression of marketing contact for this person - every promotional and lifecycle send addressed to them, and nothing beyond that - with the reason, the window it was read from and the condition that would release it. The person's own permission record is left exactly as it was: silence is not an opt-out, and writing one here would put a decision on their record that they never made.",
+        "idempotencyKey": "person_id + unengaged_window",
+        "writes": [
+          {
+            "field": "marketing_suppression",
+            "mode": "append"
+          }
+        ],
+        "next": "c.notify"
+      },
+      {
+        "id": "c.notify",
+        "kind": "condition",
+        "asks": "Can the ending be confirmed to the person?",
+        "branches": [
+          {
+            "label": "Confirm it",
+            "when": "a permitted, deliverable destination remains for a service notice of this kind",
+            "observes": "send path stages 1-8",
+            "to": "a.confirm-end"
+          },
+          {
+            "label": "Nothing to confirm on",
+            "when": "no route to this person remains; the suppression stands and is recorded without a notice",
+            "observes": "send path stages 1-8",
+            "to": "x.ended"
+          }
+        ]
+      },
+      {
+        "id": "a.confirm-end",
+        "kind": "action",
+        "does": "Confirm that marketing contact has ended, name what continues because it was never marketing - anything the person holds, owes or is owed - and leave the route back for whenever they want it. This is a notice about our own sending and says so, rather than thanking them or asking again.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + unengaged_window + a.confirm-end",
+        "writes": [
+          {
+            "field": "sunset_log",
+            "mode": "append"
+          }
+        ],
+        "next": "h.enforce"
+      },
+      {
+        "id": "h.enforce",
+        "kind": "handoff",
+        "to": "CON-38",
+        "on": "marketing contact ended for this person, with the suppression now needing to be held, scoped and released by the mechanism that owns suppression states",
+        "carries": [
+          "person_id",
+          "the suppression scope - every promotional and lifecycle send addressed to this person, and nothing they hold, owe or are owed",
+          "the reason and the unengaged window it was read from",
+          "the release condition: permission given afresh, never the passing of time"
+        ],
+        "suppresses": [
+          "every promotional and lifecycle journey addressed to this person",
+          "their queued and in-flight commercial sends",
+          "re-entry into this journey while the suppression stands"
+        ],
+        "contract": {
+          "requiredFields": [
+            "person_id",
+            "suppression_scope",
+            "suppression_reason",
+            "release_condition"
+          ]
+        }
+      },
+      {
+        "id": "h.frequency",
+        "kind": "handoff",
+        "to": "CON-283",
+        "on": "a reduced cadence chosen instead of an ending",
+        "carries": [
+          "person_id",
+          "the cadence the person chose and the classes it governs",
+          "that this came from a contactability question rather than from the preference centre unprompted"
+        ],
+        "suppresses": [
+          "every further touch in this journey",
+          "the suppression this journey would otherwise have recorded"
+        ],
+        "contract": {
+          "requiredFields": [
+            "person_id",
+            "new_cadence",
+            "governed_classes"
+          ]
+        }
+      },
+      {
+        "id": "h.permission",
+        "kind": "handoff",
+        "to": "CON-35",
+        "on": "the person withdrawing permission for commercial communication themselves",
+        "carries": [
+          "person_id",
+          "the permission record that changed, at its purpose, channel and scope",
+          "the time and origin of the change, so an out-of-order update cannot undo it"
+        ],
+        "suppresses": [
+          "every further touch in this journey",
+          "every queued commercial send for this person"
+        ],
+        "contract": {
+          "requiredFields": [
+            "person_id",
+            "change_version",
+            "permission_purpose",
+            "change_origin"
+          ]
+        }
+      },
+      {
+        "id": "a.record-no-action",
+        "kind": "action",
+        "does": "Record why the question was not asked and against which window, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + unengaged_window",
+        "next": "x.no-action"
+      },
+      {
+        "id": "x.active-reduced",
+        "kind": "exit",
+        "state": "reduced marketing frequency applied without asking; recorded activity outside marketing says the relationship is not dormant even though marketing contact itself went unanswered",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a later unengaged window is read on its own evidence, after the cooldown"
+      },
+      {
+        "id": "x.campaign-retained",
+        "kind": "exit",
+        "state": "kept at a reduced frequency; the final campaign reached them with a real offer",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a later unengaged window is read on its own evidence, after the cooldown"
+      },
+      {
+        "id": "x.kept",
+        "kind": "exit",
+        "state": "kept; the person answered and marketing contact continues unchanged",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "a later unengaged window is read on its own evidence, after the cooldown"
+      },
+      {
+        "id": "x.answered",
+        "kind": "exit",
+        "state": "closed without asking; the person had already answered the question themselves",
+        "class": "suppression",
+        "terminal": false,
+        "reEntry": "a later unengaged window opens its own instance, read from the sends made after the answer"
+      },
+      {
+        "id": "x.ended",
+        "kind": "exit",
+        "state": "marketing contact ended; the suppression is recorded and no route remained to confirm it on",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "permission given afresh releases the suppression; nothing inside this journey reopens it"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no question asked; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the next unengaged window is evaluated on its own gates"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "unengaged_window",
+          "marketing_sends_in_window",
+          "engagement_reporting_available",
+          "permission_state"
+        ],
+        "optional": [
+          "last_engagement_at",
+          "preference_destination",
+          "email_address",
+          "has_active_app_session",
+          "recent_activity_at",
+          "push_token"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.active-reduced",
+          "x.campaign-retained",
+          "x.kept",
+          "x.answered",
+          "x.ended",
+          "x.no-action",
+          "h.enforce",
+          "h.frequency",
+          "h.permission"
+        ]
+      },
+      "secondary": [
+        "frequency_preference_changed",
+        "permission_withdrawn",
+        "purchase_completed"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "marketing_send_after_sunset",
+        "service_message_suppressed_by_sunset",
+        "sunset_without_observable_window",
+        "consent_record_written_from_silence"
+      ],
+      "operational": [
+        "entry_volume",
+        "active_bypass_rate",
+        "answer_rate_by_kind",
+        "reduction_instead_of_ending_rate",
+        "campaign_recovery_rate",
+        "sunset_rate",
+        "no_action_rate_by_reason"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "unengaged subscriber sunset",
+        "sunset policy",
+        "list hygiene",
+        "inactive subscriber removal",
+        "re-permission",
+        "are you still interested"
+      ],
+      "useCases": [
+        "somebody who has answered none of the marketing sent to them, asked once whether it should continue",
+        "ending marketing contact that no evidence supports any more, without recording an opt-out the person never gave",
+        "somebody active on the product elsewhere getting a lighter cadence instead of the full cascade"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "RET-32",
+        "because": "RET-32 is trying to get a lapsed paid relationship back and speaks to that relationship. This journey is deciding whether we may keep speaking at all to somebody who has answered nothing, regardless of whether they have ever paid, are still buying, or long ago lapsed - and it reaches for its own final offer only because nothing else answered the question, not because it is arguing to keep them."
+      },
+      {
+        "journey": "CON-272",
+        "because": "CON-272 asks to reopen a channel whose permission just closed, which is a fresh, specific request. This decides whether a route that is already open should keep being used at all, which is a standing-silence question - and a channel CON-272 is still trying to reopen is exactly why nothing was engaged with there, so this journey stands down while that one holds the person."
+      },
+      {
+        "journey": "CON-283",
+        "because": "CON-283 confirms a reduced cadence somebody chose for themselves. This journey is what puts that choice in front of somebody who has chosen nothing, and it hands the reduction to CON-283 the moment they take it."
+      },
+      {
+        "journey": "CON-38",
+        "because": "CON-38 holds, scopes and releases a suppression once it exists. This journey is the decision that one is warranted, and the suppression it produces is the sender-side kind CON-38 keeps apart from a permission the person withdrew."
+      }
+    ],
+    "guardrails": [
+      "Silence is read only where engagement could have been observed; an unreportable route produces no conclusion.",
+      "Somebody active elsewhere is moved to a lighter cadence without ever being asked; that bypass is a cadence change, not an answer standing in for a permission decision.",
+      "A reduced cadence is offered before contact is ended, and taking it hands the person to the journey that owns the reduction.",
+      "What the person holds, owes or is owed is never affected - a sunset ends marketing contact and nothing else.",
+      "The ending is recorded as a sender-side suppression, never as an opt-out on the person's own consent record.",
+      "Ending marketing contact ends the promotional and the lifecycle sends alike; keeping the birthday, the anniversary or the tier announcement running is the narrow reading, and it makes the ending untrue.",
+      "The suppression is read by every promotional and lifecycle journey in the library and by nothing transactional, service, security or mandatory; one that only this journey knows about has stopped nothing.",
+      "The one real incentive in this journey appears exactly once, on the final campaign, named honestly as an offer rather than folded into the contact-preference question; nothing earlier in the cascade carries one."
+    ],
+    "reusableRule": "Deciding whether to keep contacting somebody is a separate question from whether to keep them, and it is answered by bypassing anyone still active elsewhere, asking once, reminding once, offering once more, and recording the ending against our own sending rather than against their consent."
   },
 ];

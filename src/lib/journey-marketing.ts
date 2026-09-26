@@ -231,7 +231,7 @@ export const FEATURED_JOURNEY: FeaturedJourney = (() => {
    than as continuation. Four fit the measure as a grid at every desktop
    width, and the centre highlight went with the fifth card: it was the
    reference's surface, not this library's. */
-const SHOWCASE_IDS = ["ACQ-09", "ACT-12", "CON-38", "TIM-65"] as const;
+const SHOWCASE_IDS = ["ACQ-09", "ACT-17", "CON-38", "TIM-65"] as const;
 
 export type ShowcaseCard = {
   id: string;

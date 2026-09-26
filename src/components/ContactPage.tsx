@@ -1,4 +1,4 @@
-import { Briefcase, Mail, MessageCircle, Users } from "lucide-react";
+import { CircleHelp, Mail, MessageCircle, Users } from "lucide-react";
 
 import { CalEmbed } from "@/components/CalEmbed";
 import { ContactForm } from "@/components/ContactForm";
@@ -11,7 +11,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { copy, EMAIL, LINKEDIN, type Lang } from "@/lib/content";
 
 const GITHUB = "https://github.com/ali-demirbas";
-const REASON_ICONS = [Briefcase, Users, MessageCircle];
+const REASON_ICONS = [Users, MessageCircle, CircleHelp];
 
 /* One hue per reason, positionally matched to REASON_ICONS above and drawn
    from the site's category-tint family (calculators -> Stack -> Blog). Written

@@ -1846,7 +1846,7 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
           {
             label: "It did",
             when: "messages went out, decisions were made, or obligations were created on the wrong values",
-            to: "h.remedy",
+            to: "x.downstream",
           },
           {
             label: "It did not",
@@ -1856,14 +1856,12 @@ export const DATA_JOURNEYS: readonly CanonicalJourney[] = [
         ],
       },
       {
-        id: "h.remedy",
-        kind: "handoff",
-        to: "REM-157",
-        on: "downstream consequences of wrong transformed data",
-        carries: [
-          "what acted on the wrong values, when, and what the corrected values are",
-          "the explicit fact that the data is corrected and the consequences are not - those are their own obligation",
-        ],
+        id: "x.downstream",
+        kind: "exit",
+        state: "the data is corrected; what acted on the wrong values, and the consequences that follow from it, are recorded but not resolved here - there is no remedy engine in this journey to hand them to",
+        terminal: false,
+        reEntry: "a further downstream consequence discovered later is assessed with this correction as part of its history",
+        class: "no-action",
       },
       {
         id: "x.corrected",

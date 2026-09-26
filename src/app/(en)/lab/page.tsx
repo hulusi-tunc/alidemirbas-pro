@@ -5,7 +5,7 @@ import { pageAlternates } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Lab - Ali Demirbaş",
   description:
-    "Open-source projects from real marketing, growth and lifecycle work: Journey Builder, Journey Library, A/B Test Playbook, Dashboard Builder, Google Ads Change History and Numerspace.",
+    "Open-source projects built around growth, CRM and analytics work: Journey Builder, Journey Library, A/B Test Playbook, Dashboard Builder, Google Ads Change History and Numerspace.",
   alternates: pageAlternates("/lab", "en"),
 };
 

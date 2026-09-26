@@ -362,7 +362,11 @@ export type OrchestrationStrategy =
   | "deadline-countdown"
   | "offer-decide-remind"
   | "two-party-confirmation"
-  | "human-escalation-ladder";
+  | "human-escalation-ladder"
+  /** One route per touch, chosen once by a declared signal (e.g. the surface
+      an intent was declared on) and inherited by every later touch - never a
+      cascade through multiple channels for the same touch. */
+  | "conditional-routing";
 
 export interface Orchestration {
   strategy: OrchestrationStrategy;
@@ -415,6 +419,12 @@ export interface TriggerNode {
     insufficientAlone?: readonly string[];
     source: SignalSource;
   };
+  /** Optional, one plain sentence surfaced on the trigger card itself
+      (not just the detail panel) - for a trigger whose timing would
+      otherwise be invisible on the canvas, such as one that only fires
+      once a configured interval has elapsed. Canonical prose, never a
+      fabricated number; most triggers have none. */
+  detail?: string;
   next: NodeId;
 }
 

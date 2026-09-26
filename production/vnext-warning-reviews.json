@@ -10,6 +10,22 @@
    "reviewedAt": "2026-09-01"
   },
   {
+   "id": "RET-24",
+   "code": "simultaneous_review",
+   "match": "touches t-checkin-email, t-checkin-inapp",
+   "note": "t-checkin-email and t-checkin-inapp are the two exclusive arms of c.signal-class - the risk is either disengagement or in-product friction, never both, and c.signal-class is a condition (single winning branch), not a fan-out. They are never sent together; no channelStrategy.simultaneous is needed.",
+   "reviewedBy": "69-journey refactor, product decision #1 (RET-24)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
+   "id": "TIM-61",
+   "code": "simultaneous_review",
+   "match": "touches t1, t2",
+   "note": "t1 (a.remind) and t2 (a.remind-final) are the two exclusive arms of c.threshold, reached only after c.useful's 'Send it' branch - the threshold that just fired is either the final pre-deadline one or an earlier one, never both, so the two touches sharing w.tracking as their gate and c.what/c.useful/c.threshold as prerequisites is a fork, not a fan-out. They are never sent together; no channelStrategy.simultaneous is needed.",
+   "reviewedBy": "69-journey refactor batch (CON-272/CON-300/FBK-41/42/43/49/TIM-61/63/268/274/281)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
    "id": "ACT-17",
    "code": "router_journey",
    "note": "Adoption nurture ends only in handoffs by design: stable adoption goes to the lifecycle owner, a stall goes to adoption recovery. There is no outcome it owns alone.",
@@ -1744,6 +1760,54 @@
    "note": "IDN-90 is account-restriction-authority's own highest-precedence member (\"a suspected compromise is the more urgent, safety-critical question\") - it never defers to ACC-78, the group's only other member, so it structurally has nothing to check before acting. The actual P0 this group had (ACC-78 not checking IDN-90's live state before releasing a restriction) was fixed directly in ACC-78's own graph (a.check-authority/c.authority-clear) this round; see FIXES-APPLIED.md.",
    "reviewedBy": "cross-library integration repair round",
    "reviewedAt": "2026-09-04"
+  },
+  {
+   "id": "FIN-302",
+   "code": "simultaneous_review",
+   "match": "touches t2, t3, t4",
+   "note": "t2 (returned in full), t3 (returned in part), t4 (withdrawn after notice) and t5 (not confirmed back) are the four exclusive arms of c.outcome - the financial record says exactly one of them about a given refund. They are never sent together and no simultaneous rule is needed; the shared gate is w.outcome because all four read the same settlement result. t4/x.withdrawn was added in the 69-journey refactor to stop a mid-window withdrawal being told as a reconciliation.",
+   "reviewedBy": "69-journey refactor batch (ACC-261/ACC-263/IDN-84/IDN-271/FIN-134/FIN-302/DOC-214/DOC-215/INC-254/REL-284/RLT-279/RSK-273)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
+   "id": "ACC-261",
+   "code": "simultaneous_review",
+   "match": "touches t1, t2",
+   "note": "t1 (a.inform-only) and t2 (a.notify) are the two exclusive arms of c.actionable, both now gated behind the shared c.reachable check moved ahead of it in the 69-journey refactor - the release condition is either resolvable by the holder or it is not, never both. They are never sent together; no channelStrategy.simultaneous is needed.",
+   "reviewedBy": "69-journey refactor batch (ACC-261/ACC-263/IDN-84/IDN-271/FIN-134/FIN-302/DOC-214/DOC-215/INC-254/REL-284/RLT-279/RSK-273)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
+   "id": "RSK-273",
+   "code": "simultaneous_review",
+   "match": "touches t1, t3, t4",
+   "note": "t1 (a.at-the-wall) is exclusive of t3/t4 - it fires only on c.decider's 'Theirs to decide' arm, while t3 (a.offer-holder) and t4 (a.notify-blocked-party) fire only on 'Held elsewhere'. t3 and t4 are themselves a deliberate sequential pair to two different recipients (t4.after = t3), not a simultaneous send, already documented in a.offer-holder's own text as 'separate sends to separate people on separate routes, and either one can fail without the other' - the renderer's generic two-recipient treatment (not a per-journey rule) is what displays that pair correctly. No channelStrategy.simultaneous is needed for any of the three.",
+   "reviewedBy": "69-journey refactor batch (ACC-261/ACC-263/IDN-84/IDN-271/FIN-134/FIN-302/DOC-214/DOC-215/INC-254/REL-284/RLT-279/RSK-273)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
+   "id": "ACT-17",
+   "code": "simultaneous_review",
+   "match": "touches t0, t0-only",
+   "note": "t0 (a.recognize-next) and t0-only (a.recognize-only) are the two exclusive arms of c.next - a natural next action either follows from what was produced or it does not. They are never sent together; no channelStrategy.simultaneous is needed. The merge of a.recognize and a.surface into one recognition stage with two mutually exclusive message variants is the 69-journey plan's own design (audit/refactor/69-journey-final-plan.md, ACT-17 canonical changes).",
+   "reviewedBy": "69-journey refactor, ACQ+ACT batch (ACT-12/13/14/17/19/20)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
+   "id": "FUL-265",
+   "code": "simultaneous_review",
+   "match": "touches t1b, t3",
+   "note": "t1b (a.revised) and t3 (a.arrived) are two of c.delivery's three exclusive arms - what the executor authoritatively reports is exactly one of a revised window, a delivery confirmation or a non-arrival, never more than one. They share w.delivery as their gate because both are read from the same wait's onEvent. They are never sent together; no channelStrategy.simultaneous is needed.",
+   "reviewedBy": "69-journey refactor batch (FUL-146/148/265/291/301/REM-151/157)",
+   "reviewedAt": "2026-09-21"
+  },
+  {
+   "id": "REM-157",
+   "code": "simultaneous_review",
+   "match": "touches t2, t3, t3b, t3c, t3d",
+   "note": "t2 (a.no-remedy), t3 (a.confirm-correction), t3b (a.confirm-replacement), t3c (a.confirm-return) and t3d (a.confirm-refund) are the five exclusive arms of c.route - the remedy that resolves the obligation is exactly one of correction, replacement, return, refund or none, never more than one. They share c.choice/c.route as prerequisites because all five are reached only after the same routing decision. They are never sent together; no channelStrategy.simultaneous is needed.",
+   "reviewedBy": "69-journey refactor batch (FUL-146/148/265/291/301/REM-151/157)",
+   "reviewedAt": "2026-09-21"
   }
  ]
 }

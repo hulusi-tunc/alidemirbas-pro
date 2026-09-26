@@ -1,0 +1,18 @@
+{
+  "generated": "2026-09-21T18:02:33.062Z",
+  "publicCount": 69,
+  "excludedCount": 21,
+  "sourceCorpus": 90,
+  "checks": 15,
+  "failures": [],
+  "warnings": [
+    {
+      "label": "journeys whose canonical channels include an operational value",
+      "detail": "4: ACT-13, RET-24, FBK-43, FBK-49 — correct in canonical, filtered from badges by publicChannels()"
+    },
+    {
+      "label": "handoffs into non-public journeys render as text, not links",
+      "detail": "22: ACT-13.h.reroute -> ACT-11; RET-26.h.compensation -> REM-159; CON-300.h.frequency -> CON-283; FBK-43.h.issue -> FBK-46; FBK-43.h.triage -> DEC-181; FBK-43.h.promise -> DEC-181; TIM-61.h.escalate -> OWN-55; TIM-61.h.expired -> TIM-64; TIM-63.h.expiry -> TIM-64; IDN-84.h.escalate -> OWN-55; IDN-84.h.review -> DEC-181; IDN-84.h.review-budget -> DEC-181; FUL-146.h.escalate -> OWN-55; REM-157.h.replacement -> REM-155; REM-157.h.return -> REM-152; REM-157.h.financial -> FIN-137; SCH-280.h.provider -> SCH-180; SUB-163.h.undefined -> DEC-181; SUB-163.h.escalate -> OWN-55; SUB-163.h.execute -> SUB-164; DOC-215.h.effective -> DOC-216; RLT-279.h.resume -> RLT-242"
+    }
+  ]
+}

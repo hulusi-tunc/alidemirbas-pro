@@ -2005,10 +2005,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
   /* ------------------------------------------------------------ ACQ-09 */
   {
     id: "ACQ-09",
-    slug: "bounded-education-progress-or-sunset",
+    slug: "lead-nurture",
     category: "acquisition",
     goal: "progression-milestone",
-    channels: ["email", "in-app"],
+    channels: ["email"],
     name: "Researching lead → bounded education → progress or sunset",
     shortName: "Lead Nurture",
     purpose:
@@ -2054,7 +2054,18 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.g4",
         "label": "CANONICAL_RULE",
         "text": "No permission, no nurture. The capture is not the consent."
-      }
+      },
+      {
+        "id": "s.progressed",
+        "label": "CANONICAL_RULE",
+        "text": "The second education is never sent to a lead that has already progressed. The lead is re-read from the system of record before it goes out, and a recorded progression ends the window instead of spending the last touch on it."
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     contact: {
       "defaultPriority": "promotional",
@@ -2062,8 +2073,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "localCap": {
         "value": {
           "key": "bounded_education.touches",
-          "rule": "The number of educational touches inside the bounded window is fixed when the lead enters and is never extended by engagement inside it.",
-          "required": true
+          "rule": "The number of educational touches inside the bounded window is fixed when the lead enters and is never extended by engagement inside it; the budget is the plan's own length.",
+          "default": {
+            "value": 2,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the plan's own length - a first education and one further education, and nothing after it"
+          },
+          "required": false
         },
         "appliesTo": "all"
       },
@@ -2078,13 +2095,6 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     channelStrategy: {
       "roles": [
         {
-          "role": "in-session",
-          "channels": [
-            "in-app"
-          ],
-          "when": "the person is active in the product and the action is taken there"
-        },
-        {
           "role": "persistent",
           "channels": [
             "email"
@@ -2092,11 +2102,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "when": "no active session - the message has to be kept and survive until the person returns to act on it"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
-      "strategy": "single-notice",
+      "strategy": "progressive-recovery",
       "touches": [
         {
           "id": "t1",
@@ -2107,7 +2117,22 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals",
           "channelRoles": [
-            "in-session",
+            "persistent"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "educate-again",
+          "action": "a.educate2",
+          "after": "t1",
+          "gatedBy": "w.first",
+          "prerequisites": [
+            "c.still-open"
+          ],
+          "purpose": "Send the last education of the window, on the same entry reason and past what the first one already covered - and only to a lead the system of record still shows as not ready",
+          "channelRoles": [
             "persistent"
           ],
           "mandatory": false,
@@ -2118,7 +2143,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.g1",
         "s.g2",
         "s.g3",
-        "s.g4"
+        "s.g4",
+        "s.progressed"
       ]
     },
     implementation: {
@@ -2231,9 +2257,71 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         id: "a.educate",
         kind: "action",
         does: "Send education matched to the reason the person actually entered - not a generic sequence, and not sales pressure repeated at intervals",
-        next: "w.window",
+        next: "w.first",
         execution: "communication",
         idempotencyKey: "lead_id + person_id + a.educate",
+      },
+      {
+        id: "w.first",
+        kind: "wait",
+        until: [
+          "nurture_progression_signal",
+          "permission_withdrawn",
+          "contactability_lost"
+        ],
+        onEvent: "c.window-event",
+        timeout: {
+          "after": {
+            "key": "bounded_education.second_touch",
+            "rule": "The gap before the last education is long enough that the first one has been read and acted on in the person's own time, and short enough to sit inside the window fixed at entry.",
+            "class": "response-window",
+            "required": true
+          },
+          "reason": "a second education sent before the first has had a chance to work is repetition, and repetition is what a bounded window is supposed to prevent",
+          "relativeTo": "previous-touch"
+        },
+        onTimeout: "c.still-open",
+        windowExtendsOnEngagement: false,
+        recheck: "the lead re-read from the system of record before the last education: no progression recorded, the entry reason still unanswered, the permission still covering education of this kind, and a permitted destination still deliverable",
+      },
+      {
+        id: "c.still-open",
+        kind: "condition",
+        asks: "Is the lead still the lead this window opened for?",
+        branches: [
+          {
+            label: "Progressed meanwhile",
+            when: "a progression signal is recorded against the lead since the first education - the window has already done its job and the last touch is not spent on it",
+            observes: "nurture_progression_signal",
+            to: "h.progressed",
+          },
+          {
+            label: "Permission withdrawn",
+            when: "the lawful basis or permission this nurture relied on no longer covers it",
+            observes: "permission_withdrawn",
+            to: "a.stop-permission",
+          },
+          {
+            label: "Route lost",
+            when: "no permitted destination for this person is deliverable any more",
+            observes: "contactability_lost",
+            to: "a.stop-contactability",
+          },
+          {
+            label: "Still not ready",
+            when: "no progression is recorded, the entry reason is still unanswered, the permission still covers this and a destination is still deliverable",
+            observes: "lead state, permission position",
+            to: "a.educate2",
+          },
+        ],
+      },
+      {
+        id: "a.educate2",
+        kind: "action",
+        does: "Send the last education of the window, on the same entry reason and past what the first one already covered - not a repeat of it, and not sales pressure wearing education's clothes",
+        next: "w.window",
+        execution: "communication",
+        idempotencyKey: "lead_id + person_id + a.educate2",
       },
       {
         id: "w.window",
@@ -2341,6 +2429,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "Engagement inside the window does not extend it. Opening the emails is not progress toward the destination.",
       "Education answers the reason the person entered. A generic sequence sent to everyone is the thing this journey exists instead of.",
       "No permission, no nurture. The capture is not the consent.",
+      "The last education is sent only after the lead has been re-read from the system of record; a lead that has already progressed ends the window instead of receiving it.",
+      "The initial contact a capture earns belongs to New Lead Welcome. This window opens after that one has closed, never beside it.",
     ],
     reusableRule:
       "Nurture should bridge a temporary readiness gap, not become a permanent messaging state.",
@@ -2585,1427 +2675,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "Negative commercial outcomes should determine future eligibility according to their cause, not merely their LOST label.",
   },
   {
-    id: "ACQ-285",
-    slug: "captured-interest-first-touch",
-    category: "acquisition",
-    goal: "routing-assignment",
-    channels: ["email"],
-    name: "Captured interest → readiness check → destination-appropriate first touch",
-    shortName: "New Lead Welcome",
-    purpose:
-      "Answer a declared interest with the thing that interest actually asked for, and carry it onward only as far as what the person said about themselves justifies.",
-    entity: {
-      scope: "the individual capture and what it asked for, resolved onto a person",
-      note: "One capture, one destination. A second, different request from the same person is its own instance and is not considered answered by what the first one produced.",
-      instanceKey: [
-        "capture_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "ACQ-02",
-        because:
-          "ACQ-02 decides which destination a capture justifies and records that decision with its own state. This journey is what the person receives once that decision exists, and it invents no destination of its own.",
-      },
-    ],
-    objective: "Answer a declared interest with the thing that interest actually asked for, and carry it onward only as far as what the person said about themselves justifies.",
-    eligibility: [
-      "a first-party capture recorded with the context the person declared",
-      "a contact point the person gave in that capture",
-      "the permission position recorded as its own fact, separate from the submission",
-      "no instance of this journey is already open for the the individual capture and what it asked for",
-      "hard gates (GLB-31) allow communication for this purpose"
-    ],
-    suppressions: [
-      {
-        "id": "s.g1",
-        "label": "CANONICAL_RULE",
-        "text": "A capture records interest, not a decision. Nothing downstream treats it as one."
-      },
-      {
-        "id": "s.g2",
-        "label": "CANONICAL_RULE",
-        "text": "The submission and the permission are two facts, and only one of them may have happened."
-      },
-      {
-        "id": "s.g3",
-        "label": "CANONICAL_RULE",
-        "text": "Not every capture earns a person. The destination comes from what was declared, not from what the pipeline is short of."
-      },
-      {
-        "id": "s.g4",
-        "label": "CANONICAL_RULE",
-        "text": "A bounded sequence states its end when it opens and stops there, whether or not anything came of it."
-      }
-    ],
-    contact: {
-      "defaultPriority": "promotional",
-      "pressureClass": "promotional",
-      "localCap": {
-        "value": {
-          "key": "captured_interest.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 3,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; the graph's own touch count"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "captured_interest.cooldown",
-        "rule": "Fulfilment is per capture; a further capture is its own instance and no cooldown applies between captures.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule"
-        },
-        "required": false
-      },
-      "competition": "none"
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "notice-then-confirm",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "first-touch",
-          "action": "a.first-touch",
-          "prerequisites": [
-            "c.email-route",
-            "c.declared"
-          ],
-          "purpose": "Send what they asked for and say that a person will follow up, naming when.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t2",
-          "stage": "deliver",
-          "action": "a.deliver",
-          "prerequisites": [
-            "c.email-route",
-            "c.declared"
-          ],
-          "purpose": "Send exactly what the capture asked for, once, and nothing the person did not ask for alongside it.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t3",
-          "stage": "nurture",
-          "action": "a.nurture",
-          "after": "t2",
-          "prerequisites": [
-            "c.email-route",
-            "c.declared",
-            "c.permission"
-          ],
-          "purpose": "Open a bounded sequence on the subject they declared, and state where it ends when it opens.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "mandatory": false,
-          "label": "CANONICAL_RULE",
-          "destination": {
-            "target": "declared-subject-content",
-            "boundTo": "capture_id",
-            "mustNotClaim": [
-              "a sequence with no stated end"
-            ]
-          }
-        }
-      ],
-      "noAction": [
-        "s.g1",
-        "s.g2",
-        "s.g3",
-        "s.g4"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "capture_id",
-          "person_id",
-          "declared_request",
-          "contact_point",
-          "permission_position",
-          "sequence_length"
-        ],
-        "optional": []
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.no-delivery-route",
-          "x.stopped",
-          "x.sunset",
-          "x.delivered",
-          "h.person"
-        ]
-      },
-      "secondary": [],
-      "guardrails": [
-        "complaint",
-        "message_after_success",
-        "unsubscribe"
-      ],
-      "operational": [
-        "entry_volume",
-        "exit_distribution",
-        "no_action_rate_by_reason",
-        "time_to_exit"
-      ],
-      "businessOutcome": {
-        "event": "destination_declared",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "pre-post"
-      }
-    },
-    discovery: {
-      "aliases": [
-        "new lead welcome",
-        "welcome email",
-        "lead capture fulfilment",
-        "content download delivery",
-        "welcome sequence"
-      ],
-      "useCases": [
-        "a content request answered with exactly what was asked for",
-        "a request to talk to a person, answered once and handed to sales"
-      ]
-    },
-    entry: "t.captured",
-    nodes: [
-      {
-        id: "t.captured",
-        kind: "trigger",
-        event: "first_party_interest_captured",
-        evidence: {
-          requires: [
-            "a first-party capture recorded with the context the person declared",
-            "a contact point the person gave in that capture",
-            "the permission position recorded as its own fact, separate from the submission",
-          ],
-          insufficientAlone: [
-            "a session or a page view with no declaration in it",
-            "a contact point obtained from a third party",
-            "a submitted form read as permission because it was submitted",
-          ],
-          source: "declared",
-        },
-        next: "c.email-route",
-      },
-      {
-        id: "c.email-route",
-        kind: "condition",
-        asks: "Is the destination they supplied actually usable for this?",
-        branches: [
-          {
-            label: "Usable",
-            when: "the supplied destination is valid, deliverable and permitted for fulfilling what was asked for",
-            to: "c.declared",
-          },
-          {
-            label: "Not usable",
-            when: "no valid deliverable destination was supplied, or it is not permitted for this fulfilment",
-            to: "c.declared-no-route",
-          },
-        ],
-      },
-      {
-        id: "c.declared-no-route",
-        kind: "condition",
-        asks: "What did they ask for, given we cannot deliver to them?",
-        branches: [
-          {
-            label: "Asked for a person",
-            when: "the request was for contact rather than for material",
-            to: "h.person",
-          },
-          {
-            label: "Asked for the material",
-            when: "the request was for something we would have sent, and there is nowhere to send it",
-            to: "x.no-delivery-route",
-          },
-        ],
-      },
-      {
-        id: "x.no-delivery-route",
-        kind: "exit",
-        state: "captured with nothing deliverable; the request was not fulfilled",
-        terminal: false,
-        reEntry: "a valid permitted destination, supplied later, makes the same request fulfillable",
-        class: "failure",
-      },
-      {
-        id: "c.declared",
-        kind: "condition",
-        asks: "What did the person actually declare?",
-        branches: [
-          {
-            label: "Asked for a person",
-            when: "the capture states a request only a person can answer - a conversation, a price for their own situation, an assessment",
-            to: "a.first-touch",
-          },
-          {
-            label: "Asked for the material",
-            when: "the capture asks for a document, an access or a notification and names no person-led request",
-            to: "a.deliver",
-          },
-        ],
-      },
-      {
-        id: "a.first-touch",
-        kind: "action",
-        does: "Send what they asked for and say that a person will follow up, naming when. A promised follow-up with no time on it reads as a queue rather than an answer, and the person starts again elsewhere",
-        next: "h.person",
-        execution: "communication",
-        idempotencyKey: "person_id + a.first-touch",
-      },
-      {
-        id: "h.person",
-        kind: "handoff",
-        to: "external:sales-assignment",
-        on: "a captured interest whose declared request can only be answered by a person",
-        carries: [
-          "what the person declared and asked for, in their own terms",
-          "what was already sent to them and when",
-          "the permission facts recorded, and what they do and do not cover",
-        ],
-        contract: {
-          "requiredFields": [
-            "person_id",
-            "handed_at",
-            "reason"
-          ]
-        },
-      },
-      {
-        id: "a.deliver",
-        kind: "action",
-        does: "Send exactly what the capture asked for, once, and nothing the person did not ask for alongside it. Fulfilment travels on the request; everything past it travels on permission, and the two must not be posted together",
-        next: "c.permission",
-        execution: "communication",
-        idempotencyKey: "person_id + a.deliver",
-      },
-      {
-        id: "c.permission",
-        kind: "condition",
-        asks: "Is there permission to continue past fulfilment?",
-        branches: [
-          {
-            label: "Permitted",
-            when: "a permission covering ongoing contact was given in the capture and recorded as its own fact",
-            to: "a.nurture",
-          },
-          {
-            label: "Fulfilment only",
-            when: "nothing beyond the single requested delivery was permitted",
-            to: "x.delivered",
-          },
-        ],
-      },
-      {
-        id: "a.nurture",
-        kind: "action",
-        does: "Open a bounded sequence on the subject they declared, and state where it ends when it opens. A sequence with no stated end is a subscription nobody agreed to, and it is remembered as one",
-        next: "w.nurture",
-        execution: "communication",
-        idempotencyKey: "person_id + a.nurture",
-      },
-      {
-        id: "w.nurture",
-        kind: "wait",
-        until: [
-          "destination_declared",
-          "permission_withdrawn"
-        ],
-        onEvent: "c.progressed",
-        timeout: {
-          "after": {
-            "key": "captured_interest.nurture",
-            "rule": "The stated length of the bounded sequence.",
-            "class": "observation-window",
-            "required": true
-          },
-          "reason": "the end was stated when the sequence opened, and moving it silently is what turns interest into complaint",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "x.sunset",
-        windowExtendsOnEngagement: false,
-        recheck: "the the individual capture and what it asked for re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "c.progressed",
-        kind: "condition",
-        asks: "What ended the sequence?",
-        branches: [
-          {
-            label: "Readiness declared",
-            when: "the person did something that names a destination they are now ready for",
-            to: "h.person",
-          },
-          {
-            label: "Stopped",
-            when: "the person withdrew permission or asked to stop",
-            to: "x.stopped",
-          },
-        ],
-      },
-      {
-        id: "x.stopped",
-        kind: "exit",
-        state: "stopped at the person's request",
-        terminal: true,
-        reEntry: "a later capture carrying its own permission is a new instance; this one is never resumed",
-        class: "suppression",
-      },
-      {
-        id: "x.sunset",
-        kind: "exit",
-        state: "sequence ended, no destination declared",
-        terminal: false,
-        reEntry: "a later capture from the same person is its own instance with its own destination",
-        class: "timeout",
-      },
-      {
-        id: "x.delivered",
-        kind: "exit",
-        state: "fulfilled, no continuing contact permitted",
-        terminal: false,
-        reEntry: "a later capture that carries a permission opens the bounded path",
-        class: "success",
-      },
-    ],
-    guardrails: [
-      "A capture records interest, not a decision. Nothing downstream treats it as one.",
-      "The submission and the permission are two facts, and only one of them may have happened.",
-      "Not every capture earns a person. The destination comes from what was declared, not from what the pipeline is short of.",
-      "A bounded sequence states its end when it opens and stops there, whether or not anything came of it.",
-    ],
-    reusableRule:
-      "What somebody asked for is the entire mandate for the first message, and everything after it needs a permission of its own.",
-  },
-  {
-    "id": "ACQ-11",
-    "slug": "abandoned-process-recovery",
-    "category": "acquisition",
-    "goal": "recovery-retry",
-    "channels": [
-      "email",
-      "push",
-      "in-app",
-      "sms"
-    ],
-    "name": "Process started → abandonment confirmed → recovered, superseded or lapsed",
-    "shortName": "Abandoned Process Recovery",
-    "purpose": "Return a person to a resumable process they started and did not complete - a checkout, an application, a quote, a registration - while it is still resumable, without ever asserting a state the system does not hold.",
-    "objective": "Bring the person back to the specific unfinished process and let them complete it; never claim reserved stock, a held price or a discount the system does not assert.",
-    "entity": {
-      "scope": "the logical process - the basket-and-checkout, application, quote or registration the person is trying to complete - not the platform's identifier for it",
-      "note": "One instance per logical process. A platform that rotates its process id when the same basket resumes still has one process, and the company's mapping resolves the new id to the open instance rather than opening a second. Two different baskets are two processes; whether they may both be pursued is the supersession statement below.",
-      "instanceKey": [
-        "person_id",
-        "logical_process_id"
-      ],
-      "concurrency": "one-active-per-key",
-      "supersession": {
-        "id": "s.supersession",
-        "label": "RECOMMENDED_DEFAULT",
-        "text": "A new logical process for the same person supersedes an open instance - two recovery sequences to one person about two baskets is the duplicate-communication failure. A company whose processes are genuinely independent (a marketplace, a B2B account with separate buyers) sets concurrency to many and lets the person-level pressure cap protect the person."
-      }
-    },
-    "eligibility": [
-      "the identity behind the process resolves to a person we may contact",
-      "the process is still resumable in the system of record, with at least one item and a resume destination",
-      "no recovery instance is already open for this logical process",
-      "no payment failure is recorded on the process - a failed payment is FIN-134's, not abandonment",
-      "purpose-level permission for commercial recovery communication is recorded, and hard gates (GLB-31) allow it"
-    ],
-    "suppressions": [
-      {
-        "id": "s.completed",
-        "label": "CANONICAL_RULE",
-        "text": "Exit the moment the process completes by any channel - in the product, in a store, by phone. A recovery message about a completed process is the failure this journey exists to prevent, and every touch re-reads the process first."
-      },
-      {
-        "id": "s.invalid",
-        "label": "CANONICAL_RULE",
-        "text": "Exit when the process is cancelled by the person, expired by the platform, or emptied. Nothing is sent about a process the person cannot return to."
-      },
-      {
-        "id": "s.payment",
-        "label": "CANONICAL_RULE",
-        "text": "A payment failure on the process hands the instance to payment failure recovery (FIN-134). The two never message the same person about the same process."
-      },
-      {
-        "id": "s.permission",
-        "label": "CANONICAL_RULE",
-        "text": "No touch without purpose-level permission for commercial recovery communication; absent permission is a recorded no-action, never a fallback to another channel."
-      },
-      {
-        "id": "s.contest",
-        "label": "CANONICAL_RULE",
-        "text": "An open retention-outreach journey, an open complaint or an open payment recovery on the same account outranks this journey; its touch is deferred and re-evaluated against current state, not queued blindly (GLB-06)."
-      },
-      {
-        "id": "s.superseded",
-        "label": "RECOMMENDED_DEFAULT",
-        "text": "A newer logical process for the same person supersedes this instance (see the entity's supersession statement)."
-      },
-      {
-        "id": "s.cooldown",
-        "label": "RECOMMENDED_DEFAULT",
-        "text": "A new process opened inside the cooldown after a lapsed or suppressed instance enters, is tracked, and sends nothing."
-      },
-      {
-        "id": "s.incentive",
-        "label": "OPTIONAL_STRATEGY",
-        "text": "If the company enables an incentive (recovery.incentive_policy), it appears only on the last enabled touch, once, and its issuance is recorded per person so it cannot be re-issued on the next process. The library recommends none by default: an incentive on the first touch teaches abandonment."
-      }
-    ],
-    "contact": {
-      "defaultPriority": "promotional",
-      "pressureClass": "promotional",
-      "localCap": {
-        "value": {
-          "key": "recovery.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
-          "default": {
-            "value": 3,
-            "confidence": "medium",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24; two touches when the final notice is disabled"
-          },
-          "required": false
-        },
-        "appliesTo": "all"
-      },
-      "cooldown": {
-        "key": "recovery.cooldown",
-        "rule": "After a lapsed or suppressed instance, a new process by the same person is tracked but not messaged until the cooldown has passed. A completed process carries no cooldown.",
-        "class": "cooldown",
-        "default": {
-          "value": {
-            "min": "7 days",
-            "max": "30 days"
-          },
-          "confidence": "low",
-          "basis": "example-only",
-          "applicableWhen": "repeat abandoners on considered purchases",
-          "avoidWhen": "high-frequency replenishment purchases, where a short cooldown is honest"
-        },
-        "required": false
-      },
-      "competition": { "exclusionGroup": "commerce-recovery", "scope": "person", "precedence": "highest in the group - a process in motion outranks a held selection, an inferred interest or a predicted need for the same person" , "onLoss": "suppressed" }
-    },
-    "channelStrategy": {
-      "roles": [
-        {
-          "role": "low-friction",
-          "channels": [
-            "push",
-            "in-app"
-          ],
-          "when": "an app session or a valid push token exists for this person - the intent is minutes old and a nudge back beats content"
-        },
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "no low-friction route exists, or the touch has to carry the items and survive until the person can act"
-        },
-        {
-          "role": "urgent",
-          "channels": [
-            "sms"
-          ],
-          "when": "explicit commercial SMS permission exists and the process carries an asserted time-bound element - an expiry, a hold, a delivery cut-off"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    "orchestration": {
-      "strategy": "progressive-recovery",
-      "touches": [
-        {
-          "id": "t1",
-          "stage": "initial-recovery",
-          "action": "a.touch1",
-          "gatedBy": "w.abandon",
-          "prerequisites": [
-            "c.state",
-            "c.sendable"
-          ],
-          "purpose": "The process is still open; here are the items; here is the link that reopens this exact process with its state restored. Nothing the system does not assert.",
-          "channelRoles": [
-            "low-friction",
-            "persistent"
-          ],
-          "destination": {
-            "target": "process-resume",
-            "boundTo": "logical_process_id",
-            "mustNotClaim": [
-              "stock is reserved",
-              "the price is held",
-              "a discount applies"
-            ]
-          },
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t2",
-          "stage": "follow-up",
-          "action": "a.touch2",
-          "after": "t1",
-          "gatedBy": "w.second",
-          "prerequisites": [
-            "c.state2",
-            "c.sendable2"
-          ],
-          "purpose": "Address the likely blocker - shipping, returns, trust, a route to ask a question - with the same link. Still nothing the system does not assert.",
-          "channelRoles": [
-            "persistent",
-            "low-friction"
-          ],
-          "destination": {
-            "target": "process-resume",
-            "boundTo": "logical_process_id",
-            "mustNotClaim": [
-              "stock is reserved",
-              "the price is held",
-              "a discount applies"
-            ]
-          },
-          "mandatory": false,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t3",
-          "stage": "final-notice",
-          "action": "a.touch3",
-          "after": "t2",
-          "gatedBy": "w.final",
-          "prerequisites": [
-            "c.state3",
-            "c.final-enabled"
-          ],
-          "purpose": "The last honest statement: the process closes at its real expiry, and here is the link. No urgency the system does not assert.",
-          "channelRoles": [
-            "persistent",
-            "urgent"
-          ],
-          "destination": {
-            "target": "process-resume",
-            "boundTo": "logical_process_id",
-            "mustNotClaim": [
-              "an expiry the platform does not enforce",
-              "stock is reserved",
-              "the price is held"
-            ]
-          },
-          "mandatory": false,
-          "label": "OPTIONAL_STRATEGY"
-        }
-      ],
-      "noAction": [
-        "s.completed",
-        "s.invalid",
-        "s.payment",
-        "s.permission",
-        "s.contest",
-        "s.superseded",
-        "s.cooldown"
-      ]
-    },
-    "entry": "t.started",
-    "nodes": [
-      {
-        "id": "t.started",
-        "kind": "trigger",
-        "event": "process_started",
-        "evidence": {
-          "requires": [
-            "an authoritative record that a resumable process opened for this person",
-            "at least one item in the process",
-            "a resumable state and a resume destination",
-            "the time of the last activity on the process"
-          ],
-          "insufficientAlone": [
-            "a cart page view",
-            "an item added without entering the process - that is a recorded selection, Abandoned Selection Recovery's subject",
-            "a process with no items",
-            "a process already completed, cancelled or expired"
-          ],
-          "source": "authoritative"
-        },
-        "next": "c.eligible"
-      },
-      {
-        "id": "c.eligible",
-        "kind": "condition",
-        "asks": "Can this process be recovered for this person at all?",
-        "branches": [
-          {
-            "label": "Eligible",
-            "when": "the identity resolves to a contactable person, the process is resumable with items and a destination, no instance is open for it, no payment failure is recorded on it, and commercial recovery permission is recorded",
-            "observes": "process state, identity resolution, permission record",
-            "to": "a.open"
-          },
-          {
-            "label": "Not eligible",
-            "when": "any of those fails - the reason is recorded as the no-action reason",
-            "observes": "process state, identity resolution, permission record",
-            "to": "x.no-action"
-          }
-        ]
-      },
-      {
-        "id": "a.open",
-        "kind": "action",
-        "does": "Open the recovery instance against the logical process and start the abandonment clock from the last activity on it, not from when it opened. Activity before the first touch moves the clock; nothing after the first touch extends any window",
-        "writes": [
-          {
-            "field": "recovery_log",
-            "mode": "append"
-          }
-        ],
-        "idempotencyKey": "logical_process_id",
-        "next": "w.abandon"
-      },
-      {
-        "id": "w.abandon",
-        "kind": "wait",
-        "until": [
-          "process_completed",
-          "process_cancelled",
-          "process_expired",
-          "items_removed_all",
-          "payment_failed"
-        ],
-        "onEvent": "c.state",
-        "timeout": {
-          "after": {
-            "key": "recovery.first_check",
-            "rule": "The first check waits long enough after the last activity that the person has actually left the process rather than paused inside it, and no longer than the intent stays fresh.",
-            "class": "recovery-window",
-            "default": {
-              "value": {
-                "min": "30 minutes",
-                "max": "60 minutes"
-              },
-              "confidence": "low",
-              "basis": "example-only",
-              "applicableWhen": "considered purchases and multi-step applications",
-              "avoidWhen": "impulse baskets and single-step processes, where a shorter first check is honest"
-            },
-            "required": false
-          },
-          "reason": "a person still inside the process is not abandoning it; the clock runs from their last activity so that pausing is not punished",
-          "relativeTo": "attribute",
-          "attribute": "last_activity_at"
-        },
-        "onTimeout": "c.state",
-        "recheck": "the process re-read from the system of record: still resumable, items still present, no order placed, no payment failure",
-        "windowExtendsOnEngagement": false
-      },
-      {
-        "id": "c.state",
-        "kind": "condition",
-        "asks": "What is the process now?",
-        "branches": [
-          {
-            "label": "Still resumable",
-            "when": "the process is open with items and a resume destination and no order has been placed against it",
-            "observes": "process state",
-            "to": "c.sendable"
-          },
-          {
-            "label": "Completed",
-            "when": "an order or completion is recorded against the process by any channel",
-            "observes": "process_completed",
-            "to": "x.converted"
-          },
-          {
-            "label": "Cancelled, expired or emptied",
-            "when": "the person cancelled it, the platform expired it, or every item was removed",
-            "observes": "process state",
-            "to": "x.invalid"
-          },
-          {
-            "label": "Superseded",
-            "when": "a newer logical process exists for the same person and the supersession rule applies",
-            "observes": "newer process for person",
-            "to": "x.superseded"
-          },
-          {
-            "label": "Payment failed",
-            "when": "a payment failure is recorded against this process",
-            "observes": "payment_failed",
-            "to": "h.payment"
-          }
-        ]
-      },
-      {
-        "id": "c.sendable",
-        "kind": "condition",
-        "asks": "May the first touch go out?",
-        "branches": [
-          {
-            "label": "Sendable",
-            "when": "the send path passes: permission for commercial recovery, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the account, and no cooldown in force",
-            "observes": "send path stages 1-8",
-            "to": "a.touch1"
-          },
-          {
-            "label": "Suppressed",
-            "when": "a gate stops it; the gate is recorded as the reason",
-            "observes": "send path stages 1-8",
-            "to": "a.record-no-action"
-          }
-        ]
-      },
-      {
-        "id": "a.record-no-action",
-        "kind": "action",
-        "does": "Record which gate stopped the touch and against which process, so no-action is a measured outcome rather than a silent absence",
-        "writes": [
-          {
-            "field": "suppressed_sends",
-            "mode": "append"
-          }
-        ],
-        "next": "x.no-action"
-      },
-      {
-        "id": "a.touch1",
-        "kind": "action",
-        "does": "Say the process is still open, show the items as they are now, and give the link that reopens this exact process with its state restored. Claim nothing the system does not assert - no reserved stock, no held price, no discount",
-        "execution": "communication",
-        "idempotencyKey": "logical_process_id + touch id",
-        "writes": [
-          {
-            "field": "recovery_log",
-            "mode": "append"
-          }
-        ],
-        "next": "w.second"
-      },
-      {
-        "id": "w.second",
-        "kind": "wait",
-        "until": [
-          "process_resumed",
-          "process_completed",
-          "process_cancelled",
-          "process_expired",
-          "items_removed_all",
-          "payment_failed"
-        ],
-        "onEvent": "c.state2",
-        "timeout": {
-          "after": {
-            "key": "recovery.second_check",
-            "rule": "The second check comes after the person has had a chance to act on the first touch in their own time, and before the process stops being resumable.",
-            "class": "recovery-window",
-            "default": {
-              "value": {
-                "min": "20 hours",
-                "max": "28 hours"
-              },
-              "confidence": "low",
-              "basis": "example-only",
-              "avoidWhen": "perishable or time-boxed processes - the second check is the resumable window minus a margin"
-            },
-            "required": false
-          },
-          "reason": "a second touch inside the same hour is pressure, not help; a second touch after the process has expired is noise",
-          "relativeTo": "previous-touch"
-        },
-        "onTimeout": "c.state2",
-        "recheck": "the process re-read from the system of record, plus whether the person resumed it since the first touch",
-        "windowExtendsOnEngagement": false
-      },
-      {
-        "id": "c.state2",
-        "kind": "condition",
-        "asks": "What is the process now, and did they come back?",
-        "branches": [
-          {
-            "label": "Completed",
-            "when": "an order or completion is recorded against the process",
-            "observes": "process_completed",
-            "to": "x.converted"
-          },
-          {
-            "label": "Cancelled, expired or emptied",
-            "when": "the process can no longer be returned to",
-            "observes": "process state",
-            "to": "x.invalid"
-          },
-          {
-            "label": "Superseded",
-            "when": "a newer logical process exists for the same person and the supersession rule applies",
-            "observes": "newer process for person",
-            "to": "x.superseded"
-          },
-          {
-            "label": "Payment failed",
-            "when": "a payment failure is recorded against this process",
-            "observes": "payment_failed",
-            "to": "h.payment"
-          },
-          {
-            "label": "Resumed, still open",
-            "when": "an authenticated session touched the process since the first touch and it is still open - the person is deciding, not forgetting",
-            "observes": "process_resumed since last touch",
-            "to": "a.note-return"
-          },
-          {
-            "label": "Still open, not resumed",
-            "when": "the process is open and untouched since the first touch",
-            "observes": "process state",
-            "to": "c.sendable2"
-          }
-        ]
-      },
-      {
-        "id": "a.note-return",
-        "kind": "action",
-        "does": "Record the return and re-arm one further wait from the new last activity. A person who came back and left again is deciding; the second touch is held once, not skipped and not hurried",
-        "writes": [
-          {
-            "field": "recovery_log",
-            "mode": "append"
-          }
-        ],
-        "attemptBudget": {
-          "key": "recovery.resume_rearms",
-          "rule": "A return re-arms the wait a bounded number of times; the budget is fixed when the instance opens and does not renew on activity.",
-          "default": {
-            "value": 1,
-            "confidence": "medium",
-            "basis": "corpus-rule",
-            "applicableWhen": "GLB-24: every retry, reminder and re-request runs against a budget fixed when it started"
-          },
-          "required": false
-        },
-        "next": "w.resumed"
-      },
-      {
-        "id": "w.resumed",
-        "kind": "wait",
-        "until": [
-          "process_completed",
-          "process_cancelled",
-          "process_expired",
-          "items_removed_all",
-          "payment_failed"
-        ],
-        "onEvent": "c.state2",
-        "timeout": {
-          "after": {
-            "key": "recovery.first_check",
-            "rule": "After a return, the same first-check interval runs again from the new last activity.",
-            "class": "recovery-window",
-            "default": {
-              "value": {
-                "min": "30 minutes",
-                "max": "60 minutes"
-              },
-              "confidence": "low",
-              "basis": "example-only",
-              "applicableWhen": "the same value as the first check"
-            },
-            "required": false
-          },
-          "reason": "the person is inside the process again; the same patience applies as before the first touch",
-          "relativeTo": "attribute",
-          "attribute": "last_activity_at"
-        },
-        "onTimeout": "c.state2",
-        "recheck": "the process re-read from the system of record",
-        "windowExtendsOnEngagement": false
-      },
-      {
-        "id": "c.sendable2",
-        "kind": "condition",
-        "asks": "May the second touch go out?",
-        "branches": [
-          {
-            "label": "Sendable",
-            "when": "the send path passes and the touch budget is not spent",
-            "observes": "send path stages 1-8, touch budget",
-            "to": "a.touch2"
-          },
-          {
-            "label": "Suppressed",
-            "when": "a gate stops it; the gate is recorded",
-            "observes": "send path stages 1-8",
-            "to": "a.record-no-action"
-          }
-        ]
-      },
-      {
-        "id": "a.touch2",
-        "kind": "action",
-        "does": "Address the likely blocker - shipping, returns, trust, a route to ask a question - with the same link back into the process. Still nothing the system does not assert",
-        "execution": "communication",
-        "idempotencyKey": "logical_process_id + touch id",
-        "writes": [
-          {
-            "field": "recovery_log",
-            "mode": "append"
-          }
-        ],
-        "next": "w.final"
-      },
-      {
-        "id": "w.final",
-        "kind": "wait",
-        "until": [
-          "process_completed",
-          "process_cancelled",
-          "process_expired",
-          "items_removed_all",
-          "payment_failed"
-        ],
-        "onEvent": "c.state3",
-        "timeout": {
-          "after": {
-            "key": "recovery.lifetime",
-            "rule": "The recovery lifetime ends before the platform's own resumable lifetime, so the last touch never points at a process that has already closed.",
-            "class": "recovery-window",
-            "default": {
-              "value": {
-                "min": "3 days",
-                "max": "7 days"
-              },
-              "confidence": "low",
-              "basis": "example-only",
-              "avoidWhen": "the platform's resumable lifetime is shorter - the lifetime is that, minus a margin"
-            },
-            "required": false
-          },
-          "reason": "an unfinished process stops being an intent and becomes a record; pursuing it past that point is pressure",
-          "relativeTo": "trigger"
-        },
-        "onTimeout": "c.state3",
-        "recheck": "the process re-read from the system of record, and whether the platform asserts an expiry",
-        "windowExtendsOnEngagement": false
-      },
-      {
-        "id": "c.state3",
-        "kind": "condition",
-        "asks": "At the end of the recovery lifetime, what is the process?",
-        "branches": [
-          {
-            "label": "Completed",
-            "when": "an order or completion is recorded against the process",
-            "observes": "process_completed",
-            "to": "x.converted"
-          },
-          {
-            "label": "Cancelled, expired or emptied",
-            "when": "the process can no longer be returned to",
-            "observes": "process state",
-            "to": "x.invalid"
-          },
-          {
-            "label": "Superseded",
-            "when": "a newer logical process exists for the same person and the supersession rule applies",
-            "observes": "newer process for person",
-            "to": "x.superseded"
-          },
-          {
-            "label": "Payment failed",
-            "when": "a payment failure is recorded against this process",
-            "observes": "payment_failed",
-            "to": "h.payment"
-          },
-          {
-            "label": "Still open",
-            "when": "the process is open and resumable",
-            "observes": "process state",
-            "to": "c.final-enabled"
-          }
-        ]
-      },
-      {
-        "id": "c.final-enabled",
-        "kind": "condition",
-        "asks": "Is a final notice enabled, and is there a real expiry to name?",
-        "branches": [
-          {
-            "label": "Enabled, expiry asserted",
-            "when": "the company has enabled the final notice (recovery.final_notice_enabled), the platform asserts an expiry for this process, and the send path passes",
-            "observes": "recovery.final_notice_enabled, expires_at, send path",
-            "to": "a.touch3"
-          },
-          {
-            "label": "Disabled, or no honest expiry",
-            "when": "the final notice is disabled, or no expiry is asserted that the notice could truthfully name",
-            "observes": "recovery.final_notice_enabled, expires_at",
-            "to": "x.lapsed"
-          }
-        ]
-      },
-      {
-        "id": "a.touch3",
-        "kind": "action",
-        "does": "Say, once, that the process closes at its real expiry and give the link. No urgency the system does not assert, and no incentive unless policy enables one for the last touch",
-        "execution": "communication",
-        "idempotencyKey": "logical_process_id + touch id",
-        "writes": [
-          {
-            "field": "recovery_log",
-            "mode": "append"
-          }
-        ],
-        "next": "w.close"
-      },
-      {
-        "id": "w.close",
-        "kind": "wait",
-        "until": [
-          "process_completed",
-          "process_cancelled",
-          "process_expired",
-          "items_removed_all",
-          "payment_failed"
-        ],
-        "onEvent": "c.close",
-        "timeout": {
-          "after": {
-            "key": "recovery.process_expiry",
-            "rule": "The final wait ends when the platform's own expiry does; nothing is sent after it.",
-            "class": "attribute-bound",
-            "default": {
-              "value": "expires_at as asserted by the platform",
-              "confidence": "high",
-              "basis": "attribute-bound"
-            },
-            "required": false
-          },
-          "reason": "after the final notice the only remaining question is whether the process completed before it closed",
-          "relativeTo": "attribute",
-          "attribute": "expires_at"
-        },
-        "onTimeout": "x.lapsed",
-        "recheck": "the process re-read from the system of record at its expiry",
-        "windowExtendsOnEngagement": false
-      },
-      {
-        "id": "c.close",
-        "kind": "condition",
-        "asks": "What ended the final wait?",
-        "branches": [
-          {
-            "label": "Completed",
-            "when": "an order or completion is recorded against the process",
-            "observes": "process_completed",
-            "to": "x.converted"
-          },
-          {
-            "label": "Payment failed",
-            "when": "a payment failure is recorded against this process",
-            "observes": "payment_failed",
-            "to": "h.payment"
-          },
-          {
-            "label": "Closed unfinished",
-            "when": "the process was cancelled, expired or emptied",
-            "observes": "process state",
-            "to": "x.invalid"
-          }
-        ]
-      },
-      {
-        "id": "x.converted",
-        "kind": "exit",
-        "state": "completed; the process reached its end",
-        "class": "success",
-        "terminal": false,
-        "reEntry": "a new logical process is a new instance; this one is closed as converted"
-      },
-      {
-        "id": "x.invalid",
-        "kind": "exit",
-        "state": "closed unfinished - cancelled, expired or emptied; nothing further is sent",
-        "class": "invalid-state",
-        "terminal": false,
-        "reEntry": "a new logical process is a new instance"
-      },
-      {
-        "id": "x.superseded",
-        "kind": "exit",
-        "state": "superseded by a newer process for the same person",
-        "class": "suppression",
-        "terminal": false,
-        "reEntry": "none for this process; the newer process owns recovery"
-      },
-      {
-        "id": "x.no-action",
-        "kind": "exit",
-        "state": "no touch sent; the gate that stopped it is recorded",
-        "class": "no-action",
-        "terminal": false,
-        "reEntry": "a new logical process is a new instance, subject to the cooldown when this one lapsed or was suppressed"
-      },
-      {
-        "id": "x.lapsed",
-        "kind": "exit",
-        "state": "recovery lifetime passed with the process still open; nothing further is sent",
-        "class": "timeout",
-        "terminal": false,
-        "reEntry": "a new logical process is a new instance, and enters silently while the cooldown runs"
-      },
-      {
-        "id": "h.payment",
-        "kind": "handoff",
-        "to": "FIN-134",
-        "on": "a payment failure recorded against the process - a failed payment is not abandonment",
-        "carries": [
-          "the logical process and its items",
-          "the obligation the failed attempt was against",
-          "that recovery communication about the process stops here"
-        ],
-        "suppresses": [
-          "every queued recovery touch for this process"
-        ],
-        "contract": {
-          "requiredFields": [
-            "logical_process_id",
-            "person_id",
-            "obligation_id",
-            "failed_at"
-          ]
-        }
-      }
-    ],
-    "implementation": {
-      "attributes": {
-        "required": [
-          "logical_process_id",
-          "person_id",
-          "items",
-          "started_at",
-          "last_activity_at",
-          "resume_destination"
-        ],
-        "optional": [
-          "expires_at",
-          "value",
-          "currency",
-          "category",
-          "has_active_app_session",
-          "hold_expires_at",
-          "delivery_cutoff_at"
-        ]
-      }
-    },
-    "measurement": {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "x.converted",
-          "x.invalid",
-          "x.superseded",
-          "x.no-action",
-          "x.lapsed",
-          "h.payment"
-        ]
-      },
-      "businessOutcome": {
-        "event": "process_completed",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "touched-before-event",
-        "comparison": "persistent-holdout",
-        "holdout": {
-          "key": "recovery.holdout_share",
-          "rule": "A persistent per-person holdout is required: people who abandon a process complete it on their own often enough that a treated-only measurement cannot tell the journey's effect from theirs.",
-          "default": {
-            "value": 10,
-            "confidence": "low",
-            "basis": "example-only",
-            "applicableWhen": "enough volume that the holdout reaches significance in a reasonable period"
-          },
-          "required": false
-        }
-      },
-      "secondary": [
-        "process_resumed"
-      ],
-      "guardrails": [
-        "unsubscribe",
-        "complaint",
-        "message_after_success",
-        "incentive_issued",
-        "support_contact_within_24h"
-      ],
-      "operational": [
-        "entry_volume",
-        "no_action_rate_by_reason",
-        "channel_role_used_t1",
-        "branch_distribution",
-        "resume_rearm_rate"
-      ]
-    },
-    "discovery": {
-      "aliases": [
-        "checkout abandonment",
-        "abandoned checkout",
-        "checkout recovery",
-        "begin checkout recovery",
-        "abandoned application",
-        "abandoned quote",
-        "incomplete registration"
-      ],
-      "useCases": [
-        "a started checkout with items that has gone quiet",
-        "an application, quote or registration left part-way through with state the person can return to"
-      ],
-      "presets": [
-        {
-          "id": "quote-abandonment",
-          "name": "Quote Abandonment",
-          "applicableWhen": {
-            "id": "p.quote",
-            "label": "CANONICAL_RULE",
-            "text": "The resumable process is a quote or proposal the person configured and did not accept; it has a resume destination and an expiry the quoting system asserts."
-          },
-          "overrides": {
-            "recovery.first_check": {
-              "min": "4 hours",
-              "max": "24 hours"
-            }
-          },
-          "destination": "the quote",
-          "aliases": [
-            "quote abandonment",
-            "abandoned quote",
-            "quote follow-up",
-            "unaccepted proposal"
-          ]
-        },
-        {
-          "id": "application-abandonment",
-          "name": "Application Abandonment",
-          "applicableWhen": {
-            "id": "p.application",
-            "label": "CANONICAL_RULE",
-            "text": "The resumable process is a multi-step application with saved state; a hard submission deadline, where one exists, is owned by deadline reminder (TIM-61) through handoff, not by this recovery."
-          },
-          "overrides": {
-            "recovery.first_check": {
-              "min": "4 hours",
-              "max": "24 hours"
-            }
-          },
-          "destination": "the application",
-          "aliases": [
-            "application abandonment",
-            "incomplete application",
-            "abandoned form",
-            "application follow-up"
-          ]
-        },
-        {
-          "id": "incomplete-registration",
-          "name": "Incomplete Registration",
-          "applicableWhen": {
-            "id": "p.registration",
-            "label": "CANONICAL_RULE",
-            "text": "The resumable process is a registration or sign-up left part-way; identity verification, where required, is handed to verification (IDN-81) and never re-asked here."
-          },
-          "overrides": {
-            "recovery.first_check": {
-              "min": "1 hour",
-              "max": "4 hours"
-            }
-          },
-          "destination": "the registration step",
-          "aliases": [
-            "incomplete registration",
-            "abandoned sign-up",
-            "registration follow-up",
-            "unfinished account setup"
-          ]
-        }
-      ]
-    },
-    "distinctFrom": [
-      {
-        "journey": "ACQ-08",
-        "because": "ACQ-08 makes acquisition give up ownership the moment a destination is reached. This journey pursues one specific unfinished process and gives up when it completes, closes or is superseded."
-      },
-      {
-        "journey": "SCH-282",
-        "because": "SCH-282 follows an availability enquiry that holds nothing. A process has state the person can return to, which is what makes recovery honest."
-      }
-    ],
-    "guardrails": [
-      "Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry the platform does not enforce.",
-      "Opens and clicks are engagement evidence and change nothing; only process events move the state.",
-      "The clock runs from last activity before the first touch and from the previous touch after it; no window extends on engagement.",
-      "A link into an expired process resolves to the person's current basket or an honest closed-process page, never a dead end.",
-      "An incentive, where enabled, appears once and only on the last enabled touch."
-    ],
-    "reusableRule": "An abandoned process is recovered against its own current state, re-read before every touch, with a bounded plan fixed at entry - never against a snapshot of what the person once had in it."
-  },
-  {
     "id": "ACQ-12",
     "slug": "abandoned-selection-recovery",
     "category": "acquisition",
     "goal": "recovery-retry",
-    "channels": [
-      "email",
-      "push",
-      "in-app"
-    ],
+    "channels": ["push", "email"],
     "name": "Selection recorded → held without a process → recovered, carried into a process, cleared or lapsed",
     "shortName": "Abandoned Selection Recovery",
     "purpose": "Return a person to items they selected - a cart, a basket, a saved list - and did not carry into a process, while the selection still stands and the items are still available, without asserting a state the system does not hold.",
@@ -4029,6 +2703,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "the selection holds at least one item the platform currently asserts as available",
       "the selection has not been carried into a process, and no process is open for its items",
       "no recovery instance is already open for this selection",
+      "no Cart Abandonment Recovery instance (ACQ-288) is open on this selection - where the selection is a cart, the concrete implementation owns it and this generic pattern is suppressed for it",
       "purpose-level permission for commercial recovery communication is recorded, and hard gates (GLB-31) allow it"
     ],
     "suppressions": [
@@ -4040,7 +2715,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.process",
         "label": "CANONICAL_RULE",
-        "text": "A process started from the selection hands the instance to Abandoned Process Recovery (ACQ-11); the two never message the same person about the same items."
+        "text": "A process started from the selection ends this journey's ownership of it; this journey has nothing further to say about a selection once it is in motion elsewhere."
       },
       {
         "id": "s.cleared",
@@ -4053,6 +2728,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "text": "An item the platform asserts as unavailable is never shown in a touch; a touch about a selection shows only what can still be acted on."
       },
       {
+        "id": "s.oos",
+        "label": "CANONICAL_RULE",
+        "text": "Before the first touch, every held item is re-checked for availability; if the platform asserts none of them purchasable, the instance hands to the Back-in-Stock Alert (ACQ-289) for those items instead of sending a touch about a selection nothing in it can be acted on."
+      },
+      {
         "id": "s.permission",
         "label": "CANONICAL_RULE",
         "text": "No touch without purpose-level permission for commercial recovery communication; absent permission is a recorded no-action, never a fallback to another channel."
@@ -4063,6 +2743,11 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "text": "A process recovery, an open complaint, an open payment recovery or a retention-outreach journey on the same person outranks this journey; its touch is deferred and re-evaluated against current state (GLB-06)."
       },
       {
+        "id": "s.specialised",
+        "label": "CANONICAL_RULE",
+        "text": "Cart Abandonment Recovery (ACQ-288) ranks above this journey in the commerce-recovery group. Where the selection is a cart and that journey holds the instance, this one is suppressed for it; the two never message the same person about the same cart."
+      },
+      {
         "id": "s.cooldown",
         "label": "RECOMMENDED_DEFAULT",
         "text": "A new selection made inside the cooldown after a lapsed or suppressed instance enters, is tracked, and sends nothing."
@@ -4071,7 +2756,13 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "s.incentive",
         "label": "OPTIONAL_STRATEGY",
         "text": "If the company enables an incentive (selection.incentive_policy), it appears only on the last enabled touch, once, and its issuance is recorded per person. The library recommends none by default."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "promotional",
@@ -4108,28 +2799,23 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "below process recovery - a process in motion outranks a held selection; above interest recovery and predicted-need replenishment for the same person"
+        "precedence": "below process recovery - a process in motion outranks a held selection - and below Cart Abandonment Recovery (ACQ-288), the concrete cart implementation this generic pattern is specialised by, which holds the instance whenever the selection is a cart; above interest recovery and predicted-need replenishment for the same person"
       , "onLoss": "suppressed" }
     },
     "channelStrategy": {
       "roles": [
         {
           "role": "low-friction",
-          "channels": [
-            "push",
-            "in-app"
-          ],
-          "when": "an app session or a valid push token exists for this person - the selection is recent and a nudge back beats content"
+          "channels": ["push"],
+          "when": "the selection has an app-resumable deep link and a currently deliverable push destination; use it for the first compact return nudge"
         },
         {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "no low-friction route exists, or the touch has to carry the items as they stand and survive until the person can act"
+          "channels": ["email"],
+          "when": "otherwise, and always for the later follow-up where the current selection has to remain available until the person returns"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -4173,10 +2859,9 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "c.state2",
             "c.sendable2"
           ],
-          "purpose": "The selection again, with any genuine change the platform asserts on an item still held - a restored availability, a changed price - and the same link. No urgency the system does not assert.",
+          "purpose": "The selection again, with any genuine change the platform asserts on an item still held - a restored availability, a changed price - genuine alternatives the platform itself surfaces, and the same link. No urgency the system does not assert.",
           "channelRoles": [
-            "persistent",
-            "low-friction"
+            "persistent"
           ],
           "destination": {
             "target": "selection-resume",
@@ -4185,7 +2870,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
               "stock is reserved",
               "the price is held",
               "a discount applies",
-              "an expiry"
+              "an expiry",
+              "an alternative the platform did not itself surface"
             ]
           },
           "mandatory": false,
@@ -4197,8 +2883,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "s.process",
         "s.cleared",
         "s.unavailable-shown",
+        "s.oos",
         "s.permission",
         "s.contest",
+        "s.specialised",
         "s.cooldown"
       ]
     },
@@ -4269,17 +2957,14 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "timeout": {
           "after": {
             "key": "selection.first_check",
-            "rule": "The first check waits long enough after the last selection activity that the person has actually left rather than paused, and no longer than the selection is likely to be remembered.",
+            "rule": "The first check waits a fixed span after the last selection activity - long enough that the person has actually left rather than paused - before it re-reads the selection.",
             "class": "recovery-window",
             "default": {
-              "value": {
-                "min": "1 hour",
-                "max": "4 hours"
-              },
+              "value": "3 days",
               "confidence": "low",
               "basis": "example-only",
-              "applicableWhen": "a shopping cart",
-              "avoidWhen": "a saved list, where a much longer first check is honest - see the Saved Item Reminder preset"
+              "applicableWhen": "the general selection - cart, basket or saved list - recovered under this journey's own default cadence",
+              "avoidWhen": "a saved list held long enough that an even longer first check is honest - see the Saved Item Reminder preset, which extends this window further"
             },
             "required": false
           },
@@ -4312,18 +2997,37 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "Carried into a process",
             "when": "a process was started from the selection",
             "observes": "process_started",
-            "to": "h.process"
+            "to": "x.process-started"
           },
           {
             "label": "Changed, still held",
             "when": "an item was added or removed and at least one remains - the person is still deciding",
             "observes": "selection_changed",
-            "to": "a.rearm"
+            "to": "c.rearm-budget"
           },
           {
             "label": "Still held",
             "when": "the selection stands as it was",
             "observes": "selection state",
+            "to": "c.availability"
+          }
+        ]
+      },
+      {
+        "id": "c.rearm-budget",
+        "kind": "condition",
+        "asks": "Is the re-arm budget still available?",
+        "branches": [
+          {
+            "label": "Budget available",
+            "when": "fewer re-arms have been used against this instance than selection.rearm_limit allows",
+            "observes": "rearm count, selection.rearm_limit",
+            "to": "a.rearm"
+          },
+          {
+            "label": "Budget spent",
+            "when": "the re-arm budget fixed when the instance opened has already been used - a person who keeps changing a held selection is still deciding, but the wait is not re-armed forever",
+            "observes": "rearm count, selection.rearm_limit",
             "to": "c.availability"
           }
         ]
@@ -4339,7 +3043,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           }
         ],
         "attemptBudget": {
-          "key": "selection.change_rearms",
+          "key": "selection.rearm_limit",
           "rule": "A change re-arms the wait a bounded number of times; the budget is fixed when the instance opens and does not renew on activity.",
           "default": {
             "value": 2,
@@ -4354,7 +3058,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "c.availability",
         "kind": "condition",
-        "asks": "Can any of it still be acted on?",
+        "asks": "Is the selection still in stock and purchasable?",
         "branches": [
           {
             "label": "At least one item available",
@@ -4366,7 +3070,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "Nothing available",
             "when": "the platform asserts every selected item as unavailable",
             "observes": "item_unavailable",
-            "to": "x.unavailable"
+            "to": "h.oos"
           }
         ]
       },
@@ -4429,13 +3133,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "timeout": {
           "after": {
             "key": "selection.second_check",
-            "rule": "The second check comes after the person has had time to act on the first touch in their own time, and before the selection stops being something they remember.",
+            "rule": "The second check comes a fixed span after the first touch, giving the person time to act on it in their own time before the selection stops being something they remember.",
             "class": "recovery-window",
             "default": {
-              "value": {
-                "min": "2 days",
-                "max": "4 days"
-              },
+              "value": "2 days",
               "confidence": "low",
               "basis": "example-only"
             },
@@ -4469,7 +3170,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "Carried into a process",
             "when": "a process was started from the selection",
             "observes": "process_started",
-            "to": "h.process"
+            "to": "x.process-started"
           },
           {
             "label": "Nothing available",
@@ -4507,7 +3208,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "a.touch2",
         "kind": "action",
-        "does": "Show the selection again with any genuine change the platform asserts on a held item - availability restored, price changed - and the same link. No urgency the system does not assert, and no incentive unless policy enables one for the last touch",
+        "does": "Show the selection again with any genuine change the platform asserts on a held item - availability restored, price changed - alongside genuine alternative items the platform itself surfaces for what's held, and the same link. No urgency the system does not assert, and no incentive unless policy enables one for the last touch",
         "execution": "communication",
         "idempotencyKey": "selection_id + touch id",
         "writes": [
@@ -4534,8 +3235,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "class": "recovery-window",
             "default": {
               "value": {
-                "min": "7 days",
-                "max": "14 days"
+                "min": "5 days",
+                "max": "7 days"
               },
               "confidence": "low",
               "basis": "example-only"
@@ -4570,7 +3271,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "label": "Carried into a process",
             "when": "a process was started from the selection",
             "observes": "process_started",
-            "to": "h.process"
+            "to": "x.process-started"
           },
           {
             "label": "Still held",
@@ -4621,13 +3322,21 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "reEntry": "a new selection is a new instance, and enters silently while the cooldown runs"
       },
       {
-        "id": "h.process",
+        "id": "x.process-started",
+        "kind": "exit",
+        "state": "a process was started from the selection; the selection itself is no longer just held, and this journey has nothing further to say about it",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "a lapsed or abandoned process, or a fresh selection made after the process resolves, re-opens this evaluation from current evidence"
+      },
+      {
+        "id": "h.oos",
         "kind": "handoff",
-        "to": "ACQ-11",
-        "on": "a process started from the selection - the process owns recovery from that moment",
+        "to": "ACQ-289",
+        "on": "at the stock-availability gate before the first touch, the platform asserts every held item unavailable - the same recorded interest, redirected to the journey built to alert on its return",
         "carries": [
-          "the selection and its items",
-          "the recovery touches already sent for the selection, so the process plan counts them against the person"
+          "the person and each held item now asserted unavailable - each opens its own Back-in-Stock Alert instance, since ACQ-289's instance key is person plus item",
+          "the fact that the interest was first recorded as a held selection, not a bare product view"
         ],
         "suppresses": [
           "every queued recovery touch for this selection"
@@ -4636,8 +3345,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "requiredFields": [
             "selection_id",
             "person_id",
-            "logical_process_id",
-            "touches_sent"
+            "item_id"
           ]
         }
       }
@@ -4670,7 +3378,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           "x.unavailable",
           "x.no-action",
           "x.lapsed",
-          "h.process"
+          "x.process-started",
+          "h.oos"
         ]
       },
       "businessOutcome": {
@@ -4758,17 +3467,22 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     },
     "distinctFrom": [
       {
-        "journey": "ACQ-11",
-        "because": "ACQ-11 pursues a process with state, an expiry and a resume destination. A selection has no process state and no expiry, which is why this journey never names a deadline and hands over the moment a process starts."
-      },
-      {
         "journey": "ACQ-13",
         "because": "ACQ-13 works from inferred attention. A selection is a recorded fact the person created, and the touch can show it back to them."
+      },
+      {
+        "journey": "ACQ-288",
+        "because": "ACQ-288 is this pattern specialised to one kind of selection - a cart - with a stated channel priority per touch, a high-value branch and a handoff into checkout recovery, none of which is true for every held selection this one also has to cover. It ranks above this journey in the commerce-recovery group, so where the selection is a cart it holds the instance and this one is suppressed for it."
+      },
+      {
+        "journey": "ACQ-289",
+        "because": "ACQ-289 alerts on a named item a person wanted while it was unavailable and could not select at all. This journey recovers a selection the person actually made and held; it never claims an interest the person has not acted on, and it stands above ACQ-289 in the commerce-recovery group whenever a held selection exists."
       }
     ],
     "guardrails": [
       "Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
-      "An unavailable item is never shown; a selection with nothing available exits silently.",
+      "An unavailable item is never shown; a selection with nothing available hands to the Back-in-Stock Alert instead of receiving a touch of its own.",
+      "A similar or alternative item shown on the second touch is only ever one the platform itself surfaces for the held selection; nothing is recommended that the system does not actually offer.",
       "Opens and clicks are engagement evidence and change nothing; only selection, order and process events move the state.",
       "A process started from the selection hands over immediately; two recoveries never run against the same items."
     ],
@@ -4779,11 +3493,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     "slug": "unresolved-interest-recovery",
     "category": "acquisition",
     "goal": "recovery-retry",
-    "channels": [
-      "email",
-      "push",
-      "in-app"
-    ],
+    "channels": ["in-app", "email"],
     "name": "Interest inferred → qualified → resolved into a selection or purchase, or left alone",
     "shortName": "Unresolved Interest Recovery",
     "purpose": "Follow up qualified, unresolved attention to an item, category or search - browsing that ended in neither a selection nor a process - with at most one touch, and record no-action as the normal outcome whenever the attention does not qualify.",
@@ -4834,13 +3544,19 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "s.contest",
         "label": "CANONICAL_RULE",
-        "text": "This journey is lowest in the commerce-recovery group: a process recovery, a selection recovery or a predicted-need replenishment for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06)."
+        "text": "This journey ranks below every other member of the commerce-recovery group: a process recovery, a selection recovery, a predicted-need replenishment or a back-in-stock alert (ACQ-289) for the same person suppresses it, as does any open complaint, payment recovery or retention-outreach journey (GLB-06)."
       },
       {
         "id": "s.cooldown",
         "label": "RECOMMENDED_DEFAULT",
         "text": "A new interest inside the cooldown after a lapsed or suppressed instance is tracked and sends nothing; the same interest key re-qualifying inside the cooldown is the same interest."
-      }
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
     "contact": {
       "defaultPriority": "promotional",
@@ -4876,28 +3592,23 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       "competition": {
         "exclusionGroup": "commerce-recovery",
         "scope": "person",
-        "precedence": "lowest in the group - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person"
+        "precedence": "below every other member of the group, the back-in-stock alert (ACQ-289) included - a process in motion, a held selection and a predicted need all outrank an inferred interest for the same person, and so does a named item the person asked for and could not buy: that item is a specific thing they chose and its return is a state change they can act on now, where this journey has only an interest nobody confirmed. Where ACQ-289 holds the person, this journey yields and is suppressed for them rather than queued behind it"
       , "onLoss": "suppressed" }
     },
     "channelStrategy": {
       "roles": [
         {
-          "role": "low-friction",
-          "channels": [
-            "push",
-            "in-app"
-          ],
-          "when": "an app session or a valid push token exists for this person - the attention is recent and a route back beats content"
+          "role": "in-session",
+          "channels": ["in-app"],
+          "when": "has_active_app_session is true and the unresolved interest subject can be reopened from the current product context"
         },
         {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "no low-friction route exists, or the touch has to carry the thing looked at and survive until the person can act"
+          "channels": ["email"],
+          "when": "otherwise, when the subject and route back need to remain available after the session ends"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     "orchestration": {
@@ -4914,7 +3625,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
           ],
           "purpose": "The thing they looked at, as it stands now, and a route back to it. Nothing about stock, price or intent that the system does not assert.",
           "channelRoles": [
-            "low-friction",
+            "in-session",
             "persistent"
           ],
           "destination": {
@@ -5016,8 +3727,8 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
             "class": "recovery-window",
             "default": {
               "value": {
-                "min": "12 hours",
-                "max": "48 hours"
+                "min": "6 hours",
+                "max": "24 hours"
               },
               "confidence": "low",
               "basis": "example-only",
@@ -5137,7 +3848,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "x.resolved",
         "kind": "exit",
-        "state": "resolved; a selection, process or purchase for the subject is recorded and its own journey owns it",
+        "state": "resolved; a selection, process or purchase for the subject is recorded, which is the real trigger for its own journey (a returned-to-cart selection is ACQ-288's own entry event) rather than something this journey routes to directly",
         "class": "success",
         "terminal": false,
         "reEntry": "a new interest key is a new interest"
@@ -5314,6 +4025,10 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "journey": "SCH-282",
         "because": "SCH-282 follows an availability enquiry with restorable state. A search here holds nothing; it is attention, not an enquiry."
+      },
+      {
+        "journey": "ACQ-289",
+        "because": "ACQ-289 alerts on a named item a person already wanted and could not buy, which is a specific thing they chose. This journey works from attention nobody confirmed, ranks below it in the commerce-recovery group, and is suppressed for a person ACQ-289 holds."
       }
     ],
     "guardrails": [
@@ -5332,17 +4047,257 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     "channels": ["push", "email", "whatsapp", "sms"],
     "name": "Checkout started → not completed → recovered or abandoned",
     "shortName": "Checkout Abandonment Recovery",
-    "purpose": "Return a person who started checkout but did not finish it, with a reminder cascade that reaches for the highest-value checkouts on a more direct channel and never sends once the purchase is already there.",
+    "purpose": "Return a person who started checkout but did not finish it, with a three-step reminder cascade that reaches for the highest-value checkouts on a more direct channel at its final step and never sends once the purchase is already there.",
+    "objective": "Get the checkout finished by the person who started it, without ever sending about a checkout that is already complete and without speaking over the payment recovery that owns a failed payment.",
     "entity": {
       "scope": "one checkout instance - a basket, its items and its resume destination",
-      "note": "Started again after abandoning is a new instance, not a reopened one; a new checkout_started resets the clock and any queued reminder from the old instance is dropped, not carried forward."
-    },
-    "distinctFrom": [
-      {
-        "journey": "ACQ-11",
-        "because": "ACQ-11 is the general-purpose pattern for any resumable process (a checkout, a quote, an application, a registration) and stays deliberately channel-agnostic and state-agnostic so it fits all of them. This journey is the concrete checkout implementation: a fixed three-touch cascade, an explicit channel priority and fallback per touch, and a high-value branch that reaches for a more direct channel - none of which the generic pattern states, because none of it is true for every resumable process it also has to cover."
+      "note": "Started again after abandoning is a new instance, not a reopened one; a new checkout_started resets the clock and any queued reminder from the old instance is dropped, not carried forward.",
+      "instanceKey": [
+        "person_id",
+        "checkout_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A newer checkout for the same person supersedes an open instance: the new checkout owns recovery from that moment and every reminder queued against the old one is dropped rather than carried forward."
       }
+    },
+    "eligibility": [
+      "an authoritative checkout record is open for this person with at least one item and a resume destination",
+      "the identity behind the checkout resolves to a person we may contact",
+      "no recovery instance is already open for this checkout",
+      "no payment failure is recorded on the checkout - a failed payment is FIN-134's, not abandonment",
+      "no held-cart instance is still messaging this person about the same items - Cart Abandonment Recovery (ACQ-288) hands the cart over the moment checkout starts and suppresses every touch it had queued",
+      "purpose-level permission for commercial recovery communication is recorded, and hard gates (GLB-31) allow it"
     ],
+    "suppressions": [
+      {
+        "id": "s.completed",
+        "label": "CANONICAL_RULE",
+        "text": "Exit the moment the checkout completes by any route - in the product, in a store, by phone. A reminder about a completed checkout is the failure this journey exists to prevent, and every reminder is reached only through a condition that just re-read completion."
+      },
+      {
+        "id": "s.invalid",
+        "label": "CANONICAL_RULE",
+        "text": "Exit when the checkout is cancelled by the person or expired by the platform. Nothing is sent about a checkout the person cannot return to."
+      },
+      {
+        "id": "s.payment",
+        "label": "CANONICAL_RULE",
+        "text": "A payment failure on the checkout hands the instance to payment failure recovery (FIN-134) and stops this journey where it stands. Checkout-abandonment messaging and payment-recovery messaging never run at the same time for the same failed payment."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No reminder without purpose-level permission for commercial recovery communication and a destination that is actually reachable; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "An open complaint, an open payment recovery or a retention-outreach journey on the same person outranks this journey; its touch is deferred and re-evaluated against current state, not queued blindly (GLB-06)."
+      },
+      {
+        "id": "s.superseded",
+        "label": "CANONICAL_RULE",
+        "text": "A newer checkout for the same person supersedes this instance (see the entity's supersession statement); the older instance sends nothing further."
+      },
+      {
+        "id": "s.cooldown",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "A new checkout opened inside the cooldown after an abandoned or suppressed instance enters, is tracked, and sends nothing."
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
+    ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "checkout_abandonment.touches",
+          "rule": "Every reminder runs against a budget fixed when the instance opened; the budget is the most reminders any single path through the cascade reaches, and no reminder is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 3,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the cascade's own length - a first reminder, a second reminder and one final reminder, whose high-value and standard forms sit on branches the same instance can never both take"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "checkout_abandonment.cooldown",
+        "rule": "After an abandoned or suppressed instance, a new checkout by the same person is tracked but not messaged until the cooldown has passed. A completed checkout carries no cooldown.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "commerce-recovery",
+        "scope": "person",
+        "precedence": "highest in the group - the concrete checkout implementation owns a checkout in motion, and outranks every held cart, held selection, inferred interest and predicted need for the same person; when it holds the instance, the journeys it outranks are suppressed for that instance rather than queued behind it",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists for this person and the permission covering it still stands - the checkout is minutes old and a nudge back beats content"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no low-friction route clears both permission and reachability, or the reminder has to carry the checkout and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "whatsapp",
+            "sms"
+          ],
+          "when": "explicit permission for direct commercial messaging on a phone number is recorded and the number is reachable"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "progressive-recovery",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "initial-reminder",
+          "action": "a.reminder1",
+          "gatedBy": "w.first",
+          "prerequisites": [
+            "c.completed1",
+            "c.sendable1",
+            "a.router1"
+          ],
+          "purpose": "A short, compact nudge that the payment was not completed and what was selected is still waiting - the first touch, and the least intrusive one.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "destination": {
+            "target": "checkout-resume",
+            "boundTo": "checkout_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "second-reminder",
+          "action": "a.reminder2",
+          "after": "t1",
+          "gatedBy": "w.second",
+          "prerequisites": [
+            "c.completed2",
+            "c.sendable2",
+            "a.router2"
+          ],
+          "purpose": "A channel that can carry the checkout's contents and survive until the person returns: the cart items and the payment link, alongside only the trust reassurances the platform already shows at checkout. Nothing the system does not assert.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "checkout-resume",
+            "boundTo": "checkout_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "a trust reassurance the platform does not itself show"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3-hv",
+          "stage": "final-reminder-high-value",
+          "action": "a.reminder3-hv",
+          "after": "t2",
+          "gatedBy": "w.third",
+          "prerequisites": [
+            "c.completed3",
+            "c.highvalue",
+            "c.sendable3-hv",
+            "a.router3-hv"
+          ],
+          "purpose": "The last touch, in the more direct register a high-value checkout warrants - not a repeat of the earlier reminders, and still nothing the system does not assert.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "destination": {
+            "target": "checkout-resume",
+            "boundTo": "checkout_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "an expiry the platform does not enforce"
+            ]
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        },
+        {
+          "id": "t3-std",
+          "stage": "final-reminder",
+          "action": "a.reminder3-std",
+          "after": "t2",
+          "gatedBy": "w.third",
+          "prerequisites": [
+            "c.completed3",
+            "c.highvalue",
+            "c.sendable3-std",
+            "a.router3-std"
+          ],
+          "purpose": "The last touch: one final, plain reminder to come back and finish the checkout they started. No urgency the system does not assert, and no further message after it.",
+          "channelRoles": [
+            "low-friction",
+            "persistent"
+          ],
+          "destination": {
+            "target": "checkout-resume",
+            "boundTo": "checkout_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.completed",
+        "s.invalid",
+        "s.payment",
+        "s.permission",
+        "s.contest",
+        "s.superseded",
+        "s.cooldown"
+      ]
+    },
     "entry": "t.started",
     "nodes": [
       {
@@ -5359,71 +4314,178 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "w.first",
         "kind": "wait",
-        "until": ["process_completed"],
+        "until": ["process_completed", "payment_failed", "process_cancelled", "process_expired"],
         "onEvent": "c.completed1",
         "timeout": {
           "after": {
             "key": "checkout_abandonment.first_check",
-            "rule": "Give the person time to finish on their own before the first reminder.",
+            "rule": "Give the person a short, fixed span to finish on their own before the first reminder.",
             "class": "recovery-window",
-            "default": { "value": "45 minutes", "confidence": "low", "basis": "example-only" },
+            "default": { "value": { "min": "30 minutes", "max": "1 hour" }, "confidence": "low", "basis": "example-only" },
             "required": false
           },
           "reason": "long enough that a person mid-payment or mid-form is not interrupted, short enough that the checkout is still warm",
           "relativeTo": "trigger"
         },
         "onTimeout": "c.completed1",
+        "recheck": "the checkout re-read from the system of record: still open and resumable, no completion recorded against it, no payment failure recorded on it, and no cancellation or expiry recorded against it",
         "windowExtendsOnEngagement": false
       },
       {
         "id": "c.completed1",
         "kind": "condition",
-        "asks": "Is the checkout completed?",
+        "asks": "What is the checkout now?",
         "branches": [
-          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "to": "x.purchased" },
-          { "label": "Not completed", "when": "no completion record exists for this checkout instance", "to": "a.router1" }
+          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "observes": "process_completed", "to": "x.purchased" },
+          { "label": "Payment failed", "when": "a payment failure is recorded against this checkout - a failed payment is not abandonment", "observes": "payment_failed", "to": "h.payment" },
+          { "label": "Cancelled or expired", "when": "the person cancelled the checkout, or the platform expired it", "observes": "process_cancelled, process_expired", "to": "x.invalid" },
+          { "label": "Not completed", "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance", "observes": "checkout state", "to": "c.sendable1" }
         ]
+      },
+      {
+        "id": "c.sendable1",
+        "kind": "condition",
+        "asks": "May the first reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest",
+            "observes": "send path stages 1-8",
+            "to": "a.router1"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action-t1"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action-t1",
+        "kind": "action",
+        "does": "Record which gate stopped the first reminder and against which checkout, so no-action is a measured outcome rather than a silent absence",
+        "writes": [{ "field": "suppressed_sends", "mode": "append" }],
+        "idempotencyKey": "person_id + checkout_id + touch id",
+        "next": "w.second"
       },
       {
         "id": "a.router1",
         "kind": "action",
-        "does": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+        "does": "Select the push channel for this reminder: a valid, current push token is on file and the permission covering it still stands. If push cannot be reached, record that no channel is available and skip straight to the next wait without sending anything.",
         "writes": [{ "field": "selected_channel_t1", "mode": "set" }],
         "next": "a.reminder1"
       },
       {
         "id": "a.reminder1",
         "kind": "action",
-        "does": "Send the first checkout reminder on the channel just selected, pointing the person back to the exact checkout they started with its state as it stands.",
+        "does": "Send the first checkout reminder by push: a short nudge that the payment was not completed and what was selected is still waiting for the person.",
         "execution": "communication",
+        "idempotencyKey": "person_id + checkout_id + touch id",
         "next": "w.second"
       },
       {
         "id": "w.second",
         "kind": "wait",
-        "until": ["process_completed"],
+        "until": ["process_completed", "payment_failed", "process_cancelled", "process_expired"],
         "onEvent": "c.completed2",
         "timeout": {
           "after": {
             "key": "checkout_abandonment.second_check",
-            "rule": "Give the first reminder real time to work before deciding whether a second, more direct touch is warranted.",
+            "rule": "Give the first reminder a full day to work before deciding whether the second, more persistent touch is warranted.",
             "class": "recovery-window",
-            "default": { "value": "6 hours", "confidence": "low", "basis": "example-only" },
+            "default": { "value": "1 day", "confidence": "low", "basis": "example-only" },
             "required": false
           },
-          "reason": "enough of the day for the first reminder to be seen and acted on before a second touch is considered",
+          "reason": "a full day is enough for a push notification to be seen and acted on before a second, more persistent touch is considered",
           "relativeTo": "previous-touch"
         },
         "onTimeout": "c.completed2",
+        "recheck": "the checkout re-read from the system of record since the first reminder: no completion recorded against it, no payment failure recorded on it, and no cancellation or expiry recorded against it",
         "windowExtendsOnEngagement": false
       },
       {
         "id": "c.completed2",
         "kind": "condition",
-        "asks": "Is the checkout completed?",
+        "asks": "What is the checkout now?",
         "branches": [
-          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "to": "x.purchased" },
-          { "label": "Not completed", "when": "no completion record exists for this checkout instance", "to": "c.highvalue" }
+          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "observes": "process_completed", "to": "x.purchased" },
+          { "label": "Payment failed", "when": "a payment failure is recorded against this checkout - a failed payment is not abandonment", "observes": "payment_failed", "to": "h.payment" },
+          { "label": "Cancelled or expired", "when": "the person cancelled the checkout, or the platform expired it", "observes": "process_cancelled, process_expired", "to": "x.invalid" },
+          { "label": "Not completed", "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance", "observes": "checkout state", "to": "c.sendable2" }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the second reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest",
+            "observes": "send path stages 1-8",
+            "to": "a.router2"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action-t2"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action-t2",
+        "kind": "action",
+        "does": "Record which gate stopped the second reminder and against which checkout, so no-action is a measured outcome rather than a silent absence",
+        "writes": [{ "field": "suppressed_sends", "mode": "append" }],
+        "idempotencyKey": "person_id + checkout_id + touch id",
+        "next": "w.third"
+      },
+      {
+        "id": "a.router2",
+        "kind": "action",
+        "does": "Select the email channel for this reminder: a valid, deliverable email address is on file. Email is the channel that can carry the cart items and the payment link and survive until the person returns. If email cannot be reached, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
+        "next": "a.reminder2"
+      },
+      {
+        "id": "a.reminder2",
+        "kind": "action",
+        "does": "Send the second checkout reminder by email: the cart items and the link back into payment, alongside only the trust reassurances the platform already shows at checkout - shipping, payment security, returns - never ones this journey asserts on its own.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + checkout_id + touch id",
+        "next": "w.third"
+      },
+      {
+        "id": "w.third",
+        "kind": "wait",
+        "until": ["process_completed", "payment_failed", "process_cancelled", "process_expired"],
+        "onEvent": "c.completed3",
+        "timeout": {
+          "after": {
+            "key": "checkout_abandonment.third_check",
+            "rule": "Give the second reminder a day or two to work before deciding whether the final, most direct touch is warranted.",
+            "class": "recovery-window",
+            "default": { "value": { "min": "1 day", "max": "2 days" }, "confidence": "low", "basis": "example-only" },
+            "required": false
+          },
+          "reason": "a day or two is enough for an email to be seen and acted on before the final touch is considered",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.completed3",
+        "recheck": "the checkout re-read from the system of record since the second reminder: no completion recorded against it, no payment failure recorded on it, and no cancellation or expiry recorded against it",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.completed3",
+        "kind": "condition",
+        "asks": "What is the checkout now?",
+        "branches": [
+          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "observes": "process_completed", "to": "x.purchased" },
+          { "label": "Payment failed", "when": "a payment failure is recorded against this checkout - a failed payment is not abandonment", "observes": "payment_failed", "to": "h.payment" },
+          { "label": "Cancelled or expired", "when": "the person cancelled the checkout, or the platform expired it", "observes": "process_cancelled, process_expired", "to": "x.invalid" },
+          { "label": "Not completed", "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance", "observes": "checkout state", "to": "c.highvalue" }
         ]
       },
       {
@@ -5431,64 +4493,115 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "kind": "condition",
         "asks": "Is this a high-value checkout?",
         "branches": [
-          { "label": "High-value", "when": "the checkout's value is at or above the adopting company's configured high-value threshold - no value is asserted here", "observes": "checkout_value", "to": "a.router2-hv" },
-          { "label": "Standard", "when": "the checkout's value is below the configured threshold", "observes": "checkout_value", "to": "a.router2-std" }
+          { "label": "High-value", "when": "the checkout's value is at or above the adopting company's configured high-value threshold - no value is asserted here", "observes": "checkout_value", "to": "c.sendable3-hv" },
+          { "label": "Standard", "when": "the checkout's value is below the configured threshold", "observes": "checkout_value", "to": "c.sendable3-std" }
         ]
       },
       {
-        "id": "a.router2-hv",
-        "kind": "action",
-        "does": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value checkout gets a more direct channel than the first touch, not a repeat of it. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
-        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
-        "next": "a.reminder2-hv"
+        "id": "c.sendable3-hv",
+        "kind": "condition",
+        "asks": "May the high-value final reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest",
+            "observes": "send path stages 1-8",
+            "to": "a.router3-hv"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action-t3"
+          }
+        ]
       },
       {
-        "id": "a.reminder2-hv",
+        "id": "c.sendable3-std",
+        "kind": "condition",
+        "asks": "May the final reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no cooldown in force, and no higher-precedence journey currently holds this person on the commerce-recovery contest",
+            "observes": "send path stages 1-8",
+            "to": "a.router3-std"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action-t3"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action-t3",
         "kind": "action",
-        "does": "Send the second checkout reminder on the channel just selected, using the more direct register a high-value checkout warrants.",
+        "does": "Record which gate stopped the final reminder and against which checkout, so no-action is a measured outcome rather than a silent absence",
+        "writes": [{ "field": "suppressed_sends", "mode": "append" }],
+        "idempotencyKey": "person_id + checkout_id + touch id",
+        "next": "w.fourth"
+      },
+      {
+        "id": "a.router3-hv",
+        "kind": "action",
+        "does": "Select the highest-priority direct channel: WhatsApp first (a valid phone number is on file and the number is reachable on WhatsApp), otherwise SMS (a valid phone number is on file). A high-value checkout gets the most direct channel in the cascade for its final touch. If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t3", "mode": "set" }],
+        "next": "a.reminder3-hv"
+      },
+      {
+        "id": "a.reminder3-hv",
+        "kind": "action",
+        "does": "Send the final checkout reminder on the channel just selected, in the more direct register a high-value checkout warrants: the link to finish the order, and an offer of help if the person has questions.",
         "execution": "communication",
-        "next": "w.third"
+        "idempotencyKey": "person_id + checkout_id + touch id",
+        "next": "w.fourth"
       },
       {
-        "id": "a.router2-std",
+        "id": "a.router3-std",
         "kind": "action",
-        "does": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
-        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
-        "next": "a.reminder2-std"
+        "does": "Select the highest-priority channel this reminder may actually reach: push first (a valid, current push token is on file), otherwise email (a valid, deliverable email address is on file). If neither channel clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t3", "mode": "set" }],
+        "next": "a.reminder3-std"
       },
       {
-        "id": "a.reminder2-std",
+        "id": "a.reminder3-std",
         "kind": "action",
-        "does": "Send the second checkout reminder on the channel just selected, pointing the person back to the exact checkout they started with its state as it stands.",
+        "does": "Send the final checkout reminder on the channel just selected: one last, plain nudge to come back now and finish the checkout they started.",
         "execution": "communication",
-        "next": "w.third"
+        "idempotencyKey": "person_id + checkout_id + touch id",
+        "next": "w.fourth"
       },
       {
-        "id": "w.third",
+        "id": "w.fourth",
         "kind": "wait",
-        "until": ["process_completed"],
-        "onEvent": "c.completed3",
+        "until": ["process_completed", "payment_failed", "process_cancelled", "process_expired"],
+        "onEvent": "c.completed4",
         "timeout": {
           "after": {
             "key": "checkout_abandonment.final_check",
-            "rule": "The last reminder gets a full day to work before the checkout is treated as abandoned.",
+            "rule": "The final reminder gets a full day to work before the checkout is treated as abandoned.",
             "class": "recovery-window",
-            "default": { "value": "24 hours", "confidence": "low", "basis": "example-only" },
+            "default": { "value": "1 day", "confidence": "low", "basis": "example-only" },
             "required": false
           },
-          "reason": "a full day past the second reminder is the point past which a checkout this old is read as abandoned rather than merely delayed",
+          "reason": "a full day past the final reminder is the point past which a checkout this old is read as abandoned rather than merely delayed",
           "relativeTo": "previous-touch"
         },
-        "onTimeout": "c.completed3",
+        "onTimeout": "c.completed4",
+        "recheck": "the checkout re-read from the system of record at the end of the cascade: whether a completion was recorded against it, whether a payment failure was recorded on it, and whether it was cancelled or expired",
         "windowExtendsOnEngagement": false
       },
       {
-        "id": "c.completed3",
+        "id": "c.completed4",
         "kind": "condition",
-        "asks": "Is the checkout completed?",
+        "asks": "At the end of the cascade, what is the checkout?",
         "branches": [
-          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "to": "x.purchased" },
-          { "label": "Not completed", "when": "no completion record exists for this checkout instance", "to": "x.abandoned" }
+          { "label": "Completed", "when": "an authoritative purchase or order record exists for this checkout instance", "observes": "process_completed", "to": "x.purchased" },
+          { "label": "Payment failed", "when": "a payment failure is recorded against this checkout - a failed payment is not abandonment", "observes": "payment_failed", "to": "h.payment" },
+          { "label": "Cancelled or expired", "when": "the person cancelled the checkout, or the platform expired it", "observes": "process_cancelled, process_expired", "to": "x.invalid" },
+          { "label": "Not completed", "when": "no completion record, no payment failure and no cancellation or expiry exists for this checkout instance", "observes": "checkout state", "to": "x.abandoned" }
         ]
       },
       {
@@ -5500,21 +4613,133 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "reEntry": "a new checkout for this person opens its own instance; nothing about this one is reopened"
       },
       {
+        "id": "x.invalid",
+        "kind": "exit",
+        "state": "closed unfinished - cancelled or expired; nothing further is sent",
+        "class": "invalid-state",
+        "terminal": false,
+        "reEntry": "a new checkout is a new instance"
+      },
+      {
         "id": "x.abandoned",
         "kind": "exit",
         "state": "checkout abandoned; the reminder cascade ran to its end with no completion",
         "class": "timeout",
         "terminal": false,
         "reEntry": "a new checkout_started for this person opens a new instance with its own clock; this one is not reopened"
+      },
+      {
+        "id": "h.payment",
+        "kind": "handoff",
+        "to": "FIN-134",
+        "on": "a payment failure recorded against the checkout - a failed payment is not abandonment, and the money is payment recovery's to talk about",
+        "carries": [
+          "the checkout and its items",
+          "the obligation the failed attempt was against",
+          "that reminder communication about this checkout stops here"
+        ],
+        "suppresses": [
+          "every queued checkout reminder for this checkout"
+        ],
+        "contract": {
+          "requiredFields": ["checkout_id", "person_id", "obligation_id", "failed_at"]
+        }
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "checkout_id",
+          "items",
+          "checkout_started_at",
+          "resume_destination"
+        ],
+        "optional": [
+          "checkout_value",
+          "currency",
+          "obligation_id",
+          "push_token",
+          "email_address",
+          "phone_number",
+          "whatsapp_reachable"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.purchased",
+          "x.invalid",
+          "x.abandoned",
+          "h.payment"
+        ]
+      },
+      "businessOutcome": {
+        "event": "process_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "checkout_abandonment.holdout_share",
+          "rule": "A persistent per-person holdout is required: people who leave a checkout come back and finish it on their own often enough that a treated-only measurement cannot tell this journey's effect from theirs.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "payment_failed"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "reminder_during_payment_recovery"
+      ],
+      "operational": [
+        "entry_volume",
+        "no_channel_available_rate",
+        "no_action_rate_by_reason",
+        "channel_role_used_t1",
+        "branch_distribution",
+        "payment_handoff_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "checkout abandonment recovery",
+        "abandoned checkout reminder",
+        "checkout reminder cascade",
+        "incomplete checkout recovery",
+        "high-value checkout reminder"
+      ],
+      "useCases": [
+        "a started checkout with items that has gone quiet and can still be finished",
+        "a high-value checkout that warrants a more direct final reminder than the earlier ones"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "ACQ-288",
+        "because": "ACQ-288 recovers a cart before checkout starts; this journey recovers a checkout that has already started. The two never run in parallel on the same items - ACQ-288 hands the cart over the moment checkout starts and suppresses every touch it had queued, and this journey's own clock begins there."
       }
     ],
     "guardrails": [
-      "A reminder is never sent once a.completion is already on record - every reminder step is reached only through a condition that just re-checked completion.",
-      "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
-      "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
-      "The high-value threshold is a configured value, never a number this journey asserts."
+      "A reminder is never sent once a completion is already on record - every reminder step is reached only through a condition that just re-checked completion.",
+      "A reminder is never sent about a checkout the person cancelled or the platform expired - every wait watches for it and every re-check asks about it.",
+      "A payment failure ends this journey's ownership: the instance is handed to payment failure recovery and every queued reminder is suppressed, so checkout-abandonment messaging and payment-recovery messaging never run at the same time for the same failed payment.",
+      "Permission is checked by the send-path gate before a channel is ever chosen; the router that follows it resolves only reachability - a valid token or address - and never re-decides permission.",
+      "No message goes out on a channel that failed reachability - the router skips the touch rather than forcing a channel that cannot deliver.",
+      "The high-value threshold is a configured value, never a number this journey asserts.",
+      "While this journey holds a checkout, the generic process-recovery pattern is suppressed for the same process; the two never message the same person about the same checkout."
     ],
-    "reusableRule": "A reminder cascade checks completion immediately before every touch and stops the instant it finds one; channel selection is a priority-with-fallback the router owns, never a chain of permission conditions in the graph, and a higher-value instance earns a more direct channel, not a different structure."
+    "reusableRule": "A reminder cascade re-reads the instance immediately before every touch and stops or hands ownership on the instant it finds a completion or a failure someone else owns; channel selection is a priority-with-fallback the router owns, never a chain of permission conditions in the graph, and a higher-value instance earns a more direct channel, not a different structure."
   },
   {
     "id": "ACQ-288",
@@ -5524,21 +4749,234 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
     "channels": ["push", "email", "whatsapp", "sms"],
     "name": "Item added to cart → checkout not started → recovered, handed to checkout, or abandoned",
     "shortName": "Cart Abandonment Recovery",
-    "purpose": "Return a person who added an item to their cart but did not start checkout, with a reminder cascade that reaches for the highest-value carts on a more direct channel, hands off to Checkout Abandonment the instant checkout starts, and never sends once the purchase is already there.",
+    "purpose": "Return a person who added an item to their cart but did not start checkout, with a three-step reminder cascade that reaches for the highest-value carts on a more direct channel at its final step, hands off to Checkout Abandonment the moment checkout starts, and never sends once the purchase is already there.",
+    "objective": "Get the person back to the cart they left while it can still be acted on, and give it up the moment checkout starts or the purchase is recorded.",
     "entity": {
       "scope": "one cart instance - its items, their current availability and price as the platform asserts them",
-      "note": "Cleared or emptied then refilled is a new instance, not a reopened one; a new item_added_to_cart resets the clock and any queued reminder from the old instance is dropped, not carried forward."
+      "note": "Cleared or emptied then refilled is a new instance, not a reopened one; a new item_added_to_cart resets the clock and any queued reminder from the old instance is dropped, not carried forward.",
+      "instanceKey": [
+        "person_id",
+        "cart_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A checkout started from the cart supersedes this instance: Checkout Abandonment Recovery owns the person from that moment, and every reminder queued here is suppressed rather than carried forward."
+      }
     },
-    "distinctFrom": [
+    "eligibility": [
+      "an authoritative record that at least one item is held in a cart for this person, with at least one item the platform currently asserts as available",
+      "the identity behind the cart resolves to a person we may contact",
+      "no checkout has been opened from this cart - a cart in checkout is ACQ-287's",
+      "no recovery instance is already open for this cart",
+      "purpose-level permission for commercial recovery communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
       {
-        "journey": "ACQ-12",
-        "because": "ACQ-12 is the general-purpose pattern for any held selection (a cart, a saved list) and stays deliberately generic - one first-check window, two generic touches, no channel priority stated, no high-value branch. This journey is the concrete cart implementation: a fixed three-touch cascade with an explicit channel priority and fallback per touch, a high-value branch that reaches for a more direct channel, and an explicit handoff into Checkout Abandonment (ACQ-287) the moment checkout starts - none of which the generic pattern states, because none of it is true for every held selection it also has to cover."
+        "id": "s.converted",
+        "label": "CANONICAL_RULE",
+        "text": "Exit the moment an order including any item from this cart is recorded by any route; every reminder is reached only through a condition that just re-read the purchase."
       },
       {
-        "journey": "ACQ-287",
-        "because": "ACQ-287 recovers a checkout that has already started; this journey recovers a cart before checkout starts. The two never run in parallel on the same person - this journey hands off to ACQ-287 the moment checkout starts, and every queued cart reminder is suppressed from that point."
-      }
+        "id": "s.checkout",
+        "label": "CANONICAL_RULE",
+        "text": "A checkout started from this cart hands the instance to Checkout Abandonment Recovery (ACQ-287); the cart is checked for it once, immediately after the first wait and before the first reminder is ever sent, and the handoff carries every reminder already queued so the two never message the same person about the same items from that point forward."
+      },
+      {
+        "id": "s.cleared",
+        "label": "CANONICAL_RULE",
+        "text": "Exit when the person clears the cart, every item becomes unavailable, or the cart's own hold expires; nothing is sent about items the person cannot act on."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No reminder without purpose-level permission for commercial recovery communication and a destination that is actually reachable; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A checkout recovery, a process recovery, an open complaint, an open payment recovery or a retention-outreach journey on the same person outranks this journey; its touch is deferred and re-evaluated against current state, not queued blindly (GLB-06)."
+      },
+      {
+        "id": "s.generic",
+        "label": "CANONICAL_RULE",
+        "text": "This journey ranks above the generic held-selection pattern (ACQ-12) in the commerce-recovery group. While it holds a cart, that pattern is suppressed for the same selection, and the two never message the same person about the same cart."
+      },
+      {
+        "id": "s.superseded",
+        "label": "CANONICAL_RULE",
+        "text": "A newer cart for the same person supersedes this instance (see the entity's supersession statement); the older instance sends nothing further."
+      },
+      {
+        "id": "s.cooldown",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "A new cart filled inside the cooldown after an abandoned or suppressed instance enters, is tracked, and sends nothing."
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
     ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "cart_abandonment.touches",
+          "rule": "Every reminder runs against a budget fixed when the instance opened; the budget is the most reminders any single path through the cascade reaches, and no reminder is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 3,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the cascade's own length - a first reminder, a second reminder and, only on a high-value cart's path, one final reminder; a standard-value cart's path never reaches the third touch at all"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "cart_abandonment.cooldown",
+        "rule": "After an abandoned or suppressed instance, a new cart by the same person is tracked but not messaged until the cooldown has passed. A cart that converted carries no cooldown.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "commerce-recovery",
+        "scope": "person",
+        "precedence": "below checkout recovery and the generic process-recovery pattern - a checkout in motion outranks a held cart - and above the generic held-selection pattern (ACQ-12) it specialises, which is suppressed for the same selection while this journey holds it; above inferred interest and predicted-need replenishment for the same person",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "a current device registration exists for this person and the permission covering it still stands - the cart is recent and a nudge back beats content"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "no low-friction route clears both permission and reachability, or the reminder has to carry the cart as it stands and survive until the person can act on it"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "whatsapp",
+            "sms"
+          ],
+          "when": "explicit permission for direct commercial messaging on a phone number is recorded and the number is reachable"
+        }
+      ],
+      "fallback": "next-eligible-role",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "progressive-recovery",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "initial-reminder",
+          "action": "a.reminder1",
+          "gatedBy": "w.first",
+          "prerequisites": [
+            "c.state1",
+            "c.sendable1",
+            "a.router1"
+          ],
+          "purpose": "A short, compact nudge that the items in the cart are still waiting for the person, and the link back into it - the first touch, and the least intrusive one.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "destination": {
+            "target": "cart-resume",
+            "boundTo": "cart_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "an expiry"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "second-reminder",
+          "action": "a.reminder2",
+          "after": "t1",
+          "gatedBy": "w.second",
+          "prerequisites": [
+            "c.state2",
+            "c.sendable2",
+            "a.router2"
+          ],
+          "purpose": "A channel that can carry the cart's contents and survive until the person returns: the items still held, any benefit or campaign the platform currently asserts for them, and the link into checkout. Nothing the system does not assert.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "cart-resume",
+            "boundTo": "cart_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "an expiry"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "final-reminder-high-value",
+          "action": "a.reminder3",
+          "after": "t2",
+          "gatedBy": "w.third",
+          "prerequisites": [
+            "c.state3",
+            "c.highvalue",
+            "c.sendable3",
+            "a.router3"
+          ],
+          "purpose": "The last touch, in the more direct register a high-value cart warrants - not a repeat of the earlier reminders, and still nothing the system does not assert. Reached only by a cart that has already cleared the value gate; a standard-value cart never sees it.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "destination": {
+            "target": "cart-resume",
+            "boundTo": "cart_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "an expiry"
+            ]
+          },
+          "mandatory": false,
+          "label": "RECOMMENDED_DEFAULT"
+        }
+      ],
+      "noAction": [
+        "s.converted",
+        "s.checkout",
+        "s.cleared",
+        "s.permission",
+        "s.contest",
+        "s.generic",
+        "s.superseded",
+        "s.cooldown"
+      ]
+    },
     "entry": "t.added",
     "nodes": [
       {
@@ -5555,98 +4993,176 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
       {
         "id": "w.first",
         "kind": "wait",
-        "until": ["selection_cleared", "process_completed", "checkout_started"],
-        "onEvent": "c.active1",
+        "until": ["process_completed", "checkout_started", "selection_cleared", "process_expired"],
+        "onEvent": "c.state1",
         "timeout": {
           "after": {
             "key": "cart_abandonment.first_check",
-            "rule": "Give the person time to return to the cart on their own before the first reminder.",
+            "rule": "Give the person a short, fixed span to return to the cart on their own before the first reminder.",
             "class": "recovery-window",
-            "default": { "value": "2 hours", "confidence": "low", "basis": "example-only" },
+            "default": { "value": "1 day", "confidence": "low", "basis": "example-only" },
             "required": false
           },
           "reason": "long enough that a person still browsing or mid-session is not interrupted, short enough that the cart is still warm",
           "relativeTo": "trigger"
         },
-        "onTimeout": "c.active1",
+        "onTimeout": "c.state1",
+        "recheck": "the cart re-read from the system of record: items present and each item's availability and price as the platform asserts them, no order placed, no checkout opened from it, and no clearing or expiry recorded against it",
         "windowExtendsOnEngagement": false
       },
       {
-        "id": "c.active1",
+        "id": "c.state1",
         "kind": "condition",
-        "asks": "Is the cart still active?",
+        "asks": "What is the cart now?",
         "branches": [
-          { "label": "Active", "when": "the cart still holds at least one item the platform asserts as available, and has not been deleted", "to": "c.purchased1" },
-          { "label": "Cleared or expired", "when": "the person removed every item, deleted the cart, or the cart's hold or session expired", "to": "x.cleared" }
+          { "label": "Purchased", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "observes": "process_completed", "to": "x.purchased" },
+          { "label": "Checkout started", "when": "an authoritative checkout record has been opened from this cart", "observes": "checkout_started", "to": "h.checkout" },
+          { "label": "Cleared or expired", "when": "the person removed every item, deleted the cart, or the cart's hold or session expired", "observes": "selection_cleared, process_expired", "to": "x.abandoned" },
+          { "label": "Still held", "when": "the cart still holds at least one item the platform asserts as available, no order is recorded and no checkout has been opened", "observes": "cart state", "to": "c.sendable1" }
         ]
       },
       {
-        "id": "c.purchased1",
+        "id": "c.sendable1",
         "kind": "condition",
-        "asks": "Is the purchase completed?",
+        "asks": "May the first reminder go out?",
         "branches": [
-          { "label": "Completed", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "to": "x.purchased" },
-          { "label": "Not completed", "when": "no completion record exists for this cart", "to": "c.checkout1" }
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.router1"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action-t1"
+          }
         ]
       },
       {
-        "id": "c.checkout1",
-        "kind": "condition",
-        "asks": "Has checkout started?",
-        "branches": [
-          { "label": "Started", "when": "an authoritative checkout record has been opened from this cart", "to": "h.checkout" },
-          { "label": "Not started", "when": "no checkout has been opened from this cart", "to": "a.router1" }
-        ]
+        "id": "a.record-no-action-t1",
+        "kind": "action",
+        "does": "Record which gate stopped the first reminder and against which cart, so no-action is a measured outcome rather than a silent absence",
+        "writes": [{ "field": "suppressed_sends", "mode": "append" }],
+        "idempotencyKey": "person_id + cart_id + touch id",
+        "next": "w.second"
       },
       {
         "id": "a.router1",
         "kind": "action",
-        "does": "Select the highest-priority channel this reminder may actually reach: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Permission and reachability are two separate checks, and both must hold - a granted permission with no valid token or address still fails. If neither channel clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
+        "does": "Select the push channel for this reminder: a valid, current push token is on file and the permission covering it still stands. If push cannot be reached, record that no channel is available and skip straight to the next wait without sending anything.",
         "writes": [{ "field": "selected_channel_t1", "mode": "set" }],
         "next": "a.reminder1"
       },
       {
         "id": "a.reminder1",
         "kind": "action",
-        "does": "Send the first cart reminder on the channel just selected, showing the cart as it currently stands - only the items the platform still asserts as available, at their current price - and the link back to it. Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
+        "does": "Send the first cart reminder by push: a short, compact nudge that the items in the cart are still waiting for the person, and the link back into it. Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
         "execution": "communication",
+        "idempotencyKey": "person_id + cart_id + touch id",
         "next": "w.second"
       },
       {
         "id": "w.second",
         "kind": "wait",
-        "until": ["process_completed", "checkout_started"],
-        "onEvent": "c.purchased2",
+        "until": ["process_completed", "selection_cleared", "process_expired"],
+        "onEvent": "c.state2",
         "timeout": {
           "after": {
             "key": "cart_abandonment.second_check",
-            "rule": "Give the first reminder real time to work before deciding whether a second, more direct touch is warranted.",
+            "rule": "Give the first reminder a short, fixed span to work before deciding whether the second touch is warranted.",
             "class": "recovery-window",
-            "default": { "value": { "min": "20 hours", "max": "24 hours" }, "confidence": "low", "basis": "example-only" },
+            "default": { "value": "1 day", "confidence": "low", "basis": "example-only" },
             "required": false
           },
-          "reason": "close to a full day for the first reminder to be seen and acted on before a second touch is considered",
+          "reason": "a short, fixed span is enough for a push notification to be seen and acted on before a second touch is considered",
           "relativeTo": "previous-touch"
         },
-        "onTimeout": "c.purchased2",
+        "onTimeout": "c.state2",
+        "recheck": "the cart re-read from the system of record since the first reminder: no order placed, no clearing or expiry recorded against it, and each held item's availability and price as the platform now asserts them",
         "windowExtendsOnEngagement": false
       },
       {
-        "id": "c.purchased2",
+        "id": "c.state2",
         "kind": "condition",
-        "asks": "Is the purchase completed?",
+        "asks": "What is the cart now?",
         "branches": [
-          { "label": "Completed", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "to": "x.purchased" },
-          { "label": "Not completed", "when": "no completion record exists for this cart", "to": "c.checkout2" }
+          { "label": "Purchased", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "observes": "process_completed", "to": "x.purchased" },
+          { "label": "Cleared or expired", "when": "the person removed every item, deleted the cart, or the cart's hold or session expired", "observes": "selection_cleared, process_expired", "to": "x.abandoned" },
+          { "label": "Still held", "when": "the cart still holds at least one item the platform asserts as available and no order is recorded", "observes": "cart state", "to": "c.sendable2" }
         ]
       },
       {
-        "id": "c.checkout2",
+        "id": "c.sendable2",
         "kind": "condition",
-        "asks": "Has checkout started?",
+        "asks": "May the second reminder go out?",
         "branches": [
-          { "label": "Started", "when": "an authoritative checkout record has been opened from this cart", "to": "h.checkout" },
-          { "label": "Not started", "when": "no checkout has been opened from this cart", "to": "c.highvalue" }
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.router2"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action-t2"
+          }
+        ]
+      },
+      {
+        "id": "a.record-no-action-t2",
+        "kind": "action",
+        "does": "Record which gate stopped the second reminder and against which cart, so no-action is a measured outcome rather than a silent absence",
+        "writes": [{ "field": "suppressed_sends", "mode": "append" }],
+        "idempotencyKey": "person_id + cart_id + touch id",
+        "next": "w.third"
+      },
+      {
+        "id": "a.router2",
+        "kind": "action",
+        "does": "Select the email channel for this reminder: a valid, deliverable email address is on file. Email is the channel that can carry the cart's items, any benefit or campaign currently asserted for them, and the checkout link, and survive until the person returns. If email cannot be reached, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
+        "next": "a.reminder2"
+      },
+      {
+        "id": "a.reminder2",
+        "kind": "action",
+        "does": "Send the second cart reminder by email: the items still held, any benefit or campaign the platform currently asserts for them, and the link into checkout. Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + cart_id + touch id",
+        "next": "w.third"
+      },
+      {
+        "id": "w.third",
+        "kind": "wait",
+        "until": ["process_completed", "selection_cleared", "process_expired"],
+        "onEvent": "c.state3",
+        "timeout": {
+          "after": {
+            "key": "cart_abandonment.third_check",
+            "rule": "Give the second reminder a short span, up to a couple of days, to work before deciding whether the value-gated final touch is warranted.",
+            "class": "recovery-window",
+            "default": { "value": { "min": "1 day", "max": "2 days" }, "confidence": "low", "basis": "example-only" },
+            "required": false
+          },
+          "reason": "a day or two is enough for an email to be seen and acted on before the final touch is considered",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.state3",
+        "recheck": "the cart re-read from the system of record since the second reminder: no order placed, no clearing or expiry recorded against it, and each held item's availability and price as the platform now asserts them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.state3",
+        "kind": "condition",
+        "asks": "What is the cart now?",
+        "branches": [
+          { "label": "Purchased", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "observes": "process_completed", "to": "x.purchased" },
+          { "label": "Cleared or expired", "when": "the person removed every item, deleted the cart, or the cart's hold or session expired", "observes": "selection_cleared, process_expired", "to": "x.abandoned" },
+          { "label": "Still held", "when": "the cart still holds at least one item the platform asserts as available and no order is recorded", "observes": "cart state", "to": "c.highvalue" }
         ]
       },
       {
@@ -5654,73 +5170,79 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "kind": "condition",
         "asks": "Is this a high-value cart?",
         "branches": [
-          { "label": "High-value", "when": "the cart's value is at or above the adopting company's configured high-value threshold - no value is asserted here", "observes": "cart_value", "to": "a.router2-hv" },
-          { "label": "Standard", "when": "the cart's value is below the configured threshold", "observes": "cart_value", "to": "a.router2-std" }
+          { "label": "High-value", "when": "the cart's value is at or above the adopting company's configured high-value threshold - no value is asserted here", "observes": "cart_value", "to": "c.sendable3" },
+          { "label": "Standard", "when": "the cart's value is below the configured threshold - a standard-value cart does not reach a third touch", "observes": "cart_value", "to": "x.abandoned" }
         ]
       },
       {
-        "id": "a.router2-hv",
-        "kind": "action",
-        "does": "Select the highest-priority direct channel: WhatsApp first (communication permission granted, a valid phone number on file, and the number is reachable on WhatsApp), otherwise SMS (communication permission granted and a valid phone number on file). A high-value cart gets a more direct channel than the first touch, not a repeat of it. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
-        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
-        "next": "a.reminder2-hv"
+        "id": "c.sendable3",
+        "kind": "condition",
+        "asks": "May the final reminder go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial recovery communication, a deliverable destination, the promotional pressure cap, no higher-precedence contest on the person, and no cooldown in force",
+            "observes": "send path stages 1-8",
+            "to": "a.router3"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action-t3"
+          }
+        ]
       },
       {
-        "id": "a.reminder2-hv",
+        "id": "a.record-no-action-t3",
         "kind": "action",
-        "does": "Send the second cart reminder on the channel just selected, using the more direct register a high-value cart warrants, showing the cart as it currently stands and nothing the system does not assert.",
+        "does": "Record which gate stopped the final reminder and against which cart, so no-action is a measured outcome rather than a silent absence",
+        "writes": [{ "field": "suppressed_sends", "mode": "append" }],
+        "idempotencyKey": "person_id + cart_id + touch id",
+        "next": "w.fourth"
+      },
+      {
+        "id": "a.router3",
+        "kind": "action",
+        "does": "Select the highest-priority direct channel for this high-value cart's final reminder: WhatsApp first (a valid phone number is on file and the number is reachable on WhatsApp), otherwise SMS (a valid phone number is on file). If neither clears reachability, record that no channel is available and skip straight to the next wait without sending anything.",
+        "writes": [{ "field": "selected_channel_t3", "mode": "set" }],
+        "next": "a.reminder3"
+      },
+      {
+        "id": "a.reminder3",
+        "kind": "action",
+        "does": "Send the final cart reminder on the channel just selected, in the more direct register a high-value cart warrants: come back to the cart and complete the purchase. No urgency the system does not assert, and no further reminder after it.",
         "execution": "communication",
-        "next": "w.third"
+        "idempotencyKey": "person_id + cart_id + touch id",
+        "next": "w.fourth"
       },
       {
-        "id": "a.router2-std",
-        "kind": "action",
-        "does": "Select the highest-priority channel: push first (communication permission granted and a valid, current push token on file), otherwise email (communication permission granted and a valid, deliverable email address on file). Same priority as the first touch. If neither clears both checks, record that no channel is available and skip straight to the next wait without sending anything.",
-        "writes": [{ "field": "selected_channel_t2", "mode": "set" }],
-        "next": "a.reminder2-std"
-      },
-      {
-        "id": "a.reminder2-std",
-        "kind": "action",
-        "does": "Send the second cart reminder on the channel just selected, showing the cart as it currently stands - only the items the platform still asserts as available, at their current price - and the link back to it.",
-        "execution": "communication",
-        "next": "w.third"
-      },
-      {
-        "id": "w.third",
+        "id": "w.fourth",
         "kind": "wait",
-        "until": ["process_completed", "selection_cleared"],
-        "onEvent": "c.purchased3",
+        "until": ["process_completed", "selection_cleared", "process_expired"],
+        "onEvent": "c.state4",
         "timeout": {
           "after": {
             "key": "cart_abandonment.final_check",
-            "rule": "The last reminder gets two full days to work before the cart is treated as abandoned.",
+            "rule": "The final reminder gets a short, fixed span to work before the cart is treated as abandoned.",
             "class": "recovery-window",
-            "default": { "value": "48 hours", "confidence": "low", "basis": "example-only" },
+            "default": { "value": "1 day", "confidence": "low", "basis": "example-only" },
             "required": false
           },
-          "reason": "two full days past the second reminder is the point past which a cart this old is read as abandoned rather than merely delayed",
+          "reason": "a short, fixed span past the final reminder is the point past which a cart this old is read as abandoned rather than merely delayed",
           "relativeTo": "previous-touch"
         },
-        "onTimeout": "c.purchased3",
+        "onTimeout": "c.state4",
+        "recheck": "the cart re-read from the system of record at the end of the cascade: whether an order including one of its items was placed, and whether the cart still holds anything that can be acted on",
         "windowExtendsOnEngagement": false
       },
       {
-        "id": "c.purchased3",
+        "id": "c.state4",
         "kind": "condition",
-        "asks": "Is the purchase completed?",
+        "asks": "At the end of the cascade, what is the cart?",
         "branches": [
-          { "label": "Completed", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "to": "x.purchased" },
-          { "label": "Not completed", "when": "no completion record exists for this cart", "to": "c.active2" }
-        ]
-      },
-      {
-        "id": "c.active2",
-        "kind": "condition",
-        "asks": "Is the cart still active?",
-        "branches": [
-          { "label": "Active", "when": "the cart still holds at least one item the platform asserts as available, and has not been deleted", "to": "x.abandoned" },
-          { "label": "Cleared or expired", "when": "the person removed every item, deleted the cart, or the cart's hold or session expired", "to": "x.cleared" }
+          { "label": "Purchased", "when": "an authoritative purchase or order record exists that includes at least one item from this cart", "observes": "process_completed", "to": "x.purchased" },
+          { "label": "Not purchased", "when": "no purchase record exists for this cart at the end of the cascade - held, cleared or expired, nothing further is sent", "observes": "cart state", "to": "x.abandoned" }
         ]
       },
       {
@@ -5732,17 +5254,9 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "reEntry": "a new cart for this person opens its own instance; nothing about this one is reopened"
       },
       {
-        "id": "x.cleared",
-        "kind": "exit",
-        "state": "the cart is no longer active - cleared, emptied, or its hold or session expired",
-        "class": "invalid-state",
-        "terminal": false,
-        "reEntry": "a new item_added_to_cart for this person opens a new instance"
-      },
-      {
         "id": "x.abandoned",
         "kind": "exit",
-        "state": "cart abandoned; the reminder cascade ran to its end with the cart still active and no completion",
+        "state": "cart abandoned; no purchase was recorded - whether the cascade ran to its end still holding the cart, the cart became invalid (cleared or its hold or session expired) along the way, or a standard-value cart never reached the value-gated final touch",
         "class": "timeout",
         "terminal": false,
         "reEntry": "a new item_added_to_cart for this person opens a new instance with its own clock; this one is not reopened"
@@ -5751,7 +5265,7 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         "id": "h.checkout",
         "kind": "handoff",
         "to": "ACQ-287",
-        "on": "checkout started from this cart - Checkout Abandonment owns recovery from that moment",
+        "on": "checkout started from this cart, checked once immediately after the first wait and before the first reminder is ever sent - Checkout Abandonment owns recovery from that moment",
         "carries": [
           "the cart and its items",
           "the cart reminder touches already sent, so the checkout journey's plan counts them against the person"
@@ -5764,14 +5278,824 @@ export const ACQUISITION_JOURNEYS: readonly CanonicalJourney[] = [
         }
       }
     ],
-    "guardrails": [
-      "A reminder is never sent once a purchase or a checkout start is already on record - every reminder step is reached only through conditions that just re-checked both.",
-      "Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
-      "Permission and reachability are checked together and are not the same fact: a granted permission with no valid token, address or phone number still fails the channel.",
-      "No message goes out on a channel that failed both checks - the router skips the touch rather than forcing a channel that cannot deliver.",
-      "The high-value threshold is a configured value, never a number this journey asserts.",
-      "Cart Abandonment and Checkout Abandonment never message the same person about the same items at the same time - the handoff on checkout start is immediate and suppresses every queued cart touch."
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "cart_id",
+          "items",
+          "last_cart_activity_at",
+          "resume_destination"
+        ],
+        "optional": [
+          "cart_value",
+          "currency",
+          "checkout_id",
+          "item_availability",
+          "item_prices",
+          "push_token",
+          "email_address",
+          "phone_number",
+          "whatsapp_reachable"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit-or-handoff",
+        "refs": [
+          "x.purchased",
+          "x.abandoned",
+          "h.checkout"
+        ]
+      },
+      "businessOutcome": {
+        "event": "process_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "handoff-chain",
+          "journeys": [
+            "ACQ-287"
+          ]
+        },
+        "window": {
+          "type": "through-handoff",
+          "until": "process_completed"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "cart_abandonment.holdout_share",
+          "rule": "A persistent per-person holdout is required: people who leave a cart come back to it on their own often enough that a treated-only measurement cannot tell this journey's effect from theirs.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "checkout_started"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "unavailable_item_shown"
+      ],
+      "operational": [
+        "entry_volume",
+        "no_channel_available_rate",
+        "no_action_rate_by_reason",
+        "channel_role_used_t1",
+        "branch_distribution",
+        "checkout_handoff_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "cart abandonment recovery",
+        "abandoned cart reminder",
+        "cart reminder cascade",
+        "basket abandonment recovery",
+        "high-value cart reminder"
+      ],
+      "useCases": [
+        "items left in a cart with no checkout started and nothing bought",
+        "a high-value cart that warrants a direct final reminder, on WhatsApp or SMS, that a standard-value cart's path never reaches"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "ACQ-12",
+        "because": "ACQ-12 is the general-purpose pattern for any held selection (a cart, a saved list) and stays deliberately generic - one first-check window, two generic touches, no channel priority stated, no high-value branch. This journey is the concrete cart implementation: a fixed three-touch cascade with an explicit channel priority per touch, a high-value branch that gates whether the third touch happens at all, and an explicit handoff into Checkout Abandonment (ACQ-287) the moment checkout starts - none of which the generic pattern states, because none of it is true for every held selection it also has to cover. It ranks above ACQ-12 in the commerce-recovery group, and while it holds a cart that pattern is suppressed for it."
+      },
+      {
+        "journey": "ACQ-287",
+        "because": "ACQ-287 recovers a checkout that has already started; this journey recovers a cart before checkout starts. The two never run in parallel on the same person - this journey hands off to ACQ-287 the moment checkout starts, and every queued cart reminder is suppressed from that point."
+      },
+      {
+        "journey": "RET-294",
+        "because": "RET-294 prompts a predicted repurchase from the person's own history, with nothing currently in a cart. This journey recovers a cart the person actually built and left; where a cart is present it outranks a predicted need for the same person."
+      }
     ],
-    "reusableRule": "A reminder cascade checks purchase, checkout-start and cart-state immediately before every touch and stops or hands off the instant it finds one; channel selection is a priority-with-fallback the router owns, never a chain of permission conditions in the graph, and a higher-value cart earns a more direct channel, not a different structure."
+    "guardrails": [
+      "A reminder is never sent once a purchase is already on record - every reminder step is reached only through a condition that just re-checked it. Checkout starting is checked once, immediately after the first wait and before the first reminder is even considered, and hands the instance to Checkout Abandonment Recovery there.",
+      "A reminder is never sent about a cart the person cleared or that expired - every wait watches for it and every re-check asks about it.",
+      "Nothing is claimed that the system does not assert: no reserved stock, no held price, no discount, no expiry.",
+      "Permission is checked by the send-path gate before a channel is ever chosen; the router that follows it resolves only reachability - a valid token or address - and never re-decides permission.",
+      "No message goes out on a channel that failed reachability - the router skips the touch rather than forcing a channel that cannot deliver.",
+      "The high-value threshold is a configured value, never a number this journey asserts.",
+      "A standard-value cart's path ends at the value gate rather than receiving a third touch; only a high-value cart reaches the final, more direct reminder.",
+      "While this journey holds a cart, the generic held-selection pattern is suppressed for the same selection; the two never message the same person about the same cart."
+    ],
+    "reusableRule": "A reminder cascade re-reads purchase and cart-state immediately before every touch and stops the instant it finds a completion or an invalid cart; checkout starting is checked once, right after the first wait, and hands the instance off there. Channel selection is a single channel per touch, never a chain of permission conditions in the graph, and a cart clearing the value gate earns one further, more direct touch that a standard-value cart's path never reaches."
+  },
+  {
+    "id": "ACQ-289",
+    "slug": "back-in-stock-alert",
+    "category": "acquisition",
+    "goal": "recovery-retry",
+    "channels": ["push", "email", "sms"],
+    "name": "Interest recorded while unavailable → availability returns → alerted → purchased or closed",
+    "shortName": "Back-in-Stock Alert",
+    "purpose": "Tell a person, once, that the specific item they wanted while it was unavailable can be bought again - and only while that interest is still honestly theirs.",
+    "objective": "Convert an interest that could not convert because the thing was not there, by saying once - at the moment availability actually returns - that it is there now.",
+    "entity": {
+      "scope": "one interest in one unavailable item - the person, the item, and the availability cycle the interest was recorded against",
+      "note": "One instance per person, item and availability cycle. An item that goes unavailable again after the alert does not reopen this instance; interest recorded against the next unavailable period is a new instance with its own clock.",
+      "instanceKey": [
+        "person_id",
+        "item_id"
+      ],
+      "concurrency": "one-active-per-key",
+      "supersession": {
+        "id": "s.supersession",
+        "label": "CANONICAL_RULE",
+        "text": "A purchase of the item by any route closes the instance; a further interest signal for the same item while an instance is open does not open a second one."
+      }
+    },
+    "eligibility": [
+      "an authoritative record that the item was not purchasable at the moment the interest was recorded",
+      "the interest is attributable to a person we may contact",
+      "no instance is already open for this person and this item",
+      "no purchase of the item by this person since the interest was recorded",
+      "purpose-level permission for commercial communication is recorded, and hard gates (GLB-31) allow it"
+    ],
+    "suppressions": [
+      {
+        "id": "s.purchased",
+        "label": "CANONICAL_RULE",
+        "text": "Exit the moment a purchase of the item is recorded by any route. An alert about something already bought is the failure this journey exists to prevent, and the alert is reached only through a condition that just re-read the purchase record."
+      },
+      {
+        "id": "s.unavailable",
+        "label": "CANONICAL_RULE",
+        "text": "Availability is re-read immediately before the alert and never trusted from the event that opened the window. If the item is not purchasable at that moment, nothing is sent."
+      },
+      {
+        "id": "s.withdrawn",
+        "label": "CANONICAL_RULE",
+        "text": "An interest the person has withdrawn ends the instance. A withdrawn interest is not a quiet one and is never alerted on."
+      },
+      {
+        "id": "s.permission",
+        "label": "CANONICAL_RULE",
+        "text": "No alert without purpose-level permission for commercial communication and a destination that is actually reachable; absent either, the touch is recorded as a no-action rather than forced onto another route."
+      },
+      {
+        "id": "s.contest",
+        "label": "CANONICAL_RULE",
+        "text": "A checkout in motion, a held cart, a held selection or a predicted need for the same person outranks this journey in the commerce-recovery group; while any of them holds the person, this alert is suppressed for them rather than queued behind it (GLB-06). This journey in turn outranks unresolved interest recovery (ACQ-13), which is suppressed for a person this alert holds."
+      },
+      {
+        "id": "s.single",
+        "label": "RECOMMENDED_DEFAULT",
+        "text": "At most three alerts per availability cycle, one per channel in sequence - push, then email, then SMS - each only if the return of the same item has not yet been bought after the one before it."
+      },
+      {
+        "id": "s.sunset",
+        "label": "CANONICAL_RULE",
+        "text":
+          "A standing sender-side marketing suppression stops this journey. CON-300 ends marketing contact for somebody who answered none of it, and records that decision as marketing_suppression against our own sending rather than as a withdrawal on the person's consent record - so a purpose-level permission check still reads yes and cannot see it. The suppression is a hard gate under GLB-31, held and released by CON-38, and it covers promotional and lifecycle communication alike: no instance of this journey opens against a suppressed person, and an open instance stands down rather than queueing behind it. Only permission given afresh releases it - not the passing of time, and not a purchase.",
+      },
+    ],
+    "contact": {
+      "defaultPriority": "promotional",
+      "pressureClass": "promotional",
+      "localCap": {
+        "value": {
+          "key": "back_in_stock.touches",
+          "rule": "The cascade runs against a budget fixed when the instance opened; the budget is the number of alerts one availability cycle may carry across the three channels, and no single channel's alert is repeated because nothing could tell whether it arrived.",
+          "default": {
+            "value": 3,
+            "confidence": "high",
+            "basis": "corpus-rule",
+            "applicableWhen": "GLB-24; the journey's own shape - one alert per channel, in sequence, and nothing after the third"
+          },
+          "required": false
+        },
+        "appliesTo": "all"
+      },
+      "cooldown": {
+        "key": "back_in_stock.cooldown",
+        "rule": "After an alert, a further return of the same item to availability is tracked but not alerted on until the cooldown has passed. A purchase carries no cooldown.",
+        "class": "cooldown",
+        "required": true
+      },
+      "competition": {
+        "exclusionGroup": "commerce-recovery",
+        "scope": "person",
+        "precedence": "below the rest of the commerce-recovery group and above unresolved interest recovery (ACQ-13) - a checkout in motion, a held cart, a held selection and a predicted need all outrank an interest that could never convert at all, and when any of them holds the person this alert is suppressed for them rather than queued behind it; but this alert takes precedence over inferred-interest recovery, because a named item the person asked for and could not buy because it was unavailable is a specific thing they chose and its return is a state change they can act on now, where an inferred interest is neither - the same reason an availability enquiry for a stated window (SCH-282) outranks that journey",
+        "onLoss": "suppressed"
+      }
+    },
+    "channelStrategy": {
+      "roles": [
+        {
+          "role": "low-friction",
+          "channels": [
+            "push"
+          ],
+          "when": "the first alert, sent the moment availability returns"
+        },
+        {
+          "role": "persistent",
+          "channels": [
+            "email"
+          ],
+          "when": "the second alert, if the item is still unbought after the first"
+        },
+        {
+          "role": "urgent",
+          "channels": [
+            "sms"
+          ],
+          "when": "the third and final alert, if the item is still unbought after the second"
+        }
+      ],
+      "fallback": "none",
+      "label": "RECOMMENDED_DEFAULT"
+    },
+    "orchestration": {
+      "strategy": "progressive-recovery",
+      "touches": [
+        {
+          "id": "t1",
+          "stage": "availability-alert-push",
+          "action": "a.alert-push",
+          "gatedBy": "w.availability",
+          "prerequisites": [
+            "c.relevant",
+            "c.sendable1"
+          ],
+          "purpose": "The item they wanted is purchasable again, with the route straight to it and nothing about how long that will last.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "destination": {
+            "target": "item-detail",
+            "boundTo": "item_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "how long availability will last"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "availability-alert-email",
+          "action": "a.alert-email",
+          "after": "t1",
+          "gatedBy": "w.window1",
+          "prerequisites": [
+            "c.sendable2"
+          ],
+          "purpose": "The item they wanted is still purchasable, with the route straight to it, sent because the first alert did not reach a purchase.",
+          "channelRoles": [
+            "persistent"
+          ],
+          "destination": {
+            "target": "item-detail",
+            "boundTo": "item_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "how long availability will last"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "availability-alert-sms",
+          "action": "a.alert-sms",
+          "after": "t2",
+          "gatedBy": "w.window2",
+          "prerequisites": [
+            "c.sendable3"
+          ],
+          "purpose": "The item they wanted is still purchasable, with the route straight to it, sent because neither earlier alert reached a purchase.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "destination": {
+            "target": "item-detail",
+            "boundTo": "item_id",
+            "mustNotClaim": [
+              "stock is reserved",
+              "the price is held",
+              "a discount applies",
+              "how long availability will last"
+            ]
+          },
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        }
+      ],
+      "noAction": [
+        "s.purchased",
+        "s.unavailable",
+        "s.withdrawn",
+        "s.permission",
+        "s.contest",
+        "s.single"
+      ]
+    },
+    "entry": "t.registered",
+    "nodes": [
+      {
+        "id": "t.registered",
+        "kind": "trigger",
+        "event": "interest_recorded_while_unavailable",
+        "evidence": {
+          "requires": [
+            "an attributable interest signal for one specific item, recorded against a person",
+            "an authoritative record that the item was not purchasable at the moment that interest was recorded",
+            "the availability cycle the item was in when the interest was recorded"
+          ],
+          "insufficientAlone": [
+            "an interest in an item that was purchasable all along - that is ordinary interest, not an unmet one",
+            "an interest in a category rather than in one specific item",
+            "an item withdrawn from the catalogue rather than temporarily unavailable, which never returns to alert on",
+            "an interest attributed to an identity that has not resolved to a person"
+          ],
+          "source": "behavioral"
+        },
+        "next": "w.availability"
+      },
+      {
+        "id": "w.availability",
+        "kind": "wait",
+        "until": [
+          "item_available_again",
+          "purchase_completed",
+          "interest_dismissed"
+        ],
+        "onEvent": "c.relevant",
+        "timeout": {
+          "after": {
+            "key": "back_in_stock.interest_lifetime",
+            "rule": "An interest in an unavailable item is worth holding only for as long as the company can honestly say it is still this person's; past that the instance ends without an alert.",
+            "class": "observation-window",
+            "required": true
+          },
+          "reason": "an alert about something wanted long ago is addressed to a person who has already moved on",
+          "relativeTo": "trigger"
+        },
+        "onTimeout": "x.expired",
+        "recheck": "the item's current availability, the person's purchase record and the interest record re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.relevant",
+        "kind": "condition",
+        "asks": "Is this interest still worth alerting on?",
+        "branches": [
+          {
+            "label": "Still wanted",
+            "when": "the item is purchasable again, no purchase of it by this person is recorded, and the interest has not been withdrawn",
+            "observes": "item_available_again",
+            "to": "c.sendable1"
+          },
+          {
+            "label": "Already bought",
+            "when": "an authoritative purchase of the item by this person is recorded",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "No longer wanted",
+            "when": "the person withdrew the interest, or the item went unavailable again before the alert could go out",
+            "observes": "interest_dismissed",
+            "to": "x.closed"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable1",
+        "kind": "condition",
+        "asks": "May the push alert go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial communication, a deliverable push destination, the promotional pressure cap, no cooldown in force, and no higher-precedence commerce-recovery journey currently holds this person",
+            "observes": "send path stages 1-8",
+            "to": "a.alert-push"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action1"
+          }
+        ]
+      },
+      {
+        "id": "a.alert-push",
+        "kind": "action",
+        "does": "Say on push that the item this person wanted is purchasable again, with a direct route to it. Claim no reserved stock, no held price, no discount and no deadline the platform does not enforce.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-push",
+        "writes": [
+          {
+            "field": "alert_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.window1"
+      },
+      {
+        "id": "a.record-no-action1",
+        "kind": "action",
+        "does": "Record which gate stopped the push alert and against which interest, so no-action is a measured outcome rather than a silent absence",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-push",
+        "next": "w.window1"
+      },
+      {
+        "id": "w.window1",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "item_unavailable"
+        ],
+        "onEvent": "c.converted1",
+        "timeout": {
+          "after": {
+            "key": "back_in_stock.window1",
+            "rule": "The push alert - or the gate that stopped it - is given a fixed window before the cascade re-reads the item and moves to the email alert.",
+            "class": "response-window",
+            "required": true,
+            "default": {
+              "value": "1 day",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace - one day to let the push alert land before the next channel tries"
+            }
+          },
+          "reason": "the cascade advances to the next channel on a fixed clock, not an open-ended one",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.converted1",
+        "recheck": "the person's purchase record and the item's current availability re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.converted1",
+        "kind": "condition",
+        "asks": "Did the push alert reach a purchase?",
+        "branches": [
+          {
+            "label": "Purchased",
+            "when": "an authoritative purchase of the item by this person is recorded after the push alert",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "Not purchased",
+            "when": "no purchase of the item by this person is recorded inside the window",
+            "observes": "purchase record",
+            "to": "c.sendable2"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable2",
+        "kind": "condition",
+        "asks": "May the email alert go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial communication, a deliverable email destination, the promotional pressure cap, no cooldown in force, the item still purchasable and no purchase recorded since the push alert",
+            "observes": "send path stages 1-8",
+            "to": "a.alert-email"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action2"
+          }
+        ]
+      },
+      {
+        "id": "a.alert-email",
+        "kind": "action",
+        "does": "Say by email that the item this person is interested in is purchasable again, with a direct route to it. Claim no reserved stock, no held price, no discount and no deadline the platform does not enforce.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-email",
+        "writes": [
+          {
+            "field": "alert_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.window2"
+      },
+      {
+        "id": "a.record-no-action2",
+        "kind": "action",
+        "does": "Record which gate stopped the email alert and against which interest",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-email",
+        "next": "w.window2"
+      },
+      {
+        "id": "w.window2",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "item_unavailable"
+        ],
+        "onEvent": "c.converted2",
+        "timeout": {
+          "after": {
+            "key": "back_in_stock.window2",
+            "rule": "The email alert - or the gate that stopped it - is given a fixed window before the cascade re-reads the item and moves to the SMS alert.",
+            "class": "response-window",
+            "required": true,
+            "default": {
+              "value": "2 days",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace - two days to let the email alert land before the final channel tries"
+            }
+          },
+          "reason": "the cascade advances to the final channel on a fixed clock, not an open-ended one",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.converted2",
+        "recheck": "the person's purchase record and the item's current availability re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.converted2",
+        "kind": "condition",
+        "asks": "Did the email alert reach a purchase?",
+        "branches": [
+          {
+            "label": "Purchased",
+            "when": "an authoritative purchase of the item by this person is recorded after the email alert",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "Not purchased",
+            "when": "no purchase of the item by this person is recorded inside the window",
+            "observes": "purchase record",
+            "to": "c.sendable3"
+          }
+        ]
+      },
+      {
+        "id": "c.sendable3",
+        "kind": "condition",
+        "asks": "May the SMS alert go out?",
+        "branches": [
+          {
+            "label": "Sendable",
+            "when": "the send path passes: permission for commercial communication including SMS-specific consent, a deliverable phone destination, the promotional pressure cap, no cooldown in force, the item still purchasable and no purchase recorded since the email alert",
+            "observes": "send path stages 1-8",
+            "to": "a.alert-sms"
+          },
+          {
+            "label": "Suppressed",
+            "when": "a gate stops it; the gate is recorded as the reason",
+            "observes": "send path stages 1-8",
+            "to": "a.record-no-action3"
+          }
+        ]
+      },
+      {
+        "id": "a.alert-sms",
+        "kind": "action",
+        "does": "Say by SMS that the item this person wanted is purchasable again before it runs out, with a direct route to it. Claim no reserved stock, no held price, no discount and no deadline the platform does not enforce.",
+        "execution": "communication",
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-sms",
+        "writes": [
+          {
+            "field": "alert_log",
+            "mode": "append"
+          }
+        ],
+        "next": "w.window3"
+      },
+      {
+        "id": "a.record-no-action3",
+        "kind": "action",
+        "does": "Record which gate stopped the SMS alert and against which interest, closing the cascade with no channel left to try",
+        "writes": [
+          {
+            "field": "suppressed_sends",
+            "mode": "append"
+          }
+        ],
+        "idempotencyKey": "person_id + item_id + availability_cycle + a.alert-sms",
+        "next": "x.no-action"
+      },
+      {
+        "id": "w.window3",
+        "kind": "wait",
+        "until": [
+          "purchase_completed",
+          "item_unavailable"
+        ],
+        "onEvent": "c.converted3",
+        "timeout": {
+          "after": {
+            "key": "back_in_stock.window3",
+            "rule": "The SMS alert is given a fixed window in which a purchase can honestly be read as following from it, after which the instance closes; there is no fourth channel to try.",
+            "class": "response-window",
+            "required": true,
+            "default": {
+              "value": "1 day",
+              "confidence": "high",
+              "basis": "corpus-rule",
+              "applicableWhen": "GLB-24; the cascade's own pace - one day for a purchase to follow the last alert before the instance closes"
+            }
+          },
+          "reason": "the value of the final alert lies in the moment it was sent, and that moment does not last",
+          "relativeTo": "previous-touch"
+        },
+        "onTimeout": "c.converted3",
+        "recheck": "the person's purchase record and the item's current availability re-read from the systems that own them",
+        "windowExtendsOnEngagement": false
+      },
+      {
+        "id": "c.converted3",
+        "kind": "condition",
+        "asks": "Did the SMS alert reach a purchase?",
+        "branches": [
+          {
+            "label": "Purchased",
+            "when": "an authoritative purchase of the item by this person is recorded after the SMS alert",
+            "observes": "purchase_completed",
+            "to": "x.purchased"
+          },
+          {
+            "label": "Not purchased",
+            "when": "no purchase of the item by this person is recorded inside the window",
+            "observes": "purchase record",
+            "to": "x.no-purchase"
+          }
+        ]
+      },
+      {
+        "id": "x.purchased",
+        "kind": "exit",
+        "state": "purchased; the item the alert was about is bought",
+        "class": "success",
+        "terminal": false,
+        "reEntry": "interest recorded against a new unavailable period for this item opens its own instance"
+      },
+      {
+        "id": "x.no-purchase",
+        "kind": "exit",
+        "state": "alerted, not bought; the window closed with no purchase",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "interest recorded against a new unavailable period for this item opens its own instance, after the cooldown"
+      },
+      {
+        "id": "x.expired",
+        "kind": "exit",
+        "state": "interest expired before availability returned; no alert was sent",
+        "class": "timeout",
+        "terminal": false,
+        "reEntry": "interest recorded against this item again opens a new instance with its own clock"
+      },
+      {
+        "id": "x.closed",
+        "kind": "exit",
+        "state": "interest closed; the person withdrew it or the item went unavailable again first",
+        "class": "suppression",
+        "terminal": false,
+        "reEntry": "interest recorded against a new unavailable period for this item opens its own instance, unless the person asked for no further alerts"
+      },
+      {
+        "id": "x.no-action",
+        "kind": "exit",
+        "state": "no alert sent; the reason is recorded",
+        "class": "no-action",
+        "terminal": false,
+        "reEntry": "the next return of this item to availability is evaluated on its own gates"
+      }
+    ],
+    "implementation": {
+      "attributes": {
+        "required": [
+          "person_id",
+          "item_id",
+          "interest_recorded_at",
+          "availability_cycle",
+          "item_destination"
+        ],
+        "optional": [
+          "item_price",
+          "push_token",
+          "email_address",
+          "phone_number",
+          "has_active_app_session"
+        ]
+      }
+    },
+    "measurement": {
+      "journeyOutcome": {
+        "type": "exit",
+        "refs": [
+          "x.purchased",
+          "x.no-purchase",
+          "x.expired",
+          "x.closed",
+          "x.no-action"
+        ]
+      },
+      "businessOutcome": {
+        "event": "purchase_completed",
+        "unit": "instance",
+        "observationScope": {
+          "type": "self"
+        },
+        "window": {
+          "type": "until-exit"
+        },
+        "attribution": "touched-before-event",
+        "comparison": "persistent-holdout",
+        "holdout": {
+          "key": "back_in_stock.holdout_share",
+          "rule": "A persistent per-person holdout is required: somebody who wanted an unavailable item checks back on their own often enough that a treated-only measurement cannot tell this alert's effect from theirs.",
+          "required": true
+        }
+      },
+      "secondary": [
+        "interest_dismissed"
+      ],
+      "guardrails": [
+        "unsubscribe",
+        "complaint",
+        "message_after_success",
+        "alert_for_unavailable_item",
+        "repeat_alert_same_cycle"
+      ],
+      "operational": [
+        "entry_volume",
+        "availability_return_rate",
+        "alert_rate",
+        "no_action_rate_by_reason",
+        "interest_expiry_rate"
+      ]
+    },
+    "discovery": {
+      "aliases": [
+        "back in stock alert",
+        "restock notification",
+        "availability alert",
+        "notify me when available",
+        "waitlist availability notice"
+      ],
+      "useCases": [
+        "an item somebody wanted while it was unavailable that can now be bought again",
+        "an interest that never became a selection because the thing was not there to select"
+      ]
+    },
+    "distinctFrom": [
+      {
+        "journey": "ACQ-13",
+        "because": "ACQ-13 acts on attention that never became a selection for reasons the library does not claim to know. This journey knows the reason - the item was not purchasable - and does nothing at all until that reason goes away."
+      },
+      {
+        "journey": "ACQ-12",
+        "because": "ACQ-12 recovers a selection the person made and left behind. Here nothing was ever selected, because nothing could be; the wait is on the item, not on the person."
+      },
+      {
+        "journey": "RET-31",
+        "because": "RET-31 prompts a purchase the person's own history says is due. This prompts one they already showed they wanted and were unable to make."
+      },
+      {
+        "journey": "SCH-282",
+        "because": "SCH-282 follows an availability enquiry for a stated window with restorable state the person opened. This journey acts on an interest recorded while the item was unavailable, with no enquiry window to restore - the wait is on the item becoming available again, not on state the person set."
+      }
+    ],
+    "guardrails": [
+      "Availability and the purchase record are re-read immediately before each channel's alert; the event that opened the window is not evidence that the item is still there.",
+      "At most three alerts per availability cycle, one per channel in sequence - push, then email, then SMS - and each only fires if the item is still unbought after the one before it.",
+      "No alert once a purchase of the item is on record.",
+      "Nothing is claimed about reserved stock, held prices, discounts or how long availability will last.",
+      "A withdrawn interest ends the instance; it is never treated as a quiet one."
+    ],
+    "reusableRule": "An alert cascade that exists because a condition changed re-reads that condition immediately before each channel sends, advances to the next channel only if the thing it was about is still true, and ends the moment it has been bought, is gone again, or the last channel has been tried."
   },
 ];

@@ -15,10 +15,10 @@ import {
   PRESET_ROWS,
   SURFACE_PATH,
   SURFACE_ROWS,
-  type SurfaceKey,
   withLibraryCount,
 } from "@/lib/canonical-view";
 import { JOURNEY_SCALE } from "@/lib/journey-marketing";
+import { localizedJourneyNaming, localizedPreset } from "@/lib/journey-tr-overrides";
 import { copy, type Lang } from "@/lib/content";
 import { breadcrumbList } from "@/lib/schema";
 
@@ -135,45 +135,29 @@ function Scale({ lang }: { lang: Lang }) {
   );
 }
 
-/* ---- 03 · Where to start - the three surfaces as tiles ------------------
+/* ---- 03 · Where to start -------------------------------------------------
    Was a paragraph, a card with a blurb, a preset row, three full cards and
    two more blurbs (Hulusi, 2026-09-20: "so ugly, so much text, I don't
    understand anything"). Now the homepage's bento: the customer journeys
    as the large tile - icon, the count large, one line, the three largest
-   journeys as compact rows, the presets as chips, the way in - and the two
-   supporting surfaces as small tiles beside it, each with its icon, its
-   count, one line and a link. Every count is read from the rows. */
-const SECONDARY_SURFACE_KEYS: readonly SurfaceKey[] = ["lifecycle-states", "runtime-mechanisms"];
-
-function SurfaceTile({ surfaceKey, lang, delay }: { surfaceKey: SurfaceKey; lang: Lang; delay: number }) {
-  const t = copy[lang];
-  const c = t.lab.journeysHub.split;
-  const rows = SURFACE_ROWS[surfaceKey];
-  return (
-    <Reveal delay={delay} className="flex flex-col rounded-[28px] bg-paper-soft p-6">
-      <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-paper text-ink-700 ring-1 ring-ink-950/[0.06]">
-        {SURFACE_ICON[surfaceKey]}
-      </span>
-      <p className="mt-4 text-h3 text-ink-950 tabular-nums">{nf(lang, rows.length)}</p>
-      <h3 className="mt-0.5 text-base font-semibold text-ink-950">{t.lab.journeysSplit.surfaceLabels[surfaceKey]}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{c.lines[surfaceKey]}</p>
-      <Link
-        href={P(lang, SURFACE_PATH[surfaceKey])}
-        className="mt-auto flex w-fit items-center gap-1.5 pt-5 text-sm font-medium text-ink-950 transition-colors duration-[var(--duration-fast)] hover:text-primary-600"
-      >
-        {t.lab.journeysSplit.browseAll.replace("{count}", String(rows.length))}
-        <ArrowRight aria-hidden className="size-4" />
-      </Link>
-    </Reveal>
-  );
-}
+   journeys as compact rows, the presets as chips and the way in. Every count
+   is read from the rows. */
 
 function Split({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const c = t.lab.journeysHub.split;
   const s = t.lab.journeysSplit;
   const rows = SURFACE_ROWS["customer-journeys"];
-  const largest = [...rows].sort((a, b) => b.nodeCount - a.nodeCount).slice(0, 3);
+  // The three rows below are named on the page - same TR content layer as the
+  // gallery cards (LabPage) and the showcase (JourneyFlows).
+  const largest = [...rows]
+    .sort((a, b) => b.nodeCount - a.nodeCount)
+    .slice(0, 3)
+    .map((j) => localizedJourneyNaming(j, lang));
+  // The preset chips below are the same content layer one shape along - a
+  // preset is not a journey, so it has its own localizer (see
+  // journey-tr-overrides.ts). Returns its argument on `en`.
+  const presets = PRESET_ROWS.map((p) => localizedPreset(p, lang));
   const basePath = P(lang, "/lab/journeys");
   return (
     <ProductSection tone="paper" space="lg">
@@ -215,7 +199,7 @@ function Split({ lang }: { lang: Lang }) {
 
             <p className="mt-5 flex flex-wrap items-center gap-1.5">
               <span className="mr-1 text-xs font-medium text-ink-subtle">{s.presetsTitle}</span>
-              {PRESET_ROWS.map((p) => (
+              {presets.map((p) => (
                 <Link
                   key={p.id}
                   href={`${basePath}/${p.slug}`}
@@ -233,11 +217,6 @@ function Split({ lang }: { lang: Lang }) {
               </Pill>
             </div>
           </Reveal>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            {SECONDARY_SURFACE_KEYS.map((k, i) => (
-              <SurfaceTile key={k} surfaceKey={k} lang={lang} delay={140 + i * 60} />
-            ))}
-          </div>
         </div>
       </PortraitContainer>
     </ProductSection>

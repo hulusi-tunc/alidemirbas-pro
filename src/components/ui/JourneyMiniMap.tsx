@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { JourneyWorld, actionSequenceOf, type CanvasLabels } from "@/components/JourneyCanvas";
+import { JourneyWorld, type CanvasLabels } from "@/components/JourneyCanvas";
 import type { ChannelId } from "@/canonical/types";
-import type { FlowNode } from "@/lib/canonical-view";
 import type { CanvasLayout } from "@/lib/journey-canvas-layout";
 import { dotGap, dotSheet } from "@/lib/canvas-dots";
 
@@ -20,13 +19,11 @@ import { dotGap, dotSheet } from "@/lib/canvas-dots";
 const WINDOW = 1240; // world px the tile shows across
 
 export function JourneyMiniMap({
-  nodes,
   layout,
   labels,
   messageLabels,
   humanLabels,
 }: {
-  nodes: readonly FlowNode[];
   layout: CanvasLayout;
   labels: CanvasLabels;
   messageLabels?: readonly { id: ChannelId; label: string }[];
@@ -37,7 +34,6 @@ export function JourneyMiniMap({
   // phone) shows less of the graph at a readable size rather than the whole
   // window shrunk to specks.
   const [view, setView] = useState({ window: WINDOW, scale: 0.6 });
-  const actionSequence = useMemo(() => actionSequenceOf(nodes), [nodes]);
   const entry = layout.nodes.find((l) => l.node.isEntry) ?? layout.nodes[0];
   const x0 = entry.x - view.window / 2;
   const y0 = Math.max(0, entry.y - 56); // room for the Entry pin, which grows at the far zoom level
@@ -71,7 +67,6 @@ export function JourneyMiniMap({
       >
         <JourneyWorld
           layout={layout}
-          actionSequence={actionSequence}
           labels={labels}
           messageLabels={messageLabels}
           humanLabels={humanLabels}

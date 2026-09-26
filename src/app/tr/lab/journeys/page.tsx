@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Journey Kütüphanesi - Ali Demirbaş",
   /* Hesaplanır, elle yazılmaz - bkz. EN karşılığındaki not. */
   description: withLibraryCount(
-    "{categories} kategoride, sektörden bağımsız journey'ler. Her biri neyin başlattığını, nerede dallandığını, ne kadar beklediğini, neyin durdurduğunu ve kişinin sonra nereye geçtiğini söyler. Mesaj metni içermez. Kayıtlar İngilizce.",
+    "{categories} kategoride, sektörden bağımsız journey'ler. Her biri neyin başlattığını, nerede dallandığını, ne kadar beklediğini, neyin durdurduğunu ve kişinin sonra nereye geçtiğini söyler. Mesaj metni içermez.",
   ),
   alternates: pageAlternates("/lab/journeys", "tr"),
 };

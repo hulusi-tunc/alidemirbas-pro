@@ -7,28 +7,6 @@
   },
   "aliases": [
     {
-      "alias": "CON-37",
-      "aliasSlugLowercased": "con-37",
-      "targetId": "journey:CMS-208",
-      "targetSlug": "delivery-recovery",
-      "resultVisibility": "target-only",
-      "type": "merged-journey",
-      "provenance": "source-derived",
-      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
-      "source": "production/journey-merged-id-contract.json"
-    },
-    {
-      "alias": "CMS-209",
-      "aliasSlugLowercased": "cms-209",
-      "targetId": "journey:CON-36",
-      "targetSlug": "channel-contactability-state",
-      "resultVisibility": "target-only",
-      "type": "merged-journey",
-      "provenance": "source-derived",
-      "provenanceDetail": "production/journey-merged-id-contract.json - the existing SEO-contract source of truth for this exact mapping, reused verbatim, not re-decided here",
-      "source": "production/journey-merged-id-contract.json"
-    },
-    {
       "alias": "FBK-44",
       "aliasSlugLowercased": "fbk-44",
       "targetId": "journey:FBK-43",

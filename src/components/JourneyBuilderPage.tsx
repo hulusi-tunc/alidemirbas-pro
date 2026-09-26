@@ -281,7 +281,7 @@ const CHANNEL_TEXT: Record<ChannelName, Record<Lang, string>> = {
   Email: { en: "Email", tr: "E-posta" },
   SMS: { en: "SMS", tr: "SMS" },
   Push: { en: "Push", tr: "Push" },
-  "In-app": { en: "In-app", tr: "Uygulama içi" },
+  "In-app": { en: "In-app message", tr: "Uygulama içi mesaj" },
 };
 const channelText = (c: string, lang: Lang) => (isChannel(c) ? CHANNEL_TEXT[c][lang] : c);
 
@@ -555,13 +555,16 @@ function CarouselSection({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
 /* ---- 11b · Install ----------------------------------------------------
    The page had no install section although the product is a Claude Code
    plugin (2026-09-20). The shared panel (ui/InstallPanel), fed with the
-   repository README's own Quickstart, verbatim: the three ways in, then
-   the three commands the plugin answers to, with the README's own
-   one-line notes on them. */
+   repository README's own Quickstart: the three ways in, then the three
+   commands the plugin answers to. Command names stay verbatim; the
+   explanatory comments beside them are localized for the page language. */
 const INSTALL_PLUGIN = `/plugin install claude-lifecycle`;
 const INSTALL_LOCAL = `git clone https://github.com/ali-demirbas/claude-lifecycle && cd claude-lifecycle && claude`;
 const INSTALL_SKILLS = `npx skills add ali-demirbas/claude-lifecycle --all`;
-const USE_CMDS = `/lifecycle connect # score your data (GA4 via MCP, or point at a CSV)\n/lifecycle journeys # generate the portfolio\n/lifecycle copy # channel copy for the generated journeys`;
+const USE_CMDS: Record<Lang, string> = {
+  en: `/lifecycle connect # score your data (GA4 via MCP, or point at a CSV)\n/lifecycle journeys # generate the portfolio\n/lifecycle copy # channel copy for the generated journeys`,
+  tr: `/lifecycle connect # verini puanla (GA4 MCP veya CSV)\n/lifecycle journeys # journey portföyünü oluştur\n/lifecycle copy # oluşturulan journey'ler için kanal metinlerini yaz`,
+};
 
 function Install({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
   const c = t.journeyBuilder.install;
@@ -578,7 +581,7 @@ function Install({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
             { id: "local", label: c.tabLocal, code: INSTALL_LOCAL, icon: <GitHubMark /> },
             { id: "skills", label: c.tabSkills, code: INSTALL_SKILLS, icon: <Terminal aria-hidden /> },
           ]}
-          use={{ title: c.stepUse, note: c.useNote, code: USE_CMDS }}
+          use={{ title: c.stepUse, note: c.useNote, code: USE_CMDS[lang] }}
           linksTitle={c.stepLinks}
           links={[
             { label: t.abTesting.repoLink, href: REPO },

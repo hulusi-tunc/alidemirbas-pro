@@ -1,8 +1,8 @@
 import { Terminal } from "lucide-react";
 
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
 import { getAllSkillProjects, getSkillProject, githubUrl } from "@/lib/skill-catalog";
-import { withJourneyCount } from "@/lib/archive";
+import { withLabProjectFacts, resolveLabCopy } from "@/lib/lab-project-facts";
 import type { Lang } from "@/lib/content";
 
 /* dashboard-builder's content module, consumed by the bespoke
@@ -24,6 +24,118 @@ import type { Lang } from "@/lib/content";
    CodeTabs with the same three real commands, the way
    ChangeHistoryExplorerPage.tsx already does for its own install
    section. */
+
+export const DASHBOARD_BUILDER_PAGE_COPY = {
+  en: {
+    eyebrow: "Lab / Dashboard Builder",
+    heroTitle: "Shows which metrics are actually comparable.",
+    heroSub:
+      "A Claude Code plugin for marketing and growth data. Before it draws a chart, it checks which metrics can be compared and leaves out combinations that would be misleading.",
+    proof: ["{dashboardTemplateCount} dashboard templates", "No real account data in the repo"],
+
+    pipelineNote: "Each stage runs once on the same data. The dashboard and the deck are two outputs of one analysis, not two separate calculations.",
+
+    compEyebrow: "Comparability check",
+    compTitle: "Every number is classified before it's shown.",
+    compSub: "Numbers fall into four classes.",
+    compWorkedLabel: "The report template used when a rule fires. A real example.",
+    refusalNotComparable: "Not comparable",
+    refusalAsked: "What was asked",
+    refusalWhy: "Why it fails",
+    refusalCanSay: "What can still be said",
+    refusalFix: "To make it comparable",
+    revenueLabel: "Revenue by source",
+    naiveSumLabel: 'Naive "Total Revenue"',
+    trueTotalLabel: "Actual total (Shopify, system of record)",
+
+    gateEyebrow: "Before any number is trusted",
+    gateTitle: "Every metric is labeled, every dataset is checked.",
+    gateSub: "Two checks run before analysis starts. How reliable the metric mapping is, and how serious the data quality problem is.",
+    registryLabel: "Metric mapping confidence",
+    qualityLabel: "Data quality severity",
+
+    insightEyebrow: "Insight check",
+    insightTitle: "A finding passes eight questions before it's shown.",
+    insightSub: "No score, just rules. A finding that fails any of the first three is never shown.",
+    ifNoLabel: "If no:",
+    suppressQuote: '"If a finding fails the first three checks, it is not shown."',
+
+    templatesEyebrow: "Dashboards & Presentations",
+    templatesTitle: "{dashboardTemplateCount} templates. Only the ones your data actually supports.",
+    templatesSub: "Two kinds of template: ones for mixed, multi-domain datasets and ones for a single specific data shape. The same analysis renders as a dashboard or a deck.",
+    templatesFilterNote: "Template selection passes three filters. Data shape, business question, available evidence. No hand-picked vertical template.",
+
+    installEyebrow: "Install",
+    installTitle: "Install",
+    installSub: "Three ways in, all from the repository's own README.",
+    stepAdd: "Add the plugin to Claude Code",
+    stepTest: "Run the tests",
+    tabMarketplace: "Marketplace",
+    tabLocal: "Local plugin",
+    tabSkillsCli: "Skills CLI",
+    testNote: "Runs the repository's test suite.",
+    viewRepo: "Read the repo",
+
+    faqEyebrow: "FAQ",
+    ctaEyebrow: "OPEN SOURCE",
+    ctaTitle: "See what your data can support.",
+  },
+  tr: {
+    eyebrow: "Lab / Dashboard Oluşturucu",
+    heroTitle: "Hangi metriklerin gerçekten karşılaştırılabileceğini gösterir.",
+    heroSub:
+      "Pazarlama ve büyüme verisi için bir Claude Code eklentisi. Grafik çizmeden önce hangi metriklerin karşılaştırılabilir olduğunu kontrol eder; yanıltıcı olacak eşleşmeleri dışarıda bırakır.",
+    proof: ["{dashboardTemplateCount} dashboard şablonu", "Repoda gerçek hesap verisi yok"],
+
+    pipelineNote: "Her aşama aynı veri üzerinde bir kez çalışır. Dashboard ve sunum aynı analizin iki farklı çıktısı, iki ayrı hesap değil.",
+
+    compEyebrow: "Karşılaştırılabilirlik kontrolü",
+    compTitle: "Her sayı gösterilmeden önce sınıflandırılır.",
+    compSub: "Sayılar dört sınıfa ayrılır.",
+    compWorkedLabel: "Bir kural tetiklendiğinde kullanılan rapor şablonu, gerçek bir örnek",
+    refusalNotComparable: "Karşılaştırılamaz",
+    refusalAsked: "Ne soruldu",
+    refusalWhy: "Neden başarısız",
+    refusalCanSay: "Yine de söylenebilen",
+    refusalFix: "Karşılaştırılabilir yapmak için",
+    revenueLabel: "Kaynağa göre gelir",
+    naiveSumLabel: 'Saf "Toplam Gelir"',
+    trueTotalLabel: "Gerçek toplam (Shopify, sistem kaydı)",
+
+    gateEyebrow: "Bir sayıya güvenilmeden önce",
+    gateTitle: "Her metrik etiketlenir, her veri seti kontrolden geçer.",
+    gateSub: "Analiz başlamadan önce iki kontrol çalışır. Metrik eşlemesi ne kadar güvenilir, veri kalitesi sorunu ne kadar ciddi.",
+    registryLabel: "Metrik eşleme güveni",
+    qualityLabel: "Veri kalitesi ciddiyeti",
+
+    insightEyebrow: "İçgörü kontrolü",
+    insightTitle: "Bir bulgu gösterilmeden önce sekiz sorudan geçer.",
+    insightSub: "Puan yok, kural var. İlk üç soruyu geçemeyen bulgu hiç gösterilmez.",
+    ifNoLabel: "Hayırsa:",
+    suppressQuote: '"İlk üç kontrolden geçmeyen bulgu gösterilmez."',
+
+    templatesEyebrow: "Dashboard'lar ve Sunumlar",
+    templatesTitle: "{dashboardTemplateCount} şablon. Yalnızca verinin desteklediği olanlar sunulur.",
+    templatesSub:
+      "İki tür şablon var. Karma, çok alanlı veri setleri için olanlar ve tek bir belirli veri şekli için olanlar. Aynı analiz dashboard ya da sunum olarak çıkar.",
+    templatesFilterNote: "Şablon seçimi üç filtreden geçer. Verinin şekli, iş sorusu, eldeki kanıt. Elle seçilen sektör şablonu yok.",
+
+    installEyebrow: "Kurulum",
+    installTitle: "Kurulum",
+    installSub: "Reponun kendi README'sinden üç kurulum yolu.",
+    stepAdd: "Eklentiyi Claude Code'a ekle",
+    stepTest: "Testleri çalıştır",
+    tabMarketplace: "Marketplace",
+    tabLocal: "Yerel eklenti",
+    tabSkillsCli: "Skills CLI",
+    testNote: "Reponun test paketini çalıştırır.",
+    viewRepo: "Repoyu oku",
+
+    faqEyebrow: "SSS",
+    ctaEyebrow: "AÇIK KAYNAK",
+    ctaTitle: "Verinin hangi sonuçları desteklediğini gör.",
+  },
+} as const;
 
 const T = {
   en: {
@@ -49,13 +161,13 @@ const T = {
       },
       {
         id: "which-templates",
-        q: "How does it decide which of the 11 dashboard templates to offer?",
-        a: "Three filters, in order. What the data's structure can support, which business question is being asked, and what the data can answer at a defensible level of confidence. Only templates that pass all three are offered. Never a hand-picked vertical template the data doesn't support.",
+        q: "How does it decide which of the {dashboardTemplateCount} dashboard templates to offer?",
+        a: "It checks three things in order: what the data structure can support, which business question is being asked, and what the data can answer with a defensible level of confidence. Only templates that pass all three are offered; it does not force a vertical template onto data that cannot support it.",
       },
       {
         id: "why-not-more-observations",
         q: "Why does it sometimes surface fewer than 5 observations, or none?",
-        a: "Every candidate finding passes eight questions before it's shown. Is it real, is it statistically supportable, is it material, is it economically significant, is it actionable. Anything that fails one of the first three is suppressed. That's deliberate: an output full of statistically meaningless movements looks thorough but is worse than a short one.",
+        a: "Every candidate finding passes eight checks before it is shown: whether the movement is real, statistically supportable, material, economically meaningful and actionable, among others. Anything that fails one of the first three checks is left out, so the output can stay short when the data does not support more.",
       },
       {
         id: "real-account-data",
@@ -87,13 +199,13 @@ const T = {
       },
       {
         id: "which-templates",
-        q: "11 dashboard şablonundan hangisini sunacağına nasıl karar veriyor?",
-        a: "Sırasıyla üç filtre. Verinin yapısı neyi destekliyor, hangi iş sorusu soruluyor, veri savunulabilir bir güven düzeyinde neyi yanıtlayabiliyor. Yalnızca üçünü de geçen şablonlar sunulur. Verinin desteklemediği, elle seçilmiş bir sektör şablonu asla.",
+        q: "{dashboardTemplateCount} dashboard şablonundan hangisini sunacağına nasıl karar veriyor?",
+        a: "Üç şeye sırayla bakar: verinin yapısı neyi destekliyor, hangi iş sorusu soruluyor ve veri bunu ne kadar güvenilir biçimde yanıtlayabiliyor. Yalnızca üçünü de geçen şablonlar sunulur; verinin desteklemediği bir sektör şablonu zorla seçilmez.",
       },
       {
         id: "why-not-more-observations",
         q: "Bazen neden 5'ten az gözlem, hatta hiç gözlem çıkmıyor?",
-        a: "Her aday bulgu gösterilmeden önce sekiz sorudan geçer. Gerçek mi, istatistiksel olarak desteklenebilir mi, önemli mi, ekonomik olarak büyük mü, aksiyona dönüştürülebilir mi. İlk üçünden birini geçemeyen gösterilmez. Bu bilinçli bir tercih. Anlamsız hareketlerle dolu bir çıktı kapsamlı görünür ama kısa bir çıktıdan daha kötüdür.",
+        a: "Her aday bulgu gösterilmeden önce sekiz kontrolden geçer: hareket gerçek mi, istatistiksel olarak desteklenebilir mi, anlamlı mı, ekonomik etkisi var mı, aksiyona dönüşebilir mi ve benzeri. İlk üç kontrolden birini geçemeyen bulgu gösterilmez; veri daha fazlasını desteklemiyorsa çıktı kısa kalır.",
       },
       {
         id: "real-account-data",
@@ -107,13 +219,13 @@ const T = {
 export function getDashboardBuilderContent(lang: Lang): SkillProductContent | null {
   const project = getSkillProject(lang, "dashboard-builder");
   if (!project) return null;
-  const t = T[lang];
+  const t = resolveLabCopy(T[lang]);
   const repo = githubUrl(project);
 
   const related = getAllSkillProjects(lang)
     .filter((p) => p.slug !== "dashboard-builder")
     .slice(0, 4)
-    .map((p) => ({ href: p.links[0].href, name: p.name, desc: withJourneyCount(p.desc) }));
+    .map((p) => ({ href: p.links[0].href, name: p.name, desc: withLabProjectFacts(p.desc) }));
 
   return {
     slug: "dashboard-builder",

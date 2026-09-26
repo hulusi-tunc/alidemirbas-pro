@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, MapPin } from "lucide-react";
+import { ArrowRight, ArrowUpRight, MapPin, Target } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -9,7 +9,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/Section";
 import { ExperienceSpiral } from "@/components/ui/ExperienceSpiral";
 import { getAllBlogPosts } from "@/lib/blog";
-import { withJourneyCount } from "@/lib/archive";
+import { CATEGORY_TAB_LABEL } from "@/lib/blog-category-labels";
 import { copy, type Lang } from "@/lib/content";
 
 /* About page - REBUILT IN THE HOMEPAGE'S LANGUAGE (2026-09-07, Hulusi: "now
@@ -35,67 +35,96 @@ import { copy, type Lang } from "@/lib/content";
 const T = {
   en: {
     wordmark: "Ali Demirbaş",
-    heroText: "I work between growth, CRM and product.",
+    heroText: "I started in digital marketing. Today I work on mobile product growth.",
     introPrefix: "Currently, at ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
-    introSuffix: ", I'm responsible for mobile app growth. I work on user acquisition, activation, engagement and the digital customer experience.",
-    outsideWork: "Alongside that I build open-source tools for growth and CRM.",
-    exploreLabel: "See my projects",
+    introSuffix: ", I'm responsible for mobile app growth. Before that, I worked across growth, CRM and lifecycle at Vodafone, Getir and Wingie Enuygun Group.",
+    outsideWork: "Outside the day job, I turn recurring problems into open-source tools.",
+    exploreLabel: "Explore projects",
     exploreHref: "/lab",
     linkedinLabel: "Connect on LinkedIn",
-    h2: "Where I've worked so far.",
+    h2: "The places that shaped how I work.",
     basedIn: "Istanbul",
-    nowLabel: "Now",
-    city: "Istanbul",
-    languages: "Turkish and English",
-    years: "Since 2019",
-    yearsLine: "digital marketing and growth",
-    howEyebrow: "Approach",
-    howTitle: "How I work",
+    nowLabel: "Currently",
+    nowRole: "Mobile Growth Lead",
+    nowPeriod: "Apr 2026 – Present",
+    focusTitle: "Focus areas",
+    focusItems: ["User acquisition", "CRM & lifecycle", "Analytics & experimentation"],
+    experienceTitle: "Growth across different industries",
+    experienceLine: "Insurance, telecom, travel, media and automotive.",
+    howEyebrow: "A short history",
+    howTitle: "From campaigns to the full customer journey.",
+    howLead: "I began by running digital campaigns. Over time, the questions moved further into the product: who arrived, what they did next, where they got stuck and what brought them back. That path took me through user acquisition, CRM analytics and lifecycle before my current role in mobile app growth.",
+    howBody: "It also changed how I work. I no longer see acquisition, product behavior and CRM as separate disciplines. I start with a reliable measurement baseline, test the smallest useful version of an idea and build on it only when the result holds up.",
     writingEyebrow: "Blog",
     writingTitle: "Writing",
-    writingIntro: "Notes on growth, CRM and lifecycle marketing.",
-    allPosts: "All posts",
+    writingIntro: "Writing on growth, CRM, experimentation, and measurement.",
+    allPosts: "View all posts",
     buildEyebrow: "Lab",
-    buildTitle: "My own projects",
-    buildIntro: "Open-source tools and small products for growth and CRM. Each one started with a problem I kept running into.",
+    buildTitle: "Things I build",
+    buildIntro: "Most of these started as a note to myself about a problem I had seen more than once. I turned the useful ones into tools other people can inspect and use.",
+    allProjects: "Explore all projects",
     footerEmailLabel: "Email",
     langLabel: "TR",
     langHref: "/tr/about",
   },
   tr: {
     wordmark: "Ali Demirbaş",
-    heroText: "Büyüme, CRM ve ürün arasında çalışıyorum.",
+    heroText: "Dijital pazarlamayla başladım. Bugün mobil ürün büyümesi üzerine çalışıyorum.",
     introPrefix: "Şu anda ",
     company: "Aksigorta",
     companyHref: "https://www.aksigorta.com.tr",
-    introSuffix: "'da mobil uygulamanın büyümesinden sorumluyum. Kullanıcı kazanımı, aktivasyon, etkileşim ve dijital müşteri deneyimi üzerine çalışıyorum.",
-    outsideWork: "Bunun yanında büyüme ve CRM için açık kaynak araçlar yapıyorum.",
-    exploreLabel: "Projelerime göz at",
+    introSuffix: "'da mobil uygulamanın büyümesinden sorumluyum. Öncesinde Vodafone, Getir ve Wingie Enuygun Group'ta growth, CRM ve lifecycle tarafında çalıştım.",
+    outsideWork: "İş dışında, tekrar eden problemleri açık kaynak araçlara dönüştürüyorum.",
+    exploreLabel: "Projeleri incele",
     exploreHref: "/tr/lab",
     linkedinLabel: "LinkedIn'de bağlantı kur",
-    h2: "Bugüne kadar çalıştığım yerler.",
+    h2: "Çalışma biçimimi şekillendiren yerler.",
     basedIn: "İstanbul",
     nowLabel: "Şu an",
-    city: "İstanbul",
-    languages: "Türkçe ve İngilizce",
-    years: "2019'dan beri",
-    yearsLine: "dijital pazarlama ve büyüme",
-    howEyebrow: "Yaklaşım",
-    howTitle: "Nasıl çalışıyorum",
+    nowRole: "Mobil Büyüme Lideri",
+    nowPeriod: "Nis 2026 – Günümüz",
+    focusTitle: "Odak alanlarım",
+    focusItems: ["Kullanıcı kazanımı", "CRM ve lifecycle", "Analitik ve deneyler"],
+    experienceTitle: "Farklı sektörlerde büyüme",
+    experienceLine: "Sigorta, telekom, seyahat, medya ve otomotiv.",
+    howEyebrow: "Kısa hikâye",
+    howTitle: "Kampanyalardan bütün müşteri yolculuğuna.",
+    howLead: "Dijital kampanyalar yürüterek başladım. Zamanla sorular ürünün içine doğru ilerledi: Kim geldi, sonra ne yaptı, nerede zorlandı ve onu ne geri getirdi? Bu çizgi beni kullanıcı kazanımı, CRM analitiği ve lifecycle rollerinden bugünkü mobil uygulama büyümesi sorumluluğuna taşıdı.",
+    howBody: "Bu süreç çalışma biçimimi de değiştirdi. Kullanıcı kazanımı, ürün davranışı ve CRM'i artık ayrı uzmanlıklar olarak görmüyorum. Önce güvenilir bir ölçüm temeli kuruyor, fikrin işe yarayan en küçük hâlini test ediyor ve ancak sonuç dayanıyorsa üzerine ekliyorum.",
     writingEyebrow: "Blog",
     writingTitle: "Yazılar",
-    writingIntro: "Büyüme, CRM ve yaşam döngüsü pazarlaması üzerine notlar.",
-    allPosts: "Tüm yazılar",
+    writingIntro: "Büyüme, CRM, deneyler ve ölçümleme üzerine yazılar.",
+    allPosts: "Tüm yazıları gör",
     buildEyebrow: "Lab",
-    buildTitle: "Kendi projelerim",
-    buildIntro: "Büyüme ve CRM için açık kaynak araçlar ve küçük ürünler. Her biri, tekrar tekrar karşılaştığım bir problemle başladı.",
+    buildTitle: "Ürettiklerim",
+    buildIntro: "Bunların çoğu, daha önce de karşıma çıkmış bir problem için kendime aldığım not olarak başladı. İşe yarayanları başkalarının da inceleyip kullanabileceği araçlara dönüştürdüm.",
+    allProjects: "Tüm projeleri incele",
     footerEmailLabel: "E-posta",
     langLabel: "EN",
     langHref: "/about",
   },
 } as const;
+
+const PROJECT_SUMMARY: Record<Lang, Record<string, string>> = {
+  en: {
+    "claude-lifecycle": "Turns signals and goals into lifecycle journeys.",
+    "lifecycle-card-archive": "Ready-made journeys for common lifecycle needs.",
+    "ab-test-playbook": "Practical A/B test ideas from hypothesis to measurement.",
+    "dashboard-builder": "Turns cross-platform exports into comparable metrics and dashboards.",
+    "google-ads-change-history-dashboard": "Tracks changes alongside date, campaign, and performance data.",
+    numerspace: "Free calculators for marketing metrics.",
+  },
+  tr: {
+    "claude-lifecycle": "Sinyal ve hedeflerden lifecycle akışları oluşturur.",
+    "lifecycle-card-archive": "Farklı lifecycle ihtiyaçları için hazır journey örnekleri.",
+    "ab-test-playbook": "Fikirden ölçüme, uygulanabilir A/B test senaryoları.",
+    "dashboard-builder": "Farklı platform raporlarını karşılaştırılabilir metriklere dönüştürür.",
+    "google-ads-change-history-dashboard": "Değişiklikleri tarih, kampanya ve performans verisiyle birlikte takip eder.",
+    numerspace: "Pazarlama metrikleri için ücretsiz hesaplayıcılar.",
+  },
+};
 
 type Row = { key: string; co: string; logo: string; role: string; period: string; desc: string };
 
@@ -160,31 +189,33 @@ export default function AboutPage({ lang }: { lang: Lang }) {
 
               {/* Now: the first timeline entry, its wordmark bare. */}
               <Reveal delay={260} className="flex">
-                <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                <div className="flex w-full flex-col rounded-card bg-paper p-6 ring-1 ring-ink-950/[0.06]">
                   <p className="altor-eyebrow text-ink-subtle">{t.nowLabel}</p>
                   <Image src={rows[0].logo} alt={rows[0].co} width={140} height={28} className="mt-4 h-7 w-auto max-w-[9rem] object-contain object-left" />
-                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{rows[0].role}</p>
-                  <p className="mt-1 text-sm text-ink-muted">{rows[0].co}</p>
-                  <p className="mt-auto pt-5 text-sm text-ink-subtle tabular-nums">{rows[0].period}</p>
+                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{t.nowRole}</p>
+                  <p className="mt-auto pt-5 text-sm text-ink-subtle tabular-nums">{t.nowPeriod}</p>
                 </div>
               </Reveal>
 
-              {/* Where. */}
+              {/* Focus areas: what the work is actually about, rather than
+                  repeating the location already shown on the portrait. */}
               <Reveal delay={320} className="flex">
-                <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                <div className="flex w-full flex-col rounded-card bg-paper p-6 ring-1 ring-ink-950/[0.06]">
                   <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-primary-50 text-primary-700">
-                    <MapPin className="size-5" />
+                    <Target className="size-5" />
                   </span>
-                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{t.city}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.languages}</p>
+                  <p className="mt-4 text-lg leading-snug font-semibold text-ink-950">{t.focusTitle}</p>
+                  <div className="mt-3 flex flex-col gap-1 text-sm leading-relaxed text-ink-muted">
+                    {t.focusItems.map((item) => <p key={item}>{item}</p>)}
+                  </div>
                 </div>
               </Reveal>
 
               {/* The years, and the companies they were spent at. */}
               <Reveal delay={380} className="flex">
-                <div className="flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06]">
-                  <p className="text-h2 text-ink-950 tabular-nums">{t.years}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.yearsLine}</p>
+                <div className="flex w-full flex-col rounded-card bg-paper p-6 ring-1 ring-ink-950/[0.06]">
+                  <p className="text-h3 text-ink-950">{t.experienceTitle}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.experienceLine}</p>
                   <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
                     {logos.map((l) => (
                       <Image key={l.co} src={l.logo} alt={l.co} width={100} height={20} className="h-5 w-auto max-w-[6rem] object-contain opacity-80" />
@@ -195,7 +226,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
 
               {/* Outside the day job, on the night plate. */}
               <Reveal delay={440} className="flex">
-                <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-[28px] bg-ink-950 p-6 text-white">
+                <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-card bg-ink-950 p-6 text-white">
                   <Image src="/lab/frames/google-ads-change-history-dashboard.jpg" alt="" aria-hidden fill sizes="(min-width: 1024px) 24rem, 50vw" className="-z-20 origin-bottom scale-[1.15] object-cover object-bottom" />
                   <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/85 via-ink-950/45 to-ink-950/30" />
                   <p className="text-lg leading-snug font-semibold text-balance">{t.outsideWork}</p>
@@ -218,8 +249,8 @@ export default function AboutPage({ lang }: { lang: Lang }) {
           <div className="altor-container">
             <SectionHeading eyebrow={t.howEyebrow} title={t.howTitle} />
             <Reveal className="mt-12">
-              <p className="max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.lead}</p>
-              <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{c.about.body}</p>
+              <p className="max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{t.howLead}</p>
+              <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-pretty text-ink-muted">{t.howBody}</p>
             </Reveal>
           </div>
         </section>
@@ -242,10 +273,10 @@ export default function AboutPage({ lang }: { lang: Lang }) {
             projects are presented, and on the About page they only need to
             be named. The homepage's toolkit band (StackShowcase) went in the
             same pass, for the same reason. */}
-        <section className="bg-paper-soft py-20 md:py-28">
+        <section className="bg-paper py-20 md:py-28">
           <div className="altor-container">
             <SectionHeading eyebrow={t.buildEyebrow} title={t.buildTitle} intro={t.buildIntro} />
-            <div className="mt-12 overflow-hidden rounded-[28px] bg-paper ring-1 ring-ink-950/[0.06]">
+            <div className="mt-12 overflow-hidden rounded-card bg-paper ring-1 ring-ink-950/[0.06]">
               {c.lab.projects.map((project, i) => {
                 const [primary] = project.links;
                 return (
@@ -256,7 +287,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                     >
                       <span className="min-w-0">
                         <span className="block text-lg leading-snug font-semibold text-ink-950">{project.short}</span>
-                        <span className="mt-1 block text-sm leading-relaxed text-pretty text-ink-muted">{withJourneyCount(project.tagline)}</span>
+                        <span className="mt-1 block text-sm leading-relaxed text-pretty text-ink-muted">{PROJECT_SUMMARY[lang][project.slug] ?? project.tagline}</span>
                       </span>
                       <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
                     </Link>
@@ -266,7 +297,7 @@ export default function AboutPage({ lang }: { lang: Lang }) {
             </div>
             <Reveal delay={420} className="mt-12">
               <ButtonLink href={c.nav.labHref} variant="outline" size="md">
-                {c.home.labMore}
+                {t.allProjects}
                 <ArrowRight aria-hidden className="size-4" />
               </ButtonLink>
             </Reveal>
@@ -283,14 +314,14 @@ export default function AboutPage({ lang }: { lang: Lang }) {
                 {posts.map((post, i) => (
                   <Reveal key={post.slug} delay={i * 60} className="flex">
                     <Link
-                      href={`/blog/${post.slug}`}
-                      className="group flex w-full flex-col rounded-[28px] bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
+                      href={lang === "en" ? `/blog/${post.slug}` : `/tr/blog/${post.slug}`}
+                      className="group flex w-full flex-col rounded-card bg-paper p-6 ring-1 ring-ink-950/[0.06] transition-shadow duration-[var(--duration-fast)] hover:shadow-[0_18px_40px_-24px_rgb(10_16_32/0.35)]"
                     >
-                      <p className="altor-eyebrow text-ink-subtle">{post.category}</p>
+                      <p className="altor-eyebrow text-ink-subtle">{CATEGORY_TAB_LABEL[post.category]?.[lang] ?? post.category}</p>
                       <p className="mt-3 text-lg leading-snug font-semibold text-balance text-ink-950">{post.title}</p>
                       <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{post.excerpt}</p>
                       <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm text-ink-subtle tabular-nums">
-                        {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                        {new Date(post.date).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
                         <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
                       </p>
                     </Link>

@@ -1,7 +1,4 @@
-import Link from "next/link";
-import PractitionerView from "@/components/PractitionerView";
-
-import { Box, Plus, Quote, Scale, ShieldCheck, Split, Zap } from "lucide-react";
+import { BarChart3, Quote, Target, Zap } from "lucide-react";
 
 import JourneyCanvas from "@/components/JourneyCanvas";
 import { InfoTile } from "@/components/ui/InfoTile";
@@ -9,6 +6,7 @@ import type { JourneyDetail, MergedRedirect } from "@/lib/canonical-view";
 import { layoutJourneyCanvas } from "@/lib/journey-canvas-layout";
 import { CHANNEL_LABEL, humanChannels, messageChannels } from "@/lib/journey-channels";
 import type { copy, Lang } from "@/lib/content";
+import { practitionerJourneyNotes } from "@/lib/journey-practitioner-notes";
 
 /** Everything the canvas needs from a journey, composed once so the figure
     inside the notes and the full-page canvas tab (JourneyRoutes) cannot
@@ -17,9 +15,7 @@ import type { copy, Lang } from "@/lib/content";
     (ELK) - computed here on the server, shipped to the client island as a
     prop. Moved here from the now-retired JourneyVisualBody.tsx, whose only
     other content (a linear-chain-only "Recommended flow" card list) was a
-    partial, duplicate rendering of the same `practitioner.timeline`/
-    `.stopsWhen` data PractitionerView already covers in full - see
-    JourneyDetailBody's own comment on the technical-details disclosure. */
+    partial, duplicate rendering of the same canonical journey data. */
 export async function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (typeof copy)[Lang]["lab"]["page"]) {
   const layout = await layoutJourneyCanvas(detail.nodes);
   const messageLabels = messageChannels(detail.channels).map((c) => ({ id: c, label: CHANNEL_LABEL[c][lang] }));
@@ -44,13 +40,6 @@ export async function journeyCanvasProps(detail: JourneyDetail, lang: Lang, t: (
   return { nodes: detail.nodes, layout, labels, caption, shape, messageLabels, humanLabels };
 }
 
-/* Connector word for the Competes note's inline "on loss: <state>" clause.
-   Everything else in that line (exclusionGroup, scope, onLoss) is canonical
-   technical vocabulary and stays English on both locales, same as every
-   other note column here (entityScope, guardrails, ...) - only this one
-   word is UI-authored prose, so only it needs a TR counterpart. */
-const ON_LOSS_PREFIX: Record<Lang, string> = { en: "on loss:", tr: "kaybedince:" };
-
 /* The body of one journey, shared by the full page and the modal that
    intercepts it. A server component: it takes one journey's detail and hands
    the graph to a client island, so the browser receives this journey and no
@@ -66,20 +55,9 @@ const ON_LOSS_PREFIX: Record<Lang, string> = { en: "on loss:", tr: "kaybedince:"
    the graph is FOR - the one sentence a reader should leave with - and at the
    bottom of a long single column it read as a footnote.
 
-   A migrated (vNext) journey ALSO carries `detail.practitioner`: the full
-   trigger/eligibility/suppression/touch-plan/measurement write-up
-   PractitionerView renders. That used to lead the page, open, above the
-   graph - correct as documentation but wrong as a first screen: a reader
-   met a wall of ruled technical sections (Trigger, Who enters, Suppressed
-   when, Configure, Required data, Recommended flow, Channel roles, Stops
-   when, Collision & priority, Measurement...) before ever seeing the one
-   paragraph and three cards every other journey leads with, and the
-   two-thirds of journeys that qualified for the old JourneyVisualBody
-   shortcut (a partial, duplicate rendering of the same timeline/stopsWhen
-   data, retired along with it - see journeyCanvasProps's comment above)
-   got a DIFFERENT default layout again. Nothing in that write-up is lost:
-   it now sits under one native <details> disclosure, closed by default,
-   after the notes tiles - reachable by every reader, imposed on none. */
+   The deeper trigger/eligibility/suppression/touch-plan/measurement
+   documentation is intentionally not rendered here. The public page keeps
+   the graph and the concise supporting notes as its single reading layer. */
 
 /* Journey Canvas is now the single journey-detail renderer for every
    canonical journey - CanonicalFlow's old vertical-list rendering is gone
@@ -202,6 +180,10 @@ export default async function JourneyDetailBody({
      keeps the channel vocabulary out of the browser bundle. The layout
      comes with them - laid out here, on the server, for the same reason. */
   const canvas = showCanvas ? await journeyCanvasProps(detail, lang, t) : null;
+  const practitionerNotes = practitionerJourneyNotes(detail.id, lang);
+  const practitionerLabels = lang === "tr"
+    ? { trigger: "Tetikleyici", eligibility: "Segment / Uygunluk", kpis: "Journey KPI’ları" }
+    : { trigger: "Trigger", eligibility: "Segment / Eligibility", kpis: "Journey KPIs" };
   return (
     <div>
       {/* A retired id resolves here rather than 404ing, and says so before
@@ -215,90 +197,31 @@ export default async function JourneyDetailBody({
 
       {canvas && <JourneyCanvas {...canvas} basePath={basePath} />}
 
-      {/* The takeaway, then the notes - as tiles with icons (Hulusi,
-          2026-09-14), the rule first and full width because it is the one
-          sentence to take away. */}
       <div className={`${showCanvas ? "mt-10" : ""} grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3`}>
         <InfoTile icon={<Quote />} title={t.ruleLabel} className="sm:col-span-2 lg:col-span-3">
           <p className="max-w-4xl text-xl leading-snug font-medium text-balance text-ink-950">{detail.reusableRule}</p>
         </InfoTile>
 
-        <InfoTile icon={<Box />} tint="bg-teal-50 text-teal-700" title={t.entityLabel}>
-          <p className="text-sm font-medium text-ink-950">{detail.entityScope}</p>
-          <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{detail.entityNote}</p>
-        </InfoTile>
-
-        <InfoTile icon={<ShieldCheck />} tint="bg-emerald-50 text-emerald-700" title={t.guardrailsLabel}>
-          <ol className="flex list-none flex-col gap-3 p-0">
-            {detail.guardrails.map((g, i) => (
-              <li key={g} className="flex gap-3">
-                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-paper-soft text-xs font-semibold text-ink-700 tabular-nums">{i + 1}</span>
-                <span className="text-sm leading-relaxed text-pretty text-ink-muted">{g}</span>
-              </li>
-            ))}
-          </ol>
-        </InfoTile>
-
-        {detail.distinctFrom.length ? (
-          <InfoTile icon={<Split />} tint="bg-violet-50 text-violet-700" title={t.distinctLabel}>
-            <ul className="flex list-none flex-col gap-3.5 p-0">
-              {detail.distinctFrom.map((d) => (
-                <li key={d.journey} className="text-sm leading-relaxed text-pretty text-ink-muted">
-                  {d.slug ? (
-                    <Link href={`${basePath}/${d.slug}`} className="font-medium text-ink-950 underline decoration-ink-300 underline-offset-4 hover:decoration-ink-950">
-                      {d.name ?? d.journey}
-                    </Link>
-                  ) : (
-                    <span className="font-medium text-ink-950">{d.name ?? d.journey}</span>
-                  )}
-                  <span className="mt-1 block">{d.because}</span>
-                </li>
-              ))}
-            </ul>
-          </InfoTile>
+        {practitionerNotes ? (
+          <>
+            <InfoTile icon={<Zap />} tint="bg-amber-50 text-amber-700" title={practitionerLabels.trigger}>
+              <p className="text-sm leading-relaxed text-pretty text-ink-muted">{practitionerNotes.trigger}</p>
+            </InfoTile>
+            <InfoTile icon={<Target />} tint="bg-teal-50 text-teal-700" title={practitionerLabels.eligibility}>
+              <ul className="flex list-disc flex-col gap-2 pl-4 text-sm leading-relaxed text-ink-muted">
+                {practitionerNotes.eligibility.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </InfoTile>
+            <InfoTile icon={<BarChart3 />} tint="bg-emerald-50 text-emerald-700" title={practitionerLabels.kpis}>
+              <ul className="flex list-disc flex-col gap-2 pl-4 text-sm leading-relaxed text-ink-muted">
+                {practitionerNotes.kpis.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </InfoTile>
+          </>
         ) : null}
 
-        {detail.competition ? (
-          <InfoTile icon={<Scale />} tint="bg-amber-50 text-amber-700" title={t.competesLabel}>
-            <p className="text-sm font-medium text-ink-950">
-              {detail.competition.exclusionGroup} · {detail.competition.scope} · {ON_LOSS_PREFIX[lang]} {detail.competition.onLoss}
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-pretty text-ink-muted">{detail.competition.precedence}</p>
-          </InfoTile>
-        ) : null}
-
-        {detail.preemptedBy.length ? (
-          <InfoTile icon={<Zap />} tint="bg-amber-50 text-amber-700" title={t.preemptedLabel}>
-            <ul className="flex list-none flex-col gap-3.5 p-0">
-              {detail.preemptedBy.map((p) => (
-                <li key={p.event} className="text-sm leading-relaxed text-pretty text-ink-muted">
-                  <span className="font-medium text-ink-950">{p.event}</span>
-                  <span className="mt-1 block">{p.then}</span>
-                </li>
-              ))}
-            </ul>
-          </InfoTile>
-        ) : null}
       </div>
 
-      {/* vNext only: the practitioner's full write-up - trigger, eligibility,
-          suppressions, touch plan, measurement - closed by default. Native
-          <details>, same zero-client-JS disclosure FaqAccordion already
-          uses elsewhere on the site, so opening it costs nothing on every
-          other journey's page weight. */}
-      {detail.practitioner ? (
-        <details className="group mt-10 rounded-2xl bg-paper ring-1 ring-ink-950/[0.06]">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 text-sm font-medium text-ink-950 marker:content-none">
-            {t.practitioner.technical}
-            <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-paper-soft text-ink-500 transition-transform duration-200 group-open:rotate-45">
-              <Plus className="size-4" />
-            </span>
-          </summary>
-          <div className="border-t border-line-soft px-6 pb-6">
-            <PractitionerView view={detail.practitioner} lang={lang} t={t.practitioner} basePath={basePath} />
-          </div>
-        </details>
-      ) : null}
     </div>
   );
 }

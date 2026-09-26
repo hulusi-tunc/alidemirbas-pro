@@ -1,6 +1,6 @@
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
 import { getAllSkillProjects, getSkillProject } from "@/lib/skill-catalog";
-import { withJourneyCount } from "@/lib/archive";
+import { withLabProjectFacts, resolveLabCopy } from "@/lib/lab-project-facts";
 import type { Lang } from "@/lib/content";
 
 /* Numerspace's content module, consumed by the bespoke NumerspacePage.tsx
@@ -47,21 +47,80 @@ import type { Lang } from "@/lib/content";
    than one that undersells them. Same reason the project's `proof` line
    was corrected from a stale "75+ tools" in the same change. */
 
+export const NUMERSPACE_PAGE_COPY = {
+  en: {
+    eyebrow: "Lab",
+    heroTitle: "{numerspaceCount} calculators, no account required.",
+    heroSub: "Free calculators for everyday questions, from money and health to work, time and marketing.",
+    ctaVisit: "Open numerspace.com",
+    heroStats: ["{numerspaceCount} calculators", "{numerspaceCategories} categories", "Turkish + English"],
+    verifyCaption: "You can check the result yourself.",
+    verifyNote: "Where a calculator uses a standard formula, the formula is shown alongside the result.",
+
+    whyEyebrow: "Project",
+    whyTitle: "Open a calculator, enter what you know, and get the result.",
+    whyBody: "I built Numerspace as a collection of practical calculators in Turkish and English. Open a tool, enter the inputs, and see the result without creating an account. Most calculations run in the browser, so the values you enter are not sent to a server.",
+
+    catEyebrow: "Categories",
+    catTitle: "Categories",
+    catSub: "From finance and health to work, travel and everyday sums. {numerspaceCount} calculators in {numerspaceCategories} categories.",
+    catExploreAll: "See all {numerspaceCategories} categories",
+    catBrowse: "Browse by category",
+    heroShotAlt: "numerspace.com's homepage: a search field over category sections of calculator cards.",
+
+    faqEyebrow: "FAQ",
+
+    relatedEyebrow: "Also in the Lab",
+    relatedCta: "Explore",
+
+    ctaEyebrow: "Free, no account",
+    ctaTitle: "Try a calculator and check the result yourself.",
+  },
+  tr: {
+    eyebrow: "Lab",
+    heroTitle: "{numerspaceCount} hesaplayıcı, üyelik gerekmiyor.",
+    heroSub: "Paradan sağlığa, işten zamana ve pazarlamaya kadar günlük sorular için ücretsiz hesaplayıcılar.",
+    ctaVisit: "numerspace.com'u aç",
+    heroStats: ["{numerspaceCount} hesaplayıcı", "{numerspaceCategories} kategori", "Türkçe + İngilizce"],
+    verifyCaption: "Sonucu kendin kontrol edebilirsin.",
+    verifyNote: "Bir hesaplayıcı standart bir formül kullandığında, formül sonuçla birlikte gösterilir.",
+
+    whyEyebrow: "Proje",
+    whyTitle: "Aracı aç, bilgileri gir, sonucu gör.",
+    whyBody: "Numerspace'i Türkçe ve İngilizce çalışan pratik hesaplayıcılardan oluşan bir site olarak kurdum. Aracı aç, bilgileri gir ve hesap oluşturmadan sonucu gör. Hesaplamaların çoğu tarayıcıda çalıştığı için girdiğin değerler sunucuya gönderilmez.",
+
+    catEyebrow: "Kategoriler",
+    catTitle: "Kategoriler",
+    catSub: "Finans ve sağlıktan işe, seyahate ve gündelik hesaplamalara. {numerspaceCategories} kategoride {numerspaceCount} hesaplayıcı.",
+    catExploreAll: "{numerspaceCategories} kategorinin tamamını gör",
+    catBrowse: "Kategoriye göre göz at",
+    heroShotAlt: "numerspace.com'un ana sayfası: hesaplayıcı kartlarından oluşan kategori bölümlerinin üstünde bir arama alanı.",
+
+    faqEyebrow: "SSS",
+
+    relatedEyebrow: "Lab'de ayrıca",
+    relatedCta: "Keşfet",
+
+    ctaEyebrow: "Ücretsiz, üyelik gerekmiyor",
+    ctaTitle: "Bir hesaplayıcı dene, sonucu kendin kontrol et.",
+  },
+} as const;
+
 const T = {
   en: {
     eyebrow: "Lab",
     whatItDoesTitle: "What it is",
     whatItDoesBody:
-      "A public calculator site. 97 tools in 13 categories: finance and investing, health and fitness, work and career, tax, time and dates, marketing analytics, math and unit conversion, home, travel, pets, clothing sizes, astrology and faith. Every tool in both Turkish and English.",
+      "A public calculator site. {numerspaceCount} tools in {numerspaceCategories} categories: finance and investing, health and fitness, work and career, tax, time and dates, marketing analytics, math and unit conversion, home, travel, pets, clothing sizes, astrology and faith. Every tool in both Turkish and English.",
     howItWorksTitle: "How it's built",
     howItWorksBody:
-      "The design constraint is friction. A calculator that needs an account gets used once. Nothing sits behind an account, a paywall or an email field.",
+      "The site is built to keep the calculation itself simple. No calculator sits behind an account, paywall or email form; you can open a tool and use it straight away.",
     bullets: [
       "Free with no registration - no subscription, no credit card, no email. Every tool works as a guest.",
       "Most calculations run in the browser. A salary, a weight, a birth date, a loan amount: none of it is stored on a server, and it's gone when you close the tab.",
-      "Fully bilingual: 97 calculators in Turkish and the same 97 in English, interface and results included.",
+      "Fully bilingual: {numerspaceCount} calculators in Turkish and the same {numerspaceCount} in English, interface and results included.",
       "Formulas are the recognised ones - Mifflin-St Jeor, Devine, Hamwi for health - alongside Turkish tax and labour regulation (SGK, GİB) for the tools that depend on it.",
-      "Responsive rather than an app: same experience on phone, tablet and desktop, nothing to download.",
+      "A responsive website rather than a native app: the same tools work on phone, tablet and desktop, with nothing to download.",
       "Tools whose inputs move - tax rates, financial figures, unit values - are revised as those standards change.",
     ],
     useTitle: "How to use it",
@@ -70,14 +129,14 @@ const T = {
     step2Title: "Find the calculator",
     step2Desc: "Search from the home page, or go through a category - Finance, Health, Marketing and the rest.",
     step3Title: "Enter your numbers",
-    step3Desc: "The result appears as you type. No account, no export step, nothing kept afterwards.",
+    step3Desc: "The result updates as you enter the inputs. No account or export step is required, and most tools keep the calculation in the browser.",
     visit: "Open numerspace.com",
     faqTitle: "Frequently asked questions",
     faq: [
       {
         id: "free",
         q: "Is Numerspace free?",
-        a: "Yes. All 97 calculators are free to use, with no subscription, no credit card and no account required - every tool works for a guest visitor.",
+        a: "Yes. All {numerspaceCount} calculators are free to use, with no subscription, no credit card and no account required - every tool works for a guest visitor.",
       },
       {
         id: "privacy",
@@ -92,7 +151,7 @@ const T = {
       {
         id: "languages",
         q: "Does every calculator support Turkish and English?",
-        a: "Yes. The sitemap lists 97 calculator pages in each language - the interface, the inputs and the results are all localised together, tool for tool.",
+        a: "Yes. The sitemap lists {numerspaceCount} calculator pages in each language - the interface, the inputs and the results are all localised together, tool for tool.",
       },
       {
         id: "requests",
@@ -106,17 +165,17 @@ const T = {
     eyebrow: "Lab",
     whatItDoesTitle: "Nedir",
     whatItDoesBody:
-      "Herkese açık bir hesaplayıcı sitesi. 13 kategoride 97 araç: finans ve yatırım, sağlık ve fitness, iş ve kariyer, vergi, zaman ve tarih, pazarlama analitiği, matematik ve birim dönüşümü, ev, seyahat, evcil hayvan, kıyafet bedeni, astroloji ve inanç. Her araç hem Türkçe hem İngilizce.",
+      "Herkese açık bir hesaplayıcı sitesi. {numerspaceCategories} kategoride {numerspaceCount} araç: finans ve yatırım, sağlık ve fitness, iş ve kariyer, vergi, zaman ve tarih, pazarlama analitiği, matematik ve birim dönüşümü, ev, seyahat, evcil hayvan, kıyafet bedeni, astroloji ve inanç. Her araç hem Türkçe hem İngilizce.",
     howItWorksTitle: "Nasıl kurgulandı",
     howItWorksBody:
-      "Tasarım kısıtı sürtünme. Üye olman gereken bir hesaplayıcıyı bir kez kullanırsın. Hiçbir şey hesabın, ödeme duvarının ya da e-posta alanının arkasında değil.",
+      "Site, hesabı mümkün olduğunca aradan çıkarmak için kurgulandı. Hiçbir hesaplayıcı üyelik, ödeme duvarı veya e-posta formunun arkasında değil; aracı açıp doğrudan kullanabilirsin.",
     bullets: [
       "Kayıt gerektirmeyen ücretsiz kullanım. Abonelik yok, kredi kartı yok, e-posta yok.",
       "Hesaplamaların çoğu tarayıcıda çalışır. Maaş, kilo, doğum tarihi, kredi tutarı sunucuda saklanmaz ve sekmeyi kapattığında silinir.",
-      "Tam iki dilli. Türkçe 97 hesaplayıcı, İngilizce aynı 97'si; arayüz ve sonuçlar dahil.",
+      "Tam iki dilli. Türkçe {numerspaceCount} hesaplayıcı, İngilizce aynı {numerspaceCount}'si; arayüz ve sonuçlar dahil.",
       "Formüller kabul görmüş olanlar. Sağlıkta Mifflin-St Jeor, Devine, Hamwi; mevzuata bağlı araçlarda Türkiye mevzuatı (SGK, GİB).",
-      "Uygulama değil, duyarlı web. Telefonda, tablette ve masaüstünde aynı deneyim; indirilecek bir şey yok.",
-      "Girdisi değişen araçlar (vergi oranları, finansal veriler, birim değerleri) standartlar değiştikçe güncellenir.",
+      "Native uygulama değil, responsive bir web sitesi. Telefonda, tablette ve masaüstünde aynı araçlar çalışır; indirilecek bir şey yok.",
+      "Vergi oranı, finansal veri veya birim değeri gibi güncel girdilere bağlı araçlar, bu değerler değiştikçe güncellenir.",
     ],
     useTitle: "Nasıl kullanılır",
     step1Title: "Siteyi aç",
@@ -124,14 +183,14 @@ const T = {
     step2Title: "Hesaplayıcıyı bul",
     step2Desc: "Ana sayfadan ara ya da bir kategoriden ilerle: Finans, Sağlık, Pazarlama ve diğerleri.",
     step3Title: "Sayıları gir",
-    step3Desc: "Sonuç siz yazarken çıkıyor. Hesap yok, dışa aktarma adımı yok, sonrasında saklanan bir şey yok.",
+    step3Desc: "Sonuç bilgileri girdikçe güncellenir. Hesap açman veya bir şey dışa aktarman gerekmez; hesaplamaların çoğu tarayıcıda kalır.",
     visit: "numerspace.com'u aç",
     faqTitle: "Sık sorulan sorular",
     faq: [
       {
         id: "free",
         q: "Numerspace ücretsiz mi?",
-        a: "97 hesaplayıcının tamamı ücretsiz: abonelik yok, kredi kartı yok, hesap gerekmiyor; hepsi misafir olarak kullanılabiliyor.",
+        a: "{numerspaceCount} hesaplayıcının tamamı ücretsiz: abonelik yok, kredi kartı yok, hesap gerekmiyor; hepsi misafir olarak kullanılabiliyor.",
       },
       {
         id: "privacy",
@@ -146,7 +205,7 @@ const T = {
       {
         id: "languages",
         q: "Her hesaplayıcı Türkçe ve İngilizce destekliyor mu?",
-        a: "Evet. Her iki dilde de 97 hesaplayıcı var; arayüz, girdiler ve sonuçlar araç araç birlikte yerelleştirilmiş.",
+        a: "Evet. Her iki dilde de {numerspaceCount} hesaplayıcı var; arayüz, girdiler ve sonuçlar araç araç birlikte yerelleştirilmiş.",
       },
       {
         id: "requests",
@@ -164,12 +223,12 @@ const SITE = "https://www.numerspace.com";
 export function getNumerspaceContent(lang: Lang): SkillProductContent | null {
   const project = getSkillProject(lang, SLUG);
   if (!project) return null;
-  const t = T[lang];
+  const t = resolveLabCopy(T[lang]);
 
   const related = getAllSkillProjects(lang)
     .filter((p) => p.slug !== SLUG)
     .slice(0, 4)
-    .map((p) => ({ href: p.links[0].href, slug: p.slug, name: p.name, desc: withJourneyCount(p.desc), proof: withJourneyCount(p.proof) }));
+    .map((p) => ({ href: p.links[0].href, slug: p.slug, name: p.name, desc: withLabProjectFacts(p.desc), proof: withLabProjectFacts(p.proof) }));
 
   /* The site link, in the language the reader is already in - the /en and
      /tr entry points are the site's own, confirmed by following its root

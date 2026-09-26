@@ -27,7 +27,9 @@ import { ProductFrame, ProductMark } from "@/components/ui/ProductFrame";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductBenefitStory, ProductHeading, ProductSection } from "@/components/ui/ProductPage";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
-import type { SkillProductContent } from "@/components/SkillProductPage";
+import type { SkillProductContent } from "@/lib/skill-product";
+import { NUMERSPACE_PAGE_COPY as T } from "@/lib/skill-pages/numerspace";
+import { resolveLabCopy } from "@/lib/lab-project-facts";
 import { JsonLdScript } from "@/components/ui/JsonLdScript";
 import { breadcrumbList, webApplication } from "@/lib/schema";
 import { copy, type Lang } from "@/lib/content";
@@ -61,64 +63,7 @@ import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
    which is what makes them trustworthy enough to print). */
 
 
-const T = {
-  en: {
-    eyebrow: "Lab",
-    heroTitle: "97 calculators. No account. Nothing stored.",
-    heroSub: "Free calculators for everyday questions, from money and health to work, time and marketing.",
-    ctaVisit: "Open numerspace.com",
-    heroStats: ["97 calculators", "13 categories", "Turkish + English"],
-    verifyCaption: "You can check the result yourself.",
-    verifyNote: "Where a calculator uses a standard formula, the formula is shown alongside the result.",
 
-    whyEyebrow: "Project",
-    whyTitle: "A calculator should answer the question, then get out of the way.",
-    whyBody: "I built Numerspace as a collection of fast, bilingual, practical calculators. Open a tool, enter what you know, get the result. No account, and the numbers you enter don't go to a server.",
-
-    catEyebrow: "Categories",
-    catTitle: "Categories",
-    catSub: "From finance and health to work, travel and everyday sums. 97 calculators in 13 categories.",
-    catExploreAll: "See all 13 categories",
-    catBrowse: "Browse by category",
-    heroShotAlt: "numerspace.com's homepage: a search field over category sections of calculator cards.",
-
-    faqEyebrow: "FAQ",
-
-    relatedEyebrow: "Also in the Lab",
-    relatedCta: "Explore",
-
-    ctaEyebrow: "Free, no account",
-    ctaTitle: "Try a calculator and check the result yourself.",
-  },
-  tr: {
-    eyebrow: "Lab",
-    heroTitle: "97 hesaplayıcı. Üyelik gerekmiyor. Veri saklanmıyor.",
-    heroSub: "Paradan sağlığa, işten zamana ve pazarlamaya kadar günlük sorular için ücretsiz hesaplayıcılar.",
-    ctaVisit: "numerspace.com'u aç",
-    heroStats: ["97 hesaplayıcı", "13 kategori", "Türkçe + İngilizce"],
-    verifyCaption: "Sonucu kendin kontrol edebilirsin.",
-    verifyNote: "Bir hesaplayıcı standart bir formül kullandığında, formül sonuçla birlikte gösterilir.",
-
-    whyEyebrow: "Proje",
-    whyTitle: "Bir hesaplayıcı soruyu yanıtlamalı, sonra yoldan çekilmeli.",
-    whyBody: "Numerspace'i hızlı, iki dilli ve pratik hesaplayıcılardan oluşan bir koleksiyon olarak kurdum. Aracı aç, bildiklerini gir, sonucu al. Hesap açmak gerekmiyor, girdiğin sayılar sunucuya gitmiyor.",
-
-    catEyebrow: "Kategoriler",
-    catTitle: "Kategoriler",
-    catSub: "Finans ve sağlıktan işe, seyahate ve gündelik hesaplamalara. 13 kategoride 97 hesaplayıcı.",
-    catExploreAll: "13 kategorinin tamamını gör",
-    catBrowse: "Kategoriye göre göz at",
-    heroShotAlt: "numerspace.com'un ana sayfası: hesaplayıcı kartlarından oluşan kategori bölümlerinin üstünde bir arama alanı.",
-
-    faqEyebrow: "SSS",
-
-    relatedEyebrow: "Lab'de ayrıca",
-    relatedCta: "Keşfet",
-
-    ctaEyebrow: "Ücretsiz, üyelik gerekmiyor",
-    ctaTitle: "Bir hesaplayıcı dene, sonucu kendin kontrol et.",
-  },
-} as const;
 
 /* ---- The product, drawn ------------------------------------------------
    Hulusi (2026-09-06): the Lab's product visuals must "feel like real
@@ -313,7 +258,7 @@ function Faq({ c, t }: { c: SkillProductContent; t: (typeof T)[Lang] }) {
 
 export default function NumerspacePage({ lang, content }: { lang: Lang; content: SkillProductContent }) {
   const copyT = copy[lang];
-  const t = T[lang];
+  const t = resolveLabCopy(T[lang]);
   const home = lang === "en" ? "/" : "/tr";
   const langHref = lang === "en" ? `/tr/lab/${content.slug}` : `/lab/${content.slug}`;
   const path = lang === "en" ? `/lab/${content.slug}` : `/tr/lab/${content.slug}`;

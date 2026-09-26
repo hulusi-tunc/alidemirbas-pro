@@ -2,18 +2,18 @@
   "_description": "Reproducibility + payload manifest for search-index.json. sourceVersion identifies the generator commit context by describing WHAT was read, not a timestamp (this repo's own convention for deterministic build scripts avoids Date.now()).",
   "sourceVersion": {
     "abTestRecordCount": 211,
-    "journeyRecordCount": 162,
-    "archivedJourneyRecordCount": 124,
+    "journeyRecordCount": 69,
+    "archivedJourneyRecordCount": 234,
     "mergedJourneyCount": 8,
     "presetFoldedCount": 8,
     "liveCalculatorCount": 19,
     "labProductCount": 6,
     "blogArticleCount": 5
   },
-  "totalDocuments": 403,
+  "totalDocuments": 310,
   "countsByType": {
     "ab-test": 211,
-    "journey": 162,
+    "journey": 69,
     "calculator": 19,
     "lab-product": 6,
     "blog-article": 5
@@ -21,7 +21,7 @@
   "countsByCategory": {
     "cart-and-checkout": 28,
     "search-and-discovery": 72,
-    "acquisition-and-onboarding": 79,
+    "acquisition-and-onboarding": 69,
     "mobile": 12,
     "pricing-and-monetization": 12,
     "saas-and-b2b": 16,
@@ -49,10 +49,10 @@
   },
   "countsByStage": {
     "engagement-retention": 33,
-    "acquisition-qualification": 69,
-    "ending-closure": 9,
-    "cross-lifecycle": 121,
-    "activation-onboarding": 9
+    "acquisition-qualification": 61,
+    "ending-closure": 4,
+    "cross-lifecycle": 43,
+    "activation-onboarding": 7
   },
   "countsByMetric": {
     "Tıklama Oranı (CTR)": 12,
@@ -507,17 +507,17 @@
     "Rule of 40": 1,
     "Sample Size": 1
   },
-  "aliasCount": 11,
-  "relationshipCount": 384,
+  "aliasCount": 9,
+  "relationshipCount": 354,
   "sizeReport": {
     "rawSourceSizeBytes": {
-      "src/data/ab-tests.json": 635240,
-      "production/journey-view-model.json": 3205289
+      "src/data/ab-tests.json": 627647,
+      "production/journey-view-model.json": 3513393
     },
-    "searchIndexSizeBytes": 982812,
-    "searchIndexLightSizeBytes": 612449,
-    "averageDocumentSizeBytes": 1980,
-    "maxDocumentSizeBytes": 3523,
+    "searchIndexSizeBytes": 798655,
+    "searchIndexLightSizeBytes": 510048,
+    "averageDocumentSizeBytes": 2105,
+    "maxDocumentSizeBytes": 4930,
     "minDocumentSizeBytes": 992
   }
 }

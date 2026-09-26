@@ -5,7 +5,7 @@ import { pageAlternates } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Lab - Ali Demirbaş",
   description:
-    "Büyüme ve CRM işinden çıkan açık kaynak projeler. Journey Oluşturucu, Journey Kütüphanesi, A/B Test Playbook, Dashboard Oluşturucu, Google Ads Değişiklik Geçmişi ve Numerspace.",
+    "Büyüme, CRM ve analitik tarafında karşılaştığım problemler için geliştirdiğim açık kaynak projeler: Journey Oluşturucu, Journey Kütüphanesi, A/B Test Playbook, Dashboard Oluşturucu, Google Ads Değişiklik Geçmişi ve Numerspace.",
   alternates: pageAlternates("/lab", "tr"),
 };
 

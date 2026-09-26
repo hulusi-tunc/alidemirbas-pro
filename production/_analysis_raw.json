@@ -998,22 +998,22 @@
  {
   "id": "ACQ-09",
   "category": "acquisition",
-  "nodeCount": 13,
-  "edgeCount": 13,
-  "branchNodeCount": 2,
-  "branchEdgeCount": 5,
-  "waitCount": 1,
+  "nodeCount": 16,
+  "edgeCount": 20,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 9,
+  "waitCount": 2,
   "exitCount": 4,
   "terminalExitCount": 0,
   "handoffCount": 1,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 1,
-  "backwardEdgeCount": 0,
-  "maxFanIn": 1,
-  "maxFanOut": 3,
-  "maxDepth": 6,
+  "backwardEdgeCount": 1,
+  "maxFanIn": 2,
+  "maxFanOut": 4,
+  "maxDepth": 8,
   "hasBranches": true,
-  "hasBackwardEdges": false,
+  "hasBackwardEdges": true,
   "hasWait": true,
   "hasExternalHandoff": false,
   "hasCrossJourneyHandoff": true,
@@ -1052,6 +1052,69 @@
    },
    {
     "from": "a.educate",
+    "to": "w.first",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.first",
+    "to": "c.window-event",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.first",
+    "to": "c.still-open",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-open",
+    "to": "h.progressed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-open",
+    "to": "a.stop-permission",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-open",
+    "to": "a.stop-contactability",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-open",
+    "to": "a.educate2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.educate2",
     "to": "w.window",
     "syntacticKind": "forward",
     "isExternal": false,
@@ -1066,7 +1129,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
+    "isBackward": true
    },
    {
     "from": "w.window",
@@ -1328,20 +1391,20 @@
  {
   "id": "ACQ-285",
   "category": "acquisition",
-  "nodeCount": 15,
-  "edgeCount": 17,
-  "branchNodeCount": 5,
-  "branchEdgeCount": 10,
-  "waitCount": 1,
+  "nodeCount": 17,
+  "edgeCount": 22,
+  "branchNodeCount": 6,
+  "branchEdgeCount": 13,
+  "waitCount": 2,
   "exitCount": 4,
   "terminalExitCount": 1,
   "handoffCount": 1,
   "externalHandoffCount": 1,
   "crossJourneyHandoffCount": 0,
-  "backwardEdgeCount": 1,
-  "maxFanIn": 3,
-  "maxFanOut": 2,
-  "maxDepth": 8,
+  "backwardEdgeCount": 3,
+  "maxFanIn": 4,
+  "maxFanOut": 3,
+  "maxDepth": 9,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -1355,7 +1418,7 @@
   "edges": [
    {
     "from": "t.captured",
-    "to": "c.email-route",
+    "to": "c.contactable",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -1363,7 +1426,7 @@
     "isBackward": false
    },
    {
-    "from": "c.email-route",
+    "from": "c.contactable",
     "to": "c.declared",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -1372,7 +1435,7 @@
     "isBackward": false
    },
    {
-    "from": "c.email-route",
+    "from": "c.contactable",
     "to": "c.declared-no-route",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -1445,7 +1508,7 @@
    },
    {
     "from": "c.permission",
-    "to": "a.nurture",
+    "to": "w.follow-up",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -1462,16 +1525,7 @@
     "isBackward": false
    },
    {
-    "from": "a.nurture",
-    "to": "w.nurture",
-    "syntacticKind": "forward",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "w.nurture",
+    "from": "w.follow-up",
     "to": "c.progressed",
     "syntacticKind": "wait-event",
     "isExternal": false,
@@ -1480,7 +1534,61 @@
     "isBackward": false
    },
    {
-    "from": "w.nurture",
+    "from": "w.follow-up",
+    "to": "c.still-open",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-open",
+    "to": "h.person",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.still-open",
+    "to": "x.stopped",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still-open",
+    "to": "a.follow-up",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.follow-up",
+    "to": "w.window",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.window",
+    "to": "c.progressed",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "w.window",
     "to": "x.sunset",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
@@ -1511,10 +1619,10 @@
  {
   "id": "ACQ-11",
   "category": "acquisition",
-  "nodeCount": 26,
-  "edgeCount": 45,
-  "branchNodeCount": 8,
-  "branchEdgeCount": 27,
+  "nodeCount": 27,
+  "edgeCount": 47,
+  "branchNodeCount": 9,
+  "branchEdgeCount": 29,
   "waitCount": 5,
   "exitCount": 5,
   "terminalExitCount": 0,
@@ -1524,7 +1632,7 @@
   "backwardEdgeCount": 16,
   "maxFanIn": 4,
   "maxFanOut": 6,
-  "maxDepth": 16,
+  "maxDepth": 17,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -1727,7 +1835,7 @@
    },
    {
     "from": "c.state2",
-    "to": "a.note-return",
+    "to": "c.resume-budget",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -1736,6 +1844,24 @@
    },
    {
     "from": "c.state2",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resume-budget",
+    "to": "a.note-return",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resume-budget",
     "to": "c.sendable2",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -1946,10 +2072,10 @@
  {
   "id": "ACQ-12",
   "category": "acquisition",
-  "nodeCount": 22,
-  "edgeCount": 35,
-  "branchNodeCount": 7,
-  "branchEdgeCount": 22,
+  "nodeCount": 23,
+  "edgeCount": 37,
+  "branchNodeCount": 8,
+  "branchEdgeCount": 24,
   "waitCount": 3,
   "exitCount": 5,
   "terminalExitCount": 0,
@@ -1959,7 +2085,7 @@
   "backwardEdgeCount": 10,
   "maxFanIn": 3,
   "maxFanOut": 5,
-  "maxDepth": 14,
+  "maxDepth": 15,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -2054,7 +2180,7 @@
    },
    {
     "from": "c.state",
-    "to": "a.rearm",
+    "to": "c.rearm-budget",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2063,6 +2189,24 @@
    },
    {
     "from": "c.state",
+    "to": "c.availability",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.rearm-budget",
+    "to": "a.rearm",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.rearm-budget",
     "to": "c.availability",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2465,29 +2609,29 @@
  {
   "id": "ACQ-287",
   "category": "acquisition",
-  "nodeCount": 16,
-  "edgeCount": 21,
-  "branchNodeCount": 4,
-  "branchEdgeCount": 8,
+  "nodeCount": 23,
+  "edgeCount": 36,
+  "branchNodeCount": 7,
+  "branchEdgeCount": 20,
   "waitCount": 3,
-  "exitCount": 2,
+  "exitCount": 3,
   "terminalExitCount": 0,
-  "handoffCount": 0,
+  "handoffCount": 1,
   "externalHandoffCount": 0,
-  "crossJourneyHandoffCount": 0,
-  "backwardEdgeCount": 2,
+  "crossJourneyHandoffCount": 1,
+  "backwardEdgeCount": 7,
   "maxFanIn": 3,
-  "maxFanOut": 2,
-  "maxDepth": 12,
+  "maxFanOut": 4,
+  "maxDepth": 14,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
   "hasExternalHandoff": false,
-  "hasCrossJourneyHandoff": false,
+  "hasCrossJourneyHandoff": true,
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -2528,8 +2672,53 @@
    },
    {
     "from": "c.completed1",
+    "to": "h.payment",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.completed1",
+    "to": "x.invalid",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.completed1",
+    "to": "c.sendable1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable1",
     "to": "a.router1",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable1",
+    "to": "a.record-no-action-t1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action-t1",
+    "to": "w.second",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -2582,6 +2771,24 @@
    },
    {
     "from": "c.completed2",
+    "to": "h.payment",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.completed2",
+    "to": "x.invalid",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.completed2",
     "to": "c.highvalue",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2591,7 +2798,7 @@
    },
    {
     "from": "c.highvalue",
-    "to": "a.router2-hv",
+    "to": "c.sendable2-hv",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2600,8 +2807,53 @@
    },
    {
     "from": "c.highvalue",
+    "to": "c.sendable2-std",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-hv",
+    "to": "a.router2-hv",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-hv",
+    "to": "a.record-no-action-t2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-std",
     "to": "a.router2-std",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-std",
+    "to": "a.record-no-action-t2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action-t2",
+    "to": "w.third",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -2641,7 +2893,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
+    "isBackward": true
    },
    {
     "from": "w.third",
@@ -2672,11 +2924,38 @@
    },
    {
     "from": "c.completed3",
+    "to": "h.payment",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.completed3",
+    "to": "x.invalid",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.completed3",
     "to": "x.abandoned",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "h.payment",
+    "to": "FIN-134",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
     "isBackward": false
    }
   ]
@@ -2684,20 +2963,20 @@
  {
   "id": "ACQ-288",
   "category": "acquisition",
-  "nodeCount": 22,
-  "edgeCount": 30,
-  "branchNodeCount": 8,
-  "branchEdgeCount": 16,
+  "nodeCount": 23,
+  "edgeCount": 35,
+  "branchNodeCount": 7,
+  "branchEdgeCount": 19,
   "waitCount": 3,
   "exitCount": 3,
   "terminalExitCount": 0,
   "handoffCount": 1,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 1,
-  "backwardEdgeCount": 4,
+  "backwardEdgeCount": 6,
   "maxFanIn": 3,
-  "maxFanOut": 2,
-  "maxDepth": 16,
+  "maxFanOut": 4,
+  "maxDepth": 14,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -2706,7 +2985,7 @@
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -2720,7 +2999,7 @@
    },
    {
     "from": "w.first",
-    "to": "c.active1",
+    "to": "c.state1",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2729,7 +3008,7 @@
    },
    {
     "from": "w.first",
-    "to": "c.active1",
+    "to": "c.state1",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2737,25 +3016,7 @@
     "isBackward": false
    },
    {
-    "from": "c.active1",
-    "to": "c.purchased1",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.active1",
-    "to": "x.cleared",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.purchased1",
+    "from": "c.state1",
     "to": "x.purchased",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2764,16 +3025,7 @@
     "isBackward": false
    },
    {
-    "from": "c.purchased1",
-    "to": "c.checkout1",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.checkout1",
+    "from": "c.state1",
     "to": "h.checkout",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2782,9 +3034,45 @@
     "isBackward": false
    },
    {
-    "from": "c.checkout1",
+    "from": "c.state1",
+    "to": "x.cleared",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state1",
+    "to": "c.sendable1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable1",
     "to": "a.router1",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable1",
+    "to": "a.record-no-action-t1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action-t1",
+    "to": "w.second",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -2810,7 +3098,7 @@
    },
    {
     "from": "w.second",
-    "to": "c.purchased2",
+    "to": "c.state2",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2819,7 +3107,7 @@
    },
    {
     "from": "w.second",
-    "to": "c.purchased2",
+    "to": "c.state2",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2827,7 +3115,7 @@
     "isBackward": false
    },
    {
-    "from": "c.purchased2",
+    "from": "c.state2",
     "to": "x.purchased",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2836,16 +3124,7 @@
     "isBackward": true
    },
    {
-    "from": "c.purchased2",
-    "to": "c.checkout2",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.checkout2",
+    "from": "c.state2",
     "to": "h.checkout",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2854,7 +3133,16 @@
     "isBackward": true
    },
    {
-    "from": "c.checkout2",
+    "from": "c.state2",
+    "to": "x.cleared",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.state2",
     "to": "c.highvalue",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2864,7 +3152,7 @@
    },
    {
     "from": "c.highvalue",
-    "to": "a.router2-hv",
+    "to": "c.sendable2-hv",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2873,8 +3161,53 @@
    },
    {
     "from": "c.highvalue",
+    "to": "c.sendable2-std",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-hv",
+    "to": "a.router2-hv",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-hv",
+    "to": "a.record-no-action-t2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-std",
     "to": "a.router2-std",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2-std",
+    "to": "a.record-no-action-t2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action-t2",
+    "to": "w.third",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -2914,11 +3247,11 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
+    "isBackward": true
    },
    {
     "from": "w.third",
-    "to": "c.purchased3",
+    "to": "c.state3",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2927,7 +3260,7 @@
    },
    {
     "from": "w.third",
-    "to": "c.purchased3",
+    "to": "c.state3",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -2935,7 +3268,7 @@
     "isBackward": false
    },
    {
-    "from": "c.purchased3",
+    "from": "c.state3",
     "to": "x.purchased",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2944,25 +3277,7 @@
     "isBackward": true
    },
    {
-    "from": "c.purchased3",
-    "to": "c.active2",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.active2",
-    "to": "x.abandoned",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.active2",
+    "from": "c.state3",
     "to": "x.cleared",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -2971,12 +3286,186 @@
     "isBackward": true
    },
    {
+    "from": "c.state3",
+    "to": "x.abandoned",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
     "from": "h.checkout",
     "to": "ACQ-287",
     "syntacticKind": "handoff",
     "isExternal": false,
     "isCrossJourney": true,
     "isInternal": false,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "ACQ-289",
+  "category": "acquisition",
+  "nodeCount": 14,
+  "edgeCount": 15,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 7,
+  "waitCount": 2,
+  "exitCount": 5,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 1,
+  "maxFanIn": 2,
+  "maxFanOut": 3,
+  "maxDepth": 8,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.registered",
+    "to": "w.availability",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.availability",
+    "to": "c.relevant",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.availability",
+    "to": "x.expired",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.relevant",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.relevant",
+    "to": "x.purchased",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.relevant",
+    "to": "x.closed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.router1",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.router1",
+    "to": "a.alert",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.alert",
+    "to": "w.window",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.window",
+    "to": "c.converted",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.window",
+    "to": "c.converted",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.converted",
+    "to": "x.purchased",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.converted",
+    "to": "x.no-purchase",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
     "isBackward": false
    }
   ]
@@ -3104,42 +3593,33 @@
  {
   "id": "ACT-12",
   "category": "activation",
-  "nodeCount": 12,
-  "edgeCount": 17,
-  "branchNodeCount": 5,
-  "branchEdgeCount": 10,
+  "nodeCount": 13,
+  "edgeCount": 18,
+  "branchNodeCount": 6,
+  "branchEdgeCount": 12,
   "waitCount": 1,
-  "exitCount": 1,
+  "exitCount": 2,
   "terminalExitCount": 0,
   "handoffCount": 2,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 2,
   "backwardEdgeCount": 3,
-  "maxFanIn": 3,
+  "maxFanIn": 2,
   "maxFanOut": 2,
-  "maxDepth": 7,
+  "maxDepth": 6,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
   "hasExternalHandoff": false,
   "hasCrossJourneyHandoff": true,
-  "hasMultipleExits": false,
+  "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": true,
   "hasCompetition": true,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.active",
-    "to": "a.read",
-    "syntacticKind": "forward",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "a.read",
     "to": "c.next-step",
     "syntacticKind": "forward",
     "isExternal": false,
@@ -3221,12 +3701,12 @@
    },
    {
     "from": "c.what-happened",
-    "to": "a.read",
+    "to": "c.budget",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "c.stalled-step",
@@ -3239,12 +3719,30 @@
    },
    {
     "from": "c.stalled-step",
-    "to": "a.read",
+    "to": "c.budget",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
     "isBackward": true
+   },
+   {
+    "from": "c.budget",
+    "to": "c.next-step",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.budget",
+    "to": "x.prompts-spent",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
    },
    {
     "from": "h.blocker",
@@ -3287,8 +3785,8 @@
  {
   "id": "ACT-13",
   "category": "activation",
-  "nodeCount": 16,
-  "edgeCount": 19,
+  "nodeCount": 17,
+  "edgeCount": 20,
   "branchNodeCount": 4,
   "branchEdgeCount": 9,
   "waitCount": 1,
@@ -3297,12 +3795,12 @@
   "handoffCount": 3,
   "externalHandoffCount": 1,
   "crossJourneyHandoffCount": 2,
-  "backwardEdgeCount": 0,
+  "backwardEdgeCount": 1,
   "maxFanIn": 2,
   "maxFanOut": 3,
   "maxDepth": 8,
   "hasBranches": true,
-  "hasBackwardEdges": false,
+  "hasBackwardEdges": true,
   "hasWait": true,
   "hasExternalHandoff": true,
   "hasCrossJourneyHandoff": true,
@@ -3377,12 +3875,21 @@
    },
    {
     "from": "a.route-dependency",
-    "to": "w.resolve",
+    "to": "a.hold-notice",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
     "isBackward": false
+   },
+   {
+    "from": "a.hold-notice",
+    "to": "w.resolve",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
    },
    {
     "from": "w.resolve",
@@ -3836,20 +4343,20 @@
  {
   "id": "ACT-17",
   "category": "activation",
-  "nodeCount": 10,
-  "edgeCount": 13,
-  "branchNodeCount": 2,
-  "branchEdgeCount": 4,
-  "waitCount": 1,
+  "nodeCount": 11,
+  "edgeCount": 16,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 6,
+  "waitCount": 2,
   "exitCount": 0,
   "terminalExitCount": 0,
   "handoffCount": 2,
   "externalHandoffCount": 1,
   "crossJourneyHandoffCount": 1,
-  "backwardEdgeCount": 1,
+  "backwardEdgeCount": 3,
   "maxFanIn": 3,
   "maxFanOut": 2,
-  "maxDepth": 8,
+  "maxDepth": 7,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -3863,24 +4370,6 @@
   "edges": [
    {
     "from": "t.activated",
-    "to": "a.recognize",
-    "syntacticKind": "forward",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "a.measure",
-    "to": "c.stable",
-    "syntacticKind": "forward",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "a.recognize",
     "to": "c.next",
     "syntacticKind": "forward",
     "isExternal": false,
@@ -3890,7 +4379,7 @@
    },
    {
     "from": "c.next",
-    "to": "a.surface",
+    "to": "a.recognize-next",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -3899,7 +4388,7 @@
    },
    {
     "from": "c.next",
-    "to": "a.measure",
+    "to": "a.recognize-only",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -3907,8 +4396,17 @@
     "isBackward": false
    },
    {
-    "from": "a.surface",
-    "to": "a.measure",
+    "from": "a.recognize-next",
+    "to": "w.observe",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.recognize-only",
+    "to": "w.observe",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -3944,7 +4442,7 @@
    },
    {
     "from": "a.next-behavior",
-    "to": "w.observe",
+    "to": "w.confirm",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -3953,12 +4451,12 @@
    },
    {
     "from": "w.observe",
-    "to": "a.measure",
+    "to": "c.stable",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "w.observe",
@@ -3968,6 +4466,42 @@
     "isCrossJourney": false,
     "isInternal": true,
     "isBackward": false
+   },
+   {
+    "from": "w.confirm",
+    "to": "c.stable-after-nudge",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.confirm",
+    "to": "h.stall",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.stable-after-nudge",
+    "to": "h.normal",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.stable-after-nudge",
+    "to": "h.stall",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
    },
    {
     "from": "h.stall",
@@ -4144,7 +4678,7 @@
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": false,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.needed",
@@ -4322,7 +4856,7 @@
    },
    {
     "from": "a.reason",
-    "to": "c.worth-it",
+    "to": "c.reason",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -4330,7 +4864,7 @@
     "isBackward": false
    },
    {
-    "from": "c.worth-it",
+    "from": "c.reason",
     "to": "a.attempt",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -4339,7 +4873,7 @@
     "isBackward": false
    },
    {
-    "from": "c.worth-it",
+    "from": "c.reason",
     "to": "x.no-reason",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -4901,26 +5435,26 @@
  {
   "id": "RET-24",
   "category": "retention",
-  "nodeCount": 13,
-  "edgeCount": 17,
-  "branchNodeCount": 5,
-  "branchEdgeCount": 10,
-  "waitCount": 0,
-  "exitCount": 1,
+  "nodeCount": 18,
+  "edgeCount": 22,
+  "branchNodeCount": 6,
+  "branchEdgeCount": 12,
+  "waitCount": 1,
+  "exitCount": 3,
   "terminalExitCount": 0,
-  "handoffCount": 4,
+  "handoffCount": 3,
   "externalHandoffCount": 1,
-  "crossJourneyHandoffCount": 3,
-  "backwardEdgeCount": 0,
+  "crossJourneyHandoffCount": 2,
+  "backwardEdgeCount": 1,
   "maxFanIn": 2,
   "maxFanOut": 2,
-  "maxDepth": 7,
+  "maxDepth": 10,
   "hasBranches": true,
-  "hasBackwardEdges": false,
-  "hasWait": false,
+  "hasBackwardEdges": true,
+  "hasWait": true,
   "hasExternalHandoff": true,
   "hasCrossJourneyHandoff": true,
-  "hasMultipleExits": false,
+  "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": true,
@@ -4982,7 +5516,7 @@
    },
    {
     "from": "c.operational",
-    "to": "c.human",
+    "to": "c.priority-clear",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -4999,17 +5533,8 @@
     "isBackward": false
    },
    {
-    "from": "c.human",
-    "to": "c.priority-clear",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.human",
-    "to": "c.automated",
+    "from": "c.priority-clear",
+    "to": "c.signal-class",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -5018,6 +5543,87 @@
    },
    {
     "from": "c.priority-clear",
+    "to": "x.contended",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.signal-class",
+    "to": "a.check-in-email",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.signal-class",
+    "to": "a.check-in-inapp",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.check-in-email",
+    "to": "w.response",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.check-in-inapp",
+    "to": "w.response",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.response",
+    "to": "c.moved",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.response",
+    "to": "c.human",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.moved",
+    "to": "x.recovered",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.moved",
+    "to": "h.cancellation",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.human",
     "to": "a.owner-task",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -5026,8 +5632,8 @@
     "isBackward": false
    },
    {
-    "from": "c.priority-clear",
-    "to": "x.monitor",
+    "from": "c.human",
+    "to": "x.monitored",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -5049,33 +5655,6 @@
     "syntacticKind": "handoff",
     "isExternal": true,
     "isCrossJourney": false,
-    "isInternal": false,
-    "isBackward": false
-   },
-   {
-    "from": "c.automated",
-    "to": "h.intervention",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.automated",
-    "to": "x.monitor",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "h.intervention",
-    "to": "RET-30",
-    "syntacticKind": "handoff",
-    "isExternal": false,
-    "isCrossJourney": true,
     "isInternal": false,
     "isBackward": false
    }
@@ -5107,7 +5686,7 @@
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": false,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.negative",
@@ -5343,10 +5922,10 @@
   "handoffCount": 2,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 2,
-  "backwardEdgeCount": 4,
+  "backwardEdgeCount": 2,
   "maxFanIn": 2,
   "maxFanOut": 2,
-  "maxDepth": 7,
+  "maxDepth": 8,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -5369,8 +5948,26 @@
    },
    {
     "from": "a.context",
-    "to": "c.reason",
+    "to": "c.surface",
     "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.surface",
+    "to": "c.reason",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.surface",
+    "to": "a.no-reason",
+    "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -5387,25 +5984,7 @@
    },
    {
     "from": "c.reason",
-    "to": "c.ask",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.ask",
     "to": "a.ask",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.ask",
-    "to": "a.no-reason",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -5455,7 +6034,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "a.record-reason",
@@ -5473,7 +6052,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "c.resolution",
@@ -5691,18 +6270,18 @@
   "id": "RET-30",
   "category": "retention",
   "nodeCount": 14,
-  "edgeCount": 19,
+  "edgeCount": 20,
   "branchNodeCount": 4,
-  "branchEdgeCount": 10,
+  "branchEdgeCount": 11,
   "waitCount": 1,
   "exitCount": 2,
   "terminalExitCount": 0,
   "handoffCount": 3,
   "externalHandoffCount": 1,
   "crossJourneyHandoffCount": 2,
-  "backwardEdgeCount": 2,
+  "backwardEdgeCount": 3,
   "maxFanIn": 2,
-  "maxFanOut": 4,
+  "maxFanOut": 5,
   "maxDepth": 5,
   "hasBranches": true,
   "hasBackwardEdges": true,
@@ -5779,6 +6358,15 @@
     "isBackward": false
    },
    {
+    "from": "c.outcome",
+    "to": "h.proceed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
     "from": "a.verify",
     "to": "c.applied",
     "syntacticKind": "forward",
@@ -5839,7 +6427,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
+    "isBackward": true
    },
    {
     "from": "c.proceed",
@@ -6155,10 +6743,10 @@
  {
   "id": "RET-32",
   "category": "retention",
-  "nodeCount": 15,
-  "edgeCount": 19,
-  "branchNodeCount": 5,
-  "branchEdgeCount": 10,
+  "nodeCount": 14,
+  "edgeCount": 17,
+  "branchNodeCount": 4,
+  "branchEdgeCount": 8,
   "waitCount": 2,
   "exitCount": 3,
   "terminalExitCount": 0,
@@ -6168,7 +6756,7 @@
   "backwardEdgeCount": 4,
   "maxFanIn": 3,
   "maxFanOut": 2,
-  "maxDepth": 10,
+  "maxDepth": 9,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -6209,26 +6797,8 @@
    },
    {
     "from": "a.open",
-    "to": "c.basis",
+    "to": "c.sendable",
     "syntacticKind": "forward",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.basis",
-    "to": "c.sendable",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.basis",
-    "to": "c.sendable",
-    "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -6350,6 +6920,705 @@
     "isCrossJourney": false,
     "isInternal": true,
     "isBackward": true
+   }
+  ]
+ },
+ {
+  "id": "RET-290",
+  "category": "retention",
+  "nodeCount": 14,
+  "edgeCount": 17,
+  "branchNodeCount": 4,
+  "branchEdgeCount": 9,
+  "waitCount": 2,
+  "exitCount": 4,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 2,
+  "maxFanIn": 2,
+  "maxFanOut": 3,
+  "maxDepth": 9,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.first",
+    "to": "w.settle",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.settle",
+    "to": "c.state",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.settle",
+    "to": "c.state",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "x.returning",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "x.closed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.welcome",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.welcome",
+    "to": "w.second",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.second",
+    "to": "c.second",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.second",
+    "to": "c.second",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.second",
+    "to": "x.returning",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.second",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.bounceback",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.bounceback",
+    "to": "x.prompted",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "RET-292",
+  "category": "retention",
+  "nodeCount": 7,
+  "edgeCount": 6,
+  "branchNodeCount": 1,
+  "branchEdgeCount": 3,
+  "waitCount": 0,
+  "exitCount": 3,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 0,
+  "maxFanIn": 1,
+  "maxFanOut": 3,
+  "maxDepth": 3,
+  "hasBranches": true,
+  "hasBackwardEdges": false,
+  "hasWait": false,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.approaching",
+    "to": "c.eligible",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.eligible",
+    "to": "a.recognise",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.eligible",
+    "to": "x.closed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.eligible",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.recognise",
+    "to": "x.recognised",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "RET-293",
+  "category": "retention",
+  "nodeCount": 11,
+  "edgeCount": 13,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 8,
+  "waitCount": 1,
+  "exitCount": 4,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 1,
+  "maxFanIn": 2,
+  "maxFanOut": 3,
+  "maxDepth": 6,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.signal",
+    "to": "c.valid",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.valid",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.valid",
+    "to": "x.purchased",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.valid",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.recommend",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.recommend",
+    "to": "w.window",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.window",
+    "to": "c.outcome",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.window",
+    "to": "c.outcome",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "x.purchased",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.outcome",
+    "to": "x.dismissed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "x.no-conversion",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "RET-294",
+  "category": "retention",
+  "nodeCount": 15,
+  "edgeCount": 18,
+  "branchNodeCount": 4,
+  "branchEdgeCount": 10,
+  "waitCount": 2,
+  "exitCount": 5,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 2,
+  "maxFanIn": 2,
+  "maxFanOut": 3,
+  "maxDepth": 9,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.owned",
+    "to": "w.maturation",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.maturation",
+    "to": "c.opportunity",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.maturation",
+    "to": "c.opportunity",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.opportunity",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.opportunity",
+    "to": "x.complete",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.opportunity",
+    "to": "x.closed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.offer",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.offer",
+    "to": "w.response",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.response",
+    "to": "c.outcome",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.response",
+    "to": "c.outcome",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "x.complete",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.outcome",
+    "to": "x.declined",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.remind",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.remind",
+    "to": "x.offered",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "RET-295",
+  "category": "retention",
+  "nodeCount": 7,
+  "edgeCount": 7,
+  "branchNodeCount": 1,
+  "branchEdgeCount": 4,
+  "waitCount": 0,
+  "exitCount": 3,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 0,
+  "maxFanIn": 2,
+  "maxFanOut": 4,
+  "maxDepth": 3,
+  "hasBranches": true,
+  "hasBackwardEdges": false,
+  "hasWait": false,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.approaching",
+    "to": "c.date",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.date",
+    "to": "a.recognise",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.date",
+    "to": "x.closed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.date",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.date",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.recognise",
+    "to": "x.recognised",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
    }
   ]
  },
@@ -7691,10 +8960,10 @@
  {
   "id": "CON-272",
   "category": "consent",
-  "nodeCount": 11,
-  "edgeCount": 11,
+  "nodeCount": 12,
+  "edgeCount": 13,
   "branchNodeCount": 2,
-  "branchEdgeCount": 5,
+  "branchEdgeCount": 6,
   "waitCount": 1,
   "exitCount": 4,
   "terminalExitCount": 0,
@@ -7702,8 +8971,8 @@
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 0,
   "backwardEdgeCount": 0,
-  "maxFanIn": 2,
-  "maxFanOut": 3,
+  "maxFanIn": 3,
+  "maxFanOut": 4,
   "maxDepth": 6,
   "hasBranches": true,
   "hasBackwardEdges": false,
@@ -7713,7 +8982,7 @@
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -7736,7 +9005,16 @@
    },
    {
     "from": "c.route",
-    "to": "a.prompt-alt",
+    "to": "a.prompt-email",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.route",
+    "to": "a.prompt-sms",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -7762,7 +9040,16 @@
     "isBackward": false
    },
    {
-    "from": "a.prompt-alt",
+    "from": "a.prompt-email",
+    "to": "w.corrected",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.prompt-sms",
     "to": "w.corrected",
     "syntacticKind": "forward",
     "isExternal": false,
@@ -7842,7 +9129,7 @@
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -7956,12 +9243,312 @@
   ]
  },
  {
+  "id": "CON-300",
+  "category": "consent",
+  "nodeCount": 21,
+  "edgeCount": 30,
+  "branchNodeCount": 6,
+  "branchEdgeCount": 17,
+  "waitCount": 2,
+  "exitCount": 4,
+  "terminalExitCount": 0,
+  "handoffCount": 3,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 3,
+  "backwardEdgeCount": 4,
+  "maxFanIn": 2,
+  "maxFanOut": 4,
+  "maxDepth": 10,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": true,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.unengaged",
+    "to": "c.evidence",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.evidence",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.evidence",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.evidence",
+    "to": "x.answered",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.ask",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.ask",
+    "to": "w.answer",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.answer",
+    "to": "c.answered",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.answer",
+    "to": "c.answered",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.answered",
+    "to": "x.kept",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.answered",
+    "to": "h.frequency",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.answered",
+    "to": "h.permission",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.answered",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.final",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.suppress",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.final",
+    "to": "w.final",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.final",
+    "to": "c.final",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.final",
+    "to": "c.final",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.final",
+    "to": "x.kept",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.final",
+    "to": "h.frequency",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.final",
+    "to": "h.permission",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.final",
+    "to": "a.suppress",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.suppress",
+    "to": "c.notify",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.notify",
+    "to": "a.confirm-end",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.notify",
+    "to": "x.ended",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm-end",
+    "to": "h.enforce",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "h.enforce",
+    "to": "CON-38",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   },
+   {
+    "from": "h.frequency",
+    "to": "CON-283",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   },
+   {
+    "from": "h.permission",
+    "to": "CON-35",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
   "id": "FBK-41",
   "category": "feedback",
-  "nodeCount": 14,
-  "edgeCount": 14,
-  "branchNodeCount": 4,
-  "branchEdgeCount": 8,
+  "nodeCount": 12,
+  "edgeCount": 12,
+  "branchNodeCount": 2,
+  "branchEdgeCount": 6,
   "waitCount": 2,
   "exitCount": 6,
   "terminalExitCount": 0,
@@ -7970,8 +9557,8 @@
   "crossJourneyHandoffCount": 0,
   "backwardEdgeCount": 1,
   "maxFanIn": 2,
-  "maxFanOut": 2,
-  "maxDepth": 7,
+  "maxFanOut": 4,
+  "maxDepth": 5,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -7994,7 +9581,7 @@
    },
    {
     "from": "c.complete",
-    "to": "c.open-issue",
+    "to": "c.appropriate",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -8012,7 +9599,7 @@
    },
    {
     "from": "w.completion",
-    "to": "c.open-issue",
+    "to": "c.appropriate",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -8029,7 +9616,7 @@
     "isBackward": false
    },
    {
-    "from": "c.open-issue",
+    "from": "c.appropriate",
     "to": "x.deferred",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -8038,16 +9625,7 @@
     "isBackward": false
    },
    {
-    "from": "c.open-issue",
-    "to": "c.recent",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.recent",
+    "from": "c.appropriate",
     "to": "x.duplicate",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -8056,26 +9634,17 @@
     "isBackward": false
    },
    {
-    "from": "c.recent",
-    "to": "c.moment",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.moment",
-    "to": "a.request",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.moment",
+    "from": "c.appropriate",
     "to": "x.not-now",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.appropriate",
+    "to": "a.request",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -8311,7 +9880,7 @@
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": false,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.received",
@@ -9272,8 +10841,8 @@
  {
   "id": "FBK-49",
   "category": "feedback",
-  "nodeCount": 15,
-  "edgeCount": 18,
+  "nodeCount": 16,
+  "edgeCount": 19,
   "branchNodeCount": 4,
   "branchEdgeCount": 9,
   "waitCount": 1,
@@ -9282,10 +10851,10 @@
   "handoffCount": 1,
   "externalHandoffCount": 1,
   "crossJourneyHandoffCount": 0,
-  "backwardEdgeCount": 2,
-  "maxFanIn": 2,
+  "backwardEdgeCount": 1,
+  "maxFanIn": 3,
   "maxFanOut": 3,
-  "maxDepth": 6,
+  "maxDepth": 8,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -9394,7 +10963,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "c.valid",
@@ -9407,8 +10976,17 @@
    },
    {
     "from": "c.valid",
-    "to": "c.criticality",
+    "to": "a.reject",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reject",
+    "to": "w.received",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -11369,20 +12947,20 @@
  {
   "id": "TIM-61",
   "category": "time",
-  "nodeCount": 14,
-  "edgeCount": 18,
-  "branchNodeCount": 3,
-  "branchEdgeCount": 9,
+  "nodeCount": 16,
+  "edgeCount": 21,
+  "branchNodeCount": 4,
+  "branchEdgeCount": 11,
   "waitCount": 1,
   "exitCount": 3,
   "terminalExitCount": 0,
   "handoffCount": 3,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 3,
-  "backwardEdgeCount": 2,
-  "maxFanIn": 3,
+  "backwardEdgeCount": 3,
+  "maxFanIn": 4,
   "maxFanOut": 5,
-  "maxDepth": 5,
+  "maxDepth": 6,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -11391,7 +12969,7 @@
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -11459,7 +13037,7 @@
    },
    {
     "from": "c.useful",
-    "to": "a.remind",
+    "to": "c.threshold",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -11476,7 +13054,34 @@
     "isBackward": true
    },
    {
+    "from": "c.threshold",
+    "to": "a.remind-final",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.threshold",
+    "to": "a.remind",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
     "from": "a.remind",
+    "to": "w.tracking",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.remind-final",
     "to": "w.tracking",
     "syntacticKind": "forward",
     "isExternal": false,
@@ -11739,7 +13344,7 @@
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -12813,9 +14418,9 @@
   "id": "TIM-268",
   "category": "time",
   "nodeCount": 15,
-  "edgeCount": 19,
+  "edgeCount": 18,
   "branchNodeCount": 4,
-  "branchEdgeCount": 9,
+  "branchEdgeCount": 8,
   "waitCount": 2,
   "exitCount": 3,
   "terminalExitCount": 1,
@@ -12824,8 +14429,8 @@
   "crossJourneyHandoffCount": 0,
   "backwardEdgeCount": 1,
   "maxFanIn": 3,
-  "maxFanOut": 3,
-  "maxDepth": 10,
+  "maxFanOut": 2,
+  "maxDepth": 9,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -12834,7 +14439,7 @@
   "hasMultipleExits": true,
   "hasTerminalExit": true,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -12955,15 +14560,6 @@
     "isBackward": true
    },
    {
-    "from": "c.settled",
-    "to": "a.overdue",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
     "from": "a.confirm",
     "to": "x.satisfied",
     "syntacticKind": "forward",
@@ -13013,20 +14609,20 @@
  {
   "id": "TIM-274",
   "category": "time",
-  "nodeCount": 13,
-  "edgeCount": 14,
-  "branchNodeCount": 2,
-  "branchEdgeCount": 4,
+  "nodeCount": 17,
+  "edgeCount": 20,
+  "branchNodeCount": 4,
+  "branchEdgeCount": 8,
   "waitCount": 2,
   "exitCount": 3,
   "terminalExitCount": 0,
   "handoffCount": 0,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 0,
-  "backwardEdgeCount": 1,
-  "maxFanIn": 2,
+  "backwardEdgeCount": 3,
+  "maxFanIn": 4,
   "maxFanOut": 2,
-  "maxDepth": 7,
+  "maxDepth": 11,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -13035,7 +14631,7 @@
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -13094,12 +14690,39 @@
    },
    {
     "from": "w.grace",
-    "to": "a.last-call",
+    "to": "a.recheck-grace",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
     "isBackward": false
+   },
+   {
+    "from": "a.recheck-grace",
+    "to": "c.recheck-grace",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.recheck-grace",
+    "to": "a.last-call",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.recheck-grace",
+    "to": "c.outcome",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
    },
    {
     "from": "c.outcome",
@@ -13148,12 +14771,39 @@
    },
    {
     "from": "w.final",
-    "to": "a.lost",
+    "to": "a.recheck-final",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
     "isBackward": false
+   },
+   {
+    "from": "a.recheck-final",
+    "to": "c.recheck-final",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.recheck-final",
+    "to": "a.lost",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.recheck-final",
+    "to": "c.outcome",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
    },
    {
     "from": "a.lost",
@@ -14814,9 +16464,9 @@
   "id": "ACC-261",
   "category": "access",
   "nodeCount": 13,
-  "edgeCount": 14,
+  "edgeCount": 15,
   "branchNodeCount": 3,
-  "branchEdgeCount": 7,
+  "branchEdgeCount": 8,
   "waitCount": 1,
   "exitCount": 4,
   "terminalExitCount": 0,
@@ -14835,12 +16485,12 @@
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.restricted",
-    "to": "c.actionable",
+    "to": "c.reachable",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -14848,8 +16498,35 @@
     "isBackward": false
    },
    {
+    "from": "c.reachable",
+    "to": "c.actionable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.reachable",
+    "to": "h.unreachable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "h.unreachable",
+    "to": "CON-36",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   },
+   {
     "from": "c.actionable",
-    "to": "c.reachable",
+    "to": "a.notify",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -14876,38 +16553,11 @@
    },
    {
     "from": "a.inform-only",
-    "to": "x.informed",
+    "to": "w.resolve",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.reachable",
-    "to": "a.notify",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "c.reachable",
-    "to": "h.unreachable",
-    "syntacticKind": "branch",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "h.unreachable",
-    "to": "CON-36",
-    "syntacticKind": "handoff",
-    "isExternal": false,
-    "isCrossJourney": true,
-    "isInternal": false,
     "isBackward": false
    },
    {
@@ -14949,6 +16599,15 @@
    {
     "from": "c.outcome",
     "to": "x.stands",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "x.permanent",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -15104,7 +16763,7 @@
    },
    {
     "from": "w.last-chance",
-    "to": "x.activated",
+    "to": "c.used",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -15665,22 +17324,22 @@
  {
   "id": "IDN-84",
   "category": "identity",
-  "nodeCount": 12,
-  "edgeCount": 15,
+  "nodeCount": 14,
+  "edgeCount": 17,
   "branchNodeCount": 3,
   "branchEdgeCount": 8,
   "waitCount": 0,
   "exitCount": 2,
   "terminalExitCount": 0,
-  "handoffCount": 2,
+  "handoffCount": 3,
   "externalHandoffCount": 0,
-  "crossJourneyHandoffCount": 2,
-  "backwardEdgeCount": 0,
+  "crossJourneyHandoffCount": 3,
+  "backwardEdgeCount": 1,
   "maxFanIn": 2,
   "maxFanOut": 4,
   "maxDepth": 5,
   "hasBranches": true,
-  "hasBackwardEdges": false,
+  "hasBackwardEdges": true,
   "hasWait": false,
   "hasExternalHandoff": false,
   "hasCrossJourneyHandoff": true,
@@ -15688,7 +17347,7 @@
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": false,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.failed",
@@ -15755,7 +17414,7 @@
    },
    {
     "from": "c.retry-budget",
-    "to": "h.review",
+    "to": "h.review-budget",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -15791,12 +17450,21 @@
    },
    {
     "from": "a.backoff",
-    "to": "x.retry",
+    "to": "a.ours",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
     "isBackward": false
+   },
+   {
+    "from": "a.ours",
+    "to": "x.retry",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
    },
    {
     "from": "a.explain-terminal",
@@ -15818,6 +17486,15 @@
    },
    {
     "from": "h.review",
+    "to": "DEC-181",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   },
+   {
+    "from": "h.review-budget",
     "to": "DEC-181",
     "syntacticKind": "handoff",
     "isExternal": false,
@@ -25366,7 +27043,7 @@
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": false,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.approved",
@@ -25831,6 +27508,189 @@
     "isExternal": true,
     "isCrossJourney": false,
     "isInternal": false,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "FIN-302",
+  "category": "financial",
+  "nodeCount": 17,
+  "edgeCount": 17,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 8,
+  "waitCount": 1,
+  "exitCount": 6,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 0,
+  "maxFanIn": 2,
+  "maxFanOut": 4,
+  "maxDepth": 7,
+  "hasBranches": true,
+  "hasBackwardEdges": false,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": false,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.submitted",
+    "to": "c.scope",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.scope",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.scope",
+    "to": "x.void",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.issued",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.issued",
+    "to": "w.outcome",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.outcome",
+    "to": "c.outcome",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.outcome",
+    "to": "c.outcome",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "a.settled",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "a.partial",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "a.withdrawn",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "a.unresolved",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.settled",
+    "to": "x.settled",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.partial",
+    "to": "x.partial",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.withdrawn",
+    "to": "x.withdrawn",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.unresolved",
+    "to": "x.unsettled",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
     "isBackward": false
    }
   ]
@@ -26727,17 +28587,17 @@
   "id": "FUL-146",
   "category": "fulfillment",
   "nodeCount": 19,
-  "edgeCount": 28,
+  "edgeCount": 27,
   "branchNodeCount": 5,
   "branchEdgeCount": 12,
   "waitCount": 2,
-  "exitCount": 0,
+  "exitCount": 1,
   "terminalExitCount": 0,
-  "handoffCount": 4,
+  "handoffCount": 3,
   "externalHandoffCount": 0,
-  "crossJourneyHandoffCount": 4,
-  "backwardEdgeCount": 4,
-  "maxFanIn": 4,
+  "crossJourneyHandoffCount": 3,
+  "backwardEdgeCount": 5,
+  "maxFanIn": 5,
   "maxFanOut": 4,
   "maxDepth": 11,
   "hasBranches": true,
@@ -26749,7 +28609,7 @@
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": false,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.slip",
@@ -26816,7 +28676,7 @@
    },
    {
     "from": "c.recipient-impact",
-    "to": "c.threshold",
+    "to": "w.resume",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -26848,7 +28708,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
+    "isBackward": true
    },
    {
     "from": "c.threshold",
@@ -26951,7 +28811,7 @@
    },
    {
     "from": "w.resume",
-    "to": "h.resume",
+    "to": "x.resumed",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,
@@ -26965,15 +28825,6 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "h.resume",
-    "to": "FUL-144",
-    "syntacticKind": "handoff",
-    "isExternal": false,
-    "isCrossJourney": true,
-    "isInternal": false,
     "isBackward": false
    },
    {
@@ -27147,15 +28998,15 @@
   "id": "FUL-148",
   "category": "fulfillment",
   "nodeCount": 15,
-  "edgeCount": 25,
+  "edgeCount": 24,
   "branchNodeCount": 4,
   "branchEdgeCount": 12,
   "waitCount": 2,
-  "exitCount": 0,
+  "exitCount": 1,
   "terminalExitCount": 0,
-  "handoffCount": 3,
+  "handoffCount": 2,
   "externalHandoffCount": 0,
-  "crossJourneyHandoffCount": 3,
+  "crossJourneyHandoffCount": 2,
   "backwardEdgeCount": 5,
   "maxFanIn": 4,
   "maxFanOut": 5,
@@ -27169,7 +29020,7 @@
   "hasTerminalExit": false,
   "hasPreemption": false,
   "hasCompetition": false,
-  "hasDistinctFrom": false,
+  "hasDistinctFrom": true,
   "edges": [
    {
     "from": "t.failed",
@@ -27308,7 +29159,7 @@
    },
    {
     "from": "a.alternate",
-    "to": "h.retry",
+    "to": "x.reattempt-scheduled",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -27362,20 +29213,11 @@
    },
    {
     "from": "a.reattempt",
-    "to": "h.retry",
+    "to": "x.reattempt-scheduled",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "h.retry",
-    "to": "FUL-147",
-    "syntacticKind": "handoff",
-    "isExternal": false,
-    "isCrossJourney": true,
-    "isInternal": false,
     "isBackward": false
    },
    {
@@ -27731,22 +29573,22 @@
  {
   "id": "FUL-265",
   "category": "fulfillment",
-  "nodeCount": 16,
-  "edgeCount": 18,
+  "nodeCount": 17,
+  "edgeCount": 20,
   "branchNodeCount": 3,
-  "branchEdgeCount": 6,
+  "branchEdgeCount": 7,
   "waitCount": 2,
   "exitCount": 3,
   "terminalExitCount": 2,
   "handoffCount": 2,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 2,
-  "backwardEdgeCount": 0,
+  "backwardEdgeCount": 1,
   "maxFanIn": 2,
-  "maxFanOut": 2,
+  "maxFanOut": 3,
   "maxDepth": 9,
   "hasBranches": true,
-  "hasBackwardEdges": false,
+  "hasBackwardEdges": true,
   "hasWait": true,
   "hasExternalHandoff": false,
   "hasCrossJourneyHandoff": true,
@@ -27794,6 +29636,15 @@
    },
    {
     "from": "c.delivery",
+    "to": "a.revised",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.delivery",
     "to": "a.arrived",
     "syntacticKind": "branch",
     "isExternal": false,
@@ -27811,8 +29662,17 @@
     "isBackward": false
    },
    {
+    "from": "a.revised",
+    "to": "w.delivery",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
     "from": "a.no-arrival",
-    "to": "x.unresolved",
+    "to": "h.no-arrival",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
@@ -27820,7 +29680,7 @@
     "isBackward": false
    },
    {
-    "from": "x.unresolved",
+    "from": "h.no-arrival",
     "to": "FUL-148",
     "syntacticKind": "handoff",
     "isExternal": false,
@@ -28086,6 +29946,273 @@
   ]
  },
  {
+  "id": "FUL-291",
+  "category": "fulfillment",
+  "nodeCount": 10,
+  "edgeCount": 10,
+  "branchNodeCount": 2,
+  "branchEdgeCount": 5,
+  "waitCount": 1,
+  "exitCount": 4,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 0,
+  "maxFanIn": 2,
+  "maxFanOut": 3,
+  "maxDepth": 5,
+  "hasBranches": true,
+  "hasBackwardEdges": false,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.completed",
+    "to": "w.settle",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.settle",
+    "to": "c.state",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.settle",
+    "to": "c.state",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "x.superseded",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "x.closed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.followup",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.followup",
+    "to": "x.followed-up",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "FUL-301",
+  "category": "fulfillment",
+  "nodeCount": 11,
+  "edgeCount": 13,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 7,
+  "waitCount": 1,
+  "exitCount": 3,
+  "terminalExitCount": 0,
+  "handoffCount": 1,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 1,
+  "backwardEdgeCount": 0,
+  "maxFanIn": 2,
+  "maxFanOut": 3,
+  "maxDepth": 6,
+  "hasBranches": true,
+  "hasBackwardEdges": false,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": true,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.accepted",
+    "to": "c.stands",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.stands",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.stands",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.stands",
+    "to": "x.void",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.confirm",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm",
+    "to": "w.stands",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.stands",
+    "to": "c.next",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.stands",
+    "to": "x.confirmed",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.next",
+    "to": "x.confirmed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.next",
+    "to": "h.cancelled",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "h.cancelled",
+    "to": "FUL-150",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
   "id": "REM-151",
   "category": "remedy",
   "nodeCount": 11,
@@ -28110,7 +30237,7 @@
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -29096,8 +31223,8 @@
  {
   "id": "REM-157",
   "category": "remedy",
-  "nodeCount": 14,
-  "edgeCount": 19,
+  "nodeCount": 18,
+  "edgeCount": 23,
   "branchNodeCount": 2,
   "branchEdgeCount": 7,
   "waitCount": 1,
@@ -29118,7 +31245,7 @@
   "hasMultipleExits": false,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -29204,7 +31331,7 @@
    },
    {
     "from": "c.route",
-    "to": "h.correction",
+    "to": "a.confirm-correction",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -29213,7 +31340,7 @@
    },
    {
     "from": "c.route",
-    "to": "h.replacement",
+    "to": "a.confirm-replacement",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -29222,7 +31349,7 @@
    },
    {
     "from": "c.route",
-    "to": "h.return",
+    "to": "a.confirm-return",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -29231,7 +31358,7 @@
    },
    {
     "from": "c.route",
-    "to": "h.financial",
+    "to": "a.confirm-refund",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -29242,6 +31369,42 @@
     "from": "c.route",
     "to": "a.no-remedy",
     "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm-correction",
+    "to": "h.correction",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm-replacement",
+    "to": "h.replacement",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm-return",
+    "to": "h.return",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm-refund",
+    "to": "h.financial",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -29808,6 +31971,261 @@
    {
     "from": "h.remedy",
     "to": "REM-157",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "REM-305",
+  "category": "remedy",
+  "nodeCount": 21,
+  "edgeCount": 25,
+  "branchNodeCount": 7,
+  "branchEdgeCount": 15,
+  "waitCount": 1,
+  "exitCount": 5,
+  "terminalExitCount": 0,
+  "handoffCount": 1,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 1,
+  "backwardEdgeCount": 2,
+  "maxFanIn": 3,
+  "maxFanOut": 3,
+  "maxDepth": 9,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": true,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.received",
+    "to": "a.capture",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.capture",
+    "to": "c.covered",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.covered",
+    "to": "a.attach",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.covered",
+    "to": "c.immediate",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.attach",
+    "to": "x.attached",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.immediate",
+    "to": "c.sendable-now",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.immediate",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable-now",
+    "to": "a.resolved-now",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable-now",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.resolved-now",
+    "to": "x.resolved",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.acknowledge",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.acknowledge",
+    "to": "w.window",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.window",
+    "to": "c.outcome",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.window",
+    "to": "c.open",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "x.withdrawn",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.open",
+    "to": "h.owner",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.open",
+    "to": "x.owned",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.open",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.resolution",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.resolution",
+    "to": "x.resolved",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "h.owner",
+    "to": "REM-151",
     "syntacticKind": "handoff",
     "isExternal": false,
     "isCrossJourney": true,
@@ -31974,6 +34392,576 @@
   ]
  },
  {
+  "id": "SUB-296",
+  "category": "subscription",
+  "nodeCount": 13,
+  "edgeCount": 15,
+  "branchNodeCount": 4,
+  "branchEdgeCount": 9,
+  "waitCount": 1,
+  "exitCount": 4,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 1,
+  "maxFanIn": 3,
+  "maxFanOut": 3,
+  "maxDepth": 8,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.enrolled",
+    "to": "c.state",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "x.closed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.welcome",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.welcome",
+    "to": "w.benefit",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.benefit",
+    "to": "c.used",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.benefit",
+    "to": "c.used",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.used",
+    "to": "x.settled",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.used",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.orient",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.orient",
+    "to": "x.oriented",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "SUB-297",
+  "category": "subscription",
+  "nodeCount": 15,
+  "edgeCount": 17,
+  "branchNodeCount": 5,
+  "branchEdgeCount": 11,
+  "waitCount": 1,
+  "exitCount": 5,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 1,
+  "maxFanIn": 3,
+  "maxFanOut": 3,
+  "maxDepth": 9,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.unused",
+    "to": "c.valid",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.valid",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.valid",
+    "to": "x.closed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.valid",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.explain",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.explain",
+    "to": "c.expires",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.expires",
+    "to": "w.act",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.expires",
+    "to": "x.explained",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.act",
+    "to": "c.acted",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.act",
+    "to": "c.acted",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.acted",
+    "to": "x.used",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.acted",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.expiry-notice",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.expiry-notice",
+    "to": "x.nurtured",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "SUB-298",
+  "category": "subscription",
+  "nodeCount": 7,
+  "edgeCount": 6,
+  "branchNodeCount": 1,
+  "branchEdgeCount": 3,
+  "waitCount": 0,
+  "exitCount": 3,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 0,
+  "maxFanIn": 1,
+  "maxFanOut": 3,
+  "maxDepth": 3,
+  "hasBranches": true,
+  "hasBackwardEdges": false,
+  "hasWait": false,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.earned",
+    "to": "c.state",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "a.confirm",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "x.closed",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.state",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.confirm",
+    "to": "x.confirmed",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "SUB-299",
+  "category": "subscription",
+  "nodeCount": 11,
+  "edgeCount": 12,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 7,
+  "waitCount": 1,
+  "exitCount": 4,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 0,
+  "maxFanIn": 2,
+  "maxFanOut": 3,
+  "maxDepth": 6,
+  "hasBranches": true,
+  "hasBackwardEdges": false,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.changed",
+    "to": "c.direction",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.direction",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.direction",
+    "to": "x.out-of-scope",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.direction",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.announce",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.announce",
+    "to": "w.use",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.use",
+    "to": "c.used",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.use",
+    "to": "c.used",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.used",
+    "to": "x.adopted",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.used",
+    "to": "x.announced",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
   "id": "SCH-171",
   "category": "scheduling",
   "nodeCount": 13,
@@ -33963,7 +36951,7 @@
   "hasMultipleExits": false,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -34142,10 +37130,10 @@
  {
   "id": "SCH-277",
   "category": "scheduling",
-  "nodeCount": 14,
-  "edgeCount": 16,
-  "branchNodeCount": 2,
-  "branchEdgeCount": 5,
+  "nodeCount": 16,
+  "edgeCount": 19,
+  "branchNodeCount": 3,
+  "branchEdgeCount": 7,
   "waitCount": 2,
   "exitCount": 3,
   "terminalExitCount": 0,
@@ -34164,7 +37152,7 @@
   "hasMultipleExits": true,
   "hasTerminalExit": false,
   "hasPreemption": false,
-  "hasCompetition": false,
+  "hasCompetition": true,
   "hasDistinctFrom": true,
   "edges": [
    {
@@ -34196,8 +37184,35 @@
    },
    {
     "from": "w.outcome",
-    "to": "a.lapse",
+    "to": "a.reread-outcome",
     "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.reread-outcome",
+    "to": "c.resolved-after-all",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resolved-after-all",
+    "to": "c.outcome",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.resolved-after-all",
+    "to": "a.lapse",
+    "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -34264,7 +37279,7 @@
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
    },
    {
     "from": "c.choice",
@@ -34481,12 +37496,12 @@
  {
   "id": "SCH-282",
   "category": "scheduling",
-  "nodeCount": 15,
+  "nodeCount": 16,
   "edgeCount": 17,
   "branchNodeCount": 3,
   "branchEdgeCount": 7,
   "waitCount": 3,
-  "exitCount": 5,
+  "exitCount": 6,
   "terminalExitCount": 0,
   "handoffCount": 0,
   "externalHandoffCount": 0,
@@ -34634,7 +37649,7 @@
    },
    {
     "from": "w.waitlist",
-    "to": "x.lapsed",
+    "to": "x.waitlist-lapsed",
     "syntacticKind": "wait-timeout",
     "isExternal": false,
     "isCrossJourney": false,
@@ -34652,8 +37667,545 @@
    },
    {
     "from": "w.respond",
-    "to": "x.lapsed",
+    "to": "x.offer-lapsed",
     "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "SCH-303",
+  "category": "scheduling",
+  "nodeCount": 18,
+  "edgeCount": 26,
+  "branchNodeCount": 6,
+  "branchEdgeCount": 16,
+  "waitCount": 2,
+  "exitCount": 4,
+  "terminalExitCount": 0,
+  "handoffCount": 1,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 1,
+  "backwardEdgeCount": 8,
+  "maxFanIn": 4,
+  "maxFanOut": 3,
+  "maxDepth": 10,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": true,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.outstanding",
+    "to": "c.standing",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.standing",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.standing",
+    "to": "x.kept",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.standing",
+    "to": "x.superseded",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.remind",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.remind",
+    "to": "w.payment",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.payment",
+    "to": "c.outcome",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.payment",
+    "to": "c.still",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "x.kept",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.outcome",
+    "to": "h.payment-failure",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome",
+    "to": "x.superseded",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.still",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.still",
+    "to": "x.kept",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.still",
+    "to": "x.superseded",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.final",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.final",
+    "to": "w.release",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.release",
+    "to": "c.outcome2",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.release",
+    "to": "a.lapse",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.outcome2",
+    "to": "x.kept",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.outcome2",
+    "to": "h.payment-failure",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.outcome2",
+    "to": "x.superseded",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.lapse",
+    "to": "x.released",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "h.payment-failure",
+    "to": "FIN-134",
+    "syntacticKind": "handoff",
+    "isExternal": false,
+    "isCrossJourney": true,
+    "isInternal": false,
+    "isBackward": false
+   }
+  ]
+ },
+ {
+  "id": "SCH-304",
+  "category": "scheduling",
+  "nodeCount": 20,
+  "edgeCount": 27,
+  "branchNodeCount": 8,
+  "branchEdgeCount": 18,
+  "waitCount": 2,
+  "exitCount": 5,
+  "terminalExitCount": 0,
+  "handoffCount": 0,
+  "externalHandoffCount": 0,
+  "crossJourneyHandoffCount": 0,
+  "backwardEdgeCount": 7,
+  "maxFanIn": 3,
+  "maxFanOut": 3,
+  "maxDepth": 9,
+  "hasBranches": true,
+  "hasBackwardEdges": true,
+  "hasWait": true,
+  "hasExternalHandoff": false,
+  "hasCrossJourneyHandoff": false,
+  "hasMultipleExits": true,
+  "hasTerminalExit": false,
+  "hasPreemption": false,
+  "hasCompetition": true,
+  "hasDistinctFrom": true,
+  "edges": [
+   {
+    "from": "t.window",
+    "to": "c.standing",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.standing",
+    "to": "c.sendable",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.standing",
+    "to": "x.superseded",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.standing",
+    "to": "x.overtaken",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.details",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "a.details",
+    "to": "w.checkin",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.checkin",
+    "to": "c.resolved",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.checkin",
+    "to": "c.owed",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resolved",
+    "to": "w.dayof",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resolved",
+    "to": "x.superseded",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.resolved",
+    "to": "x.arrived",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.owed",
+    "to": "c.sendable2",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.owed",
+    "to": "w.dayof",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.checkin",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable2",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.checkin",
+    "to": "w.dayof",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "w.dayof",
+    "to": "c.resolved2",
+    "syntacticKind": "wait-event",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "w.dayof",
+    "to": "c.late",
+    "syntacticKind": "wait-timeout",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.resolved2",
+    "to": "x.superseded",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.resolved2",
+    "to": "x.arrived",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "c.late",
+    "to": "c.sendable3",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.late",
+    "to": "x.ready",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable3",
+    "to": "a.late-detail",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
+   },
+   {
+    "from": "c.sendable3",
+    "to": "a.record-no-action",
+    "syntacticKind": "branch",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.late-detail",
+    "to": "x.ready",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": true
+   },
+   {
+    "from": "a.record-no-action",
+    "to": "x.no-action",
+    "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
@@ -38931,10 +42483,10 @@
   "handoffCount": 1,
   "externalHandoffCount": 0,
   "crossJourneyHandoffCount": 1,
-  "backwardEdgeCount": 3,
-  "maxFanIn": 3,
+  "backwardEdgeCount": 2,
+  "maxFanIn": 2,
   "maxFanOut": 3,
-  "maxDepth": 6,
+  "maxDepth": 7,
   "hasBranches": true,
   "hasBackwardEdges": true,
   "hasWait": true,
@@ -38948,15 +42500,6 @@
   "edges": [
    {
     "from": "t.blocked",
-    "to": "a.at-the-wall",
-    "syntacticKind": "forward",
-    "isExternal": false,
-    "isCrossJourney": false,
-    "isInternal": true,
-    "isBackward": false
-   },
-   {
-    "from": "a.at-the-wall",
     "to": "c.path",
     "syntacticKind": "forward",
     "isExternal": false,
@@ -38975,7 +42518,7 @@
    },
    {
     "from": "c.path",
-    "to": "w.capacity",
+    "to": "a.at-the-wall",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -38984,7 +42527,7 @@
    },
    {
     "from": "c.path",
-    "to": "x.blocked",
+    "to": "a.blocked-notice",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -38993,7 +42536,7 @@
    },
    {
     "from": "c.decider",
-    "to": "a.offer-self",
+    "to": "a.at-the-wall",
     "syntacticKind": "branch",
     "isExternal": false,
     "isCrossJourney": false,
@@ -39010,13 +42553,22 @@
     "isBackward": false
    },
    {
-    "from": "a.offer-self",
+    "from": "a.at-the-wall",
     "to": "w.capacity",
     "syntacticKind": "forward",
     "isExternal": false,
     "isCrossJourney": false,
     "isInternal": true,
-    "isBackward": true
+    "isBackward": false
+   },
+   {
+    "from": "a.blocked-notice",
+    "to": "x.blocked",
+    "syntacticKind": "forward",
+    "isExternal": false,
+    "isCrossJourney": false,
+    "isInternal": true,
+    "isBackward": false
    },
    {
     "from": "a.offer-holder",
@@ -47420,7 +50972,7 @@
    },
    {
     "from": "w.final",
-    "to": "h.resume",
+    "to": "c.cleared",
     "syntacticKind": "wait-event",
     "isExternal": false,
     "isCrossJourney": false,

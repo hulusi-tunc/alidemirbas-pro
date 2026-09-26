@@ -1,14 +1,12 @@
 import Image from "next/image";
-import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, CircleCheck, CircleX, Clock, Mail, MapPin, Radio } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Building2, ChartNoAxesCombined, FolderKanban, MapPin } from "lucide-react";
 
 import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 import { clsx } from "@/lib/clsx";
 import { CtaBand } from "@/components/ui/CtaBand";
 import { CtaBurst } from "@/components/ui/CtaBurst";
 import { GitHubMark, LinkedInMark } from "@/components/ui/BrandIcons";
-import { LabProjectIcon, labAccent } from "@/components/ui/LabProjectIdentity";
 import { LabNavDropdown } from "@/components/ui/LabNavDropdown";
 import { MobileNav } from "@/components/ui/MobileNav";
 import { Reveal } from "@/components/ui/Reveal";
@@ -17,8 +15,7 @@ import { BioTrack } from "@/components/ui/BioTrack";
 import { StackShowcase } from "@/components/ui/StackShowcase";
 import { EntryCard } from "@/components/ui/CalculatorLibrary";
 import { Work } from "@/components/HomeWork";
-import { withJourneyCount } from "@/lib/archive";
-import { NUMERSPACE_CATALOG } from "@/lib/numerspace-catalog";
+import { withLabProjectFacts } from "@/lib/lab-project-facts";
 import {
   ALL_TOOL_SLUGS,
   getFeaturedCalcEntries,
@@ -88,7 +85,7 @@ export function SiteHeader({
   const labProjects = t.lab.projects.map((p) => ({
     slug: p.slug,
     name: p.name,
-    tagline: withJourneyCount(p.tagline),
+    tagline: withLabProjectFacts(p.tagline),
     href: p.links[0].href,
   }));
 
@@ -158,7 +155,13 @@ export function SiteHeader({
   );
 }
 
-const HERO_TILES = ["lifecycle-card-archive", "ab-test-playbook", "numerspace"] as const;
+const HERO_CARD_ORDER = ["current", "funnel", "selected", "industries"] as const;
+const HERO_CARD_ICONS = {
+  current: BriefcaseBusiness,
+  funnel: ChartNoAxesCombined,
+  selected: FolderKanban,
+  industries: Building2,
+} as const;
 
 /* THE HERO (Hulusi, 2026-09-06, "focused work on the hero", then "this is a
    personal site, your examples are companies", then "a mix of both"): the
@@ -168,109 +171,14 @@ const HERO_TILES = ["lifecycle-card-archive", "ab-test-playbook", "numerspace"] 
    introduction above them - avatar, name, role line, chips - was cut by
    Hulusi the same evening: "remove this part from the hero"). Then, still
    in the hero, the bento Portrait
-   opens a profile with: the portrait in colour as one tall tile, and tiles
-   for the things he built, each with its icon, its name, one plain sentence
-   saying what it is and the real count from the data - so a first-time
-   visitor reads "a library of journeys", never "what is 284". The dark tile
-   carries the career line that used to be a five-row spec table. The
+   opens a profile with: the portrait in colour as one tall tile, and four
+   tiles that answer where he works now, how broadly he approaches growth,
+   what he has built, and which industries he knows. The dark tile carries
+   the industry range. The
    greyscale portrait under a blue multiply, the spec table and the photo
    frame that came before it are gone. */
-/* The miniature inside each product tile - one real thing from the tool,
-   not an illustration: a journey drawn as its steps, the A/B pair drawn
-   as two carts with the tested element ringed, and the calculator
-   categories on the same endless marquee the Lab index uses. Hulusi,
-   2026-09-06: "the hero feels a little dead, needs more liveliness". */
-function MiniNode({ tint, icon, children }: { tint: string; icon: ReactNode; children: ReactNode }) {
-  return (
-    <div className="flex-1 rounded-xl bg-paper p-3 ring-1 ring-ink-950/[0.06]">
-      <div className="flex items-center gap-1.5">
-        <span className={`grid size-5 shrink-0 place-items-center rounded-full ${tint}`}>{icon}</span>
-        <span className="h-1.5 w-8 rounded-full bg-ink-950/10" />
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function TileMini({ slug, lang }: { slug: string; lang: Lang }) {
-  if (slug === "lifecycle-card-archive") {
-    /* A journey the way the library defines one, in the same drawn idiom as
-       the A/B pair beside it (Hulusi, 2026-09-07: "the A/B image is amazing,
-       like how we want; the journey one is not good"): a trigger, an email
-       step with its wait, and the fork into the two kinds of exit. Real node
-       kinds, no words. The real canvas, small, was tried here for an hour on
-       2026-09-20 and sent back ("the low-fi one in the hero was better"):
-       at tile size the canvas is one blue card and a line, while the sketch
-       tells the whole shape. The Work band below keeps the real canvas,
-       where it has the room. */
-    return (
-      <div aria-hidden className="mt-5 -mx-2 flex items-center gap-1.5">
-        <MiniNode tint="bg-ink-950 text-white" icon={<Radio className="size-3" />}>
-          <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
-          <span className="mt-1.5 block h-1.5 w-2/3 rounded-full bg-ink-950/10" />
-        </MiniNode>
-        <span className="h-px w-2.5 shrink-0 bg-ink-300" />
-        <MiniNode tint="bg-primary-600 text-white" icon={<Mail className="size-3" />}>
-          <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
-          <span className="mt-2 inline-flex items-center gap-1 rounded-md bg-paper px-1.5 py-0.5 ring-1 ring-ink-950/[0.06]">
-            <Clock className="size-3 text-ink-500" />
-            <span className="h-1.5 w-5 rounded-full bg-ink-950/10" />
-          </span>
-        </MiniNode>
-        <span className="h-px w-2.5 shrink-0 bg-ink-300" />
-        <div className="flex flex-1 flex-col gap-1.5">
-          <span className="flex items-center gap-1.5 rounded-xl bg-paper px-2.5 py-2 ring-1 ring-ink-950/[0.06]">
-            <CircleCheck className="size-3.5 shrink-0 text-emerald-600" />
-            <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
-          </span>
-          <span className="flex items-center gap-1.5 rounded-xl bg-paper px-2.5 py-2 ring-1 ring-ink-950/[0.06]">
-            <CircleX className="size-3.5 shrink-0 text-rose-600" />
-            <span className="h-1.5 w-full rounded-full bg-ink-950/10" />
-          </span>
-        </div>
-      </div>
-    );
-  }
-  if (slug === "ab-test-playbook") {
-    return (
-      <div aria-hidden className="mt-5 -mx-2 grid grid-cols-2 gap-2">
-        {(["A", "B"] as const).map((mark) => (
-          <div key={mark} className="rounded-xl bg-paper p-3 ring-1 ring-ink-950/[0.06]">
-            <div className="flex items-center gap-1.5">
-              <span className={`grid size-5 place-items-center rounded-full text-xs font-semibold ${mark === "A" ? "bg-ink-950 text-white" : "bg-rose-600 text-white"}`}>{mark}</span>
-              <span className="h-1.5 w-10 rounded-full bg-ink-950/10" />
-            </div>
-            <span className="mt-2.5 block h-1.5 w-full rounded-full bg-ink-950/10" />
-            <span className="mt-1.5 block h-1.5 w-2/3 rounded-full bg-ink-950/10" />
-            {mark === "A" ? (
-              <span className="mt-3 block h-6 rounded-md bg-paper ring-2 ring-rose-300" />
-            ) : (
-              <span className="mt-3 flex h-6 items-center"><span className="h-1.5 w-1/2 rounded-full bg-primary-500 ring-2 ring-rose-300 ring-offset-2 ring-offset-paper" /></span>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-  if (slug === "numerspace") {
-    const names = NUMERSPACE_CATALOG[lang].map((c) => c.name.replace(/ (Calculators|Hesaplayıcıları|Hesaplayıcılar)$/u, ""));
-    return (
-      <div aria-hidden className="mt-5 -mx-6 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
-        <div className="lab-marquee" style={{ "--marquee-duration": "48s" } as React.CSSProperties}>
-          {[...names, ...names].map((name, i) => (
-            <span key={`${name}-${i}`} className="mr-2 shrink-0 rounded-full bg-teal-50 px-3 py-1.5 text-xs font-medium whitespace-nowrap text-teal-800">
-              {name}
-            </span>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  return null;
-}
-
-function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
-  const projects = HERO_TILES.map((slug) => t.lab.projects.find((p) => p.slug === slug)).filter((p) => p !== undefined);
+function Hero({ t }: { t: (typeof copy)[Lang] }) {
+  const cards = HERO_CARD_ORDER.map((key) => ({ key, ...t.hero.cards[key] }));
   return (
     <section id="top" className="relative isolate flex min-h-[calc(100svh-4rem)] flex-col justify-center overflow-hidden bg-paper pt-14 pb-16 lg:pt-18 lg:pb-20">
       {/* The /lab hero's meadow behind the bento, bottom-anchored and
@@ -289,11 +197,7 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
       </div>
       <div className="altor-container">
         <Reveal delay={60}>
-          <h1 className="mx-auto max-w-4xl text-center text-h1 text-balance text-ink-950">
-            {t.hero.line1}
-            <br className="hidden sm:block" />{" "}
-            {t.hero.line2}
-          </h1>
+          <h1 className="mx-auto max-w-4xl text-center text-h1 text-balance text-ink-950">{t.hero.line1}</h1>
         </Reveal>
         <Reveal delay={120}>
           <p className="mx-auto mt-6 max-w-3xl text-center text-lg leading-relaxed text-pretty text-ink-muted">{t.hero.lead}</p>
@@ -331,52 +235,69 @@ function Hero({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) {
               lifts by 2px on the slow duration and the soft ease-out; the
               fast duration read as a jolt. The portrait and the dark tile
               stay opaque; both carry photos. */}
-          {projects.map((project, i) => {
-            const accent = labAccent(project.slug);
-            const [primary] = project.links;
+          {cards.map((card, i) => {
+            const Icon = HERO_CARD_ICONS[card.key];
+            const dark = card.key === "industries";
             return (
-              <Reveal key={project.slug} delay={280 + i * 60} className="flex">
+              <Reveal key={card.key} delay={280 + i * 60} className="flex">
                 <Link
-                  href={primary.href}
-                  className="group flex w-full flex-col overflow-hidden rounded-[28px] bg-gradient-to-b from-paper to-paper/50 p-6 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl transition-[box-shadow,transform] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.45)]"
+                  href={card.href}
+                  className={clsx(
+                    "group relative isolate flex min-h-[18rem] w-full flex-col overflow-hidden rounded-card p-6 transition-[box-shadow,transform] duration-[var(--duration-slow)] ease-[var(--ease-out-soft)] hover:-translate-y-0.5",
+                    dark
+                      ? "bg-ink-950 text-white shadow-[0_24px_60px_-32px_rgb(10_16_32/0.55)] hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.65)]"
+                      : "bg-gradient-to-b from-paper to-paper/50 shadow-[0_24px_60px_-32px_rgb(10_16_32/0.35)] ring-1 ring-white/70 backdrop-blur-2xl hover:shadow-[0_28px_60px_-28px_rgb(10_16_32/0.45)]",
+                  )}
                 >
-                  <span aria-hidden className={`grid size-10 place-items-center rounded-xl ${accent.tile}`}>
-                    <LabProjectIcon slug={project.slug} className="size-5" />
-                  </span>
-                  <p className="mt-4 text-lg font-semibold text-ink-950">{project.short}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-600">{withJourneyCount(t.hero.tiles[project.slug as (typeof HERO_TILES)[number]])}</p>
-                  <TileMini slug={project.slug} lang={lang} />
-                  <p className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium text-ink-950">
-                    <span className="tabular-nums">{withJourneyCount(project.proof ?? "")}</span>
-                    <ArrowRight aria-hidden className="size-4 text-ink-400 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
+                  {dark && (
+                    <>
+                      <Image
+                        src="/lab/frames/google-ads-change-history-dashboard.jpg"
+                        alt=""
+                        aria-hidden
+                        fill
+                        sizes="(min-width: 1024px) 24rem, (min-width: 768px) 50vw, 100vw"
+                        className="-z-20 origin-bottom scale-[1.15] object-cover object-bottom"
+                      />
+                      <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/90 via-ink-950/70 to-ink-950/45" />
+                    </>
+                  )}
+                  <div className="flex items-center justify-between gap-4">
+                    <span aria-hidden className={clsx("grid size-10 place-items-center rounded-xl", dark ? "bg-white/10 text-white" : "bg-primary-50 text-primary-700")}>
+                      <Icon className="size-5" />
+                    </span>
+                    <span className={clsx("altor-eyebrow", dark ? "text-white/55" : "text-ink-400")}>{card.eyebrow}</span>
+                  </div>
+                  <p className={clsx("mt-5 text-xl font-semibold", dark ? "text-white" : "text-ink-950")}>{card.title}</p>
+                  <p className={clsx("mt-2 text-sm leading-relaxed text-pretty", dark ? "text-white/72" : "text-ink-600")}>{card.body}</p>
+
+                  {card.key === "current" ? (
+                    <div className="mt-5 rounded-xl bg-paper/75 p-4 ring-1 ring-white/70 backdrop-blur-sm">
+                      <Image src="/logos/aksigorta.svg" alt="Aksigorta" width={148} height={21} className="h-5 w-auto" />
+                      <p className="mt-3 text-sm font-medium text-ink-800">{card.meta}</p>
+                    </div>
+                  ) : card.key === "selected" ? (
+                    <ul className="mt-5 grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2">
+                      {card.items.map((item) => (
+                        <li key={item} className="rounded-lg bg-paper/70 px-3 py-2 text-xs font-medium text-ink-700 ring-1 ring-ink-950/[0.05] backdrop-blur-sm">{item}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {card.items.map((item) => (
+                        <span key={item} className={clsx("rounded-full px-3 py-1.5 text-xs font-medium", dark ? "bg-white/10 text-white/85 ring-1 ring-white/10" : "bg-paper/75 text-ink-700 ring-1 ring-ink-950/[0.06]")}>{item}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  <p className={clsx("mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-medium", dark ? "text-white/85" : "text-ink-950")}>
+                    <span>{card.cta}</span>
+                    <ArrowRight aria-hidden className={clsx("size-4 transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5", dark ? "text-white/60" : "text-ink-400")} />
                   </p>
                 </Link>
               </Reveal>
             );
           })}
-          <Reveal delay={460} className="flex">
-            {/* The night plate (Hulusi, 2026-09-07: "change the background to
-                something suitable from what we created, we have one dark
-                image, night"): the blue-hour meadow the Change History frame
-                uses, bottom-anchored like every plate, under a dark gradient
-                so the line stays readable. */}
-            <div className="relative isolate flex w-full flex-col justify-between overflow-hidden rounded-[28px] bg-ink-950 p-6 text-white">
-              <Image
-                src="/lab/frames/google-ads-change-history-dashboard.jpg"
-                alt=""
-                aria-hidden
-                fill
-                sizes="(min-width: 1024px) 24rem, (min-width: 768px) 50vw, 100vw"
-                className="-z-20 origin-bottom scale-[1.15] object-cover object-bottom"
-              />
-              <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/85 via-ink-950/45 to-ink-950/30" />
-              <p className="relative text-lg leading-snug font-semibold text-balance">{t.hero.statement}</p>
-              <Link href={t.nav.aboutHref} className="mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-white/80 transition-colors duration-[var(--duration-fast)] hover:text-white">
-                {t.hero.statementLink}
-                <ArrowRight aria-hidden className="size-4" />
-              </Link>
-            </div>
-          </Reveal>
         </div>
       </div>
     </section>
@@ -645,7 +566,7 @@ export function SiteFooter({ t, lang }: { t: (typeof copy)[Lang]; lang: Lang }) 
         </div>
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-line pt-6 text-sm text-ink-400 sm:flex-row">
           <div className="flex items-center gap-3">
-            <span>{t.footer.left}</span>
+            <span>{t.footer.left}, {new Date().getFullYear()}</span>
             <span aria-hidden>·</span>
             <span>{t.footer.right}</span>
           </div>
@@ -675,7 +596,7 @@ export default function Site({ lang }: { lang: Lang }) {
     <>
       <SiteHeader t={t} />
       <main>
-        <Hero t={t} lang={lang} />
+        <Hero t={t} />
         <Bio t={t} />
         <Work t={t} lang={lang} />
         {/* Expertise, StatsBand and Experience pulled off the home page for

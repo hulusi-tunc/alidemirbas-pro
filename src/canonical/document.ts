@@ -190,6 +190,11 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         because:
           "RSK-195 owns the compliance requirement itself - whether an obligation is met. This owns the artifact lifecycle a requirement may need: which document, generated how, issued when, signed by whom. A compliance requirement can be satisfied without any document, and most documents exist for reasons that are not compliance.",
       },
+      {
+        journey: "DOC-214",
+        because:
+          "Both journeys open on the same trigger, split by who owes the artifact. This one decides whether the business itself needs to create, reuse or waive it. DOC-214 is the other half: the requirement names a document only the party can supply, and this journey has nothing to create, reuse or waive.",
+      },
     ],
     entry: "t.requirement",
     nodes: [
@@ -568,53 +573,66 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     id: "DOC-214",
     slug: "document-distribution",
     category: "document",
-    goal: "delivery-confirmation",
-    channels: ["email"],
-    name: "Document distribution → send or provide access → confirm or fail",
-    shortName: "Document Delivery",
+    goal: "recovery-retry",
+    channels: ["email", "push", "sms"],
+    name: "Document requirement → reminded → completed or escalated to a person",
+    shortName: "Missing Document Follow-Up",
     purpose:
-      "Get a specific issued version to the party who should have it, without either fact touching the other.",
+      "Chase a document only the party can supply until it is received or the submission's own deadline passes, then put a person on it rather than let the submission expire silently.",
     entity: {
-      scope: "the issued version, the intended recipient, and the distribution of one to the other",
-      note: "The distribution is bound to a version. Delivery state describes the distribution and never the document.",
+      scope: "the business process (application or transaction) and the specific document requirement only the party can supply",
+      note: "The requirement is bound to one submission. A second missing document inside the same submission is the same instance; a different submission is a new one.",
       instanceKey: [
-        "document_version_id",
-        "recipient_id"
+        "process_id",
+        "requirement_id"
       ],
       concurrency: "one-active-per-key"
     },
-    objective: "Get a specific issued version to the party who should have it, without either fact touching the other.",
+    distinctFrom: [
+      {
+        journey: "DOC-211",
+        because:
+          "DOC-211 decides whether the business itself needs to create, reuse or waive an artifact once a process reaches a document requirement. This journey is the other half of that same trigger: the artifact the requirement names is one only the party can supply, and the business has nothing to generate, reuse or waive.",
+      },
+      ],
+    objective:
+      "Chase a document only the party can supply until it is received or the submission's own deadline passes, then put a person on it rather than let the submission expire silently.",
     eligibility: [
-      "an issued document version with a party who is to receive it",
-      "no instance of this journey is already open for the the issued version",
+      "a business process (application or transaction) that has reached a document requirement only the party can supply",
+      "no instance of this journey is already open for the process plus the same document requirement",
       "hard gates (GLB-31) allow communication for this purpose"
     ],
     suppressions: [
       {
         "id": "s.g1",
         "label": "CANONICAL_RULE",
-        "text": "A document being issued is not the recipient having received it."
+        "text": "Reaching the document requirement is not yet a missing document - the party still gets the normal chance to supply it as part of the process itself before this journey ever fires."
       },
       {
         "id": "s.g2",
         "label": "CANONICAL_RULE",
-        "text": "Sending a wrong or outdated version is prevented by binding distribution to a version."
+        "text": "A document the business itself can generate, reuse or waive belongs to the document requirement resolution journey (DOC-211), never to this one standing in for it."
       },
       {
         "id": "s.g3",
         "label": "CANONICAL_RULE",
-        "text": "Distribution reuses the canonical communication mechanics rather than duplicating them."
+        "text": "The submission deadline is read from the process's own required-by date; this journey invents no deadline of its own."
+      },
+      {
+        "id": "s.g4",
+        "label": "CANONICAL_RULE",
+        "text": "Once every required document is received, no further reminder is sent - a later document requirement inside the same process opens its own instance."
       }
     ],
     contact: {
-      "defaultPriority": "transactional",
-      "pressureClass": "none",
+      "defaultPriority": "service",
+      "pressureClass": "service",
       "localCap": {
         "value": {
-          "key": "document_distribution.touches",
-          "rule": "Every touch runs against a budget fixed when the instance opened; the budget is the plan's own length, and no touch is repeated because nothing could tell whether it arrived.",
+          "key": "document_requirement.touches",
+          "rule": "Three customer touches at most: the initial notice, one push reminder and one final notice immediately before escalation - matching the graph's own three communicating actions.",
           "default": {
-            "value": 1,
+            "value": 3,
             "confidence": "high",
             "basis": "corpus-rule",
             "applicableWhen": "GLB-24; the graph's own touch count"
@@ -624,13 +642,12 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         "appliesTo": "non-mandatory"
       },
       "cooldown": {
-        "key": "document_distribution.cooldown",
-        "rule": "This journey is per the issued version; a later instance concerns a different the issued version and no cooldown applies between them.",
+        "key": "document_requirement.cooldown",
+        "rule": "Requests are per requirement; a further requirement on the same or a different process is its own instance and no cooldown applies.",
         "default": {
           "value": "none",
           "confidence": "high",
-          "basis": "corpus-rule",
-          "applicableWhen": "the entity note: one instance per entity"
+          "basis": "corpus-rule"
         },
         "required": false
       },
@@ -640,60 +657,102 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
       "roles": [
         {
           "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the message has to be kept and survive until the person can act on it"
+          "channels": ["email"],
+          "when": "the initial notice, and any notice that has to be kept and referred back to while the party gathers what is missing"
+        },
+        {
+          "role": "low-friction",
+          "channels": ["push"],
+          "when": "has_active_app_session is true and a quick nudge back to the upload flow is enough"
+        },
+        {
+          "role": "urgent",
+          "channels": ["sms"],
+          "when": "the submission deadline is close enough that a missed reminder would close the window, and permission for service SMS is recorded"
         }
       ],
-      "fallback": "same-role-other-channel",
+      "fallback": "none",
       "label": "RECOMMENDED_DEFAULT"
     },
     orchestration: {
-      "strategy": "single-notice",
+      "strategy": "human-escalation-ladder",
       "touches": [
         {
           "id": "t1",
-          "stage": "distribute",
-          "action": "a.distribute",
+          "stage": "notice",
+          "action": "a.notify",
           "prerequisites": [],
-          "purpose": "Raise the actual delivery through the canonical communication mechanism, which owns channels, permissions, retries and delivery evidence.",
+          "purpose": "Name exactly which documents are missing, how to submit them, and the submission deadline.",
           "channelRoles": [
             "persistent"
           ],
           "mandatory": true,
           "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t2",
+          "stage": "reminder",
+          "action": "a.remind",
+          "after": "t1",
+          "gatedBy": "w.first",
+          "prerequisites": [
+            "c.complete1"
+          ],
+          "purpose": "Remind that the documents are still missing, with a direct link back to the upload flow and the same submission deadline.",
+          "channelRoles": [
+            "low-friction"
+          ],
+          "mandatory": false,
+          "label": "CANONICAL_RULE"
+        },
+        {
+          "id": "t3",
+          "stage": "final-notice",
+          "action": "a.final",
+          "after": "t2",
+          "gatedBy": "w.second",
+          "prerequisites": [
+            "c.complete2"
+          ],
+          "purpose": "Send a final notice that the deadline is closing, naming the support channel that can still help before the case is handed to a person.",
+          "channelRoles": [
+            "urgent"
+          ],
+          "mandatory": false,
+          "label": "OPTIONAL_STRATEGY"
         }
       ],
       "noAction": [
         "s.g1",
         "s.g2",
-        "s.g3"
+        "s.g3",
+        "s.g4"
       ]
     },
     implementation: {
       "attributes": {
         "required": [
-          "document_version_id",
-          "recipient_id",
-          "issued_at",
-          "distribution_ref",
+          "process_id",
+          "requirement_id",
+          "document_type",
+          "deadline_at",
           "document_log"
         ],
-        "optional": []
+        "optional": [
+          "has_active_app_session"
+        ]
       }
     },
     measurement: {
       "journeyOutcome": {
         "type": "exit-or-handoff",
         "refs": [
-          "x.distributed",
-          "h.reconcile",
-          "h.recover"
+          "x.complete",
+          "h.escalate"
         ]
       },
       "businessOutcome": {
-        "event": "distribution_confirmed",
+        "event": "document_submitted",
         "unit": "instance",
         "observationScope": {
           "type": "self"
@@ -702,7 +761,7 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
           "type": "until-exit"
         },
         "attribution": "touched-before-event",
-        "comparison": "not-applicable"
+        "comparison": "pre-post"
       },
       "secondary": [],
       "guardrails": [
@@ -719,686 +778,183 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
     },
     discovery: {
       "aliases": [
-        "document delivery",
-        "send a document",
-        "policy document distribution",
-        "contract copy delivery",
+        "missing document reminder",
+        "incomplete application follow-up",
+        "required document request",
+        "document upload reminder",
         "document distribution"
       ],
       "useCases": [
-        "a specific issued version delivered to the party who should have it",
-        "a failed distribution handed to delivery recovery"
+        "an application or transaction missing a document only the applicant can supply",
+        "a submission left incomplete past its own deadline"
       ]
     },
-    entry: "t.requires",
+    entry: "t.required",
     nodes: [
       {
-        id: "t.requires",
+        id: "t.required",
         kind: "trigger",
-        event: "issued_document_requires_distribution",
+        event: "process_reaches_document_requirement",
         evidence: {
-          requires: ["an issued document version with a party who is to receive it"],
+          requires: ["a submitted application or transaction that has reached a document requirement only the party can supply"],
           insufficientAlone: [
-            "a document drafted but not issued",
-            "a document already viewed or downloaded by its recipient, which is delivery having happened",
+            "the process merely reaching the point where a document may eventually be required, before the party has had the normal chance to supply it",
+            "a requirement the business itself can satisfy by generating, reusing or waiving an artifact (DOC-211)",
           ],
           source: "authoritative",
         },
-        next: "a.recipient",
+        next: "a.notify",
       },
       {
-        id: "a.recipient",
+        id: "a.notify",
         kind: "action",
-        does: "Resolve the intended recipient and the route permitted for a document of this type. A document reaching the wrong party is worse than one not sent - the second can be retried and the first cannot be recalled",
+        does: "Name exactly which documents are missing, how to submit them, and the submission deadline",
         writes: [{ field: "document_log", mode: "append" }],
-        next: "a.version",
-        idempotencyKey: "document_version_id + recipient_id + a.recipient",
-      },
-      {
-        id: "a.version",
-        kind: "action",
-        does: "Bind the distribution to the exact issued version. Sending an outdated version is the failure this step exists to prevent: the recipient then holds, relies on, and may sign terms that nobody currently offers",
-        writes: [{ field: "document_log", mode: "append" }],
-        next: "a.distribute",
-        idempotencyKey: "document_version_id + recipient_id + a.version",
-      },
-      {
-        id: "a.distribute",
-        kind: "action",
-        does: "Raise the actual delivery through the canonical communication mechanism, which owns channels, permissions, retries and delivery evidence. Document distribution does not build its own delivery path - a parallel one will disagree with the canonical delivery record about whether the contract was ever sent",
-        writes: [{ field: "document_log", mode: "append" }],
-        next: "w.distribution",
+        next: "w.first",
         execution: "communication",
-        idempotencyKey: "document_version_id + recipient_id + a.distribute",
+        idempotencyKey: "process_id + requirement_id + a.notify",
       },
       {
-        id: "w.distribution",
+        id: "w.first",
         kind: "wait",
         until: [
-          "distribution_confirmed",
-          "distribution_failed"
+          "document_submitted"
         ],
-        onEvent: "c.outcome",
+        onEvent: "c.complete1",
         timeout: {
           "after": {
-            "key": "document_distribution.distribution",
-            "rule": "The distribution outcome is waited for as long as the communication mechanism's own delivery window runs; past it the outcome is reconciled, never assumed.",
-            "class": "external-window",
-            "required": true
-          },
-          "reason": "a distribution neither confirmed nor failed leaves nobody able to say whether the recipient has the document, which is the one thing distribution exists to establish",
-          "relativeTo": "previous-touch"
-        },
-        onTimeout: "a.unknown",
-        windowExtendsOnEngagement: false,
-        recheck: "the the issued version re-read from the system of record before acting on the timeout",
-      },
-      {
-        id: "c.outcome",
-        kind: "condition",
-        asks: "How did the distribution resolve?",
-        branches: [
-          {
-            label: "Confirmed",
-            when: "delivery or availability is established to the level the requirement demands",
-            to: "a.confirmed",
-          },
-          {
-            label: "Failed",
-            when: "the channel authoritatively reports it did not arrive",
-            to: "h.recover",
-          },
-        ],
-      },
-      {
-        id: "a.confirmed",
-        kind: "action",
-        does: "Record DELIVERED or AVAILABLE against the exact version distributed. Delivery state describes the distribution and never the document - an undelivered contract is a valid contract nobody has, and treating delivery as validity turns a mail failure into a legal one",
-        writes: [{ field: "document_log", mode: "append" }],
-        next: "x.distributed",
-        idempotencyKey: "document_version_id + recipient_id + a.confirmed",
-      },
-      {
-        id: "x.distributed",
-        kind: "exit",
-        state: "the identified version reached the intended recipient; the document's validity is unchanged by this",
-        terminal: false,
-        reEntry:
-          "a superseding version requires its own distribution. Nothing about this one is retracted by that - the recipient was correctly given what was current then",
-        class: "success",
-      },
-      {
-        id: "a.unknown",
-        kind: "action",
-        does: "Record the distribution outcome as unknown and do not treat it as delivered. The document's validity is untouched either way - what is unknown is whether anybody has it",
-        writes: [{ field: "document_log", mode: "append" }],
-        next: "h.reconcile",
-        idempotencyKey: "document_version_id + recipient_id + a.unknown",
-      },
-      {
-        id: "h.reconcile",
-        kind: "handoff",
-        to: "external:external-status-reconciliation",
-        on: "a distribution whose outcome could not be established",
-        carries: [
-          "the version, the recipient and everything last known about the delivery",
-          "the explicit fact that the document remains valid and issued regardless of how this resolves",
-        ],
-        contract: {
-          "requiredFields": [
-            "document_version_id",
-            "issue_id",
-            "handed_at",
-            "reason"
-          ]
-        },
-      },
-      {
-        id: "h.recover",
-        kind: "handoff",
-        to: "CMS-208",
-        on: "a failed document distribution",
-        carries: [
-          "message_id (this distribution's own message identity) and destination_id (the recipient destination this attempt targeted), which CMS-208's own recovery instance is keyed on",
-          "the failure as the channel reported it, and the exact version that was being sent",
-          "the explicit requirement that any fallback route carries the same version - a recovery that sends a different one is worse than the original failure",
-        ],
-        contract: { requiredFields: ["message_id", "destination_id"] },
-      },
-    ],
-    guardrails: [
-      "A document being issued is not the recipient having received it.",
-      "Sending a wrong or outdated version is prevented by binding distribution to a version.",
-      "Distribution reuses the canonical communication mechanics rather than duplicating them.",
-    ],
-    reusableRule:
-      "Document distribution delivers a specific issued version to an intended recipient without changing the document's underlying validity or status.",
-  },
-
-  /* ------------------------------------------------------------ DOC-215 */
-  {
-    id: "DOC-215",
-    slug: "signature-process",
-    category: "document",
-    goal: "eligibility-qualification",
-    channels: ["email"],
-    name: "Signature request → await signatures → signed, declined or expired",
-    shortName: "Signature Reminder",
-    purpose:
-      "Collect the required signatures against one exact version, and know when they are actually all there.",
-    entity: {
-      scope: "the document version, the signature process against it, and each required signer",
-      note: "The process is bound to a version. Signatures do not carry to a successor - a changed document is a new request.",
-      instanceKey: [
-        "document_version_id"
-      ],
-      concurrency: "one-active-per-key"
-    },
-    distinctFrom: [
-      {
-        journey: "DEC-183",
-        because:
-          "DEC-183 is somebody exercising judgment against criteria. This is collecting authorized marks against a fixed artifact - nobody is deciding anything on the merits, and its failure modes are version binding, incomplete sets and expiry rather than authority to conclude.",
-      },
-    ],
-    objective: "Collect every required signature on one exact document version: request once from each required signer, remind outstanding signers once while a reminder can still change the outcome, and end honestly as fully signed, declined, superseded or expired.",
-    eligibility: [
-      "a document version requires signature, with required signers, their signing authority and any signing order defined",
-      "a signature validity window is either defined by the request's own terms or explicitly recorded as not set",
-      "no signature process is already open for this version",
-      "no DOC-220 conflict review is open for this document's lineage - a version under active conflict review is not simultaneously collecting signatures against it as though it were already settled"
-    ],
-    suppressions: [
-      {
-        "id": "s.version",
-        "label": "CANONICAL_RULE",
-        "text": "Every request and reminder is bound to the exact document version; a superseded version ends the process and suppresses its outstanding reminders."
-      },
-      {
-        "id": "s.outstanding-only",
-        "label": "CANONICAL_RULE",
-        "text": "A reminder goes only to signers still outstanding, naming the action left and the real validity boundary; a signer who signed is never reminded."
-      },
-      {
-        "id": "s.one-reminder",
-        "label": "CANONICAL_RULE",
-        "text": "One reminder per signer; a second is a re-request the process does not make."
-      },
-      {
-        "id": "s.no-invented-deadline",
-        "label": "CANONICAL_RULE",
-        "text": "Where no expiry was set none is invented; an invented signature deadline voids a request nobody agreed to time-limit."
-      },
-      {
-        "id": "s.hard-gates",
-        "label": "CANONICAL_RULE",
-        "text": "Hard gates (GLB-31) apply; pressure caps do not, because a signature request is the process itself, not outreach."
-      }
-    ],
-    contact: {
-      "defaultPriority": "transactional",
-      "pressureClass": "none",
-      "localCap": {
-        "value": {
-          "key": "signature.reminders",
-          "rule": "Only the reminder counts against the cap; the request itself is the process and is never rationed.",
-          "default": {
-            "value": 1,
-            "confidence": "high",
-            "basis": "corpus-rule",
-            "applicableWhen": "the graph sends one reminder per signer"
-          },
-          "required": false
-        },
-        "appliesTo": "non-mandatory"
-      },
-      "cooldown": {
-        "key": "signature.cooldown",
-        "rule": "Signature is per document version; a new version is a new process and no cooldown applies between versions.",
-        "default": {
-          "value": "none",
-          "confidence": "high",
-          "basis": "corpus-rule"
-        },
-        "required": false
-      },
-      "competition": "none"
-    },
-    channelStrategy: {
-      "roles": [
-        {
-          "role": "persistent",
-          "channels": [
-            "email"
-          ],
-          "when": "the request is bound to a document version and must be kept; the signing destination is reached from it"
-        }
-      ],
-      "fallback": "same-role-other-channel",
-      "label": "RECOMMENDED_DEFAULT"
-    },
-    orchestration: {
-      "strategy": "offer-decide-remind",
-      "touches": [
-        {
-          "id": "t-request",
-          "stage": "signature-request",
-          "action": "a.request",
-          "prerequisites": [
-            "c.window"
-          ],
-          "purpose": "Issue the request to each required signer, bound to the exact document version, naming the authority they sign under and the validity boundary where one is defined.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "destination": {
-            "target": "signing-page-for-version",
-            "boundTo": "document_version_id",
-            "mustNotClaim": [
-              "a deadline the request's terms do not set"
-            ]
-          },
-          "mandatory": true,
-          "label": "CANONICAL_RULE"
-        },
-        {
-          "id": "t-remind",
-          "stage": "reminder",
-          "action": "a.remind",
-          "after": "t-request",
-          "gatedBy": "w.signatures",
-          "prerequisites": [
-            "c.reminder-useful"
-          ],
-          "purpose": "Remind only the signers still outstanding, once, naming the action left and the real validity boundary.",
-          "channelRoles": [
-            "persistent"
-          ],
-          "destination": {
-            "target": "signing-page-for-version",
-            "boundTo": "document_version_id",
-            "mustNotClaim": [
-              "a deadline the request's terms do not set"
-            ]
-          },
-          "mandatory": false,
-          "label": "RECOMMENDED_DEFAULT"
-        }
-      ],
-      "noAction": [
-        "s.version",
-        "s.outstanding-only",
-        "s.one-reminder",
-        "s.no-invented-deadline",
-        "s.hard-gates"
-      ]
-    },
-    implementation: {
-      "attributes": {
-        "required": [
-          "document_version_id",
-          "document_id",
-          "required_signers",
-          "signing_authority",
-          "signing_order",
-          "validity_ends_at",
-          "signer_id"
-        ],
-        "optional": [
-          "review_point_at",
-          "signer_destinations"
-        ]
-      }
-    },
-    measurement: {
-      "journeyOutcome": {
-        "type": "exit-or-handoff",
-        "refs": [
-          "h.effective",
-          "h.declined",
-          "x.superseded",
-          "x.expired"
-        ]
-      },
-      "businessOutcome": {
-        "event": "signer_signed",
-        "unit": "instance",
-        "observationScope": {
-          "type": "self"
-        },
-        "window": {
-          "type": "until-exit"
-        },
-        "attribution": "entered-before-event",
-        "comparison": "not-applicable"
-      },
-      "secondary": [
-        "signer_declined",
-        "document_version_superseded"
-      ],
-      "guardrails": [
-        "complaint",
-        "reminder_to_signed_signer",
-        "invented_deadline_named",
-        "wrong_version_signed"
-      ],
-      "operational": [
-        "process_volume",
-        "fully_signed_rate",
-        "declined_rate",
-        "superseded_rate",
-        "expired_rate",
-        "time_to_fully_signed"
-      ]
-    },
-    discovery: {
-      "aliases": [
-        "signature reminder",
-        "e-signature request",
-        "document signing reminder",
-        "contract signature follow-up",
-        "unsigned document reminder",
-        "multi-party signing"
-      ],
-      "useCases": [
-        "a contract needing several signatures in a defined order",
-        "a consent or agreement version with a validity window and one reminder"
-      ]
-    },
-    entry: "t.requires",
-    nodes: [
-      {
-        id: "t.requires",
-        kind: "trigger",
-        event: "document_requires_signature",
-        evidence: {
-          requires: ["an issued or prepared document version requiring signature by identified parties"],
-          insufficientAlone: [
-            "a document that requires acknowledgement rather than an authorised mark",
-            "a signature request already sent, which is the state this journey creates and not the one that starts it",
-          ],
-          source: "authoritative",
-        },
-        next: "a.define",
-      },
-      {
-        id: "a.define",
-        kind: "action",
-        does: "Define the required signers, the signing authority each of them needs, the signing order where one applies, the scope of what is being signed, and the validity window where one is defined",
-        writes: [{ field: "signature_log", mode: "append" }],
-        next: "c.window",
-        idempotencyKey: "document_version_id + a.define",
-      },
-      {
-        id: "c.window",
-        kind: "condition",
-        asks: "Is a signature validity window defined?",
-        branches: [
-          {
-            label: "Defined",
-            when: "the process or the document states how long the request stands",
-            to: "a.bounded",
-          },
-          {
-            label: "Not defined",
-            when: "nothing states an expiry for the request",
-            to: "a.unbounded",
-          },
-        ],
-      },
-      {
-        id: "a.bounded",
-        kind: "action",
-        does: "Record the window as defined, so the request's own terms decide when it lapses",
-        next: "a.request",
-      },
-      {
-        id: "a.unbounded",
-        kind: "action",
-        does: "Record that no expiry was set rather than assigning one. An invented signature deadline voids a request nobody withdrew, and the signer discovers it at the moment their signature is refused",
-        writes: [{ field: "signature_log", mode: "append" }],
-        next: "a.request",
-      },
-      {
-        id: "a.request",
-        kind: "action",
-        does: "Record AWAITING_SIGNATURE and issue the request to each required signer, bound to the exact document version. A signature request that does not name a version collects marks against nothing anybody can identify afterwards",
-        writes: [{ field: "signature_log", mode: "append" }],
-        next: "w.signatures",
-        execution: "communication",
-        idempotencyKey: "document_version_id + signer_id + touch id",
-      },
-      {
-        id: "w.signatures",
-        kind: "wait",
-        until: [
-          "signer_signed",
-          "signer_declined",
-          "document_version_superseded"
-        ],
-        onEvent: "c.event",
-        timeout: {
-          "after": {
-            "key": "signature.reminder_point",
-            "rule": "The reminder is placed at the last point at which it could still change the outcome, taken from the request's own validity where one is defined and from the process's review point where none is.",
-            "class": "reminder-before-attribute",
+            "key": "document_requirement.first_reminder",
+            "rule": "A bounded window before the first reminder, short enough that the deadline is still comfortably reachable.",
+            "class": "response-window",
             "default": {
-              "value": {
-                "min": "3 days",
-                "max": "5 days"
-              },
+              "value": "2-3 days",
               "confidence": "low",
               "basis": "example-only",
-              "applicableWhen": "a validity window of weeks",
-              "avoidWhen": "no validity window - the review point is the bound"
+              "applicableWhen": "the submission deadline leaves enough room for a reminder and a further wait after it",
+              "avoidWhen": "the deadline itself is closer than this window"
             },
             "required": false
           },
-          "reason": "the useful reminder point comes before expiry, not at it - a request that lapses without a second touch was never given the chance the window was for",
-          "relativeTo": "attribute",
-          "attribute": "validity_ends_at"
+          "reason": "a missing document that goes unmentioned for the whole window is a document nobody chased",
+          "relativeTo": "previous-touch"
         },
-        onTimeout: "c.reminder-useful",
+        onTimeout: "c.complete1",
         windowExtendsOnEngagement: false,
-        recheck: "the version and each signer re-read: who has signed the correct version, who declined, whether the version still stands",
+        recheck: "the submission's own document checklist re-read from the system of record before acting on the timeout",
       },
       {
-        id: "c.reminder-useful",
+        id: "c.complete1",
         kind: "condition",
-        asks: "Would a reminder still change anything?",
+        asks: "Are all required documents now complete?",
         branches: [
           {
-            label: "It would",
-            when: "signatures are still outstanding, the exact version is still current, the request is still valid, and no reminder has been sent on it yet",
-            to: "a.remind",
+            label: "Complete",
+            when: "every document the requirement named has been received",
+            to: "x.complete",
           },
           {
-            label: "It would not",
-            when: "a reminder has already been sent, or the version or request no longer stands",
-            to: "w.expiry",
+            label: "Still missing",
+            when: "at least one required document has not been received",
+            to: "a.remind",
           },
         ],
       },
       {
         id: "a.remind",
         kind: "action",
-        does: "Remind only the signers still outstanding, naming the action left and the real validity boundary. One reminder, and any signature, decline or supersession cancels it immediately - a second chase turns a request into pressure",
+        does: "Remind that the documents are still missing, with a direct link back to the upload flow and the same submission deadline",
+        writes: [{ field: "document_log", mode: "append" }],
+        next: "w.second",
         execution: "communication",
-        next: "w.expiry",
-        idempotencyKey: "document_version_id + signer_id + touch id",
+        idempotencyKey: "process_id + requirement_id + a.remind",
       },
       {
-        id: "w.expiry",
+        id: "w.second",
         kind: "wait",
         until: [
-          "signer_signed",
-          "signer_declined",
-          "document_version_superseded"
+          "document_submitted"
         ],
-        onEvent: "c.event",
+        onEvent: "c.complete2",
         timeout: {
           "after": {
-            "key": "signature.validity_window",
-            "rule": "The process ends at the validity window where one is defined, and at the process's own review point where none is; nothing is invented.",
-            "class": "attribute-bound",
+            "key": "document_requirement.second_reminder",
+            "rule": "A second bounded window, run against the submission's own deadline rather than a fixed length past it.",
+            "class": "response-window",
             "default": {
-              "value": "validity_ends_at where defined, otherwise the process's recorded review point",
-              "confidence": "high",
-              "basis": "attribute-bound"
+              "value": "3-5 days, or the submission deadline, whichever is sooner",
+              "confidence": "low",
+              "basis": "example-only",
+              "applicableWhen": "the submission deadline falls after this window",
+              "avoidWhen": "the submission deadline falls inside this window, in which case the wait ends at the deadline instead"
             },
             "required": false
           },
-          "reason": "a signature request open indefinitely leaves a process waiting on an agreement that will not arrive, with nobody having decided to abandon it",
-          "relativeTo": "attribute",
-          "attribute": "validity_ends_at"
+          "reason": "a second silence this close to the deadline is the last chance to reach the party before the case has to go to a person",
+          "relativeTo": "previous-touch"
         },
-        onTimeout: "a.expired",
+        onTimeout: "c.complete2",
         windowExtendsOnEngagement: false,
-        recheck: "the version and each signer re-read at the boundary",
+        recheck: "the submission's own document checklist re-read from the system of record before acting on the timeout",
       },
       {
-        id: "c.event",
+        id: "c.complete2",
         kind: "condition",
-        asks: "What happened?",
+        asks: "Are all required documents now complete?",
         branches: [
           {
-            label: "A required signer signed the correct version",
-            when: "the signature is against the version this process governs, by a signer with the required authority",
-            to: "a.record-sig",
+            label: "Complete",
+            when: "every document the requirement named has been received",
+            to: "x.complete",
           },
           {
-            label: "A signer declined",
-            when: "a required signer refused",
-            to: "a.declined",
-          },
-          {
-            label: "The version was superseded",
-            when: "the document this process is bound to is no longer the current one",
-            to: "a.superseded",
+            label: "Still missing",
+            when: "at least one required document has not been received",
+            to: "a.final",
           },
         ],
       },
       {
-        id: "a.record-sig",
+        id: "a.final",
         kind: "action",
-        does: "Record the signature evidence - who signed, when, which version, and under what authority. The version is part of the evidence rather than context around it",
-        writes: [{ field: "signature_log", mode: "append" }],
-        next: "c.complete",
-        idempotencyKey: "document_version_id + signer_id + a.record-sig",
-        attemptBudget: {
-          "key": "signature.required_signers",
-          "rule": "The signature loop runs once per required signer; the budget is the signer list fixed when the process opened.",
-          "required": true
-        },
+        does: "Send a final notice that the submission deadline is closing without the missing documents, naming the support channel that can still help",
+        writes: [{ field: "document_log", mode: "append" }],
+        next: "h.escalate",
+        execution: "communication",
+        idempotencyKey: "process_id + requirement_id + a.final",
       },
       {
-        id: "c.complete",
-        kind: "condition",
-        asks: "Are all required signatures now complete?",
-        branches: [
-          {
-            label: "All complete",
-            when: "every required signer has signed the governed version",
-            to: "a.fully-signed",
-          },
-          {
-            label: "Some remain",
-            when: "at least one required signature is outstanding",
-            to: "w.signatures",
-          },
-        ],
-      },
-      {
-        id: "a.fully-signed",
-        kind: "action",
-        does: "Record FULLY_SIGNED against this version. One signature is not a signed document when several are required, and a process that proceeds on the first one proceeds on an agreement that does not exist yet",
-        writes: [{ field: "signature_log", mode: "append" }],
-        next: "h.effective",
-        idempotencyKey: "document_version_id + fully signed",
-      },
-      {
-        id: "h.effective",
+        id: "h.escalate",
         kind: "handoff",
-        to: "DOC-216",
-        on: "a document with all required signatures complete",
-        carries: [
-          "every signature, with its signer, authority, time and the version it binds to",
-          "the explicit fact that signed is not effective - what makes it take effect is a separate question with its own conditions",
-        ],
-      },
-      {
-        id: "a.declined",
-        kind: "action",
-        does: "Record DECLINED with the signer and the reason where one was given. A decline is a business outcome rather than a failure, and the process that required the document decides what follows from it",
-        writes: [{ field: "signature_log", mode: "append" }],
-        next: "h.declined",
-        idempotencyKey: "document_version_id + signer_id + a.declined",
-      },
-      {
-        id: "h.declined",
-        kind: "handoff",
-        to: "external:operational-resolution",
-        on: "a required signer declining",
-        carries: [
-          "who declined, when and on what grounds where stated",
-          "the explicit fact that the document remains validly issued - what is absent is agreement rather than the artifact",
-        ],
+        to: "external:human-in-the-loop-lifecycle",
+        on: "the submission deadline reached with the requirement still unmet after two reminders",
+        carries: ["what is missing and every reminder already sent", "the submission's own deadline and what happens to it if nobody acts"],
         contract: {
           "requiredFields": [
-            "document_version_id",
-            "signer_id",
-            "declined_at",
-            "reason_if_given",
-            "signatures_collected"
+            "process_id",
+            "requirement_id",
+            "document_type",
+            "deadline_at"
           ]
         },
       },
       {
-        id: "a.superseded",
-        kind: "action",
-        does: "End the signature process because the version it was against no longer stands, and suppress the outstanding requests. Signatures already collected are not carried to the successor - the successor is a different document, and signing it is a new request",
-        writes: [
-          { field: "signature_log", mode: "append" },
-          { field: "suppressed_sends", mode: "append" },
-        ],
-        next: "x.superseded",
-        idempotencyKey: "document_version_id + a.superseded",
-      },
-      {
-        id: "x.superseded",
+        id: "x.complete",
         kind: "exit",
-        state: "signature process ended; its version was superseded before completion",
+        state: "every document the requirement named has been received; the process continues",
         terminal: false,
         reEntry:
-          "the successor version raises its own signature process. The signatures collected here remain evidence about the version they were made against",
-        class: "invalid-state",
-      },
-      {
-        id: "a.expired",
-        kind: "action",
-        does: "Record SIGNATURE_EXPIRED. The request lapsed - nobody declined and nothing was decided, and reporting it as a refusal misstates what the signer did",
-        writes: [{ field: "signature_log", mode: "append" }],
-        next: "x.expired",
-        idempotencyKey: "document_version_id + a.expired",
-      },
-      {
-        id: "x.expired",
-        kind: "exit",
-        state: "SIGNATURE_EXPIRED; signatures collected so far remain evidence, the set is incomplete",
-        terminal: false,
-        reEntry:
-          "a fresh request against the same version is a new process. Whether the partial signatures still count is governed by the document's own rules rather than assumed",
-        class: "timeout",
+          "a later document requirement inside the same process opens its own instance",
+        class: "success",
       },
     ],
     guardrails: [
-      "A signature requested is not a signature made.",
-      "One signature is not a fully signed document when several are required.",
-      "A signature binds to the exact document version.",
-      "A signature expiry is never invented.",
+      "Reaching a document requirement is not yet a missing document - the party gets the normal chance to supply it before any reminder fires.",
+      "A document the business itself can generate, reuse or waive is DOC-211's job, never this journey's.",
+      "The submission deadline is read from the process's own required-by date; this journey invents no deadline of its own.",
+      "The deadline reached with the requirement still open is handed to a person, never left to expire silently.",
     ],
     reusableRule:
-      "A signature process completes only when the required authorized parties have signed the exact document version governed by that process.",
+      "A document requirement only the party can supply should be reminded on an escalating cadence bound to the submission's own deadline, and handed to a person the moment that deadline passes with it still unmet.",
   },
 
   /* ------------------------------------------------------------ DOC-216 */
@@ -2354,8 +1910,8 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         "refs": [
           "x.reconciled",
           "h.review",
-          "h.resign",
-          "h.remedy"
+          "x.resign-needed",
+          "x.action-on-wrong-version"
         ]
       },
       "secondary": [],
@@ -2474,18 +2030,16 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Record that the signature does not bind to the authoritative version, without discarding the signature. It is valid evidence for the version it was made against and for no other, however similar the content of the two looks",
         writes: [{ field: "signature_log", mode: "append" }],
-        next: "h.resign",
+        next: "x.resign-needed",
         idempotencyKey: "document_lineage_id + conflict_id + a.sig-invalid",
       },
       {
-        id: "h.resign",
-        kind: "handoff",
-        to: "DOC-215",
-        on: "signatures that bind to a version other than the authoritative one",
-        carries: [
-          "the authoritative version and which signatures are missing against it",
-          "the explicit fact that the existing signatures stand as evidence about their own versions and are not transferred",
-        ],
+        id: "x.resign-needed",
+        kind: "exit",
+        state: "a signature bound to a non-authoritative version is recorded as evidence for that version only; the authoritative version still lacks a binding signature, but there is no signature engine in this journey to hand that gap to",
+        terminal: false,
+        reEntry: "a further inconsistency in this lineage is assessed with this record as part of its evidence",
+        class: "no-action",
       },
       {
         id: "c.acted",
@@ -2523,20 +2077,16 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         kind: "action",
         does: "Preserve what was done and under which version it was done. The action happened - what to do about it is a separate question with its own authority, and rewriting the record to show the right version leaves an effect with no cause",
         writes: [{ field: "document_log", mode: "append" }],
-        next: "h.remedy",
+        next: "x.action-on-wrong-version",
         idempotencyKey: "document_lineage_id + conflict_id + a.preserve-history",
       },
       {
-        id: "h.remedy",
-        kind: "handoff",
-        to: "REM-157",
-        on: "a business action taken on a non-authoritative document version",
-        carries: [
-          "what was done, under which version, and what the authoritative version says instead - conflict_id stands in for REM-157's obligation_id",
-          "the explicit fact that the history is preserved intact - the remedy addresses the consequence rather than the record",
-          "a fresh issue_id, minted at this handoff and deterministically derived from conflict_id - DOC-220 has no issue concept of its own, so REM-157's instance is opened here rather than carried",
-        ],
-        contract: { requiredFields: ["issue_id", "obligation_id"] },
+        id: "x.action-on-wrong-version",
+        kind: "exit",
+        state: "a business action was taken on a non-authoritative document version; what was done, under which version, and what the authoritative version says instead are recorded, and the history is preserved intact, but the consequence itself is not resolved here - there is no remedy engine in this journey to hand it to",
+        terminal: false,
+        reEntry: "a further inconsistency in this lineage is assessed with this record as part of its evidence",
+        class: "no-action",
       },
       {
         id: "x.reconciled",
@@ -2581,11 +2131,6 @@ export const DOCUMENT_JOURNEYS: readonly CanonicalJourney[] = [
         journey: "DOC-216",
         because:
           "DOC-216 establishes whether and when the document takes effect and revalidates it at that moment. This journey starts only once that record exists, and it decides nothing about effectiveness itself.",
-      },
-      {
-        journey: "ACC-263",
-        because:
-          "ACC-263 runs a claim window on a granted capability that lapses if unused. Here nothing lapses for want of use - the document is in force either way, and dormancy is an observation rather than a loss.",
       },
     ],
     objective: "Tell the holder that what they signed has actually started, and what it now lets them do, at the moment it becomes true rather than the moment they signed.",
