@@ -231,7 +231,11 @@ export const FEATURED_JOURNEY: FeaturedJourney = (() => {
    than as continuation. Four fit the measure as a grid at every desktop
    width, and the centre highlight went with the fifth card: it was the
    reference's surface, not this library's. */
-const SHOWCASE_IDS = ["ACQ-09", "ACT-17", "CON-38", "TIM-65"] as const;
+/* Four LIBRARY journeys (2026-09-26): CON-38 and TIM-65 were silent
+   lifecycle states and left the library in the 2026-09 audit, so the
+   spread drew two cards in a four-column grid. Two of the library's largest
+   journeys, in categories the first two do not cover, took their places. */
+const SHOWCASE_IDS = ["ACQ-09", "ACT-17", "RET-24", "SUB-163"] as const;
 
 export type ShowcaseCard = {
   id: string;

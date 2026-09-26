@@ -102,10 +102,8 @@ function Hero({ lang }: { lang: Lang }) {
           </ul>
         </Reveal>
 
-        {/* ACQ-01, whole, as the hero's witness: the one journey that
-            exercises six of the seven node kinds in eight nodes. Real
-            graph, real branch labels - journey-marketing.ts throws at
-            build if it ever leaves the library. */}
+        {/* The library's largest journey, whole, on the real canvas - see
+            JourneyCanvas in ui/JourneyFlows for why it is no longer ACQ-01. */}
         <Reveal delay={220} className="mx-auto mt-16 max-w-4xl">
           {/* On the project's plate, in its hue - the frame language of the
               Lab index (ui/ProductFrame.tsx). */}
@@ -163,8 +161,12 @@ function Split({ lang }: { lang: Lang }) {
     <ProductSection tone="paper" space="lg">
       <PortraitContainer>
         <ProductHeading eyebrow={c.eyebrow} title={c.title} body={c.body} align="center" />
-        <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Reveal delay={60} className="flex flex-col rounded-[28px] bg-paper-soft p-6 md:p-8 lg:col-span-2">
+        {/* One tile since the 2026-09 audit left the library one surface
+            (the lifecycle states and runtime mechanisms went); it used to be
+            the large tile of a three-column bento and left the third column
+            empty. Centred under the heading, on the page's reading measure. */}
+        <div className="mx-auto mt-12 max-w-4xl">
+          <Reveal delay={60} className="flex flex-col rounded-[28px] bg-paper-soft p-6 md:p-8">
             <span aria-hidden className="grid size-10 place-items-center rounded-xl bg-primary-50 text-primary-700">
               {SURFACE_ICON["customer-journeys"]}
             </span>

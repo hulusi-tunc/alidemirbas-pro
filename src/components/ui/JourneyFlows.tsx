@@ -8,7 +8,7 @@ import { JourneyMiniMap } from "@/components/ui/JourneyMiniMap";
 import { NodeFigure } from "@/components/ui/JourneyNodeFigure";
 import { CategoryIcon, categoryAccent } from "@/components/ui/LibraryChrome";
 import { DOT_STYLE } from "@/lib/canvas-dots";
-import { JOURNEY_ROWS, journeyDetail, type JourneyDetail } from "@/lib/canonical-view";
+import { JOURNEY_ROWS, LIBRARY_ROWS, journeyDetail, type JourneyDetail } from "@/lib/canonical-view";
 import { copy, type Lang } from "@/lib/content";
 import { FEATURED_JOURNEY, JOURNEY_CATEGORY_COUNTS, JOURNEY_SCALE, showcaseCards } from "@/lib/journey-marketing";
 import { localizedCategoryTitle, localizedFeaturedJourney, localizedJourneyDetail, localizedJourneyNaming } from "@/lib/journey-tr-overrides";
@@ -110,9 +110,14 @@ function BranchPill({ children, on = false }: { children: ReactNode; on?: boolea
    ==================================================================== */
 
 export async function JourneyCanvas({ lang }: { lang: Lang }) {
-  const J = featured(lang);
-  const detail = detailOf(J.id, lang);
-  const row = JOURNEY_ROWS.find((r) => r.id === J.id);
+  /* The library's largest journey, whole (2026-09-26). It used to be
+     ACQ-01, the featured journey the three stories below still witness -
+     but ACQ-01 is a silent lifecycle state and left the library rows in
+     the 2026-09 audit, so the hero rendered nothing but its plate. The
+     largest library journey is the one the "Where to start" tile leads
+     with, and the richest canvas the library has. */
+  const row = [...LIBRARY_ROWS].sort((a, b) => b.nodeCount - a.nodeCount)[0];
+  const detail = row ? detailOf(row.id, lang) : null;
   if (!detail || !row) return null;
   const page = copy[lang].lab.page;
   const canvas = await journeyCanvasProps(detail, lang, page);
@@ -297,6 +302,7 @@ export async function JourneyLibrarySpread({ lang }: { lang: Lang }) {
       return { card, detail, row, canvas };
     }),
   );
+  const shown = cards.filter((x): x is NonNullable<typeof x> => x !== null);
   return (
     <div>
       {/* real library categories, real counts - a curated top slice */}
@@ -319,9 +325,10 @@ export async function JourneyLibrarySpread({ lang }: { lang: Lang }) {
       </div>
 
       <div className="mt-10 -mx-5 overflow-x-auto sm:-mx-8 lg:mx-0 lg:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex w-max snap-x snap-mandatory gap-5 px-5 sm:px-8 lg:grid lg:w-full lg:grid-cols-2 lg:px-0 xl:grid-cols-4">
-          {cards.map((x) => {
-            if (!x) return null;
+        {/* The grid takes as many columns as there are cards, so a journey
+            leaving the library never leaves a hole at the right. */}
+        <div className={`flex w-max snap-x snap-mandatory gap-5 px-5 sm:px-8 lg:grid lg:w-full lg:px-0 ${shown.length >= 4 ? "lg:grid-cols-2 xl:grid-cols-4" : shown.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2"}`}>
+          {shown.map((x) => {
             const accent = categoryAccent(x.row.category);
             return (
               <Link
